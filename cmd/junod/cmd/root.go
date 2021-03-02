@@ -35,6 +35,7 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmoscontracts/juno/app"
 	// this line is used by starport scaffolding # stargate/root/import
+	"github.com/CosmWasm/wasmd/x/wasm"
 )
 
 var ChainID string
@@ -90,6 +91,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		// this line is used by starport scaffolding # stargate/root/commands
+		AddGenesisWasmMsgCmd(app.DefaultNodeHome),
 	)
 
 	a := appCreator{encodingConfig}
@@ -107,6 +109,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	// this line is used by starport scaffolding # stargate/root/initFlags
+	wasm.AddModuleInitFlags(startCmd)
 }
 
 func queryCommand() *cobra.Command {
@@ -199,6 +202,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		a.encCfg,
 		// this line is used by starport scaffolding # stargate/root/appArgument
+		app.GetEnabledProposals(),
 		appOpts,
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
@@ -237,6 +241,7 @@ func (a appCreator) appExport(
 			uint(1),
 			a.encCfg,
 			// this line is used by starport scaffolding # stargate/root/exportArgument
+			app.GetEnabledProposals(),
 			appOpts,
 		)
 
@@ -254,6 +259,7 @@ func (a appCreator) appExport(
 			uint(1),
 			a.encCfg,
 			// this line is used by starport scaffolding # stargate/root/noHeightExportArgument
+			app.GetEnabledProposals(),
 			appOpts,
 		)
 	}
