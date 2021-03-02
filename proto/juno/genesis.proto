@@ -1,0 +1,12 @@
+syntax = "proto3";
+package cosmoscontracts.juno.juno;
+
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "github.com/cosmoscontracts/juno/x/juno/types";
+
+// GenesisState defines the capability module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+}
+
