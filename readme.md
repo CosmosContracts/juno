@@ -8,16 +8,16 @@ according to the terms of such contract or agreement to be valid & usable across
 Juno as a **sovereign public blockchain** hub in the Cosmos ecosystem aims to provide a sandbox environment for the deployment 
 of such interoperable smart contracts. The Juno Hub serves as a **decentralized, permissionless & censorship resistant** avenue 
 for developers & projects to efficiently and securely launch application specific smart contracts using proven frameworks 
-and code them in various languages such as **Rust, Go, C, C++**
+and code them in various languages**Rust, Go, C, C++**
 Modules such as CosmWasm allow for decentralized applications (dapps) to be built on robust and secure multi-chain smart contracts.
 
-At the heart of Cosmos is the Inter Blockchain Communication protocol (IBC) which sets the table for an interoperable base layer 0 
+At the heart of Cosmos is the Inter Blockchain Communication Protocol (IBC) which sets the table for an interoperable base layer 0 
 to now be used to transfer data packets across thousands of independent networks supporting IBC. 
 Naturally the next evolutionary milestone is to enable cross-network smart contracts.
 
 The Juno blockchain is built using the **Cosmos SDK framework**. 
 A generalized framework that simplifies the process of building secure blockchain applications on top of Tendermint BFT. 
-It is based on two major principles: Modularity & capabilities-based security
+It is based on two major principles: Modularity & capabilities-based security.
 
 Agreement on the network is reached via **Tendermint BFT consensus**.
 
@@ -25,8 +25,8 @@ Tendermint BFT is a solution that packages the networking and consensus layers o
 allowing developers to focus on application development as opposed to the complex underlying protocol. 
 As a result, Tendermint saves hundreds of hours of development time.
 
-Juno is a **community driven initiative**, kickstarted by $ATOM holders.
-The underlying mission is to preserve the neutrality & reliability of the Cosmos Hub and offload smart contract deployment to a dedicated sister Hub. 
+Juno originates from a **community driven initiative**, kickstarted by $ATOM holders.
+The underlying mission is to preserve the neutrality, performance & reliability of the Cosmos Hub and offload smart contract deployment to a dedicated sister Hub. 
 Juno plans to make an early connection to the Cosmos Hub enabling IBC transfers, cross-chain smart contracts and making use of shared security.
 
 An independent set of validators secures the Juno main-net via delegated proof of stake. 
