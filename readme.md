@@ -25,8 +25,8 @@ Tendermint BFT is a solution that packages the networking and consensus layers o
 allowing developers to focus on application development as opposed to the complex underlying protocol. 
 As a result, Tendermint saves hundreds of hours of development time.
 
-Juno originates from a **community driven initiative**, kickstarted by $ATOM holders.
-The underlying mission is to preserve the neutrality, performance & reliability of the Cosmos Hub and offload smart contract deployment to a dedicated sister Hub. 
+Juno originates from a **community driven initiative**, prompted by developers, validators &delegators.
+A common vision is to preserve the neutrality, performance & reliability of the Cosmos Hub and offload smart contract deployment to a dedicated sister Hub. 
 Juno plans to make an early connection to the Cosmos Hub enabling IBC transfers, cross-chain smart contracts and making use of shared security.
 
 An independent set of validators secures the Juno main-net via delegated proof of stake. 
