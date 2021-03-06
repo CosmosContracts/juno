@@ -8,7 +8,7 @@ according to the terms of such contract or agreement to be valid & usable across
 Juno as a **sovereign public blockchain** hub in the Cosmos ecosystem aims to provide a sandbox environment for the deployment 
 of such interoperable smart contracts. The Juno Hub serves as a **decentralized, permissionless & censorship resistant** avenue 
 for developers & projects to efficiently and securely launch application specific smart contracts using proven frameworks 
-and code them in various languages**Rust, Go, C, C++**
+and code them in various languages **Rust, Go, C, C++**
 Modules such as CosmWasm allow for decentralized applications (dapps) to be built on robust and secure multi-chain smart contracts.
 
 At the heart of Cosmos is the Inter Blockchain Communication Protocol (IBC) which sets the table for an interoperable base layer 0 
