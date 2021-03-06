@@ -10,7 +10,7 @@ of such interoperable smart contracts. The network serves as a **decentralized, 
 for developers to efficiently and securely launch application specific smart contracts using proven frameworks 
 and compile them in various languages **Rust & Go** with the potential future addition of C and C++
 Battle tested modules such as CosmWasm, will allow for decentralized applications (dapps) to be compiled on robust and secure multi-chain smart contracts.
-EVM support and multiple additional modules to be enabled after genesis subject to onchain governance.
+EVM support and additional specialized modules to be enabled after genesis subject to onchain governance.
 
 At the heart of Cosmos is the Inter Blockchain Communication Protocol (IBC), which sets the table for an interoperable base layer 0 
 to now be used to transfer data packets across thousands of independent networks supporting IBC. 
