@@ -8,7 +8,7 @@ according to the terms of such contract or agreement to be valid & usable across
 Juno as a **sovereign public blockchain** in the Cosmos ecosystem, aims to provide a sandbox environment for the deployment 
 of such interoperable smart contracts. The network serves as a **decentralized, permissionless & censorship resistant** avenue 
 for developers to efficiently and securely launch application specific smart contracts using proven frameworks 
-and compile them in various languages **Rust, Go, C, C++**
+and compile them in various languages **Rust & Go** with the potential future addition of C and C++
 Battle tested modules such as CosmWasm, will allow for decentralized applications (dapps) to be compiled on robust and secure multi-chain smart contracts.
 EVM support and multiple additional modules to be enabled after genesis subject to onchain governance.
 
