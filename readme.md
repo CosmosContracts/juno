@@ -9,7 +9,8 @@ Juno as a **sovereign public blockchain** in the Cosmos ecosystem, aims to provi
 of such interoperable smart contracts. The network serves as a **decentralized, permissionless & censorship resistant** avenue 
 for developers to efficiently and securely launch application specific smart contracts using proven frameworks 
 and compile them in various languages **Rust, Go, C, C++**
-Battle tested modules such as CosmWasm, allow for decentralized applications (dapps) to be compiled on robust and secure multi-chain smart contracts.
+Battle tested modules such as CosmWasm, will allow for decentralized applications (dapps) to be compiled on robust and secure multi-chain smart contracts.
+EVM support and multiple additional modules to be enabled after genesis subject to onchain governance.
 
 At the heart of Cosmos is the Inter Blockchain Communication Protocol (IBC), which sets the table for an interoperable base layer 0 
 to now be used to transfer data packets across thousands of independent networks supporting IBC. 
@@ -42,7 +43,7 @@ and to provide utility in the deployment and execution of smart contracts.
 
 🟣 Wasm + (EVM)
 
-🟣 Compilation in multiple languages Rust, Go, C, C+
+🟣 Compilation in multiple languages Rust & Go (C,C++)
 
 🟣 High scalability
 
