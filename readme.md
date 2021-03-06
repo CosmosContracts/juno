@@ -66,7 +66,7 @@ and to provide utility in the deployment and execution of smart contracts.
 ![photo_2021-03-03_18-22-29](https://user-images.githubusercontent.com/79812965/110187125-8a9fad00-7e17-11eb-971f-1b56faf3e558.jpg)
 
 
-🟣 **Distribution** 🟣
+**Distribution**
 
 A 1:1 stakedrop is distributed to $ATOM holders, giving 100% of the $JUNO supply to staked $ATOM balances that had their assets bonded 
 at the time of the Stargate snapshot on Feb. 18th 6:00 PM UTC. 
@@ -76,7 +76,7 @@ A whale cap was voted in by the community, effectively hard-capping $ATOM accoun
 10% of the supply difference to be allocated to a multisig committee address for the initial funding of a core-development team. The remaining 90% of the excess supply to be allocated to the community pool.
 (Multi-sig committee to be selected by the community before genesis!)
 
-🟣 **Asset & network metrics** 🟣
+**Asset & network metrics**
 
 The community has proposed the following parameters for the network and native asset (subject to change before genesis based on community polling):
 
@@ -91,7 +91,7 @@ The community has proposed the following parameters for the network and native a
 
 ![JUNO (LOGO 3)](https://user-images.githubusercontent.com/79812965/110180550-4b1e9400-7e0a-11eb-8386-ef1f5a9252f9.png)
 
-🟣 **Game theory & value sharing economy** 🟣
+**Game theory & value sharing economy**
 
 The JUNO community proposes an initial dynamic inflation of 15-40%. 15% being the lower bound and 40% the upper bound. 
 As the bonded rate drops below 66% the inflation would slowly increase towards the upper bound. 
