@@ -91,29 +91,7 @@ The community has proposed the following parameters for the network and native a
 
 ![JUNO (LOGO 3)](https://user-images.githubusercontent.com/79812965/110180550-4b1e9400-7e0a-11eb-8386-ef1f5a9252f9.png)
 
-**Game theory & value sharing economy**
 
-The JUNO community proposes an initial dynamic inflation of 15-40%. 15% being the lower bound and 40% the upper bound. 
-As the bonded rate drops below 66% the inflation would slowly increase towards the upper bound. 
-While a move above the 66% mark would slowly move inflation toward the lower bound.
-A relatively high initial inflation may incentivize a higher bonded rate and therefore stability/security of the network.
-
-In addition to the inflation economics a value sharing model is proposed in direct connection with the deployment of smart contracts. 
-One that mimics a closed value loop. The primary target being to incentivize validators, delegators, community pool 
-and additionally include a token burn mechanism to offset the much needed initially high inflation rewards.
-
-When a smart contract is deployed on the Juno Network, the amount of $JUNO used for deployment is not initially locked but split 3 ways
-(subject to change based on community polling!):
-
-🟣 50% shared with validators & delegators 
-
-🟣 20% allocated to the community pool 
-  
-🟣 30% permanent token burn 
-
-This value split happens during the early agreement/deployment stage of every smart contract deployment on the Juno Hub.
-Such an implementation would require a slight modification to the Cosmos SDK itself. This could be performed either 
-before genesis or later on introduced by onchain governance.
 
 
 
