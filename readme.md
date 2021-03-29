@@ -85,7 +85,7 @@ The community has proposed the following parameters for the network and native a
 
 🟣 **Supply**: Snapshot of Cosmoshub-3 at 06:00 PM UTC on Feb 18th 2021
 
-🟣 **Inflation**: Dynamic 15-40%
+🟣 **Inflation**: Fixed yearly inflation (Reward model below)
 
 🟣 **Community pool tax**: 5% of block rewards
 
