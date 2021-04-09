@@ -1,6 +1,6 @@
 # Juno
 
-![Juno Github Banner](https://user-images.githubusercontent.com/79812965/114168789-05854780-9931-11eb-8c8e-bb9d0486c978.png)
+![JUNO BANNER TEXT](https://user-images.githubusercontent.com/79812965/114202416-73446a00-9957-11eb-9cfc-cfec3d0b56ea.png)
 
 An **interoperable smart contract hub** which automatically executes, controls or documents a procedure of relevant events and actions 
 according to the terms of such contract or agreement to be valid & usable across multiple sovereign networks.
@@ -87,7 +87,7 @@ The community has proposed the following parameters for the network and native a
 
 🟣 **Community pool tax**: 5% of block rewards
 
-![Juno Twitter Logo](https://user-images.githubusercontent.com/79812965/114168144-29945900-9930-11eb-9407-809bab1d2e07.png)
+![JUNO BANNER](https://user-images.githubusercontent.com/79812965/114202517-8ce5b180-9957-11eb-842f-584a2d729b2b.png)
 
 **Proposed JUNO inflation reward shedule**
 
