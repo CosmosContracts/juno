@@ -48,15 +48,15 @@ type SnapshotFields struct {
 	// AtomStakedPercent = AtomStakedBalance / AtomBalance
 	AtomStakedPercent     sdk.Dec `json:"atom_staked_percent"`
 	AtomOwnershipPercent  sdk.Dec `json:"atom_ownership_percent"`
-	JunoNormalizedBalance sdk.Int `json:"osmo_balance_normalized"`
+	JunoNormalizedBalance sdk.Int `json:"juno_balance_normalized"`
 	// JunoBalance = sqrt( AtomBalance ) * (1.0 * atom staked percent )
 	JunoBalance sdk.Int `json:"osmo_balance"`
 	// Juno = JunoBalanceBase * (1.0 * atom staked percent) limited 50_000 Juno
-	Juno sdk.Int `json:"osmo_balance_bonus"`
+	Juno sdk.Int `json:"juno_balance_bonus"`
 	// JunoBalanceBase = sqrt(atom balance)
-	JunoBalanceBase sdk.Int `json:"osmo_balance_base"`
+	JunoBalanceBase sdk.Int `json:"juno_balance_base"`
 	// JunoPercent = JunoNormalizedBalance / TotalJunoSupply
-	JunoPercent sdk.Dec `json:"osmo_ownership_percent"`
+	JunoPercent sdk.Dec `json:"juno_ownership_percent"`
 }
 
 // setCosmosBech32Prefixes set config for cosmos address system
