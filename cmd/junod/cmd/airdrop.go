@@ -50,7 +50,7 @@ type SnapshotFields struct {
 	AtomOwnershipPercent  sdk.Dec `json:"atom_ownership_percent"`
 	JunoNormalizedBalance sdk.Int `json:"juno_balance_normalized"`
 	// JunoBalance = sqrt( AtomBalance ) * (1.0 * atom staked percent )
-	JunoBalance sdk.Int `json:"osmo_balance"`
+	JunoBalance sdk.Int `json:"juno_balance"`
 	// Juno = JunoBalanceBase * (1.0 * atom staked percent) limited 50_000 Juno
 	Juno sdk.Int `json:"juno_balance_bonus"`
 	// JunoBalanceBase = sqrt(atom balance)
@@ -77,7 +77,7 @@ func ExportAirdropSnapshotCmd() *cobra.Command {
 Sample genesis file:
 	https://raw.githubusercontent.com/cephalopodequipment/cosmoshub-3/master/genesis.json
 Example:
-	osmosisd export-airdrop-genesis uatom ~/.gaiad/config/genesis.json ../snapshot.json --osmo-supply=100000000000000
+    junod export-airdrop-genesis uatom ~/.gaiad/config/genesis.json ../snapshot.json --juno-supply=100000000000000
 	- Check input genesis:
 		file is at ~/.gaiad/config/genesis.json
 	- Snapshot
@@ -98,14 +98,14 @@ Example:
 			pollFile := args[2]
 			snapshotOutput := args[3]
 
-			// Parse CLI input for osmo supply
+			// Parse CLI input for juno supply
 			junoSupplyStr, err := cmd.Flags().GetString(flagJunoSupply)
 			if err != nil {
-				return fmt.Errorf("failed to get osmo total supply: %w", err)
+				return fmt.Errorf("failed to get juno total supply: %w", err)
 			}
 			junoSupply, ok := sdk.NewIntFromString(junoSupplyStr)
 			if !ok {
-				return fmt.Errorf("failed to parse osmo supply: %s", junoSupplyStr)
+				return fmt.Errorf("failed to parse juno supply: %s", junoSupplyStr)
 			}
 
 			// Read genesis file
@@ -242,7 +242,7 @@ Example:
 				acc.Juno = bonusJuno.RoundInt()
 
 				allJuno := baseJuno.Add(bonusJuno)
-				// OsmoBalance = sqrt( all atoms) * (1 + 1.5) * (staked atom percent) =
+				// JunoBalance = sqrt( all atoms) * (1 + 1.5) * (staked atom percent) =
 				acc.JunoBalance = allJuno.RoundInt()
 
 				totalJunoBalance = totalJunoBalance.Add(allJuno.RoundInt())
@@ -250,7 +250,7 @@ Example:
 				snapshot[address] = acc
 			}
 
-			// normalize to desired genesis osmo supply
+			// normalize to desired genesis juno supply
 			noarmalizationFactor := junoSupply.ToDec().Quo(totalJunoBalance.ToDec())
 
 			for address, acc := range snapshot {
@@ -263,7 +263,7 @@ Example:
 
 			fmt.Printf("cosmos accounts: %d\n", len(snapshot))
 			fmt.Printf("atomTotalSupply: %s\n", totalAtomBalance.String())
-			fmt.Printf("osmoTotalSupply (pre-normalization): %s\n", totalJunoBalance.String())
+			fmt.Printf("junoTotalSupply (pre-normalization): %s\n", totalJunoBalance.String())
 
 			// export snapshot json
 			snapshotJSON, err := aminoCodec.MarshalJSON(snapshot)
@@ -275,7 +275,7 @@ Example:
 		},
 	}
 
-	cmd.Flags().String(flagJunoSupply, "", "OSMO total genesis supply")
+	cmd.Flags().String(flagJunoSupply, "", "JUNO total genesis supply")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
