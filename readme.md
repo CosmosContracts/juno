@@ -37,31 +37,31 @@ and to provide utility in the deployment and execution of smart contracts.
 
 **What differentiates JUNO from other Smart Contract networks?**
 
-🟣 Interoperable smart contracts 
+⚫️ Interoperable smart contracts 
 
-🟣 Modularity
+⚫️ Modularity
 
-🟣 Wasm + (EVM)
+⚫️ Wasm + (EVM)
 
-🟣 Compilation in multiple languages Rust & Go (C,C++)
+⚫️ Compilation in multiple languages Rust & Go (C,C++)
 
-🟣 High scalability
+⚫️ High scalability
 
-🟣 Ease of use
+⚫️ Ease of use
 
-🟣 Fee balancing (Upper & lower bound)
+⚫️ Fee balancing (Upper & lower bound)
 
-🟣 Free & fair asset distribution 100% to staked atom only
+⚫️ Free & fair asset distribution 100% to staked atom only
 
-🟣 Balanced governance (Zero top heavy control) 
+⚫️ Balanced governance (Zero top heavy control) 
                                                      
-🟣 Value sharing model linked to smart contract usage
+⚫️ Value sharing model linked to smart contract usage
                                                   
-🟣 Permissionless 
+⚫️ Permissionless 
                                                      
-🟣 Decentralized
+⚫️ Decentralized
                                              
-🟣 Censorship resistant
+⚫️ Censorship resistant
 
 
 **Distribution**
@@ -79,13 +79,13 @@ A whale cap was voted in by the community, effectively hard-capping $ATOM accoun
 The community has proposed the following parameters for the network and native asset (subject to change before genesis based on community polling):
 
 
-🟣 **Ticker**: JUNO
+⚫️ **Ticker**: JUNO
 
-🟣 **Supply**: Snapshot of Cosmoshub-3 at 06:00 PM UTC on Feb 18th 2021
+⚫️ **Supply**: Snapshot of Cosmoshub-3 at 06:00 PM UTC on Feb 18th 2021
 
-🟣 **Inflation**: Fixed yearly inflation (Reward model below)
+⚫️ **Inflation**: Fixed yearly inflation (Reward model below)
 
-🟣 **Community pool tax**: 5% of block rewards
+⚫️ **Community pool tax**: 5% of block rewards
 
 ![JUNO BANNER](https://user-images.githubusercontent.com/79812965/114202517-8ce5b180-9957-11eb-842f-584a2d729b2b.png)
 
@@ -95,35 +95,35 @@ The community has proposed the following parameters for the network and native a
 
 Initial fixed inflation 40% (+ 107.334.259,2)
 
-🟣 After year 1: 375669907.2 JUNO 
+⚫️ After year 1: 375669907.2 JUNO 
 
 Inflation reduction to 20% (+75.133.981,44)
 
-🟣 After year 2: 450803888.64 JUNO
+⚫️ After year 2: 450803888.64 JUNO
 
 Inflation reduction to 10% (+45.080.388,864)
 
-🟣 After year 3: 495884277.504 JUNO
+⚫️ After year 3: 495884277.504 JUNO
 
 Once the inflation reaches 10% it reduces on a fixed 1% basis each year.
 
-🟣 Year 4 = 9% (+44.629.584,975) Supply = 540513862.479 JUNO
+⚫️ Year 4 = 9% (+44.629.584,975) Supply = 540513862.479 JUNO
 
-🟣 Year 5 = 8% (+43.241.108,99832) Supply = 583754971.47732 JUNO
+⚫️ Year 5 = 8% (+43.241.108,99832) Supply = 583754971.47732 JUNO
 
-🟣 Year 6 = 7% (+40.862.848,00341) Supply = 624617819.48073 JUNO
+⚫️ Year 6 = 7% (+40.862.848,00341) Supply = 624617819.48073 JUNO
 
-🟣 Year 7 = 6% (+37.477.069,16884) Supply = 662094888.64957 JUNO
+⚫️ Year 7 = 6% (+37.477.069,16884) Supply = 662094888.64957 JUNO
 
-🟣 Year 8 = 5% (+33.104.744,43248) Supply = 695199633.08205 JUNO
+⚫️ Year 8 = 5% (+33.104.744,43248) Supply = 695199633.08205 JUNO
 
-🟣 Year 9 = 4% (+27.807.985,32328) Supply = 723007618.40533 JUNO
+⚫️ Year 9 = 4% (+27.807.985,32328) Supply = 723007618.40533 JUNO
 
-🟣 Year 10 = 3% (+21.690.228,55216) Supply = 744697846.95749 JUNO
+⚫️ Year 10 = 3% (+21.690.228,55216) Supply = 744697846.95749 JUNO
 
-🟣 Year 11 = 2% (+14.893.956,93915) Supply = 759591803.89664 JUNO
+⚫️ Year 11 = 2% (+14.893.956,93915) Supply = 759591803.89664 JUNO
 
-🟣 Year 12 = 1% (+7.595.918,03897) Supply = 767187721.93561 JUNO MAX SUPPLY
+⚫️ Year 12 = 1% (+7.595.918,03897) Supply = 767187721.93561 JUNO MAX SUPPLY
 
 After year 12 the inflation reward shedule ends. 
 Network incentives would primarily come from smart contract usage & regular tx fees generated on the network.
