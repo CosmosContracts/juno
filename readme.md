@@ -157,6 +157,7 @@ To launch your blockchain live on mutliple nodes use `starport network` commands
 
 ## Learn more
 
+- [Juno](https://junochain.com)
 - [Starport](https://github.com/tendermint/starport)
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
