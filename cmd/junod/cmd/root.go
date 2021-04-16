@@ -34,6 +34,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmoscontracts/juno/app"
+
 	// this line is used by starport scaffolding # stargate/root/import
 	"github.com/CosmWasm/wasmd/x/wasm"
 )
@@ -88,6 +89,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
+		ExportAirdropSnapshotCmd(),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		// this line is used by starport scaffolding # stargate/root/commands
