@@ -71,7 +71,7 @@ func setCosmosBech32Prefixes() {
 // ExportAirdropSnapshotCmd generates a snapshot.json from a provided cosmos-sdk v0.36 genesis export.
 func ExportAirdropSnapshotCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [output-snapshot-json] --juno-supply=[juno-genesis-supply]",
+		Use:   "export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [input-poll-file] [output-snapshot-json] --juno-supply=[juno-genesis-supply]",
 		Short: "Export Juno snapshot from a provided cosmos-sdk v0.36 genesis export",
 		Long: `Export a Juno snapshot snapshot from a provided cosmos-sdk v0.36 genesis export
 Sample genesis file:
@@ -83,7 +83,7 @@ Example:
 	- Snapshot
 		file is at "../snapshot.json"
 `,
-		Args: cobra.ExactArgs(3),
+		Args: cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			aminoCodec := clientCtx.LegacyAmino.Amino
