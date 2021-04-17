@@ -132,7 +132,7 @@ Example:
 			}
 			defer pollJson.Close()
 
-			pollBytes, _ := ioutil.ReadAll(genesisJson)
+			pollBytes, _ := ioutil.ReadAll(pollJson)
 			var pollData Poll
 			err = json.Unmarshal(pollBytes, &pollData)
 			if err != nil {
