@@ -220,11 +220,8 @@ Example:
 				allAtoms := acc.AtomBalance.ToDec()
 
 				//Remove dust accounts
-
 				if allAtoms.LTE(sdk.NewDec(1000000)) {
-					acc.JunoBalanceBase = sdk.ZeroInt()
-					acc.Juno = sdk.ZeroInt()
-					acc.JunoBalance = sdk.ZeroInt()
+					delete(snapshot, address);
 					continue
 				}
 
@@ -254,8 +251,8 @@ Example:
 			noarmalizationFactor := junoSupply.ToDec().Quo(totalJunoBalance.ToDec())
 
 			for address, acc := range snapshot {
-				acc.JunoPercent = acc.JunoBalance.ToDec().Quo(totalJunoBalance.ToDec())
 
+				acc.JunoPercent = acc.JunoBalance.ToDec().Quo(totalJunoBalance.ToDec())
 				acc.JunoNormalizedBalance = acc.JunoBalance.ToDec().Mul(noarmalizationFactor).RoundInt()
 
 				snapshot[address] = acc
