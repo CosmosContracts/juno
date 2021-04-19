@@ -69,7 +69,7 @@ and to provide utility in the deployment and execution of smart contracts.
 A 1:1 stakedrop is distributed to $ATOM holders, giving 100% of the $JUNO supply to staked $ATOM balances that had their assets bonded 
 at the time of the Stargate snapshot on Feb. 18th 6:00 PM UTC. 
 Addresses that qualify will be included in the JUNO genesis block at launch. 
-Exchange validators balances that failed to vote on prop #37 (Stargate upgrade) will be excluded from the genesis allocation. Including delegators bonding atom to those exchange validators. Additionally any unbonded ATOM at the time of the snapshot will be excluded.
+Exchange validators that failed to vote on prop #37 (Stargate upgrade) will be excluded from the genesis allocation. Including delegators bonding ATOM to those exchange validators. Additionally any unbonded ATOM at the time of the snapshot will be excluded.
 A whale cap was voted in by the community, effectively hard-capping $ATOM accounts at 50 thousand $ATOM in order to ensure a less top heavy distribution.
 10% of the supply difference to be allocated to a multisig committee address for the initial funding of a core-development team. The remaining 90% of the excess supply to be allocated to the community pool.
 (Multi-sig committee to be selected by the community before genesis!)
