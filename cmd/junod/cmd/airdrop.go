@@ -71,7 +71,7 @@ func setCosmosBech32Prefixes() {
 // ExportAirdropSnapshotCmd generates a snapshot.json from a provided cosmos-sdk v0.36 genesis export.
 func ExportAirdropSnapshotCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [output-snapshot-json] --juno-supply=[juno-genesis-supply]",
+		Use:   "export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [input-poll-file] [output-snapshot-json] --juno-supply=[juno-genesis-supply]",
 		Short: "Export Juno snapshot from a provided cosmos-sdk v0.36 genesis export",
 		Long: `Export a Juno snapshot snapshot from a provided cosmos-sdk v0.36 genesis export
 Sample genesis file:
@@ -83,7 +83,7 @@ Example:
 	- Snapshot
 		file is at "../snapshot.json"
 `,
-		Args: cobra.ExactArgs(3),
+		Args: cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			aminoCodec := clientCtx.LegacyAmino.Amino
@@ -132,7 +132,7 @@ Example:
 			}
 			defer pollJson.Close()
 
-			pollBytes, _ := ioutil.ReadAll(genesisJson)
+			pollBytes, _ := ioutil.ReadAll(pollJson)
 			var pollData Poll
 			err = json.Unmarshal(pollBytes, &pollData)
 			if err != nil {
@@ -220,11 +220,8 @@ Example:
 				allAtoms := acc.AtomBalance.ToDec()
 
 				//Remove dust accounts
-
 				if allAtoms.LTE(sdk.NewDec(1000000)) {
-					acc.JunoBalanceBase = sdk.ZeroInt()
-					acc.Juno = sdk.ZeroInt()
-					acc.JunoBalance = sdk.ZeroInt()
+					delete(snapshot, address);
 					continue
 				}
 
@@ -254,8 +251,8 @@ Example:
 			noarmalizationFactor := junoSupply.ToDec().Quo(totalJunoBalance.ToDec())
 
 			for address, acc := range snapshot {
-				acc.JunoPercent = acc.JunoBalance.ToDec().Quo(totalJunoBalance.ToDec())
 
+				acc.JunoPercent = acc.JunoBalance.ToDec().Quo(totalJunoBalance.ToDec())
 				acc.JunoNormalizedBalance = acc.JunoBalance.ToDec().Mul(noarmalizationFactor).RoundInt()
 
 				snapshot[address] = acc
