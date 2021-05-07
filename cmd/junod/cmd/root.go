@@ -41,6 +41,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// ChainID id
 var ChainID string
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -92,6 +93,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
 		ExportAirdropSnapshotCmd(),
+		AddAirdropAccounts(),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		// this line is used by starport scaffolding # stargate/root/commands
