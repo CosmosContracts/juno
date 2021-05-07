@@ -10,9 +10,14 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	v036genaccounts "github.com/cosmos/cosmos-sdk/x/genaccounts/legacy/v036"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	v036staking "github.com/cosmos/cosmos-sdk/x/staking/legacy/v036"
 )
 
@@ -30,13 +35,6 @@ type AppStateV036 struct {
 	Accounts []v036genaccounts.GenesisAccount `json:"accounts"`
 	Staking  v036staking.GenesisState         `json:"staking"`
 }
-
-type Vote struct {
-	Address string `json:"address"`
-	Vote    string `json:"vote"`
-}
-
-type Poll []Vote
 
 // SnapshotFields provide fields of snapshot per account
 type SnapshotFields struct {
@@ -71,13 +69,13 @@ func setCosmosBech32Prefixes() {
 // ExportAirdropSnapshotCmd generates a snapshot.json from a provided cosmos-sdk v0.36 genesis export.
 func ExportAirdropSnapshotCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [input-poll-file] [output-snapshot-json] --juno-supply=[juno-genesis-supply]",
+		Use:   "export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [input-exchange-addresses] [output-snapshot-json] --juno-supply=[juno-genesis-supply]",
 		Short: "Export Juno snapshot from a provided cosmos-sdk v0.36 genesis export",
 		Long: `Export a Juno snapshot snapshot from a provided cosmos-sdk v0.36 genesis export
 Sample genesis file:
 	https://raw.githubusercontent.com/cephalopodequipment/cosmoshub-3/master/genesis.json
 Example:
-    junod export-airdrop-genesis uatom ~/.gaiad/config/genesis.json ../snapshot.json --juno-supply=100000000000000
+    junod export-airdrop-genesis uatom ~/.gaiad/config/genesis.json ./exchanges.json ../snapshot.json --juno-supply=100000000000000
 	- Check input genesis:
 		file is at ~/.gaiad/config/genesis.json
 	- Snapshot
@@ -95,7 +93,7 @@ Example:
 
 			denom := args[0]
 			genesisFile := args[1]
-			pollFile := args[2]
+			exchangeFile := args[2]
 			snapshotOutput := args[3]
 
 			// Parse CLI input for juno supply
@@ -109,13 +107,13 @@ Example:
 			}
 
 			// Read genesis file
-			genesisJson, err := os.Open(genesisFile)
+			genesisJSON, err := os.Open(genesisFile)
 			if err != nil {
 				return err
 			}
-			defer genesisJson.Close()
+			defer genesisJSON.Close()
 
-			byteValue, _ := ioutil.ReadAll(genesisJson)
+			byteValue, _ := ioutil.ReadAll(genesisJSON)
 
 			var genStateV036 GenesisStateV036
 
@@ -126,23 +124,22 @@ Example:
 			}
 
 			// Read Poll file
-			pollJson, err := os.Open(pollFile)
+			exchangeJSON, err := os.Open(exchangeFile)
 			if err != nil {
 				return err
 			}
-			defer pollJson.Close()
+			defer exchangeJSON.Close()
 
-			pollBytes, _ := ioutil.ReadAll(pollJson)
-			var pollData Poll
-			err = json.Unmarshal(pollBytes, &pollData)
+			exchangeBytes, _ := ioutil.ReadAll(exchangeJSON)
+			var exchangeAddresses []string
+			err = json.Unmarshal(exchangeBytes, &exchangeAddresses)
 			if err != nil {
 				return err
 			}
 
-			pollMap := make(map[string]bool)
-
-			for _, p := range pollData {
-				pollMap[p.Address] = true
+			exchangeMap := make(map[string]bool)
+			for _, p := range exchangeAddresses {
+				exchangeMap[p] = true
 			}
 
 			// Produce the map of address to total atom balance, both staked and unstaked
@@ -200,10 +197,11 @@ Example:
 
 				val := validators[delegation.ValidatorAddress.String()]
 
-				// If an account did not vote and their validator did not vote skip.
-				if !pollMap[sdk.AccAddress(delegation.ValidatorAddress.Bytes()).String()] && !pollMap[address] {
+				// If an account was delegated to an exchange skip
+				if exchangeMap[sdk.AccAddress(delegation.ValidatorAddress.Bytes()).String()] {
 					continue
 				}
+
 				stakedAtoms := delegation.Shares.MulInt(val.Tokens).Quo(val.DelegatorShares).RoundInt()
 
 				acc.AtomBalance = acc.AtomBalance.Add(stakedAtoms)
@@ -274,6 +272,125 @@ Example:
 
 	cmd.Flags().String(flagJunoSupply, "", "JUNO total genesis supply")
 	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+const (
+	flagGenesisTime     = "genesis-time"
+)
+
+// AddAirdropAccounts Add balances of accounts to genesis, based on cosmos hub snapshot file
+func AddAirdropAccounts()  *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add-airdrop-accounts [airdrop-snapshot-file]",
+		Short: "Add balances of accounts to genesis, based on cosmos hub snapshot file",
+		Args:  cobra.ExactArgs(1),
+		Long: fmt.Sprintf(`Add balances of accounts to genesis, based on cosmos hub snapshot file
+Example:
+$ %s add-airdrop-accounts /path/to/snapshot.json
+`, version.AppName),
+
+		RunE: func(cmd *cobra.Command, args []string) error {
+			var ctx = client.GetClientContextFromCmd(cmd)
+			aminoCodec := ctx.LegacyAmino.Amino
+			depCdc := ctx.JSONMarshaler
+			cdc := depCdc.(codec.Marshaler)
+
+			serverCtx := server.GetServerContextFromCmd(cmd)
+			config := serverCtx.Config
+
+			config.SetRoot(ctx.HomeDir)
+
+			blob, err := ioutil.ReadFile(args[0])
+			if err != nil {
+				return err
+			}
+
+			snapshot := make(map[string]SnapshotFields)
+			err = aminoCodec.UnmarshalJSON(blob, &snapshot)
+			if err != nil {
+				return err
+			}
+
+			genFile := config.GenesisFile()
+			appState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
+			if err != nil {
+				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
+			}
+
+			authGenState := authtypes.GetGenesisStateFromAppState(cdc, appState)
+
+			accs, err := authtypes.UnpackAccounts(authGenState.Accounts)
+			if err != nil {
+				return fmt.Errorf("failed to get accounts from any: %w", err)
+			}
+
+			bankGenState := banktypes.GetGenesisStateFromAppState(depCdc, appState)
+
+			for address, acc := range snapshot {
+
+				addr, err := sdk.AccAddressFromBech32(address)
+				if err != nil {
+					return err
+				}
+
+				if accs.Contains(addr) {
+					return fmt.Errorf("cannot add account at existing address %s", addr)
+				}
+
+				coin := sdk.NewCoin("juno", acc.JunoNormalizedBalance)
+				coins := sdk.NewCoins(coin)
+			
+				// create concrete account type based on input parameters
+				balances := banktypes.Balance{Address: addr.String(), Coins: coins.Sort()}
+				genAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
+
+				if accs.Contains(addr) {
+					return fmt.Errorf("cannot add account at existing address %s", addr)
+				}
+	
+				accs = append(accs, genAccount)
+				accs = authtypes.SanitizeGenesisAccounts(accs)
+
+				bankGenState.Balances = append(bankGenState.Balances, balances)
+				bankGenState.Balances = banktypes.SanitizeGenesisBalances(bankGenState.Balances)
+			}
+
+
+			genAccs, err := authtypes.PackAccounts(accs)
+			if err != nil {
+				return fmt.Errorf("failed to convert accounts into any's: %w", err)
+			}
+			authGenState.Accounts = genAccs
+
+			authGenStateBz, err := cdc.MarshalJSON(&authGenState)
+			if err != nil {
+				return fmt.Errorf("failed to marshal auth genesis state: %w", err)
+			}
+			appState[authtypes.ModuleName] = authGenStateBz
+
+
+			bankGenStateBz, err := cdc.MarshalJSON(bankGenState)
+			if err != nil {
+				return fmt.Errorf("failed to marshal bank genesis state: %w", err)
+			}
+
+			appState[banktypes.ModuleName] = bankGenStateBz
+			appStateJSON, err := json.Marshal(appState)
+			if err != nil {
+				return fmt.Errorf("failed to marshal application genesis state: %w", err)
+			}
+
+			genDoc.AppState = appStateJSON
+			
+			return nil
+		},
+	}
+
+	cmd.Flags().String(flagGenesisTime, "", "override genesis_time with this flag")
+	cmd.Flags().String(flags.FlagChainID, "", "override chain_id with this flag")
+	
 
 	return cmd
 }
