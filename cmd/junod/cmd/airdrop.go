@@ -13,10 +13,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/cosmos/cosmos-sdk/version"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	v036genaccounts "github.com/cosmos/cosmos-sdk/x/genaccounts/legacy/v036"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	v036staking "github.com/cosmos/cosmos-sdk/x/staking/legacy/v036"
 )
@@ -283,15 +285,16 @@ const (
 // AddAirdropAccounts Add balances of accounts to genesis, based on cosmos hub snapshot file
 func AddAirdropAccounts()  *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-airdrop-accounts [airdrop-snapshot-file]",
+		Use:   "add-airdrop-accounts [airdrop-snapshot-file] [denom]",
 		Short: "Add balances of accounts to genesis, based on cosmos hub snapshot file",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		Long: fmt.Sprintf(`Add balances of accounts to genesis, based on cosmos hub snapshot file
 Example:
 $ %s add-airdrop-accounts /path/to/snapshot.json
 `, version.AppName),
 
 		RunE: func(cmd *cobra.Command, args []string) error {
+
 			var ctx = client.GetClientContextFromCmd(cmd)
 			aminoCodec := ctx.LegacyAmino.Amino
 			depCdc := ctx.JSONMarshaler
@@ -313,6 +316,8 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 				return err
 			}
 
+			denom := args[1]
+
 			genFile := config.GenesisFile()
 			appState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
 			if err != nil {
@@ -328,33 +333,39 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 
 			bankGenState := banktypes.GetGenesisStateFromAppState(depCdc, appState)
 
+			fmt.Printf("Account da convertire %d", len(snapshot))
+
+			count := 0
 			for address, acc := range snapshot {
 
-				addr, err := sdk.AccAddressFromBech32(address)
+				addr, err := ConvertCosmosAddressToJuno(address)
 				if err != nil {
 					return err
 				}
 
+				// Skip if account already exists
 				if accs.Contains(addr) {
-					return fmt.Errorf("cannot add account at existing address %s", addr)
+					continue;
 				}
 
-				coin := sdk.NewCoin("juno", acc.JunoNormalizedBalance)
+				coin := sdk.NewCoin(denom, acc.JunoNormalizedBalance)
 				coins := sdk.NewCoins(coin)
 			
 				// create concrete account type based on input parameters
 				balances := banktypes.Balance{Address: addr.String(), Coins: coins.Sort()}
 				genAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
 
-				if accs.Contains(addr) {
-					return fmt.Errorf("cannot add account at existing address %s", addr)
-				}
-	
 				accs = append(accs, genAccount)
 				accs = authtypes.SanitizeGenesisAccounts(accs)
 
 				bankGenState.Balances = append(bankGenState.Balances, balances)
 				bankGenState.Balances = banktypes.SanitizeGenesisBalances(bankGenState.Balances)
+
+				count++;
+
+				if (count % 1000 == 0) {
+					fmt.Printf("Progress (%d of %d)\n", count, len(snapshot))
+				}
 			}
 
 
@@ -384,7 +395,8 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 
 			genDoc.AppState = appStateJSON
 			
-			return nil
+			fmt.Printf("Saving genesis...")
+			return genutil.ExportGenesisFile(genDoc, genFile)
 		},
 	}
 
@@ -393,4 +405,29 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 	
 
 	return cmd
+}
+
+// ConvertCosmosAddressToJuno convert cosmos1 address to juno1 address
+func ConvertCosmosAddressToJuno(address string) (sdk.AccAddress, error) {
+
+	config := sdk.GetConfig()
+
+	junoPrefix := config.GetBech32AccountAddrPrefix()
+
+	_, bytes, err := bech32.DecodeAndConvert(address)
+	if (err != nil) {
+		return nil, err
+	}
+
+	newAddr, err := bech32.ConvertAndEncode(junoPrefix, bytes)
+	if (err != nil) {
+		return nil, err
+	}
+
+	sdkAddr, err := sdk.AccAddressFromBech32(newAddr)
+	if (err != nil) {
+		return nil, err
+	}
+
+	return sdkAddr, nil
 }
