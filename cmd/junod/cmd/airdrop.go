@@ -333,7 +333,7 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 
 			bankGenState := banktypes.GetGenesisStateFromAppState(depCdc, appState)
 
-			fmt.Printf("Account da convertire %d", len(snapshot))
+			fmt.Printf("Accounts %d\n", len(snapshot))
 
 			count := 0
 			for address, acc := range snapshot {
@@ -356,10 +356,8 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 				genAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
 
 				accs = append(accs, genAccount)
-				accs = authtypes.SanitizeGenesisAccounts(accs)
 
 				bankGenState.Balances = append(bankGenState.Balances, balances)
-				bankGenState.Balances = banktypes.SanitizeGenesisBalances(bankGenState.Balances)
 
 				count++;
 
@@ -368,6 +366,9 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 				}
 			}
 
+			fmt.Println("Done! Sorting...")
+			accs = authtypes.SanitizeGenesisAccounts(accs)
+			bankGenState.Balances = banktypes.SanitizeGenesisBalances(bankGenState.Balances)
 
 			genAccs, err := authtypes.PackAccounts(accs)
 			if err != nil {
