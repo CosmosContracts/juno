@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	flagJunoSupply = "juno-supply"
+	flagJunoWhaleCap = "juno-whalecap"
 )
 
 // GenesisStateV036 is minimum structure to import airdrop accounts
@@ -48,15 +48,9 @@ type SnapshotFields struct {
 	// AtomStakedPercent = AtomStakedBalance / AtomBalance
 	AtomStakedPercent     sdk.Dec `json:"atom_staked_percent"`
 	AtomOwnershipPercent  sdk.Dec `json:"atom_ownership_percent"`
-	JunoNormalizedBalance sdk.Int `json:"juno_balance_normalized"`
-	// JunoBalance = sqrt( AtomBalance ) * (1.0 * atom staked percent )
+	// JunoBalance = 1:1 with atom, capped to 50k
 	JunoBalance sdk.Int `json:"juno_balance"`
-	// Juno = JunoBalanceBase * (1.0 * atom staked percent) limited 50_000 Juno
 	Juno sdk.Int `json:"juno_balance_bonus"`
-	// JunoBalanceBase = sqrt(atom balance)
-	JunoBalanceBase sdk.Int `json:"juno_balance_base"`
-	// JunoPercent = JunoNormalizedBalance / TotalJunoSupply
-	JunoPercent sdk.Dec `json:"juno_ownership_percent"`
 }
 
 // setCosmosBech32Prefixes set config for cosmos address system
@@ -71,13 +65,13 @@ func setCosmosBech32Prefixes() {
 // ExportAirdropSnapshotCmd generates a snapshot.json from a provided cosmos-sdk v0.36 genesis export.
 func ExportAirdropSnapshotCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [input-exchange-addresses] [output-snapshot-json] --juno-supply=[juno-genesis-supply]",
+		Use:   "export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [input-exchange-addresses] [output-snapshot-json] --juno-whalecap=[juno-whalecap]",
 		Short: "Export Juno snapshot from a provided cosmos-sdk v0.36 genesis export",
 		Long: `Export a Juno snapshot snapshot from a provided cosmos-sdk v0.36 genesis export
 Sample genesis file:
 	https://raw.githubusercontent.com/cephalopodequipment/cosmoshub-3/master/genesis.json
 Example:
-    junod export-airdrop-genesis uatom ~/.gaiad/config/genesis.json ./exchanges.json ../snapshot.json --juno-supply=100000000000000
+    junod export-airdrop-genesis uatom ~/.gaiad/config/genesis.json ./exchanges.json ../snapshot.json --juno-whalecap=50000000000
 	- Check input genesis:
 		file is at ~/.gaiad/config/genesis.json
 	- Snapshot
@@ -99,13 +93,13 @@ Example:
 			snapshotOutput := args[3]
 
 			// Parse CLI input for juno supply
-			junoSupplyStr, err := cmd.Flags().GetString(flagJunoSupply)
+			junoWhaleCapStr, err := cmd.Flags().GetString(flagJunoWhaleCap)
 			if err != nil {
 				return fmt.Errorf("failed to get juno total supply: %w", err)
 			}
-			junoSupply, ok := sdk.NewIntFromString(junoSupplyStr)
+			junoWhaleCap, ok := sdk.NewIntFromString(junoWhaleCapStr)
 			if !ok {
-				return fmt.Errorf("failed to parse juno supply: %s", junoSupplyStr)
+				return fmt.Errorf("failed to parse juno supply: %s", junoWhaleCap)
 			}
 
 			// Read genesis file
@@ -214,8 +208,6 @@ Example:
 
 			totalJunoBalance := sdk.NewInt(0)
 
-			onePointFive := sdk.MustNewDecFromStr("1.5")
-
 			for address, acc := range snapshot {
 				allAtoms := acc.AtomBalance.ToDec()
 
@@ -229,38 +221,20 @@ Example:
 				stakedPercent := stakedAtoms.Quo(allAtoms)
 				acc.AtomStakedPercent = stakedPercent
 
-				baseJuno, err := allAtoms.ApproxSqrt()
-				if err != nil {
-					panic(fmt.Sprintf("failed to root atom balance: %s", err))
+				// We could use math.Min but too many type conversions
+				if acc.AtomStakedBalance.GTE(junoWhaleCap) {
+					acc.JunoBalance = junoWhaleCap
+				} else {
+					acc.JunoBalance = stakedAtoms.RoundInt()
 				}
-				acc.JunoBalanceBase = baseJuno.RoundInt()
 
-				bonusJuno := baseJuno.Mul(onePointFive).Mul(stakedPercent)
-				acc.Juno = bonusJuno.RoundInt()
-
-				allJuno := baseJuno.Add(bonusJuno)
-				// JunoBalance = sqrt( all atoms) * (1 + 1.5) * (staked atom percent) =
-				acc.JunoBalance = allJuno.RoundInt()
-
-				totalJunoBalance = totalJunoBalance.Add(allJuno.RoundInt())
-
-				snapshot[address] = acc
-			}
-
-			// normalize to desired genesis juno supply
-			noarmalizationFactor := junoSupply.ToDec().Quo(totalJunoBalance.ToDec())
-
-			for address, acc := range snapshot {
-
-				acc.JunoPercent = acc.JunoBalance.ToDec().Quo(totalJunoBalance.ToDec())
-				acc.JunoNormalizedBalance = acc.JunoBalance.ToDec().Mul(noarmalizationFactor).RoundInt()
+				totalJunoBalance = totalJunoBalance.Add(acc.JunoBalance)
 
 				snapshot[address] = acc
 			}
 
 			fmt.Printf("cosmos accounts: %d\n", len(snapshot))
 			fmt.Printf("atomTotalSupply: %s\n", totalAtomBalance.String())
-			fmt.Printf("junoTotalSupply (pre-normalization): %s\n", totalJunoBalance.String())
 
 			// export snapshot json
 			snapshotJSON, err := aminoCodec.MarshalJSON(snapshot)
@@ -272,7 +246,7 @@ Example:
 		},
 	}
 
-	cmd.Flags().String(flagJunoSupply, "", "JUNO total genesis supply")
+	cmd.Flags().String(flagJunoWhaleCap, "", "JUNO whale cap")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -348,7 +322,7 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 					continue;
 				}
 
-				coin := sdk.NewCoin(denom, acc.JunoNormalizedBalance)
+				coin := sdk.NewCoin(denom, acc.JunoBalance)
 				coins := sdk.NewCoins(coin)
 			
 				// create concrete account type based on input parameters
