@@ -208,6 +208,8 @@ Example:
 
 			totalJunoBalance := sdk.NewInt(0)
 
+			extraWhaleAmounts := sdk.NewInt(0)
+
 			for address, acc := range snapshot {
 				allAtoms := acc.AtomBalance.ToDec()
 
@@ -224,6 +226,9 @@ Example:
 				// We could use math.Min but too many type conversions
 				if acc.AtomStakedBalance.GTE(junoWhaleCap) {
 					acc.JunoBalance = junoWhaleCap
+
+					// Track the difference for later multi sig add
+					extraWhaleAmounts = extraWhaleAmounts.Add(stakedAtoms.RoundInt().Sub(junoWhaleCap))
 				} else {
 					acc.JunoBalance = stakedAtoms.RoundInt()
 				}
@@ -235,6 +240,7 @@ Example:
 
 			fmt.Printf("cosmos accounts: %d\n", len(snapshot))
 			fmt.Printf("atomTotalSupply: %s\n", totalAtomBalance.String())
+			fmt.Printf("extra whale amounts: %s\n", extraWhaleAmounts.String())
 
 			// export snapshot json
 			snapshotJSON, err := aminoCodec.MarshalJSON(snapshot)
@@ -311,6 +317,11 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 
 			count := 0
 			for address, acc := range snapshot {
+
+				// Skip empty accounts
+				if (acc.JunoBalance.LTE(sdk.NewInt(0))) {
+					continue;
+				}
 
 				addr, err := ConvertCosmosAddressToJuno(address)
 				if err != nil {
