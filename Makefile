@@ -89,7 +89,7 @@ endif
 all: install
 
 install: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/junod
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/Junod
 
 build:
-	go build $(BUILD_FLAGS) -o bin/junod ./cmd/junod
+	go build $(BUILD_FLAGS) -o bin/junod ./cmd/Junod
