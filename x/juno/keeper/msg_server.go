@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/cosmoscontracts/juno/x/juno/types"
+	"github.com/CosmosContracts/Juno/x/juno/types"
 )
 
 type msgServer struct {

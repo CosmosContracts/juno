@@ -3,10 +3,10 @@ package juno
 import (
 	"fmt"
 
+	"github.com/CosmosContracts/Juno/x/juno/keeper"
+	"github.com/CosmosContracts/Juno/x/juno/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmoscontracts/juno/x/juno/keeper"
-	"github.com/cosmoscontracts/juno/x/juno/types"
 )
 
 // NewHandler ...
