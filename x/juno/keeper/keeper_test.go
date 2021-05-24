@@ -3,7 +3,7 @@ package keeper
 import (
 	"testing"
 
-	"github.com/CosmosContracts/Juno/x/juno/types"
+	"github.com/CosmosContracts/juno/x/juno/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"

@@ -1,8 +1,8 @@
 package juno
 
 import (
-	"github.com/CosmosContracts/Juno/x/juno/keeper"
-	"github.com/CosmosContracts/Juno/x/juno/types"
+	"github.com/CosmosContracts/juno/x/juno/keeper"
+	"github.com/CosmosContracts/juno/x/juno/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

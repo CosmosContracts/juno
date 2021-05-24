@@ -50,22 +50,22 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        ClientState: {},
-        ClientStates: {},
-        ConsensusState: {},
-        ConsensusStates: {},
-        ClientParams: {},
-        
-        _Structure: {
-            IdentifiedClientState: getStructure(IdentifiedClientState.fromPartial({})),
-            ConsensusStateWithHeight: getStructure(ConsensusStateWithHeight.fromPartial({})),
-            ClientConsensusStates: getStructure(ClientConsensusStates.fromPartial({})),
-            ClientUpdateProposal: getStructure(ClientUpdateProposal.fromPartial({})),
-            Height: getStructure(Height.fromPartial({})),
-            Params: getStructure(Params.fromPartial({})),
-            GenesisMetadata: getStructure(GenesisMetadata.fromPartial({})),
-            IdentifiedGenesisMetadata: getStructure(IdentifiedGenesisMetadata.fromPartial({})),
-            
+				ClientState: {},
+				ClientStates: {},
+				ConsensusState: {},
+				ConsensusStates: {},
+				ClientParams: {},
+				
+				_Structure: {
+						IdentifiedClientState: getStructure(IdentifiedClientState.fromPartial({})),
+						ConsensusStateWithHeight: getStructure(ConsensusStateWithHeight.fromPartial({})),
+						ClientConsensusStates: getStructure(ClientConsensusStates.fromPartial({})),
+						ClientUpdateProposal: getStructure(ClientUpdateProposal.fromPartial({})),
+						Height: getStructure(Height.fromPartial({})),
+						Params: getStructure(Params.fromPartial({})),
+						GenesisMetadata: getStructure(GenesisMetadata.fromPartial({})),
+						IdentifiedGenesisMetadata: getStructure(IdentifiedGenesisMetadata.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -92,37 +92,37 @@ export default {
 		}
 	},
 	getters: {
-        getClientState: (state) => (params = { params: {}}) => {
+				getClientState: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ClientState[JSON.stringify(params)] ?? {}
 		},
-        getClientStates: (state) => (params = { params: {}}) => {
+				getClientStates: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ClientStates[JSON.stringify(params)] ?? {}
 		},
-        getConsensusState: (state) => (params = { params: {}}) => {
+				getConsensusState: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ConsensusState[JSON.stringify(params)] ?? {}
 		},
-        getConsensusStates: (state) => (params = { params: {}}) => {
+				getConsensusStates: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ConsensusStates[JSON.stringify(params)] ?? {}
 		},
-        getClientParams: (state) => (params = { params: {}}) => {
+				getClientParams: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ClientParams[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -274,7 +274,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgUpdateClient(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -284,18 +284,18 @@ export default {
 				}
 			}
 		},
-		async sendMsgUpgradeClient({ rootGetters }, { value, fee = [], memo = '' }) {
+		async sendMsgSubmitMisbehaviour({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgUpgradeClient(value)
+				const msg = await txClient.msgSubmitMisbehaviour(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgUpgradeClient:Send', 'Could not broadcast Tx: '+ e.message)
+					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Send', 'Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -304,7 +304,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgCreateClient(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -314,18 +314,18 @@ export default {
 				}
 			}
 		},
-		async sendMsgSubmitMisbehaviour({ rootGetters }, { value, fee = [], memo = '' }) {
+		async sendMsgUpgradeClient({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgSubmitMisbehaviour(value)
+				const msg = await txClient.msgUpgradeClient(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Send', 'Could not broadcast Tx: '+ e.message)
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Send', 'Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -344,16 +344,16 @@ export default {
 				}
 			}
 		},
-		async MsgUpgradeClient({ rootGetters }, { value }) {
+		async MsgSubmitMisbehaviour({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgUpgradeClient(value)
+				const msg = await txClient.msgSubmitMisbehaviour(value)
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgUpgradeClient:Create', 'Could not create message: ' + e.message)
+					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}
@@ -372,16 +372,16 @@ export default {
 				}
 			}
 		},
-		async MsgSubmitMisbehaviour({ rootGetters }, { value }) {
+		async MsgUpgradeClient({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgSubmitMisbehaviour(value)
+				const msg = await txClient.msgUpgradeClient(value)
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Create', 'Could not create message: ' + e.message)
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}

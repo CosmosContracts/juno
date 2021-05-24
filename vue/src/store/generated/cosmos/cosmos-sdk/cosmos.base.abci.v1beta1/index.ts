@@ -52,19 +52,19 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        
-        _Structure: {
-            TxResponse: getStructure(TxResponse.fromPartial({})),
-            ABCIMessageLog: getStructure(ABCIMessageLog.fromPartial({})),
-            StringEvent: getStructure(StringEvent.fromPartial({})),
-            Attribute: getStructure(Attribute.fromPartial({})),
-            GasInfo: getStructure(GasInfo.fromPartial({})),
-            Result: getStructure(Result.fromPartial({})),
-            SimulationResponse: getStructure(SimulationResponse.fromPartial({})),
-            MsgData: getStructure(MsgData.fromPartial({})),
-            TxMsgData: getStructure(TxMsgData.fromPartial({})),
-            SearchTxsResult: getStructure(SearchTxsResult.fromPartial({})),
-            
+				
+				_Structure: {
+						TxResponse: getStructure(TxResponse.fromPartial({})),
+						ABCIMessageLog: getStructure(ABCIMessageLog.fromPartial({})),
+						StringEvent: getStructure(StringEvent.fromPartial({})),
+						Attribute: getStructure(Attribute.fromPartial({})),
+						GasInfo: getStructure(GasInfo.fromPartial({})),
+						Result: getStructure(Result.fromPartial({})),
+						SimulationResponse: getStructure(SimulationResponse.fromPartial({})),
+						MsgData: getStructure(MsgData.fromPartial({})),
+						TxMsgData: getStructure(TxMsgData.fromPartial({})),
+						SearchTxsResult: getStructure(SearchTxsResult.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -91,7 +91,7 @@ export default {
 		}
 	},
 	getters: {
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}

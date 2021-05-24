@@ -5,7 +5,7 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/CosmosContracts/Juno/x/juno/types"
+	"github.com/CosmosContracts/juno/x/juno/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	// this line is used by starport scaffolding # ibc/keeper/import

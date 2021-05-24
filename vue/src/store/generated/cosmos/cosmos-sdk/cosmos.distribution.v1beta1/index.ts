@@ -61,37 +61,37 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        Params: {},
-        ValidatorOutstandingRewards: {},
-        ValidatorCommission: {},
-        ValidatorSlashes: {},
-        DelegationRewards: {},
-        DelegationTotalRewards: {},
-        DelegatorValidators: {},
-        DelegatorWithdrawAddress: {},
-        CommunityPool: {},
-        
-        _Structure: {
-            Params: getStructure(Params.fromPartial({})),
-            ValidatorHistoricalRewards: getStructure(ValidatorHistoricalRewards.fromPartial({})),
-            ValidatorCurrentRewards: getStructure(ValidatorCurrentRewards.fromPartial({})),
-            ValidatorAccumulatedCommission: getStructure(ValidatorAccumulatedCommission.fromPartial({})),
-            ValidatorOutstandingRewards: getStructure(ValidatorOutstandingRewards.fromPartial({})),
-            ValidatorSlashEvent: getStructure(ValidatorSlashEvent.fromPartial({})),
-            ValidatorSlashEvents: getStructure(ValidatorSlashEvents.fromPartial({})),
-            FeePool: getStructure(FeePool.fromPartial({})),
-            CommunityPoolSpendProposal: getStructure(CommunityPoolSpendProposal.fromPartial({})),
-            DelegatorStartingInfo: getStructure(DelegatorStartingInfo.fromPartial({})),
-            DelegationDelegatorReward: getStructure(DelegationDelegatorReward.fromPartial({})),
-            CommunityPoolSpendProposalWithDeposit: getStructure(CommunityPoolSpendProposalWithDeposit.fromPartial({})),
-            DelegatorWithdrawInfo: getStructure(DelegatorWithdrawInfo.fromPartial({})),
-            ValidatorOutstandingRewardsRecord: getStructure(ValidatorOutstandingRewardsRecord.fromPartial({})),
-            ValidatorAccumulatedCommissionRecord: getStructure(ValidatorAccumulatedCommissionRecord.fromPartial({})),
-            ValidatorHistoricalRewardsRecord: getStructure(ValidatorHistoricalRewardsRecord.fromPartial({})),
-            ValidatorCurrentRewardsRecord: getStructure(ValidatorCurrentRewardsRecord.fromPartial({})),
-            DelegatorStartingInfoRecord: getStructure(DelegatorStartingInfoRecord.fromPartial({})),
-            ValidatorSlashEventRecord: getStructure(ValidatorSlashEventRecord.fromPartial({})),
-            
+				Params: {},
+				ValidatorOutstandingRewards: {},
+				ValidatorCommission: {},
+				ValidatorSlashes: {},
+				DelegationRewards: {},
+				DelegationTotalRewards: {},
+				DelegatorValidators: {},
+				DelegatorWithdrawAddress: {},
+				CommunityPool: {},
+				
+				_Structure: {
+						Params: getStructure(Params.fromPartial({})),
+						ValidatorHistoricalRewards: getStructure(ValidatorHistoricalRewards.fromPartial({})),
+						ValidatorCurrentRewards: getStructure(ValidatorCurrentRewards.fromPartial({})),
+						ValidatorAccumulatedCommission: getStructure(ValidatorAccumulatedCommission.fromPartial({})),
+						ValidatorOutstandingRewards: getStructure(ValidatorOutstandingRewards.fromPartial({})),
+						ValidatorSlashEvent: getStructure(ValidatorSlashEvent.fromPartial({})),
+						ValidatorSlashEvents: getStructure(ValidatorSlashEvents.fromPartial({})),
+						FeePool: getStructure(FeePool.fromPartial({})),
+						CommunityPoolSpendProposal: getStructure(CommunityPoolSpendProposal.fromPartial({})),
+						DelegatorStartingInfo: getStructure(DelegatorStartingInfo.fromPartial({})),
+						DelegationDelegatorReward: getStructure(DelegationDelegatorReward.fromPartial({})),
+						CommunityPoolSpendProposalWithDeposit: getStructure(CommunityPoolSpendProposalWithDeposit.fromPartial({})),
+						DelegatorWithdrawInfo: getStructure(DelegatorWithdrawInfo.fromPartial({})),
+						ValidatorOutstandingRewardsRecord: getStructure(ValidatorOutstandingRewardsRecord.fromPartial({})),
+						ValidatorAccumulatedCommissionRecord: getStructure(ValidatorAccumulatedCommissionRecord.fromPartial({})),
+						ValidatorHistoricalRewardsRecord: getStructure(ValidatorHistoricalRewardsRecord.fromPartial({})),
+						ValidatorCurrentRewardsRecord: getStructure(ValidatorCurrentRewardsRecord.fromPartial({})),
+						DelegatorStartingInfoRecord: getStructure(DelegatorStartingInfoRecord.fromPartial({})),
+						ValidatorSlashEventRecord: getStructure(ValidatorSlashEventRecord.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -118,61 +118,61 @@ export default {
 		}
 	},
 	getters: {
-        getParams: (state) => (params = { params: {}}) => {
+				getParams: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
-        getValidatorOutstandingRewards: (state) => (params = { params: {}}) => {
+				getValidatorOutstandingRewards: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ValidatorOutstandingRewards[JSON.stringify(params)] ?? {}
 		},
-        getValidatorCommission: (state) => (params = { params: {}}) => {
+				getValidatorCommission: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ValidatorCommission[JSON.stringify(params)] ?? {}
 		},
-        getValidatorSlashes: (state) => (params = { params: {}}) => {
+				getValidatorSlashes: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ValidatorSlashes[JSON.stringify(params)] ?? {}
 		},
-        getDelegationRewards: (state) => (params = { params: {}}) => {
+				getDelegationRewards: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DelegationRewards[JSON.stringify(params)] ?? {}
 		},
-        getDelegationTotalRewards: (state) => (params = { params: {}}) => {
+				getDelegationTotalRewards: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DelegationTotalRewards[JSON.stringify(params)] ?? {}
 		},
-        getDelegatorValidators: (state) => (params = { params: {}}) => {
+				getDelegatorValidators: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DelegatorValidators[JSON.stringify(params)] ?? {}
 		},
-        getDelegatorWithdrawAddress: (state) => (params = { params: {}}) => {
+				getDelegatorWithdrawAddress: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DelegatorWithdrawAddress[JSON.stringify(params)] ?? {}
 		},
-        getCommunityPool: (state) => (params = { params: {}}) => {
+				getCommunityPool: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.CommunityPool[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -395,18 +395,18 @@ export default {
 		},
 		
 		
-		async sendMsgWithdrawDelegatorReward({ rootGetters }, { value, fee = [], memo = '' }) {
+		async sendMsgWithdrawValidatorCommission({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgWithdrawDelegatorReward(value)
+				const msg = await txClient.msgWithdrawValidatorCommission(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Send', 'Could not broadcast Tx: '+ e.message)
+					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Send', 'Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -415,7 +415,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgSetWithdrawAddress(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -430,7 +430,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgFundCommunityPool(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -440,32 +440,32 @@ export default {
 				}
 			}
 		},
-		async sendMsgWithdrawValidatorCommission({ rootGetters }, { value, fee = [], memo = '' }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgWithdrawValidatorCommission(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Send', 'Could not broadcast Tx: '+ e.message)
-				}
-			}
-		},
-		
-		async MsgWithdrawDelegatorReward({ rootGetters }, { value }) {
+		async sendMsgWithdrawDelegatorReward({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgWithdrawDelegatorReward(value)
-				return msg
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+	gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
 					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Create', 'Could not create message: ' + e.message)
+					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Send', 'Could not broadcast Tx: '+ e.message)
+				}
+			}
+		},
+		
+		async MsgWithdrawValidatorCommission({ rootGetters }, { value }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgWithdrawValidatorCommission(value)
+				return msg
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}
@@ -498,16 +498,16 @@ export default {
 				}
 			}
 		},
-		async MsgWithdrawValidatorCommission({ rootGetters }, { value }) {
+		async MsgWithdrawDelegatorReward({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgWithdrawValidatorCommission(value)
+				const msg = await txClient.msgWithdrawDelegatorReward(value)
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Create', 'Could not create message: ' + e.message)
+					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}

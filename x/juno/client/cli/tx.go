@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	// "github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/CosmosContracts/Juno/x/juno/types"
+	"github.com/CosmosContracts/juno/x/juno/types"
 )
 
 var (

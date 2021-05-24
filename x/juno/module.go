@@ -11,9 +11,9 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/CosmosContracts/Juno/x/juno/client/cli"
-	"github.com/CosmosContracts/Juno/x/juno/keeper"
-	"github.com/CosmosContracts/Juno/x/juno/types"
+	"github.com/CosmosContracts/juno/x/juno/client/cli"
+	"github.com/CosmosContracts/juno/x/juno/keeper"
+	"github.com/CosmosContracts/juno/x/juno/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"

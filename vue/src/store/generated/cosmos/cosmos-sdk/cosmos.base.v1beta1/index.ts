@@ -46,13 +46,13 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        
-        _Structure: {
-            Coin: getStructure(Coin.fromPartial({})),
-            DecCoin: getStructure(DecCoin.fromPartial({})),
-            IntProto: getStructure(IntProto.fromPartial({})),
-            DecProto: getStructure(DecProto.fromPartial({})),
-            
+				
+				_Structure: {
+						Coin: getStructure(Coin.fromPartial({})),
+						DecCoin: getStructure(DecCoin.fromPartial({})),
+						IntProto: getStructure(IntProto.fromPartial({})),
+						DecProto: getStructure(DecProto.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -79,7 +79,7 @@ export default {
 		}
 	},
 	getters: {
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}

@@ -47,17 +47,17 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        Params: {},
-        SigningInfo: {},
-        SigningInfos: {},
-        
-        _Structure: {
-            SigningInfo: getStructure(SigningInfo.fromPartial({})),
-            ValidatorMissedBlocks: getStructure(ValidatorMissedBlocks.fromPartial({})),
-            MissedBlock: getStructure(MissedBlock.fromPartial({})),
-            ValidatorSigningInfo: getStructure(ValidatorSigningInfo.fromPartial({})),
-            Params: getStructure(Params.fromPartial({})),
-            
+				Params: {},
+				SigningInfo: {},
+				SigningInfos: {},
+				
+				_Structure: {
+						SigningInfo: getStructure(SigningInfo.fromPartial({})),
+						ValidatorMissedBlocks: getStructure(ValidatorMissedBlocks.fromPartial({})),
+						MissedBlock: getStructure(MissedBlock.fromPartial({})),
+						ValidatorSigningInfo: getStructure(ValidatorSigningInfo.fromPartial({})),
+						Params: getStructure(Params.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -84,25 +84,25 @@ export default {
 		}
 	},
 	getters: {
-        getParams: (state) => (params = { params: {}}) => {
+				getParams: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
-        getSigningInfo: (state) => (params = { params: {}}) => {
+				getSigningInfo: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.SigningInfo[JSON.stringify(params)] ?? {}
 		},
-        getSigningInfos: (state) => (params = { params: {}}) => {
+				getSigningInfos: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.SigningInfos[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -204,7 +204,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgUnjail(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

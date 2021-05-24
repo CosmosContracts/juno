@@ -50,25 +50,25 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        Proposal: {},
-        Proposals: {},
-        Vote: {},
-        Votes: {},
-        Params: {},
-        Deposit: {},
-        Deposits: {},
-        TallyResult: {},
-        
-        _Structure: {
-            TextProposal: getStructure(TextProposal.fromPartial({})),
-            Deposit: getStructure(Deposit.fromPartial({})),
-            Proposal: getStructure(Proposal.fromPartial({})),
-            TallyResult: getStructure(TallyResult.fromPartial({})),
-            Vote: getStructure(Vote.fromPartial({})),
-            DepositParams: getStructure(DepositParams.fromPartial({})),
-            VotingParams: getStructure(VotingParams.fromPartial({})),
-            TallyParams: getStructure(TallyParams.fromPartial({})),
-            
+				Proposal: {},
+				Proposals: {},
+				Vote: {},
+				Votes: {},
+				Params: {},
+				Deposit: {},
+				Deposits: {},
+				TallyResult: {},
+				
+				_Structure: {
+						TextProposal: getStructure(TextProposal.fromPartial({})),
+						Deposit: getStructure(Deposit.fromPartial({})),
+						Proposal: getStructure(Proposal.fromPartial({})),
+						TallyResult: getStructure(TallyResult.fromPartial({})),
+						Vote: getStructure(Vote.fromPartial({})),
+						DepositParams: getStructure(DepositParams.fromPartial({})),
+						VotingParams: getStructure(VotingParams.fromPartial({})),
+						TallyParams: getStructure(TallyParams.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -95,55 +95,55 @@ export default {
 		}
 	},
 	getters: {
-        getProposal: (state) => (params = { params: {}}) => {
+				getProposal: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Proposal[JSON.stringify(params)] ?? {}
 		},
-        getProposals: (state) => (params = { params: {}}) => {
+				getProposals: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Proposals[JSON.stringify(params)] ?? {}
 		},
-        getVote: (state) => (params = { params: {}}) => {
+				getVote: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Vote[JSON.stringify(params)] ?? {}
 		},
-        getVotes: (state) => (params = { params: {}}) => {
+				getVotes: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Votes[JSON.stringify(params)] ?? {}
 		},
-        getParams: (state) => (params = { params: {}}) => {
+				getParams: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
-        getDeposit: (state) => (params = { params: {}}) => {
+				getDeposit: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Deposit[JSON.stringify(params)] ?? {}
 		},
-        getDeposits: (state) => (params = { params: {}}) => {
+				getDeposits: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Deposits[JSON.stringify(params)] ?? {}
 		},
-        getTallyResult: (state) => (params = { params: {}}) => {
+				getTallyResult: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.TallyResult[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -358,7 +358,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgVote(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -373,7 +373,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgDeposit(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -388,7 +388,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgSubmitProposal(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

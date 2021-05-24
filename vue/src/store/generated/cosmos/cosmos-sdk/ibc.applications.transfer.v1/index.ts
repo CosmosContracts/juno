@@ -45,15 +45,15 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        DenomTrace: {},
-        DenomTraces: {},
-        Params: {},
-        
-        _Structure: {
-            FungibleTokenPacketData: getStructure(FungibleTokenPacketData.fromPartial({})),
-            DenomTrace: getStructure(DenomTrace.fromPartial({})),
-            Params: getStructure(Params.fromPartial({})),
-            
+				DenomTrace: {},
+				DenomTraces: {},
+				Params: {},
+				
+				_Structure: {
+						FungibleTokenPacketData: getStructure(FungibleTokenPacketData.fromPartial({})),
+						DenomTrace: getStructure(DenomTrace.fromPartial({})),
+						Params: getStructure(Params.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -80,25 +80,25 @@ export default {
 		}
 	},
 	getters: {
-        getDenomTrace: (state) => (params = { params: {}}) => {
+				getDenomTrace: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DenomTrace[JSON.stringify(params)] ?? {}
 		},
-        getDenomTraces: (state) => (params = { params: {}}) => {
+				getDenomTraces: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DenomTraces[JSON.stringify(params)] ?? {}
 		},
-        getParams: (state) => (params = { params: {}}) => {
+				getParams: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -200,7 +200,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgTransfer(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

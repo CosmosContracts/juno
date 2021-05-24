@@ -43,12 +43,12 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        Evidence: {},
-        AllEvidence: {},
-        
-        _Structure: {
-            Equivocation: getStructure(Equivocation.fromPartial({})),
-            
+				Evidence: {},
+				AllEvidence: {},
+				
+				_Structure: {
+						Equivocation: getStructure(Equivocation.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -75,19 +75,19 @@ export default {
 		}
 	},
 	getters: {
-        getEvidence: (state) => (params = { params: {}}) => {
+				getEvidence: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Evidence[JSON.stringify(params)] ?? {}
 		},
-        getAllEvidence: (state) => (params = { params: {}}) => {
+				getAllEvidence: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.AllEvidence[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -168,7 +168,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgSubmitEvidence(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

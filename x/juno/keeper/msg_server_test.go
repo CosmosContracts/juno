@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/CosmosContracts/Juno/x/juno/types"
+	"github.com/CosmosContracts/juno/x/juno/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
