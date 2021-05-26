@@ -71,8 +71,8 @@ at the time of the Stargate snapshot on Feb. 18th 6:00 PM UTC.
 Addresses that qualify will be included in the JUNO genesis block at launch. 
 Exchange validators that failed to vote on prop #37 (Stargate upgrade) will be excluded from the genesis allocation. Including delegators bonding ATOM to those exchange validators. Additionally any unbonded ATOM at the time of the snapshot will be excluded.
 A whale cap was voted in by the community, effectively hard-capping $ATOM accounts at 50 thousand $ATOM in order to ensure a less top heavy distribution.
-10% of the supply difference to be allocated to a multisig committee address for the initial funding of a core-development team. The remaining 90% of the excess supply to be allocated to the community pool.
-(Multi-sig committee to be selected by the community before genesis!)
+10% of the supply difference to be allocated to a multisig committee address for the funding of a core-development efforts. The remaining 90% of the excess supply to be allocated in the following ways (20 million community pool, Smart contract competition 2.868.472,42 million to be managed managed by the multi-sig committee and the remaining difference will not be included in the genesis file ie. burned)
+
 
 **Asset & network metrics**
 
