@@ -92,7 +92,7 @@ The community has proposed the following parameters for the network and native a
 **Proposed JUNO inflation reward shedule (updated)**
 
 
-✅ Initial Supply at genesis 72.819.725,52 $JUNO 
+✅ Initial Supply at genesis 72.819.725,5 Million $JUNO  
 
 Initial fixed inflation 40% (+29.127.890,208)
 
