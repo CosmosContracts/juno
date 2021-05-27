@@ -142,6 +142,7 @@ Example:
 			snapshot := make(map[string]SnapshotFields)
 
 			totalAtomBalance := sdk.NewInt(0)
+			totalStakedAtom := sdk.NewInt(0)
 			for _, account := range genStateV036.AppState.Accounts {
 
 				balance := account.Coins.AmountOf(denom)
@@ -203,6 +204,7 @@ Example:
 				acc.AtomBalance = acc.AtomBalance.Add(stakedAtoms)
 				acc.AtomStakedBalance = acc.AtomStakedBalance.Add(stakedAtoms)
 
+				totalStakedAtom = totalStakedAtom.Add(stakedAtoms)
 				snapshot[address] = acc
 			}
 
@@ -240,8 +242,11 @@ Example:
 
 			fmt.Printf("cosmos accounts: %d\n", len(snapshot))
 			fmt.Printf("atomTotalSupply: %s\n", totalAtomBalance.String())
+			fmt.Printf("total staked atoms: %s\n", totalStakedAtom.String())
 			fmt.Printf("extra whale amounts: %s\n", extraWhaleAmounts.String())
+			fmt.Printf("total juno airdrop: %s\n", totalJunoBalance.String())
 
+			
 			// export snapshot json
 			snapshotJSON, err := aminoCodec.MarshalJSON(snapshot)
 			if err != nil {
@@ -317,6 +322,7 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 
 			count := 0
 			for address, acc := range snapshot {
+				count++;
 
 				// Skip empty accounts
 				if (acc.JunoBalance.LTE(sdk.NewInt(0))) {
@@ -343,8 +349,6 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 				accs = append(accs, genAccount)
 
 				bankGenState.Balances = append(bankGenState.Balances, balances)
-
-				count++;
 
 				if (count % 1000 == 0) {
 					fmt.Printf("Progress (%d of %d)\n", count, len(snapshot))
