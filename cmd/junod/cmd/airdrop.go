@@ -119,7 +119,7 @@ Example:
 				return err
 			}
 
-			// Read Poll file
+			// Read exchanges file
 			exchangeJSON, err := os.Open(exchangeFile)
 			if err != nil {
 				return err
@@ -194,7 +194,7 @@ Example:
 
 				val := validators[delegation.ValidatorAddress.String()]
 
-				// If an account was delegated to an exchange skip
+				// Skip delegations to exchanges
 				if exchangeMap[sdk.AccAddress(delegation.ValidatorAddress.Bytes()).String()] {
 					continue
 				}
@@ -262,10 +262,6 @@ Example:
 
 	return cmd
 }
-
-const (
-	flagGenesisTime     = "genesis-time"
-)
 
 // AddAirdropAccounts Add balances of accounts to genesis, based on cosmos hub snapshot file
 func AddAirdropAccounts()  *cobra.Command {
@@ -389,10 +385,6 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 			return genutil.ExportGenesisFile(genDoc, genFile)
 		},
 	}
-
-	cmd.Flags().String(flagGenesisTime, "", "override genesis_time with this flag")
-	cmd.Flags().String(flags.FlagChainID, "", "override chain_id with this flag")
-	
 
 	return cmd
 }
