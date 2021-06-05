@@ -71,12 +71,12 @@ at the time of the Stargate snapshot on Feb. 18th 6:00 PM UTC.
 Addresses that qualify will be included in the JUNO genesis block at launch. 
 Exchange validators that failed to vote on prop #37 (Stargate upgrade) will be excluded from the genesis allocation. Including delegators bonding ATOM to those exchange validators. Additionally any unbonded ATOM at the time of the snapshot will be excluded.
 A whale cap was voted in by the community, effectively hard-capping $ATOM accounts at 50 thousand $ATOM in order to ensure a less top heavy distribution.
-10% of the supply difference to be allocated to a multisig committee address for the funding of a core-development efforts. The remaining 90% of the excess supply to be allocated in the following ways (20 million community pool, Smart contract competition 2.868.472,42 million to be managed/distributed by the multi-sig committee and the remaining difference will not be included in the genesis file ie. burned)
+10% of the supply difference to be allocated to a multisig committee address for the funding of a core-development efforts. The remaining 90% of the excess supply to be allocated in the following ways (20 million $Juno community pool, Smart contract competition 2.373.341,66 million to be managed/distributed by the multi-sig committee. The remaining difference will not be included in the genesis file ie. burned)
 
 
 **Asset & network metrics**
 
-The community has proposed the following parameters for the network and native asset (subject to change before genesis based on community polling):
+The community has proposed the following parameters for the network and native asset:
 
 
 ⚫️ **Ticker**: JUNO
@@ -89,16 +89,16 @@ The community has proposed the following parameters for the network and native a
 
 ![JUNO BANNER](https://user-images.githubusercontent.com/79812965/114202517-8ce5b180-9957-11eb-842f-584a2d729b2b.png)
 
-**Proposed JUNO inflation reward shedule (updated)**
+**Proposed JUNO inflation reward shedule (updated on 05.06.2021)**
 
 
-✅ Initial Supply at genesis 72.819.725,5 Million $JUNO  
+✅ Circulating Supply at genesis 64903243.548222 $JUNO (64.9 Million)  
 
-Initial fixed inflation 40% (+29.127.890,208)
+Initial fixed inflation 40% 
 
 ⚫️ After year 1: 101947615.728 JUNO
 
-Inflation reduction to 20% (+ 20.389.523,14 $JUNO)
+Inflation reduction to 20%
 
 ⚫️ After year 2: 122337138.868 JUNO
 
