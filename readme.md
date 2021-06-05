@@ -89,10 +89,24 @@ The community has proposed the following parameters for the network and native a
 
 ![JUNO BANNER](https://user-images.githubusercontent.com/79812965/114202517-8ce5b180-9957-11eb-842f-584a2d729b2b.png)
 
-**Proposed JUNO inflation reward shedule (updated on 05.06.2021)**
+**Tokenomics & reward shedule** (updated on 05.06.2021)**
 
 
-✅ Circulating Supply at genesis 64903243.548222 $JUNO (64.9 Million)  
+✅ Circulating Supply at genesis 64903243.548222 $JUNO (64.9 Million)
+
+
+**Breakdown**
+
+⚫️ Stakedrop: 30,663,193.590002 $JUNO
+
+⚫️ Community Pool: 20,000,000.00 $JUNO
+
+⚫️ Development Multi-sig Committee: 11,866,708.29852 $JUNO
+
+⚫️ Smart Contract Challenges: 2.373.341,6597 $JUNO
+
+
+**Reward shedule**
 
 Initial fixed inflation 40% 
 
