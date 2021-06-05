@@ -92,56 +92,56 @@ The community has proposed the following parameters for the network and native a
 **Tokenomics & reward shedule** (updated on 05.06.2021)
 
 
-✅ Circulating Supply at genesis 64903243.548222 $JUNO (64.9 Million)
+✅ Circulating Supply at genesis 64.903.243,548222 $JUNO (64.9 Million)
 
 
 **Breakdown**
 
-⚫️ Stakedrop: 30,663,193.590002 $JUNO
+⚫️ Stakedrop: 30.663.193,590002 $JUNO
 
-⚫️ Community Pool: 20,000,000.00 $JUNO
+⚫️ Community Pool: 20.000.000,00 $JUNO
 
-⚫️ Development Multi-sig Committee: 11,866,708.29852 $JUNO
+⚫️ Development Multi-sig Committee: 11.866.708,29852 $JUNO
 
 ⚫️ Smart Contract Challenges: 2.373.341,6597 $JUNO
 
 
-**Reward shedule**
+**Reward Schedule**
 
-Initial fixed inflation 40% 
+Initial fixed inflation 40% (+25.961.297,4192)
 
-⚫️ After year 1: 101947615.728 JUNO
+⚫️ After year 1: 90.864.540,967422 JUNO
 
-Inflation reduction to 20%
+Inflation reduction to 20% (+18.172.908,19348)
 
-⚫️ After year 2: 122337138.868 JUNO
+⚫️ After year 2: 109.037.449,160902 JUNO
 
-Inflation reduction to 10% (+12.233.714)
+Inflation reduction to 10% (+10.903.744,91609)
 
-⚫️ After year 3: 134570852.868 JUNO
+⚫️ After year 3: 119.941.194,076992 JUNO
 
-Once the inflation reaches 10% it reduces on a fixed 1% basis each year.
+Once the inflation reaches 10% it gradually reduces on a fixed 1% basis each year.
 
-⚫️ Year 4 = 9% (+12.111.376.76) Supply = 146682229.628 JUNO
+⚫️ Year 4 = 9% (+10.794.707,46693) Supply = 130.735.901,543922 JUNO
 
-⚫️ Year 5 = 8% (+11.734.578,38) Supply = 158416808.01 JUNO
+⚫️ Year 5 = 8% (+10.458.872,12351) Supply = 141.194.773,667432 JUNO
 
-⚫️ Year 6 = 7% (+11.089.176,56) Supply = 169505984.57 JUNO
+⚫️ Year 6 = 7% (+9.883.634,15672) Supply = 151.078.407,824152 JUNO
 
-⚫️ Year 7 = 6% (+10.170.359,07) Supply = 179676343.64 JUNO
+⚫️ Year 7 = 6% (+9.064.704,46945) Supply = 160.143.112,293602 JUNO
 
-⚫️ Year 8 = 5% (+8.983.817,182) Supply = 188660160.822 JUNO
+⚫️ Year 8 = 5% (+8.007.155,61468) Supply = 168.150.267,908282 JUNO
 
-⚫️ Year 9 = 4% (+7.546.406.432,88) Supply = 196206567.255 JUNO
+⚫️ Year 9 = 4% (+6.726.010,71633) Supply = 174.876.278,624612 JUNO
 
-⚫️ Year 10 = 3% (+5.886.197.017,65) Supply = 202092764.272 JUNO
+⚫️ Year 10 = 3% (+5.246.288,35874) Supply = 180.122.566,983352 JUNO
 
-⚫️ Year 11 = 2% (+4.041.855,28) Supply = 206134619.552 JUNO
+⚫️ Year 11 = 2% (+3.602.451,33967) Supply = 183.725.018,323022 JUNO
 
 
-⚫️ Year 12 = 1% (+2.061.346,1955) Supply = 208195965.74 JUNO MAX SUPPLY
+⚫️ Year 12 = 1% (+1.837.250,18323) Supply = 185.562.268,506252 JUNO MAX SUPPLY (185.5 Million)
 
-After year 12 the inflation reward shedule ends. Network incentives would primarily come from smart contract usage & regular tx fees generated on the network.
+After year 12 the inflation reward schedule ends. Network incentives would primarily come from smart contract usage & regular tx fees generated on the network.
 
 
 
