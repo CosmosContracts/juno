@@ -23,6 +23,7 @@ jobs:
         run: |
           git clone -b v4.2.1 https://github.com/cosmos/gaia
           cd gaia
+          export PATH=$PATH:$GOPATH/bin
           make install
           gaiad init chooseanicehandle
           wget https://github.com/cosmos/mainnet/raw/master/genesis.cosmoshub-4.json.gz
