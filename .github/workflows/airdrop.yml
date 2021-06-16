@@ -1,0 +1,47 @@
+# This is a basic workflow that is manually triggered
+
+name: juno
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on: [push, pull_request]
+
+# This workflow makes x86_64 binaries for mac, windows, and linux.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    name: juno airdrop
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.16
+      - name: Gaia & genesis state
+        run: |
+          git clone -b v4.2.1 https://github.com/cosmos/gaia
+          cd gaia
+          make install
+          gaiad init chooseanicehandle
+          wget https://github.com/cosmos/mainnet/raw/master/genesis.cosmoshub-4.json.gz
+          gzip -d genesis.cosmoshub-4.json.gz
+          mv genesis.cosmoshub-4.json ~/.gaia/config/genesis.json
+          
+      - name: Compile Juno
+        run: |
+          go mod download
+          cd cmd/junod
+          go build .
+
+      - name: airdrop snapshot
+        run: junod export-airdrop-snapshot
+
+      - name: add airdrop accounts
+        run: junod add-airdrop-accounts
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: junod ${{ matrix.targetos }} ${{ matrix.arch }}
+          path: cmd/junod/junod
