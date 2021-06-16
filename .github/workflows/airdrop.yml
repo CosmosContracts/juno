@@ -25,7 +25,8 @@ jobs:
           cd gaia
           export PATH=$PATH:$GOPATH/bin
           make install
-          gaiad init chooseanicehandle
+          go build ./...
+          ./cmd/gaiad/gaiad init chooseanicehandle
           wget https://github.com/cosmos/mainnet/raw/master/genesis.cosmoshub-4.json.gz
           gzip -d genesis.cosmoshub-4.json.gz
           mv genesis.cosmoshub-4.json ~/.gaia/config/genesis.json
