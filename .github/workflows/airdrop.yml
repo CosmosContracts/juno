@@ -38,12 +38,12 @@ jobs:
           go build .
 
       - name: airdrop snapshot
-        run: junod export-airdrop-snapshot
+        run: ./junod export-airdrop-snapshot
 
       - name: add airdrop accounts
-        run: junod add-airdrop-accounts
+        run: ./junod add-airdrop-accounts
           
       - uses: actions/upload-artifact@v2
         with:
-          name: junod ${{ matrix.targetos }} ${{ matrix.arch }}
+          name: junod 
           path: cmd/junod/junod
