@@ -24,9 +24,9 @@ jobs:
           git clone -b v4.2.1 https://github.com/cosmos/gaia
           cd gaia
           export PATH=$PATH:$GOPATH/bin
-          make install
-          go build ./...
-          ./cmd/gaiad/gaiad init chooseanicehandle
+          make build
+          cd build
+          ./gaiad init chooseanicehandle
           wget https://github.com/cosmos/mainnet/raw/master/genesis.cosmoshub-4.json.gz
           gzip -d genesis.cosmoshub-4.json.gz
           mv genesis.cosmoshub-4.json ~/.gaia/config/genesis.json
