@@ -19,17 +19,7 @@ jobs:
         uses: actions/setup-go@v1
         with:
           go-version: 1.16
-      - name: Gaia & genesis state
-        run: |
-          git clone -b v4.2.1 https://github.com/cosmos/gaia
-          cd gaia
-          export PATH=$PATH:$GOPATH/bin
-          make build
-          cd build
-          ./gaiad init chooseanicehandle
-          wget https://github.com/cosmos/mainnet/raw/master/genesis.cosmoshub-4.json.gz
-          gzip -d genesis.cosmoshub-4.json.gz
-          mv genesis.cosmoshub-4.json ~/.gaia/config/genesis.json
+
           
       - name: Compile Juno
         run: |
@@ -42,7 +32,10 @@ jobs:
           cd cmd/junod
           wget https://raw.githubusercontent.com/CosmosContracts/mainnet/main/exchanges.json
           cat exchanges.json
-          ./junod export-airdrop-snapshot juno ~/.gaia/config/genesis.json exchanges.json snapshot.json --juno-whalecap=50000000000
+          wget https://github.com/cosmos/mainnet/raw/master/genesis.cosmoshub-4.json.gz
+          gzip -d genesis.cosmoshub-4.json.gz
+          mv genesis.cosmoshub-4.json genesis.json
+          ./junod export-airdrop-snapshot juno genesis.json exchanges.json snapshot.json --juno-whalecap=50000000000
 
  # junod export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [input-exchange-addresses] [output-snapshot-json] --juno-whalecap=[juno-whalecap] [flags]
 
