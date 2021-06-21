@@ -38,7 +38,9 @@ jobs:
           go build .
 
       - name: airdrop snapshot
-        run: ./junod export-airdrop-snapshot
+        run: |
+          cd cmd/junod
+          ./junod export-airdrop-snapshot
 
       - name: add airdrop accounts
         run: ./junod add-airdrop-accounts
