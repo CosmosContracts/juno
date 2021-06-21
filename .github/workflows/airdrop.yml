@@ -40,7 +40,11 @@ jobs:
       - name: airdrop snapshot
         run: |
           cd cmd/junod
-          ./junod export-airdrop-snapshot
+          wget https://raw.githubusercontent.com/CosmosContracts/mainnet/main/exchanges.json
+          ./junod export-airdrop-snapshot juno ~/.gaia/config/genesis.json exchanges.json snapshot.json --juno-whalecap=50000000000
+
+ # junod export-airdrop-snapshot [airdrop-to-denom] [input-genesis-file] [input-exchange-addresses] [output-snapshot-json] --juno-whalecap=[juno-whalecap] [flags]
+
 
       - name: add airdrop accounts
         run: ./junod add-airdrop-accounts
