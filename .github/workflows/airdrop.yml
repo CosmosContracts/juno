@@ -35,7 +35,7 @@ jobs:
           wget https://github.com/cosmos/mainnet/raw/master/genesis.cosmoshub-4.json.gz
           gzip -d genesis.cosmoshub-4.json.gz
           mv genesis.cosmoshub-4.json genesis.json
-          if [ $(echo '{"test":true}' | jq empty > /dev/null 2>&1; echo $?) -eq 0 ]; then
+          if [ $(cat genesis.json | jq empty > /dev/null 2>&1; echo $?) -eq 0 ]; then
           echo "JSON is valid"
           else
           echo "JSON is invalid"
