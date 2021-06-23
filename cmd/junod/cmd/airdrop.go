@@ -17,6 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	v036distribution "github.com/cosmos/cosmos-sdk/x/distribution/legacy/v036"
 	v036genaccounts "github.com/cosmos/cosmos-sdk/x/genaccounts/legacy/v036"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -34,8 +35,9 @@ type GenesisStateV036 struct {
 
 // AppStateV036 is app state structure for app state
 type AppStateV036 struct {
-	Accounts []v036genaccounts.GenesisAccount `json:"accounts"`
-	Staking  v036staking.GenesisState         `json:"staking"`
+	Accounts     []v036genaccounts.GenesisAccount `json:"accounts"`
+	Staking      v036staking.GenesisState         `json:"staking"`
+	Distribution v036distribution.GenesisState    `json:"distribution"`
 }
 
 // SnapshotFields provide fields of snapshot per account
@@ -46,11 +48,11 @@ type SnapshotFields struct {
 	AtomStakedBalance   sdk.Int `json:"atom_staked_balance"`
 	AtomUnstakedBalance sdk.Int `json:"atom_unstaked_balance"`
 	// AtomStakedPercent = AtomStakedBalance / AtomBalance
-	AtomStakedPercent     sdk.Dec `json:"atom_staked_percent"`
-	AtomOwnershipPercent  sdk.Dec `json:"atom_ownership_percent"`
+	AtomStakedPercent    sdk.Dec `json:"atom_staked_percent"`
+	AtomOwnershipPercent sdk.Dec `json:"atom_ownership_percent"`
 	// JunoBalance = 1:1 with atom, capped to 50k
 	JunoBalance sdk.Int `json:"juno_balance"`
-	Juno sdk.Int `json:"juno_balance_bonus"`
+	Juno        sdk.Int `json:"juno_balance_bonus"`
 }
 
 // setCosmosBech32Prefixes set config for cosmos address system
@@ -217,7 +219,7 @@ Example:
 
 				//Remove dust accounts
 				if allAtoms.LTE(sdk.NewDec(1000000)) {
-					delete(snapshot, address);
+					delete(snapshot, address)
 					continue
 				}
 
@@ -246,7 +248,6 @@ Example:
 			fmt.Printf("extra whale amounts: %s\n", extraWhaleAmounts.String())
 			fmt.Printf("total juno airdrop: %s\n", totalJunoBalance.String())
 
-			
 			// export snapshot json
 			snapshotJSON, err := aminoCodec.MarshalJSON(snapshot)
 			if err != nil {
@@ -264,14 +265,14 @@ Example:
 }
 
 // AddAirdropAccounts Add balances of accounts to genesis, based on cosmos hub snapshot file
-func AddAirdropAccounts()  *cobra.Command {
+func AddAirdropAccounts() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-airdrop-accounts [airdrop-snapshot-file] [denom]",
-		Short: "Add balances of accounts to genesis, based on cosmos hub snapshot file",
-		Args:  cobra.ExactArgs(2),
+		Use:   "add-airdrop-accounts [airdrop-snapshot-file] [denom] [community pool]",
+		Short: "Add balances of accounts to genesis, based on cosmos hub snapshot file. The snapshot creation will be used to calc balances total, which will be added to the community pool you supply",
+		Args:  cobra.ExactArgs(3),
 		Long: fmt.Sprintf(`Add balances of accounts to genesis, based on cosmos hub snapshot file
 Example:
-$ %s add-airdrop-accounts /path/to/snapshot.json
+$ %s add-airdrop-accounts /path/to/snapshot.json ujuno 2000
 `, version.AppName),
 
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -300,6 +301,13 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 			denom := args[1]
 
 			genFile := config.GenesisFile()
+
+			// err, possibly redundant
+			// genFileBlob, err := ioutil.ReadFile(genFile)
+			// if err != nil {
+			//	return err
+			// }
+
 			appState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
 			if err != nil {
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
@@ -316,13 +324,16 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 
 			fmt.Printf("Accounts %d\n", len(snapshot))
 
+			// while this loop runs, collect balance to
+			// populate supply later
+			totalAtomSupplyFromBalances := sdk.NewInt(0)
 			count := 0
 			for address, acc := range snapshot {
-				count++;
+				count++
 
 				// Skip empty accounts
-				if (acc.JunoBalance.LTE(sdk.NewInt(0))) {
-					continue;
+				if acc.JunoBalance.LTE(sdk.NewInt(0)) {
+					continue
 				}
 
 				addr, err := ConvertCosmosAddressToJuno(address)
@@ -332,12 +343,15 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 
 				// Skip if account already exists
 				if accs.Contains(addr) {
-					continue;
+					continue
 				}
 
 				coin := sdk.NewCoin(denom, acc.JunoBalance)
 				coins := sdk.NewCoins(coin)
-			
+
+				// add to total supply
+				totalAtomSupplyFromBalances.Add(acc.JunoBalance)
+
 				// create concrete account type based on input parameters
 				balances := banktypes.Balance{Address: addr.String(), Coins: coins.Sort()}
 				genAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
@@ -346,12 +360,13 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 
 				bankGenState.Balances = append(bankGenState.Balances, balances)
 
-				if (count % 1000 == 0) {
+				if count%1000 == 0 {
 					fmt.Printf("Progress (%d of %d)\n", count, len(snapshot))
 				}
 			}
 
 			fmt.Println("Done! Sorting...")
+
 			accs = authtypes.SanitizeGenesisAccounts(accs)
 			bankGenState.Balances = banktypes.SanitizeGenesisBalances(bankGenState.Balances)
 
@@ -367,6 +382,38 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 			}
 			appState[authtypes.ModuleName] = authGenStateBz
 
+			// let's set community pool in the genesis
+			// it is nested in distribution
+			var distGenesisState v036distribution.GenesisState
+			aminoCodec.UnmarshalJSON(appState[v036distribution.ModuleName], &distGenesisState)
+			distributionGenState := &distGenesisState
+
+			cpAmountStr := args[2]
+			cpAmount, ok := sdk.NewIntFromString(cpAmountStr)
+			if !ok {
+				return fmt.Errorf("failed to parse total supply arg: %s", cpAmountStr)
+			}
+
+			// needs to be v034distr.FeePool
+			// so we need to Coin -> DecCoin
+			cpCoin := sdk.NewCoin(denom, cpAmount)
+			// cpCoins := sdk.NewCoins(cpCoin)
+			communityPoolConfig := sdk.NewDecCoinsFromCoins(cpCoin)
+
+			distributionGenState.FeePool.CommunityPool = communityPoolConfig
+			distroGenStateJSON, err := aminoCodec.MarshalJSON(distributionGenState)
+			if err != nil {
+				return fmt.Errorf("failed to marshal community pool genesis state: %w", err)
+			}
+
+			appState[v036distribution.ModuleName] = distroGenStateJSON
+
+			// let's set supply before bank gen state is written
+			totalAtomSupply := cpAmount.Add(totalAtomSupplyFromBalances)
+			supplyCoin := sdk.NewCoin(denom, totalAtomSupply)
+			supplyConfig := sdk.NewCoins(supplyCoin)
+
+			bankGenState.Supply = supplyConfig
 
 			bankGenStateBz, err := cdc.MarshalJSON(bankGenState)
 			if err != nil {
@@ -374,13 +421,14 @@ $ %s add-airdrop-accounts /path/to/snapshot.json
 			}
 
 			appState[banktypes.ModuleName] = bankGenStateBz
+
 			appStateJSON, err := json.Marshal(appState)
 			if err != nil {
 				return fmt.Errorf("failed to marshal application genesis state: %w", err)
 			}
 
 			genDoc.AppState = appStateJSON
-			
+
 			fmt.Printf("Saving genesis...")
 			return genutil.ExportGenesisFile(genDoc, genFile)
 		},
@@ -397,17 +445,17 @@ func ConvertCosmosAddressToJuno(address string) (sdk.AccAddress, error) {
 	junoPrefix := config.GetBech32AccountAddrPrefix()
 
 	_, bytes, err := bech32.DecodeAndConvert(address)
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
 	newAddr, err := bech32.ConvertAndEncode(junoPrefix, bytes)
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
 	sdkAddr, err := sdk.AccAddressFromBech32(newAddr)
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
