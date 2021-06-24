@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
+	"github.com/CosmosContracts/juno/app"
+	"github.com/CosmosContracts/juno/cmd/junod/cmd"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	"github.com/cosmoscontracts/juno/app"
-	"github.com/cosmoscontracts/juno/cmd/junod/cmd"
 )
 
 func main() {
