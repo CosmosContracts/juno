@@ -69,14 +69,14 @@ and to provide utility in the deployment and execution of smart contracts.
 A 1:1 stakedrop is distributed to $ATOM holders, giving 100% of the $JUNO supply to staked $ATOM balances that had their assets bonded 
 at the time of the Stargate snapshot on Feb. 18th 6:00 PM UTC. 
 Addresses that qualify will be included in the JUNO genesis block at launch. 
-Exchange validator balances that failed to vote on prop #37 will be excluded. Additionally unbonded ATOM at the time of the snapshot will be excluded.
+Exchange validators that failed to vote on prop #37 (Stargate upgrade) will be excluded from the genesis allocation. Including delegators bonding ATOM to those exchange validators. Additionally any unbonded ATOM at the time of the snapshot will be excluded.
 A whale cap was voted in by the community, effectively hard-capping $ATOM accounts at 50 thousand $ATOM in order to ensure a less top heavy distribution.
-10% of the supply difference to be allocated to a multisig committee address for the initial funding of a core-development team. The remaining 90% of the excess supply to be allocated to the community pool.
-(Multi-sig committee to be selected by the community before genesis!)
+10% of the supply difference to be allocated to a multisig committee address for the funding of a core-development efforts. The remaining 90% of the excess supply to be allocated in the following ways (20 million $Juno community pool, Smart contract competition 2.373.341,66 million to be managed/distributed by the multi-sig committee. The remaining difference will not be included in the genesis file ie. burned)
+
 
 **Asset & network metrics**
 
-The community has proposed the following parameters for the network and native asset (subject to change before genesis based on community polling):
+The community has proposed the following parameters for the network and native asset:
 
 
 ⚫️ **Ticker**: JUNO
@@ -89,44 +89,61 @@ The community has proposed the following parameters for the network and native a
 
 ![JUNO BANNER](https://user-images.githubusercontent.com/79812965/114202517-8ce5b180-9957-11eb-842f-584a2d729b2b.png)
 
-**Proposed JUNO inflation reward shedule**
+**Tokenomics & reward shedule** (updated on 05.06.2021)
 
-✅ Initial Supply at genesis 268,335,648 $Juno (Stargate Snapshot)
 
-Initial fixed inflation 40% (+ 107.334.259,2)
+✅ Circulating Supply at genesis 64.903.243,548222 $JUNO (64.9 Million)
 
-⚫️ After year 1: 375669907.2 JUNO 
 
-Inflation reduction to 20% (+75.133.981,44)
+**Breakdown**
 
-⚫️ After year 2: 450803888.64 JUNO
+⚫️ Stakedrop: 30.663.193,590002 $JUNO
 
-Inflation reduction to 10% (+45.080.388,864)
+⚫️ Community Pool: 20.000.000,00 $JUNO
 
-⚫️ After year 3: 495884277.504 JUNO
+⚫️ Development Multi-sig Committee: 11.866.708,29852 $JUNO
 
-Once the inflation reaches 10% it reduces on a fixed 1% basis each year.
+⚫️ Smart Contract Challenges: 2.373.341,6597 $JUNO
 
-⚫️ Year 4 = 9% (+44.629.584,975) Supply = 540513862.479 JUNO
 
-⚫️ Year 5 = 8% (+43.241.108,99832) Supply = 583754971.47732 JUNO
+**Reward Schedule**
 
-⚫️ Year 6 = 7% (+40.862.848,00341) Supply = 624617819.48073 JUNO
+Initial fixed inflation 40% (+25.961.297,4192)
 
-⚫️ Year 7 = 6% (+37.477.069,16884) Supply = 662094888.64957 JUNO
+⚫️ After year 1: 90.864.540,967422 JUNO
 
-⚫️ Year 8 = 5% (+33.104.744,43248) Supply = 695199633.08205 JUNO
+Inflation reduction to 20% (+18.172.908,19348)
 
-⚫️ Year 9 = 4% (+27.807.985,32328) Supply = 723007618.40533 JUNO
+⚫️ After year 2: 109.037.449,160902 JUNO
 
-⚫️ Year 10 = 3% (+21.690.228,55216) Supply = 744697846.95749 JUNO
+Inflation reduction to 10% (+10.903.744,91609)
 
-⚫️ Year 11 = 2% (+14.893.956,93915) Supply = 759591803.89664 JUNO
+⚫️ After year 3: 119.941.194,076992 JUNO
 
-⚫️ Year 12 = 1% (+7.595.918,03897) Supply = 767187721.93561 JUNO MAX SUPPLY
+Once the inflation reaches 10% it gradually reduces on a fixed 1% basis each year.
 
-After year 12 the inflation reward shedule ends. 
-Network incentives would primarily come from smart contract usage & regular tx fees generated on the network.
+⚫️ Year 4 = 9% (+10.794.707,46693) Supply = 130.735.901,543922 JUNO
+
+⚫️ Year 5 = 8% (+10.458.872,12351) Supply = 141.194.773,667432 JUNO
+
+⚫️ Year 6 = 7% (+9.883.634,15672) Supply = 151.078.407,824152 JUNO
+
+⚫️ Year 7 = 6% (+9.064.704,46945) Supply = 160.143.112,293602 JUNO
+
+⚫️ Year 8 = 5% (+8.007.155,61468) Supply = 168.150.267,908282 JUNO
+
+⚫️ Year 9 = 4% (+6.726.010,71633) Supply = 174.876.278,624612 JUNO
+
+⚫️ Year 10 = 3% (+5.246.288,35874) Supply = 180.122.566,983352 JUNO
+
+⚫️ Year 11 = 2% (+3.602.451,33967) Supply = 183.725.018,323022 JUNO
+
+
+⚫️ Year 12 = 1% (+1.837.250,18323) Supply = 185.562.268,506252 JUNO MAX SUPPLY (185.5 Million)
+
+After year 12 the inflation reward schedule ends. Network incentives would primarily come from smart contract usage & regular tx fees generated on the network.
+
+
 
 
 
