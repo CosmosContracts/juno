@@ -350,7 +350,7 @@ $ %s add-airdrop-accounts /path/to/snapshot.json ujuno 2000
 				coins := sdk.NewCoins(coin)
 
 				// add to total supply
-				totalAtomSupplyFromBalances.Add(acc.JunoBalance)
+				totalAtomSupplyFromBalances = totalAtomSupplyFromBalances.Add(acc.JunoBalance)
 
 				// create concrete account type based on input parameters
 				balances := banktypes.Balance{Address: addr.String(), Coins: coins.Sort()}
