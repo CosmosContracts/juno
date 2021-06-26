@@ -2,8 +2,16 @@
 
 ![JUNO BANNER TEXT](https://user-images.githubusercontent.com/79812965/114202416-73446a00-9957-11eb-9cfc-cfec3d0b56ea.png)
 
-An **interoperable smart contract hub** which automatically executes, controls or documents a procedure of relevant events and actions 
+Juno is an **interoperable smart contract hub** which automatically executes, controls or documents a procedure of relevant events and actions 
 according to the terms of such contract or agreement to be valid & usable across multiple sovereign networks.
+
+## Join Testnet
+
+To run a node on our test network, simply:
+
+```bash
+docker run faddat/instajuno
+```
 
 Juno as a **sovereign public blockchain** in the Cosmos ecosystem, aims to provide a sandbox environment for the deployment 
 of such interoperable smart contracts. The network serves as a **decentralized, permissionless & censorship resistant** avenue 
