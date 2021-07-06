@@ -17,7 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	v036distribution "github.com/cosmos/cosmos-sdk/x/distribution/legacy/v036"
+	v038distribution "github.com/cosmos/cosmos-sdk/x/distribution/legacy/v038"
 	v036genaccounts "github.com/cosmos/cosmos-sdk/x/genaccounts/legacy/v036"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -37,7 +37,7 @@ type GenesisStateV036 struct {
 type AppStateV036 struct {
 	Accounts     []v036genaccounts.GenesisAccount `json:"accounts"`
 	Staking      v036staking.GenesisState         `json:"staking"`
-	Distribution v036distribution.GenesisState    `json:"distribution"`
+	Distribution v038distribution.GenesisState    `json:"distribution"`
 }
 
 // SnapshotFields provide fields of snapshot per account
@@ -384,8 +384,8 @@ $ %s add-airdrop-accounts /path/to/snapshot.json ujuno 2000
 
 			// let's set community pool in the genesis
 			// it is nested in distribution
-			var distGenesisState v036distribution.GenesisState
-			aminoCodec.UnmarshalJSON(appState[v036distribution.ModuleName], &distGenesisState)
+			var distGenesisState v038distribution.GenesisState
+			aminoCodec.UnmarshalJSON(appState[v038distribution.ModuleName], &distGenesisState)
 			distributionGenState := &distGenesisState
 
 			cpAmountStr := args[2]
@@ -406,7 +406,7 @@ $ %s add-airdrop-accounts /path/to/snapshot.json ujuno 2000
 				return fmt.Errorf("failed to marshal community pool genesis state: %w", err)
 			}
 
-			appState[v036distribution.ModuleName] = distroGenStateJSON
+			appState[v038distribution.ModuleName] = distroGenStateJSON
 
 			// let's set supply before bank gen state is written
 			totalAtomSupply := cpAmount.Add(totalAtomSupplyFromBalances)
