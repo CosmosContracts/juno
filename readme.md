@@ -108,40 +108,52 @@ The community has proposed the following parameters for the network and native a
 
 **Reward Schedule**
 
-Initial fixed inflation 40% (+25.961.297,4192)
+⚫️ Phase 1: Fixed inflation 40% 
 
-⚫️ After year 1: 90.864.540,967422 JUNO
+New Juno in year 1 = (+25.961.297,4192)
 
-Inflation reduction to 20% (+18.172.908,19348)
+Supply after year 1 = 90.864.540,967422 $JUNO
 
-⚫️ After year 2: 109.037.449,160902 JUNO
 
-Inflation reduction to 10% (+10.903.744,91609)
+⚫️ Phase 2: Fixed inflation 20% 
 
-⚫️ After year 3: 119.941.194,076992 JUNO
+New Juno in year 2 = (+18.172.908,19348)
+
+Supply after year 2 = 109.037.449,160902 JUNO
+
+
+⚫️ Phase 3: Fixed inflation 10% 
+
+New Juno in year 3= (+10.903.744,91609)
+
+Supply after year 3 = 119.941.194,076992 JUNO
+
 
 Once the inflation reaches 10% it gradually reduces on a fixed 1% basis each year.
 
-⚫️ Year 4 = 9% (+10.794.707,46693) Supply = 130.735.901,543922 JUNO
 
-⚫️ Year 5 = 8% (+10.458.872,12351) Supply = 141.194.773,667432 JUNO
+⚫️ Phase 4 = Fixed 9% (+10.794.707,46693) Supply = 130.735.901,543922 JUNO
 
-⚫️ Year 6 = 7% (+9.883.634,15672) Supply = 151.078.407,824152 JUNO
+⚫️ Phase 5 = Fixed 8% (+10.458.872,12351) Supply = 141.194.773,667432 JUNO
 
-⚫️ Year 7 = 6% (+9.064.704,46945) Supply = 160.143.112,293602 JUNO
+⚫️ Phase 6 = Fixed 7% (+9.883.634,15672) Supply = 151.078.407,824152 JUNO
 
-⚫️ Year 8 = 5% (+8.007.155,61468) Supply = 168.150.267,908282 JUNO
+⚫️ Phase 7 = Fixed 6% (+9.064.704,46945) Supply = 160.143.112,293602 JUNO
 
-⚫️ Year 9 = 4% (+6.726.010,71633) Supply = 174.876.278,624612 JUNO
+⚫️ Phase 8 = Fixed 5% (+8.007.155,61468) Supply = 168.150.267,908282 JUNO
 
-⚫️ Year 10 = 3% (+5.246.288,35874) Supply = 180.122.566,983352 JUNO
+⚫️ Phase 9 = Fixed 4% (+6.726.010,71633) Supply = 174.876.278,624612 JUNO
 
-⚫️ Year 11 = 2% (+3.602.451,33967) Supply = 183.725.018,323022 JUNO
+⚫️ Phase 10 = Fixed 3% (+5.246.288,35874) Supply = 180.122.566,983352 JUNO
 
+⚫️ Phase 11 = Fixed 2% (+3.602.451,33967) Supply = 183.725.018,323022 JUNO
 
-⚫️ Year 12 = 1% (+1.837.250,18323) Supply = 185.562.268,506252 JUNO MAX SUPPLY (185.5 Million)
+⚫️ Phase 12 = Fixed 1% (+1.837.250,18323) Supply = 185.562.268,506252 
 
-After year 12 the inflation reward schedule ends. Network incentives would primarily come from smart contract usage & regular tx fees generated on the network.
+JUNO MAX SUPPLY (185.5 Million)
+
+After year 12 the inflation reward schedule ends. 
+Network incentives would primarily come from smart contract usage & regular tx fees generated on the network.
 
 
 
