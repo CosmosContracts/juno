@@ -37,31 +37,31 @@ and to provide utility in the deployment and execution of smart contracts.
 
 **What differentiates JUNO from other Smart Contract networks?**
 
-⚫️ Interoperable smart contracts 
+⚪️ Interoperable smart contracts 
 
-⚫️ Modularity
+⚪️ Modularity
 
-⚫️ Wasm + (EVM)
+⚪️ Wasm + (EVM)
 
-⚫️ Compilation in multiple languages Rust & Go (C,C++)
+⚪️ Compilation in multiple languages Rust & Go (C,C++)
 
-⚫️ High scalability
+⚪️ High scalability
 
-⚫️ Ease of use
+⚪️ Ease of use
 
-⚫️ Fee balancing (Upper & lower bound)
+⚪️ Fee balancing (Upper & lower bound)
 
-⚫️ Free & fair asset distribution 100% to staked atom only
+⚪️ Free & fair asset distribution 100% to staked atom only
 
-⚫️ Balanced governance (Zero top heavy control) 
+⚪️ Balanced governance (Zero top heavy control) 
                                                      
-⚫️ Value sharing model linked to smart contract usage
+⚪️ Value sharing model linked to smart contract usage
                                                   
-⚫️ Permissionless 
+⚪️ Permissionless 
                                                      
-⚫️ Decentralized
+⚪️ Decentralized
                                              
-⚫️ Censorship resistant
+⚪️ Censorship resistant
 
 
 **Distribution**
@@ -79,13 +79,13 @@ A whale cap was voted in by the community, effectively hard-capping $ATOM accoun
 The community has proposed the following parameters for the network and native asset:
 
 
-⚫️ **Ticker**: JUNO
+⚪️ **Ticker**: JUNO
 
-⚫️ **Supply**: Snapshot of Cosmoshub-3 at 06:00 PM UTC on Feb 18th 2021
+⚪️ **Supply**: Snapshot of Cosmoshub-3 at 06:00 PM UTC on Feb 18th 2021
 
-⚫️ **Inflation**: Fixed yearly inflation (Reward model below)
+⚪️ **Inflation**: Fixed yearly inflation (Reward model below)
 
-⚫️ **Community pool tax**: 5% of block rewards
+⚪️ **Community pool tax**: 5% of block rewards
 
 ![JUNO (IBC 3)](https://user-images.githubusercontent.com/79812965/125955665-67f420ea-d482-405d-866a-b66d1593e4be.png)
 
