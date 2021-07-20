@@ -1,6 +1,7 @@
 # Juno
 
-![JUNo Banner github](https://user-images.githubusercontent.com/79812965/125955553-eac09045-14aa-4a05-a6c1-d6c7fdae6677.png)
+![JUNO (Banner Main)](https://user-images.githubusercontent.com/79812965/126368579-61f9293f-3579-4d61-82d3-2ffbe2c916cf.png)
+
 
 An **interoperable smart contract hub** which automatically executes, controls or documents a procedure of relevant events and actions 
 according to the terms of such contract or agreement to be valid & usable across multiple sovereign networks.
