@@ -57,6 +57,8 @@ and to provide utility in the deployment and execution of smart contracts.
 
 ⚪️ Free & fair asset distribution (100% to staked atom only)
 
+⚪️ Onchain governance
+
 ⚪️ Balanced governance (Zero top heavy control) 
 
 ⚪️ Grass roots community                                               
