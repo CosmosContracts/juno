@@ -93,66 +93,66 @@ The community has proposed the following parameters for the network and native a
 ![JUNO (IBC 3)](https://user-images.githubusercontent.com/79812965/125955665-67f420ea-d482-405d-866a-b66d1593e4be.png)
 
 
-**Tokenomics & reward shedule** (updated on 05.06.2021)
+**Tokenomics & reward shedule** (updated on 21.07.2021)
 
 
-✅ Circulating Supply at genesis 64.903.243,548222 $JUNO (64.9 Million)
+✅ Circulating Supply at genesis 64.903.243 $JUNO (64.9 Million)
 
 
 **Breakdown**
 
-⚪️ Stakedrop: 30.663.193,590002 $JUNO
+⚪️ Stakedrop: 30.663.193 $JUNO
 
-⚪️ Community Pool: 20.000.000,00 $JUNO
+⚪️ Community Pool: 20.000.000 $JUNO
 
-⚪️ Development Multi-sig Committee: 11.866.708,29852 $JUNO
+⚪️ Development Multi-sig Committee: 11.866.708 $JUNO
 
-⚪️ Smart Contract Challenges: 2.373.341,6597 $JUNO
+⚪️ Smart Contract Challenges: 2.373.341 $JUNO
 
 
 **Reward Schedule**
 
 ⚪️ Phase 1: Fixed inflation 40% 
 
-New Juno in year 1 = (+25.961.297,4192)
+New Juno in year 1 = (+25.961.297)
 
-Supply after year 1 = 90.864.540,967422 $JUNO
+Supply after year 1 = 90.864.540 $JUNO
 
 
 ⚪️ Phase 2: Fixed inflation 20% 
 
-New Juno in year 2 = (+18.172.908,19348)
+New Juno in year 2 = (+18.172.908)
 
-Supply after year 2 = 109.037.449,160902 JUNO
+Supply after year 2 = 109.037.449 JUNO
 
 
 ⚪️ Phase 3: Fixed inflation 10% 
 
-New Juno in year 3= (+10.903.744,91609)
+New Juno in year 3= (+10.903.744)
 
-Supply after year 3 = 119.941.194,076992 JUNO
+Supply after year 3 = 119.941.194 JUNO
 
 
 Once the inflation reaches 10% it gradually reduces on a fixed 1% basis each year.
 
 
-⚪️ Phase 4 = Fixed 9% (+10.794.707,46693) Supply = 130.735.901,543922 JUNO
+⚪️ Phase 4 = Fixed 9% (+10.794.707) Supply = 130.735.901 JUNO
 
-⚪️ Phase 5 = Fixed 8% (+10.458.872,12351) Supply = 141.194.773,667432 JUNO
+⚪️ Phase 5 = Fixed 8% (+10.458.872) Supply = 141.194.773 JUNO
 
-⚪️ Phase 6 = Fixed 7% (+9.883.634,15672) Supply = 151.078.407,824152 JUNO
+⚪️ Phase 6 = Fixed 7% (+9.883.634) Supply = 151.078.407 JUNO
 
-⚪️ Phase 7 = Fixed 6% (+9.064.704,46945) Supply = 160.143.112,293602 JUNO
+⚪️ Phase 7 = Fixed 6% (+9.064.704) Supply = 160.143.112  JUNO
 
-⚪️ Phase 8 = Fixed 5% (+8.007.155,61468) Supply = 168.150.267,908282 JUNO
+⚪️ Phase 8 = Fixed 5% (+8.007.155) Supply = 168.150.267  JUNO
 
-⚪️ Phase 9 = Fixed 4% (+6.726.010,71633) Supply = 174.876.278,624612 JUNO
+⚪️ Phase 9 = Fixed 4% (+6.726.010) Supply = 174.876.278 JUNO
 
-⚪️ Phase 10 = Fixed 3% (+5.246.288,35874) Supply = 180.122.566,983352 JUNO
+⚪️ Phase 10 = Fixed 3% (+5.246.288) Supply = 180.122.566 JUNO
 
-⚪️ Phase 11 = Fixed 2% (+3.602.451,33967) Supply = 183.725.018,323022 JUNO
+⚪️ Phase 11 = Fixed 2% (+3.602.451) Supply = 183.725.018 JUNO
 
-⚪️ Phase 12 = Fixed 1% (+1.837.250,18323) Supply = 185.562.268,506252 
+⚪️ Phase 12 = Fixed 1% (+1.837.250) Supply = 185.562.268 JUNO 
 
 JUNO MAX SUPPLY (185.5 Million)
 
