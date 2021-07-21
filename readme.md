@@ -67,14 +67,14 @@ and to provide utility in the deployment and execution of smart contracts.
                                              
 
 
-**Distribution**
+**Genesis Distribution**
 
-A 1:1 stakedrop is distributed to $ATOM holders, giving 100% of the $JUNO supply to staked $ATOM balances that had their assets bonded 
+A 1:1 stakedrop is allocated to $ATOM stakers, giving the $JUNO genesis supply to staked $ATOM balances that had their assets bonded 
 at the time of the Stargate snapshot on Feb. 18th 6:00 PM UTC. 
-Addresses that qualify will be included in the JUNO genesis block at launch. 
-Exchange validators that failed to vote on prop #37 (Stargate upgrade) will be excluded from the genesis allocation. Including delegators bonding ATOM to those exchange validators. Additionally any unbonded ATOM at the time of the snapshot will be excluded.
-A whale cap was voted in by the community, effectively hard-capping $ATOM accounts at 50 thousand $ATOM in order to ensure a less top heavy distribution.
-10% of the supply difference to be allocated to a multisig committee address for the funding of a core-development efforts. The remaining 90% of the excess supply to be allocated in the following ways (20 million $Juno community pool, Smart contract competition 2.373.341,66 million to be managed/distributed by the multi-sig committee. The remaining difference will not be included in the genesis file ie. burned)
+Addresses that qualify are included in the JUNO genesis block at launch. 
+All exchange validators & their delegators are excluded from the genesis allocation. Additionally any unbonded ATOM at the time of the snapshot is excluded.
+A whale cap was voted in by the community, effectively hard-capping $ATOM accounts at 50 thousand $ATOM in order to ensure a less top heavy allocation.
+Approx 10% of the supply difference is allocated to the development multisig committee address for the funding of a core-development efforts. The remaining 90% of the excess supply to be allocated in the following ways (20 million $Juno community pool, Smart contract competition 2.373.341,66 million to be managed/distributed by the multi-sig committee. The remaining difference will not be included in the genesis file ie. burned)
 
 
 **Asset & network metrics**
