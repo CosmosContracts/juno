@@ -2,15 +2,15 @@
 
 ![JUNO HUB](https://user-images.githubusercontent.com/79812965/126556107-0b87b79c-5f84-4ae9-ae72-db151418812f.png)
 
-An **interoperable smart contract hub** which automatically executes, controls or documents a procedure of relevant events and actions 
+The worlds first fully **interoperable smart contract hub** which automatically executes, controls or documents a procedure of relevant events and actions 
 according to the terms of such contract or agreement to be valid & usable across multiple sovereign networks.
 
 Juno as a **sovereign public blockchain** in the Cosmos ecosystem, aims to provide a sandbox environment for the deployment 
 of such interoperable smart contracts. The network serves as a **decentralized, permissionless & censorship resistant** avenue 
 for developers to efficiently and securely launch application specific smart contracts using proven frameworks 
 and compile them in various languages **Rust & Go** with the potential future addition of C and C++
-Battle tested modules such as CosmWasm, will allow for decentralized applications (dapps) to be compiled on robust and secure multi-chain smart contracts.
-EVM support and additional specialized modules to be enabled after genesis subject to onchain governance.
+Battle tested contract modules such as CosmWasm, will allow for decentralized applications (dapps) to be compiled on robust and secure multi-chain smart contracts.
+EVM support and additional specialized modules to be introduced after genesis subject to onchain governance.
 
 At the heart of Cosmos is the Inter Blockchain Communication Protocol (IBC), which sets the table for an interoperable base layer 0 
 to now be used to transfer data packets across thousands of independent networks supporting IBC. 
@@ -26,18 +26,24 @@ Tendermint BFT is a solution that packages the networking and consensus layers o
 allowing developers to focus on application development as opposed to the complex underlying protocol. 
 As a result, Tendermint saves hundreds of hours of development time.
 
-Juno originates from a **community driven initiative**, prompted by developers, validators &delegators.
-A common vision is to preserve the neutrality, performance & reliability of the Cosmos Hub and offload smart contract deployment to a dedicated sister Hub. 
+Juno originates from a **community driven initiative**, prompted by developers, validators & delegators in the Cosmos ecosystem.
+The common vision is to preserve the neutrality, performance & reliability of the Cosmos Hub and offload smart contract deployment to a dedicated sister Hub. 
 Juno plans to make an early connection to the Cosmos Hub enabling IBC transfers, cross-chain smart contracts and making use of shared security.
 
-An independent set of validators secures the Juno main-net via delegated proof of stake. 
+A decentralized launch of the Juno main-net is enabled by a large set of independent validators from across the blockchain space.
 $Juno, the native asset has many functions like securing the Juno Hub & serving as a work token to give access to on-chain governance voting rights 
 and to provide utility in the deployment and execution of smart contracts.
 
 
 **What differentiates JUNO from other Smart Contract networks?**
 
-⚪️ Interoperable smart contracts 
+⚪️ Interoperable smart contracts
+
+⚪️ Open source
+
+⚪️ Permissionless 
+
+⚪️ First mover advantage
 
 ⚪️ Modularity
 
@@ -49,19 +55,14 @@ and to provide utility in the deployment and execution of smart contracts.
 
 ⚪️ Ease of use
 
-⚪️ Fee balancing (Upper & lower bound)
-
-⚪️ Free & fair asset distribution 100% to staked atom only
+⚪️ Free & fair asset distribution (100% to staked atom only)
 
 ⚪️ Balanced governance (Zero top heavy control) 
-                                                     
-⚪️ Value sharing model linked to smart contract usage
-                                                  
-⚪️ Permissionless 
+
+⚪️ Grass roots community                                               
                                                      
 ⚪️ Decentralized
                                              
-⚪️ Censorship resistant
 
 
 **Distribution**
