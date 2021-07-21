@@ -39,19 +39,19 @@ and to provide utility in the deployment and execution of smart contracts.
 
 ⚪️ Interoperable smart contracts
 
+⚪️ First mover advantage
+
 ⚪️ Open source
 
 ⚪️ Permissionless 
 
-⚪️ First mover advantage
-
-⚪️ Modularity
+⚪️ Modular
 
 ⚪️ Wasm + (EVM)
 
 ⚪️ Compilation in multiple languages Rust & Go (C,C++)
 
-⚪️ High scalability
+⚪️ Highly scalable
 
 ⚪️ Ease of use
 
