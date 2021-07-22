@@ -67,15 +67,6 @@ and to provide utility in the deployment and execution of smart contracts.
                                              
 
 
-**Genesis Distribution**
-
-A 1:1 stakedrop is allocated to $ATOM stakers, giving the $JUNO genesis supply to staked $ATOM balances that had their assets bonded 
-at the time of the Stargate snapshot on Feb. 18th 6:00 PM UTC. 
-Addresses that qualify are included in the JUNO genesis block at launch. 
-All exchange validators & their delegators are excluded from the genesis allocation. Additionally any unbonded ATOM at the time of the snapshot is excluded.
-A whale cap was voted in by the community, effectively hard-capping $ATOM accounts at 50 thousand $ATOM in order to ensure a less top heavy allocation.
-Approx 10% of the supply difference is allocated to the development multisig committee address for the funding of core-development efforts. The remaining 90% of the excess supply to be allocated in the following ways (20 million $Juno community pool, Smart contract competition 2.373.341,66 million to be managed/distributed by the multi-sig committee. The remaining difference will not be included in the genesis file ie. burned)
-
 
 
 ![JUNO (IBC 3)](https://user-images.githubusercontent.com/79812965/125955665-67f420ea-d482-405d-866a-b66d1593e4be.png)
@@ -96,7 +87,7 @@ Approx 10% of the supply difference is allocated to the development multisig com
 ⚪️ **Community pool tax**: 5% of block rewards
 
 
-✅ Circulating Supply at genesis 64.903.243 $JUNO (64.9 Million)
+✅ Circulating supply at genesis 64.903.243 $JUNO (64.9 Million)
 
 ✅ Max supply (After year 12): 185.562.268 JUNO (185.5 Million)
 
@@ -110,6 +101,17 @@ Approx 10% of the supply difference is allocated to the development multisig com
 ⚪️ Development Multi-sig Committee: 11.866.708 $JUNO
 
 ⚪️ Smart Contract Challenges: 2.373.341 $JUNO
+
+
+**Genesis Distribution**
+
+A 1:1 stakedrop is allocated to $ATOM stakers, giving the $JUNO genesis supply to staked $ATOM balances that had their assets bonded 
+at the time of the Stargate snapshot on Feb. 18th 6:00 PM UTC. 
+Addresses that qualify are included in the JUNO genesis block at launch. 
+All exchange validators & their delegators are excluded from the genesis allocation. Additionally any unbonded ATOM at the time of the snapshot is excluded.
+A whale cap was voted in by the community, effectively hard-capping $ATOM accounts at 50 thousand $ATOM in order to ensure a less top heavy allocation.
+Approx 10% of the supply difference is allocated to the development multisig committee address for the funding of core-development efforts. The remaining 90% of the excess supply to be allocated in the following ways (20 million $Juno community pool, Smart contract competition 2.373.341,66 million to be managed/distributed by the multi-sig committee. The remaining difference will not be included in the genesis file ie. burned)
+
 
 
 **Reward Schedule**
