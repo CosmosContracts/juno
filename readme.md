@@ -77,11 +77,6 @@ A whale cap was voted in by the community, effectively hard-capping $ATOM accoun
 Approx 10% of the supply difference is allocated to the development multisig committee address for the funding of core-development efforts. The remaining 90% of the excess supply to be allocated in the following ways (20 million $Juno community pool, Smart contract competition 2.373.341,66 million to be managed/distributed by the multi-sig committee. The remaining difference will not be included in the genesis file ie. burned)
 
 
-**Asset & network metrics**
-
-The community has proposed the following parameters for the network and native asset:
-
-
 ⚪️ **Ticker**: JUNO
 
 ⚪️ **Supply**: Snapshot of Cosmoshub-3 at 06:00 PM UTC on Feb 18th 2021
@@ -95,11 +90,25 @@ The community has proposed the following parameters for the network and native a
 
 **Tokenomics & reward shedule** (updated on 21.07.2021)
 
+⚪️ **Ticker**: JUNO
+
+⚪️ **Decimals**: 6
+
+⚪️ **Unit**: uJuno
+
+⚪️ **Supply**: Snapshot of Cosmoshub-3 at 06:00 PM UTC on Feb 18th 2021
+
+⚪️ **Rewards**: Fixed yearly reward schedule (Reward model below)
+
+⚪️ **Community pool tax**: 5% of block rewards
+
 
 ✅ Circulating Supply at genesis 64.903.243 $JUNO (64.9 Million)
 
+✅ Max supply (After year 12): 185.562.268 JUNO (185.5 Million)
 
-**Breakdown**
+
+**Supply Breakdown**
 
 ⚪️ Stakedrop: 30.663.193 $JUNO
 
