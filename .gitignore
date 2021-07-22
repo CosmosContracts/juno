@@ -1,3 +1,7 @@
 vue/node_modules
 vue/dist
 secret.yml
+cosmoshub3.json
+exchanges.json
+juno_out.json
+bin
