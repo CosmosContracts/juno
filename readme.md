@@ -1,6 +1,6 @@
 # Junø
 
-![JUNO HUB](https://user-images.githubusercontent.com/79812965/126556107-0b87b79c-5f84-4ae9-ae72-db151418812f.png)
+![JUNO TWITTTT](https://user-images.githubusercontent.com/79812965/128625844-41ad62ea-ef27-49ad-81cc-915a2d1a6fc7.png)
 
 The worlds first fully **interoperable smart contract hub** which automatically executes, controls or documents a procedure of relevant events and actions 
 according to the terms of such contract or agreement to be valid & usable across multiple sovereign networks.
