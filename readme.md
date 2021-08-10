@@ -69,7 +69,10 @@ and to provide utility in the deployment and execution of smart contracts.
 
 
 
-![JUNO (IBC 3)](https://user-images.githubusercontent.com/79812965/125955665-67f420ea-d482-405d-866a-b66d1593e4be.png)
+![GENESIS 3 (JUNO)](https://user-images.githubusercontent.com/79812965/128879584-a3cf4ac0-3ba8-4142-a4c4-7dc37880b6ad.png)
+
+
+
 
 
 **Tokenomics & reward shedule** (updated on 24.07.2021)
