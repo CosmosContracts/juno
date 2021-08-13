@@ -41,29 +41,30 @@ func ValidateMinter(minter Minter) error {
 }
 
 // NextInflationRate returns the new inflation rate for the next hour.
-func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec) sdk.Dec {
-	// The target annual inflation rate is recalculated for each previsions cycle. The
-	// inflation is also subject to a rate change (positive or negative) depending on
-	// the distance from the desired ratio (67%). The maximum rate change possible is
-	// defined to be 13% per year, however the annual inflation is capped as between
-	// 7% and 20%.
+func (m Minter) NextInflationRate(params Params, currentBlock sdk.Dec) sdk.Dec {
+	phase := currentBlock.Quo(sdk.NewDec(int64(params.BlocksPerYear))).Ceil()
 
-	// (1 - bondedRatio/GoalBonded) * InflationRateChange
-	inflationRateChangePerYear := sdk.OneDec().
-		Sub(bondedRatio.Quo(params.GoalBonded)).
-		Mul(params.InflationRateChange)
-	inflationRateChange := inflationRateChangePerYear.Quo(sdk.NewDec(int64(params.BlocksPerYear)))
+	switch {
+	case phase.GT(sdk.NewDec(12)):
+		return sdk.ZeroDec()
 
-	// adjust the new annual inflation for this next cycle
-	inflation := m.Inflation.Add(inflationRateChange) // note inflationRateChange may be negative
-	if inflation.GT(params.InflationMax) {
-		inflation = params.InflationMax
+	case phase.Equal(sdk.NewDec(1)):
+		return sdk.NewDecWithPrec(40, 2)
+
+	case phase.Equal(sdk.NewDec(2)):
+		return sdk.NewDecWithPrec(20, 2)
+
+	case phase.Equal(sdk.NewDec(3)):
+		return sdk.NewDecWithPrec(10, 2)
+
+	default:
+		// Phase4:  9%
+		// Phase5:  8%
+		// Phase6:  7%
+		// ...
+		// Phase12: 1%
+		return sdk.NewDecWithPrec(13-phase.RoundInt64(), 2)
 	}
-	if inflation.LT(params.InflationMin) {
-		inflation = params.InflationMin
-	}
-
-	return inflation
 }
 
 // NextAnnualProvisions returns the annual provisions based on current total
