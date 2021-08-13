@@ -3,10 +3,10 @@ package mint
 import (
 	"time"
 
+	"github.com/CosmosContracts/juno/x/mint/keeper"
+	"github.com/CosmosContracts/juno/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	"github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
 // BeginBlocker mints new tokens for the previous block.

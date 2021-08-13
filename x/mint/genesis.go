@@ -1,9 +1,9 @@
 package mint
 
 import (
+	"github.com/CosmosContracts/juno/x/mint/keeper"
+	"github.com/CosmosContracts/juno/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	"github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
 // InitGenesis new mint genesis
