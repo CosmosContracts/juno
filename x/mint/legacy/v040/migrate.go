@@ -1,8 +1,8 @@
 package v040
 
 import (
-	v039mint "github.com/cosmos/cosmos-sdk/x/mint/legacy/v039"
-	v040mint "github.com/cosmos/cosmos-sdk/x/mint/types"
+	v039mint "github.com/CosmosContracts/juno/x/mint/legacy/v039"
+	v040mint "github.com/CosmosContracts/juno/x/mint/types"
 )
 
 // Migrate accepts exported v0.39 x/mint genesis state and
