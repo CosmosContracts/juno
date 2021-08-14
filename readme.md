@@ -2,7 +2,7 @@
 
 ![JUNO TWITTTT](https://user-images.githubusercontent.com/79812965/128625844-41ad62ea-ef27-49ad-81cc-915a2d1a6fc7.png)
 
-The worlds first fully **interoperable smart contract hub** which automatically executes, controls or documents a procedure of relevant events and actions 
+Open source platform for interoperable smart contracts which automatically executes, controls or documents a procedure of relevant events and actions 
 according to the terms of such contract or agreement to be valid & usable across multiple sovereign networks.
 
 Juno as a **sovereign public blockchain** in the Cosmos ecosystem, aims to provide a sandbox environment for the deployment 
