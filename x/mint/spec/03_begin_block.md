@@ -9,34 +9,35 @@ paid at the beginning of each block.
 
 ## NextInflationRate
 
-The target annual inflation rate is recalculated each block.
-The inflation is also subject to a rate change (positive or negative)
-depending on the distance from the desired ratio (67%). The maximum rate change
-possible is defined to be 13% per year, however the annual inflation is capped
-as between 7% and 20%.
+The target annual inflation rate is recalculated each block and stored if it changes (new phase)
 
 ```
-NextInflationRate(params Params, bondedRatio sdk.Dec) (inflation sdk.Dec) {
-	inflationRateChangePerYear = (1 - bondedRatio/params.GoalBonded) * params.InflationRateChange
-	inflationRateChange = inflationRateChangePerYear/blocksPerYr
+func (m Minter) NextInflationRate(params Params, currentBlock sdk.Dec) sdk.Dec {
+	phase := currentBlock.Quo(sdk.NewDec(int64(params.BlocksPerYear))).Ceil()
 
-	// increase the new annual inflation for this next cycle
-	inflation += inflationRateChange
-	if inflation > params.InflationMax {
-		inflation = params.InflationMax
-	}
-	if inflation < params.InflationMin {
-		inflation = params.InflationMin
-	}
+	switch {
+	case phase.GT(sdk.NewDec(12)):
+		return sdk.ZeroDec()
 
-	return inflation
+	case phase.Equal(sdk.NewDec(1)):
+		return sdk.NewDecWithPrec(40, 2)
+
+	case phase.Equal(sdk.NewDec(2)):
+		return sdk.NewDecWithPrec(20, 2)
+
+	case phase.Equal(sdk.NewDec(3)):
+		return sdk.NewDecWithPrec(10, 2)
+
+	default:
+		return sdk.NewDecWithPrec(13-phase.RoundInt64(), 2)
+	}
 }
 ```
 
 ## NextAnnualProvisions
 
 Calculate the annual provisions based on current total supply and inflation
-rate. This parameter is calculated once per block. 
+rate. This parameter is calculated once per new inflation rate. 
 
 ```
 NextAnnualProvisions(params Params, totalSupply sdk.Dec) (provisions sdk.Dec) {
