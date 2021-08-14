@@ -17,35 +17,41 @@ func TestNextInflation(t *testing.T) {
 	// Governing Mechanism:
 	//    Juno tokenomics
 
+	firstBlockInYear := func(year int64) sdk.Dec {
+		return blocksPerYr.Mul(sdk.NewDec(year - 1)).Add(sdk.OneDec())
+	}
+
 	tests := []struct {
 		currentBlock, expInflation sdk.Dec
 	}{
 		// phase 1, inflation: 40%
-		{sdk.OneDec(), sdk.NewDecWithPrec(40, 2)},
+		{firstBlockInYear(1), sdk.NewDecWithPrec(40, 2)},
 		// phase 2, inflation: 20%
-		{blocksPerYr.Add(sdk.OneDec()), sdk.NewDecWithPrec(20, 2)},
+		{firstBlockInYear(2), sdk.NewDecWithPrec(20, 2)},
 		// phase 3, inflation: 10%
-		{blocksPerYr.Mul(sdk.NewDec(2)).Add(sdk.OneDec()), sdk.NewDecWithPrec(10, 2)},
+		{firstBlockInYear(3), sdk.NewDecWithPrec(10, 2)},
 		// phase 4, inflation: 9%
-		{blocksPerYr.Mul(sdk.NewDec(3)).Add(sdk.OneDec()), sdk.NewDecWithPrec(9, 2)},
+		{firstBlockInYear(4), sdk.NewDecWithPrec(9, 2)},
 		// phase 5, inflation: 8%
-		{blocksPerYr.Mul(sdk.NewDec(4)).Add(sdk.OneDec()), sdk.NewDecWithPrec(8, 2)},
+		{firstBlockInYear(5), sdk.NewDecWithPrec(8, 2)},
 		// phase 6, inflation: 7%
-		{blocksPerYr.Mul(sdk.NewDec(5)).Add(sdk.OneDec()), sdk.NewDecWithPrec(7, 2)},
+		{firstBlockInYear(6), sdk.NewDecWithPrec(7, 2)},
 		// phase 7, inflation: 6%
-		{blocksPerYr.Mul(sdk.NewDec(6)).Add(sdk.OneDec()), sdk.NewDecWithPrec(6, 2)},
+		{firstBlockInYear(7), sdk.NewDecWithPrec(6, 2)},
 		// phase 8, inflation: 5%
-		{blocksPerYr.Mul(sdk.NewDec(7)).Add(sdk.OneDec()), sdk.NewDecWithPrec(5, 2)},
+		{firstBlockInYear(8), sdk.NewDecWithPrec(5, 2)},
 		// phase 9, inflation: 4%
-		{blocksPerYr.Mul(sdk.NewDec(8)).Add(sdk.OneDec()), sdk.NewDecWithPrec(4, 2)},
+		{firstBlockInYear(9), sdk.NewDecWithPrec(4, 2)},
 		// phase 10, inflation: 3%
-		{blocksPerYr.Mul(sdk.NewDec(9)).Add(sdk.OneDec()), sdk.NewDecWithPrec(3, 2)},
+		{firstBlockInYear(10), sdk.NewDecWithPrec(3, 2)},
 		// phase 11, inflation: 2%
-		{blocksPerYr.Mul(sdk.NewDec(10)).Add(sdk.OneDec()), sdk.NewDecWithPrec(2, 2)},
+		{firstBlockInYear(11), sdk.NewDecWithPrec(2, 2)},
 		// phase 12, inflation: 1%
-		{blocksPerYr.Mul(sdk.NewDec(11)).Add(sdk.OneDec()), sdk.NewDecWithPrec(1, 2)},
+		{firstBlockInYear(12), sdk.NewDecWithPrec(1, 2)},
 		// end phase, inflation: 0%
-		{blocksPerYr.Mul(sdk.NewDec(12)).Add(sdk.OneDec()), sdk.NewDecWithPrec(0, 2)},
+		{firstBlockInYear(13), sdk.NewDecWithPrec(0, 2)},
+		// end phase, inflation: 0%
+		{firstBlockInYear(23), sdk.NewDecWithPrec(0, 2)},
 	}
 	for i, tc := range tests {
 		inflation := minter.NextInflationRate(params, tc.currentBlock)
