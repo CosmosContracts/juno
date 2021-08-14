@@ -12,7 +12,7 @@ require (
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.3
 	github.com/stretchr/testify v1.7.0
-	github.com/tendermint/spm v0.1.4
+	github.com/tendermint/spm v0.14.0
 	github.com/tendermint/tendermint v0.34.11
 	github.com/tendermint/tm-db v0.6.4
 	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c
@@ -21,6 +21,8 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
+
+replace github.com/tendermint/spm => github.com/faddat/spm v0.43.8
 
 // TODO: fix
 // replace github.com/cosmos/cosmos-sdk => github.com/CosmosContracts/juno/x/mint 0b5322adf2fb9dfb0a4c13adf4321d95129a1000
