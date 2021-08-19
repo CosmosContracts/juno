@@ -19,6 +19,7 @@ func TestParamChangest(t *testing.T) {
 		simValue    string
 		subspace    string
 	}{
+<<<<<<< HEAD
 		{"mint/InflationRateChange", "InflationRateChange", "\"0.230000000000000000\"", "mint"},
 		{"mint/InflationMax", "InflationMax", "\"0.200000000000000000\"", "mint"},
 		{"mint/InflationMin", "InflationMin", "\"0.070000000000000000\"", "mint"},
@@ -27,6 +28,13 @@ func TestParamChangest(t *testing.T) {
 
 	paramChanges := simulation.ParamChanges(r)
 	require.Len(t, paramChanges, 4)
+=======
+		{"mint/BlocksPerYear", "BlocksPerYear", "\"6311520.000000000000000000\"", "mint"},
+	}
+
+	paramChanges := simulation.ParamChanges(r)
+	require.Len(t, paramChanges, 1)
+>>>>>>> disperze/mint-module
 
 	for i, p := range paramChanges {
 		require.Equal(t, expected[i].composedKey, p.ComposedKey())

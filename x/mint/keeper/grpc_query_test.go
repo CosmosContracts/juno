@@ -7,22 +7,36 @@ import (
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
+<<<<<<< HEAD
 	"github.com/CosmosContracts/juno/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/simapp"
+=======
+	"github.com/CosmosContracts/juno/app"
+	"github.com/CosmosContracts/juno/x/mint/types"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+>>>>>>> disperze/mint-module
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type MintTestSuite struct {
 	suite.Suite
 
+<<<<<<< HEAD
 	app         *simapp.SimApp
+=======
+	app         *app.App
+>>>>>>> disperze/mint-module
 	ctx         sdk.Context
 	queryClient types.QueryClient
 }
 
 func (suite *MintTestSuite) SetupTest() {
+<<<<<<< HEAD
 	app := simapp.Setup(false)
+=======
+	app := setup(false)
+>>>>>>> disperze/mint-module
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())

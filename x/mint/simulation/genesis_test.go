@@ -40,6 +40,7 @@ func TestRandomizedGenState(t *testing.T) {
 	var mintGenesis types.GenesisState
 	simState.Cdc.MustUnmarshalJSON(simState.GenState[types.ModuleName], &mintGenesis)
 
+<<<<<<< HEAD
 	dec1, _ := sdk.NewDecFromStr("0.670000000000000000")
 	dec2, _ := sdk.NewDecFromStr("0.200000000000000000")
 	dec3, _ := sdk.NewDecFromStr("0.070000000000000000")
@@ -52,6 +53,13 @@ func TestRandomizedGenState(t *testing.T) {
 	require.Equal(t, "0stake", mintGenesis.Minter.BlockProvision(mintGenesis.Params).String())
 	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.NextAnnualProvisions(mintGenesis.Params, sdk.OneInt()).String())
 	require.Equal(t, "0.169999926644441493", mintGenesis.Minter.NextInflationRate(mintGenesis.Params, sdk.OneDec()).String())
+=======
+	require.Equal(t, uint64(6311520), mintGenesis.Params.BlocksPerYear)
+	require.Equal(t, "stake", mintGenesis.Params.MintDenom)
+	require.Equal(t, "0stake", mintGenesis.Minter.BlockProvision(mintGenesis.Params).String())
+	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.NextAnnualProvisions(mintGenesis.Params, sdk.OneInt()).String())
+	require.Equal(t, "0.400000000000000000", mintGenesis.Minter.NextInflationRate(mintGenesis.Params, sdk.OneDec()).String())
+>>>>>>> disperze/mint-module
 	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.Inflation.String())
 	require.Equal(t, "0.000000000000000000", mintGenesis.Minter.AnnualProvisions.String())
 }
