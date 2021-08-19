@@ -125,6 +125,6 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
 replace github.com/tendermint/spm => github.com/faddat/spm v0.43.8
 
 // TODO: fix
-// replace github.com/cosmos/cosmos-sdk => github.com/CosmosContracts/juno/x/mint 0b5322adf2fb9dfb0a4c13adf4321d95129a1000
+github.com/cosmos/cosmos-sdk/x/mint => github.com/CosmosContracts/juno/x/mint master
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
