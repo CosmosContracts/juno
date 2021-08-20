@@ -8,7 +8,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	junoapp "github.com/CosmosContracts/juno/app"
+	"github.com/CosmosContracts/juno/app"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
 	"github.com/CosmosContracts/juno/x/mint/types"
@@ -16,7 +16,7 @@ import (
 )
 
 // returns context and an app with updated mint keeper
-func createTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) {
+func createTestApp(isCheckTx bool) (*app.App, sdk.Context) {
 	app := setup(isCheckTx)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})

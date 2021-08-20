@@ -12,12 +12,13 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 )
 
-const (
-	keyInflationRateChange = "InflationRateChange"
-	keyInflationMax        = "InflationMax"
-	keyInflationMin        = "InflationMin"
-	keyGoalBonded          = "GoalBonded"
-	keyBlocksPerYear       = "BlocksPerYear"
+var (
+	KeyMintDenom           = []byte("MintDenom")
+	KeyInflationRateChange = []byte("InflationRateChange")
+	KeyInflationMax        = []byte("InflationMax")
+	KeyInflationMin        = []byte("InflationMin")
+	KeyGoalBonded          = []byte("GoalBonded")
+	KeyBlocksPerYear       = []byte("BlocksPerYear")
 )
 
 // ParamChanges defines the parameters that can be modified by param change proposals
