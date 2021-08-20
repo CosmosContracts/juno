@@ -21,6 +21,26 @@ const (
 	GoalBonded          = "goal_bonded"
 )
 
+// GenInflationRateChange randomized InflationRateChange
+func GenInflationRateChange(r *rand.Rand) sdk.Dec {
+	return sdk.NewDecWithPrec(int64(r.Intn(99)), 2)
+}
+
+// GenInflationMax randomized InflationMax
+func GenInflationMax(r *rand.Rand) sdk.Dec {
+	return sdk.NewDecWithPrec(20, 2)
+}
+
+// GenInflationMin randomized InflationMin
+func GenInflationMin(r *rand.Rand) sdk.Dec {
+	return sdk.NewDecWithPrec(7, 2)
+}
+
+// GenGoalBonded randomized GoalBonded
+func GenGoalBonded(r *rand.Rand) sdk.Dec {
+	return sdk.NewDecWithPrec(67, 2)
+}
+
 // GenInflation randomized Inflation
 func GenInflation(r *rand.Rand) sdk.Dec {
 	return sdk.NewDecWithPrec(int64(r.Intn(99)), 2)
