@@ -197,7 +197,7 @@ Example:
 				val := validators[delegation.ValidatorAddress.String()]
 
 				// Skip delegations to exchanges
-				if exchangeMap[sdk.AccAddress(delegation.ValidatorAddress.Bytes()).String()] {
+				if exchangeMap[sdk.ValAddress(delegation.ValidatorAddress.Bytes()).String()] {
 					continue
 				}
 
