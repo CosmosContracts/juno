@@ -35,9 +35,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	// this line is used by starport scaffolding # stargate/root/import
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 var ChainID string
@@ -93,7 +90,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		// this line is used by starport scaffolding # stargate/root/commands
-		AddGenesisWasmMsgCmd(app.DefaultNodeHome),
 	)
 
 	a := appCreator{encodingConfig}
@@ -111,7 +107,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	// this line is used by starport scaffolding # stargate/root/initFlags
-	wasm.AddModuleInitFlags(startCmd)
 }
 
 func queryCommand() *cobra.Command {
@@ -199,19 +194,12 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	}
 
 	// this line is used by starport scaffolding # stargate/root/appBeforeInit
-	var wasmOpts []wasm.Option
-	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
-		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
-	}
-
 	return app.New(
 		logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		a.encCfg,
 		// this line is used by starport scaffolding # stargate/root/appArgument
-		app.GetEnabledProposals(),
-		wasmOpts,
 		appOpts,
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
@@ -250,8 +238,6 @@ func (a appCreator) appExport(
 			uint(1),
 			a.encCfg,
 			// this line is used by starport scaffolding # stargate/root/exportArgument
-			app.GetEnabledProposals(),
-			nil,
 			appOpts,
 		)
 
@@ -269,8 +255,6 @@ func (a appCreator) appExport(
 			uint(1),
 			a.encCfg,
 			// this line is used by starport scaffolding # stargate/root/noHeightExportArgument
-			app.GetEnabledProposals(),
-			nil,
 			appOpts,
 		)
 	}
