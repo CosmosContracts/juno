@@ -8,10 +8,12 @@ import (
 
 // NewMinter returns a new Minter object with the given inflation and annual
 // provisions values.
-func NewMinter(inflation, annualProvisions sdk.Dec) Minter {
+func NewMinter(inflation, annualProvisions sdk.Dec, phase, startPhaseBlock uint64) Minter {
 	return Minter{
 		Inflation:        inflation,
 		AnnualProvisions: annualProvisions,
+		Phase:            phase,
+		StartPhaseBlock:  startPhaseBlock,
 	}
 }
 
@@ -20,6 +22,8 @@ func InitialMinter(inflation sdk.Dec) Minter {
 	return NewMinter(
 		inflation,
 		sdk.NewDec(0),
+		0,
+		0,
 	)
 }
 

@@ -17,7 +17,7 @@ func TestDecodeStore(t *testing.T) {
 	cdc, _ := simapp.MakeCodecs()
 	dec := simulation.NewDecodeStore(cdc)
 
-	minter := types.NewMinter(sdk.OneDec(), sdk.NewDec(15))
+	minter := types.NewMinter(sdk.OneDec(), sdk.NewDec(15), 1, 1)
 
 	kvPairs := kv.Pairs{
 		Pairs: []kv.Pair{
