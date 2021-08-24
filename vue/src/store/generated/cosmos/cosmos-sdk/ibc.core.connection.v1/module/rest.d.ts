@@ -37,10 +37,13 @@ Example 2: Pack and unpack a message in Java.
  Example 4: Pack and unpack a message in Go
 
      foo := &pb.Foo{...}
-     any, err := ptypes.MarshalAny(foo)
+     any, err := anypb.New(foo)
+     if err != nil {
+       ...
+     }
      ...
      foo := &pb.Foo{}
-     if err := ptypes.UnmarshalAny(any, foo); err != nil {
+     if err := any.UnmarshalTo(foo); err != nil {
        ...
      }
 
@@ -222,10 +225,13 @@ export interface V1IdentifiedClientState {
      *  Example 4: Pack and unpack a message in Go
      *
      *      foo := &pb.Foo{...}
-     *      any, err := ptypes.MarshalAny(foo)
+     *      any, err := anypb.New(foo)
+     *      if err != nil {
+     *        ...
+     *      }
      *      ...
      *      foo := &pb.Foo{}
-     *      if err := ptypes.UnmarshalAny(any, foo); err != nil {
+     *      if err := any.UnmarshalTo(foo); err != nil {
      *        ...
      *      }
      *
@@ -377,10 +383,13 @@ export interface V1QueryConnectionConsensusStateResponse {
      *  Example 4: Pack and unpack a message in Go
      *
      *      foo := &pb.Foo{...}
-     *      any, err := ptypes.MarshalAny(foo)
+     *      any, err := anypb.New(foo)
+     *      if err != nil {
+     *        ...
+     *      }
      *      ...
      *      foo := &pb.Foo{}
-     *      if err := ptypes.UnmarshalAny(any, foo); err != nil {
+     *      if err := any.UnmarshalTo(foo); err != nil {
      *        ...
      *      }
      *

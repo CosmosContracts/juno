@@ -78,10 +78,7 @@ export interface Params {
 const baseIdentifiedClientState: object = { clientId: '' }
 
 export const IdentifiedClientState = {
-  encode(
-    message: IdentifiedClientState,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: IdentifiedClientState, writer: Writer = Writer.create()): Writer {
     if (message.clientId !== '') {
       writer.uint32(10).string(message.clientId)
     }
@@ -130,16 +127,11 @@ export const IdentifiedClientState = {
   toJSON(message: IdentifiedClientState): unknown {
     const obj: any = {}
     message.clientId !== undefined && (obj.clientId = message.clientId)
-    message.clientState !== undefined &&
-      (obj.clientState = message.clientState
-        ? Any.toJSON(message.clientState)
-        : undefined)
+    message.clientState !== undefined && (obj.clientState = message.clientState ? Any.toJSON(message.clientState) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<IdentifiedClientState>
-  ): IdentifiedClientState {
+  fromPartial(object: DeepPartial<IdentifiedClientState>): IdentifiedClientState {
     const message = { ...baseIdentifiedClientState } as IdentifiedClientState
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = object.clientId
@@ -158,10 +150,7 @@ export const IdentifiedClientState = {
 const baseConsensusStateWithHeight: object = {}
 
 export const ConsensusStateWithHeight = {
-  encode(
-    message: ConsensusStateWithHeight,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: ConsensusStateWithHeight, writer: Writer = Writer.create()): Writer {
     if (message.height !== undefined) {
       Height.encode(message.height, writer.uint32(10).fork()).ldelim()
     }
@@ -171,15 +160,10 @@ export const ConsensusStateWithHeight = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): ConsensusStateWithHeight {
+  decode(input: Reader | Uint8Array, length?: number): ConsensusStateWithHeight {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseConsensusStateWithHeight
-    } as ConsensusStateWithHeight
+    const message = { ...baseConsensusStateWithHeight } as ConsensusStateWithHeight
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -198,9 +182,7 @@ export const ConsensusStateWithHeight = {
   },
 
   fromJSON(object: any): ConsensusStateWithHeight {
-    const message = {
-      ...baseConsensusStateWithHeight
-    } as ConsensusStateWithHeight
+    const message = { ...baseConsensusStateWithHeight } as ConsensusStateWithHeight
     if (object.height !== undefined && object.height !== null) {
       message.height = Height.fromJSON(object.height)
     } else {
@@ -216,21 +198,13 @@ export const ConsensusStateWithHeight = {
 
   toJSON(message: ConsensusStateWithHeight): unknown {
     const obj: any = {}
-    message.height !== undefined &&
-      (obj.height = message.height ? Height.toJSON(message.height) : undefined)
-    message.consensusState !== undefined &&
-      (obj.consensusState = message.consensusState
-        ? Any.toJSON(message.consensusState)
-        : undefined)
+    message.height !== undefined && (obj.height = message.height ? Height.toJSON(message.height) : undefined)
+    message.consensusState !== undefined && (obj.consensusState = message.consensusState ? Any.toJSON(message.consensusState) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<ConsensusStateWithHeight>
-  ): ConsensusStateWithHeight {
-    const message = {
-      ...baseConsensusStateWithHeight
-    } as ConsensusStateWithHeight
+  fromPartial(object: DeepPartial<ConsensusStateWithHeight>): ConsensusStateWithHeight {
+    const message = { ...baseConsensusStateWithHeight } as ConsensusStateWithHeight
     if (object.height !== undefined && object.height !== null) {
       message.height = Height.fromPartial(object.height)
     } else {
@@ -248,10 +222,7 @@ export const ConsensusStateWithHeight = {
 const baseClientConsensusStates: object = { clientId: '' }
 
 export const ClientConsensusStates = {
-  encode(
-    message: ClientConsensusStates,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: ClientConsensusStates, writer: Writer = Writer.create()): Writer {
     if (message.clientId !== '') {
       writer.uint32(10).string(message.clientId)
     }
@@ -273,9 +244,7 @@ export const ClientConsensusStates = {
           message.clientId = reader.string()
           break
         case 2:
-          message.consensusStates.push(
-            ConsensusStateWithHeight.decode(reader, reader.uint32())
-          )
+          message.consensusStates.push(ConsensusStateWithHeight.decode(reader, reader.uint32()))
           break
         default:
           reader.skipType(tag & 7)
@@ -293,10 +262,7 @@ export const ClientConsensusStates = {
     } else {
       message.clientId = ''
     }
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
+    if (object.consensusStates !== undefined && object.consensusStates !== null) {
       for (const e of object.consensusStates) {
         message.consensusStates.push(ConsensusStateWithHeight.fromJSON(e))
       }
@@ -308,18 +274,14 @@ export const ClientConsensusStates = {
     const obj: any = {}
     message.clientId !== undefined && (obj.clientId = message.clientId)
     if (message.consensusStates) {
-      obj.consensusStates = message.consensusStates.map((e) =>
-        e ? ConsensusStateWithHeight.toJSON(e) : undefined
-      )
+      obj.consensusStates = message.consensusStates.map((e) => (e ? ConsensusStateWithHeight.toJSON(e) : undefined))
     } else {
       obj.consensusStates = []
     }
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<ClientConsensusStates>
-  ): ClientConsensusStates {
+  fromPartial(object: DeepPartial<ClientConsensusStates>): ClientConsensusStates {
     const message = { ...baseClientConsensusStates } as ClientConsensusStates
     message.consensusStates = []
     if (object.clientId !== undefined && object.clientId !== null) {
@@ -327,10 +289,7 @@ export const ClientConsensusStates = {
     } else {
       message.clientId = ''
     }
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
+    if (object.consensusStates !== undefined && object.consensusStates !== null) {
       for (const e of object.consensusStates) {
         message.consensusStates.push(ConsensusStateWithHeight.fromPartial(e))
       }
@@ -339,17 +298,10 @@ export const ClientConsensusStates = {
   }
 }
 
-const baseClientUpdateProposal: object = {
-  title: '',
-  description: '',
-  clientId: ''
-}
+const baseClientUpdateProposal: object = { title: '', description: '', clientId: '' }
 
 export const ClientUpdateProposal = {
-  encode(
-    message: ClientUpdateProposal,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: ClientUpdateProposal, writer: Writer = Writer.create()): Writer {
     if (message.title !== '') {
       writer.uint32(10).string(message.title)
     }
@@ -422,8 +374,7 @@ export const ClientUpdateProposal = {
     message.title !== undefined && (obj.title = message.title)
     message.description !== undefined && (obj.description = message.description)
     message.clientId !== undefined && (obj.clientId = message.clientId)
-    message.header !== undefined &&
-      (obj.header = message.header ? Any.toJSON(message.header) : undefined)
+    message.header !== undefined && (obj.header = message.header ? Any.toJSON(message.header) : undefined)
     return obj
   },
 
@@ -504,10 +455,8 @@ export const Height = {
 
   toJSON(message: Height): unknown {
     const obj: any = {}
-    message.revisionNumber !== undefined &&
-      (obj.revisionNumber = message.revisionNumber)
-    message.revisionHeight !== undefined &&
-      (obj.revisionHeight = message.revisionHeight)
+    message.revisionNumber !== undefined && (obj.revisionNumber = message.revisionNumber)
+    message.revisionHeight !== undefined && (obj.revisionHeight = message.revisionHeight)
     return obj
   },
 

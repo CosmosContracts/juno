@@ -115,14 +115,9 @@ export const Proof = {
     const obj: any = {}
     message.total !== undefined && (obj.total = message.total)
     message.index !== undefined && (obj.index = message.index)
-    message.leafHash !== undefined &&
-      (obj.leafHash = base64FromBytes(
-        message.leafHash !== undefined ? message.leafHash : new Uint8Array()
-      ))
+    message.leafHash !== undefined && (obj.leafHash = base64FromBytes(message.leafHash !== undefined ? message.leafHash : new Uint8Array()))
     if (message.aunts) {
-      obj.aunts = message.aunts.map((e) =>
-        base64FromBytes(e !== undefined ? e : new Uint8Array())
-      )
+      obj.aunts = message.aunts.map((e) => base64FromBytes(e !== undefined ? e : new Uint8Array()))
     } else {
       obj.aunts = []
     }
@@ -205,12 +200,8 @@ export const ValueOp = {
 
   toJSON(message: ValueOp): unknown {
     const obj: any = {}
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(
-        message.key !== undefined ? message.key : new Uint8Array()
-      ))
-    message.proof !== undefined &&
-      (obj.proof = message.proof ? Proof.toJSON(message.proof) : undefined)
+    message.key !== undefined && (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()))
+    message.proof !== undefined && (obj.proof = message.proof ? Proof.toJSON(message.proof) : undefined)
     return obj
   },
 
@@ -378,14 +369,8 @@ export const ProofOp = {
   toJSON(message: ProofOp): unknown {
     const obj: any = {}
     message.type !== undefined && (obj.type = message.type)
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(
-        message.key !== undefined ? message.key : new Uint8Array()
-      ))
-    message.data !== undefined &&
-      (obj.data = base64FromBytes(
-        message.data !== undefined ? message.data : new Uint8Array()
-      ))
+    message.key !== undefined && (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()))
+    message.data !== undefined && (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()))
     return obj
   },
 
@@ -482,9 +467,7 @@ var globalThis: any = (() => {
   throw 'Unable to locate global object'
 })()
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
+const atob: (b64: string) => string = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64)
   const arr = new Uint8Array(bin.length)
@@ -494,9 +477,7 @@ function bytesFromBase64(b64: string): Uint8Array {
   return arr
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
+const btoa: (bin: string) => string = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = []
   for (let i = 0; i < arr.byteLength; ++i) {

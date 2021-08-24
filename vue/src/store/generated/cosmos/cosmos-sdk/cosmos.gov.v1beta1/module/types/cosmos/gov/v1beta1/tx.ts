@@ -1,9 +1,5 @@
 /* eslint-disable */
-import {
-  VoteOption,
-  voteOptionFromJSON,
-  voteOptionToJSON
-} from '../../../cosmos/gov/v1beta1/gov'
+import { VoteOption, voteOptionFromJSON, voteOptionToJSON } from '../../../cosmos/gov/v1beta1/gov'
 import { Reader, util, configure, Writer } from 'protobufjs/minimal'
 import * as Long from 'long'
 import { Any } from '../../../google/protobuf/any'
@@ -110,12 +106,9 @@ export const MsgSubmitProposal = {
 
   toJSON(message: MsgSubmitProposal): unknown {
     const obj: any = {}
-    message.content !== undefined &&
-      (obj.content = message.content ? Any.toJSON(message.content) : undefined)
+    message.content !== undefined && (obj.content = message.content ? Any.toJSON(message.content) : undefined)
     if (message.initialDeposit) {
-      obj.initialDeposit = message.initialDeposit.map((e) =>
-        e ? Coin.toJSON(e) : undefined
-      )
+      obj.initialDeposit = message.initialDeposit.map((e) => (e ? Coin.toJSON(e) : undefined))
     } else {
       obj.initialDeposit = []
     }
@@ -148,25 +141,17 @@ export const MsgSubmitProposal = {
 const baseMsgSubmitProposalResponse: object = { proposalId: 0 }
 
 export const MsgSubmitProposalResponse = {
-  encode(
-    message: MsgSubmitProposalResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: MsgSubmitProposalResponse, writer: Writer = Writer.create()): Writer {
     if (message.proposalId !== 0) {
       writer.uint32(8).uint64(message.proposalId)
     }
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitProposalResponse {
+  decode(input: Reader | Uint8Array, length?: number): MsgSubmitProposalResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseMsgSubmitProposalResponse
-    } as MsgSubmitProposalResponse
+    const message = { ...baseMsgSubmitProposalResponse } as MsgSubmitProposalResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -182,9 +167,7 @@ export const MsgSubmitProposalResponse = {
   },
 
   fromJSON(object: any): MsgSubmitProposalResponse {
-    const message = {
-      ...baseMsgSubmitProposalResponse
-    } as MsgSubmitProposalResponse
+    const message = { ...baseMsgSubmitProposalResponse } as MsgSubmitProposalResponse
     if (object.proposalId !== undefined && object.proposalId !== null) {
       message.proposalId = Number(object.proposalId)
     } else {
@@ -199,12 +182,8 @@ export const MsgSubmitProposalResponse = {
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<MsgSubmitProposalResponse>
-  ): MsgSubmitProposalResponse {
-    const message = {
-      ...baseMsgSubmitProposalResponse
-    } as MsgSubmitProposalResponse
+  fromPartial(object: DeepPartial<MsgSubmitProposalResponse>): MsgSubmitProposalResponse {
+    const message = { ...baseMsgSubmitProposalResponse } as MsgSubmitProposalResponse
     if (object.proposalId !== undefined && object.proposalId !== null) {
       message.proposalId = object.proposalId
     } else {
@@ -278,8 +257,7 @@ export const MsgVote = {
     const obj: any = {}
     message.proposalId !== undefined && (obj.proposalId = message.proposalId)
     message.voter !== undefined && (obj.voter = message.voter)
-    message.option !== undefined &&
-      (obj.option = voteOptionToJSON(message.option))
+    message.option !== undefined && (obj.option = voteOptionToJSON(message.option))
     return obj
   },
 
@@ -491,18 +469,10 @@ export class MsgClientImpl implements Msg {
   constructor(rpc: Rpc) {
     this.rpc = rpc
   }
-  SubmitProposal(
-    request: MsgSubmitProposal
-  ): Promise<MsgSubmitProposalResponse> {
+  SubmitProposal(request: MsgSubmitProposal): Promise<MsgSubmitProposalResponse> {
     const data = MsgSubmitProposal.encode(request).finish()
-    const promise = this.rpc.request(
-      'cosmos.gov.v1beta1.Msg',
-      'SubmitProposal',
-      data
-    )
-    return promise.then((data) =>
-      MsgSubmitProposalResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('cosmos.gov.v1beta1.Msg', 'SubmitProposal', data)
+    return promise.then((data) => MsgSubmitProposalResponse.decode(new Reader(data)))
   }
 
   Vote(request: MsgVote): Promise<MsgVoteResponse> {
@@ -519,11 +489,7 @@ export class MsgClientImpl implements Msg {
 }
 
 interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: Uint8Array
-  ): Promise<Uint8Array>
+  request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>
 }
 
 declare var self: any | undefined

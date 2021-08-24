@@ -109,12 +109,7 @@ export function orderToJSON(object) {
             return 'UNKNOWN';
     }
 }
-const baseChannel = {
-    state: 0,
-    ordering: 0,
-    connectionHops: '',
-    version: ''
-};
+const baseChannel = { state: 0, ordering: 0, connectionHops: '', version: '' };
 export const Channel = {
     encode(message, writer = Writer.create()) {
         if (message.state !== 0) {
@@ -201,12 +196,8 @@ export const Channel = {
     toJSON(message) {
         const obj = {};
         message.state !== undefined && (obj.state = stateToJSON(message.state));
-        message.ordering !== undefined &&
-            (obj.ordering = orderToJSON(message.ordering));
-        message.counterparty !== undefined &&
-            (obj.counterparty = message.counterparty
-                ? Counterparty.toJSON(message.counterparty)
-                : undefined);
+        message.ordering !== undefined && (obj.ordering = orderToJSON(message.ordering));
+        message.counterparty !== undefined && (obj.counterparty = message.counterparty ? Counterparty.toJSON(message.counterparty) : undefined);
         if (message.connectionHops) {
             obj.connectionHops = message.connectionHops.map((e) => e);
         }
@@ -251,14 +242,7 @@ export const Channel = {
         return message;
     }
 };
-const baseIdentifiedChannel = {
-    state: 0,
-    ordering: 0,
-    connectionHops: '',
-    version: '',
-    portId: '',
-    channelId: ''
-};
+const baseIdentifiedChannel = { state: 0, ordering: 0, connectionHops: '', version: '', portId: '', channelId: '' };
 export const IdentifiedChannel = {
     encode(message, writer = Writer.create()) {
         if (message.state !== 0) {
@@ -369,12 +353,8 @@ export const IdentifiedChannel = {
     toJSON(message) {
         const obj = {};
         message.state !== undefined && (obj.state = stateToJSON(message.state));
-        message.ordering !== undefined &&
-            (obj.ordering = orderToJSON(message.ordering));
-        message.counterparty !== undefined &&
-            (obj.counterparty = message.counterparty
-                ? Counterparty.toJSON(message.counterparty)
-                : undefined);
+        message.ordering !== undefined && (obj.ordering = orderToJSON(message.ordering));
+        message.counterparty !== undefined && (obj.counterparty = message.counterparty ? Counterparty.toJSON(message.counterparty) : undefined);
         if (message.connectionHops) {
             obj.connectionHops = message.connectionHops.map((e) => e);
         }
@@ -503,14 +483,7 @@ export const Counterparty = {
         return message;
     }
 };
-const basePacket = {
-    sequence: 0,
-    sourcePort: '',
-    sourceChannel: '',
-    destinationPort: '',
-    destinationChannel: '',
-    timeoutTimestamp: 0
-};
+const basePacket = { sequence: 0, sourcePort: '', sourceChannel: '', destinationPort: '', destinationChannel: '', timeoutTimestamp: 0 };
 export const Packet = {
     encode(message, writer = Writer.create()) {
         if (message.sequence !== 0) {
@@ -597,15 +570,13 @@ export const Packet = {
         else {
             message.sourceChannel = '';
         }
-        if (object.destinationPort !== undefined &&
-            object.destinationPort !== null) {
+        if (object.destinationPort !== undefined && object.destinationPort !== null) {
             message.destinationPort = String(object.destinationPort);
         }
         else {
             message.destinationPort = '';
         }
-        if (object.destinationChannel !== undefined &&
-            object.destinationChannel !== null) {
+        if (object.destinationChannel !== undefined && object.destinationChannel !== null) {
             message.destinationChannel = String(object.destinationChannel);
         }
         else {
@@ -620,8 +591,7 @@ export const Packet = {
         else {
             message.timeoutHeight = undefined;
         }
-        if (object.timeoutTimestamp !== undefined &&
-            object.timeoutTimestamp !== null) {
+        if (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null) {
             message.timeoutTimestamp = Number(object.timeoutTimestamp);
         }
         else {
@@ -633,20 +603,12 @@ export const Packet = {
         const obj = {};
         message.sequence !== undefined && (obj.sequence = message.sequence);
         message.sourcePort !== undefined && (obj.sourcePort = message.sourcePort);
-        message.sourceChannel !== undefined &&
-            (obj.sourceChannel = message.sourceChannel);
-        message.destinationPort !== undefined &&
-            (obj.destinationPort = message.destinationPort);
-        message.destinationChannel !== undefined &&
-            (obj.destinationChannel = message.destinationChannel);
-        message.data !== undefined &&
-            (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
-        message.timeoutHeight !== undefined &&
-            (obj.timeoutHeight = message.timeoutHeight
-                ? Height.toJSON(message.timeoutHeight)
-                : undefined);
-        message.timeoutTimestamp !== undefined &&
-            (obj.timeoutTimestamp = message.timeoutTimestamp);
+        message.sourceChannel !== undefined && (obj.sourceChannel = message.sourceChannel);
+        message.destinationPort !== undefined && (obj.destinationPort = message.destinationPort);
+        message.destinationChannel !== undefined && (obj.destinationChannel = message.destinationChannel);
+        message.data !== undefined && (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
+        message.timeoutHeight !== undefined && (obj.timeoutHeight = message.timeoutHeight ? Height.toJSON(message.timeoutHeight) : undefined);
+        message.timeoutTimestamp !== undefined && (obj.timeoutTimestamp = message.timeoutTimestamp);
         return obj;
     },
     fromPartial(object) {
@@ -669,15 +631,13 @@ export const Packet = {
         else {
             message.sourceChannel = '';
         }
-        if (object.destinationPort !== undefined &&
-            object.destinationPort !== null) {
+        if (object.destinationPort !== undefined && object.destinationPort !== null) {
             message.destinationPort = object.destinationPort;
         }
         else {
             message.destinationPort = '';
         }
-        if (object.destinationChannel !== undefined &&
-            object.destinationChannel !== null) {
+        if (object.destinationChannel !== undefined && object.destinationChannel !== null) {
             message.destinationChannel = object.destinationChannel;
         }
         else {
@@ -695,8 +655,7 @@ export const Packet = {
         else {
             message.timeoutHeight = undefined;
         }
-        if (object.timeoutTimestamp !== undefined &&
-            object.timeoutTimestamp !== null) {
+        if (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null) {
             message.timeoutTimestamp = object.timeoutTimestamp;
         }
         else {
@@ -778,8 +737,7 @@ export const PacketState = {
         message.portId !== undefined && (obj.portId = message.portId);
         message.channelId !== undefined && (obj.channelId = message.channelId);
         message.sequence !== undefined && (obj.sequence = message.sequence);
-        message.data !== undefined &&
-            (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
+        message.data !== undefined && (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
         return obj;
     },
     fromPartial(object) {
@@ -857,11 +815,7 @@ export const Acknowledgement = {
     },
     toJSON(message) {
         const obj = {};
-        message.result !== undefined &&
-            (obj.result =
-                message.result !== undefined
-                    ? base64FromBytes(message.result)
-                    : undefined);
+        message.result !== undefined && (obj.result = message.result !== undefined ? base64FromBytes(message.result) : undefined);
         message.error !== undefined && (obj.error = message.error);
         return obj;
     },
@@ -893,8 +847,7 @@ var globalThis = (() => {
         return global;
     throw 'Unable to locate global object';
 })();
-const atob = globalThis.atob ||
-    ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+const atob = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64) {
     const bin = atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -903,8 +856,7 @@ function bytesFromBase64(b64) {
     }
     return arr;
 }
-const btoa = globalThis.btoa ||
-    ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+const btoa = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr) {
     const bin = [];
     for (let i = 0; i < arr.byteLength; ++i) {

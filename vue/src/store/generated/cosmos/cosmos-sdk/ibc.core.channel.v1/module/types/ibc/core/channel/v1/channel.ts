@@ -223,12 +223,7 @@ export interface Acknowledgement {
   error: string | undefined
 }
 
-const baseChannel: object = {
-  state: 0,
-  ordering: 0,
-  connectionHops: '',
-  version: ''
-}
+const baseChannel: object = { state: 0, ordering: 0, connectionHops: '', version: '' }
 
 export const Channel = {
   encode(message: Channel, writer: Writer = Writer.create()): Writer {
@@ -239,10 +234,7 @@ export const Channel = {
       writer.uint32(16).int32(message.ordering)
     }
     if (message.counterparty !== undefined) {
-      Counterparty.encode(
-        message.counterparty,
-        writer.uint32(26).fork()
-      ).ldelim()
+      Counterparty.encode(message.counterparty, writer.uint32(26).fork()).ldelim()
     }
     for (const v of message.connectionHops) {
       writer.uint32(34).string(v!)
@@ -318,12 +310,8 @@ export const Channel = {
   toJSON(message: Channel): unknown {
     const obj: any = {}
     message.state !== undefined && (obj.state = stateToJSON(message.state))
-    message.ordering !== undefined &&
-      (obj.ordering = orderToJSON(message.ordering))
-    message.counterparty !== undefined &&
-      (obj.counterparty = message.counterparty
-        ? Counterparty.toJSON(message.counterparty)
-        : undefined)
+    message.ordering !== undefined && (obj.ordering = orderToJSON(message.ordering))
+    message.counterparty !== undefined && (obj.counterparty = message.counterparty ? Counterparty.toJSON(message.counterparty) : undefined)
     if (message.connectionHops) {
       obj.connectionHops = message.connectionHops.map((e) => e)
     } else {
@@ -365,14 +353,7 @@ export const Channel = {
   }
 }
 
-const baseIdentifiedChannel: object = {
-  state: 0,
-  ordering: 0,
-  connectionHops: '',
-  version: '',
-  portId: '',
-  channelId: ''
-}
+const baseIdentifiedChannel: object = { state: 0, ordering: 0, connectionHops: '', version: '', portId: '', channelId: '' }
 
 export const IdentifiedChannel = {
   encode(message: IdentifiedChannel, writer: Writer = Writer.create()): Writer {
@@ -383,10 +364,7 @@ export const IdentifiedChannel = {
       writer.uint32(16).int32(message.ordering)
     }
     if (message.counterparty !== undefined) {
-      Counterparty.encode(
-        message.counterparty,
-        writer.uint32(26).fork()
-      ).ldelim()
+      Counterparty.encode(message.counterparty, writer.uint32(26).fork()).ldelim()
     }
     for (const v of message.connectionHops) {
       writer.uint32(34).string(v!)
@@ -484,12 +462,8 @@ export const IdentifiedChannel = {
   toJSON(message: IdentifiedChannel): unknown {
     const obj: any = {}
     message.state !== undefined && (obj.state = stateToJSON(message.state))
-    message.ordering !== undefined &&
-      (obj.ordering = orderToJSON(message.ordering))
-    message.counterparty !== undefined &&
-      (obj.counterparty = message.counterparty
-        ? Counterparty.toJSON(message.counterparty)
-        : undefined)
+    message.ordering !== undefined && (obj.ordering = orderToJSON(message.ordering))
+    message.counterparty !== undefined && (obj.counterparty = message.counterparty ? Counterparty.toJSON(message.counterparty) : undefined)
     if (message.connectionHops) {
       obj.connectionHops = message.connectionHops.map((e) => e)
     } else {
@@ -615,14 +589,7 @@ export const Counterparty = {
   }
 }
 
-const basePacket: object = {
-  sequence: 0,
-  sourcePort: '',
-  sourceChannel: '',
-  destinationPort: '',
-  destinationChannel: '',
-  timeoutTimestamp: 0
-}
+const basePacket: object = { sequence: 0, sourcePort: '', sourceChannel: '', destinationPort: '', destinationChannel: '', timeoutTimestamp: 0 }
 
 export const Packet = {
   encode(message: Packet, writer: Writer = Writer.create()): Writer {
@@ -709,18 +676,12 @@ export const Packet = {
     } else {
       message.sourceChannel = ''
     }
-    if (
-      object.destinationPort !== undefined &&
-      object.destinationPort !== null
-    ) {
+    if (object.destinationPort !== undefined && object.destinationPort !== null) {
       message.destinationPort = String(object.destinationPort)
     } else {
       message.destinationPort = ''
     }
-    if (
-      object.destinationChannel !== undefined &&
-      object.destinationChannel !== null
-    ) {
+    if (object.destinationChannel !== undefined && object.destinationChannel !== null) {
       message.destinationChannel = String(object.destinationChannel)
     } else {
       message.destinationChannel = ''
@@ -733,10 +694,7 @@ export const Packet = {
     } else {
       message.timeoutHeight = undefined
     }
-    if (
-      object.timeoutTimestamp !== undefined &&
-      object.timeoutTimestamp !== null
-    ) {
+    if (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null) {
       message.timeoutTimestamp = Number(object.timeoutTimestamp)
     } else {
       message.timeoutTimestamp = 0
@@ -748,22 +706,12 @@ export const Packet = {
     const obj: any = {}
     message.sequence !== undefined && (obj.sequence = message.sequence)
     message.sourcePort !== undefined && (obj.sourcePort = message.sourcePort)
-    message.sourceChannel !== undefined &&
-      (obj.sourceChannel = message.sourceChannel)
-    message.destinationPort !== undefined &&
-      (obj.destinationPort = message.destinationPort)
-    message.destinationChannel !== undefined &&
-      (obj.destinationChannel = message.destinationChannel)
-    message.data !== undefined &&
-      (obj.data = base64FromBytes(
-        message.data !== undefined ? message.data : new Uint8Array()
-      ))
-    message.timeoutHeight !== undefined &&
-      (obj.timeoutHeight = message.timeoutHeight
-        ? Height.toJSON(message.timeoutHeight)
-        : undefined)
-    message.timeoutTimestamp !== undefined &&
-      (obj.timeoutTimestamp = message.timeoutTimestamp)
+    message.sourceChannel !== undefined && (obj.sourceChannel = message.sourceChannel)
+    message.destinationPort !== undefined && (obj.destinationPort = message.destinationPort)
+    message.destinationChannel !== undefined && (obj.destinationChannel = message.destinationChannel)
+    message.data !== undefined && (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()))
+    message.timeoutHeight !== undefined && (obj.timeoutHeight = message.timeoutHeight ? Height.toJSON(message.timeoutHeight) : undefined)
+    message.timeoutTimestamp !== undefined && (obj.timeoutTimestamp = message.timeoutTimestamp)
     return obj
   },
 
@@ -784,18 +732,12 @@ export const Packet = {
     } else {
       message.sourceChannel = ''
     }
-    if (
-      object.destinationPort !== undefined &&
-      object.destinationPort !== null
-    ) {
+    if (object.destinationPort !== undefined && object.destinationPort !== null) {
       message.destinationPort = object.destinationPort
     } else {
       message.destinationPort = ''
     }
-    if (
-      object.destinationChannel !== undefined &&
-      object.destinationChannel !== null
-    ) {
+    if (object.destinationChannel !== undefined && object.destinationChannel !== null) {
       message.destinationChannel = object.destinationChannel
     } else {
       message.destinationChannel = ''
@@ -810,10 +752,7 @@ export const Packet = {
     } else {
       message.timeoutHeight = undefined
     }
-    if (
-      object.timeoutTimestamp !== undefined &&
-      object.timeoutTimestamp !== null
-    ) {
+    if (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null) {
       message.timeoutTimestamp = object.timeoutTimestamp
     } else {
       message.timeoutTimestamp = 0
@@ -896,10 +835,7 @@ export const PacketState = {
     message.portId !== undefined && (obj.portId = message.portId)
     message.channelId !== undefined && (obj.channelId = message.channelId)
     message.sequence !== undefined && (obj.sequence = message.sequence)
-    message.data !== undefined &&
-      (obj.data = base64FromBytes(
-        message.data !== undefined ? message.data : new Uint8Array()
-      ))
+    message.data !== undefined && (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()))
     return obj
   },
 
@@ -978,11 +914,7 @@ export const Acknowledgement = {
 
   toJSON(message: Acknowledgement): unknown {
     const obj: any = {}
-    message.result !== undefined &&
-      (obj.result =
-        message.result !== undefined
-          ? base64FromBytes(message.result)
-          : undefined)
+    message.result !== undefined && (obj.result = message.result !== undefined ? base64FromBytes(message.result) : undefined)
     message.error !== undefined && (obj.error = message.error)
     return obj
   },
@@ -1013,9 +945,7 @@ var globalThis: any = (() => {
   throw 'Unable to locate global object'
 })()
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
+const atob: (b64: string) => string = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64)
   const arr = new Uint8Array(bin.length)
@@ -1025,9 +955,7 @@ function bytesFromBase64(b64: string): Uint8Array {
   return arr
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
+const btoa: (bin: string) => string = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = []
   for (let i = 0; i < arr.byteLength; ++i) {

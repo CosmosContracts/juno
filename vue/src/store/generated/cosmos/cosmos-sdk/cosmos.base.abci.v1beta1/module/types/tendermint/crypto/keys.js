@@ -44,16 +44,8 @@ export const PublicKey = {
     },
     toJSON(message) {
         const obj = {};
-        message.ed25519 !== undefined &&
-            (obj.ed25519 =
-                message.ed25519 !== undefined
-                    ? base64FromBytes(message.ed25519)
-                    : undefined);
-        message.secp256k1 !== undefined &&
-            (obj.secp256k1 =
-                message.secp256k1 !== undefined
-                    ? base64FromBytes(message.secp256k1)
-                    : undefined);
+        message.ed25519 !== undefined && (obj.ed25519 = message.ed25519 !== undefined ? base64FromBytes(message.ed25519) : undefined);
+        message.secp256k1 !== undefined && (obj.secp256k1 = message.secp256k1 !== undefined ? base64FromBytes(message.secp256k1) : undefined);
         return obj;
     },
     fromPartial(object) {
@@ -84,8 +76,7 @@ var globalThis = (() => {
         return global;
     throw 'Unable to locate global object';
 })();
-const atob = globalThis.atob ||
-    ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+const atob = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64) {
     const bin = atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -94,8 +85,7 @@ function bytesFromBase64(b64) {
     }
     return arr;
 }
-const btoa = globalThis.btoa ||
-    ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+const btoa = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr) {
     const bin = [];
     for (let i = 0; i < arr.byteLength; ++i) {

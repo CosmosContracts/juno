@@ -139,18 +139,7 @@ export interface SearchTxsResult {
   txs: TxResponse[]
 }
 
-const baseTxResponse: object = {
-  height: 0,
-  txhash: '',
-  codespace: '',
-  code: 0,
-  data: '',
-  rawLog: '',
-  info: '',
-  gasWanted: 0,
-  gasUsed: 0,
-  timestamp: ''
-}
+const baseTxResponse: object = { height: 0, txhash: '', codespace: '', code: 0, data: '', rawLog: '', info: '', gasWanted: 0, gasUsed: 0, timestamp: '' }
 
 export const TxResponse = {
   encode(message: TxResponse, writer: Writer = Writer.create()): Writer {
@@ -320,17 +309,14 @@ export const TxResponse = {
     message.data !== undefined && (obj.data = message.data)
     message.rawLog !== undefined && (obj.rawLog = message.rawLog)
     if (message.logs) {
-      obj.logs = message.logs.map((e) =>
-        e ? ABCIMessageLog.toJSON(e) : undefined
-      )
+      obj.logs = message.logs.map((e) => (e ? ABCIMessageLog.toJSON(e) : undefined))
     } else {
       obj.logs = []
     }
     message.info !== undefined && (obj.info = message.info)
     message.gasWanted !== undefined && (obj.gasWanted = message.gasWanted)
     message.gasUsed !== undefined && (obj.gasUsed = message.gasUsed)
-    message.tx !== undefined &&
-      (obj.tx = message.tx ? Any.toJSON(message.tx) : undefined)
+    message.tx !== undefined && (obj.tx = message.tx ? Any.toJSON(message.tx) : undefined)
     message.timestamp !== undefined && (obj.timestamp = message.timestamp)
     return obj
   },
@@ -469,9 +455,7 @@ export const ABCIMessageLog = {
     message.msgIndex !== undefined && (obj.msgIndex = message.msgIndex)
     message.log !== undefined && (obj.log = message.log)
     if (message.events) {
-      obj.events = message.events.map((e) =>
-        e ? StringEvent.toJSON(e) : undefined
-      )
+      obj.events = message.events.map((e) => (e ? StringEvent.toJSON(e) : undefined))
     } else {
       obj.events = []
     }
@@ -555,9 +539,7 @@ export const StringEvent = {
     const obj: any = {}
     message.type !== undefined && (obj.type = message.type)
     if (message.attributes) {
-      obj.attributes = message.attributes.map((e) =>
-        e ? Attribute.toJSON(e) : undefined
-      )
+      obj.attributes = message.attributes.map((e) => (e ? Attribute.toJSON(e) : undefined))
     } else {
       obj.attributes = []
     }
@@ -787,10 +769,7 @@ export const Result = {
 
   toJSON(message: Result): unknown {
     const obj: any = {}
-    message.data !== undefined &&
-      (obj.data = base64FromBytes(
-        message.data !== undefined ? message.data : new Uint8Array()
-      ))
+    message.data !== undefined && (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()))
     message.log !== undefined && (obj.log = message.log)
     if (message.events) {
       obj.events = message.events.map((e) => (e ? Event.toJSON(e) : undefined))
@@ -825,10 +804,7 @@ export const Result = {
 const baseSimulationResponse: object = {}
 
 export const SimulationResponse = {
-  encode(
-    message: SimulationResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: SimulationResponse, writer: Writer = Writer.create()): Writer {
     if (message.gasInfo !== undefined) {
       GasInfo.encode(message.gasInfo, writer.uint32(10).fork()).ldelim()
     }
@@ -876,12 +852,8 @@ export const SimulationResponse = {
 
   toJSON(message: SimulationResponse): unknown {
     const obj: any = {}
-    message.gasInfo !== undefined &&
-      (obj.gasInfo = message.gasInfo
-        ? GasInfo.toJSON(message.gasInfo)
-        : undefined)
-    message.result !== undefined &&
-      (obj.result = message.result ? Result.toJSON(message.result) : undefined)
+    message.gasInfo !== undefined && (obj.gasInfo = message.gasInfo ? GasInfo.toJSON(message.gasInfo) : undefined)
+    message.result !== undefined && (obj.result = message.result ? Result.toJSON(message.result) : undefined)
     return obj
   },
 
@@ -951,10 +923,7 @@ export const MsgData = {
   toJSON(message: MsgData): unknown {
     const obj: any = {}
     message.msgType !== undefined && (obj.msgType = message.msgType)
-    message.data !== undefined &&
-      (obj.data = base64FromBytes(
-        message.data !== undefined ? message.data : new Uint8Array()
-      ))
+    message.data !== undefined && (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()))
     return obj
   },
 
@@ -1036,13 +1005,7 @@ export const TxMsgData = {
   }
 }
 
-const baseSearchTxsResult: object = {
-  totalCount: 0,
-  count: 0,
-  pageNumber: 0,
-  pageTotal: 0,
-  limit: 0
-}
+const baseSearchTxsResult: object = { totalCount: 0, count: 0, pageNumber: 0, pageTotal: 0, limit: 0 }
 
 export const SearchTxsResult = {
   encode(message: SearchTxsResult, writer: Writer = Writer.create()): Writer {
@@ -1199,9 +1162,7 @@ var globalThis: any = (() => {
   throw 'Unable to locate global object'
 })()
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
+const atob: (b64: string) => string = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64)
   const arr = new Uint8Array(bin.length)
@@ -1211,9 +1172,7 @@ function bytesFromBase64(b64: string): Uint8Array {
   return arr
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
+const btoa: (bin: string) => string = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = []
   for (let i = 0; i < arr.byteLength; ++i) {

@@ -1,11 +1,7 @@
 /* eslint-disable */
 import * as Long from 'long'
 import { util, configure, Writer, Reader } from 'protobufjs/minimal'
-import {
-  IdentifiedClientState,
-  ClientConsensusStates,
-  Params
-} from '../../../../ibc/core/client/v1/client'
+import { IdentifiedClientState, ClientConsensusStates, Params } from '../../../../ibc/core/client/v1/client'
 
 export const protobufPackage = 'ibc.core.client.v1'
 
@@ -41,10 +37,7 @@ export interface IdentifiedGenesisMetadata {
   clientMetadata: GenesisMetadata[]
 }
 
-const baseGenesisState: object = {
-  createLocalhost: false,
-  nextClientSequence: 0
-}
+const baseGenesisState: object = { createLocalhost: false, nextClientSequence: 0 }
 
 export const GenesisState = {
   encode(message: GenesisState, writer: Writer = Writer.create()): Writer {
@@ -80,19 +73,13 @@ export const GenesisState = {
       const tag = reader.uint32()
       switch (tag >>> 3) {
         case 1:
-          message.clients.push(
-            IdentifiedClientState.decode(reader, reader.uint32())
-          )
+          message.clients.push(IdentifiedClientState.decode(reader, reader.uint32()))
           break
         case 2:
-          message.clientsConsensus.push(
-            ClientConsensusStates.decode(reader, reader.uint32())
-          )
+          message.clientsConsensus.push(ClientConsensusStates.decode(reader, reader.uint32()))
           break
         case 3:
-          message.clientsMetadata.push(
-            IdentifiedGenesisMetadata.decode(reader, reader.uint32())
-          )
+          message.clientsMetadata.push(IdentifiedGenesisMetadata.decode(reader, reader.uint32()))
           break
         case 4:
           message.params = Params.decode(reader, reader.uint32())
@@ -121,18 +108,12 @@ export const GenesisState = {
         message.clients.push(IdentifiedClientState.fromJSON(e))
       }
     }
-    if (
-      object.clientsConsensus !== undefined &&
-      object.clientsConsensus !== null
-    ) {
+    if (object.clientsConsensus !== undefined && object.clientsConsensus !== null) {
       for (const e of object.clientsConsensus) {
         message.clientsConsensus.push(ClientConsensusStates.fromJSON(e))
       }
     }
-    if (
-      object.clientsMetadata !== undefined &&
-      object.clientsMetadata !== null
-    ) {
+    if (object.clientsMetadata !== undefined && object.clientsMetadata !== null) {
       for (const e of object.clientsMetadata) {
         message.clientsMetadata.push(IdentifiedGenesisMetadata.fromJSON(e))
       }
@@ -142,18 +123,12 @@ export const GenesisState = {
     } else {
       message.params = undefined
     }
-    if (
-      object.createLocalhost !== undefined &&
-      object.createLocalhost !== null
-    ) {
+    if (object.createLocalhost !== undefined && object.createLocalhost !== null) {
       message.createLocalhost = Boolean(object.createLocalhost)
     } else {
       message.createLocalhost = false
     }
-    if (
-      object.nextClientSequence !== undefined &&
-      object.nextClientSequence !== null
-    ) {
+    if (object.nextClientSequence !== undefined && object.nextClientSequence !== null) {
       message.nextClientSequence = Number(object.nextClientSequence)
     } else {
       message.nextClientSequence = 0
@@ -164,32 +139,23 @@ export const GenesisState = {
   toJSON(message: GenesisState): unknown {
     const obj: any = {}
     if (message.clients) {
-      obj.clients = message.clients.map((e) =>
-        e ? IdentifiedClientState.toJSON(e) : undefined
-      )
+      obj.clients = message.clients.map((e) => (e ? IdentifiedClientState.toJSON(e) : undefined))
     } else {
       obj.clients = []
     }
     if (message.clientsConsensus) {
-      obj.clientsConsensus = message.clientsConsensus.map((e) =>
-        e ? ClientConsensusStates.toJSON(e) : undefined
-      )
+      obj.clientsConsensus = message.clientsConsensus.map((e) => (e ? ClientConsensusStates.toJSON(e) : undefined))
     } else {
       obj.clientsConsensus = []
     }
     if (message.clientsMetadata) {
-      obj.clientsMetadata = message.clientsMetadata.map((e) =>
-        e ? IdentifiedGenesisMetadata.toJSON(e) : undefined
-      )
+      obj.clientsMetadata = message.clientsMetadata.map((e) => (e ? IdentifiedGenesisMetadata.toJSON(e) : undefined))
     } else {
       obj.clientsMetadata = []
     }
-    message.params !== undefined &&
-      (obj.params = message.params ? Params.toJSON(message.params) : undefined)
-    message.createLocalhost !== undefined &&
-      (obj.createLocalhost = message.createLocalhost)
-    message.nextClientSequence !== undefined &&
-      (obj.nextClientSequence = message.nextClientSequence)
+    message.params !== undefined && (obj.params = message.params ? Params.toJSON(message.params) : undefined)
+    message.createLocalhost !== undefined && (obj.createLocalhost = message.createLocalhost)
+    message.nextClientSequence !== undefined && (obj.nextClientSequence = message.nextClientSequence)
     return obj
   },
 
@@ -203,18 +169,12 @@ export const GenesisState = {
         message.clients.push(IdentifiedClientState.fromPartial(e))
       }
     }
-    if (
-      object.clientsConsensus !== undefined &&
-      object.clientsConsensus !== null
-    ) {
+    if (object.clientsConsensus !== undefined && object.clientsConsensus !== null) {
       for (const e of object.clientsConsensus) {
         message.clientsConsensus.push(ClientConsensusStates.fromPartial(e))
       }
     }
-    if (
-      object.clientsMetadata !== undefined &&
-      object.clientsMetadata !== null
-    ) {
+    if (object.clientsMetadata !== undefined && object.clientsMetadata !== null) {
       for (const e of object.clientsMetadata) {
         message.clientsMetadata.push(IdentifiedGenesisMetadata.fromPartial(e))
       }
@@ -224,18 +184,12 @@ export const GenesisState = {
     } else {
       message.params = undefined
     }
-    if (
-      object.createLocalhost !== undefined &&
-      object.createLocalhost !== null
-    ) {
+    if (object.createLocalhost !== undefined && object.createLocalhost !== null) {
       message.createLocalhost = object.createLocalhost
     } else {
       message.createLocalhost = false
     }
-    if (
-      object.nextClientSequence !== undefined &&
-      object.nextClientSequence !== null
-    ) {
+    if (object.nextClientSequence !== undefined && object.nextClientSequence !== null) {
       message.nextClientSequence = object.nextClientSequence
     } else {
       message.nextClientSequence = 0
@@ -291,14 +245,8 @@ export const GenesisMetadata = {
 
   toJSON(message: GenesisMetadata): unknown {
     const obj: any = {}
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(
-        message.key !== undefined ? message.key : new Uint8Array()
-      ))
-    message.value !== undefined &&
-      (obj.value = base64FromBytes(
-        message.value !== undefined ? message.value : new Uint8Array()
-      ))
+    message.key !== undefined && (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()))
+    message.value !== undefined && (obj.value = base64FromBytes(message.value !== undefined ? message.value : new Uint8Array()))
     return obj
   },
 
@@ -321,10 +269,7 @@ export const GenesisMetadata = {
 const baseIdentifiedGenesisMetadata: object = { clientId: '' }
 
 export const IdentifiedGenesisMetadata = {
-  encode(
-    message: IdentifiedGenesisMetadata,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: IdentifiedGenesisMetadata, writer: Writer = Writer.create()): Writer {
     if (message.clientId !== '') {
       writer.uint32(10).string(message.clientId)
     }
@@ -334,15 +279,10 @@ export const IdentifiedGenesisMetadata = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): IdentifiedGenesisMetadata {
+  decode(input: Reader | Uint8Array, length?: number): IdentifiedGenesisMetadata {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseIdentifiedGenesisMetadata
-    } as IdentifiedGenesisMetadata
+    const message = { ...baseIdentifiedGenesisMetadata } as IdentifiedGenesisMetadata
     message.clientMetadata = []
     while (reader.pos < end) {
       const tag = reader.uint32()
@@ -351,9 +291,7 @@ export const IdentifiedGenesisMetadata = {
           message.clientId = reader.string()
           break
         case 2:
-          message.clientMetadata.push(
-            GenesisMetadata.decode(reader, reader.uint32())
-          )
+          message.clientMetadata.push(GenesisMetadata.decode(reader, reader.uint32()))
           break
         default:
           reader.skipType(tag & 7)
@@ -364,9 +302,7 @@ export const IdentifiedGenesisMetadata = {
   },
 
   fromJSON(object: any): IdentifiedGenesisMetadata {
-    const message = {
-      ...baseIdentifiedGenesisMetadata
-    } as IdentifiedGenesisMetadata
+    const message = { ...baseIdentifiedGenesisMetadata } as IdentifiedGenesisMetadata
     message.clientMetadata = []
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId)
@@ -385,21 +321,15 @@ export const IdentifiedGenesisMetadata = {
     const obj: any = {}
     message.clientId !== undefined && (obj.clientId = message.clientId)
     if (message.clientMetadata) {
-      obj.clientMetadata = message.clientMetadata.map((e) =>
-        e ? GenesisMetadata.toJSON(e) : undefined
-      )
+      obj.clientMetadata = message.clientMetadata.map((e) => (e ? GenesisMetadata.toJSON(e) : undefined))
     } else {
       obj.clientMetadata = []
     }
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<IdentifiedGenesisMetadata>
-  ): IdentifiedGenesisMetadata {
-    const message = {
-      ...baseIdentifiedGenesisMetadata
-    } as IdentifiedGenesisMetadata
+  fromPartial(object: DeepPartial<IdentifiedGenesisMetadata>): IdentifiedGenesisMetadata {
+    const message = { ...baseIdentifiedGenesisMetadata } as IdentifiedGenesisMetadata
     message.clientMetadata = []
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = object.clientId
@@ -425,9 +355,7 @@ var globalThis: any = (() => {
   throw 'Unable to locate global object'
 })()
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
+const atob: (b64: string) => string = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64)
   const arr = new Uint8Array(bin.length)
@@ -437,9 +365,7 @@ function bytesFromBase64(b64: string): Uint8Array {
   return arr
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
+const btoa: (bin: string) => string = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = []
   for (let i = 0; i < arr.byteLength; ++i) {

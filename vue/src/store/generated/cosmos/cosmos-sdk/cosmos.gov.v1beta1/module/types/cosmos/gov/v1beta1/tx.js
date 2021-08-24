@@ -67,10 +67,9 @@ export const MsgSubmitProposal = {
     },
     toJSON(message) {
         const obj = {};
-        message.content !== undefined &&
-            (obj.content = message.content ? Any.toJSON(message.content) : undefined);
+        message.content !== undefined && (obj.content = message.content ? Any.toJSON(message.content) : undefined);
         if (message.initialDeposit) {
-            obj.initialDeposit = message.initialDeposit.map((e) => e ? Coin.toJSON(e) : undefined);
+            obj.initialDeposit = message.initialDeposit.map((e) => (e ? Coin.toJSON(e) : undefined));
         }
         else {
             obj.initialDeposit = [];
@@ -112,9 +111,7 @@ export const MsgSubmitProposalResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgSubmitProposalResponse
-        };
+        const message = { ...baseMsgSubmitProposalResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -129,9 +126,7 @@ export const MsgSubmitProposalResponse = {
         return message;
     },
     fromJSON(object) {
-        const message = {
-            ...baseMsgSubmitProposalResponse
-        };
+        const message = { ...baseMsgSubmitProposalResponse };
         if (object.proposalId !== undefined && object.proposalId !== null) {
             message.proposalId = Number(object.proposalId);
         }
@@ -146,9 +141,7 @@ export const MsgSubmitProposalResponse = {
         return obj;
     },
     fromPartial(object) {
-        const message = {
-            ...baseMsgSubmitProposalResponse
-        };
+        const message = { ...baseMsgSubmitProposalResponse };
         if (object.proposalId !== undefined && object.proposalId !== null) {
             message.proposalId = object.proposalId;
         }
@@ -221,8 +214,7 @@ export const MsgVote = {
         const obj = {};
         message.proposalId !== undefined && (obj.proposalId = message.proposalId);
         message.voter !== undefined && (obj.voter = message.voter);
-        message.option !== undefined &&
-            (obj.option = voteOptionToJSON(message.option));
+        message.option !== undefined && (obj.option = voteOptionToJSON(message.option));
         return obj;
     },
     fromPartial(object) {

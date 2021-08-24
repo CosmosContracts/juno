@@ -66,10 +66,7 @@ export const MsgChannelOpenInit = {
     toJSON(message) {
         const obj = {};
         message.portId !== undefined && (obj.portId = message.portId);
-        message.channel !== undefined &&
-            (obj.channel = message.channel
-                ? Channel.toJSON(message.channel)
-                : undefined);
+        message.channel !== undefined && (obj.channel = message.channel ? Channel.toJSON(message.channel) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -104,9 +101,7 @@ export const MsgChannelOpenInitResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgChannelOpenInitResponse
-        };
+        const message = { ...baseMsgChannelOpenInitResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -118,9 +113,7 @@ export const MsgChannelOpenInitResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgChannelOpenInitResponse
-        };
+        const message = { ...baseMsgChannelOpenInitResponse };
         return message;
     },
     toJSON(_) {
@@ -128,18 +121,11 @@ export const MsgChannelOpenInitResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgChannelOpenInitResponse
-        };
+        const message = { ...baseMsgChannelOpenInitResponse };
         return message;
     }
 };
-const baseMsgChannelOpenTry = {
-    portId: '',
-    previousChannelId: '',
-    counterpartyVersion: '',
-    signer: ''
-};
+const baseMsgChannelOpenTry = { portId: '', previousChannelId: '', counterpartyVersion: '', signer: '' };
 export const MsgChannelOpenTry = {
     encode(message, writer = Writer.create()) {
         if (message.portId !== '') {
@@ -208,8 +194,7 @@ export const MsgChannelOpenTry = {
         else {
             message.portId = '';
         }
-        if (object.previousChannelId !== undefined &&
-            object.previousChannelId !== null) {
+        if (object.previousChannelId !== undefined && object.previousChannelId !== null) {
             message.previousChannelId = String(object.previousChannelId);
         }
         else {
@@ -221,8 +206,7 @@ export const MsgChannelOpenTry = {
         else {
             message.channel = undefined;
         }
-        if (object.counterpartyVersion !== undefined &&
-            object.counterpartyVersion !== null) {
+        if (object.counterpartyVersion !== undefined && object.counterpartyVersion !== null) {
             message.counterpartyVersion = String(object.counterpartyVersion);
         }
         else {
@@ -248,20 +232,11 @@ export const MsgChannelOpenTry = {
     toJSON(message) {
         const obj = {};
         message.portId !== undefined && (obj.portId = message.portId);
-        message.previousChannelId !== undefined &&
-            (obj.previousChannelId = message.previousChannelId);
-        message.channel !== undefined &&
-            (obj.channel = message.channel
-                ? Channel.toJSON(message.channel)
-                : undefined);
-        message.counterpartyVersion !== undefined &&
-            (obj.counterpartyVersion = message.counterpartyVersion);
-        message.proofInit !== undefined &&
-            (obj.proofInit = base64FromBytes(message.proofInit !== undefined ? message.proofInit : new Uint8Array()));
-        message.proofHeight !== undefined &&
-            (obj.proofHeight = message.proofHeight
-                ? Height.toJSON(message.proofHeight)
-                : undefined);
+        message.previousChannelId !== undefined && (obj.previousChannelId = message.previousChannelId);
+        message.channel !== undefined && (obj.channel = message.channel ? Channel.toJSON(message.channel) : undefined);
+        message.counterpartyVersion !== undefined && (obj.counterpartyVersion = message.counterpartyVersion);
+        message.proofInit !== undefined && (obj.proofInit = base64FromBytes(message.proofInit !== undefined ? message.proofInit : new Uint8Array()));
+        message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -273,8 +248,7 @@ export const MsgChannelOpenTry = {
         else {
             message.portId = '';
         }
-        if (object.previousChannelId !== undefined &&
-            object.previousChannelId !== null) {
+        if (object.previousChannelId !== undefined && object.previousChannelId !== null) {
             message.previousChannelId = object.previousChannelId;
         }
         else {
@@ -286,8 +260,7 @@ export const MsgChannelOpenTry = {
         else {
             message.channel = undefined;
         }
-        if (object.counterpartyVersion !== undefined &&
-            object.counterpartyVersion !== null) {
+        if (object.counterpartyVersion !== undefined && object.counterpartyVersion !== null) {
             message.counterpartyVersion = object.counterpartyVersion;
         }
         else {
@@ -322,9 +295,7 @@ export const MsgChannelOpenTryResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgChannelOpenTryResponse
-        };
+        const message = { ...baseMsgChannelOpenTryResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -336,9 +307,7 @@ export const MsgChannelOpenTryResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgChannelOpenTryResponse
-        };
+        const message = { ...baseMsgChannelOpenTryResponse };
         return message;
     },
     toJSON(_) {
@@ -346,19 +315,11 @@ export const MsgChannelOpenTryResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgChannelOpenTryResponse
-        };
+        const message = { ...baseMsgChannelOpenTryResponse };
         return message;
     }
 };
-const baseMsgChannelOpenAck = {
-    portId: '',
-    channelId: '',
-    counterpartyChannelId: '',
-    counterpartyVersion: '',
-    signer: ''
-};
+const baseMsgChannelOpenAck = { portId: '', channelId: '', counterpartyChannelId: '', counterpartyVersion: '', signer: '' };
 export const MsgChannelOpenAck = {
     encode(message, writer = Writer.create()) {
         if (message.portId !== '') {
@@ -433,15 +394,13 @@ export const MsgChannelOpenAck = {
         else {
             message.channelId = '';
         }
-        if (object.counterpartyChannelId !== undefined &&
-            object.counterpartyChannelId !== null) {
+        if (object.counterpartyChannelId !== undefined && object.counterpartyChannelId !== null) {
             message.counterpartyChannelId = String(object.counterpartyChannelId);
         }
         else {
             message.counterpartyChannelId = '';
         }
-        if (object.counterpartyVersion !== undefined &&
-            object.counterpartyVersion !== null) {
+        if (object.counterpartyVersion !== undefined && object.counterpartyVersion !== null) {
             message.counterpartyVersion = String(object.counterpartyVersion);
         }
         else {
@@ -468,16 +427,10 @@ export const MsgChannelOpenAck = {
         const obj = {};
         message.portId !== undefined && (obj.portId = message.portId);
         message.channelId !== undefined && (obj.channelId = message.channelId);
-        message.counterpartyChannelId !== undefined &&
-            (obj.counterpartyChannelId = message.counterpartyChannelId);
-        message.counterpartyVersion !== undefined &&
-            (obj.counterpartyVersion = message.counterpartyVersion);
-        message.proofTry !== undefined &&
-            (obj.proofTry = base64FromBytes(message.proofTry !== undefined ? message.proofTry : new Uint8Array()));
-        message.proofHeight !== undefined &&
-            (obj.proofHeight = message.proofHeight
-                ? Height.toJSON(message.proofHeight)
-                : undefined);
+        message.counterpartyChannelId !== undefined && (obj.counterpartyChannelId = message.counterpartyChannelId);
+        message.counterpartyVersion !== undefined && (obj.counterpartyVersion = message.counterpartyVersion);
+        message.proofTry !== undefined && (obj.proofTry = base64FromBytes(message.proofTry !== undefined ? message.proofTry : new Uint8Array()));
+        message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -495,15 +448,13 @@ export const MsgChannelOpenAck = {
         else {
             message.channelId = '';
         }
-        if (object.counterpartyChannelId !== undefined &&
-            object.counterpartyChannelId !== null) {
+        if (object.counterpartyChannelId !== undefined && object.counterpartyChannelId !== null) {
             message.counterpartyChannelId = object.counterpartyChannelId;
         }
         else {
             message.counterpartyChannelId = '';
         }
-        if (object.counterpartyVersion !== undefined &&
-            object.counterpartyVersion !== null) {
+        if (object.counterpartyVersion !== undefined && object.counterpartyVersion !== null) {
             message.counterpartyVersion = object.counterpartyVersion;
         }
         else {
@@ -538,9 +489,7 @@ export const MsgChannelOpenAckResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgChannelOpenAckResponse
-        };
+        const message = { ...baseMsgChannelOpenAckResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -552,9 +501,7 @@ export const MsgChannelOpenAckResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgChannelOpenAckResponse
-        };
+        const message = { ...baseMsgChannelOpenAckResponse };
         return message;
     },
     toJSON(_) {
@@ -562,17 +509,11 @@ export const MsgChannelOpenAckResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgChannelOpenAckResponse
-        };
+        const message = { ...baseMsgChannelOpenAckResponse };
         return message;
     }
 };
-const baseMsgChannelOpenConfirm = {
-    portId: '',
-    channelId: '',
-    signer: ''
-};
+const baseMsgChannelOpenConfirm = { portId: '', channelId: '', signer: '' };
 export const MsgChannelOpenConfirm = {
     encode(message, writer = Writer.create()) {
         if (message.portId !== '') {
@@ -656,12 +597,8 @@ export const MsgChannelOpenConfirm = {
         const obj = {};
         message.portId !== undefined && (obj.portId = message.portId);
         message.channelId !== undefined && (obj.channelId = message.channelId);
-        message.proofAck !== undefined &&
-            (obj.proofAck = base64FromBytes(message.proofAck !== undefined ? message.proofAck : new Uint8Array()));
-        message.proofHeight !== undefined &&
-            (obj.proofHeight = message.proofHeight
-                ? Height.toJSON(message.proofHeight)
-                : undefined);
+        message.proofAck !== undefined && (obj.proofAck = base64FromBytes(message.proofAck !== undefined ? message.proofAck : new Uint8Array()));
+        message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -708,9 +645,7 @@ export const MsgChannelOpenConfirmResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgChannelOpenConfirmResponse
-        };
+        const message = { ...baseMsgChannelOpenConfirmResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -722,9 +657,7 @@ export const MsgChannelOpenConfirmResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgChannelOpenConfirmResponse
-        };
+        const message = { ...baseMsgChannelOpenConfirmResponse };
         return message;
     },
     toJSON(_) {
@@ -732,17 +665,11 @@ export const MsgChannelOpenConfirmResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgChannelOpenConfirmResponse
-        };
+        const message = { ...baseMsgChannelOpenConfirmResponse };
         return message;
     }
 };
-const baseMsgChannelCloseInit = {
-    portId: '',
-    channelId: '',
-    signer: ''
-};
+const baseMsgChannelCloseInit = { portId: '', channelId: '', signer: '' };
 export const MsgChannelCloseInit = {
     encode(message, writer = Writer.create()) {
         if (message.portId !== '') {
@@ -839,9 +766,7 @@ export const MsgChannelCloseInitResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgChannelCloseInitResponse
-        };
+        const message = { ...baseMsgChannelCloseInitResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -853,9 +778,7 @@ export const MsgChannelCloseInitResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgChannelCloseInitResponse
-        };
+        const message = { ...baseMsgChannelCloseInitResponse };
         return message;
     },
     toJSON(_) {
@@ -863,17 +786,11 @@ export const MsgChannelCloseInitResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgChannelCloseInitResponse
-        };
+        const message = { ...baseMsgChannelCloseInitResponse };
         return message;
     }
 };
-const baseMsgChannelCloseConfirm = {
-    portId: '',
-    channelId: '',
-    signer: ''
-};
+const baseMsgChannelCloseConfirm = { portId: '', channelId: '', signer: '' };
 export const MsgChannelCloseConfirm = {
     encode(message, writer = Writer.create()) {
         if (message.portId !== '') {
@@ -957,12 +874,8 @@ export const MsgChannelCloseConfirm = {
         const obj = {};
         message.portId !== undefined && (obj.portId = message.portId);
         message.channelId !== undefined && (obj.channelId = message.channelId);
-        message.proofInit !== undefined &&
-            (obj.proofInit = base64FromBytes(message.proofInit !== undefined ? message.proofInit : new Uint8Array()));
-        message.proofHeight !== undefined &&
-            (obj.proofHeight = message.proofHeight
-                ? Height.toJSON(message.proofHeight)
-                : undefined);
+        message.proofInit !== undefined && (obj.proofInit = base64FromBytes(message.proofInit !== undefined ? message.proofInit : new Uint8Array()));
+        message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -1009,9 +922,7 @@ export const MsgChannelCloseConfirmResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgChannelCloseConfirmResponse
-        };
+        const message = { ...baseMsgChannelCloseConfirmResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1023,9 +934,7 @@ export const MsgChannelCloseConfirmResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgChannelCloseConfirmResponse
-        };
+        const message = { ...baseMsgChannelCloseConfirmResponse };
         return message;
     },
     toJSON(_) {
@@ -1033,9 +942,7 @@ export const MsgChannelCloseConfirmResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgChannelCloseConfirmResponse
-        };
+        const message = { ...baseMsgChannelCloseConfirmResponse };
         return message;
     }
 };
@@ -1090,8 +997,7 @@ export const MsgRecvPacket = {
         else {
             message.packet = undefined;
         }
-        if (object.proofCommitment !== undefined &&
-            object.proofCommitment !== null) {
+        if (object.proofCommitment !== undefined && object.proofCommitment !== null) {
             message.proofCommitment = bytesFromBase64(object.proofCommitment);
         }
         if (object.proofHeight !== undefined && object.proofHeight !== null) {
@@ -1110,16 +1016,10 @@ export const MsgRecvPacket = {
     },
     toJSON(message) {
         const obj = {};
-        message.packet !== undefined &&
-            (obj.packet = message.packet ? Packet.toJSON(message.packet) : undefined);
+        message.packet !== undefined && (obj.packet = message.packet ? Packet.toJSON(message.packet) : undefined);
         message.proofCommitment !== undefined &&
-            (obj.proofCommitment = base64FromBytes(message.proofCommitment !== undefined
-                ? message.proofCommitment
-                : new Uint8Array()));
-        message.proofHeight !== undefined &&
-            (obj.proofHeight = message.proofHeight
-                ? Height.toJSON(message.proofHeight)
-                : undefined);
+            (obj.proofCommitment = base64FromBytes(message.proofCommitment !== undefined ? message.proofCommitment : new Uint8Array()));
+        message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -1131,8 +1031,7 @@ export const MsgRecvPacket = {
         else {
             message.packet = undefined;
         }
-        if (object.proofCommitment !== undefined &&
-            object.proofCommitment !== null) {
+        if (object.proofCommitment !== undefined && object.proofCommitment !== null) {
             message.proofCommitment = object.proofCommitment;
         }
         else {
@@ -1242,8 +1141,7 @@ export const MsgTimeout = {
         else {
             message.packet = undefined;
         }
-        if (object.proofUnreceived !== undefined &&
-            object.proofUnreceived !== null) {
+        if (object.proofUnreceived !== undefined && object.proofUnreceived !== null) {
             message.proofUnreceived = bytesFromBase64(object.proofUnreceived);
         }
         if (object.proofHeight !== undefined && object.proofHeight !== null) {
@@ -1252,8 +1150,7 @@ export const MsgTimeout = {
         else {
             message.proofHeight = undefined;
         }
-        if (object.nextSequenceRecv !== undefined &&
-            object.nextSequenceRecv !== null) {
+        if (object.nextSequenceRecv !== undefined && object.nextSequenceRecv !== null) {
             message.nextSequenceRecv = Number(object.nextSequenceRecv);
         }
         else {
@@ -1269,18 +1166,11 @@ export const MsgTimeout = {
     },
     toJSON(message) {
         const obj = {};
-        message.packet !== undefined &&
-            (obj.packet = message.packet ? Packet.toJSON(message.packet) : undefined);
+        message.packet !== undefined && (obj.packet = message.packet ? Packet.toJSON(message.packet) : undefined);
         message.proofUnreceived !== undefined &&
-            (obj.proofUnreceived = base64FromBytes(message.proofUnreceived !== undefined
-                ? message.proofUnreceived
-                : new Uint8Array()));
-        message.proofHeight !== undefined &&
-            (obj.proofHeight = message.proofHeight
-                ? Height.toJSON(message.proofHeight)
-                : undefined);
-        message.nextSequenceRecv !== undefined &&
-            (obj.nextSequenceRecv = message.nextSequenceRecv);
+            (obj.proofUnreceived = base64FromBytes(message.proofUnreceived !== undefined ? message.proofUnreceived : new Uint8Array()));
+        message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined);
+        message.nextSequenceRecv !== undefined && (obj.nextSequenceRecv = message.nextSequenceRecv);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -1292,8 +1182,7 @@ export const MsgTimeout = {
         else {
             message.packet = undefined;
         }
-        if (object.proofUnreceived !== undefined &&
-            object.proofUnreceived !== null) {
+        if (object.proofUnreceived !== undefined && object.proofUnreceived !== null) {
             message.proofUnreceived = object.proofUnreceived;
         }
         else {
@@ -1305,8 +1194,7 @@ export const MsgTimeout = {
         else {
             message.proofHeight = undefined;
         }
-        if (object.nextSequenceRecv !== undefined &&
-            object.nextSequenceRecv !== null) {
+        if (object.nextSequenceRecv !== undefined && object.nextSequenceRecv !== null) {
             message.nextSequenceRecv = object.nextSequenceRecv;
         }
         else {
@@ -1416,8 +1304,7 @@ export const MsgTimeoutOnClose = {
         else {
             message.packet = undefined;
         }
-        if (object.proofUnreceived !== undefined &&
-            object.proofUnreceived !== null) {
+        if (object.proofUnreceived !== undefined && object.proofUnreceived !== null) {
             message.proofUnreceived = bytesFromBase64(object.proofUnreceived);
         }
         if (object.proofClose !== undefined && object.proofClose !== null) {
@@ -1429,8 +1316,7 @@ export const MsgTimeoutOnClose = {
         else {
             message.proofHeight = undefined;
         }
-        if (object.nextSequenceRecv !== undefined &&
-            object.nextSequenceRecv !== null) {
+        if (object.nextSequenceRecv !== undefined && object.nextSequenceRecv !== null) {
             message.nextSequenceRecv = Number(object.nextSequenceRecv);
         }
         else {
@@ -1446,20 +1332,12 @@ export const MsgTimeoutOnClose = {
     },
     toJSON(message) {
         const obj = {};
-        message.packet !== undefined &&
-            (obj.packet = message.packet ? Packet.toJSON(message.packet) : undefined);
+        message.packet !== undefined && (obj.packet = message.packet ? Packet.toJSON(message.packet) : undefined);
         message.proofUnreceived !== undefined &&
-            (obj.proofUnreceived = base64FromBytes(message.proofUnreceived !== undefined
-                ? message.proofUnreceived
-                : new Uint8Array()));
-        message.proofClose !== undefined &&
-            (obj.proofClose = base64FromBytes(message.proofClose !== undefined ? message.proofClose : new Uint8Array()));
-        message.proofHeight !== undefined &&
-            (obj.proofHeight = message.proofHeight
-                ? Height.toJSON(message.proofHeight)
-                : undefined);
-        message.nextSequenceRecv !== undefined &&
-            (obj.nextSequenceRecv = message.nextSequenceRecv);
+            (obj.proofUnreceived = base64FromBytes(message.proofUnreceived !== undefined ? message.proofUnreceived : new Uint8Array()));
+        message.proofClose !== undefined && (obj.proofClose = base64FromBytes(message.proofClose !== undefined ? message.proofClose : new Uint8Array()));
+        message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined);
+        message.nextSequenceRecv !== undefined && (obj.nextSequenceRecv = message.nextSequenceRecv);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -1471,8 +1349,7 @@ export const MsgTimeoutOnClose = {
         else {
             message.packet = undefined;
         }
-        if (object.proofUnreceived !== undefined &&
-            object.proofUnreceived !== null) {
+        if (object.proofUnreceived !== undefined && object.proofUnreceived !== null) {
             message.proofUnreceived = object.proofUnreceived;
         }
         else {
@@ -1490,8 +1367,7 @@ export const MsgTimeoutOnClose = {
         else {
             message.proofHeight = undefined;
         }
-        if (object.nextSequenceRecv !== undefined &&
-            object.nextSequenceRecv !== null) {
+        if (object.nextSequenceRecv !== undefined && object.nextSequenceRecv !== null) {
             message.nextSequenceRecv = object.nextSequenceRecv;
         }
         else {
@@ -1514,9 +1390,7 @@ export const MsgTimeoutOnCloseResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgTimeoutOnCloseResponse
-        };
+        const message = { ...baseMsgTimeoutOnCloseResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1528,9 +1402,7 @@ export const MsgTimeoutOnCloseResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgTimeoutOnCloseResponse
-        };
+        const message = { ...baseMsgTimeoutOnCloseResponse };
         return message;
     },
     toJSON(_) {
@@ -1538,9 +1410,7 @@ export const MsgTimeoutOnCloseResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgTimeoutOnCloseResponse
-        };
+        const message = { ...baseMsgTimeoutOnCloseResponse };
         return message;
     }
 };
@@ -1601,8 +1471,7 @@ export const MsgAcknowledgement = {
         else {
             message.packet = undefined;
         }
-        if (object.acknowledgement !== undefined &&
-            object.acknowledgement !== null) {
+        if (object.acknowledgement !== undefined && object.acknowledgement !== null) {
             message.acknowledgement = bytesFromBase64(object.acknowledgement);
         }
         if (object.proofAcked !== undefined && object.proofAcked !== null) {
@@ -1624,18 +1493,11 @@ export const MsgAcknowledgement = {
     },
     toJSON(message) {
         const obj = {};
-        message.packet !== undefined &&
-            (obj.packet = message.packet ? Packet.toJSON(message.packet) : undefined);
+        message.packet !== undefined && (obj.packet = message.packet ? Packet.toJSON(message.packet) : undefined);
         message.acknowledgement !== undefined &&
-            (obj.acknowledgement = base64FromBytes(message.acknowledgement !== undefined
-                ? message.acknowledgement
-                : new Uint8Array()));
-        message.proofAcked !== undefined &&
-            (obj.proofAcked = base64FromBytes(message.proofAcked !== undefined ? message.proofAcked : new Uint8Array()));
-        message.proofHeight !== undefined &&
-            (obj.proofHeight = message.proofHeight
-                ? Height.toJSON(message.proofHeight)
-                : undefined);
+            (obj.acknowledgement = base64FromBytes(message.acknowledgement !== undefined ? message.acknowledgement : new Uint8Array()));
+        message.proofAcked !== undefined && (obj.proofAcked = base64FromBytes(message.proofAcked !== undefined ? message.proofAcked : new Uint8Array()));
+        message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -1647,8 +1509,7 @@ export const MsgAcknowledgement = {
         else {
             message.packet = undefined;
         }
-        if (object.acknowledgement !== undefined &&
-            object.acknowledgement !== null) {
+        if (object.acknowledgement !== undefined && object.acknowledgement !== null) {
             message.acknowledgement = object.acknowledgement;
         }
         else {
@@ -1683,9 +1544,7 @@ export const MsgAcknowledgementResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgAcknowledgementResponse
-        };
+        const message = { ...baseMsgAcknowledgementResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1697,9 +1556,7 @@ export const MsgAcknowledgementResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgAcknowledgementResponse
-        };
+        const message = { ...baseMsgAcknowledgementResponse };
         return message;
     },
     toJSON(_) {
@@ -1707,9 +1564,7 @@ export const MsgAcknowledgementResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgAcknowledgementResponse
-        };
+        const message = { ...baseMsgAcknowledgementResponse };
         return message;
     }
 };
@@ -1779,8 +1634,7 @@ var globalThis = (() => {
         return global;
     throw 'Unable to locate global object';
 })();
-const atob = globalThis.atob ||
-    ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+const atob = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64) {
     const bin = atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -1789,8 +1643,7 @@ function bytesFromBase64(b64) {
     }
     return arr;
 }
-const btoa = globalThis.btoa ||
-    ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+const btoa = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr) {
     const bin = [];
     for (let i = 0; i < arr.byteLength; ++i) {

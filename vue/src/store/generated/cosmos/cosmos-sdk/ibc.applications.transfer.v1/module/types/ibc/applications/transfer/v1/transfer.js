@@ -2,12 +2,7 @@
 import * as Long from 'long';
 import { util, configure, Writer, Reader } from 'protobufjs/minimal';
 export const protobufPackage = 'ibc.applications.transfer.v1';
-const baseFungibleTokenPacketData = {
-    denom: '',
-    amount: 0,
-    sender: '',
-    receiver: ''
-};
+const baseFungibleTokenPacketData = { denom: '', amount: 0, sender: '', receiver: '' };
 export const FungibleTokenPacketData = {
     encode(message, writer = Writer.create()) {
         if (message.denom !== '') {
@@ -27,9 +22,7 @@ export const FungibleTokenPacketData = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseFungibleTokenPacketData
-        };
+        const message = { ...baseFungibleTokenPacketData };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -53,9 +46,7 @@ export const FungibleTokenPacketData = {
         return message;
     },
     fromJSON(object) {
-        const message = {
-            ...baseFungibleTokenPacketData
-        };
+        const message = { ...baseFungibleTokenPacketData };
         if (object.denom !== undefined && object.denom !== null) {
             message.denom = String(object.denom);
         }
@@ -91,9 +82,7 @@ export const FungibleTokenPacketData = {
         return obj;
     },
     fromPartial(object) {
-        const message = {
-            ...baseFungibleTokenPacketData
-        };
+        const message = { ...baseFungibleTokenPacketData };
         if (object.denom !== undefined && object.denom !== null) {
             message.denom = object.denom;
         }
@@ -241,8 +230,7 @@ export const Params = {
     toJSON(message) {
         const obj = {};
         message.sendEnabled !== undefined && (obj.sendEnabled = message.sendEnabled);
-        message.receiveEnabled !== undefined &&
-            (obj.receiveEnabled = message.receiveEnabled);
+        message.receiveEnabled !== undefined && (obj.receiveEnabled = message.receiveEnabled);
         return obj;
     },
     fromPartial(object) {

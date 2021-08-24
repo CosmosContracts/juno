@@ -1,19 +1,9 @@
 /* eslint-disable */
 import { Reader, util, configure, Writer } from 'protobufjs/minimal'
 import * as Long from 'long'
-import {
-  Channel,
-  IdentifiedChannel,
-  PacketState
-} from '../../../../ibc/core/channel/v1/channel'
-import {
-  Height,
-  IdentifiedClientState
-} from '../../../../ibc/core/client/v1/client'
-import {
-  PageRequest,
-  PageResponse
-} from '../../../../cosmos/base/query/v1beta1/pagination'
+import { Channel, IdentifiedChannel, PacketState } from '../../../../ibc/core/channel/v1/channel'
+import { Height, IdentifiedClientState } from '../../../../ibc/core/client/v1/client'
+import { PageRequest, PageResponse } from '../../../../cosmos/base/query/v1beta1/pagination'
 import { Any } from '../../../../google/protobuf/any'
 
 export const protobufPackage = 'ibc.core.channel.v1'
@@ -340,10 +330,7 @@ export interface QueryNextSequenceReceiveResponse {
 const baseQueryChannelRequest: object = { portId: '', channelId: '' }
 
 export const QueryChannelRequest = {
-  encode(
-    message: QueryChannelRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryChannelRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -415,10 +402,7 @@ export const QueryChannelRequest = {
 const baseQueryChannelResponse: object = {}
 
 export const QueryChannelResponse = {
-  encode(
-    message: QueryChannelResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryChannelResponse, writer: Writer = Writer.create()): Writer {
     if (message.channel !== undefined) {
       Channel.encode(message.channel, writer.uint32(10).fork()).ldelim()
     }
@@ -475,18 +459,9 @@ export const QueryChannelResponse = {
 
   toJSON(message: QueryChannelResponse): unknown {
     const obj: any = {}
-    message.channel !== undefined &&
-      (obj.channel = message.channel
-        ? Channel.toJSON(message.channel)
-        : undefined)
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ))
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined)
+    message.channel !== undefined && (obj.channel = message.channel ? Channel.toJSON(message.channel) : undefined)
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()))
+    message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined)
     return obj
   },
 
@@ -514,10 +489,7 @@ export const QueryChannelResponse = {
 const baseQueryChannelsRequest: object = {}
 
 export const QueryChannelsRequest = {
-  encode(
-    message: QueryChannelsRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryChannelsRequest, writer: Writer = Writer.create()): Writer {
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim()
     }
@@ -554,10 +526,7 @@ export const QueryChannelsRequest = {
 
   toJSON(message: QueryChannelsRequest): unknown {
     const obj: any = {}
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageRequest.toJSON(message.pagination) : undefined)
     return obj
   },
 
@@ -575,10 +544,7 @@ export const QueryChannelsRequest = {
 const baseQueryChannelsResponse: object = {}
 
 export const QueryChannelsResponse = {
-  encode(
-    message: QueryChannelsResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryChannelsResponse, writer: Writer = Writer.create()): Writer {
     for (const v of message.channels) {
       IdentifiedChannel.encode(v!, writer.uint32(10).fork()).ldelim()
     }
@@ -600,9 +566,7 @@ export const QueryChannelsResponse = {
       const tag = reader.uint32()
       switch (tag >>> 3) {
         case 1:
-          message.channels.push(
-            IdentifiedChannel.decode(reader, reader.uint32())
-          )
+          message.channels.push(IdentifiedChannel.decode(reader, reader.uint32()))
           break
         case 2:
           message.pagination = PageResponse.decode(reader, reader.uint32())
@@ -642,24 +606,16 @@ export const QueryChannelsResponse = {
   toJSON(message: QueryChannelsResponse): unknown {
     const obj: any = {}
     if (message.channels) {
-      obj.channels = message.channels.map((e) =>
-        e ? IdentifiedChannel.toJSON(e) : undefined
-      )
+      obj.channels = message.channels.map((e) => (e ? IdentifiedChannel.toJSON(e) : undefined))
     } else {
       obj.channels = []
     }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined)
-    message.height !== undefined &&
-      (obj.height = message.height ? Height.toJSON(message.height) : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageResponse.toJSON(message.pagination) : undefined)
+    message.height !== undefined && (obj.height = message.height ? Height.toJSON(message.height) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryChannelsResponse>
-  ): QueryChannelsResponse {
+  fromPartial(object: DeepPartial<QueryChannelsResponse>): QueryChannelsResponse {
     const message = { ...baseQueryChannelsResponse } as QueryChannelsResponse
     message.channels = []
     if (object.channels !== undefined && object.channels !== null) {
@@ -684,10 +640,7 @@ export const QueryChannelsResponse = {
 const baseQueryConnectionChannelsRequest: object = { connection: '' }
 
 export const QueryConnectionChannelsRequest = {
-  encode(
-    message: QueryConnectionChannelsRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryConnectionChannelsRequest, writer: Writer = Writer.create()): Writer {
     if (message.connection !== '') {
       writer.uint32(10).string(message.connection)
     }
@@ -697,15 +650,10 @@ export const QueryConnectionChannelsRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryConnectionChannelsRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryConnectionChannelsRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryConnectionChannelsRequest
-    } as QueryConnectionChannelsRequest
+    const message = { ...baseQueryConnectionChannelsRequest } as QueryConnectionChannelsRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -724,9 +672,7 @@ export const QueryConnectionChannelsRequest = {
   },
 
   fromJSON(object: any): QueryConnectionChannelsRequest {
-    const message = {
-      ...baseQueryConnectionChannelsRequest
-    } as QueryConnectionChannelsRequest
+    const message = { ...baseQueryConnectionChannelsRequest } as QueryConnectionChannelsRequest
     if (object.connection !== undefined && object.connection !== null) {
       message.connection = String(object.connection)
     } else {
@@ -743,19 +689,12 @@ export const QueryConnectionChannelsRequest = {
   toJSON(message: QueryConnectionChannelsRequest): unknown {
     const obj: any = {}
     message.connection !== undefined && (obj.connection = message.connection)
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageRequest.toJSON(message.pagination) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConnectionChannelsRequest>
-  ): QueryConnectionChannelsRequest {
-    const message = {
-      ...baseQueryConnectionChannelsRequest
-    } as QueryConnectionChannelsRequest
+  fromPartial(object: DeepPartial<QueryConnectionChannelsRequest>): QueryConnectionChannelsRequest {
+    const message = { ...baseQueryConnectionChannelsRequest } as QueryConnectionChannelsRequest
     if (object.connection !== undefined && object.connection !== null) {
       message.connection = object.connection
     } else {
@@ -773,10 +712,7 @@ export const QueryConnectionChannelsRequest = {
 const baseQueryConnectionChannelsResponse: object = {}
 
 export const QueryConnectionChannelsResponse = {
-  encode(
-    message: QueryConnectionChannelsResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryConnectionChannelsResponse, writer: Writer = Writer.create()): Writer {
     for (const v of message.channels) {
       IdentifiedChannel.encode(v!, writer.uint32(10).fork()).ldelim()
     }
@@ -789,23 +725,16 @@ export const QueryConnectionChannelsResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryConnectionChannelsResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryConnectionChannelsResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryConnectionChannelsResponse
-    } as QueryConnectionChannelsResponse
+    const message = { ...baseQueryConnectionChannelsResponse } as QueryConnectionChannelsResponse
     message.channels = []
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
         case 1:
-          message.channels.push(
-            IdentifiedChannel.decode(reader, reader.uint32())
-          )
+          message.channels.push(IdentifiedChannel.decode(reader, reader.uint32()))
           break
         case 2:
           message.pagination = PageResponse.decode(reader, reader.uint32())
@@ -822,9 +751,7 @@ export const QueryConnectionChannelsResponse = {
   },
 
   fromJSON(object: any): QueryConnectionChannelsResponse {
-    const message = {
-      ...baseQueryConnectionChannelsResponse
-    } as QueryConnectionChannelsResponse
+    const message = { ...baseQueryConnectionChannelsResponse } as QueryConnectionChannelsResponse
     message.channels = []
     if (object.channels !== undefined && object.channels !== null) {
       for (const e of object.channels) {
@@ -847,27 +774,17 @@ export const QueryConnectionChannelsResponse = {
   toJSON(message: QueryConnectionChannelsResponse): unknown {
     const obj: any = {}
     if (message.channels) {
-      obj.channels = message.channels.map((e) =>
-        e ? IdentifiedChannel.toJSON(e) : undefined
-      )
+      obj.channels = message.channels.map((e) => (e ? IdentifiedChannel.toJSON(e) : undefined))
     } else {
       obj.channels = []
     }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined)
-    message.height !== undefined &&
-      (obj.height = message.height ? Height.toJSON(message.height) : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageResponse.toJSON(message.pagination) : undefined)
+    message.height !== undefined && (obj.height = message.height ? Height.toJSON(message.height) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConnectionChannelsResponse>
-  ): QueryConnectionChannelsResponse {
-    const message = {
-      ...baseQueryConnectionChannelsResponse
-    } as QueryConnectionChannelsResponse
+  fromPartial(object: DeepPartial<QueryConnectionChannelsResponse>): QueryConnectionChannelsResponse {
+    const message = { ...baseQueryConnectionChannelsResponse } as QueryConnectionChannelsResponse
     message.channels = []
     if (object.channels !== undefined && object.channels !== null) {
       for (const e of object.channels) {
@@ -891,10 +808,7 @@ export const QueryConnectionChannelsResponse = {
 const baseQueryChannelClientStateRequest: object = { portId: '', channelId: '' }
 
 export const QueryChannelClientStateRequest = {
-  encode(
-    message: QueryChannelClientStateRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryChannelClientStateRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -904,15 +818,10 @@ export const QueryChannelClientStateRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryChannelClientStateRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryChannelClientStateRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryChannelClientStateRequest
-    } as QueryChannelClientStateRequest
+    const message = { ...baseQueryChannelClientStateRequest } as QueryChannelClientStateRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -931,9 +840,7 @@ export const QueryChannelClientStateRequest = {
   },
 
   fromJSON(object: any): QueryChannelClientStateRequest {
-    const message = {
-      ...baseQueryChannelClientStateRequest
-    } as QueryChannelClientStateRequest
+    const message = { ...baseQueryChannelClientStateRequest } as QueryChannelClientStateRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
     } else {
@@ -954,12 +861,8 @@ export const QueryChannelClientStateRequest = {
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryChannelClientStateRequest>
-  ): QueryChannelClientStateRequest {
-    const message = {
-      ...baseQueryChannelClientStateRequest
-    } as QueryChannelClientStateRequest
+  fromPartial(object: DeepPartial<QueryChannelClientStateRequest>): QueryChannelClientStateRequest {
+    const message = { ...baseQueryChannelClientStateRequest } as QueryChannelClientStateRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
     } else {
@@ -977,15 +880,9 @@ export const QueryChannelClientStateRequest = {
 const baseQueryChannelClientStateResponse: object = {}
 
 export const QueryChannelClientStateResponse = {
-  encode(
-    message: QueryChannelClientStateResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryChannelClientStateResponse, writer: Writer = Writer.create()): Writer {
     if (message.identifiedClientState !== undefined) {
-      IdentifiedClientState.encode(
-        message.identifiedClientState,
-        writer.uint32(10).fork()
-      ).ldelim()
+      IdentifiedClientState.encode(message.identifiedClientState, writer.uint32(10).fork()).ldelim()
     }
     if (message.proof.length !== 0) {
       writer.uint32(18).bytes(message.proof)
@@ -996,23 +893,15 @@ export const QueryChannelClientStateResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryChannelClientStateResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryChannelClientStateResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryChannelClientStateResponse
-    } as QueryChannelClientStateResponse
+    const message = { ...baseQueryChannelClientStateResponse } as QueryChannelClientStateResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
         case 1:
-          message.identifiedClientState = IdentifiedClientState.decode(
-            reader,
-            reader.uint32()
-          )
+          message.identifiedClientState = IdentifiedClientState.decode(reader, reader.uint32())
           break
         case 2:
           message.proof = reader.bytes()
@@ -1029,16 +918,9 @@ export const QueryChannelClientStateResponse = {
   },
 
   fromJSON(object: any): QueryChannelClientStateResponse {
-    const message = {
-      ...baseQueryChannelClientStateResponse
-    } as QueryChannelClientStateResponse
-    if (
-      object.identifiedClientState !== undefined &&
-      object.identifiedClientState !== null
-    ) {
-      message.identifiedClientState = IdentifiedClientState.fromJSON(
-        object.identifiedClientState
-      )
+    const message = { ...baseQueryChannelClientStateResponse } as QueryChannelClientStateResponse
+    if (object.identifiedClientState !== undefined && object.identifiedClientState !== null) {
+      message.identifiedClientState = IdentifiedClientState.fromJSON(object.identifiedClientState)
     } else {
       message.identifiedClientState = undefined
     }
@@ -1056,33 +938,16 @@ export const QueryChannelClientStateResponse = {
   toJSON(message: QueryChannelClientStateResponse): unknown {
     const obj: any = {}
     message.identifiedClientState !== undefined &&
-      (obj.identifiedClientState = message.identifiedClientState
-        ? IdentifiedClientState.toJSON(message.identifiedClientState)
-        : undefined)
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ))
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined)
+      (obj.identifiedClientState = message.identifiedClientState ? IdentifiedClientState.toJSON(message.identifiedClientState) : undefined)
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()))
+    message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryChannelClientStateResponse>
-  ): QueryChannelClientStateResponse {
-    const message = {
-      ...baseQueryChannelClientStateResponse
-    } as QueryChannelClientStateResponse
-    if (
-      object.identifiedClientState !== undefined &&
-      object.identifiedClientState !== null
-    ) {
-      message.identifiedClientState = IdentifiedClientState.fromPartial(
-        object.identifiedClientState
-      )
+  fromPartial(object: DeepPartial<QueryChannelClientStateResponse>): QueryChannelClientStateResponse {
+    const message = { ...baseQueryChannelClientStateResponse } as QueryChannelClientStateResponse
+    if (object.identifiedClientState !== undefined && object.identifiedClientState !== null) {
+      message.identifiedClientState = IdentifiedClientState.fromPartial(object.identifiedClientState)
     } else {
       message.identifiedClientState = undefined
     }
@@ -1100,18 +965,10 @@ export const QueryChannelClientStateResponse = {
   }
 }
 
-const baseQueryChannelConsensusStateRequest: object = {
-  portId: '',
-  channelId: '',
-  revisionNumber: 0,
-  revisionHeight: 0
-}
+const baseQueryChannelConsensusStateRequest: object = { portId: '', channelId: '', revisionNumber: 0, revisionHeight: 0 }
 
 export const QueryChannelConsensusStateRequest = {
-  encode(
-    message: QueryChannelConsensusStateRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryChannelConsensusStateRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -1127,15 +984,10 @@ export const QueryChannelConsensusStateRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryChannelConsensusStateRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryChannelConsensusStateRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryChannelConsensusStateRequest
-    } as QueryChannelConsensusStateRequest
+    const message = { ...baseQueryChannelConsensusStateRequest } as QueryChannelConsensusStateRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -1160,9 +1012,7 @@ export const QueryChannelConsensusStateRequest = {
   },
 
   fromJSON(object: any): QueryChannelConsensusStateRequest {
-    const message = {
-      ...baseQueryChannelConsensusStateRequest
-    } as QueryChannelConsensusStateRequest
+    const message = { ...baseQueryChannelConsensusStateRequest } as QueryChannelConsensusStateRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
     } else {
@@ -1190,19 +1040,13 @@ export const QueryChannelConsensusStateRequest = {
     const obj: any = {}
     message.portId !== undefined && (obj.portId = message.portId)
     message.channelId !== undefined && (obj.channelId = message.channelId)
-    message.revisionNumber !== undefined &&
-      (obj.revisionNumber = message.revisionNumber)
-    message.revisionHeight !== undefined &&
-      (obj.revisionHeight = message.revisionHeight)
+    message.revisionNumber !== undefined && (obj.revisionNumber = message.revisionNumber)
+    message.revisionHeight !== undefined && (obj.revisionHeight = message.revisionHeight)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryChannelConsensusStateRequest>
-  ): QueryChannelConsensusStateRequest {
-    const message = {
-      ...baseQueryChannelConsensusStateRequest
-    } as QueryChannelConsensusStateRequest
+  fromPartial(object: DeepPartial<QueryChannelConsensusStateRequest>): QueryChannelConsensusStateRequest {
+    const message = { ...baseQueryChannelConsensusStateRequest } as QueryChannelConsensusStateRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
     } else {
@@ -1230,10 +1074,7 @@ export const QueryChannelConsensusStateRequest = {
 const baseQueryChannelConsensusStateResponse: object = { clientId: '' }
 
 export const QueryChannelConsensusStateResponse = {
-  encode(
-    message: QueryChannelConsensusStateResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryChannelConsensusStateResponse, writer: Writer = Writer.create()): Writer {
     if (message.consensusState !== undefined) {
       Any.encode(message.consensusState, writer.uint32(10).fork()).ldelim()
     }
@@ -1249,15 +1090,10 @@ export const QueryChannelConsensusStateResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryChannelConsensusStateResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryChannelConsensusStateResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryChannelConsensusStateResponse
-    } as QueryChannelConsensusStateResponse
+    const message = { ...baseQueryChannelConsensusStateResponse } as QueryChannelConsensusStateResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -1282,9 +1118,7 @@ export const QueryChannelConsensusStateResponse = {
   },
 
   fromJSON(object: any): QueryChannelConsensusStateResponse {
-    const message = {
-      ...baseQueryChannelConsensusStateResponse
-    } as QueryChannelConsensusStateResponse
+    const message = { ...baseQueryChannelConsensusStateResponse } as QueryChannelConsensusStateResponse
     if (object.consensusState !== undefined && object.consensusState !== null) {
       message.consensusState = Any.fromJSON(object.consensusState)
     } else {
@@ -1308,28 +1142,15 @@ export const QueryChannelConsensusStateResponse = {
 
   toJSON(message: QueryChannelConsensusStateResponse): unknown {
     const obj: any = {}
-    message.consensusState !== undefined &&
-      (obj.consensusState = message.consensusState
-        ? Any.toJSON(message.consensusState)
-        : undefined)
+    message.consensusState !== undefined && (obj.consensusState = message.consensusState ? Any.toJSON(message.consensusState) : undefined)
     message.clientId !== undefined && (obj.clientId = message.clientId)
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ))
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined)
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()))
+    message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryChannelConsensusStateResponse>
-  ): QueryChannelConsensusStateResponse {
-    const message = {
-      ...baseQueryChannelConsensusStateResponse
-    } as QueryChannelConsensusStateResponse
+  fromPartial(object: DeepPartial<QueryChannelConsensusStateResponse>): QueryChannelConsensusStateResponse {
+    const message = { ...baseQueryChannelConsensusStateResponse } as QueryChannelConsensusStateResponse
     if (object.consensusState !== undefined && object.consensusState !== null) {
       message.consensusState = Any.fromPartial(object.consensusState)
     } else {
@@ -1354,17 +1175,10 @@ export const QueryChannelConsensusStateResponse = {
   }
 }
 
-const baseQueryPacketCommitmentRequest: object = {
-  portId: '',
-  channelId: '',
-  sequence: 0
-}
+const baseQueryPacketCommitmentRequest: object = { portId: '', channelId: '', sequence: 0 }
 
 export const QueryPacketCommitmentRequest = {
-  encode(
-    message: QueryPacketCommitmentRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketCommitmentRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -1377,15 +1191,10 @@ export const QueryPacketCommitmentRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketCommitmentRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketCommitmentRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketCommitmentRequest
-    } as QueryPacketCommitmentRequest
+    const message = { ...baseQueryPacketCommitmentRequest } as QueryPacketCommitmentRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -1407,9 +1216,7 @@ export const QueryPacketCommitmentRequest = {
   },
 
   fromJSON(object: any): QueryPacketCommitmentRequest {
-    const message = {
-      ...baseQueryPacketCommitmentRequest
-    } as QueryPacketCommitmentRequest
+    const message = { ...baseQueryPacketCommitmentRequest } as QueryPacketCommitmentRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
     } else {
@@ -1436,12 +1243,8 @@ export const QueryPacketCommitmentRequest = {
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketCommitmentRequest>
-  ): QueryPacketCommitmentRequest {
-    const message = {
-      ...baseQueryPacketCommitmentRequest
-    } as QueryPacketCommitmentRequest
+  fromPartial(object: DeepPartial<QueryPacketCommitmentRequest>): QueryPacketCommitmentRequest {
+    const message = { ...baseQueryPacketCommitmentRequest } as QueryPacketCommitmentRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
     } else {
@@ -1464,10 +1267,7 @@ export const QueryPacketCommitmentRequest = {
 const baseQueryPacketCommitmentResponse: object = {}
 
 export const QueryPacketCommitmentResponse = {
-  encode(
-    message: QueryPacketCommitmentResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketCommitmentResponse, writer: Writer = Writer.create()): Writer {
     if (message.commitment.length !== 0) {
       writer.uint32(10).bytes(message.commitment)
     }
@@ -1480,15 +1280,10 @@ export const QueryPacketCommitmentResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketCommitmentResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketCommitmentResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketCommitmentResponse
-    } as QueryPacketCommitmentResponse
+    const message = { ...baseQueryPacketCommitmentResponse } as QueryPacketCommitmentResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -1510,9 +1305,7 @@ export const QueryPacketCommitmentResponse = {
   },
 
   fromJSON(object: any): QueryPacketCommitmentResponse {
-    const message = {
-      ...baseQueryPacketCommitmentResponse
-    } as QueryPacketCommitmentResponse
+    const message = { ...baseQueryPacketCommitmentResponse } as QueryPacketCommitmentResponse
     if (object.commitment !== undefined && object.commitment !== null) {
       message.commitment = bytesFromBase64(object.commitment)
     }
@@ -1529,27 +1322,14 @@ export const QueryPacketCommitmentResponse = {
 
   toJSON(message: QueryPacketCommitmentResponse): unknown {
     const obj: any = {}
-    message.commitment !== undefined &&
-      (obj.commitment = base64FromBytes(
-        message.commitment !== undefined ? message.commitment : new Uint8Array()
-      ))
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ))
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined)
+    message.commitment !== undefined && (obj.commitment = base64FromBytes(message.commitment !== undefined ? message.commitment : new Uint8Array()))
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()))
+    message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketCommitmentResponse>
-  ): QueryPacketCommitmentResponse {
-    const message = {
-      ...baseQueryPacketCommitmentResponse
-    } as QueryPacketCommitmentResponse
+  fromPartial(object: DeepPartial<QueryPacketCommitmentResponse>): QueryPacketCommitmentResponse {
+    const message = { ...baseQueryPacketCommitmentResponse } as QueryPacketCommitmentResponse
     if (object.commitment !== undefined && object.commitment !== null) {
       message.commitment = object.commitment
     } else {
@@ -1572,10 +1352,7 @@ export const QueryPacketCommitmentResponse = {
 const baseQueryPacketCommitmentsRequest: object = { portId: '', channelId: '' }
 
 export const QueryPacketCommitmentsRequest = {
-  encode(
-    message: QueryPacketCommitmentsRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketCommitmentsRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -1588,15 +1365,10 @@ export const QueryPacketCommitmentsRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketCommitmentsRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketCommitmentsRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketCommitmentsRequest
-    } as QueryPacketCommitmentsRequest
+    const message = { ...baseQueryPacketCommitmentsRequest } as QueryPacketCommitmentsRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -1618,9 +1390,7 @@ export const QueryPacketCommitmentsRequest = {
   },
 
   fromJSON(object: any): QueryPacketCommitmentsRequest {
-    const message = {
-      ...baseQueryPacketCommitmentsRequest
-    } as QueryPacketCommitmentsRequest
+    const message = { ...baseQueryPacketCommitmentsRequest } as QueryPacketCommitmentsRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
     } else {
@@ -1643,19 +1413,12 @@ export const QueryPacketCommitmentsRequest = {
     const obj: any = {}
     message.portId !== undefined && (obj.portId = message.portId)
     message.channelId !== undefined && (obj.channelId = message.channelId)
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageRequest.toJSON(message.pagination) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketCommitmentsRequest>
-  ): QueryPacketCommitmentsRequest {
-    const message = {
-      ...baseQueryPacketCommitmentsRequest
-    } as QueryPacketCommitmentsRequest
+  fromPartial(object: DeepPartial<QueryPacketCommitmentsRequest>): QueryPacketCommitmentsRequest {
+    const message = { ...baseQueryPacketCommitmentsRequest } as QueryPacketCommitmentsRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
     } else {
@@ -1678,10 +1441,7 @@ export const QueryPacketCommitmentsRequest = {
 const baseQueryPacketCommitmentsResponse: object = {}
 
 export const QueryPacketCommitmentsResponse = {
-  encode(
-    message: QueryPacketCommitmentsResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketCommitmentsResponse, writer: Writer = Writer.create()): Writer {
     for (const v of message.commitments) {
       PacketState.encode(v!, writer.uint32(10).fork()).ldelim()
     }
@@ -1694,15 +1454,10 @@ export const QueryPacketCommitmentsResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketCommitmentsResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketCommitmentsResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketCommitmentsResponse
-    } as QueryPacketCommitmentsResponse
+    const message = { ...baseQueryPacketCommitmentsResponse } as QueryPacketCommitmentsResponse
     message.commitments = []
     while (reader.pos < end) {
       const tag = reader.uint32()
@@ -1725,9 +1480,7 @@ export const QueryPacketCommitmentsResponse = {
   },
 
   fromJSON(object: any): QueryPacketCommitmentsResponse {
-    const message = {
-      ...baseQueryPacketCommitmentsResponse
-    } as QueryPacketCommitmentsResponse
+    const message = { ...baseQueryPacketCommitmentsResponse } as QueryPacketCommitmentsResponse
     message.commitments = []
     if (object.commitments !== undefined && object.commitments !== null) {
       for (const e of object.commitments) {
@@ -1750,27 +1503,17 @@ export const QueryPacketCommitmentsResponse = {
   toJSON(message: QueryPacketCommitmentsResponse): unknown {
     const obj: any = {}
     if (message.commitments) {
-      obj.commitments = message.commitments.map((e) =>
-        e ? PacketState.toJSON(e) : undefined
-      )
+      obj.commitments = message.commitments.map((e) => (e ? PacketState.toJSON(e) : undefined))
     } else {
       obj.commitments = []
     }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined)
-    message.height !== undefined &&
-      (obj.height = message.height ? Height.toJSON(message.height) : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageResponse.toJSON(message.pagination) : undefined)
+    message.height !== undefined && (obj.height = message.height ? Height.toJSON(message.height) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketCommitmentsResponse>
-  ): QueryPacketCommitmentsResponse {
-    const message = {
-      ...baseQueryPacketCommitmentsResponse
-    } as QueryPacketCommitmentsResponse
+  fromPartial(object: DeepPartial<QueryPacketCommitmentsResponse>): QueryPacketCommitmentsResponse {
+    const message = { ...baseQueryPacketCommitmentsResponse } as QueryPacketCommitmentsResponse
     message.commitments = []
     if (object.commitments !== undefined && object.commitments !== null) {
       for (const e of object.commitments) {
@@ -1791,17 +1534,10 @@ export const QueryPacketCommitmentsResponse = {
   }
 }
 
-const baseQueryPacketReceiptRequest: object = {
-  portId: '',
-  channelId: '',
-  sequence: 0
-}
+const baseQueryPacketReceiptRequest: object = { portId: '', channelId: '', sequence: 0 }
 
 export const QueryPacketReceiptRequest = {
-  encode(
-    message: QueryPacketReceiptRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketReceiptRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -1814,15 +1550,10 @@ export const QueryPacketReceiptRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketReceiptRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketReceiptRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketReceiptRequest
-    } as QueryPacketReceiptRequest
+    const message = { ...baseQueryPacketReceiptRequest } as QueryPacketReceiptRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -1844,9 +1575,7 @@ export const QueryPacketReceiptRequest = {
   },
 
   fromJSON(object: any): QueryPacketReceiptRequest {
-    const message = {
-      ...baseQueryPacketReceiptRequest
-    } as QueryPacketReceiptRequest
+    const message = { ...baseQueryPacketReceiptRequest } as QueryPacketReceiptRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
     } else {
@@ -1873,12 +1602,8 @@ export const QueryPacketReceiptRequest = {
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketReceiptRequest>
-  ): QueryPacketReceiptRequest {
-    const message = {
-      ...baseQueryPacketReceiptRequest
-    } as QueryPacketReceiptRequest
+  fromPartial(object: DeepPartial<QueryPacketReceiptRequest>): QueryPacketReceiptRequest {
+    const message = { ...baseQueryPacketReceiptRequest } as QueryPacketReceiptRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
     } else {
@@ -1901,10 +1626,7 @@ export const QueryPacketReceiptRequest = {
 const baseQueryPacketReceiptResponse: object = { received: false }
 
 export const QueryPacketReceiptResponse = {
-  encode(
-    message: QueryPacketReceiptResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketReceiptResponse, writer: Writer = Writer.create()): Writer {
     if (message.received === true) {
       writer.uint32(16).bool(message.received)
     }
@@ -1917,15 +1639,10 @@ export const QueryPacketReceiptResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketReceiptResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketReceiptResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketReceiptResponse
-    } as QueryPacketReceiptResponse
+    const message = { ...baseQueryPacketReceiptResponse } as QueryPacketReceiptResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -1947,9 +1664,7 @@ export const QueryPacketReceiptResponse = {
   },
 
   fromJSON(object: any): QueryPacketReceiptResponse {
-    const message = {
-      ...baseQueryPacketReceiptResponse
-    } as QueryPacketReceiptResponse
+    const message = { ...baseQueryPacketReceiptResponse } as QueryPacketReceiptResponse
     if (object.received !== undefined && object.received !== null) {
       message.received = Boolean(object.received)
     } else {
@@ -1969,23 +1684,13 @@ export const QueryPacketReceiptResponse = {
   toJSON(message: QueryPacketReceiptResponse): unknown {
     const obj: any = {}
     message.received !== undefined && (obj.received = message.received)
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ))
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined)
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()))
+    message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketReceiptResponse>
-  ): QueryPacketReceiptResponse {
-    const message = {
-      ...baseQueryPacketReceiptResponse
-    } as QueryPacketReceiptResponse
+  fromPartial(object: DeepPartial<QueryPacketReceiptResponse>): QueryPacketReceiptResponse {
+    const message = { ...baseQueryPacketReceiptResponse } as QueryPacketReceiptResponse
     if (object.received !== undefined && object.received !== null) {
       message.received = object.received
     } else {
@@ -2005,17 +1710,10 @@ export const QueryPacketReceiptResponse = {
   }
 }
 
-const baseQueryPacketAcknowledgementRequest: object = {
-  portId: '',
-  channelId: '',
-  sequence: 0
-}
+const baseQueryPacketAcknowledgementRequest: object = { portId: '', channelId: '', sequence: 0 }
 
 export const QueryPacketAcknowledgementRequest = {
-  encode(
-    message: QueryPacketAcknowledgementRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketAcknowledgementRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -2028,15 +1726,10 @@ export const QueryPacketAcknowledgementRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketAcknowledgementRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketAcknowledgementRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketAcknowledgementRequest
-    } as QueryPacketAcknowledgementRequest
+    const message = { ...baseQueryPacketAcknowledgementRequest } as QueryPacketAcknowledgementRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -2058,9 +1751,7 @@ export const QueryPacketAcknowledgementRequest = {
   },
 
   fromJSON(object: any): QueryPacketAcknowledgementRequest {
-    const message = {
-      ...baseQueryPacketAcknowledgementRequest
-    } as QueryPacketAcknowledgementRequest
+    const message = { ...baseQueryPacketAcknowledgementRequest } as QueryPacketAcknowledgementRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
     } else {
@@ -2087,12 +1778,8 @@ export const QueryPacketAcknowledgementRequest = {
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketAcknowledgementRequest>
-  ): QueryPacketAcknowledgementRequest {
-    const message = {
-      ...baseQueryPacketAcknowledgementRequest
-    } as QueryPacketAcknowledgementRequest
+  fromPartial(object: DeepPartial<QueryPacketAcknowledgementRequest>): QueryPacketAcknowledgementRequest {
+    const message = { ...baseQueryPacketAcknowledgementRequest } as QueryPacketAcknowledgementRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
     } else {
@@ -2115,10 +1802,7 @@ export const QueryPacketAcknowledgementRequest = {
 const baseQueryPacketAcknowledgementResponse: object = {}
 
 export const QueryPacketAcknowledgementResponse = {
-  encode(
-    message: QueryPacketAcknowledgementResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketAcknowledgementResponse, writer: Writer = Writer.create()): Writer {
     if (message.acknowledgement.length !== 0) {
       writer.uint32(10).bytes(message.acknowledgement)
     }
@@ -2131,15 +1815,10 @@ export const QueryPacketAcknowledgementResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketAcknowledgementResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketAcknowledgementResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketAcknowledgementResponse
-    } as QueryPacketAcknowledgementResponse
+    const message = { ...baseQueryPacketAcknowledgementResponse } as QueryPacketAcknowledgementResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -2161,13 +1840,8 @@ export const QueryPacketAcknowledgementResponse = {
   },
 
   fromJSON(object: any): QueryPacketAcknowledgementResponse {
-    const message = {
-      ...baseQueryPacketAcknowledgementResponse
-    } as QueryPacketAcknowledgementResponse
-    if (
-      object.acknowledgement !== undefined &&
-      object.acknowledgement !== null
-    ) {
+    const message = { ...baseQueryPacketAcknowledgementResponse } as QueryPacketAcknowledgementResponse
+    if (object.acknowledgement !== undefined && object.acknowledgement !== null) {
       message.acknowledgement = bytesFromBase64(object.acknowledgement)
     }
     if (object.proof !== undefined && object.proof !== null) {
@@ -2184,32 +1858,15 @@ export const QueryPacketAcknowledgementResponse = {
   toJSON(message: QueryPacketAcknowledgementResponse): unknown {
     const obj: any = {}
     message.acknowledgement !== undefined &&
-      (obj.acknowledgement = base64FromBytes(
-        message.acknowledgement !== undefined
-          ? message.acknowledgement
-          : new Uint8Array()
-      ))
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ))
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined)
+      (obj.acknowledgement = base64FromBytes(message.acknowledgement !== undefined ? message.acknowledgement : new Uint8Array()))
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()))
+    message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketAcknowledgementResponse>
-  ): QueryPacketAcknowledgementResponse {
-    const message = {
-      ...baseQueryPacketAcknowledgementResponse
-    } as QueryPacketAcknowledgementResponse
-    if (
-      object.acknowledgement !== undefined &&
-      object.acknowledgement !== null
-    ) {
+  fromPartial(object: DeepPartial<QueryPacketAcknowledgementResponse>): QueryPacketAcknowledgementResponse {
+    const message = { ...baseQueryPacketAcknowledgementResponse } as QueryPacketAcknowledgementResponse
+    if (object.acknowledgement !== undefined && object.acknowledgement !== null) {
       message.acknowledgement = object.acknowledgement
     } else {
       message.acknowledgement = new Uint8Array()
@@ -2228,16 +1885,10 @@ export const QueryPacketAcknowledgementResponse = {
   }
 }
 
-const baseQueryPacketAcknowledgementsRequest: object = {
-  portId: '',
-  channelId: ''
-}
+const baseQueryPacketAcknowledgementsRequest: object = { portId: '', channelId: '' }
 
 export const QueryPacketAcknowledgementsRequest = {
-  encode(
-    message: QueryPacketAcknowledgementsRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketAcknowledgementsRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -2250,15 +1901,10 @@ export const QueryPacketAcknowledgementsRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketAcknowledgementsRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketAcknowledgementsRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketAcknowledgementsRequest
-    } as QueryPacketAcknowledgementsRequest
+    const message = { ...baseQueryPacketAcknowledgementsRequest } as QueryPacketAcknowledgementsRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -2280,9 +1926,7 @@ export const QueryPacketAcknowledgementsRequest = {
   },
 
   fromJSON(object: any): QueryPacketAcknowledgementsRequest {
-    const message = {
-      ...baseQueryPacketAcknowledgementsRequest
-    } as QueryPacketAcknowledgementsRequest
+    const message = { ...baseQueryPacketAcknowledgementsRequest } as QueryPacketAcknowledgementsRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
     } else {
@@ -2305,19 +1949,12 @@ export const QueryPacketAcknowledgementsRequest = {
     const obj: any = {}
     message.portId !== undefined && (obj.portId = message.portId)
     message.channelId !== undefined && (obj.channelId = message.channelId)
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageRequest.toJSON(message.pagination) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketAcknowledgementsRequest>
-  ): QueryPacketAcknowledgementsRequest {
-    const message = {
-      ...baseQueryPacketAcknowledgementsRequest
-    } as QueryPacketAcknowledgementsRequest
+  fromPartial(object: DeepPartial<QueryPacketAcknowledgementsRequest>): QueryPacketAcknowledgementsRequest {
+    const message = { ...baseQueryPacketAcknowledgementsRequest } as QueryPacketAcknowledgementsRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
     } else {
@@ -2340,10 +1977,7 @@ export const QueryPacketAcknowledgementsRequest = {
 const baseQueryPacketAcknowledgementsResponse: object = {}
 
 export const QueryPacketAcknowledgementsResponse = {
-  encode(
-    message: QueryPacketAcknowledgementsResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryPacketAcknowledgementsResponse, writer: Writer = Writer.create()): Writer {
     for (const v of message.acknowledgements) {
       PacketState.encode(v!, writer.uint32(10).fork()).ldelim()
     }
@@ -2356,23 +1990,16 @@ export const QueryPacketAcknowledgementsResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryPacketAcknowledgementsResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryPacketAcknowledgementsResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryPacketAcknowledgementsResponse
-    } as QueryPacketAcknowledgementsResponse
+    const message = { ...baseQueryPacketAcknowledgementsResponse } as QueryPacketAcknowledgementsResponse
     message.acknowledgements = []
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
         case 1:
-          message.acknowledgements.push(
-            PacketState.decode(reader, reader.uint32())
-          )
+          message.acknowledgements.push(PacketState.decode(reader, reader.uint32()))
           break
         case 2:
           message.pagination = PageResponse.decode(reader, reader.uint32())
@@ -2389,14 +2016,9 @@ export const QueryPacketAcknowledgementsResponse = {
   },
 
   fromJSON(object: any): QueryPacketAcknowledgementsResponse {
-    const message = {
-      ...baseQueryPacketAcknowledgementsResponse
-    } as QueryPacketAcknowledgementsResponse
+    const message = { ...baseQueryPacketAcknowledgementsResponse } as QueryPacketAcknowledgementsResponse
     message.acknowledgements = []
-    if (
-      object.acknowledgements !== undefined &&
-      object.acknowledgements !== null
-    ) {
+    if (object.acknowledgements !== undefined && object.acknowledgements !== null) {
       for (const e of object.acknowledgements) {
         message.acknowledgements.push(PacketState.fromJSON(e))
       }
@@ -2417,32 +2039,19 @@ export const QueryPacketAcknowledgementsResponse = {
   toJSON(message: QueryPacketAcknowledgementsResponse): unknown {
     const obj: any = {}
     if (message.acknowledgements) {
-      obj.acknowledgements = message.acknowledgements.map((e) =>
-        e ? PacketState.toJSON(e) : undefined
-      )
+      obj.acknowledgements = message.acknowledgements.map((e) => (e ? PacketState.toJSON(e) : undefined))
     } else {
       obj.acknowledgements = []
     }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined)
-    message.height !== undefined &&
-      (obj.height = message.height ? Height.toJSON(message.height) : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageResponse.toJSON(message.pagination) : undefined)
+    message.height !== undefined && (obj.height = message.height ? Height.toJSON(message.height) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryPacketAcknowledgementsResponse>
-  ): QueryPacketAcknowledgementsResponse {
-    const message = {
-      ...baseQueryPacketAcknowledgementsResponse
-    } as QueryPacketAcknowledgementsResponse
+  fromPartial(object: DeepPartial<QueryPacketAcknowledgementsResponse>): QueryPacketAcknowledgementsResponse {
+    const message = { ...baseQueryPacketAcknowledgementsResponse } as QueryPacketAcknowledgementsResponse
     message.acknowledgements = []
-    if (
-      object.acknowledgements !== undefined &&
-      object.acknowledgements !== null
-    ) {
+    if (object.acknowledgements !== undefined && object.acknowledgements !== null) {
       for (const e of object.acknowledgements) {
         message.acknowledgements.push(PacketState.fromPartial(e))
       }
@@ -2461,17 +2070,10 @@ export const QueryPacketAcknowledgementsResponse = {
   }
 }
 
-const baseQueryUnreceivedPacketsRequest: object = {
-  portId: '',
-  channelId: '',
-  packetCommitmentSequences: 0
-}
+const baseQueryUnreceivedPacketsRequest: object = { portId: '', channelId: '', packetCommitmentSequences: 0 }
 
 export const QueryUnreceivedPacketsRequest = {
-  encode(
-    message: QueryUnreceivedPacketsRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryUnreceivedPacketsRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -2486,15 +2088,10 @@ export const QueryUnreceivedPacketsRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryUnreceivedPacketsRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryUnreceivedPacketsRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryUnreceivedPacketsRequest
-    } as QueryUnreceivedPacketsRequest
+    const message = { ...baseQueryUnreceivedPacketsRequest } as QueryUnreceivedPacketsRequest
     message.packetCommitmentSequences = []
     while (reader.pos < end) {
       const tag = reader.uint32()
@@ -2509,14 +2106,10 @@ export const QueryUnreceivedPacketsRequest = {
           if ((tag & 7) === 2) {
             const end2 = reader.uint32() + reader.pos
             while (reader.pos < end2) {
-              message.packetCommitmentSequences.push(
-                longToNumber(reader.uint64() as Long)
-              )
+              message.packetCommitmentSequences.push(longToNumber(reader.uint64() as Long))
             }
           } else {
-            message.packetCommitmentSequences.push(
-              longToNumber(reader.uint64() as Long)
-            )
+            message.packetCommitmentSequences.push(longToNumber(reader.uint64() as Long))
           }
           break
         default:
@@ -2528,9 +2121,7 @@ export const QueryUnreceivedPacketsRequest = {
   },
 
   fromJSON(object: any): QueryUnreceivedPacketsRequest {
-    const message = {
-      ...baseQueryUnreceivedPacketsRequest
-    } as QueryUnreceivedPacketsRequest
+    const message = { ...baseQueryUnreceivedPacketsRequest } as QueryUnreceivedPacketsRequest
     message.packetCommitmentSequences = []
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
@@ -2542,10 +2133,7 @@ export const QueryUnreceivedPacketsRequest = {
     } else {
       message.channelId = ''
     }
-    if (
-      object.packetCommitmentSequences !== undefined &&
-      object.packetCommitmentSequences !== null
-    ) {
+    if (object.packetCommitmentSequences !== undefined && object.packetCommitmentSequences !== null) {
       for (const e of object.packetCommitmentSequences) {
         message.packetCommitmentSequences.push(Number(e))
       }
@@ -2558,21 +2146,15 @@ export const QueryUnreceivedPacketsRequest = {
     message.portId !== undefined && (obj.portId = message.portId)
     message.channelId !== undefined && (obj.channelId = message.channelId)
     if (message.packetCommitmentSequences) {
-      obj.packetCommitmentSequences = message.packetCommitmentSequences.map(
-        (e) => e
-      )
+      obj.packetCommitmentSequences = message.packetCommitmentSequences.map((e) => e)
     } else {
       obj.packetCommitmentSequences = []
     }
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryUnreceivedPacketsRequest>
-  ): QueryUnreceivedPacketsRequest {
-    const message = {
-      ...baseQueryUnreceivedPacketsRequest
-    } as QueryUnreceivedPacketsRequest
+  fromPartial(object: DeepPartial<QueryUnreceivedPacketsRequest>): QueryUnreceivedPacketsRequest {
+    const message = { ...baseQueryUnreceivedPacketsRequest } as QueryUnreceivedPacketsRequest
     message.packetCommitmentSequences = []
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
@@ -2584,10 +2166,7 @@ export const QueryUnreceivedPacketsRequest = {
     } else {
       message.channelId = ''
     }
-    if (
-      object.packetCommitmentSequences !== undefined &&
-      object.packetCommitmentSequences !== null
-    ) {
+    if (object.packetCommitmentSequences !== undefined && object.packetCommitmentSequences !== null) {
       for (const e of object.packetCommitmentSequences) {
         message.packetCommitmentSequences.push(e)
       }
@@ -2599,10 +2178,7 @@ export const QueryUnreceivedPacketsRequest = {
 const baseQueryUnreceivedPacketsResponse: object = { sequences: 0 }
 
 export const QueryUnreceivedPacketsResponse = {
-  encode(
-    message: QueryUnreceivedPacketsResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryUnreceivedPacketsResponse, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).fork()
     for (const v of message.sequences) {
       writer.uint64(v)
@@ -2614,15 +2190,10 @@ export const QueryUnreceivedPacketsResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryUnreceivedPacketsResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryUnreceivedPacketsResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryUnreceivedPacketsResponse
-    } as QueryUnreceivedPacketsResponse
+    const message = { ...baseQueryUnreceivedPacketsResponse } as QueryUnreceivedPacketsResponse
     message.sequences = []
     while (reader.pos < end) {
       const tag = reader.uint32()
@@ -2649,9 +2220,7 @@ export const QueryUnreceivedPacketsResponse = {
   },
 
   fromJSON(object: any): QueryUnreceivedPacketsResponse {
-    const message = {
-      ...baseQueryUnreceivedPacketsResponse
-    } as QueryUnreceivedPacketsResponse
+    const message = { ...baseQueryUnreceivedPacketsResponse } as QueryUnreceivedPacketsResponse
     message.sequences = []
     if (object.sequences !== undefined && object.sequences !== null) {
       for (const e of object.sequences) {
@@ -2673,17 +2242,12 @@ export const QueryUnreceivedPacketsResponse = {
     } else {
       obj.sequences = []
     }
-    message.height !== undefined &&
-      (obj.height = message.height ? Height.toJSON(message.height) : undefined)
+    message.height !== undefined && (obj.height = message.height ? Height.toJSON(message.height) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryUnreceivedPacketsResponse>
-  ): QueryUnreceivedPacketsResponse {
-    const message = {
-      ...baseQueryUnreceivedPacketsResponse
-    } as QueryUnreceivedPacketsResponse
+  fromPartial(object: DeepPartial<QueryUnreceivedPacketsResponse>): QueryUnreceivedPacketsResponse {
+    const message = { ...baseQueryUnreceivedPacketsResponse } as QueryUnreceivedPacketsResponse
     message.sequences = []
     if (object.sequences !== undefined && object.sequences !== null) {
       for (const e of object.sequences) {
@@ -2699,17 +2263,10 @@ export const QueryUnreceivedPacketsResponse = {
   }
 }
 
-const baseQueryUnreceivedAcksRequest: object = {
-  portId: '',
-  channelId: '',
-  packetAckSequences: 0
-}
+const baseQueryUnreceivedAcksRequest: object = { portId: '', channelId: '', packetAckSequences: 0 }
 
 export const QueryUnreceivedAcksRequest = {
-  encode(
-    message: QueryUnreceivedAcksRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryUnreceivedAcksRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -2724,15 +2281,10 @@ export const QueryUnreceivedAcksRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryUnreceivedAcksRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryUnreceivedAcksRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryUnreceivedAcksRequest
-    } as QueryUnreceivedAcksRequest
+    const message = { ...baseQueryUnreceivedAcksRequest } as QueryUnreceivedAcksRequest
     message.packetAckSequences = []
     while (reader.pos < end) {
       const tag = reader.uint32()
@@ -2747,14 +2299,10 @@ export const QueryUnreceivedAcksRequest = {
           if ((tag & 7) === 2) {
             const end2 = reader.uint32() + reader.pos
             while (reader.pos < end2) {
-              message.packetAckSequences.push(
-                longToNumber(reader.uint64() as Long)
-              )
+              message.packetAckSequences.push(longToNumber(reader.uint64() as Long))
             }
           } else {
-            message.packetAckSequences.push(
-              longToNumber(reader.uint64() as Long)
-            )
+            message.packetAckSequences.push(longToNumber(reader.uint64() as Long))
           }
           break
         default:
@@ -2766,9 +2314,7 @@ export const QueryUnreceivedAcksRequest = {
   },
 
   fromJSON(object: any): QueryUnreceivedAcksRequest {
-    const message = {
-      ...baseQueryUnreceivedAcksRequest
-    } as QueryUnreceivedAcksRequest
+    const message = { ...baseQueryUnreceivedAcksRequest } as QueryUnreceivedAcksRequest
     message.packetAckSequences = []
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
@@ -2780,10 +2326,7 @@ export const QueryUnreceivedAcksRequest = {
     } else {
       message.channelId = ''
     }
-    if (
-      object.packetAckSequences !== undefined &&
-      object.packetAckSequences !== null
-    ) {
+    if (object.packetAckSequences !== undefined && object.packetAckSequences !== null) {
       for (const e of object.packetAckSequences) {
         message.packetAckSequences.push(Number(e))
       }
@@ -2803,12 +2346,8 @@ export const QueryUnreceivedAcksRequest = {
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryUnreceivedAcksRequest>
-  ): QueryUnreceivedAcksRequest {
-    const message = {
-      ...baseQueryUnreceivedAcksRequest
-    } as QueryUnreceivedAcksRequest
+  fromPartial(object: DeepPartial<QueryUnreceivedAcksRequest>): QueryUnreceivedAcksRequest {
+    const message = { ...baseQueryUnreceivedAcksRequest } as QueryUnreceivedAcksRequest
     message.packetAckSequences = []
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
@@ -2820,10 +2359,7 @@ export const QueryUnreceivedAcksRequest = {
     } else {
       message.channelId = ''
     }
-    if (
-      object.packetAckSequences !== undefined &&
-      object.packetAckSequences !== null
-    ) {
+    if (object.packetAckSequences !== undefined && object.packetAckSequences !== null) {
       for (const e of object.packetAckSequences) {
         message.packetAckSequences.push(e)
       }
@@ -2835,10 +2371,7 @@ export const QueryUnreceivedAcksRequest = {
 const baseQueryUnreceivedAcksResponse: object = { sequences: 0 }
 
 export const QueryUnreceivedAcksResponse = {
-  encode(
-    message: QueryUnreceivedAcksResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryUnreceivedAcksResponse, writer: Writer = Writer.create()): Writer {
     writer.uint32(10).fork()
     for (const v of message.sequences) {
       writer.uint64(v)
@@ -2850,15 +2383,10 @@ export const QueryUnreceivedAcksResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryUnreceivedAcksResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryUnreceivedAcksResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryUnreceivedAcksResponse
-    } as QueryUnreceivedAcksResponse
+    const message = { ...baseQueryUnreceivedAcksResponse } as QueryUnreceivedAcksResponse
     message.sequences = []
     while (reader.pos < end) {
       const tag = reader.uint32()
@@ -2885,9 +2413,7 @@ export const QueryUnreceivedAcksResponse = {
   },
 
   fromJSON(object: any): QueryUnreceivedAcksResponse {
-    const message = {
-      ...baseQueryUnreceivedAcksResponse
-    } as QueryUnreceivedAcksResponse
+    const message = { ...baseQueryUnreceivedAcksResponse } as QueryUnreceivedAcksResponse
     message.sequences = []
     if (object.sequences !== undefined && object.sequences !== null) {
       for (const e of object.sequences) {
@@ -2909,17 +2435,12 @@ export const QueryUnreceivedAcksResponse = {
     } else {
       obj.sequences = []
     }
-    message.height !== undefined &&
-      (obj.height = message.height ? Height.toJSON(message.height) : undefined)
+    message.height !== undefined && (obj.height = message.height ? Height.toJSON(message.height) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryUnreceivedAcksResponse>
-  ): QueryUnreceivedAcksResponse {
-    const message = {
-      ...baseQueryUnreceivedAcksResponse
-    } as QueryUnreceivedAcksResponse
+  fromPartial(object: DeepPartial<QueryUnreceivedAcksResponse>): QueryUnreceivedAcksResponse {
+    const message = { ...baseQueryUnreceivedAcksResponse } as QueryUnreceivedAcksResponse
     message.sequences = []
     if (object.sequences !== undefined && object.sequences !== null) {
       for (const e of object.sequences) {
@@ -2935,16 +2456,10 @@ export const QueryUnreceivedAcksResponse = {
   }
 }
 
-const baseQueryNextSequenceReceiveRequest: object = {
-  portId: '',
-  channelId: ''
-}
+const baseQueryNextSequenceReceiveRequest: object = { portId: '', channelId: '' }
 
 export const QueryNextSequenceReceiveRequest = {
-  encode(
-    message: QueryNextSequenceReceiveRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryNextSequenceReceiveRequest, writer: Writer = Writer.create()): Writer {
     if (message.portId !== '') {
       writer.uint32(10).string(message.portId)
     }
@@ -2954,15 +2469,10 @@ export const QueryNextSequenceReceiveRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryNextSequenceReceiveRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryNextSequenceReceiveRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryNextSequenceReceiveRequest
-    } as QueryNextSequenceReceiveRequest
+    const message = { ...baseQueryNextSequenceReceiveRequest } as QueryNextSequenceReceiveRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -2981,9 +2491,7 @@ export const QueryNextSequenceReceiveRequest = {
   },
 
   fromJSON(object: any): QueryNextSequenceReceiveRequest {
-    const message = {
-      ...baseQueryNextSequenceReceiveRequest
-    } as QueryNextSequenceReceiveRequest
+    const message = { ...baseQueryNextSequenceReceiveRequest } as QueryNextSequenceReceiveRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = String(object.portId)
     } else {
@@ -3004,12 +2512,8 @@ export const QueryNextSequenceReceiveRequest = {
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryNextSequenceReceiveRequest>
-  ): QueryNextSequenceReceiveRequest {
-    const message = {
-      ...baseQueryNextSequenceReceiveRequest
-    } as QueryNextSequenceReceiveRequest
+  fromPartial(object: DeepPartial<QueryNextSequenceReceiveRequest>): QueryNextSequenceReceiveRequest {
+    const message = { ...baseQueryNextSequenceReceiveRequest } as QueryNextSequenceReceiveRequest
     if (object.portId !== undefined && object.portId !== null) {
       message.portId = object.portId
     } else {
@@ -3027,10 +2531,7 @@ export const QueryNextSequenceReceiveRequest = {
 const baseQueryNextSequenceReceiveResponse: object = { nextSequenceReceive: 0 }
 
 export const QueryNextSequenceReceiveResponse = {
-  encode(
-    message: QueryNextSequenceReceiveResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryNextSequenceReceiveResponse, writer: Writer = Writer.create()): Writer {
     if (message.nextSequenceReceive !== 0) {
       writer.uint32(8).uint64(message.nextSequenceReceive)
     }
@@ -3043,15 +2544,10 @@ export const QueryNextSequenceReceiveResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryNextSequenceReceiveResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryNextSequenceReceiveResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryNextSequenceReceiveResponse
-    } as QueryNextSequenceReceiveResponse
+    const message = { ...baseQueryNextSequenceReceiveResponse } as QueryNextSequenceReceiveResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -3073,13 +2569,8 @@ export const QueryNextSequenceReceiveResponse = {
   },
 
   fromJSON(object: any): QueryNextSequenceReceiveResponse {
-    const message = {
-      ...baseQueryNextSequenceReceiveResponse
-    } as QueryNextSequenceReceiveResponse
-    if (
-      object.nextSequenceReceive !== undefined &&
-      object.nextSequenceReceive !== null
-    ) {
+    const message = { ...baseQueryNextSequenceReceiveResponse } as QueryNextSequenceReceiveResponse
+    if (object.nextSequenceReceive !== undefined && object.nextSequenceReceive !== null) {
       message.nextSequenceReceive = Number(object.nextSequenceReceive)
     } else {
       message.nextSequenceReceive = 0
@@ -3097,29 +2588,15 @@ export const QueryNextSequenceReceiveResponse = {
 
   toJSON(message: QueryNextSequenceReceiveResponse): unknown {
     const obj: any = {}
-    message.nextSequenceReceive !== undefined &&
-      (obj.nextSequenceReceive = message.nextSequenceReceive)
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ))
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined)
+    message.nextSequenceReceive !== undefined && (obj.nextSequenceReceive = message.nextSequenceReceive)
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()))
+    message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryNextSequenceReceiveResponse>
-  ): QueryNextSequenceReceiveResponse {
-    const message = {
-      ...baseQueryNextSequenceReceiveResponse
-    } as QueryNextSequenceReceiveResponse
-    if (
-      object.nextSequenceReceive !== undefined &&
-      object.nextSequenceReceive !== null
-    ) {
+  fromPartial(object: DeepPartial<QueryNextSequenceReceiveResponse>): QueryNextSequenceReceiveResponse {
+    const message = { ...baseQueryNextSequenceReceiveResponse } as QueryNextSequenceReceiveResponse
+    if (object.nextSequenceReceive !== undefined && object.nextSequenceReceive !== null) {
       message.nextSequenceReceive = object.nextSequenceReceive
     } else {
       message.nextSequenceReceive = 0
@@ -3148,67 +2625,45 @@ export interface Query {
    * ConnectionChannels queries all the channels associated with a connection
    * end.
    */
-  ConnectionChannels(
-    request: QueryConnectionChannelsRequest
-  ): Promise<QueryConnectionChannelsResponse>
+  ConnectionChannels(request: QueryConnectionChannelsRequest): Promise<QueryConnectionChannelsResponse>
   /**
    * ChannelClientState queries for the client state for the channel associated
    * with the provided channel identifiers.
    */
-  ChannelClientState(
-    request: QueryChannelClientStateRequest
-  ): Promise<QueryChannelClientStateResponse>
+  ChannelClientState(request: QueryChannelClientStateRequest): Promise<QueryChannelClientStateResponse>
   /**
    * ChannelConsensusState queries for the consensus state for the channel
    * associated with the provided channel identifiers.
    */
-  ChannelConsensusState(
-    request: QueryChannelConsensusStateRequest
-  ): Promise<QueryChannelConsensusStateResponse>
+  ChannelConsensusState(request: QueryChannelConsensusStateRequest): Promise<QueryChannelConsensusStateResponse>
   /** PacketCommitment queries a stored packet commitment hash. */
-  PacketCommitment(
-    request: QueryPacketCommitmentRequest
-  ): Promise<QueryPacketCommitmentResponse>
+  PacketCommitment(request: QueryPacketCommitmentRequest): Promise<QueryPacketCommitmentResponse>
   /**
    * PacketCommitments returns all the packet commitments hashes associated
    * with a channel.
    */
-  PacketCommitments(
-    request: QueryPacketCommitmentsRequest
-  ): Promise<QueryPacketCommitmentsResponse>
+  PacketCommitments(request: QueryPacketCommitmentsRequest): Promise<QueryPacketCommitmentsResponse>
   /** PacketReceipt queries if a given packet sequence has been received on the queried chain */
-  PacketReceipt(
-    request: QueryPacketReceiptRequest
-  ): Promise<QueryPacketReceiptResponse>
+  PacketReceipt(request: QueryPacketReceiptRequest): Promise<QueryPacketReceiptResponse>
   /** PacketAcknowledgement queries a stored packet acknowledgement hash. */
-  PacketAcknowledgement(
-    request: QueryPacketAcknowledgementRequest
-  ): Promise<QueryPacketAcknowledgementResponse>
+  PacketAcknowledgement(request: QueryPacketAcknowledgementRequest): Promise<QueryPacketAcknowledgementResponse>
   /**
    * PacketAcknowledgements returns all the packet acknowledgements associated
    * with a channel.
    */
-  PacketAcknowledgements(
-    request: QueryPacketAcknowledgementsRequest
-  ): Promise<QueryPacketAcknowledgementsResponse>
+  PacketAcknowledgements(request: QueryPacketAcknowledgementsRequest): Promise<QueryPacketAcknowledgementsResponse>
   /**
    * UnreceivedPackets returns all the unreceived IBC packets associated with a
    * channel and sequences.
    */
-  UnreceivedPackets(
-    request: QueryUnreceivedPacketsRequest
-  ): Promise<QueryUnreceivedPacketsResponse>
+  UnreceivedPackets(request: QueryUnreceivedPacketsRequest): Promise<QueryUnreceivedPacketsResponse>
   /**
    * UnreceivedAcks returns all the unreceived IBC acknowledgements associated with a
    * channel and sequences.
    */
-  UnreceivedAcks(
-    request: QueryUnreceivedAcksRequest
-  ): Promise<QueryUnreceivedAcksResponse>
+  UnreceivedAcks(request: QueryUnreceivedAcksRequest): Promise<QueryUnreceivedAcksResponse>
   /** NextSequenceReceive returns the next receive sequence for a given channel. */
-  NextSequenceReceive(
-    request: QueryNextSequenceReceiveRequest
-  ): Promise<QueryNextSequenceReceiveResponse>
+  NextSequenceReceive(request: QueryNextSequenceReceiveRequest): Promise<QueryNextSequenceReceiveResponse>
 }
 
 export class QueryClientImpl implements Query {
@@ -3218,187 +2673,85 @@ export class QueryClientImpl implements Query {
   }
   Channel(request: QueryChannelRequest): Promise<QueryChannelResponse> {
     const data = QueryChannelRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'Channel',
-      data
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'Channel', data)
     return promise.then((data) => QueryChannelResponse.decode(new Reader(data)))
   }
 
   Channels(request: QueryChannelsRequest): Promise<QueryChannelsResponse> {
     const data = QueryChannelsRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'Channels',
-      data
-    )
-    return promise.then((data) =>
-      QueryChannelsResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'Channels', data)
+    return promise.then((data) => QueryChannelsResponse.decode(new Reader(data)))
   }
 
-  ConnectionChannels(
-    request: QueryConnectionChannelsRequest
-  ): Promise<QueryConnectionChannelsResponse> {
+  ConnectionChannels(request: QueryConnectionChannelsRequest): Promise<QueryConnectionChannelsResponse> {
     const data = QueryConnectionChannelsRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'ConnectionChannels',
-      data
-    )
-    return promise.then((data) =>
-      QueryConnectionChannelsResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'ConnectionChannels', data)
+    return promise.then((data) => QueryConnectionChannelsResponse.decode(new Reader(data)))
   }
 
-  ChannelClientState(
-    request: QueryChannelClientStateRequest
-  ): Promise<QueryChannelClientStateResponse> {
+  ChannelClientState(request: QueryChannelClientStateRequest): Promise<QueryChannelClientStateResponse> {
     const data = QueryChannelClientStateRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'ChannelClientState',
-      data
-    )
-    return promise.then((data) =>
-      QueryChannelClientStateResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'ChannelClientState', data)
+    return promise.then((data) => QueryChannelClientStateResponse.decode(new Reader(data)))
   }
 
-  ChannelConsensusState(
-    request: QueryChannelConsensusStateRequest
-  ): Promise<QueryChannelConsensusStateResponse> {
+  ChannelConsensusState(request: QueryChannelConsensusStateRequest): Promise<QueryChannelConsensusStateResponse> {
     const data = QueryChannelConsensusStateRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'ChannelConsensusState',
-      data
-    )
-    return promise.then((data) =>
-      QueryChannelConsensusStateResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'ChannelConsensusState', data)
+    return promise.then((data) => QueryChannelConsensusStateResponse.decode(new Reader(data)))
   }
 
-  PacketCommitment(
-    request: QueryPacketCommitmentRequest
-  ): Promise<QueryPacketCommitmentResponse> {
+  PacketCommitment(request: QueryPacketCommitmentRequest): Promise<QueryPacketCommitmentResponse> {
     const data = QueryPacketCommitmentRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'PacketCommitment',
-      data
-    )
-    return promise.then((data) =>
-      QueryPacketCommitmentResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'PacketCommitment', data)
+    return promise.then((data) => QueryPacketCommitmentResponse.decode(new Reader(data)))
   }
 
-  PacketCommitments(
-    request: QueryPacketCommitmentsRequest
-  ): Promise<QueryPacketCommitmentsResponse> {
+  PacketCommitments(request: QueryPacketCommitmentsRequest): Promise<QueryPacketCommitmentsResponse> {
     const data = QueryPacketCommitmentsRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'PacketCommitments',
-      data
-    )
-    return promise.then((data) =>
-      QueryPacketCommitmentsResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'PacketCommitments', data)
+    return promise.then((data) => QueryPacketCommitmentsResponse.decode(new Reader(data)))
   }
 
-  PacketReceipt(
-    request: QueryPacketReceiptRequest
-  ): Promise<QueryPacketReceiptResponse> {
+  PacketReceipt(request: QueryPacketReceiptRequest): Promise<QueryPacketReceiptResponse> {
     const data = QueryPacketReceiptRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'PacketReceipt',
-      data
-    )
-    return promise.then((data) =>
-      QueryPacketReceiptResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'PacketReceipt', data)
+    return promise.then((data) => QueryPacketReceiptResponse.decode(new Reader(data)))
   }
 
-  PacketAcknowledgement(
-    request: QueryPacketAcknowledgementRequest
-  ): Promise<QueryPacketAcknowledgementResponse> {
+  PacketAcknowledgement(request: QueryPacketAcknowledgementRequest): Promise<QueryPacketAcknowledgementResponse> {
     const data = QueryPacketAcknowledgementRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'PacketAcknowledgement',
-      data
-    )
-    return promise.then((data) =>
-      QueryPacketAcknowledgementResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'PacketAcknowledgement', data)
+    return promise.then((data) => QueryPacketAcknowledgementResponse.decode(new Reader(data)))
   }
 
-  PacketAcknowledgements(
-    request: QueryPacketAcknowledgementsRequest
-  ): Promise<QueryPacketAcknowledgementsResponse> {
+  PacketAcknowledgements(request: QueryPacketAcknowledgementsRequest): Promise<QueryPacketAcknowledgementsResponse> {
     const data = QueryPacketAcknowledgementsRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'PacketAcknowledgements',
-      data
-    )
-    return promise.then((data) =>
-      QueryPacketAcknowledgementsResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'PacketAcknowledgements', data)
+    return promise.then((data) => QueryPacketAcknowledgementsResponse.decode(new Reader(data)))
   }
 
-  UnreceivedPackets(
-    request: QueryUnreceivedPacketsRequest
-  ): Promise<QueryUnreceivedPacketsResponse> {
+  UnreceivedPackets(request: QueryUnreceivedPacketsRequest): Promise<QueryUnreceivedPacketsResponse> {
     const data = QueryUnreceivedPacketsRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'UnreceivedPackets',
-      data
-    )
-    return promise.then((data) =>
-      QueryUnreceivedPacketsResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'UnreceivedPackets', data)
+    return promise.then((data) => QueryUnreceivedPacketsResponse.decode(new Reader(data)))
   }
 
-  UnreceivedAcks(
-    request: QueryUnreceivedAcksRequest
-  ): Promise<QueryUnreceivedAcksResponse> {
+  UnreceivedAcks(request: QueryUnreceivedAcksRequest): Promise<QueryUnreceivedAcksResponse> {
     const data = QueryUnreceivedAcksRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'UnreceivedAcks',
-      data
-    )
-    return promise.then((data) =>
-      QueryUnreceivedAcksResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'UnreceivedAcks', data)
+    return promise.then((data) => QueryUnreceivedAcksResponse.decode(new Reader(data)))
   }
 
-  NextSequenceReceive(
-    request: QueryNextSequenceReceiveRequest
-  ): Promise<QueryNextSequenceReceiveResponse> {
+  NextSequenceReceive(request: QueryNextSequenceReceiveRequest): Promise<QueryNextSequenceReceiveResponse> {
     const data = QueryNextSequenceReceiveRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.channel.v1.Query',
-      'NextSequenceReceive',
-      data
-    )
-    return promise.then((data) =>
-      QueryNextSequenceReceiveResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.channel.v1.Query', 'NextSequenceReceive', data)
+    return promise.then((data) => QueryNextSequenceReceiveResponse.decode(new Reader(data)))
   }
 }
 
 interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: Uint8Array
-  ): Promise<Uint8Array>
+  request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>
 }
 
 declare var self: any | undefined
@@ -3411,9 +2764,7 @@ var globalThis: any = (() => {
   throw 'Unable to locate global object'
 })()
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
+const atob: (b64: string) => string = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64)
   const arr = new Uint8Array(bin.length)
@@ -3423,9 +2774,7 @@ function bytesFromBase64(b64: string): Uint8Array {
   return arr
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
+const btoa: (bin: string) => string = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = []
   for (let i = 0; i < arr.byteLength; ++i) {

@@ -55,8 +55,7 @@ export const ValidatorSet = {
         else {
             message.proposer = undefined;
         }
-        if (object.totalVotingPower !== undefined &&
-            object.totalVotingPower !== null) {
+        if (object.totalVotingPower !== undefined && object.totalVotingPower !== null) {
             message.totalVotingPower = Number(object.totalVotingPower);
         }
         else {
@@ -67,17 +66,13 @@ export const ValidatorSet = {
     toJSON(message) {
         const obj = {};
         if (message.validators) {
-            obj.validators = message.validators.map((e) => e ? Validator.toJSON(e) : undefined);
+            obj.validators = message.validators.map((e) => (e ? Validator.toJSON(e) : undefined));
         }
         else {
             obj.validators = [];
         }
-        message.proposer !== undefined &&
-            (obj.proposer = message.proposer
-                ? Validator.toJSON(message.proposer)
-                : undefined);
-        message.totalVotingPower !== undefined &&
-            (obj.totalVotingPower = message.totalVotingPower);
+        message.proposer !== undefined && (obj.proposer = message.proposer ? Validator.toJSON(message.proposer) : undefined);
+        message.totalVotingPower !== undefined && (obj.totalVotingPower = message.totalVotingPower);
         return obj;
     },
     fromPartial(object) {
@@ -94,8 +89,7 @@ export const ValidatorSet = {
         else {
             message.proposer = undefined;
         }
-        if (object.totalVotingPower !== undefined &&
-            object.totalVotingPower !== null) {
+        if (object.totalVotingPower !== undefined && object.totalVotingPower !== null) {
             message.totalVotingPower = object.totalVotingPower;
         }
         else {
@@ -164,8 +158,7 @@ export const Validator = {
         else {
             message.votingPower = 0;
         }
-        if (object.proposerPriority !== undefined &&
-            object.proposerPriority !== null) {
+        if (object.proposerPriority !== undefined && object.proposerPriority !== null) {
             message.proposerPriority = Number(object.proposerPriority);
         }
         else {
@@ -175,15 +168,10 @@ export const Validator = {
     },
     toJSON(message) {
         const obj = {};
-        message.address !== undefined &&
-            (obj.address = base64FromBytes(message.address !== undefined ? message.address : new Uint8Array()));
-        message.pubKey !== undefined &&
-            (obj.pubKey = message.pubKey
-                ? PublicKey.toJSON(message.pubKey)
-                : undefined);
+        message.address !== undefined && (obj.address = base64FromBytes(message.address !== undefined ? message.address : new Uint8Array()));
+        message.pubKey !== undefined && (obj.pubKey = message.pubKey ? PublicKey.toJSON(message.pubKey) : undefined);
         message.votingPower !== undefined && (obj.votingPower = message.votingPower);
-        message.proposerPriority !== undefined &&
-            (obj.proposerPriority = message.proposerPriority);
+        message.proposerPriority !== undefined && (obj.proposerPriority = message.proposerPriority);
         return obj;
     },
     fromPartial(object) {
@@ -206,8 +194,7 @@ export const Validator = {
         else {
             message.votingPower = 0;
         }
-        if (object.proposerPriority !== undefined &&
-            object.proposerPriority !== null) {
+        if (object.proposerPriority !== undefined && object.proposerPriority !== null) {
             message.proposerPriority = object.proposerPriority;
         }
         else {
@@ -265,10 +252,7 @@ export const SimpleValidator = {
     },
     toJSON(message) {
         const obj = {};
-        message.pubKey !== undefined &&
-            (obj.pubKey = message.pubKey
-                ? PublicKey.toJSON(message.pubKey)
-                : undefined);
+        message.pubKey !== undefined && (obj.pubKey = message.pubKey ? PublicKey.toJSON(message.pubKey) : undefined);
         message.votingPower !== undefined && (obj.votingPower = message.votingPower);
         return obj;
     },
@@ -300,8 +284,7 @@ var globalThis = (() => {
         return global;
     throw 'Unable to locate global object';
 })();
-const atob = globalThis.atob ||
-    ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+const atob = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64) {
     const bin = atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -310,8 +293,7 @@ function bytesFromBase64(b64) {
     }
     return arr;
 }
-const btoa = globalThis.btoa ||
-    ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+const btoa = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr) {
     const bin = [];
     for (let i = 0; i < arr.byteLength; ++i) {

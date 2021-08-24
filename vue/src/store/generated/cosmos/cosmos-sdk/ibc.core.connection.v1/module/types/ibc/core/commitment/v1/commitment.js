@@ -36,8 +36,7 @@ export const MerkleRoot = {
     },
     toJSON(message) {
         const obj = {};
-        message.hash !== undefined &&
-            (obj.hash = base64FromBytes(message.hash !== undefined ? message.hash : new Uint8Array()));
+        message.hash !== undefined && (obj.hash = base64FromBytes(message.hash !== undefined ? message.hash : new Uint8Array()));
         return obj;
     },
     fromPartial(object) {
@@ -85,8 +84,7 @@ export const MerklePrefix = {
     },
     toJSON(message) {
         const obj = {};
-        message.keyPrefix !== undefined &&
-            (obj.keyPrefix = base64FromBytes(message.keyPrefix !== undefined ? message.keyPrefix : new Uint8Array()));
+        message.keyPrefix !== undefined && (obj.keyPrefix = base64FromBytes(message.keyPrefix !== undefined ? message.keyPrefix : new Uint8Array()));
         return obj;
     },
     fromPartial(object) {
@@ -196,7 +194,7 @@ export const MerkleProof = {
     toJSON(message) {
         const obj = {};
         if (message.proofs) {
-            obj.proofs = message.proofs.map((e) => e ? CommitmentProof.toJSON(e) : undefined);
+            obj.proofs = message.proofs.map((e) => (e ? CommitmentProof.toJSON(e) : undefined));
         }
         else {
             obj.proofs = [];
@@ -225,8 +223,7 @@ var globalThis = (() => {
         return global;
     throw 'Unable to locate global object';
 })();
-const atob = globalThis.atob ||
-    ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+const atob = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64) {
     const bin = atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -235,8 +232,7 @@ function bytesFromBase64(b64) {
     }
     return arr;
 }
-const btoa = globalThis.btoa ||
-    ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+const btoa = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr) {
     const bin = [];
     for (let i = 0; i < arr.byteLength; ++i) {

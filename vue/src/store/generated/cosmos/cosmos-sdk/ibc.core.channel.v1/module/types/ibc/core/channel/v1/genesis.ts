@@ -1,10 +1,7 @@
 /* eslint-disable */
 import * as Long from 'long'
 import { util, configure, Writer, Reader } from 'protobufjs/minimal'
-import {
-  IdentifiedChannel,
-  PacketState
-} from '../../../../ibc/core/channel/v1/channel'
+import { IdentifiedChannel, PacketState } from '../../../../ibc/core/channel/v1/channel'
 
 export const protobufPackage = 'ibc.core.channel.v1'
 
@@ -77,14 +74,10 @@ export const GenesisState = {
       const tag = reader.uint32()
       switch (tag >>> 3) {
         case 1:
-          message.channels.push(
-            IdentifiedChannel.decode(reader, reader.uint32())
-          )
+          message.channels.push(IdentifiedChannel.decode(reader, reader.uint32()))
           break
         case 2:
-          message.acknowledgements.push(
-            PacketState.decode(reader, reader.uint32())
-          )
+          message.acknowledgements.push(PacketState.decode(reader, reader.uint32()))
           break
         case 3:
           message.commitments.push(PacketState.decode(reader, reader.uint32()))
@@ -93,19 +86,13 @@ export const GenesisState = {
           message.receipts.push(PacketState.decode(reader, reader.uint32()))
           break
         case 5:
-          message.sendSequences.push(
-            PacketSequence.decode(reader, reader.uint32())
-          )
+          message.sendSequences.push(PacketSequence.decode(reader, reader.uint32()))
           break
         case 6:
-          message.recvSequences.push(
-            PacketSequence.decode(reader, reader.uint32())
-          )
+          message.recvSequences.push(PacketSequence.decode(reader, reader.uint32()))
           break
         case 7:
-          message.ackSequences.push(
-            PacketSequence.decode(reader, reader.uint32())
-          )
+          message.ackSequences.push(PacketSequence.decode(reader, reader.uint32()))
           break
         case 8:
           message.nextChannelSequence = longToNumber(reader.uint64() as Long)
@@ -132,10 +119,7 @@ export const GenesisState = {
         message.channels.push(IdentifiedChannel.fromJSON(e))
       }
     }
-    if (
-      object.acknowledgements !== undefined &&
-      object.acknowledgements !== null
-    ) {
+    if (object.acknowledgements !== undefined && object.acknowledgements !== null) {
       for (const e of object.acknowledgements) {
         message.acknowledgements.push(PacketState.fromJSON(e))
       }
@@ -165,10 +149,7 @@ export const GenesisState = {
         message.ackSequences.push(PacketSequence.fromJSON(e))
       }
     }
-    if (
-      object.nextChannelSequence !== undefined &&
-      object.nextChannelSequence !== null
-    ) {
+    if (object.nextChannelSequence !== undefined && object.nextChannelSequence !== null) {
       message.nextChannelSequence = Number(object.nextChannelSequence)
     } else {
       message.nextChannelSequence = 0
@@ -179,56 +160,41 @@ export const GenesisState = {
   toJSON(message: GenesisState): unknown {
     const obj: any = {}
     if (message.channels) {
-      obj.channels = message.channels.map((e) =>
-        e ? IdentifiedChannel.toJSON(e) : undefined
-      )
+      obj.channels = message.channels.map((e) => (e ? IdentifiedChannel.toJSON(e) : undefined))
     } else {
       obj.channels = []
     }
     if (message.acknowledgements) {
-      obj.acknowledgements = message.acknowledgements.map((e) =>
-        e ? PacketState.toJSON(e) : undefined
-      )
+      obj.acknowledgements = message.acknowledgements.map((e) => (e ? PacketState.toJSON(e) : undefined))
     } else {
       obj.acknowledgements = []
     }
     if (message.commitments) {
-      obj.commitments = message.commitments.map((e) =>
-        e ? PacketState.toJSON(e) : undefined
-      )
+      obj.commitments = message.commitments.map((e) => (e ? PacketState.toJSON(e) : undefined))
     } else {
       obj.commitments = []
     }
     if (message.receipts) {
-      obj.receipts = message.receipts.map((e) =>
-        e ? PacketState.toJSON(e) : undefined
-      )
+      obj.receipts = message.receipts.map((e) => (e ? PacketState.toJSON(e) : undefined))
     } else {
       obj.receipts = []
     }
     if (message.sendSequences) {
-      obj.sendSequences = message.sendSequences.map((e) =>
-        e ? PacketSequence.toJSON(e) : undefined
-      )
+      obj.sendSequences = message.sendSequences.map((e) => (e ? PacketSequence.toJSON(e) : undefined))
     } else {
       obj.sendSequences = []
     }
     if (message.recvSequences) {
-      obj.recvSequences = message.recvSequences.map((e) =>
-        e ? PacketSequence.toJSON(e) : undefined
-      )
+      obj.recvSequences = message.recvSequences.map((e) => (e ? PacketSequence.toJSON(e) : undefined))
     } else {
       obj.recvSequences = []
     }
     if (message.ackSequences) {
-      obj.ackSequences = message.ackSequences.map((e) =>
-        e ? PacketSequence.toJSON(e) : undefined
-      )
+      obj.ackSequences = message.ackSequences.map((e) => (e ? PacketSequence.toJSON(e) : undefined))
     } else {
       obj.ackSequences = []
     }
-    message.nextChannelSequence !== undefined &&
-      (obj.nextChannelSequence = message.nextChannelSequence)
+    message.nextChannelSequence !== undefined && (obj.nextChannelSequence = message.nextChannelSequence)
     return obj
   },
 
@@ -246,10 +212,7 @@ export const GenesisState = {
         message.channels.push(IdentifiedChannel.fromPartial(e))
       }
     }
-    if (
-      object.acknowledgements !== undefined &&
-      object.acknowledgements !== null
-    ) {
+    if (object.acknowledgements !== undefined && object.acknowledgements !== null) {
       for (const e of object.acknowledgements) {
         message.acknowledgements.push(PacketState.fromPartial(e))
       }
@@ -279,10 +242,7 @@ export const GenesisState = {
         message.ackSequences.push(PacketSequence.fromPartial(e))
       }
     }
-    if (
-      object.nextChannelSequence !== undefined &&
-      object.nextChannelSequence !== null
-    ) {
+    if (object.nextChannelSequence !== undefined && object.nextChannelSequence !== null) {
       message.nextChannelSequence = object.nextChannelSequence
     } else {
       message.nextChannelSequence = 0

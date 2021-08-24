@@ -79,10 +79,7 @@ export const MerkleRoot = {
 
   toJSON(message: MerkleRoot): unknown {
     const obj: any = {}
-    message.hash !== undefined &&
-      (obj.hash = base64FromBytes(
-        message.hash !== undefined ? message.hash : new Uint8Array()
-      ))
+    message.hash !== undefined && (obj.hash = base64FromBytes(message.hash !== undefined ? message.hash : new Uint8Array()))
     return obj
   },
 
@@ -135,10 +132,7 @@ export const MerklePrefix = {
 
   toJSON(message: MerklePrefix): unknown {
     const obj: any = {}
-    message.keyPrefix !== undefined &&
-      (obj.keyPrefix = base64FromBytes(
-        message.keyPrefix !== undefined ? message.keyPrefix : new Uint8Array()
-      ))
+    message.keyPrefix !== undefined && (obj.keyPrefix = base64FromBytes(message.keyPrefix !== undefined ? message.keyPrefix : new Uint8Array()))
     return obj
   },
 
@@ -258,9 +252,7 @@ export const MerkleProof = {
   toJSON(message: MerkleProof): unknown {
     const obj: any = {}
     if (message.proofs) {
-      obj.proofs = message.proofs.map((e) =>
-        e ? CommitmentProof.toJSON(e) : undefined
-      )
+      obj.proofs = message.proofs.map((e) => (e ? CommitmentProof.toJSON(e) : undefined))
     } else {
       obj.proofs = []
     }
@@ -289,9 +281,7 @@ var globalThis: any = (() => {
   throw 'Unable to locate global object'
 })()
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
+const atob: (b64: string) => string = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64)
   const arr = new Uint8Array(bin.length)
@@ -301,9 +291,7 @@ function bytesFromBase64(b64: string): Uint8Array {
   return arr
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
+const btoa: (bin: string) => string = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = []
   for (let i = 0; i < arr.byteLength; ++i) {

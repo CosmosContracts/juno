@@ -91,8 +91,7 @@ export const GenesisState = {
         if (object.lastTotalPower !== undefined && object.lastTotalPower !== null) {
             message.lastTotalPower = bytesFromBase64(object.lastTotalPower);
         }
-        if (object.lastValidatorPowers !== undefined &&
-            object.lastValidatorPowers !== null) {
+        if (object.lastValidatorPowers !== undefined && object.lastValidatorPowers !== null) {
             for (const e of object.lastValidatorPowers) {
                 message.lastValidatorPowers.push(LastValidatorPower.fromJSON(e));
             }
@@ -107,8 +106,7 @@ export const GenesisState = {
                 message.delegations.push(Delegation.fromJSON(e));
             }
         }
-        if (object.unbondingDelegations !== undefined &&
-            object.unbondingDelegations !== null) {
+        if (object.unbondingDelegations !== undefined && object.unbondingDelegations !== null) {
             for (const e of object.unbondingDelegations) {
                 message.unbondingDelegations.push(UnbondingDelegation.fromJSON(e));
             }
@@ -128,38 +126,35 @@ export const GenesisState = {
     },
     toJSON(message) {
         const obj = {};
-        message.params !== undefined &&
-            (obj.params = message.params ? Params.toJSON(message.params) : undefined);
+        message.params !== undefined && (obj.params = message.params ? Params.toJSON(message.params) : undefined);
         message.lastTotalPower !== undefined &&
-            (obj.lastTotalPower = base64FromBytes(message.lastTotalPower !== undefined
-                ? message.lastTotalPower
-                : new Uint8Array()));
+            (obj.lastTotalPower = base64FromBytes(message.lastTotalPower !== undefined ? message.lastTotalPower : new Uint8Array()));
         if (message.lastValidatorPowers) {
-            obj.lastValidatorPowers = message.lastValidatorPowers.map((e) => e ? LastValidatorPower.toJSON(e) : undefined);
+            obj.lastValidatorPowers = message.lastValidatorPowers.map((e) => (e ? LastValidatorPower.toJSON(e) : undefined));
         }
         else {
             obj.lastValidatorPowers = [];
         }
         if (message.validators) {
-            obj.validators = message.validators.map((e) => e ? Validator.toJSON(e) : undefined);
+            obj.validators = message.validators.map((e) => (e ? Validator.toJSON(e) : undefined));
         }
         else {
             obj.validators = [];
         }
         if (message.delegations) {
-            obj.delegations = message.delegations.map((e) => e ? Delegation.toJSON(e) : undefined);
+            obj.delegations = message.delegations.map((e) => (e ? Delegation.toJSON(e) : undefined));
         }
         else {
             obj.delegations = [];
         }
         if (message.unbondingDelegations) {
-            obj.unbondingDelegations = message.unbondingDelegations.map((e) => e ? UnbondingDelegation.toJSON(e) : undefined);
+            obj.unbondingDelegations = message.unbondingDelegations.map((e) => (e ? UnbondingDelegation.toJSON(e) : undefined));
         }
         else {
             obj.unbondingDelegations = [];
         }
         if (message.redelegations) {
-            obj.redelegations = message.redelegations.map((e) => e ? Redelegation.toJSON(e) : undefined);
+            obj.redelegations = message.redelegations.map((e) => (e ? Redelegation.toJSON(e) : undefined));
         }
         else {
             obj.redelegations = [];
@@ -186,8 +181,7 @@ export const GenesisState = {
         else {
             message.lastTotalPower = new Uint8Array();
         }
-        if (object.lastValidatorPowers !== undefined &&
-            object.lastValidatorPowers !== null) {
+        if (object.lastValidatorPowers !== undefined && object.lastValidatorPowers !== null) {
             for (const e of object.lastValidatorPowers) {
                 message.lastValidatorPowers.push(LastValidatorPower.fromPartial(e));
             }
@@ -202,8 +196,7 @@ export const GenesisState = {
                 message.delegations.push(Delegation.fromPartial(e));
             }
         }
-        if (object.unbondingDelegations !== undefined &&
-            object.unbondingDelegations !== null) {
+        if (object.unbondingDelegations !== undefined && object.unbondingDelegations !== null) {
             for (const e of object.unbondingDelegations) {
                 message.unbondingDelegations.push(UnbondingDelegation.fromPartial(e));
             }
@@ -303,8 +296,7 @@ var globalThis = (() => {
         return global;
     throw 'Unable to locate global object';
 })();
-const atob = globalThis.atob ||
-    ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+const atob = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64) {
     const bin = atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -313,8 +305,7 @@ function bytesFromBase64(b64) {
     }
     return arr;
 }
-const btoa = globalThis.btoa ||
-    ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+const btoa = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr) {
     const bin = [];
     for (let i = 0; i < arr.byteLength; ++i) {

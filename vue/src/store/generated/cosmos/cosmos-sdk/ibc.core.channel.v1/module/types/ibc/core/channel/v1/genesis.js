@@ -91,8 +91,7 @@ export const GenesisState = {
                 message.channels.push(IdentifiedChannel.fromJSON(e));
             }
         }
-        if (object.acknowledgements !== undefined &&
-            object.acknowledgements !== null) {
+        if (object.acknowledgements !== undefined && object.acknowledgements !== null) {
             for (const e of object.acknowledgements) {
                 message.acknowledgements.push(PacketState.fromJSON(e));
             }
@@ -122,8 +121,7 @@ export const GenesisState = {
                 message.ackSequences.push(PacketSequence.fromJSON(e));
             }
         }
-        if (object.nextChannelSequence !== undefined &&
-            object.nextChannelSequence !== null) {
+        if (object.nextChannelSequence !== undefined && object.nextChannelSequence !== null) {
             message.nextChannelSequence = Number(object.nextChannelSequence);
         }
         else {
@@ -134,49 +132,48 @@ export const GenesisState = {
     toJSON(message) {
         const obj = {};
         if (message.channels) {
-            obj.channels = message.channels.map((e) => e ? IdentifiedChannel.toJSON(e) : undefined);
+            obj.channels = message.channels.map((e) => (e ? IdentifiedChannel.toJSON(e) : undefined));
         }
         else {
             obj.channels = [];
         }
         if (message.acknowledgements) {
-            obj.acknowledgements = message.acknowledgements.map((e) => e ? PacketState.toJSON(e) : undefined);
+            obj.acknowledgements = message.acknowledgements.map((e) => (e ? PacketState.toJSON(e) : undefined));
         }
         else {
             obj.acknowledgements = [];
         }
         if (message.commitments) {
-            obj.commitments = message.commitments.map((e) => e ? PacketState.toJSON(e) : undefined);
+            obj.commitments = message.commitments.map((e) => (e ? PacketState.toJSON(e) : undefined));
         }
         else {
             obj.commitments = [];
         }
         if (message.receipts) {
-            obj.receipts = message.receipts.map((e) => e ? PacketState.toJSON(e) : undefined);
+            obj.receipts = message.receipts.map((e) => (e ? PacketState.toJSON(e) : undefined));
         }
         else {
             obj.receipts = [];
         }
         if (message.sendSequences) {
-            obj.sendSequences = message.sendSequences.map((e) => e ? PacketSequence.toJSON(e) : undefined);
+            obj.sendSequences = message.sendSequences.map((e) => (e ? PacketSequence.toJSON(e) : undefined));
         }
         else {
             obj.sendSequences = [];
         }
         if (message.recvSequences) {
-            obj.recvSequences = message.recvSequences.map((e) => e ? PacketSequence.toJSON(e) : undefined);
+            obj.recvSequences = message.recvSequences.map((e) => (e ? PacketSequence.toJSON(e) : undefined));
         }
         else {
             obj.recvSequences = [];
         }
         if (message.ackSequences) {
-            obj.ackSequences = message.ackSequences.map((e) => e ? PacketSequence.toJSON(e) : undefined);
+            obj.ackSequences = message.ackSequences.map((e) => (e ? PacketSequence.toJSON(e) : undefined));
         }
         else {
             obj.ackSequences = [];
         }
-        message.nextChannelSequence !== undefined &&
-            (obj.nextChannelSequence = message.nextChannelSequence);
+        message.nextChannelSequence !== undefined && (obj.nextChannelSequence = message.nextChannelSequence);
         return obj;
     },
     fromPartial(object) {
@@ -193,8 +190,7 @@ export const GenesisState = {
                 message.channels.push(IdentifiedChannel.fromPartial(e));
             }
         }
-        if (object.acknowledgements !== undefined &&
-            object.acknowledgements !== null) {
+        if (object.acknowledgements !== undefined && object.acknowledgements !== null) {
             for (const e of object.acknowledgements) {
                 message.acknowledgements.push(PacketState.fromPartial(e));
             }
@@ -224,8 +220,7 @@ export const GenesisState = {
                 message.ackSequences.push(PacketSequence.fromPartial(e));
             }
         }
-        if (object.nextChannelSequence !== undefined &&
-            object.nextChannelSequence !== null) {
+        if (object.nextChannelSequence !== undefined && object.nextChannelSequence !== null) {
             message.nextChannelSequence = object.nextChannelSequence;
         }
         else {
