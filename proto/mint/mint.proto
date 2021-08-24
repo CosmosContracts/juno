@@ -10,8 +10,10 @@ message Minter {
   // current annual inflation rate
   string inflation = 1
       [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  uint64 phase = 2;
+  uint64 start_phase_block = 3 [(gogoproto.moretags) = "yaml:\"start_phase_block\""];
   // current annual expected provisions
-  string annual_provisions = 2 [
+  string annual_provisions = 4 [
     (gogoproto.moretags)   = "yaml:\"annual_provisions\"",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable)   = false
