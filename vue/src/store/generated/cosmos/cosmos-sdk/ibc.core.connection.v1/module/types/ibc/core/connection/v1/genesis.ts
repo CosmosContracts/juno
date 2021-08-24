@@ -1,10 +1,7 @@
 /* eslint-disable */
 import * as Long from 'long'
 import { util, configure, Writer, Reader } from 'protobufjs/minimal'
-import {
-  IdentifiedConnection,
-  ConnectionPaths
-} from '../../../../ibc/core/connection/v1/connection'
+import { IdentifiedConnection, ConnectionPaths } from '../../../../ibc/core/connection/v1/connection'
 
 export const protobufPackage = 'ibc.core.connection.v1'
 
@@ -42,14 +39,10 @@ export const GenesisState = {
       const tag = reader.uint32()
       switch (tag >>> 3) {
         case 1:
-          message.connections.push(
-            IdentifiedConnection.decode(reader, reader.uint32())
-          )
+          message.connections.push(IdentifiedConnection.decode(reader, reader.uint32()))
           break
         case 2:
-          message.clientConnectionPaths.push(
-            ConnectionPaths.decode(reader, reader.uint32())
-          )
+          message.clientConnectionPaths.push(ConnectionPaths.decode(reader, reader.uint32()))
           break
         case 3:
           message.nextConnectionSequence = longToNumber(reader.uint64() as Long)
@@ -71,18 +64,12 @@ export const GenesisState = {
         message.connections.push(IdentifiedConnection.fromJSON(e))
       }
     }
-    if (
-      object.clientConnectionPaths !== undefined &&
-      object.clientConnectionPaths !== null
-    ) {
+    if (object.clientConnectionPaths !== undefined && object.clientConnectionPaths !== null) {
       for (const e of object.clientConnectionPaths) {
         message.clientConnectionPaths.push(ConnectionPaths.fromJSON(e))
       }
     }
-    if (
-      object.nextConnectionSequence !== undefined &&
-      object.nextConnectionSequence !== null
-    ) {
+    if (object.nextConnectionSequence !== undefined && object.nextConnectionSequence !== null) {
       message.nextConnectionSequence = Number(object.nextConnectionSequence)
     } else {
       message.nextConnectionSequence = 0
@@ -93,21 +80,16 @@ export const GenesisState = {
   toJSON(message: GenesisState): unknown {
     const obj: any = {}
     if (message.connections) {
-      obj.connections = message.connections.map((e) =>
-        e ? IdentifiedConnection.toJSON(e) : undefined
-      )
+      obj.connections = message.connections.map((e) => (e ? IdentifiedConnection.toJSON(e) : undefined))
     } else {
       obj.connections = []
     }
     if (message.clientConnectionPaths) {
-      obj.clientConnectionPaths = message.clientConnectionPaths.map((e) =>
-        e ? ConnectionPaths.toJSON(e) : undefined
-      )
+      obj.clientConnectionPaths = message.clientConnectionPaths.map((e) => (e ? ConnectionPaths.toJSON(e) : undefined))
     } else {
       obj.clientConnectionPaths = []
     }
-    message.nextConnectionSequence !== undefined &&
-      (obj.nextConnectionSequence = message.nextConnectionSequence)
+    message.nextConnectionSequence !== undefined && (obj.nextConnectionSequence = message.nextConnectionSequence)
     return obj
   },
 
@@ -120,18 +102,12 @@ export const GenesisState = {
         message.connections.push(IdentifiedConnection.fromPartial(e))
       }
     }
-    if (
-      object.clientConnectionPaths !== undefined &&
-      object.clientConnectionPaths !== null
-    ) {
+    if (object.clientConnectionPaths !== undefined && object.clientConnectionPaths !== null) {
       for (const e of object.clientConnectionPaths) {
         message.clientConnectionPaths.push(ConnectionPaths.fromPartial(e))
       }
     }
-    if (
-      object.nextConnectionSequence !== undefined &&
-      object.nextConnectionSequence !== null
-    ) {
+    if (object.nextConnectionSequence !== undefined && object.nextConnectionSequence !== null) {
       message.nextConnectionSequence = object.nextConnectionSequence
     } else {
       message.nextConnectionSequence = 0

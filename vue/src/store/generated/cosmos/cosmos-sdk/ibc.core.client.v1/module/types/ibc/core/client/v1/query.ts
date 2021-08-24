@@ -2,16 +2,8 @@
 import { Reader, util, configure, Writer } from 'protobufjs/minimal'
 import * as Long from 'long'
 import { Any } from '../../../../google/protobuf/any'
-import {
-  Height,
-  IdentifiedClientState,
-  ConsensusStateWithHeight,
-  Params
-} from '../../../../ibc/core/client/v1/client'
-import {
-  PageRequest,
-  PageResponse
-} from '../../../../cosmos/base/query/v1beta1/pagination'
+import { Height, IdentifiedClientState, ConsensusStateWithHeight, Params } from '../../../../ibc/core/client/v1/client'
+import { PageRequest, PageResponse } from '../../../../cosmos/base/query/v1beta1/pagination'
 
 export const protobufPackage = 'ibc.core.client.v1'
 
@@ -124,10 +116,7 @@ export interface QueryClientParamsResponse {
 const baseQueryClientStateRequest: object = { clientId: '' }
 
 export const QueryClientStateRequest = {
-  encode(
-    message: QueryClientStateRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryClientStateRequest, writer: Writer = Writer.create()): Writer {
     if (message.clientId !== '') {
       writer.uint32(10).string(message.clientId)
     }
@@ -137,9 +126,7 @@ export const QueryClientStateRequest = {
   decode(input: Reader | Uint8Array, length?: number): QueryClientStateRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryClientStateRequest
-    } as QueryClientStateRequest
+    const message = { ...baseQueryClientStateRequest } as QueryClientStateRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -155,9 +142,7 @@ export const QueryClientStateRequest = {
   },
 
   fromJSON(object: any): QueryClientStateRequest {
-    const message = {
-      ...baseQueryClientStateRequest
-    } as QueryClientStateRequest
+    const message = { ...baseQueryClientStateRequest } as QueryClientStateRequest
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId)
     } else {
@@ -172,12 +157,8 @@ export const QueryClientStateRequest = {
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientStateRequest>
-  ): QueryClientStateRequest {
-    const message = {
-      ...baseQueryClientStateRequest
-    } as QueryClientStateRequest
+  fromPartial(object: DeepPartial<QueryClientStateRequest>): QueryClientStateRequest {
+    const message = { ...baseQueryClientStateRequest } as QueryClientStateRequest
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = object.clientId
     } else {
@@ -190,10 +171,7 @@ export const QueryClientStateRequest = {
 const baseQueryClientStateResponse: object = {}
 
 export const QueryClientStateResponse = {
-  encode(
-    message: QueryClientStateResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryClientStateResponse, writer: Writer = Writer.create()): Writer {
     if (message.clientState !== undefined) {
       Any.encode(message.clientState, writer.uint32(10).fork()).ldelim()
     }
@@ -206,15 +184,10 @@ export const QueryClientStateResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryClientStateResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryClientStateResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryClientStateResponse
-    } as QueryClientStateResponse
+    const message = { ...baseQueryClientStateResponse } as QueryClientStateResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -236,9 +209,7 @@ export const QueryClientStateResponse = {
   },
 
   fromJSON(object: any): QueryClientStateResponse {
-    const message = {
-      ...baseQueryClientStateResponse
-    } as QueryClientStateResponse
+    const message = { ...baseQueryClientStateResponse } as QueryClientStateResponse
     if (object.clientState !== undefined && object.clientState !== null) {
       message.clientState = Any.fromJSON(object.clientState)
     } else {
@@ -257,27 +228,14 @@ export const QueryClientStateResponse = {
 
   toJSON(message: QueryClientStateResponse): unknown {
     const obj: any = {}
-    message.clientState !== undefined &&
-      (obj.clientState = message.clientState
-        ? Any.toJSON(message.clientState)
-        : undefined)
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ))
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined)
+    message.clientState !== undefined && (obj.clientState = message.clientState ? Any.toJSON(message.clientState) : undefined)
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()))
+    message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientStateResponse>
-  ): QueryClientStateResponse {
-    const message = {
-      ...baseQueryClientStateResponse
-    } as QueryClientStateResponse
+  fromPartial(object: DeepPartial<QueryClientStateResponse>): QueryClientStateResponse {
+    const message = { ...baseQueryClientStateResponse } as QueryClientStateResponse
     if (object.clientState !== undefined && object.clientState !== null) {
       message.clientState = Any.fromPartial(object.clientState)
     } else {
@@ -300,25 +258,17 @@ export const QueryClientStateResponse = {
 const baseQueryClientStatesRequest: object = {}
 
 export const QueryClientStatesRequest = {
-  encode(
-    message: QueryClientStatesRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryClientStatesRequest, writer: Writer = Writer.create()): Writer {
     if (message.pagination !== undefined) {
       PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim()
     }
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryClientStatesRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryClientStatesRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryClientStatesRequest
-    } as QueryClientStatesRequest
+    const message = { ...baseQueryClientStatesRequest } as QueryClientStatesRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -334,9 +284,7 @@ export const QueryClientStatesRequest = {
   },
 
   fromJSON(object: any): QueryClientStatesRequest {
-    const message = {
-      ...baseQueryClientStatesRequest
-    } as QueryClientStatesRequest
+    const message = { ...baseQueryClientStatesRequest } as QueryClientStatesRequest
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromJSON(object.pagination)
     } else {
@@ -347,19 +295,12 @@ export const QueryClientStatesRequest = {
 
   toJSON(message: QueryClientStatesRequest): unknown {
     const obj: any = {}
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageRequest.toJSON(message.pagination) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientStatesRequest>
-  ): QueryClientStatesRequest {
-    const message = {
-      ...baseQueryClientStatesRequest
-    } as QueryClientStatesRequest
+  fromPartial(object: DeepPartial<QueryClientStatesRequest>): QueryClientStatesRequest {
+    const message = { ...baseQueryClientStatesRequest } as QueryClientStatesRequest
     if (object.pagination !== undefined && object.pagination !== null) {
       message.pagination = PageRequest.fromPartial(object.pagination)
     } else {
@@ -372,10 +313,7 @@ export const QueryClientStatesRequest = {
 const baseQueryClientStatesResponse: object = {}
 
 export const QueryClientStatesResponse = {
-  encode(
-    message: QueryClientStatesResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryClientStatesResponse, writer: Writer = Writer.create()): Writer {
     for (const v of message.clientStates) {
       IdentifiedClientState.encode(v!, writer.uint32(10).fork()).ldelim()
     }
@@ -385,23 +323,16 @@ export const QueryClientStatesResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryClientStatesResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryClientStatesResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryClientStatesResponse
-    } as QueryClientStatesResponse
+    const message = { ...baseQueryClientStatesResponse } as QueryClientStatesResponse
     message.clientStates = []
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
         case 1:
-          message.clientStates.push(
-            IdentifiedClientState.decode(reader, reader.uint32())
-          )
+          message.clientStates.push(IdentifiedClientState.decode(reader, reader.uint32()))
           break
         case 2:
           message.pagination = PageResponse.decode(reader, reader.uint32())
@@ -415,9 +346,7 @@ export const QueryClientStatesResponse = {
   },
 
   fromJSON(object: any): QueryClientStatesResponse {
-    const message = {
-      ...baseQueryClientStatesResponse
-    } as QueryClientStatesResponse
+    const message = { ...baseQueryClientStatesResponse } as QueryClientStatesResponse
     message.clientStates = []
     if (object.clientStates !== undefined && object.clientStates !== null) {
       for (const e of object.clientStates) {
@@ -435,25 +364,16 @@ export const QueryClientStatesResponse = {
   toJSON(message: QueryClientStatesResponse): unknown {
     const obj: any = {}
     if (message.clientStates) {
-      obj.clientStates = message.clientStates.map((e) =>
-        e ? IdentifiedClientState.toJSON(e) : undefined
-      )
+      obj.clientStates = message.clientStates.map((e) => (e ? IdentifiedClientState.toJSON(e) : undefined))
     } else {
       obj.clientStates = []
     }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageResponse.toJSON(message.pagination) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientStatesResponse>
-  ): QueryClientStatesResponse {
-    const message = {
-      ...baseQueryClientStatesResponse
-    } as QueryClientStatesResponse
+  fromPartial(object: DeepPartial<QueryClientStatesResponse>): QueryClientStatesResponse {
+    const message = { ...baseQueryClientStatesResponse } as QueryClientStatesResponse
     message.clientStates = []
     if (object.clientStates !== undefined && object.clientStates !== null) {
       for (const e of object.clientStates) {
@@ -469,18 +389,10 @@ export const QueryClientStatesResponse = {
   }
 }
 
-const baseQueryConsensusStateRequest: object = {
-  clientId: '',
-  revisionNumber: 0,
-  revisionHeight: 0,
-  latestHeight: false
-}
+const baseQueryConsensusStateRequest: object = { clientId: '', revisionNumber: 0, revisionHeight: 0, latestHeight: false }
 
 export const QueryConsensusStateRequest = {
-  encode(
-    message: QueryConsensusStateRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryConsensusStateRequest, writer: Writer = Writer.create()): Writer {
     if (message.clientId !== '') {
       writer.uint32(10).string(message.clientId)
     }
@@ -496,15 +408,10 @@ export const QueryConsensusStateRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryConsensusStateRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryConsensusStateRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryConsensusStateRequest
-    } as QueryConsensusStateRequest
+    const message = { ...baseQueryConsensusStateRequest } as QueryConsensusStateRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -529,9 +436,7 @@ export const QueryConsensusStateRequest = {
   },
 
   fromJSON(object: any): QueryConsensusStateRequest {
-    const message = {
-      ...baseQueryConsensusStateRequest
-    } as QueryConsensusStateRequest
+    const message = { ...baseQueryConsensusStateRequest } as QueryConsensusStateRequest
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId)
     } else {
@@ -558,21 +463,14 @@ export const QueryConsensusStateRequest = {
   toJSON(message: QueryConsensusStateRequest): unknown {
     const obj: any = {}
     message.clientId !== undefined && (obj.clientId = message.clientId)
-    message.revisionNumber !== undefined &&
-      (obj.revisionNumber = message.revisionNumber)
-    message.revisionHeight !== undefined &&
-      (obj.revisionHeight = message.revisionHeight)
-    message.latestHeight !== undefined &&
-      (obj.latestHeight = message.latestHeight)
+    message.revisionNumber !== undefined && (obj.revisionNumber = message.revisionNumber)
+    message.revisionHeight !== undefined && (obj.revisionHeight = message.revisionHeight)
+    message.latestHeight !== undefined && (obj.latestHeight = message.latestHeight)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConsensusStateRequest>
-  ): QueryConsensusStateRequest {
-    const message = {
-      ...baseQueryConsensusStateRequest
-    } as QueryConsensusStateRequest
+  fromPartial(object: DeepPartial<QueryConsensusStateRequest>): QueryConsensusStateRequest {
+    const message = { ...baseQueryConsensusStateRequest } as QueryConsensusStateRequest
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = object.clientId
     } else {
@@ -600,10 +498,7 @@ export const QueryConsensusStateRequest = {
 const baseQueryConsensusStateResponse: object = {}
 
 export const QueryConsensusStateResponse = {
-  encode(
-    message: QueryConsensusStateResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryConsensusStateResponse, writer: Writer = Writer.create()): Writer {
     if (message.consensusState !== undefined) {
       Any.encode(message.consensusState, writer.uint32(10).fork()).ldelim()
     }
@@ -616,15 +511,10 @@ export const QueryConsensusStateResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryConsensusStateResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryConsensusStateResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryConsensusStateResponse
-    } as QueryConsensusStateResponse
+    const message = { ...baseQueryConsensusStateResponse } as QueryConsensusStateResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -646,9 +536,7 @@ export const QueryConsensusStateResponse = {
   },
 
   fromJSON(object: any): QueryConsensusStateResponse {
-    const message = {
-      ...baseQueryConsensusStateResponse
-    } as QueryConsensusStateResponse
+    const message = { ...baseQueryConsensusStateResponse } as QueryConsensusStateResponse
     if (object.consensusState !== undefined && object.consensusState !== null) {
       message.consensusState = Any.fromJSON(object.consensusState)
     } else {
@@ -667,27 +555,14 @@ export const QueryConsensusStateResponse = {
 
   toJSON(message: QueryConsensusStateResponse): unknown {
     const obj: any = {}
-    message.consensusState !== undefined &&
-      (obj.consensusState = message.consensusState
-        ? Any.toJSON(message.consensusState)
-        : undefined)
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ))
-    message.proofHeight !== undefined &&
-      (obj.proofHeight = message.proofHeight
-        ? Height.toJSON(message.proofHeight)
-        : undefined)
+    message.consensusState !== undefined && (obj.consensusState = message.consensusState ? Any.toJSON(message.consensusState) : undefined)
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()))
+    message.proofHeight !== undefined && (obj.proofHeight = message.proofHeight ? Height.toJSON(message.proofHeight) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConsensusStateResponse>
-  ): QueryConsensusStateResponse {
-    const message = {
-      ...baseQueryConsensusStateResponse
-    } as QueryConsensusStateResponse
+  fromPartial(object: DeepPartial<QueryConsensusStateResponse>): QueryConsensusStateResponse {
+    const message = { ...baseQueryConsensusStateResponse } as QueryConsensusStateResponse
     if (object.consensusState !== undefined && object.consensusState !== null) {
       message.consensusState = Any.fromPartial(object.consensusState)
     } else {
@@ -710,10 +585,7 @@ export const QueryConsensusStateResponse = {
 const baseQueryConsensusStatesRequest: object = { clientId: '' }
 
 export const QueryConsensusStatesRequest = {
-  encode(
-    message: QueryConsensusStatesRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryConsensusStatesRequest, writer: Writer = Writer.create()): Writer {
     if (message.clientId !== '') {
       writer.uint32(10).string(message.clientId)
     }
@@ -723,15 +595,10 @@ export const QueryConsensusStatesRequest = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryConsensusStatesRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryConsensusStatesRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryConsensusStatesRequest
-    } as QueryConsensusStatesRequest
+    const message = { ...baseQueryConsensusStatesRequest } as QueryConsensusStatesRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -750,9 +617,7 @@ export const QueryConsensusStatesRequest = {
   },
 
   fromJSON(object: any): QueryConsensusStatesRequest {
-    const message = {
-      ...baseQueryConsensusStatesRequest
-    } as QueryConsensusStatesRequest
+    const message = { ...baseQueryConsensusStatesRequest } as QueryConsensusStatesRequest
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = String(object.clientId)
     } else {
@@ -769,19 +634,12 @@ export const QueryConsensusStatesRequest = {
   toJSON(message: QueryConsensusStatesRequest): unknown {
     const obj: any = {}
     message.clientId !== undefined && (obj.clientId = message.clientId)
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageRequest.toJSON(message.pagination)
-        : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageRequest.toJSON(message.pagination) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConsensusStatesRequest>
-  ): QueryConsensusStatesRequest {
-    const message = {
-      ...baseQueryConsensusStatesRequest
-    } as QueryConsensusStatesRequest
+  fromPartial(object: DeepPartial<QueryConsensusStatesRequest>): QueryConsensusStatesRequest {
+    const message = { ...baseQueryConsensusStatesRequest } as QueryConsensusStatesRequest
     if (object.clientId !== undefined && object.clientId !== null) {
       message.clientId = object.clientId
     } else {
@@ -799,10 +657,7 @@ export const QueryConsensusStatesRequest = {
 const baseQueryConsensusStatesResponse: object = {}
 
 export const QueryConsensusStatesResponse = {
-  encode(
-    message: QueryConsensusStatesResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryConsensusStatesResponse, writer: Writer = Writer.create()): Writer {
     for (const v of message.consensusStates) {
       ConsensusStateWithHeight.encode(v!, writer.uint32(10).fork()).ldelim()
     }
@@ -812,23 +667,16 @@ export const QueryConsensusStatesResponse = {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryConsensusStatesResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryConsensusStatesResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryConsensusStatesResponse
-    } as QueryConsensusStatesResponse
+    const message = { ...baseQueryConsensusStatesResponse } as QueryConsensusStatesResponse
     message.consensusStates = []
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
         case 1:
-          message.consensusStates.push(
-            ConsensusStateWithHeight.decode(reader, reader.uint32())
-          )
+          message.consensusStates.push(ConsensusStateWithHeight.decode(reader, reader.uint32()))
           break
         case 2:
           message.pagination = PageResponse.decode(reader, reader.uint32())
@@ -842,14 +690,9 @@ export const QueryConsensusStatesResponse = {
   },
 
   fromJSON(object: any): QueryConsensusStatesResponse {
-    const message = {
-      ...baseQueryConsensusStatesResponse
-    } as QueryConsensusStatesResponse
+    const message = { ...baseQueryConsensusStatesResponse } as QueryConsensusStatesResponse
     message.consensusStates = []
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
+    if (object.consensusStates !== undefined && object.consensusStates !== null) {
       for (const e of object.consensusStates) {
         message.consensusStates.push(ConsensusStateWithHeight.fromJSON(e))
       }
@@ -865,30 +708,18 @@ export const QueryConsensusStatesResponse = {
   toJSON(message: QueryConsensusStatesResponse): unknown {
     const obj: any = {}
     if (message.consensusStates) {
-      obj.consensusStates = message.consensusStates.map((e) =>
-        e ? ConsensusStateWithHeight.toJSON(e) : undefined
-      )
+      obj.consensusStates = message.consensusStates.map((e) => (e ? ConsensusStateWithHeight.toJSON(e) : undefined))
     } else {
       obj.consensusStates = []
     }
-    message.pagination !== undefined &&
-      (obj.pagination = message.pagination
-        ? PageResponse.toJSON(message.pagination)
-        : undefined)
+    message.pagination !== undefined && (obj.pagination = message.pagination ? PageResponse.toJSON(message.pagination) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryConsensusStatesResponse>
-  ): QueryConsensusStatesResponse {
-    const message = {
-      ...baseQueryConsensusStatesResponse
-    } as QueryConsensusStatesResponse
+  fromPartial(object: DeepPartial<QueryConsensusStatesResponse>): QueryConsensusStatesResponse {
+    const message = { ...baseQueryConsensusStatesResponse } as QueryConsensusStatesResponse
     message.consensusStates = []
-    if (
-      object.consensusStates !== undefined &&
-      object.consensusStates !== null
-    ) {
+    if (object.consensusStates !== undefined && object.consensusStates !== null) {
       for (const e of object.consensusStates) {
         message.consensusStates.push(ConsensusStateWithHeight.fromPartial(e))
       }
@@ -905,22 +736,14 @@ export const QueryConsensusStatesResponse = {
 const baseQueryClientParamsRequest: object = {}
 
 export const QueryClientParamsRequest = {
-  encode(
-    _: QueryClientParamsRequest,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(_: QueryClientParamsRequest, writer: Writer = Writer.create()): Writer {
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryClientParamsRequest {
+  decode(input: Reader | Uint8Array, length?: number): QueryClientParamsRequest {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryClientParamsRequest
-    } as QueryClientParamsRequest
+    const message = { ...baseQueryClientParamsRequest } as QueryClientParamsRequest
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -933,9 +756,7 @@ export const QueryClientParamsRequest = {
   },
 
   fromJSON(_: any): QueryClientParamsRequest {
-    const message = {
-      ...baseQueryClientParamsRequest
-    } as QueryClientParamsRequest
+    const message = { ...baseQueryClientParamsRequest } as QueryClientParamsRequest
     return message
   },
 
@@ -944,12 +765,8 @@ export const QueryClientParamsRequest = {
     return obj
   },
 
-  fromPartial(
-    _: DeepPartial<QueryClientParamsRequest>
-  ): QueryClientParamsRequest {
-    const message = {
-      ...baseQueryClientParamsRequest
-    } as QueryClientParamsRequest
+  fromPartial(_: DeepPartial<QueryClientParamsRequest>): QueryClientParamsRequest {
+    const message = { ...baseQueryClientParamsRequest } as QueryClientParamsRequest
     return message
   }
 }
@@ -957,25 +774,17 @@ export const QueryClientParamsRequest = {
 const baseQueryClientParamsResponse: object = {}
 
 export const QueryClientParamsResponse = {
-  encode(
-    message: QueryClientParamsResponse,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: QueryClientParamsResponse, writer: Writer = Writer.create()): Writer {
     if (message.params !== undefined) {
       Params.encode(message.params, writer.uint32(10).fork()).ldelim()
     }
     return writer
   },
 
-  decode(
-    input: Reader | Uint8Array,
-    length?: number
-  ): QueryClientParamsResponse {
+  decode(input: Reader | Uint8Array, length?: number): QueryClientParamsResponse {
     const reader = input instanceof Uint8Array ? new Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
-    const message = {
-      ...baseQueryClientParamsResponse
-    } as QueryClientParamsResponse
+    const message = { ...baseQueryClientParamsResponse } as QueryClientParamsResponse
     while (reader.pos < end) {
       const tag = reader.uint32()
       switch (tag >>> 3) {
@@ -991,9 +800,7 @@ export const QueryClientParamsResponse = {
   },
 
   fromJSON(object: any): QueryClientParamsResponse {
-    const message = {
-      ...baseQueryClientParamsResponse
-    } as QueryClientParamsResponse
+    const message = { ...baseQueryClientParamsResponse } as QueryClientParamsResponse
     if (object.params !== undefined && object.params !== null) {
       message.params = Params.fromJSON(object.params)
     } else {
@@ -1004,17 +811,12 @@ export const QueryClientParamsResponse = {
 
   toJSON(message: QueryClientParamsResponse): unknown {
     const obj: any = {}
-    message.params !== undefined &&
-      (obj.params = message.params ? Params.toJSON(message.params) : undefined)
+    message.params !== undefined && (obj.params = message.params ? Params.toJSON(message.params) : undefined)
     return obj
   },
 
-  fromPartial(
-    object: DeepPartial<QueryClientParamsResponse>
-  ): QueryClientParamsResponse {
-    const message = {
-      ...baseQueryClientParamsResponse
-    } as QueryClientParamsResponse
+  fromPartial(object: DeepPartial<QueryClientParamsResponse>): QueryClientParamsResponse {
+    const message = { ...baseQueryClientParamsResponse } as QueryClientParamsResponse
     if (object.params !== undefined && object.params !== null) {
       message.params = Params.fromPartial(object.params)
     } else {
@@ -1027,31 +829,21 @@ export const QueryClientParamsResponse = {
 /** Query provides defines the gRPC querier service */
 export interface Query {
   /** ClientState queries an IBC light client. */
-  ClientState(
-    request: QueryClientStateRequest
-  ): Promise<QueryClientStateResponse>
+  ClientState(request: QueryClientStateRequest): Promise<QueryClientStateResponse>
   /** ClientStates queries all the IBC light clients of a chain. */
-  ClientStates(
-    request: QueryClientStatesRequest
-  ): Promise<QueryClientStatesResponse>
+  ClientStates(request: QueryClientStatesRequest): Promise<QueryClientStatesResponse>
   /**
    * ConsensusState queries a consensus state associated with a client state at
    * a given height.
    */
-  ConsensusState(
-    request: QueryConsensusStateRequest
-  ): Promise<QueryConsensusStateResponse>
+  ConsensusState(request: QueryConsensusStateRequest): Promise<QueryConsensusStateResponse>
   /**
    * ConsensusStates queries all the consensus state associated with a given
    * client.
    */
-  ConsensusStates(
-    request: QueryConsensusStatesRequest
-  ): Promise<QueryConsensusStatesResponse>
+  ConsensusStates(request: QueryConsensusStatesRequest): Promise<QueryConsensusStatesResponse>
   /** ClientParams queries all parameters of the ibc client. */
-  ClientParams(
-    request: QueryClientParamsRequest
-  ): Promise<QueryClientParamsResponse>
+  ClientParams(request: QueryClientParamsRequest): Promise<QueryClientParamsResponse>
 }
 
 export class QueryClientImpl implements Query {
@@ -1059,83 +851,39 @@ export class QueryClientImpl implements Query {
   constructor(rpc: Rpc) {
     this.rpc = rpc
   }
-  ClientState(
-    request: QueryClientStateRequest
-  ): Promise<QueryClientStateResponse> {
+  ClientState(request: QueryClientStateRequest): Promise<QueryClientStateResponse> {
     const data = QueryClientStateRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.client.v1.Query',
-      'ClientState',
-      data
-    )
-    return promise.then((data) =>
-      QueryClientStateResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.client.v1.Query', 'ClientState', data)
+    return promise.then((data) => QueryClientStateResponse.decode(new Reader(data)))
   }
 
-  ClientStates(
-    request: QueryClientStatesRequest
-  ): Promise<QueryClientStatesResponse> {
+  ClientStates(request: QueryClientStatesRequest): Promise<QueryClientStatesResponse> {
     const data = QueryClientStatesRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.client.v1.Query',
-      'ClientStates',
-      data
-    )
-    return promise.then((data) =>
-      QueryClientStatesResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.client.v1.Query', 'ClientStates', data)
+    return promise.then((data) => QueryClientStatesResponse.decode(new Reader(data)))
   }
 
-  ConsensusState(
-    request: QueryConsensusStateRequest
-  ): Promise<QueryConsensusStateResponse> {
+  ConsensusState(request: QueryConsensusStateRequest): Promise<QueryConsensusStateResponse> {
     const data = QueryConsensusStateRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.client.v1.Query',
-      'ConsensusState',
-      data
-    )
-    return promise.then((data) =>
-      QueryConsensusStateResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.client.v1.Query', 'ConsensusState', data)
+    return promise.then((data) => QueryConsensusStateResponse.decode(new Reader(data)))
   }
 
-  ConsensusStates(
-    request: QueryConsensusStatesRequest
-  ): Promise<QueryConsensusStatesResponse> {
+  ConsensusStates(request: QueryConsensusStatesRequest): Promise<QueryConsensusStatesResponse> {
     const data = QueryConsensusStatesRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.client.v1.Query',
-      'ConsensusStates',
-      data
-    )
-    return promise.then((data) =>
-      QueryConsensusStatesResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.client.v1.Query', 'ConsensusStates', data)
+    return promise.then((data) => QueryConsensusStatesResponse.decode(new Reader(data)))
   }
 
-  ClientParams(
-    request: QueryClientParamsRequest
-  ): Promise<QueryClientParamsResponse> {
+  ClientParams(request: QueryClientParamsRequest): Promise<QueryClientParamsResponse> {
     const data = QueryClientParamsRequest.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.core.client.v1.Query',
-      'ClientParams',
-      data
-    )
-    return promise.then((data) =>
-      QueryClientParamsResponse.decode(new Reader(data))
-    )
+    const promise = this.rpc.request('ibc.core.client.v1.Query', 'ClientParams', data)
+    return promise.then((data) => QueryClientParamsResponse.decode(new Reader(data)))
   }
 }
 
 interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: Uint8Array
-  ): Promise<Uint8Array>
+  request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>
 }
 
 declare var self: any | undefined
@@ -1148,9 +896,7 @@ var globalThis: any = (() => {
   throw 'Unable to locate global object'
 })()
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
+const atob: (b64: string) => string = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64)
   const arr = new Uint8Array(bin.length)
@@ -1160,9 +906,7 @@ function bytesFromBase64(b64: string): Uint8Array {
   return arr
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
+const btoa: (bin: string) => string = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = []
   for (let i = 0; i < arr.byteLength; ++i) {

@@ -56,16 +56,8 @@ export const PublicKey = {
 
   toJSON(message: PublicKey): unknown {
     const obj: any = {}
-    message.ed25519 !== undefined &&
-      (obj.ed25519 =
-        message.ed25519 !== undefined
-          ? base64FromBytes(message.ed25519)
-          : undefined)
-    message.secp256k1 !== undefined &&
-      (obj.secp256k1 =
-        message.secp256k1 !== undefined
-          ? base64FromBytes(message.secp256k1)
-          : undefined)
+    message.ed25519 !== undefined && (obj.ed25519 = message.ed25519 !== undefined ? base64FromBytes(message.ed25519) : undefined)
+    message.secp256k1 !== undefined && (obj.secp256k1 = message.secp256k1 !== undefined ? base64FromBytes(message.secp256k1) : undefined)
     return obj
   },
 
@@ -95,9 +87,7 @@ var globalThis: any = (() => {
   throw 'Unable to locate global object'
 })()
 
-const atob: (b64: string) => string =
-  globalThis.atob ||
-  ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
+const atob: (b64: string) => string = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'))
 function bytesFromBase64(b64: string): Uint8Array {
   const bin = atob(b64)
   const arr = new Uint8Array(bin.length)
@@ -107,9 +97,7 @@ function bytesFromBase64(b64: string): Uint8Array {
   return arr
 }
 
-const btoa: (bin: string) => string =
-  globalThis.btoa ||
-  ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
+const btoa: (bin: string) => string = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'))
 function base64FromBytes(arr: Uint8Array): string {
   const bin: string[] = []
   for (let i = 0; i < arr.byteLength; ++i) {

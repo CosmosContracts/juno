@@ -63,14 +63,8 @@ export const MsgCreateClient = {
     },
     toJSON(message) {
         const obj = {};
-        message.clientState !== undefined &&
-            (obj.clientState = message.clientState
-                ? Any.toJSON(message.clientState)
-                : undefined);
-        message.consensusState !== undefined &&
-            (obj.consensusState = message.consensusState
-                ? Any.toJSON(message.consensusState)
-                : undefined);
+        message.clientState !== undefined && (obj.clientState = message.clientState ? Any.toJSON(message.clientState) : undefined);
+        message.consensusState !== undefined && (obj.consensusState = message.consensusState ? Any.toJSON(message.consensusState) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -105,9 +99,7 @@ export const MsgCreateClientResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgCreateClientResponse
-        };
+        const message = { ...baseMsgCreateClientResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -119,9 +111,7 @@ export const MsgCreateClientResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgCreateClientResponse
-        };
+        const message = { ...baseMsgCreateClientResponse };
         return message;
     },
     toJSON(_) {
@@ -129,9 +119,7 @@ export const MsgCreateClientResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgCreateClientResponse
-        };
+        const message = { ...baseMsgCreateClientResponse };
         return message;
     }
 };
@@ -197,8 +185,7 @@ export const MsgUpdateClient = {
     toJSON(message) {
         const obj = {};
         message.clientId !== undefined && (obj.clientId = message.clientId);
-        message.header !== undefined &&
-            (obj.header = message.header ? Any.toJSON(message.header) : undefined);
+        message.header !== undefined && (obj.header = message.header ? Any.toJSON(message.header) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -233,9 +220,7 @@ export const MsgUpdateClientResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgUpdateClientResponse
-        };
+        const message = { ...baseMsgUpdateClientResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -247,9 +232,7 @@ export const MsgUpdateClientResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgUpdateClientResponse
-        };
+        const message = { ...baseMsgUpdateClientResponse };
         return message;
     },
     toJSON(_) {
@@ -257,9 +240,7 @@ export const MsgUpdateClientResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgUpdateClientResponse
-        };
+        const message = { ...baseMsgUpdateClientResponse };
         return message;
     }
 };
@@ -338,12 +319,10 @@ export const MsgUpgradeClient = {
         else {
             message.consensusState = undefined;
         }
-        if (object.proofUpgradeClient !== undefined &&
-            object.proofUpgradeClient !== null) {
+        if (object.proofUpgradeClient !== undefined && object.proofUpgradeClient !== null) {
             message.proofUpgradeClient = bytesFromBase64(object.proofUpgradeClient);
         }
-        if (object.proofUpgradeConsensusState !== undefined &&
-            object.proofUpgradeConsensusState !== null) {
+        if (object.proofUpgradeConsensusState !== undefined && object.proofUpgradeConsensusState !== null) {
             message.proofUpgradeConsensusState = bytesFromBase64(object.proofUpgradeConsensusState);
         }
         if (object.signer !== undefined && object.signer !== null) {
@@ -357,22 +336,12 @@ export const MsgUpgradeClient = {
     toJSON(message) {
         const obj = {};
         message.clientId !== undefined && (obj.clientId = message.clientId);
-        message.clientState !== undefined &&
-            (obj.clientState = message.clientState
-                ? Any.toJSON(message.clientState)
-                : undefined);
-        message.consensusState !== undefined &&
-            (obj.consensusState = message.consensusState
-                ? Any.toJSON(message.consensusState)
-                : undefined);
+        message.clientState !== undefined && (obj.clientState = message.clientState ? Any.toJSON(message.clientState) : undefined);
+        message.consensusState !== undefined && (obj.consensusState = message.consensusState ? Any.toJSON(message.consensusState) : undefined);
         message.proofUpgradeClient !== undefined &&
-            (obj.proofUpgradeClient = base64FromBytes(message.proofUpgradeClient !== undefined
-                ? message.proofUpgradeClient
-                : new Uint8Array()));
+            (obj.proofUpgradeClient = base64FromBytes(message.proofUpgradeClient !== undefined ? message.proofUpgradeClient : new Uint8Array()));
         message.proofUpgradeConsensusState !== undefined &&
-            (obj.proofUpgradeConsensusState = base64FromBytes(message.proofUpgradeConsensusState !== undefined
-                ? message.proofUpgradeConsensusState
-                : new Uint8Array()));
+            (obj.proofUpgradeConsensusState = base64FromBytes(message.proofUpgradeConsensusState !== undefined ? message.proofUpgradeConsensusState : new Uint8Array()));
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -396,15 +365,13 @@ export const MsgUpgradeClient = {
         else {
             message.consensusState = undefined;
         }
-        if (object.proofUpgradeClient !== undefined &&
-            object.proofUpgradeClient !== null) {
+        if (object.proofUpgradeClient !== undefined && object.proofUpgradeClient !== null) {
             message.proofUpgradeClient = object.proofUpgradeClient;
         }
         else {
             message.proofUpgradeClient = new Uint8Array();
         }
-        if (object.proofUpgradeConsensusState !== undefined &&
-            object.proofUpgradeConsensusState !== null) {
+        if (object.proofUpgradeConsensusState !== undefined && object.proofUpgradeConsensusState !== null) {
             message.proofUpgradeConsensusState = object.proofUpgradeConsensusState;
         }
         else {
@@ -427,9 +394,7 @@ export const MsgUpgradeClientResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgUpgradeClientResponse
-        };
+        const message = { ...baseMsgUpgradeClientResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -441,9 +406,7 @@ export const MsgUpgradeClientResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgUpgradeClientResponse
-        };
+        const message = { ...baseMsgUpgradeClientResponse };
         return message;
     },
     toJSON(_) {
@@ -451,9 +414,7 @@ export const MsgUpgradeClientResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgUpgradeClientResponse
-        };
+        const message = { ...baseMsgUpgradeClientResponse };
         return message;
     }
 };
@@ -519,10 +480,7 @@ export const MsgSubmitMisbehaviour = {
     toJSON(message) {
         const obj = {};
         message.clientId !== undefined && (obj.clientId = message.clientId);
-        message.misbehaviour !== undefined &&
-            (obj.misbehaviour = message.misbehaviour
-                ? Any.toJSON(message.misbehaviour)
-                : undefined);
+        message.misbehaviour !== undefined && (obj.misbehaviour = message.misbehaviour ? Any.toJSON(message.misbehaviour) : undefined);
         message.signer !== undefined && (obj.signer = message.signer);
         return obj;
     },
@@ -557,9 +515,7 @@ export const MsgSubmitMisbehaviourResponse = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseMsgSubmitMisbehaviourResponse
-        };
+        const message = { ...baseMsgSubmitMisbehaviourResponse };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -571,9 +527,7 @@ export const MsgSubmitMisbehaviourResponse = {
         return message;
     },
     fromJSON(_) {
-        const message = {
-            ...baseMsgSubmitMisbehaviourResponse
-        };
+        const message = { ...baseMsgSubmitMisbehaviourResponse };
         return message;
     },
     toJSON(_) {
@@ -581,9 +535,7 @@ export const MsgSubmitMisbehaviourResponse = {
         return obj;
     },
     fromPartial(_) {
-        const message = {
-            ...baseMsgSubmitMisbehaviourResponse
-        };
+        const message = { ...baseMsgSubmitMisbehaviourResponse };
         return message;
     }
 };
@@ -623,8 +575,7 @@ var globalThis = (() => {
         return global;
     throw 'Unable to locate global object';
 })();
-const atob = globalThis.atob ||
-    ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+const atob = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64) {
     const bin = atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -633,8 +584,7 @@ function bytesFromBase64(b64) {
     }
     return arr;
 }
-const btoa = globalThis.btoa ||
-    ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+const btoa = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr) {
     const bin = [];
     for (let i = 0; i < arr.byteLength; ++i) {

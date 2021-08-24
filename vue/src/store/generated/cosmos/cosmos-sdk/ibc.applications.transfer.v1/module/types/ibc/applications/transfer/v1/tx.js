@@ -4,13 +4,7 @@ import * as Long from 'long';
 import { Coin } from '../../../../cosmos/base/v1beta1/coin';
 import { Height } from '../../../../ibc/core/client/v1/client';
 export const protobufPackage = 'ibc.applications.transfer.v1';
-const baseMsgTransfer = {
-    sourcePort: '',
-    sourceChannel: '',
-    sender: '',
-    receiver: '',
-    timeoutTimestamp: 0
-};
+const baseMsgTransfer = { sourcePort: '', sourceChannel: '', sender: '', receiver: '', timeoutTimestamp: 0 };
 export const MsgTransfer = {
     encode(message, writer = Writer.create()) {
         if (message.sourcePort !== '') {
@@ -109,8 +103,7 @@ export const MsgTransfer = {
         else {
             message.timeoutHeight = undefined;
         }
-        if (object.timeoutTimestamp !== undefined &&
-            object.timeoutTimestamp !== null) {
+        if (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null) {
             message.timeoutTimestamp = Number(object.timeoutTimestamp);
         }
         else {
@@ -121,18 +114,12 @@ export const MsgTransfer = {
     toJSON(message) {
         const obj = {};
         message.sourcePort !== undefined && (obj.sourcePort = message.sourcePort);
-        message.sourceChannel !== undefined &&
-            (obj.sourceChannel = message.sourceChannel);
-        message.token !== undefined &&
-            (obj.token = message.token ? Coin.toJSON(message.token) : undefined);
+        message.sourceChannel !== undefined && (obj.sourceChannel = message.sourceChannel);
+        message.token !== undefined && (obj.token = message.token ? Coin.toJSON(message.token) : undefined);
         message.sender !== undefined && (obj.sender = message.sender);
         message.receiver !== undefined && (obj.receiver = message.receiver);
-        message.timeoutHeight !== undefined &&
-            (obj.timeoutHeight = message.timeoutHeight
-                ? Height.toJSON(message.timeoutHeight)
-                : undefined);
-        message.timeoutTimestamp !== undefined &&
-            (obj.timeoutTimestamp = message.timeoutTimestamp);
+        message.timeoutHeight !== undefined && (obj.timeoutHeight = message.timeoutHeight ? Height.toJSON(message.timeoutHeight) : undefined);
+        message.timeoutTimestamp !== undefined && (obj.timeoutTimestamp = message.timeoutTimestamp);
         return obj;
     },
     fromPartial(object) {
@@ -173,8 +160,7 @@ export const MsgTransfer = {
         else {
             message.timeoutHeight = undefined;
         }
-        if (object.timeoutTimestamp !== undefined &&
-            object.timeoutTimestamp !== null) {
+        if (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null) {
             message.timeoutTimestamp = object.timeoutTimestamp;
         }
         else {

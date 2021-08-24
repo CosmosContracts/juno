@@ -3,10 +3,7 @@ import * as Long from 'long';
 import { util, configure, Writer, Reader } from 'protobufjs/minimal';
 import { IdentifiedClientState, ClientConsensusStates, Params } from '../../../../ibc/core/client/v1/client';
 export const protobufPackage = 'ibc.core.client.v1';
-const baseGenesisState = {
-    createLocalhost: false,
-    nextClientSequence: 0
-};
+const baseGenesisState = { createLocalhost: false, nextClientSequence: 0 };
 export const GenesisState = {
     encode(message, writer = Writer.create()) {
         for (const v of message.clients) {
@@ -74,14 +71,12 @@ export const GenesisState = {
                 message.clients.push(IdentifiedClientState.fromJSON(e));
             }
         }
-        if (object.clientsConsensus !== undefined &&
-            object.clientsConsensus !== null) {
+        if (object.clientsConsensus !== undefined && object.clientsConsensus !== null) {
             for (const e of object.clientsConsensus) {
                 message.clientsConsensus.push(ClientConsensusStates.fromJSON(e));
             }
         }
-        if (object.clientsMetadata !== undefined &&
-            object.clientsMetadata !== null) {
+        if (object.clientsMetadata !== undefined && object.clientsMetadata !== null) {
             for (const e of object.clientsMetadata) {
                 message.clientsMetadata.push(IdentifiedGenesisMetadata.fromJSON(e));
             }
@@ -92,15 +87,13 @@ export const GenesisState = {
         else {
             message.params = undefined;
         }
-        if (object.createLocalhost !== undefined &&
-            object.createLocalhost !== null) {
+        if (object.createLocalhost !== undefined && object.createLocalhost !== null) {
             message.createLocalhost = Boolean(object.createLocalhost);
         }
         else {
             message.createLocalhost = false;
         }
-        if (object.nextClientSequence !== undefined &&
-            object.nextClientSequence !== null) {
+        if (object.nextClientSequence !== undefined && object.nextClientSequence !== null) {
             message.nextClientSequence = Number(object.nextClientSequence);
         }
         else {
@@ -111,29 +104,26 @@ export const GenesisState = {
     toJSON(message) {
         const obj = {};
         if (message.clients) {
-            obj.clients = message.clients.map((e) => e ? IdentifiedClientState.toJSON(e) : undefined);
+            obj.clients = message.clients.map((e) => (e ? IdentifiedClientState.toJSON(e) : undefined));
         }
         else {
             obj.clients = [];
         }
         if (message.clientsConsensus) {
-            obj.clientsConsensus = message.clientsConsensus.map((e) => e ? ClientConsensusStates.toJSON(e) : undefined);
+            obj.clientsConsensus = message.clientsConsensus.map((e) => (e ? ClientConsensusStates.toJSON(e) : undefined));
         }
         else {
             obj.clientsConsensus = [];
         }
         if (message.clientsMetadata) {
-            obj.clientsMetadata = message.clientsMetadata.map((e) => e ? IdentifiedGenesisMetadata.toJSON(e) : undefined);
+            obj.clientsMetadata = message.clientsMetadata.map((e) => (e ? IdentifiedGenesisMetadata.toJSON(e) : undefined));
         }
         else {
             obj.clientsMetadata = [];
         }
-        message.params !== undefined &&
-            (obj.params = message.params ? Params.toJSON(message.params) : undefined);
-        message.createLocalhost !== undefined &&
-            (obj.createLocalhost = message.createLocalhost);
-        message.nextClientSequence !== undefined &&
-            (obj.nextClientSequence = message.nextClientSequence);
+        message.params !== undefined && (obj.params = message.params ? Params.toJSON(message.params) : undefined);
+        message.createLocalhost !== undefined && (obj.createLocalhost = message.createLocalhost);
+        message.nextClientSequence !== undefined && (obj.nextClientSequence = message.nextClientSequence);
         return obj;
     },
     fromPartial(object) {
@@ -146,14 +136,12 @@ export const GenesisState = {
                 message.clients.push(IdentifiedClientState.fromPartial(e));
             }
         }
-        if (object.clientsConsensus !== undefined &&
-            object.clientsConsensus !== null) {
+        if (object.clientsConsensus !== undefined && object.clientsConsensus !== null) {
             for (const e of object.clientsConsensus) {
                 message.clientsConsensus.push(ClientConsensusStates.fromPartial(e));
             }
         }
-        if (object.clientsMetadata !== undefined &&
-            object.clientsMetadata !== null) {
+        if (object.clientsMetadata !== undefined && object.clientsMetadata !== null) {
             for (const e of object.clientsMetadata) {
                 message.clientsMetadata.push(IdentifiedGenesisMetadata.fromPartial(e));
             }
@@ -164,15 +152,13 @@ export const GenesisState = {
         else {
             message.params = undefined;
         }
-        if (object.createLocalhost !== undefined &&
-            object.createLocalhost !== null) {
+        if (object.createLocalhost !== undefined && object.createLocalhost !== null) {
             message.createLocalhost = object.createLocalhost;
         }
         else {
             message.createLocalhost = false;
         }
-        if (object.nextClientSequence !== undefined &&
-            object.nextClientSequence !== null) {
+        if (object.nextClientSequence !== undefined && object.nextClientSequence !== null) {
             message.nextClientSequence = object.nextClientSequence;
         }
         else {
@@ -224,10 +210,8 @@ export const GenesisMetadata = {
     },
     toJSON(message) {
         const obj = {};
-        message.key !== undefined &&
-            (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
-        message.value !== undefined &&
-            (obj.value = base64FromBytes(message.value !== undefined ? message.value : new Uint8Array()));
+        message.key !== undefined && (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
+        message.value !== undefined && (obj.value = base64FromBytes(message.value !== undefined ? message.value : new Uint8Array()));
         return obj;
     },
     fromPartial(object) {
@@ -261,9 +245,7 @@ export const IdentifiedGenesisMetadata = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseIdentifiedGenesisMetadata
-        };
+        const message = { ...baseIdentifiedGenesisMetadata };
         message.clientMetadata = [];
         while (reader.pos < end) {
             const tag = reader.uint32();
@@ -282,9 +264,7 @@ export const IdentifiedGenesisMetadata = {
         return message;
     },
     fromJSON(object) {
-        const message = {
-            ...baseIdentifiedGenesisMetadata
-        };
+        const message = { ...baseIdentifiedGenesisMetadata };
         message.clientMetadata = [];
         if (object.clientId !== undefined && object.clientId !== null) {
             message.clientId = String(object.clientId);
@@ -303,7 +283,7 @@ export const IdentifiedGenesisMetadata = {
         const obj = {};
         message.clientId !== undefined && (obj.clientId = message.clientId);
         if (message.clientMetadata) {
-            obj.clientMetadata = message.clientMetadata.map((e) => e ? GenesisMetadata.toJSON(e) : undefined);
+            obj.clientMetadata = message.clientMetadata.map((e) => (e ? GenesisMetadata.toJSON(e) : undefined));
         }
         else {
             obj.clientMetadata = [];
@@ -311,9 +291,7 @@ export const IdentifiedGenesisMetadata = {
         return obj;
     },
     fromPartial(object) {
-        const message = {
-            ...baseIdentifiedGenesisMetadata
-        };
+        const message = { ...baseIdentifiedGenesisMetadata };
         message.clientMetadata = [];
         if (object.clientId !== undefined && object.clientId !== null) {
             message.clientId = object.clientId;
@@ -340,8 +318,7 @@ var globalThis = (() => {
         return global;
     throw 'Unable to locate global object';
 })();
-const atob = globalThis.atob ||
-    ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+const atob = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64) {
     const bin = atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -350,8 +327,7 @@ function bytesFromBase64(b64) {
     }
     return arr;
 }
-const btoa = globalThis.btoa ||
-    ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+const btoa = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr) {
     const bin = [];
     for (let i = 0; i < arr.byteLength; ++i) {

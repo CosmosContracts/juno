@@ -162,10 +162,7 @@ export const ConnectionEnd = {
       writer.uint32(24).int32(message.state)
     }
     if (message.counterparty !== undefined) {
-      Counterparty.encode(
-        message.counterparty,
-        writer.uint32(34).fork()
-      ).ldelim()
+      Counterparty.encode(message.counterparty, writer.uint32(34).fork()).ldelim()
     }
     if (message.delayPeriod !== 0) {
       writer.uint32(40).uint64(message.delayPeriod)
@@ -239,17 +236,12 @@ export const ConnectionEnd = {
     const obj: any = {}
     message.clientId !== undefined && (obj.clientId = message.clientId)
     if (message.versions) {
-      obj.versions = message.versions.map((e) =>
-        e ? Version.toJSON(e) : undefined
-      )
+      obj.versions = message.versions.map((e) => (e ? Version.toJSON(e) : undefined))
     } else {
       obj.versions = []
     }
     message.state !== undefined && (obj.state = stateToJSON(message.state))
-    message.counterparty !== undefined &&
-      (obj.counterparty = message.counterparty
-        ? Counterparty.toJSON(message.counterparty)
-        : undefined)
+    message.counterparty !== undefined && (obj.counterparty = message.counterparty ? Counterparty.toJSON(message.counterparty) : undefined)
     message.delayPeriod !== undefined && (obj.delayPeriod = message.delayPeriod)
     return obj
   },
@@ -286,18 +278,10 @@ export const ConnectionEnd = {
   }
 }
 
-const baseIdentifiedConnection: object = {
-  id: '',
-  clientId: '',
-  state: 0,
-  delayPeriod: 0
-}
+const baseIdentifiedConnection: object = { id: '', clientId: '', state: 0, delayPeriod: 0 }
 
 export const IdentifiedConnection = {
-  encode(
-    message: IdentifiedConnection,
-    writer: Writer = Writer.create()
-  ): Writer {
+  encode(message: IdentifiedConnection, writer: Writer = Writer.create()): Writer {
     if (message.id !== '') {
       writer.uint32(10).string(message.id)
     }
@@ -311,10 +295,7 @@ export const IdentifiedConnection = {
       writer.uint32(32).int32(message.state)
     }
     if (message.counterparty !== undefined) {
-      Counterparty.encode(
-        message.counterparty,
-        writer.uint32(42).fork()
-      ).ldelim()
+      Counterparty.encode(message.counterparty, writer.uint32(42).fork()).ldelim()
     }
     if (message.delayPeriod !== 0) {
       writer.uint32(48).uint64(message.delayPeriod)
@@ -397,17 +378,12 @@ export const IdentifiedConnection = {
     message.id !== undefined && (obj.id = message.id)
     message.clientId !== undefined && (obj.clientId = message.clientId)
     if (message.versions) {
-      obj.versions = message.versions.map((e) =>
-        e ? Version.toJSON(e) : undefined
-      )
+      obj.versions = message.versions.map((e) => (e ? Version.toJSON(e) : undefined))
     } else {
       obj.versions = []
     }
     message.state !== undefined && (obj.state = stateToJSON(message.state))
-    message.counterparty !== undefined &&
-      (obj.counterparty = message.counterparty
-        ? Counterparty.toJSON(message.counterparty)
-        : undefined)
+    message.counterparty !== undefined && (obj.counterparty = message.counterparty ? Counterparty.toJSON(message.counterparty) : undefined)
     message.delayPeriod !== undefined && (obj.delayPeriod = message.delayPeriod)
     return obj
   },
@@ -512,12 +488,8 @@ export const Counterparty = {
   toJSON(message: Counterparty): unknown {
     const obj: any = {}
     message.clientId !== undefined && (obj.clientId = message.clientId)
-    message.connectionId !== undefined &&
-      (obj.connectionId = message.connectionId)
-    message.prefix !== undefined &&
-      (obj.prefix = message.prefix
-        ? MerklePrefix.toJSON(message.prefix)
-        : undefined)
+    message.connectionId !== undefined && (obj.connectionId = message.connectionId)
+    message.prefix !== undefined && (obj.prefix = message.prefix ? MerklePrefix.toJSON(message.prefix) : undefined)
     return obj
   },
 

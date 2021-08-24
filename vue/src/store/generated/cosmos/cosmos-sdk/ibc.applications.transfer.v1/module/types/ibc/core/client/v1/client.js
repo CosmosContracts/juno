@@ -53,10 +53,7 @@ export const IdentifiedClientState = {
     toJSON(message) {
         const obj = {};
         message.clientId !== undefined && (obj.clientId = message.clientId);
-        message.clientState !== undefined &&
-            (obj.clientState = message.clientState
-                ? Any.toJSON(message.clientState)
-                : undefined);
+        message.clientState !== undefined && (obj.clientState = message.clientState ? Any.toJSON(message.clientState) : undefined);
         return obj;
     },
     fromPartial(object) {
@@ -90,9 +87,7 @@ export const ConsensusStateWithHeight = {
     decode(input, length) {
         const reader = input instanceof Uint8Array ? new Reader(input) : input;
         let end = length === undefined ? reader.len : reader.pos + length;
-        const message = {
-            ...baseConsensusStateWithHeight
-        };
+        const message = { ...baseConsensusStateWithHeight };
         while (reader.pos < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -110,9 +105,7 @@ export const ConsensusStateWithHeight = {
         return message;
     },
     fromJSON(object) {
-        const message = {
-            ...baseConsensusStateWithHeight
-        };
+        const message = { ...baseConsensusStateWithHeight };
         if (object.height !== undefined && object.height !== null) {
             message.height = Height.fromJSON(object.height);
         }
@@ -129,18 +122,12 @@ export const ConsensusStateWithHeight = {
     },
     toJSON(message) {
         const obj = {};
-        message.height !== undefined &&
-            (obj.height = message.height ? Height.toJSON(message.height) : undefined);
-        message.consensusState !== undefined &&
-            (obj.consensusState = message.consensusState
-                ? Any.toJSON(message.consensusState)
-                : undefined);
+        message.height !== undefined && (obj.height = message.height ? Height.toJSON(message.height) : undefined);
+        message.consensusState !== undefined && (obj.consensusState = message.consensusState ? Any.toJSON(message.consensusState) : undefined);
         return obj;
     },
     fromPartial(object) {
-        const message = {
-            ...baseConsensusStateWithHeight
-        };
+        const message = { ...baseConsensusStateWithHeight };
         if (object.height !== undefined && object.height !== null) {
             message.height = Height.fromPartial(object.height);
         }
@@ -197,8 +184,7 @@ export const ClientConsensusStates = {
         else {
             message.clientId = '';
         }
-        if (object.consensusStates !== undefined &&
-            object.consensusStates !== null) {
+        if (object.consensusStates !== undefined && object.consensusStates !== null) {
             for (const e of object.consensusStates) {
                 message.consensusStates.push(ConsensusStateWithHeight.fromJSON(e));
             }
@@ -209,7 +195,7 @@ export const ClientConsensusStates = {
         const obj = {};
         message.clientId !== undefined && (obj.clientId = message.clientId);
         if (message.consensusStates) {
-            obj.consensusStates = message.consensusStates.map((e) => e ? ConsensusStateWithHeight.toJSON(e) : undefined);
+            obj.consensusStates = message.consensusStates.map((e) => (e ? ConsensusStateWithHeight.toJSON(e) : undefined));
         }
         else {
             obj.consensusStates = [];
@@ -225,8 +211,7 @@ export const ClientConsensusStates = {
         else {
             message.clientId = '';
         }
-        if (object.consensusStates !== undefined &&
-            object.consensusStates !== null) {
+        if (object.consensusStates !== undefined && object.consensusStates !== null) {
             for (const e of object.consensusStates) {
                 message.consensusStates.push(ConsensusStateWithHeight.fromPartial(e));
             }
@@ -234,11 +219,7 @@ export const ClientConsensusStates = {
         return message;
     }
 };
-const baseClientUpdateProposal = {
-    title: '',
-    description: '',
-    clientId: ''
-};
+const baseClientUpdateProposal = { title: '', description: '', clientId: '' };
 export const ClientUpdateProposal = {
     encode(message, writer = Writer.create()) {
         if (message.title !== '') {
@@ -314,8 +295,7 @@ export const ClientUpdateProposal = {
         message.title !== undefined && (obj.title = message.title);
         message.description !== undefined && (obj.description = message.description);
         message.clientId !== undefined && (obj.clientId = message.clientId);
-        message.header !== undefined &&
-            (obj.header = message.header ? Any.toJSON(message.header) : undefined);
+        message.header !== undefined && (obj.header = message.header ? Any.toJSON(message.header) : undefined);
         return obj;
     },
     fromPartial(object) {
@@ -396,10 +376,8 @@ export const Height = {
     },
     toJSON(message) {
         const obj = {};
-        message.revisionNumber !== undefined &&
-            (obj.revisionNumber = message.revisionNumber);
-        message.revisionHeight !== undefined &&
-            (obj.revisionHeight = message.revisionHeight);
+        message.revisionNumber !== undefined && (obj.revisionNumber = message.revisionNumber);
+        message.revisionHeight !== undefined && (obj.revisionHeight = message.revisionHeight);
         return obj;
     },
     fromPartial(object) {

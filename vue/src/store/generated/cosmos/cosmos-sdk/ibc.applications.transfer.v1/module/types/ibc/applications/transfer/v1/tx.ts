@@ -37,13 +37,7 @@ export interface MsgTransfer {
 /** MsgTransferResponse defines the Msg/Transfer response type. */
 export interface MsgTransferResponse {}
 
-const baseMsgTransfer: object = {
-  sourcePort: '',
-  sourceChannel: '',
-  sender: '',
-  receiver: '',
-  timeoutTimestamp: 0
-}
+const baseMsgTransfer: object = { sourcePort: '', sourceChannel: '', sender: '', receiver: '', timeoutTimestamp: 0 }
 
 export const MsgTransfer = {
   encode(message: MsgTransfer, writer: Writer = Writer.create()): Writer {
@@ -139,10 +133,7 @@ export const MsgTransfer = {
     } else {
       message.timeoutHeight = undefined
     }
-    if (
-      object.timeoutTimestamp !== undefined &&
-      object.timeoutTimestamp !== null
-    ) {
+    if (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null) {
       message.timeoutTimestamp = Number(object.timeoutTimestamp)
     } else {
       message.timeoutTimestamp = 0
@@ -153,18 +144,12 @@ export const MsgTransfer = {
   toJSON(message: MsgTransfer): unknown {
     const obj: any = {}
     message.sourcePort !== undefined && (obj.sourcePort = message.sourcePort)
-    message.sourceChannel !== undefined &&
-      (obj.sourceChannel = message.sourceChannel)
-    message.token !== undefined &&
-      (obj.token = message.token ? Coin.toJSON(message.token) : undefined)
+    message.sourceChannel !== undefined && (obj.sourceChannel = message.sourceChannel)
+    message.token !== undefined && (obj.token = message.token ? Coin.toJSON(message.token) : undefined)
     message.sender !== undefined && (obj.sender = message.sender)
     message.receiver !== undefined && (obj.receiver = message.receiver)
-    message.timeoutHeight !== undefined &&
-      (obj.timeoutHeight = message.timeoutHeight
-        ? Height.toJSON(message.timeoutHeight)
-        : undefined)
-    message.timeoutTimestamp !== undefined &&
-      (obj.timeoutTimestamp = message.timeoutTimestamp)
+    message.timeoutHeight !== undefined && (obj.timeoutHeight = message.timeoutHeight ? Height.toJSON(message.timeoutHeight) : undefined)
+    message.timeoutTimestamp !== undefined && (obj.timeoutTimestamp = message.timeoutTimestamp)
     return obj
   },
 
@@ -200,10 +185,7 @@ export const MsgTransfer = {
     } else {
       message.timeoutHeight = undefined
     }
-    if (
-      object.timeoutTimestamp !== undefined &&
-      object.timeoutTimestamp !== null
-    ) {
+    if (object.timeoutTimestamp !== undefined && object.timeoutTimestamp !== null) {
       message.timeoutTimestamp = object.timeoutTimestamp
     } else {
       message.timeoutTimestamp = 0
@@ -263,21 +245,13 @@ export class MsgClientImpl implements Msg {
   }
   Transfer(request: MsgTransfer): Promise<MsgTransferResponse> {
     const data = MsgTransfer.encode(request).finish()
-    const promise = this.rpc.request(
-      'ibc.applications.transfer.v1.Msg',
-      'Transfer',
-      data
-    )
+    const promise = this.rpc.request('ibc.applications.transfer.v1.Msg', 'Transfer', data)
     return promise.then((data) => MsgTransferResponse.decode(new Reader(data)))
   }
 }
 
 interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: Uint8Array
-  ): Promise<Uint8Array>
+  request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>
 }
 
 declare var self: any | undefined

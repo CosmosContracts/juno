@@ -51,14 +51,12 @@ export const GenesisState = {
                 message.connections.push(IdentifiedConnection.fromJSON(e));
             }
         }
-        if (object.clientConnectionPaths !== undefined &&
-            object.clientConnectionPaths !== null) {
+        if (object.clientConnectionPaths !== undefined && object.clientConnectionPaths !== null) {
             for (const e of object.clientConnectionPaths) {
                 message.clientConnectionPaths.push(ConnectionPaths.fromJSON(e));
             }
         }
-        if (object.nextConnectionSequence !== undefined &&
-            object.nextConnectionSequence !== null) {
+        if (object.nextConnectionSequence !== undefined && object.nextConnectionSequence !== null) {
             message.nextConnectionSequence = Number(object.nextConnectionSequence);
         }
         else {
@@ -69,19 +67,18 @@ export const GenesisState = {
     toJSON(message) {
         const obj = {};
         if (message.connections) {
-            obj.connections = message.connections.map((e) => e ? IdentifiedConnection.toJSON(e) : undefined);
+            obj.connections = message.connections.map((e) => (e ? IdentifiedConnection.toJSON(e) : undefined));
         }
         else {
             obj.connections = [];
         }
         if (message.clientConnectionPaths) {
-            obj.clientConnectionPaths = message.clientConnectionPaths.map((e) => e ? ConnectionPaths.toJSON(e) : undefined);
+            obj.clientConnectionPaths = message.clientConnectionPaths.map((e) => (e ? ConnectionPaths.toJSON(e) : undefined));
         }
         else {
             obj.clientConnectionPaths = [];
         }
-        message.nextConnectionSequence !== undefined &&
-            (obj.nextConnectionSequence = message.nextConnectionSequence);
+        message.nextConnectionSequence !== undefined && (obj.nextConnectionSequence = message.nextConnectionSequence);
         return obj;
     },
     fromPartial(object) {
@@ -93,14 +90,12 @@ export const GenesisState = {
                 message.connections.push(IdentifiedConnection.fromPartial(e));
             }
         }
-        if (object.clientConnectionPaths !== undefined &&
-            object.clientConnectionPaths !== null) {
+        if (object.clientConnectionPaths !== undefined && object.clientConnectionPaths !== null) {
             for (const e of object.clientConnectionPaths) {
                 message.clientConnectionPaths.push(ConnectionPaths.fromPartial(e));
             }
         }
-        if (object.nextConnectionSequence !== undefined &&
-            object.nextConnectionSequence !== null) {
+        if (object.nextConnectionSequence !== undefined && object.nextConnectionSequence !== null) {
             message.nextConnectionSequence = object.nextConnectionSequence;
         }
         else {

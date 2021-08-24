@@ -96,10 +96,7 @@ export const ConsensusParams = {
       EvidenceParams.encode(message.evidence, writer.uint32(18).fork()).ldelim()
     }
     if (message.validator !== undefined) {
-      ValidatorParams.encode(
-        message.validator,
-        writer.uint32(26).fork()
-      ).ldelim()
+      ValidatorParams.encode(message.validator, writer.uint32(26).fork()).ldelim()
     }
     if (message.version !== undefined) {
       VersionParams.encode(message.version, writer.uint32(34).fork()).ldelim()
@@ -161,22 +158,10 @@ export const ConsensusParams = {
 
   toJSON(message: ConsensusParams): unknown {
     const obj: any = {}
-    message.block !== undefined &&
-      (obj.block = message.block
-        ? BlockParams.toJSON(message.block)
-        : undefined)
-    message.evidence !== undefined &&
-      (obj.evidence = message.evidence
-        ? EvidenceParams.toJSON(message.evidence)
-        : undefined)
-    message.validator !== undefined &&
-      (obj.validator = message.validator
-        ? ValidatorParams.toJSON(message.validator)
-        : undefined)
-    message.version !== undefined &&
-      (obj.version = message.version
-        ? VersionParams.toJSON(message.version)
-        : undefined)
+    message.block !== undefined && (obj.block = message.block ? BlockParams.toJSON(message.block) : undefined)
+    message.evidence !== undefined && (obj.evidence = message.evidence ? EvidenceParams.toJSON(message.evidence) : undefined)
+    message.validator !== undefined && (obj.validator = message.validator ? ValidatorParams.toJSON(message.validator) : undefined)
+    message.version !== undefined && (obj.version = message.version ? VersionParams.toJSON(message.version) : undefined)
     return obj
   },
 
@@ -337,10 +322,7 @@ export const EvidenceParams = {
 
   fromJSON(object: any): EvidenceParams {
     const message = { ...baseEvidenceParams } as EvidenceParams
-    if (
-      object.maxAgeNumBlocks !== undefined &&
-      object.maxAgeNumBlocks !== null
-    ) {
+    if (object.maxAgeNumBlocks !== undefined && object.maxAgeNumBlocks !== null) {
       message.maxAgeNumBlocks = Number(object.maxAgeNumBlocks)
     } else {
       message.maxAgeNumBlocks = 0
@@ -360,22 +342,15 @@ export const EvidenceParams = {
 
   toJSON(message: EvidenceParams): unknown {
     const obj: any = {}
-    message.maxAgeNumBlocks !== undefined &&
-      (obj.maxAgeNumBlocks = message.maxAgeNumBlocks)
-    message.maxAgeDuration !== undefined &&
-      (obj.maxAgeDuration = message.maxAgeDuration
-        ? Duration.toJSON(message.maxAgeDuration)
-        : undefined)
+    message.maxAgeNumBlocks !== undefined && (obj.maxAgeNumBlocks = message.maxAgeNumBlocks)
+    message.maxAgeDuration !== undefined && (obj.maxAgeDuration = message.maxAgeDuration ? Duration.toJSON(message.maxAgeDuration) : undefined)
     message.maxBytes !== undefined && (obj.maxBytes = message.maxBytes)
     return obj
   },
 
   fromPartial(object: DeepPartial<EvidenceParams>): EvidenceParams {
     const message = { ...baseEvidenceParams } as EvidenceParams
-    if (
-      object.maxAgeNumBlocks !== undefined &&
-      object.maxAgeNumBlocks !== null
-    ) {
+    if (object.maxAgeNumBlocks !== undefined && object.maxAgeNumBlocks !== null) {
       message.maxAgeNumBlocks = object.maxAgeNumBlocks
     } else {
       message.maxAgeNumBlocks = 0
@@ -562,8 +537,7 @@ export const HashedParams = {
 
   toJSON(message: HashedParams): unknown {
     const obj: any = {}
-    message.blockMaxBytes !== undefined &&
-      (obj.blockMaxBytes = message.blockMaxBytes)
+    message.blockMaxBytes !== undefined && (obj.blockMaxBytes = message.blockMaxBytes)
     message.blockMaxGas !== undefined && (obj.blockMaxGas = message.blockMaxGas)
     return obj
   },

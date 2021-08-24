@@ -144,16 +144,13 @@ export const ConnectionEnd = {
         const obj = {};
         message.clientId !== undefined && (obj.clientId = message.clientId);
         if (message.versions) {
-            obj.versions = message.versions.map((e) => e ? Version.toJSON(e) : undefined);
+            obj.versions = message.versions.map((e) => (e ? Version.toJSON(e) : undefined));
         }
         else {
             obj.versions = [];
         }
         message.state !== undefined && (obj.state = stateToJSON(message.state));
-        message.counterparty !== undefined &&
-            (obj.counterparty = message.counterparty
-                ? Counterparty.toJSON(message.counterparty)
-                : undefined);
+        message.counterparty !== undefined && (obj.counterparty = message.counterparty ? Counterparty.toJSON(message.counterparty) : undefined);
         message.delayPeriod !== undefined && (obj.delayPeriod = message.delayPeriod);
         return obj;
     },
@@ -192,12 +189,7 @@ export const ConnectionEnd = {
         return message;
     }
 };
-const baseIdentifiedConnection = {
-    id: '',
-    clientId: '',
-    state: 0,
-    delayPeriod: 0
-};
+const baseIdentifiedConnection = { id: '', clientId: '', state: 0, delayPeriod: 0 };
 export const IdentifiedConnection = {
     encode(message, writer = Writer.create()) {
         if (message.id !== '') {
@@ -298,16 +290,13 @@ export const IdentifiedConnection = {
         message.id !== undefined && (obj.id = message.id);
         message.clientId !== undefined && (obj.clientId = message.clientId);
         if (message.versions) {
-            obj.versions = message.versions.map((e) => e ? Version.toJSON(e) : undefined);
+            obj.versions = message.versions.map((e) => (e ? Version.toJSON(e) : undefined));
         }
         else {
             obj.versions = [];
         }
         message.state !== undefined && (obj.state = stateToJSON(message.state));
-        message.counterparty !== undefined &&
-            (obj.counterparty = message.counterparty
-                ? Counterparty.toJSON(message.counterparty)
-                : undefined);
+        message.counterparty !== undefined && (obj.counterparty = message.counterparty ? Counterparty.toJSON(message.counterparty) : undefined);
         message.delayPeriod !== undefined && (obj.delayPeriod = message.delayPeriod);
         return obj;
     },
@@ -414,12 +403,8 @@ export const Counterparty = {
     toJSON(message) {
         const obj = {};
         message.clientId !== undefined && (obj.clientId = message.clientId);
-        message.connectionId !== undefined &&
-            (obj.connectionId = message.connectionId);
-        message.prefix !== undefined &&
-            (obj.prefix = message.prefix
-                ? MerklePrefix.toJSON(message.prefix)
-                : undefined);
+        message.connectionId !== undefined && (obj.connectionId = message.connectionId);
+        message.prefix !== undefined && (obj.prefix = message.prefix ? MerklePrefix.toJSON(message.prefix) : undefined);
         return obj;
     },
     fromPartial(object) {

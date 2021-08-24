@@ -4,18 +4,7 @@ import { util, configure, Writer, Reader } from 'protobufjs/minimal';
 import { Any } from '../../../../google/protobuf/any';
 import { Event } from '../../../../tendermint/abci/types';
 export const protobufPackage = 'cosmos.base.abci.v1beta1';
-const baseTxResponse = {
-    height: 0,
-    txhash: '',
-    codespace: '',
-    code: 0,
-    data: '',
-    rawLog: '',
-    info: '',
-    gasWanted: 0,
-    gasUsed: 0,
-    timestamp: ''
-};
+const baseTxResponse = { height: 0, txhash: '', codespace: '', code: 0, data: '', rawLog: '', info: '', gasWanted: 0, gasUsed: 0, timestamp: '' };
 export const TxResponse = {
     encode(message, writer = Writer.create()) {
         if (message.height !== 0) {
@@ -192,7 +181,7 @@ export const TxResponse = {
         message.data !== undefined && (obj.data = message.data);
         message.rawLog !== undefined && (obj.rawLog = message.rawLog);
         if (message.logs) {
-            obj.logs = message.logs.map((e) => e ? ABCIMessageLog.toJSON(e) : undefined);
+            obj.logs = message.logs.map((e) => (e ? ABCIMessageLog.toJSON(e) : undefined));
         }
         else {
             obj.logs = [];
@@ -200,8 +189,7 @@ export const TxResponse = {
         message.info !== undefined && (obj.info = message.info);
         message.gasWanted !== undefined && (obj.gasWanted = message.gasWanted);
         message.gasUsed !== undefined && (obj.gasUsed = message.gasUsed);
-        message.tx !== undefined &&
-            (obj.tx = message.tx ? Any.toJSON(message.tx) : undefined);
+        message.tx !== undefined && (obj.tx = message.tx ? Any.toJSON(message.tx) : undefined);
         message.timestamp !== undefined && (obj.timestamp = message.timestamp);
         return obj;
     },
@@ -347,7 +335,7 @@ export const ABCIMessageLog = {
         message.msgIndex !== undefined && (obj.msgIndex = message.msgIndex);
         message.log !== undefined && (obj.log = message.log);
         if (message.events) {
-            obj.events = message.events.map((e) => e ? StringEvent.toJSON(e) : undefined);
+            obj.events = message.events.map((e) => (e ? StringEvent.toJSON(e) : undefined));
         }
         else {
             obj.events = [];
@@ -429,7 +417,7 @@ export const StringEvent = {
         const obj = {};
         message.type !== undefined && (obj.type = message.type);
         if (message.attributes) {
-            obj.attributes = message.attributes.map((e) => e ? Attribute.toJSON(e) : undefined);
+            obj.attributes = message.attributes.map((e) => (e ? Attribute.toJSON(e) : undefined));
         }
         else {
             obj.attributes = [];
@@ -652,8 +640,7 @@ export const Result = {
     },
     toJSON(message) {
         const obj = {};
-        message.data !== undefined &&
-            (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
+        message.data !== undefined && (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
         message.log !== undefined && (obj.log = message.log);
         if (message.events) {
             obj.events = message.events.map((e) => (e ? Event.toJSON(e) : undefined));
@@ -735,12 +722,8 @@ export const SimulationResponse = {
     },
     toJSON(message) {
         const obj = {};
-        message.gasInfo !== undefined &&
-            (obj.gasInfo = message.gasInfo
-                ? GasInfo.toJSON(message.gasInfo)
-                : undefined);
-        message.result !== undefined &&
-            (obj.result = message.result ? Result.toJSON(message.result) : undefined);
+        message.gasInfo !== undefined && (obj.gasInfo = message.gasInfo ? GasInfo.toJSON(message.gasInfo) : undefined);
+        message.result !== undefined && (obj.result = message.result ? Result.toJSON(message.result) : undefined);
         return obj;
     },
     fromPartial(object) {
@@ -807,8 +790,7 @@ export const MsgData = {
     toJSON(message) {
         const obj = {};
         message.msgType !== undefined && (obj.msgType = message.msgType);
-        message.data !== undefined &&
-            (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
+        message.data !== undefined && (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
         return obj;
     },
     fromPartial(object) {
@@ -885,13 +867,7 @@ export const TxMsgData = {
         return message;
     }
 };
-const baseSearchTxsResult = {
-    totalCount: 0,
-    count: 0,
-    pageNumber: 0,
-    pageTotal: 0,
-    limit: 0
-};
+const baseSearchTxsResult = { totalCount: 0, count: 0, pageNumber: 0, pageTotal: 0, limit: 0 };
 export const SearchTxsResult = {
     encode(message, writer = Writer.create()) {
         if (message.totalCount !== 0) {
@@ -1054,8 +1030,7 @@ var globalThis = (() => {
         return global;
     throw 'Unable to locate global object';
 })();
-const atob = globalThis.atob ||
-    ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
+const atob = globalThis.atob || ((b64) => globalThis.Buffer.from(b64, 'base64').toString('binary'));
 function bytesFromBase64(b64) {
     const bin = atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -1064,8 +1039,7 @@ function bytesFromBase64(b64) {
     }
     return arr;
 }
-const btoa = globalThis.btoa ||
-    ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
+const btoa = globalThis.btoa || ((bin) => globalThis.Buffer.from(bin, 'binary').toString('base64'));
 function base64FromBytes(arr) {
     const bin = [];
     for (let i = 0; i < arr.byteLength; ++i) {
