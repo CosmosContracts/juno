@@ -110,7 +110,7 @@ func BenchmarkPhaseInflation(b *testing.B) {
 	minter := InitialMinter(sdk.NewDecWithPrec(1, 1))
 	phase := uint64(4)
 
-	// run the NextInflationRate function b.N times
+	// run the PhaseInflationRate function b.N times
 	for n := 0; n < b.N; n++ {
 		minter.PhaseInflationRate(phase)
 	}

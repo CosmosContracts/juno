@@ -7,29 +7,27 @@ order: 3
 Minting parameters are recalculated and inflation
 paid at the beginning of each block.
 
-## NextInflationRate
+## PhaseInflationRate
 
 The target annual inflation rate is recalculated each block and stored if it changes (new phase)
 
 ```
-func (m Minter) NextInflationRate(params Params, currentBlock sdk.Dec) sdk.Dec {
-	phase := currentBlock.Quo(sdk.NewDec(int64(params.BlocksPerYear))).Ceil()
-
+func (m Minter) PhaseInflationRate(phase uint64) sdk.Dec {
 	switch {
-	case phase.GT(sdk.NewDec(12)):
+	case phase > 12:
 		return sdk.ZeroDec()
 
-	case phase.Equal(sdk.NewDec(1)):
+	case phase == 1:
 		return sdk.NewDecWithPrec(40, 2)
 
-	case phase.Equal(sdk.NewDec(2)):
+	case phase == 2:
 		return sdk.NewDecWithPrec(20, 2)
 
-	case phase.Equal(sdk.NewDec(3)):
+	case phase == 3:
 		return sdk.NewDecWithPrec(10, 2)
 
 	default:
-		return sdk.NewDecWithPrec(13-phase.RoundInt64(), 2)
+		return sdk.NewDecWithPrec(13-int64(phase), 2)
 	}
 }
 ```

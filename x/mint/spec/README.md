@@ -14,7 +14,7 @@ parent:
     - [Minter](02_state.md#minter)
     - [Params](02_state.md#params)
 3. **[Begin-Block](03_begin_block.md)**
-    - [NextInflationRate](03_begin_block.md#nextinflationrate)
+    - [PhaseInflationRate](03_begin_block.md#phaseInflationRate)
     - [NextAnnualProvisions](03_begin_block.md#nextannualprovisions)
     - [BlockProvision](03_begin_block.md#blockprovision)
 4. **[Parameters](04_params.md)**
