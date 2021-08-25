@@ -18,6 +18,7 @@ import (
 func New(dir string) cosmoscmd.App {
 	db := tmdb.NewMemDB()
 	logger := log.NewNopLogger()
+	
 
 	encoding := cosmoscmd.MakeEncodingConfig(app.ModuleBasics)
 
