@@ -70,15 +70,15 @@ func (m Minter) PhaseInflationRate(phase uint64) sdk.Dec {
 }
 
 // NextPhase returns the new phase.
-func (m Minter) NextPhase(params Params, currentBlock sdk.Dec) uint64 {
+func (m Minter) NextPhase(params Params, currentBlock uint64) uint64 {
+
 	nonePhase := m.Phase == 0
 	if nonePhase {
 		return 1
 	}
 
-	newPhase := currentBlock.Sub(sdk.NewDec(int64(m.StartPhaseBlock))).Quo(sdk.NewDec(int64(params.BlocksPerYear)))
-
-	if newPhase.LT(sdk.OneDec()) {
+	blockNewPhase := m.StartPhaseBlock + params.BlocksPerYear
+	if blockNewPhase > currentBlock {
 		return m.Phase
 	}
 

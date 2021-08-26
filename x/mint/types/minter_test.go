@@ -59,23 +59,27 @@ func TestPhaseInflation(t *testing.T) {
 func TestNextPhase(t *testing.T) {
 	minter := DefaultInitialMinter()
 	params := DefaultParams()
-	blocksPerYr := sdk.NewDec(int64(params.BlocksPerYear))
+	blocksPerYr := params.BlocksPerYear
+
+	block := uint64(1)
+	expPhase := uint64(1)
+	phase := minter.NextPhase(params, block)
+
+	require.True(t, phase == expPhase,
+		"Test:\nPhase:  %v\nExpected: %v\n", phase, expPhase)
+
 	minter.Phase = 1
 	minter.StartPhaseBlock = 1
 
-	// firstBlockInYear := func(year int64) sdk.Dec {
-	// 	return blocksPerYr.Mul(sdk.NewDec(year - 1)).Add(sdk.OneDec())
-	// }
-
 	tests := []struct {
-		currentBlock sdk.Dec
+		currentBlock uint64
 		expPhase     uint64
 	}{
-		{sdk.OneDec(), 1},
-		{blocksPerYr.Quo(sdk.NewDec(2)), 1},
-		{blocksPerYr.Sub(sdk.OneDec()), 1},
+		{2, 1},
+		{blocksPerYr / 2, 1},
+		{blocksPerYr - 1, 1},
 		{blocksPerYr, 1},
-		{blocksPerYr.Add(sdk.OneDec()), 2},
+		{blocksPerYr + 1, 2},
 	}
 	for i, tc := range tests {
 		phase := minter.NextPhase(params, tc.currentBlock)
