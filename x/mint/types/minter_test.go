@@ -59,29 +59,28 @@ func TestPhaseInflation(t *testing.T) {
 func TestNextPhase(t *testing.T) {
 	minter := DefaultInitialMinter()
 	params := DefaultParams()
-	params.BlocksPerYear = 100
 
-	block := uint64(1)
-	expPhase := uint64(1)
-	phase := minter.NextPhase(params, block)
-
-	require.True(t, phase == expPhase, "Test:\nPhase:  %v\nExpected: %v\n", phase, expPhase)
-
-	minter.Phase = 1
-	minter.StartPhaseBlock = 1
-
-	blocksPerYr := params.BlocksPerYear
+	blocksPerYear := uint64(100)
 	tests := []struct {
-		currentBlock uint64
-		expPhase     uint64
+		currentBlock, currentPhase, startPhaseBlock, blocksYear, expPhase uint64
 	}{
-		{2, 1},
-		{blocksPerYr / 2, 1},
-		{blocksPerYr - 1, 1},
-		{blocksPerYr, 1},
-		{blocksPerYr + 1, 2},
+		{1, 0, 0, blocksPerYear, 1},
+		{50, 1, 1, blocksPerYear, 1},
+		{99, 1, 1, blocksPerYear, 1},
+		{100, 1, 1, blocksPerYear, 1},
+		{101, 1, 1, blocksPerYear, 2},
+		// increase blocks_per_year
+		{102, 2, 101, blocksPerYear * 2, 2},
+		{201, 2, 101, blocksPerYear * 2, 2},
+		{299, 2, 101, blocksPerYear * 2, 2},
+		{300, 2, 101, blocksPerYear * 2, 2},
+		{301, 2, 101, blocksPerYear * 2, 3},
 	}
 	for i, tc := range tests {
+		minter.Phase = tc.currentPhase
+		minter.StartPhaseBlock = tc.startPhaseBlock
+		params.BlocksPerYear = tc.blocksYear
+
 		phase := minter.NextPhase(params, tc.currentBlock)
 
 		require.True(t, phase == tc.expPhase,
