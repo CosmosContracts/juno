@@ -6,22 +6,22 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/CosmosContracts/juno/app"
 	"github.com/CosmosContracts/juno/x/mint/simulation"
 	"github.com/CosmosContracts/juno/x/mint/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 )
 
 func TestDecodeStore(t *testing.T) {
-	cdc, _ := simapp.MakeCodecs()
+	cdc := app.Appcodec()
 	dec := simulation.NewDecodeStore(cdc)
 
 	minter := types.NewMinter(sdk.OneDec(), sdk.NewDec(15), 1, 1)
 
 	kvPairs := kv.Pairs{
 		Pairs: []kv.Pair{
-			{Key: types.MinterKey, Value: cdc.MustMarshalBinaryBare(&minter)},
+			{Key: types.MinterKey, Value: cdc.MustMarshal(&minter)},
 			{Key: []byte{0x99}, Value: []byte{0x99}},
 		},
 	}
