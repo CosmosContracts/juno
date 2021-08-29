@@ -95,8 +95,7 @@ func (k Keeper) StakingTokenSupply(ctx sdk.Context) sdk.Int {
 // TokenSupply implements an alias call to the underlying bank keeper's
 // TokenSupply to be used in BeginBlocker.
 func (k Keeper) TokenSupply(ctx sdk.Context, denom string) sdk.Int {
-	totalSupply := k.bankKeeper.GetSupply(ctx)
-	return totalSupply.AmountOf(denom)
+	return k.bankKeeper.GetSupply(ctx)
 }
 
 // BondedRatio implements an alias call to the underlying staking keeper's
