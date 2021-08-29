@@ -3,7 +3,7 @@ module github.com/CosmosContracts/juno
 go 1.17
 
 require (
-	github.com/cosmos/cosmos-sdk v0.42.9
+	github.com/cosmos/cosmos-sdk v0.43.0
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.6 // indirect
@@ -114,5 +114,7 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
+
+replace github.com/tendermint/tendermint => github.com/tendermint/tendermint v0.34.12
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
