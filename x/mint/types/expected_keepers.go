@@ -23,10 +23,11 @@ type AccountKeeper interface {
 // BankKeeper defines the contract needed to be fulfilled for banking and supply
 // dependencies.
 type BankKeeper interface {
-	//	GetSupply(ctx sdk.Context) sdk.Coins
+	GetSupply(ctx sdk.Context) sdk.Coins
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	MintCoins(ctx sdk.Context, name string, amt sdk.Coins) error
 }
 
 // NB: I may have introduced a bug here.  Please veryify that this is functioning as intended. - Jacob
+// NB: It compiles now but something is not right here.
