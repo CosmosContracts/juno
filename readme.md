@@ -1,6 +1,8 @@
 # Junø
 
-![JUNO TWITTTT](https://user-images.githubusercontent.com/79812965/128625844-41ad62ea-ef27-49ad-81cc-915a2d1a6fc7.png)
+
+![c11](https://user-images.githubusercontent.com/79812965/131373443-5ff0d9f6-2e2a-41bd-8347-22ac4983e625.jpg)
+
 
 Open source platform for interoperable smart contracts which automatically executes, controls or documents a procedure of relevant events and actions 
 according to the terms of such contract or agreement to be valid & usable across multiple sovereign networks.
@@ -69,7 +71,8 @@ and to provide utility in the deployment and execution of smart contracts.
 
 
 
-![GENESIS 3 (JUNO)](https://user-images.githubusercontent.com/79812965/128879584-a3cf4ac0-3ba8-4142-a4c4-7dc37880b6ad.png)
+![c22](https://user-images.githubusercontent.com/79812965/131373499-81549b6c-6ab6-49fa-9d2f-4f7b79f74509.jpg)
+
 
 
 
