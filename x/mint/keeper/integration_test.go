@@ -60,7 +60,6 @@ func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.Genesi
 		simapp.DefaultNodeHome,
 		invCheckPeriod,
 		encCdc,
-		nil,
 		simapp.EmptyAppOptions{})
 	if withGenesis {
 		return app, junoapp.NewDefaultGenesisState(encCdc.Codec)
