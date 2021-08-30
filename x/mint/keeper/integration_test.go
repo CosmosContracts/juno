@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"encoding/json"
 
+	"github.com/tendermint/spm/cosmoscmd"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -50,7 +51,7 @@ func setup(isCheckTx bool) *junoapp.App {
 
 func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.GenesisState) {
 	db := dbm.NewMemDB()
-	encCdc := junoapp.MakeEncodingConfig()
+	encCdc := cosmoscmd.MakeEncodingConfig(junoapp.ModuleBasics)
 	app := junoapp.New(
 		log.NewNopLogger(),
 		db,
@@ -61,9 +62,11 @@ func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.Genesi
 		invCheckPeriod,
 		encCdc,
 		simapp.EmptyAppOptions{})
+
+	originalApp := app.(*junoapp.App)
 	if withGenesis {
-		return app, junoapp.NewDefaultGenesisState(encCdc.Codec)
+		return originalApp, junoapp.NewDefaultGenesisState(encCdc.Codec)
 	}
 
-	return app, junoapp.GenesisState{}
+	return originalApp, junoapp.GenesisState{}
 }
