@@ -8,7 +8,7 @@ order: 2
 
 The minter is a space for holding current inflation information.
 
- - Minter: `0x00 -> amino(minter)`
+ - Minter: `0x00 -> ProtocolBuffer(minter)`
 
 ```go
 type Minter struct {
@@ -23,7 +23,7 @@ type Minter struct {
 
 Minting params are held in the global params store. 
 
- - Params: `mint/params -> amino(params)`
+ - Params: `mint/params -> legacy_amino(params)`
 
 ```go
 type Params struct {
