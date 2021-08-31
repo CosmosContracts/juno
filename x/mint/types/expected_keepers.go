@@ -3,7 +3,6 @@ package types // noalias
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/bank/exported"
 )
 
 // StakingKeeper defines the expected staking keeper
@@ -24,8 +23,12 @@ type AccountKeeper interface {
 // BankKeeper defines the contract needed to be fulfilled for banking and supply
 // dependencies.
 type BankKeeper interface {
-	GetSupply(ctx sdk.Context) exported.SupplyI
+	GetSupply(ctx sdk.Context, denom string) sdk.Coin
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	MintCoins(ctx sdk.Context, name string, amt sdk.Coins) error
 }
+
+// NB: I may have introduced a bug here.  Please verify that this is functioning as intended. - Jacob
+// NB: It compiles now but something is not right here.
+// NB: SupplyI left the bank module in 0.43.0
