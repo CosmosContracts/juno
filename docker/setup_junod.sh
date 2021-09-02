@@ -9,9 +9,9 @@ MONIKER=${MONIKER:-node001}
 
 junod init --chain-id "$CHAIN_ID" "$MONIKER"
 # staking/governance token is hardcoded in config, change this
-sed -i "s/\"stake\"/\"$STAKE\"/" "$HOME"/.junod/config/genesis.json
+sed -i "s/\"stake\"/\"$STAKE\"/" "$HOME"/.juno/config/genesis.json
 # this is essential for sub-1s block times (or header times go crazy)
-sed -i 's/"time_iota_ms": "1000"/"time_iota_ms": "10"/' "$HOME"/.junod/config/genesis.json
+sed -i 's/"time_iota_ms": "1000"/"time_iota_ms": "10"/' "$HOME"/.juno/config/genesis.json
 
 if ! junod keys show validator; then
   (echo "$PASSWORD"; echo "$PASSWORD") | junod keys add validator
