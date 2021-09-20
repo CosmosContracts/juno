@@ -48,7 +48,7 @@ func New(t *testing.T, configs ...network.Config) *network.Network {
 func DefaultConfig() network.Config {
 	encoding := cosmoscmd.MakeEncodingConfig(app.ModuleBasics)
 	return network.Config{
-		Codec:             encoding.Codec,
+		Codec:             encoding.Marshaler,
 		TxConfig:          encoding.TxConfig,
 		LegacyAmino:       encoding.Amino,
 		InterfaceRegistry: encoding.InterfaceRegistry,
@@ -62,7 +62,7 @@ func DefaultConfig() network.Config {
 				baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
 			)
 		},
-		GenesisState:    app.ModuleBasics.DefaultGenesis(encoding.Codec),
+		GenesisState:    app.ModuleBasics.DefaultGenesis(encoding.Marshaler),
 		TimeoutCommit:   2 * time.Second,
 		ChainID:         "chain-" + tmrand.NewRand().Str(6),
 		NumValidators:   1,

@@ -15,6 +15,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	customAuthRest "github.com/CosmosContracts/juno/custom/auth/client/rest"
 	"github.com/CosmosContracts/juno/docs"
 	"github.com/CosmosContracts/juno/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
@@ -32,7 +33,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
-	customAuthRest "github.com/CosmosContracts/juno/custom/auth/client/rest"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -222,7 +222,7 @@ func New(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) cosmoscmd.App {
 
-	appCodec := encodingConfig.Codec
+	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 

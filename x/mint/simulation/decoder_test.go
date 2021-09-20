@@ -15,7 +15,7 @@ import (
 )
 
 func TestDecodeStore(t *testing.T) {
-	cdc := cosmoscmd.MakeEncodingConfig(app.ModuleBasics).Codec
+	cdc := cosmoscmd.MakeEncodingConfig(app.ModuleBasics).Marshaler
 	dec := simulation.NewDecodeStore(cdc)
 
 	minter := types.NewMinter(sdk.OneDec(), sdk.NewDec(15), 1, 1)
