@@ -1,0 +1,10 @@
+{
+    "title": "Signaling Proposal - Establishment of liquidity pools for Juno",
+    "description": "Signaling Porposal for JUNO incentivized pools. \n\n By voting YES to this proposal OSMO stakers simply signal their support for JUNO on Osmosis. \n\n Details \n\n\n\n The following proposal is a basic signaling proposal to incentivize the JUNO/OSMO and JUNO/ATOM pools in mid October. \n\n\n Regular JUNO/OSMO and JUN0/ATOM pools will go live on Osmosis AMM shortly after the October 1st mainnet launch. \n\n\n Initially the pools will not be incentivized. \n\n\n 10-13 days after initial listing, a new proposal will be submitted to request incentives.",
+    "deposit": [
+      {
+        "denom": "uatom",
+        "amount": "1000000"
+      }
+    ]
+  }
