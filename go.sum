@@ -285,8 +285,6 @@ github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojt
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052/go.mod h1:UbMTZqLaRiH3MsBH8va0n7s1pQYcu3uTb8G4tygF4Zg=
 github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870 h1:E2s37DuLxFhQDg5gKsWoLBOB0n+ZW8s599zru8FJ2/Y=
 github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870/go.mod h1:5tD+neXqOorC30/tWg0LCSkrqj/AR6gu8yY8/fpw1q0=
-github.com/faddat/spm v0.44.1 h1:VQOo9JpKOJHwxujtSQXBaqyAJXzaLIknftP5XMDHd0w=
-github.com/faddat/spm v0.44.1/go.mod h1:3RIXYZZ3ySPkcoxhXjABaNtfL8WtE+7rgd1LEq0GPkY=
 github.com/fatih/color v1.3.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.9.0/go.mod h1:eQcE1qtQxscV5RaZvpXrrb8Drkc3/DdQ+uUYCNjL+zU=
@@ -938,8 +936,9 @@ github.com/spf13/afero v1.1.2/go.mod h1:j4pytiNVoe2o6bmDsKpLACNPDBIoEAkihy7loJ1B
 github.com/spf13/afero v1.6.0 h1:xoax2sJ2DT8S8xA2paPFjDCScCNeWsg75VG0DLRreiY=
 github.com/spf13/afero v1.6.0/go.mod h1:Ai8FlHk4v/PARR026UzYexafAt9roJ7LcLMAmO6Z93I=
 github.com/spf13/cast v1.3.0/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
-github.com/spf13/cast v1.3.1 h1:nFm6S0SMdyzrzcmThSipiEubIDy8WEXKNZ0UOgiRpng=
 github.com/spf13/cast v1.3.1/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
+github.com/spf13/cast v1.4.1 h1:s0hze+J0196ZfEMTs80N7UlFt0BDuQ7Q+JDnHiMWKdA=
+github.com/spf13/cast v1.4.1/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
 github.com/spf13/cobra v0.0.3/go.mod h1:1l0Ry5zgKvJasoi3XT1TypsSe7PqH0Sj9dhYf7v3XqQ=
 github.com/spf13/cobra v0.0.5/go.mod h1:3K3wKZymM7VvHMDS9+Akkh4K60UwM26emMESw8tLCHU=
 github.com/spf13/cobra v1.0.0/go.mod h1:/6GTrnGXV9HjY+aR4k0oJ5tcvakLuG6EuKReYlHNrgE=
@@ -995,6 +994,8 @@ github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 h1:hqAk8riJvK4RM
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
+github.com/tendermint/spm v0.1.5 h1:/MkM8SOsHBkX1kbo74a2WNmrViLaEem/OzBHI5v6l1c=
+github.com/tendermint/spm v0.1.5/go.mod h1:+rHrI1axfSX1R0DY6KA4IbrHPgJ0WVNJKhey71ulXO8=
 github.com/tendermint/tendermint v0.34.13 h1:fu+tsHudbOr5PvepjH0q47Jae59hQAvn3IqAHv2EbC8=
 github.com/tendermint/tendermint v0.34.13/go.mod h1:6RVVRBqwtKhA+H59APKumO+B7Nye4QXSFc6+TYxAxCI=
 github.com/tendermint/tm-db v0.6.3/go.mod h1:lfA1dL9/Y/Y8wwyPp2NMLyn5P5Ptr/gvDFNWtrCWSf8=
