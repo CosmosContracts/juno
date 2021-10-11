@@ -65,7 +65,7 @@ func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.Genesi
 
 	originalApp := app.(*junoapp.App)
 	if withGenesis {
-		return originalApp, junoapp.NewDefaultGenesisState(encCdc.Codec)
+		return originalApp, junoapp.NewDefaultGenesisState(encCdc.Marshaler)
 	}
 
 	return originalApp, junoapp.GenesisState{}
