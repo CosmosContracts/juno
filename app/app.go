@@ -16,6 +16,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	appparams "github.com/CosmosContracts/juno/app/params"
 	customAuthRest "github.com/CosmosContracts/juno/custom/auth/client/rest"
 	"github.com/CosmosContracts/juno/docs"
 	"github.com/CosmosContracts/juno/x/mint"
@@ -94,16 +95,11 @@ import (
 	// cosmwasm
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
-
 	// this line is used by starport scaffolding # stargate/app/moduleImport
-
-	"github.com/tendermint/spm/cosmoscmd"
+	// "github.com/tendermint/spm/cosmoscmd"
 )
 
-const (
-	AccountAddressPrefix = "juno"
-	Name                 = "juno"
-)
+const Name = "juno"
 
 // this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
 var (
@@ -194,7 +190,7 @@ var (
 )
 
 var (
-	_ cosmoscmd.CosmosApp     = (*App)(nil)
+	_ CosmosApp               = (*App)(nil)
 	_ servertypes.Application = (*App)(nil)
 )
 
@@ -263,11 +259,12 @@ func New(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	invCheckPeriod uint,
-	encodingConfig cosmoscmd.EncodingConfig,
-	enabledProposals []wasm.ProposalType, wasmOpts []wasm.Option,
+	encodingConfig appparams.EncodingConfig,
+	enabledProposals []wasm.ProposalType,
+	wasmOpts []wasm.Option,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) cosmoscmd.App {
+) *App {
 
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
