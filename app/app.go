@@ -351,9 +351,7 @@ func New(
 
 	// upgrade handlers
 	cfg := module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
-	app.UpgradeKeeper.SetUpgradeHandler("moneta-alpha", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		return app.mm.RunMigrations(ctx, cfg, vm)
-	})
+	app.RegisterUpgradeHandlers(cfg)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
@@ -683,6 +681,13 @@ func (app *App) RegisterTxService(clientCtx client.Context) {
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
 func (app *App) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
+}
+
+// RegisterUpgradeHandlers returns upgrade handlers
+func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
+	app.UpgradeKeeper.SetUpgradeHandler("moneta-alpha", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return app.mm.RunMigrations(ctx, cfg, vm)
+	})
 }
 
 // GetMaccPerms returns a copy of the module account permissions
