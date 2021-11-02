@@ -11,6 +11,7 @@ import (
 
 func main() {
 	cmdOptions := GetWasmCmdOptions()
+	cmdOptions = append(cmdOptions, cosmoscmd.AddSubCmd(tmcmds.RollbackStateCmd))
 	rootCmd, _ := cosmoscmd.NewRootCmd(
 		app.Name,
 		app.AccountAddressPrefix,
@@ -21,7 +22,6 @@ func main() {
 		// this line is used by starport scaffolding # root/arguments
 		cmdOptions...,
 	)
-	rootCmd.AddCommand(tmcmds.RollbackStateCmd)
 	if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {
 		os.Exit(1)
 	}
