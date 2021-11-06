@@ -13,6 +13,8 @@ junod init --chain-id "$CHAIN_ID" "$MONIKER"
 sed -i "s/\"stake\"/\"$STAKE\"/" "$HOME"/.juno/config/genesis.json
 # this is essential for sub-1s block times (or header times go crazy)
 sed -i 's/"time_iota_ms": "1000"/"time_iota_ms": "10"/' "$HOME"/.juno/config/genesis.json
+# change default keyring-backend to test
+sed -i 's/keyring-backend = "os"/keyring-backend = "test"/' "$HOME"/.juno/config/client.toml
 
 if ! junod keys show validator $KEYRING; then
   (echo "$PASSWORD"; echo "$PASSWORD") | junod keys add validator $KEYRING
