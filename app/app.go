@@ -105,7 +105,6 @@ import (
 const (
 	AccountAddressPrefix = "juno"
 	Name                 = "juno"
-	upgradeName          = "moneta-alpha"
 )
 
 // this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
@@ -548,7 +547,7 @@ func New(
 		panic(err)
 	}
 
-	if upgradeInfo.Name == upgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if upgradeInfo.Name == "moneta-alpha" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		storeUpgrades := store.StoreUpgrades{
 			Added: []string{authz.ModuleName, feegrant.ModuleName, wasm.ModuleName},
 		}
@@ -702,7 +701,32 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 // RegisterUpgradeHandlers returns upgrade handlers
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler(upgradeName, func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	app.UpgradeKeeper.SetUpgradeHandler("moneta-alpha", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return app.mm.RunMigrations(ctx, cfg, vm)
+	})
+
+	app.UpgradeKeeper.SetUpgradeHandler("moneta-beta", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		// force an update of validator min commission
+		validators := app.StakingKeeper.GetAllValidators(ctx)
+		// hard code this because we don't want
+		// a) a fork or
+		// b) immediate reaction with additional gov props
+		minCommissionRate := sdk.NewDecWithPrec(5, 2)
+		for _, v := range validators {
+			if v.Commission.Rate.LT(minCommissionRate) {
+				comm, err := app.StakingKeeper.UpdateValidatorCommission(
+					ctx, v, minCommissionRate)
+				if err != nil {
+					panic(err)
+				}
+				v.Commission = comm
+
+				// call the before-modification hook since we're about to update the commission
+				app.StakingKeeper.BeforeValidatorModified(ctx, v.GetOperator())
+
+				app.StakingKeeper.SetValidator(ctx, v)
+			}
+		}
 		return app.mm.RunMigrations(ctx, cfg, vm)
 	})
 }
