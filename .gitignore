@@ -5,3 +5,7 @@ cosmoshub3.json
 exchanges.json
 juno_out.json
 bin
+
+# emacs editor config
+\#*\#
+.\#*
