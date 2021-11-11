@@ -5,7 +5,7 @@
 
 ❗️For issue disclosure, check out [SECURITY.md](./SECURITY.md) ❗️
 
-Open source platform for inter-operable smart contracts which automatically execute, control or document a procedure of events and actions 
+**Juno** is an open source platform for inter-operable smart contracts which automatically execute, control or document a procedure of events and actions 
 according to the terms of the contract or agreement to be valid and usable across multiple sovereign networks.
 
 Juno is a **sovereign public blockchain** in the Cosmos ecosystem. It aims to provide a sandbox environment for the deployment 
