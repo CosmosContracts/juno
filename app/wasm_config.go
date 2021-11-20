@@ -5,21 +5,19 @@ import (
 )
 
 const (
-	DefaultJunoCompileCost uint64 = 4
+	// DefaultJunoInstanceCost is initially set the same as in wasmd
+	DefaultJunoInstanceCost uint64 = 60_000
+	// DefaultJunoCompileCost set to a large number for testing
+	DefaultJunoCompileCost uint64 = 10
 )
 
 // JunoGasRegisterConfig is defaults plus a custom compile amount
 func JunoGasRegisterConfig() wasmkeeper.WasmGasRegisterConfig {
-	return wasmkeeper.WasmGasRegisterConfig{
-		InstanceCost:               wasmkeeper.DefaultInstanceCost,
-		CompileCost:                DefaultJunoCompileCost,
-		GasMultiplier:              wasmkeeper.DefaultGasMultiplier,
-		EventPerAttributeCost:      wasmkeeper.DefaultPerAttributeCost,
-		CustomEventCost:            wasmkeeper.DefaultPerCustomEventCost,
-		EventAttributeDataCost:     wasmkeeper.DefaultEventAttributeDataCost,
-		EventAttributeDataFreeTier: wasmkeeper.DefaultEventAttributeDataFreeTier,
-		ContractMessageDataCost:    wasmkeeper.DefaultContractMessageDataCost,
-	}
+	gasConfig := wasmkeeper.DefaultGasRegisterConfig()
+	gasConfig.InstanceCost = DefaultJunoInstanceCost
+	gasConfig.CompileCost = DefaultJunoCompileCost
+
+	return gasConfig
 }
 
 func NewJunoWasmGasRegister() wasmkeeper.WasmGasRegister {
