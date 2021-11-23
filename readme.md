@@ -185,19 +185,30 @@ Network incentives would primarily come from smart contract usage and regular tx
 
 ## Get started
 
-```
-starport serve
-```
+If you have [Docker](https://www.docker.com/) installed, then you can run a local node with a single command.
 
-`serve` command installs dependencies, builds, initializes and starts your blockchain in development.
+This assumes you will connect to it via `junod` from outside the container. You could also use `docker exec`, if you prefer, which eliminates the need to 
 
-## Configure
+1. Open two terminal tabs at the root of this repo.
+2. In tab one, build and run Juno in blocking mode: `./scripts/build_and_run_blocking.sh`. Once it has compiled, you should see blocks appearing.
 
-Your blockchain in development can be configured with `config.yml`. To learn more see the [reference](https://github.com/tendermint/starport#documentation).
+### Option 1: Using Docker
 
-## Launch
+3. Switch to tab two and exec into the container: `docker exec -it juno-local /bin/sh`
+4. Run `junod status`. You should see JSON status for the Juno node running in Docker.
 
-To launch your blockchain live on mutliple nodes use `starport network` commands. Learn more about [Starport Network](https://github.com/tendermint/spn).
+### Option 2: Using junod (advanced/dev use)
+
+3. Switch to tab two and build juno outside the container if you haven't already: `make build && make install`.
+4. Run `junod status`. You should see JSON status for the Juno node running in Docker.
+
+The RPC port for Juno is forwarded to your host, so as long as Docker is correctly set up, you can send it commands via the Juno binary, `junod` on your host.
+
+Protip: running this script is also a decent sense-check that:
+
+1. The build is still working
+2. The Docker build is still working
+3. The code is in a runnable state
 
 ## Learn more
 
