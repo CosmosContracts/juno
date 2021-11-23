@@ -1,5 +1,5 @@
-# docker build . -t cosmoscontracts/juno:latest
-# docker run --rm -it cosmoscontracts/juno:latest /bin/sh
+# docker build . -t cosmoscontracts/junod:latest
+# docker run --rm -it cosmoscontracts/junod:latest /bin/sh
 FROM golang:1.17-alpine3.13 AS go-builder
 
 # this comes from standard alpine nightly file
@@ -24,18 +24,12 @@ RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build
 # --------------------------------------------------------
 FROM alpine:3.13
 
+WORKDIR /root
+
 COPY --from=go-builder /code/bin/junod /usr/bin/junod
 
-COPY docker/* /opt/
-RUN chmod +x /opt/*.sh
+COPY scripts /scripts
 
-WORKDIR /opt
+ENTRYPOINT [ "/usr/bin/junod" ]
 
-# rest server
-EXPOSE 1317
-# tendermint p2p
-EXPOSE 26656
-# tendermint rpc
-EXPOSE 26657
-
-CMD ["/usr/bin/junod", "version"]
+CMD [ "version" ]

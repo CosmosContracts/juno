@@ -1,0 +1,12 @@
+version: "3"
+services:
+  juno-node_01:
+    build:
+      context: ./docker/juno-blockchain
+    ports:
+      - 1317:1317 # REST server
+      - 26656:26656 # terdermint p2p
+      - 26657:26657 # terdermint RPC
+    environment:
+      # comma separated string of address to seed with tokens
+      JUNOD_SEED_ADDR: "${JUNOD_SEED_ADDR}"
