@@ -1,0 +1,9 @@
+version: "3"
+services:
+  node:
+    build: .
+    command: ./setup_and_run.sh
+    ports:
+      - 1317:1317 # rest
+      - 26656:26656 # p2p
+      - 26657:26657 # rpc
