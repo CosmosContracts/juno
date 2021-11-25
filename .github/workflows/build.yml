@@ -1,39 +1,26 @@
-# This is a basic workflow that is manually triggered
-
-name: juno
-
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
 on: [push, pull_request]
-
-# This workflow makes x86_64 binaries for mac, windows, and linux.
-
+name: every commit
 jobs:
+
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [amd64, arm64]
-        targetos: [windows, darwin, linux]
-    name: juno ${{ matrix.arch }} for ${{ matrix.targetos }}
+    name: build
     steps:
       - uses: actions/checkout@v2
       - name: Setup go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v2
         with:
           go-version: 1.17
-        env:
-          GOOS: ${{ matrix.targetos }}
-          GOARCH: ${{ matrix.arch }}
+      - run: go build ./...
 
-      - name: Compile
-        run: |
-          go mod download
-          cd cmd/junod
-          go build .
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: junod ${{ matrix.targetos }} ${{ matrix.arch }}
-          path: cmd/junod/junod
-
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Test
+      run: go test ./...
