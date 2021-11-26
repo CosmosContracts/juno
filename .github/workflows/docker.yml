@@ -26,10 +26,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - id: formatowner
-        uses: ASzc/change-string-case-action@v1
-        with:
-          string: ${{ github.repository_owner }}
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v3
