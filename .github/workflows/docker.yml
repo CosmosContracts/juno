@@ -1,10 +1,8 @@
 name: ci
 
 on:
-  push:
-    branches:
-      - 'main'
   pull_request:
+  push:
     branches:
       - 'main'
 
@@ -40,5 +38,7 @@ jobs:
         context: .
         platforms: linux/amd64
         push: true
-        tags: ${{ steps.prepare.outputs.tag }}
+        tags: |
+          ${{ steps.prepare.outputs.tag }}
+          ${{ steps.formatowner.outputs.lowercase }}/juno:latest
 
