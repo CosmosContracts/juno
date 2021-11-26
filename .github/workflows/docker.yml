@@ -4,22 +4,21 @@ on:
   push:
     branches:
       - 'main'
+  pull_request:
+    branches:
+      - 'main'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v2
-      -
-        name: Set up QEMU
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      -
-        name: Login to GitHub Container Registry
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v1 
         with:
           registry: ghcr.io
@@ -29,12 +28,17 @@ jobs:
         uses: ASzc/change-string-case-action@v1
         with:
           string: ${{ github.repository_owner }}
-      -
-        name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ghcr.io/${{ steps.formatowner.outputs.lowercase }}/juno:latest
+      steps:
+    - name: Get smart tag
+      id: prepare
+      uses: Surgo/docker-smart-tag-action@v1
+      with:
+        docker_image: name/app
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        platforms: linux/amd64
+        push: true
+        tags: ${{ steps.prepare.outputs.tag }}
+
