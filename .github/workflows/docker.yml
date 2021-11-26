@@ -39,6 +39,6 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ steps.prepare.outputs.tag }}
-          ${{ steps.formatowner.outputs.lowercase }}/juno:latest
+          ghcr.io/${{ steps.prepare.outputs.tag }}
+          ghcr.io/${{ steps.formatowner.outputs.lowercase }}/juno:latest
 
