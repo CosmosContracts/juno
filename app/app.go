@@ -718,12 +718,12 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 		minCommissionRate := sdk.NewDecWithPrec(5, 2)
 		for _, v := range validators {
 			if v.Commission.Rate.LT(minCommissionRate) {
-				comm, err := app.StakingKeeper.UpdateValidatorCommission(
-					ctx, v, minCommissionRate)
-				if err != nil {
-					panic(err)
+				if v.Commission.MaxRate.LT(minCommissionRate) {
+					v.Commission.MaxRate = minCommissionRate
 				}
-				v.Commission = comm
+
+				v.Commission.Rate = minCommissionRate
+				v.Commission.UpdateTime = ctx.BlockHeader().Time
 
 				// call the before-modification hook since we're about to update the commission
 				app.StakingKeeper.BeforeValidatorModified(ctx, v.GetOperator())
