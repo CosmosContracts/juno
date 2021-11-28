@@ -718,6 +718,10 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 		minCommissionRate := sdk.NewDecWithPrec(5, 2)
 		for _, v := range validators {
 			if v.Commission.Rate.LT(minCommissionRate) {
+				if v.Commission.MaxRate.LT(minCommissionRate) {
+					v.Commission.MaxRate = minCommissionRate
+				}
+
 				v.Commission.Rate = minCommissionRate
 				v.Commission.UpdateTime = ctx.BlockHeader().Time
 
