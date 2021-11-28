@@ -721,7 +721,13 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 				comm, err := app.StakingKeeper.UpdateValidatorCommission(
 					ctx, v, minCommissionRate)
 				if err != nil {
-					panic(err)
+					if err == stakingtypes.ErrCommissionGTMaxRate {
+						// Allowed to exceed validator declared max rate
+					} else if err == stakingtypes.ErrCommissionGTMaxChangeRate {
+						// Allowed to exceed validator declared max change rate
+					} else {
+						panic(err)
+					}
 				}
 				v.Commission = comm
 
