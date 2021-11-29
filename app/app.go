@@ -705,11 +705,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 // RegisterUpgradeHandlers returns upgrade handlers
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler("moneta-alpha", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		return app.mm.RunMigrations(ctx, cfg, vm)
-	})
-
-	app.UpgradeKeeper.SetUpgradeHandler("moneta-beta", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	app.UpgradeKeeper.SetUpgradeHandler("moneta", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		// force an update of validator min commission
 		validators := app.StakingKeeper.GetAllValidators(ctx)
 		// hard code this because we don't want
