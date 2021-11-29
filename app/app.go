@@ -551,7 +551,7 @@ func New(
 		panic(err)
 	}
 
-	if upgradeInfo.Name == "moneta-alpha" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if upgradeInfo.Name == "moneta" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		storeUpgrades := store.StoreUpgrades{
 			Added: []string{authz.ModuleName, feegrant.ModuleName, wasm.ModuleName},
 		}
