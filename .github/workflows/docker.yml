@@ -2,7 +2,10 @@ name: ci
 
 on:
   pull_request:
+  release:
+    types: [published, created, edited]
   push:
+    tags:
     branches:
       - 'main'
 
@@ -34,6 +37,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=pr
+            type=semver,pattern={{raw}}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
       - name: Build and push
