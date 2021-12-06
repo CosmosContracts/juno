@@ -400,7 +400,7 @@ func New(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
-	wasmDir := filepath.Join(homePath, "wasm")
+	wasmDir := filepath.Join(homePath, "data")
 
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
