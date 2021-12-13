@@ -7,6 +7,7 @@ FEE=${FEE_TOKEN:-ucosm}
 CHAIN_ID=${CHAIN_ID:-testing}
 MONIKER=${MONIKER:-node001}
 KEYRING="--keyring-backend test"
+BLOCK_GAS_LIMIT=100000000 # should mirror mainnet
 
 # check the genesis file
 GENESIS_FILE="$HOME"/.juno/config/genesis.json
@@ -20,6 +21,8 @@ else
   sed -i "s/\"stake\"/\"$STAKE\"/" "$GENESIS_FILE"
   # this is essential for sub-1s block times (or header times go crazy)
   sed -i 's/"time_iota_ms": "1000"/"time_iota_ms": "10"/' "$GENESIS_FILE"
+  # change gas limit to mainnet value
+  sed -i 's/"max_gas": "-1"/"max_gas": "'"$BLOCK_GAS_LIMIT"'"/' "$GENESIS_FILE"
   # change default keyring-backend to test
   sed -i 's/keyring-backend = "os"/keyring-backend = "test"/' "$HOME"/.juno/config/client.toml
 fi
