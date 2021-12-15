@@ -41,7 +41,7 @@ and harm of valid security issues.
 
 ### Coordinated Vulnerability Disclosure Policy
 
-We ask security researchers to keep vulnerabilities and communications around vulnerability submissions private and confidential until a patch is developed to protect the people using Tendermint’s protocols. In addition to this, we ask that you:
+We ask security researchers to keep vulnerabilities and communications around vulnerability submissions private and confidential until a patch is developed. In addition to this, we ask that you:
 
 - Allow us a reasonable amount of time to correct or address security vulnerabilities.
 - Avoid exploiting any vulnerabilities that you discover.
@@ -51,13 +51,12 @@ We ask security researchers to keep vulnerabilities and communications around vu
 
 Juno uses the following disclosure process:
 
-- Once a security report is received, the Juno core development team works to verify the issue and confirm its severity level using CVSS.
+- Once a security report is received, the Juno core development team works to verify the issue.
 - Patches are prepared for eligible releases in private repositories.
-- If it is determined that a CVE-ID is required, we request a CVE through a CVE Numbering Authority.
 - We notify the community that a security release is coming, to give users time to prepare their systems for the update. Notifications can include Discord messages, tweets, and emails to partners and validators.
 - 24 hours following this notification, the fixes are applied publicly and new releases are issued.
 - Once releases are available for Juno, we notify the community, again, through the same channels as above. We also publish a Security Advisory on Github and publish the CVE, as long as neither the Security Advisory nor the CVE include any information on how to exploit these vulnerabilities beyond what information is already available in the patch itself.
 - Once the community is notified, we will pay out any relevant bug bounties to submitters.
 - One week after the releases go out, we will publish a post with further details on the vulnerability as well as our response to it.
 
-This process can take some time. Every effort will be made to handle the bug in as timely a manner as possible. However, it's important that we follow the process described above to ensure that disclosures are handled consistently and to keep Juno and its downstream dependent projects secure.
+This process can take some time. Every effort will be made to handle the bug in as timely a manner as possible. However, it's important that we follow the process described above to ensure that disclosures are handled consistently and to keep Juno and the projects running on it secure.
