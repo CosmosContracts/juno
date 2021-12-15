@@ -32,10 +32,7 @@ If you're here because you're trying to figure out how to notify us of a securit
 - Jacob `jacobgadikian#9883`
 - Giansalex `giansalex#1825`
 
-
-Please avoid opening public issues on Github that contain information about a
-potential security vulnerability as this makes it difficult to reduce the impact
-and harm of valid security issues.
+Please avoid opening public issues on GitHub that contain information about a potential security vulnerability as this makes it difficult to reduce the impact and harm of valid security issues.
 
 ### Coordinated Vulnerability Disclosure Policy
 
