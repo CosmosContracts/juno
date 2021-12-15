@@ -22,9 +22,7 @@ If it is not triaged in a couple of days, feel free to tag `@the-frey` or `@jake
 
 ## Critical bug or security issue 💥
 
-If you're here because you're trying to figure out how to notify us of a security issue, 
-
-go to [Discord](https://discord.gg/wHdzjS5vXx), and alert the core engineers:
+If you're here because you're trying to figure out how to notify us of a security issue, go to [Discord](https://discord.gg/wHdzjS5vXx), and alert the core engineers:
 
 
 - Jake (Meow) `Meow Stargaze ✨🔭#1736`
