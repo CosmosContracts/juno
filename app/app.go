@@ -357,7 +357,7 @@ func New(
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, nil)
 
 	// upgrade handlers
-	cfg := module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
+	cfg := module.NewConfigurator(appCodec, app.BaseApp.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.RegisterUpgradeHandlers(cfg)
 
 	// register the staking hooks
@@ -424,7 +424,7 @@ func New(
 		scopedWasmKeeper,
 		app.TransferKeeper,
 		app.Router(),
-		app.MsgServiceRouter(),
+		app.BaseApp.MsgServiceRouter(),
 		app.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
