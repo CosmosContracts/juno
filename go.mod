@@ -123,7 +123,7 @@ require (
 )
 
 replace (
-	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v1.0.0-juno3
+	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v1.0.0-juno3.0.20211216190853-e85d769ee0db
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.44.5
 	github.com/cosmos/iavl => github.com/cosmos/iavl v0.17.3
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
