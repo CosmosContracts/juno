@@ -27,7 +27,7 @@ require (
 	filippo.io/edwards25519 v1.0.0-beta.2 // indirect
 	github.com/99designs/keyring v1.1.6 // indirect
 	github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d // indirect
-	github.com/CosmWasm/wasmvm v1.0.0-soon2.0.20211209162446-b96c92d21aaf // indirect
+	github.com/CosmWasm/wasmvm v1.0.0-beta2 // indirect
 	github.com/DataDog/zstd v1.4.5 // indirect
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
 	github.com/armon/go-metrics v0.3.9 // indirect
@@ -123,7 +123,7 @@ require (
 )
 
 replace (
-	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v1.0.0-juno3
+	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v1.0.0-juno
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.44.5
 	github.com/cosmos/iavl => github.com/cosmos/iavl v0.17.3
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
