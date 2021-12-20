@@ -710,28 +710,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 // RegisterUpgradeHandlers returns upgrade handlers
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler("moneta", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		// force an update of validator min commission
-		validators := app.StakingKeeper.GetAllValidators(ctx)
-		// hard code this because we don't want
-		// a) a fork or
-		// b) immediate reaction with additional gov props
-		minCommissionRate := sdk.NewDecWithPrec(5, 2)
-		for _, v := range validators {
-			if v.Commission.Rate.LT(minCommissionRate) {
-				if v.Commission.MaxRate.LT(minCommissionRate) {
-					v.Commission.MaxRate = minCommissionRate
-				}
-
-				v.Commission.Rate = minCommissionRate
-				v.Commission.UpdateTime = ctx.BlockHeader().Time
-
-				// call the before-modification hook since we're about to update the commission
-				app.StakingKeeper.BeforeValidatorModified(ctx, v.GetOperator())
-
-				app.StakingKeeper.SetValidator(ctx, v)
-			}
-		}
+	app.UpgradeKeeper.SetUpgradeHandler("moneta-patch", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return app.mm.RunMigrations(ctx, cfg, vm)
 	})
 }
