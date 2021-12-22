@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Docker compose
-        run: GAS_LIMIT="-1" STAKE_TOKEN="ujunox" docker-compose up -d
+        run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Sleep
         uses: jakejarvis/wait-action@master
         with:
@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: 'envoylabs/whoami'
-          ref: 'v0.4.3'
+          ref: 'v0.4.4'
       - name: Run deploy script
         run: |
           chmod a+x ./scripts/deploy_ci.sh
