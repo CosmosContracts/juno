@@ -14,10 +14,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: Docker compose
         run: STAKE_TOKEN="ujunox" docker-compose up -d
-      - name: Sleep
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '60s'
       - name: Checkout
         uses: actions/checkout@v2
         with:
