@@ -1,6 +1,9 @@
-on: 
+name: release binary
+
+on:
+  pull_request:
   release:
-    types: [created]
+    types: [published, created]
 
 jobs:
   release-alpine-static:
