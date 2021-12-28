@@ -1,0 +1,27 @@
+on: 
+  release:
+    types: [created]
+
+jobs:
+  release-alpine-static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker compose
+        run: STAKE_TOKEN="ujunox" docker-compose up -d
+      - name: Copy binary
+        run: docker cp juno_node_1:/usr/bin/junod ./junod
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload release binary
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./junod
+          asset_name: junod
+          asset_content_type: application/octet-stream
