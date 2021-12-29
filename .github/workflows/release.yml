@@ -1,4 +1,6 @@
-on: 
+name: release binary
+
+on:
   release:
     types: [created]
 
