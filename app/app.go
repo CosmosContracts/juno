@@ -423,7 +423,6 @@ func New(
 		&app.IBCKeeper.PortKeeper,
 		scopedWasmKeeper,
 		app.TransferKeeper,
-		app.Router(),
 		app.MsgServiceRouter(),
 		app.GRPCQueryRouter(),
 		wasmDir,
