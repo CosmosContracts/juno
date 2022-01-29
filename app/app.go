@@ -750,10 +750,31 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
 }
 
-// RegisterUpgradeHandlers returns upgrade handlers
-func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler("lupercalia", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		return app.mm.RunMigrations(ctx, cfg, vm)
+func (app *App) registerUpgradeHandlers() {
+	// This is the upgrade plan name we used in the gov proposal.
+	upgradeName := "lupercalia"
+	app.UpgradeKeeper.SetUpgradeHandler(upgradeName, func(ctx sdk.Context, plan upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
+		fromVM := map[string]uint64{
+			"auth":         auth.AppModule{}.ConsensusVersion(),
+			"bank":         bank.AppModule{}.ConsensusVersion(),
+			"capability":   capability.AppModule{}.ConsensusVersion(),
+			"crisis":       crisis.AppModule{}.ConsensusVersion(),
+			"distribution": distr.AppModule{}.ConsensusVersion(),
+			"evidence":     evidence.AppModule{}.ConsensusVersion(),
+			"gov":          gov.AppModule{}.ConsensusVersion(),
+			"mint":         mint.AppModule{}.ConsensusVersion(),
+			"params":       params.AppModule{}.ConsensusVersion(),
+			"slashing":     slashing.AppModule{}.ConsensusVersion(),
+			"staking":      staking.AppModule{}.ConsensusVersion(),
+			"upgrade":      upgrade.AppModule{}.ConsensusVersion(),
+			"vesting":      vesting.AppModule{}.ConsensusVersion(),
+			"genutil":      genutil.AppModule{}.ConsensusVersion(),
+			"authz":        authzmodule.AppModule{}.ConsensusVersion(),
+			"feegrant":     feegrantmodule.AppModule{}.ConsensusVersion(),
+			"wasm":		wasm.AppModule{}.ConsesnsusVersion(),
+		}
+
+		return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 	})
 }
 
