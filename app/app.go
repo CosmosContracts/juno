@@ -581,6 +581,7 @@ func New(
 			IBCChannelkeeper:  app.IBCKeeper.ChannelKeeper,
 			TxCounterStoreKey: keys[wasm.StoreKey],
 			WasmConfig:        wasmConfig,
+			Cdc:               appCodec,
 		},
 	)
 	if err != nil {
