@@ -1,6 +1,6 @@
 # docker build . -t cosmoscontracts/juno:latest
 # docker run --rm -it cosmoscontracts/juno:latest /bin/sh
-FROM golang:1.17-alpine3.13 AS go-builder
+FROM golang:1.17-alpine3.15 AS go-builder
 
 # this comes from standard alpine nightly file
 #  https://github.com/rust-lang/docker-rust-nightly/blob/master/alpine3.12/Dockerfile
@@ -15,14 +15,14 @@ WORKDIR /code
 COPY . /code/
 
 # See https://github.com/CosmWasm/wasmvm/releases
-ADD https://github.com/CosmWasm/wasmvm/releases/download/v1.0.0-beta4/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
-RUN sha256sum /lib/libwasmvm_muslc.a | grep bb8bcb7a180b89734872778c1a93c982759118e2e9f08c3f05079f2bf22f8ddb
+ADD https://github.com/CosmWasm/wasmvm/releases/download/v1.0.0-beta5/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
+RUN sha256sum /lib/libwasmvm_muslc.a | grep d16a2cab22c75dbe8af32265b9346c6266070bdcf9ed5aa9b7b39a7e32e25fe0
 
 # force it to use static lib (from above) not standard libgo_cosmwasm.so file
 RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build
 
 # --------------------------------------------------------
-FROM alpine:3.13
+FROM alpine:3.15
 
 COPY --from=go-builder /code/bin/junod /usr/bin/junod
 
