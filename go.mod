@@ -121,6 +121,8 @@ require (
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
 
+replace github.com/tecbot/gorocksdb => github.com/cosmos/gorocksdb v1.2.0
+
 replace github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.44.6-fast
 
 replace github.com/cosmos/iavl => github.com/osmosis-labs/iavl v0.17.3-osmo-v1
