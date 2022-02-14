@@ -222,7 +222,7 @@ func New(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) cosmoscmd.App {
 
-	appCodec := encodingConfig.Codec
+	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
