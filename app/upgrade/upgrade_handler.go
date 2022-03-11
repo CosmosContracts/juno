@@ -38,8 +38,8 @@ func adjustDelegations(ctx sdk.Context, staking *stakingkeeper.Keeper) {
 	completionTime := ctx.BlockHeader().Time.Add(staking.UnbondingTime(ctx))
 
 	for _, delegation := range acctDelegations {
-		//undelegate
-		staking.Undelegate(ctx, acctAddress, delegation.GetValidatorAddr(), delegation.GetShares())
+		// undelegate
+		staking.Undelegate(ctx, acctAddress, delegation.GetValidatorAddr(), delegation.GetShares()) //nolint:errcheck // nolint because otherwise we'd have a time and nothing to do with it.
 		ubd := stakingtypes.NewUnbondingDelegation(acctAddress, acctValidator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
 		staking.SetUnbondingDelegation(ctx, ubd)
 	}
