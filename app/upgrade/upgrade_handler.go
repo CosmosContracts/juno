@@ -54,6 +54,33 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		adjustDelegations(ctx, staking)
+
+		// force an update of validator min commission
+		// we already did this for moneta
+		// but validators could have snuck in changes in the
+		// interim
+		// and via state sync to post-moneta
+		validators := staking.GetAllValidators(ctx)
+		// hard code this because we don't want
+		// a) a fork or
+		// b) immediate reaction with additional gov props
+		minCommissionRate := sdk.NewDecWithPrec(5, 2)
+		for _, v := range validators {
+			if v.Commission.Rate.LT(minCommissionRate) {
+				if v.Commission.MaxRate.LT(minCommissionRate) {
+					v.Commission.MaxRate = minCommissionRate
+				}
+
+				v.Commission.Rate = minCommissionRate
+				v.Commission.UpdateTime = ctx.BlockHeader().Time
+
+				// call the before-modification hook since we're about to update the commission
+				staking.BeforeValidatorModified(ctx, v.GetOperator())
+
+				staking.SetValidator(ctx, v)
+			}
+		}
+
 		// Set wasm old version to 1 if we want to call wasm's InitGenesis ourselves
 		// in this upgrade logic ourselves
 		// vm[wasm.ModuleName] = wasm.ConsensusVersion
