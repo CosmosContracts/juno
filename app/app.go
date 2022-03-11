@@ -16,6 +16,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	whale "github.com/CosmosContracts/juno/app/upgrade"
 	"github.com/CosmosContracts/juno/docs"
 	"github.com/CosmosContracts/juno/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
@@ -358,7 +359,6 @@ func New(
 
 	// upgrade handlers
 	cfg := module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
-	app.RegisterUpgradeHandlers(cfg)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
@@ -447,6 +447,7 @@ func New(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter,
 	)
+
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -567,6 +568,9 @@ func New(
 	app.MountKVStores(keys)
 	app.MountTransientStores(tkeys)
 	app.MountMemoryStores(memKeys)
+
+	//regiter upgrade
+	app.RegisterUpgradeHandlers(cfg)
 
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
@@ -779,6 +783,8 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 		}
 		return app.mm.RunMigrations(ctx, cfg, vm)
 	})
+
+	app.UpgradeKeeper.SetUpgradeHandler("whale", whale.CreateUpgradeHandler(app.mm, cfg, &app.wasmKeeper, &app.StakingKeeper))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
