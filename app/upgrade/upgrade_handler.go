@@ -39,7 +39,11 @@ func adjustDelegations(ctx sdk.Context, staking *stakingkeeper.Keeper) {
 
 	for _, delegation := range acctDelegations {
 		// undelegate
-		staking.Undelegate(ctx, acctAddress, delegation.GetValidatorAddr(), delegation.GetShares()) //nolint:errcheck // nolint because otherwise we'd have a time and nothing to do with it.
+		_, err := staking.Undelegate(ctx, acctAddress, delegation.GetValidatorAddr(), delegation.GetShares()) //nolint:errcheck // nolint because otherwise we'd have a time and nothing to do with it.
+		if err != nil {
+			panic(err)
+		}
+
 		ubd := stakingtypes.NewUnbondingDelegation(acctAddress, acctValidator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
 		staking.SetUnbondingDelegation(ctx, ubd)
 	}
