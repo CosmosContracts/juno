@@ -27,7 +27,7 @@ func getWhaleDelagtion(ctx sdk.Context, staking *stakingkeeper.Keeper) []*stakin
 	return whaleDelegations
 }
 
-func whaleToBathroom(ctx sdk.Context, staking *stakingkeeper.Keeper) {
+func adjustWhaleDelegations(ctx sdk.Context, staking *stakingkeeper.Keeper) {
 	// get all whale delegations
 	whaleDelegations := getWhaleDelagtion(ctx, staking)
 
@@ -52,7 +52,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 	wasmKeeper *wasm.Keeper, staking *stakingkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		whaleToBathroom(ctx, staking)
+		adjustWhaleDelegations(ctx, staking)
 		// Set wasm old version to 1 if we want to call wasm's InitGenesis ourselves
 		// in this upgrade logic ourselves
 		// vm[wasm.ModuleName] = wasm.ConsensusVersion
