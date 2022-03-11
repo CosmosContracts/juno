@@ -33,18 +33,17 @@ func adjustDelegations(ctx sdk.Context, staking *stakingkeeper.Keeper) {
 
 	acctAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
 
-	// the address of 1 validator that the whale delegate to
-	acctValidator := acctDelegations[0].GetValidatorAddr()
 	completionTime := ctx.BlockHeader().Time.Add(staking.UnbondingTime(ctx))
 
 	for _, delegation := range acctDelegations {
+		validator := delegation.GetValidatorAddr()
 		// undelegate
 		_, err := staking.Undelegate(ctx, acctAddress, delegation.GetValidatorAddr(), delegation.GetShares()) //nolint:errcheck // nolint because otherwise we'd have a time and nothing to do with it.
 		if err != nil {
 			panic(err)
 		}
 
-		ubd := stakingtypes.NewUnbondingDelegation(acctAddress, acctValidator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
+		ubd := stakingtypes.NewUnbondingDelegation(acctAddress, validator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
 		staking.SetUnbondingDelegation(ctx, ubd)
 	}
 }
