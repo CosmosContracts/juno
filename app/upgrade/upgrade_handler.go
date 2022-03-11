@@ -5,62 +5,45 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	"github.com/cosmos/cosmos-sdk/x/staking/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-// Fixes an error where validators can be created with a commission rate
-// less than the network minimum rate.
-var validatorData []struct {
-	valAddress   sdk.ValAddress
-	sharesAmount sdk.Dec
-}
-
-var newInfo struct {
-	whaleAddress sdk.AccAddress
-	valAddress   sdk.ValAddress
-}
-
-func getWhaleData(ctx sdk.Context, staking *stakingkeeper.Keeper) {
-	//get whale address
+func getWhaleDelagtion(ctx sdk.Context, staking *stakingkeeper.Keeper) []*stakingtypes.Delegation {
+	//whale address
 	whaleAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
-	delegatorValidators := staking.GetDelegatorValidators(ctx, whaleAddress, 120)
-	for _, v := range delegatorValidators {
+
+	// validators that whale delagates to
+	whaleValidators := staking.GetDelegatorValidators(ctx, whaleAddress, 120)
+
+	whaleDelegations := []*stakingtypes.Delegation{}
+	for _, v := range whaleValidators {
 		valAdress, _ := sdk.ValAddressFromBech32(v.OperatorAddress)
 
 		del, _ := staking.GetDelegation(ctx, whaleAddress, valAdress)
-		delShares := del.GetShares()
 
-		data := struct {
-			valAddress   sdk.ValAddress
-			sharesAmount sdk.Dec
-		}{
-			valAdress,
-			delShares,
-		}
-		validatorData = append(validatorData, data)
+		whaleDelegations = append(whaleDelegations, &del)
 	}
-	valAddress, _ := sdk.ValAddressFromBech32("junovaloper10wxn2lv29yqnw2uf4jf439kwy5ef00qdelfp7r")
-	newInfo = struct {
-		whaleAddress sdk.AccAddress
-		valAddress   sdk.ValAddress
-	}{
-		whaleAddress: whaleAddress,
-		valAddress:   valAddress,
-	}
-
+	return whaleDelegations
 }
 
 func whaleToBathroom(ctx sdk.Context, staking *stakingkeeper.Keeper) {
-	getWhaleData(ctx, staking)
-	for _, v := range validatorData {
+	// get all whale delegations
+	whaleDelegations := getWhaleDelagtion(ctx, staking)
+
+	whaleAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
+
+	// the address of 1 validator that the whale delegate to
+	whaleValidator := whaleDelegations[0].GetValidatorAddr()
+
+	for _, delegation := range whaleDelegations {
 		//undelegate
-		staking.Undelegate(ctx, newInfo.whaleAddress, v.valAddress, v.sharesAmount)
+		staking.Undelegate(ctx, whaleAddress, delegation.GetValidatorAddr(), delegation.GetShares())
 	}
 	//set Unboding to verylow
 	completionTime := ctx.BlockHeader().Time.Add(staking.UnbondingTime(ctx))
 
-	ubd := types.NewUnbondingDelegation(newInfo.whaleAddress, newInfo.valAddress, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
+	ubd := stakingtypes.NewUnbondingDelegation(whaleAddress, whaleValidator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
 	staking.SetUnbondingDelegation(ctx, ubd)
 }
 
