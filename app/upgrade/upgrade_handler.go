@@ -1,4 +1,4 @@
-package whale
+package lupercalia
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -9,14 +9,14 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-func getWhaleDelagtion(ctx sdk.Context, staking *stakingkeeper.Keeper) []*stakingtypes.Delegation {
-	//whale address
-	whaleAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
+func getDelagtion(ctx sdk.Context, staking *stakingkeeper.Keeper) []*stakingtypes.Delegation {
+	// address
+	acctAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
 
 	// validators that whale delagates to
-	whaleValidators := staking.GetDelegatorValidators(ctx, whaleAddress, 120)
+	acctValidators := staking.GetDelegatorValidators(ctx, whaleAddress, 120)
 
-	whaleDelegations := []*stakingtypes.Delegation{}
+	acctDelegations := []*stakingtypes.Delegation{}
 	for _, v := range whaleValidators {
 		valAdress, _ := sdk.ValAddressFromBech32(v.OperatorAddress)
 
@@ -24,17 +24,17 @@ func getWhaleDelagtion(ctx sdk.Context, staking *stakingkeeper.Keeper) []*stakin
 
 		whaleDelegations = append(whaleDelegations, &del)
 	}
-	return whaleDelegations
+	return acctDelegations
 }
 
 func adjustWhaleDelegations(ctx sdk.Context, staking *stakingkeeper.Keeper) {
 	// get all whale delegations
-	whaleDelegations := getWhaleDelagtion(ctx, staking)
+	acctDelegations := getDelagtion(ctx, staking)
 
-	whaleAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
+	acctAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
 
 	// the address of 1 validator that the whale delegate to
-	whaleValidator := whaleDelegations[0].GetValidatorAddr()
+	acctValidator := whaleDelegations[0].GetValidatorAddr()
 
 	for _, delegation := range whaleDelegations {
 		//undelegate
@@ -52,7 +52,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 	wasmKeeper *wasm.Keeper, staking *stakingkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		adjustWhaleDelegations(ctx, staking)
+		adjustDelegations(ctx, staking)
 		// Set wasm old version to 1 if we want to call wasm's InitGenesis ourselves
 		// in this upgrade logic ourselves
 		// vm[wasm.ModuleName] = wasm.ConsensusVersion

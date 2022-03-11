@@ -1,4 +1,4 @@
-package whale
+package lupercalia
 
 //UpgradeName is upgrade name in proposal
-const UpgradeName = "balance adjustment"
+const UpgradeName = "lupercalia"
