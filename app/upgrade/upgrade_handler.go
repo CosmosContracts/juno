@@ -14,36 +14,36 @@ func getDelagtion(ctx sdk.Context, staking *stakingkeeper.Keeper) []*stakingtype
 	acctAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
 
 	// validators that whale delagates to
-	acctValidators := staking.GetDelegatorValidators(ctx, whaleAddress, 120)
+	acctValidators := staking.GetDelegatorValidators(ctx, acctAddress, 120)
 
 	acctDelegations := []*stakingtypes.Delegation{}
-	for _, v := range whaleValidators {
+	for _, v := range acctValidators {
 		valAdress, _ := sdk.ValAddressFromBech32(v.OperatorAddress)
 
-		del, _ := staking.GetDelegation(ctx, whaleAddress, valAdress)
+		del, _ := staking.GetDelegation(ctx, acctAddress, valAdress)
 
-		whaleDelegations = append(whaleDelegations, &del)
+		acctDelegations = append(acctDelegations, &del)
 	}
 	return acctDelegations
 }
 
-func adjustWhaleDelegations(ctx sdk.Context, staking *stakingkeeper.Keeper) {
+func adjustDelegations(ctx sdk.Context, staking *stakingkeeper.Keeper) {
 	// get all whale delegations
 	acctDelegations := getDelagtion(ctx, staking)
 
 	acctAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
 
 	// the address of 1 validator that the whale delegate to
-	acctValidator := whaleDelegations[0].GetValidatorAddr()
+	acctValidator := acctDelegations[0].GetValidatorAddr()
 
-	for _, delegation := range whaleDelegations {
+	for _, delegation := range acctDelegations {
 		//undelegate
-		staking.Undelegate(ctx, whaleAddress, delegation.GetValidatorAddr(), delegation.GetShares())
+		staking.Undelegate(ctx, acctAddress, delegation.GetValidatorAddr(), delegation.GetShares())
 	}
 	//set Unboding to verylow
 	completionTime := ctx.BlockHeader().Time.Add(staking.UnbondingTime(ctx))
 
-	ubd := stakingtypes.NewUnbondingDelegation(whaleAddress, whaleValidator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
+	ubd := stakingtypes.NewUnbondingDelegation(acctAddress, acctValidator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
 	staking.SetUnbondingDelegation(ctx, ubd)
 }
 
