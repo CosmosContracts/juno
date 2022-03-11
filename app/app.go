@@ -16,7 +16,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	whale "github.com/CosmosContracts/juno/app/upgrade"
+	lupercalia "github.com/CosmosContracts/juno/app/upgrade"
 	"github.com/CosmosContracts/juno/docs"
 	"github.com/CosmosContracts/juno/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
@@ -784,7 +784,7 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 		return app.mm.RunMigrations(ctx, cfg, vm)
 	})
 
-	app.UpgradeKeeper.SetUpgradeHandler("whale", whale.CreateUpgradeHandler(app.mm, cfg, &app.wasmKeeper, &app.StakingKeeper))
+	app.UpgradeKeeper.SetUpgradeHandler("lupercalia", lupercalia.CreateUpgradeHandler(app.mm, cfg, &app.wasmKeeper, &app.StakingKeeper))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
