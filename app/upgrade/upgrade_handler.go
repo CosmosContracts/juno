@@ -35,16 +35,14 @@ func adjustDelegations(ctx sdk.Context, staking *stakingkeeper.Keeper) {
 
 	// the address of 1 validator that the whale delegate to
 	acctValidator := acctDelegations[0].GetValidatorAddr()
+	completionTime := ctx.BlockHeader().Time.Add(staking.UnbondingTime(ctx))
 
 	for _, delegation := range acctDelegations {
 		//undelegate
 		staking.Undelegate(ctx, acctAddress, delegation.GetValidatorAddr(), delegation.GetShares())
+		ubd := stakingtypes.NewUnbondingDelegation(acctAddress, acctValidator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
+		staking.SetUnbondingDelegation(ctx, ubd)
 	}
-	//set Unboding to verylow
-	completionTime := ctx.BlockHeader().Time.Add(staking.UnbondingTime(ctx))
-
-	ubd := stakingtypes.NewUnbondingDelegation(acctAddress, acctValidator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
-	staking.SetUnbondingDelegation(ctx, ubd)
 }
 
 //CreateUpgradeHandler make upgrade handler
