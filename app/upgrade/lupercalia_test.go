@@ -15,7 +15,9 @@ import (
 	cosmossimapp "github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
 )
@@ -39,11 +41,68 @@ func lupercaliaHunt(
 ) {
 	ctxCheck := app.BaseApp.NewContext(true, tmproto.Header{})
 
-	fmt.Printf("Acc2 balances before adjust = %v \n", app.BankKeeper.GetAllBalances(ctxCheck, addr2))
+	newBonded := app.BankKeeper.GetBalance(ctxCheck, app.StakingKeeper.GetBondedPool(ctxCheck).GetAddress(), "stake").Amount
+	newNotBonded := app.BankKeeper.GetBalance(ctxCheck, app.StakingKeeper.GetNotBondedPool(ctxCheck).GetAddress(), "stake").Amount
 
-	lupercalia.AdjustDelegation(ctxCheck, &app.StakingKeeper, addr2)
+	fmt.Printf("before bonded = %v, before notBonded = %v \n", newBonded, newNotBonded)
 
-	fmt.Printf("Acc2 balances after adjust = %v \n", app.BankKeeper.GetAllBalances(ctxCheck, addr2))
+	completionTime := ctxCheck.BlockHeader().Time.Add(app.StakingKeeper.UnbondingTime(ctxCheck))
+	dvPair := app.StakingKeeper.GetUBDQueueTimeSlice(ctxCheck, completionTime)
+
+	for i, pair := range dvPair {
+		fmt.Printf("before UBD queue item %d = \n%v \n", i, pair)
+	}
+
+	unbondDels := app.StakingKeeper.GetAllUnbondingDelegations(ctxCheck, addr2)
+
+	for i, unbond := range unbondDels {
+		fmt.Printf("before unbond item %d = \n%v \n", i, unbond)
+	}
+
+	coin := app.BankKeeper.GetAllBalances(ctxCheck, addr2)
+	fmt.Printf("before addr 2 amount = %v \n", coin)
+
+	distAmount := app.BankKeeper.GetBalance(ctxCheck, app.AccountKeeper.GetModuleAccount(ctxCheck, distrtypes.ModuleName).GetAddress(), "stake").Amount
+	fmt.Printf("before Distribution module amount = %d \n", distAmount)
+
+	fmt.Printf("===ADJUSTING DELEGATION=== \n")
+
+	header := tmproto.Header{Height: app.LastBlockHeight() + 1}
+	app.BeginBlock(abci.RequestBeginBlock{Header: header})
+
+	// unbond the accAddr delegations, send all the unbonding and unbonded tokens to the community pool
+	bankBaseKeeper, _ := app.BankKeeper.(bankkeeper.BaseKeeper)
+	lupercalia.MoveDelegatorDelegationsToCommunityPool(ctxCheck, addr2, &app.StakingKeeper, &bankBaseKeeper)
+	// send 50k juno from the community pool to the accAddr
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctxCheck, distrtypes.ModuleName, addr2, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntFromUint64(50000000000))))
+
+	app.EndBlock(abci.RequestEndBlock{})
+	app.Commit()
+
+	fmt.Printf("===AFTER ADJUSTING DELEGATION=== \n")
+
+	newBonded = app.BankKeeper.GetBalance(ctxCheck, app.StakingKeeper.GetBondedPool(ctxCheck).GetAddress(), "stake").Amount
+	newNotBonded = app.BankKeeper.GetBalance(ctxCheck, app.StakingKeeper.GetNotBondedPool(ctxCheck).GetAddress(), "stake").Amount
+
+	fmt.Printf("bonded = %v, notBonded = %v \n", newBonded, newNotBonded)
+
+	dvPair = app.StakingKeeper.GetUBDQueueTimeSlice(ctxCheck, completionTime)
+
+	for i, pair := range dvPair {
+		fmt.Printf("UBD queue item %d = \n%v \n", i, pair)
+	}
+
+	unbondDels = app.StakingKeeper.GetAllUnbondingDelegations(ctxCheck, addr2)
+
+	for i, unbond := range unbondDels {
+		fmt.Printf("unbond item %d = \n%v \n", i, unbond)
+	}
+
+	coin = app.BankKeeper.GetAllBalances(ctxCheck, addr2)
+	fmt.Printf("addr 2 amount = %v \n", coin)
+
+	distAmount = app.BankKeeper.GetBalance(ctxCheck, app.AccountKeeper.GetModuleAccount(ctxCheck, distrtypes.ModuleName).GetAddress(), "stake").Amount
+	fmt.Printf("Distribution module amount = %d \n", distAmount)
 }
 
 func checkValidator(t *testing.T, app *junoapp.App, addr sdk.ValAddress, expFound bool) types.Validator {
@@ -137,7 +196,7 @@ func TestUndelegate(t *testing.T) {
 	checkBalance(t, app, addr2, sdk.Coins{genCoin.Sub(bondCoin)})
 	checkDelegation(t, app, addr2, sdk.ValAddress(addr1), true, bondTokens.ToDec())
 
-	// begin unbonding half to escape lupercalia hunt
+	// begin unbonding half
 	beginUnbondingMsg := types.NewMsgUndelegate(addr2, sdk.ValAddress(addr1), escapeBondCoin)
 	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
 	_, _, err = cosmossimapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{beginUnbondingMsg}, "", []uint64{1}, []uint64{1}, true, true, priv2)
