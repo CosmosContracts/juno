@@ -1,63 +1,76 @@
 package lupercalia
 
 import (
-	"fmt"
-
 	"github.com/CosmWasm/wasmd/x/wasm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
-func getDelegation(ctx sdk.Context, staking *stakingkeeper.Keeper, acctAddress sdk.AccAddress) []*stakingtypes.Delegation {
-	// validators that whale delagates to
-	acctValidators := staking.GetDelegatorValidators(ctx, acctAddress, 120)
-
-	acctDelegations := []*stakingtypes.Delegation{}
-	for _, v := range acctValidators {
-		valAdress, _ := sdk.ValAddressFromBech32(v.OperatorAddress)
-
-		del, _ := staking.GetDelegation(ctx, acctAddress, valAdress)
-
-		acctDelegations = append(acctDelegations, &del)
-	}
-	return acctDelegations
+var addressesToBeAdjusted = []string{
+	"juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8",
 }
 
-func AdjustDelegation(ctx sdk.Context, staking *stakingkeeper.Keeper, acctAddress sdk.AccAddress) {
-	// acctAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
+func moveDelegatorDelegationsToCommunityPool(ctx sdk.Context, delAcc sdk.AccAddress, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper) {
+	bondDenom := staking.BondDenom(ctx)
 
-	// get all whale delegations
-	acctDelegations := getDelegation(ctx, staking, acctAddress)
+	delegatorDelegations := staking.GetAllDelegatorDelegations(ctx, delAcc)
 
-	fmt.Printf("acctDelegations = %v \n", acctDelegations)
+	amountToBeMovedFromNotBondedPool := sdk.ZeroInt()
+	amountToBeMovedFromBondedPool := sdk.ZeroInt()
 
-	completionTime := ctx.BlockHeader().Time.Add(staking.UnbondingTime(ctx))
+	for _, delegation := range delegatorDelegations {
 
-	for _, delegation := range acctDelegations {
-		validator := delegation.GetValidatorAddr()
-		// undelegate
-		_, err := staking.Undelegate(ctx, acctAddress, delegation.GetValidatorAddr(), delegation.GetShares()) //nolint:errcheck // nolint because otherwise we'd have a time and nothing to do with it.
+		validatorValAddr := delegation.GetValidatorAddr()
+		validator, found := staking.GetValidator(ctx, validatorValAddr)
+		if !found {
+			continue
+		}
+
+		unbondedAmount, err := staking.Unbond(ctx, delAcc, validatorValAddr, delegation.GetShares()) //nolint:errcheck // nolint because otherwise we'd have a time and nothing to do with it.
 		if err != nil {
 			panic(err)
 		}
 
-		ubd := stakingtypes.NewUnbondingDelegation(acctAddress, validator, ctx.BlockHeader().Height, completionTime, sdk.NewInt(1))
-		staking.SetUnbondingDelegation(ctx, ubd)
+		if validator.IsBonded() {
+			amountToBeMovedFromBondedPool.Add(unbondedAmount)
+		} else {
+			amountToBeMovedFromNotBondedPool.Add(unbondedAmount)
+		}
 	}
+
+	delegatorUnbondingDelegations := staking.GetAllUnbondingDelegations(ctx, delAcc)
+	for _, unbondingDelegation := range delegatorUnbondingDelegations {
+		for _, entry := range unbondingDelegation.Entries {
+			amountToBeMovedFromNotBondedPool.Add(entry.Balance)
+		}
+		staking.RemoveUnbondingDelegation(ctx, unbondingDelegation)
+	}
+
+	coinsToBeMovedFromNotBondedPool := sdk.NewCoins(sdk.NewCoin(bondDenom, amountToBeMovedFromNotBondedPool))
+	coinsToBeMovedFromBondedPool := sdk.NewCoins(sdk.NewCoin(bondDenom, amountToBeMovedFromBondedPool))
+
+	bank.SendCoinsFromModuleToModule(ctx, stakingtypes.NotBondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromNotBondedPool)
+	bank.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromBondedPool)
 }
 
 //CreateUpgradeHandler make upgrade handler
 func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
-	wasmKeeper *wasm.Keeper, staking *stakingkeeper.Keeper,
+	wasmKeeper *wasm.Keeper, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		acctAddress, _ := sdk.AccAddressFromBech32("juno18q6cadanml62cn8uk62xgu4y86f48ze3e4f2u7")
-
-		AdjustDelegation(ctx, staking, acctAddress)
-
+		for _, addrString := range addressesToBeAdjusted {
+			accAddr, _ := sdk.AccAddressFromBech32(addrString)
+			// unbond the accAddr delegations, send all the unbonding and unbonded tokens to the community pool
+			moveDelegatorDelegationsToCommunityPool(ctx, accAddr, staking, bank)
+			// send 50k juno from the community pool to the accAddr
+			bank.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, accAddr, sdk.NewCoins(sdk.NewCoin(staking.BondDenom(ctx), sdk.NewIntFromUint64(50000000000))))
+		}
 		// force an update of validator min commission
 		// we already did this for moneta
 		// but validators could have snuck in changes in the
