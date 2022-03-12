@@ -80,8 +80,11 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 			accAddr, _ := sdk.AccAddressFromBech32(addrString)
 			// unbond the accAddr delegations, send all the unbonding and unbonded tokens to the community pool
 			MoveDelegatorDelegationsToCommunityPool(ctx, accAddr, staking, bank)
-			// send 50k juno from the community pool to the accAddr
-			bank.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, accAddr, sdk.NewCoins(sdk.NewCoin(staking.BondDenom(ctx), sdk.NewIntFromUint64(50000000000))))
+			// send 50k juno from the community pool to the accAddr if the master account has less than 50k juno
+			accAddrAmount := bank.GetBalance(ctx, accAddr, staking.BondDenom(ctx)).Amount
+			if sdk.NewIntFromUint64(50000000000).GT(accAddrAmount) {
+				bank.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, accAddr, sdk.NewCoins(sdk.NewCoin(staking.BondDenom(ctx), sdk.NewIntFromUint64(50000000000).Sub(accAddrAmount))))
+			}
 		}
 		// force an update of validator min commission
 		// we already did this for moneta
