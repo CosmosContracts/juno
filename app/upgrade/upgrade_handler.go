@@ -3,7 +3,6 @@ package lupercalia
 import (
 	"fmt"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -70,8 +69,7 @@ func MoveDelegatorDelegationsToCommunityPool(ctx sdk.Context, delAcc sdk.AccAddr
 }
 
 //CreateUpgradeHandler make upgrade handler
-func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
-	wasmKeeper *wasm.Keeper, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper, distr *distrkeeper.Keeper) upgradetypes.UpgradeHandler {
+func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper, distr *distrkeeper.Keeper) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		for _, addrString := range addressesToBeAdjusted {
 			accAddr, _ := sdk.AccAddressFromBech32(addrString)
