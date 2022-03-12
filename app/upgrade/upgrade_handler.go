@@ -1,6 +1,8 @@
 package lupercalia
 
 import (
+	"fmt"
+
 	"github.com/CosmWasm/wasmd/x/wasm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -9,10 +11,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-func getDelagtion(ctx sdk.Context, staking *stakingkeeper.Keeper) []*stakingtypes.Delegation {
-	// address
-	acctAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
-
+func getDelegation(ctx sdk.Context, staking *stakingkeeper.Keeper, acctAddress sdk.AccAddress) []*stakingtypes.Delegation {
 	// validators that whale delagates to
 	acctValidators := staking.GetDelegatorValidators(ctx, acctAddress, 120)
 
@@ -27,11 +26,13 @@ func getDelagtion(ctx sdk.Context, staking *stakingkeeper.Keeper) []*stakingtype
 	return acctDelegations
 }
 
-func adjustDelegations(ctx sdk.Context, staking *stakingkeeper.Keeper) {
-	// get all whale delegations
-	acctDelegations := getDelagtion(ctx, staking)
+func AdjustDelegation(ctx sdk.Context, staking *stakingkeeper.Keeper, acctAddress sdk.AccAddress) {
+	// acctAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
 
-	acctAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
+	// get all whale delegations
+	acctDelegations := getDelegation(ctx, staking, acctAddress)
+
+	fmt.Printf("acctDelegations = %v \n", acctDelegations)
 
 	completionTime := ctx.BlockHeader().Time.Add(staking.UnbondingTime(ctx))
 
@@ -53,7 +54,9 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
 	wasmKeeper *wasm.Keeper, staking *stakingkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		adjustDelegations(ctx, staking)
+		acctAddress, _ := sdk.AccAddressFromBech32("juno18q6cadanml62cn8uk62xgu4y86f48ze3e4f2u7")
+
+		AdjustDelegation(ctx, staking, acctAddress)
 
 		// force an update of validator min commission
 		// we already did this for moneta
