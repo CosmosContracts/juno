@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -57,14 +56,13 @@ func MoveDelegatorDelegationsToCommunityPool(ctx sdk.Context, delAcc sdk.AccAddr
 	coinsToBeMovedFromNotBondedPool := sdk.NewCoins(sdk.NewCoin(bondDenom, amountToBeMovedFromNotBondedPool))
 	coinsToBeMovedFromBondedPool := sdk.NewCoins(sdk.NewCoin(bondDenom, amountToBeMovedFromBondedPool))
 
-	distributionAcc := distr.GetDistributionAccount(ctx)
 	if !coinsToBeMovedFromNotBondedPool.Empty() {
-		bank.SendCoinsFromModuleToModule(ctx, stakingtypes.NotBondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromNotBondedPool)
-		distr.FundCommunityPool(ctx, coinsToBeMovedFromBondedPool, distributionAcc.GetAddress())
+		notBondedPoolAcc := staking.GetNotBondedPool(ctx)
+		distr.FundCommunityPool(ctx, coinsToBeMovedFromNotBondedPool, notBondedPoolAcc.GetAddress())
 	}
 	if !coinsToBeMovedFromBondedPool.Empty() {
-		bank.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromBondedPool)
-		distr.FundCommunityPool(ctx, coinsToBeMovedFromBondedPool, distributionAcc.GetAddress())
+		bondedPoolAcc := staking.GetBondedPool(ctx)
+		distr.FundCommunityPool(ctx, coinsToBeMovedFromBondedPool, bondedPoolAcc.GetAddress())
 	}
 }
 
