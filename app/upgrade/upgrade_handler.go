@@ -67,8 +67,12 @@ func MoveDelegatorDelegationsToCommunityPool(ctx sdk.Context, delAcc sdk.AccAddr
 	coinsToBeMovedFromBondedPool := sdk.NewCoins(sdk.NewCoin(bondDenom, amountToBeMovedFromBondedPool))
 	fmt.Printf("coinsToBeMovedFromBondedPool = %d \n", coinsToBeMovedFromBondedPool.AmountOf(bondDenom).Uint64())
 
-	bank.SendCoinsFromModuleToModule(ctx, stakingtypes.NotBondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromNotBondedPool)
-	bank.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromBondedPool)
+	if !coinsToBeMovedFromNotBondedPool.Empty() {
+		bank.SendCoinsFromModuleToModule(ctx, stakingtypes.NotBondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromNotBondedPool)
+	}
+	if !coinsToBeMovedFromBondedPool.Empty() {
+		bank.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromBondedPool)
+	}
 }
 
 //CreateUpgradeHandler make upgrade handler
