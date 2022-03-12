@@ -756,7 +756,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 // RegisterUpgradeHandlers returns upgrade handlers
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 	bankBaseKeeper, _ := app.BankKeeper.(bankkeeper.BaseKeeper)
-	app.UpgradeKeeper.SetUpgradeHandler("lupercalia", lupercalia.CreateUpgradeHandler(app.mm, cfg, &app.wasmKeeper, &app.StakingKeeper, &bankBaseKeeper))
+	app.UpgradeKeeper.SetUpgradeHandler("lupercalia", lupercalia.CreateUpgradeHandler(app.mm, cfg, &app.wasmKeeper, &app.StakingKeeper, &bankBaseKeeper, &app.DistrKeeper))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
