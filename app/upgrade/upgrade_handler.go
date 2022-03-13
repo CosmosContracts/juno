@@ -3,14 +3,13 @@ package lupercalia
 import (
 	"fmt"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
@@ -18,14 +17,9 @@ var addressesToBeAdjusted = []string{
 	"juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8",
 }
 
-func MoveDelegatorDelegationsToCommunityPool(ctx sdk.Context, delAcc sdk.AccAddress, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper) {
+func MoveDelegatorDelegationsToCommunityPool(ctx sdk.Context, delAcc sdk.AccAddress, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper, distr *distrkeeper.Keeper) {
 	bondDenom := staking.BondDenom(ctx)
-
-	fmt.Printf("denom = %s \n", bondDenom)
-
 	delegatorDelegations := staking.GetAllDelegatorDelegations(ctx, delAcc)
-
-	fmt.Printf("delegatorDelegations = %v \n", delegatorDelegations)
 
 	amountToBeMovedFromNotBondedPool := sdk.ZeroInt()
 	amountToBeMovedFromBondedPool := sdk.ZeroInt()
@@ -42,8 +36,6 @@ func MoveDelegatorDelegationsToCommunityPool(ctx sdk.Context, delAcc sdk.AccAddr
 		if err != nil {
 			panic(err)
 		}
-
-		fmt.Printf("unbondedAmount = %d \n", unbondedAmount.Uint64())
 
 		if validator.IsBonded() {
 			amountToBeMovedFromBondedPool = amountToBeMovedFromBondedPool.Add(unbondedAmount)
@@ -62,24 +54,25 @@ func MoveDelegatorDelegationsToCommunityPool(ctx sdk.Context, delAcc sdk.AccAddr
 	}
 
 	coinsToBeMovedFromNotBondedPool := sdk.NewCoins(sdk.NewCoin(bondDenom, amountToBeMovedFromNotBondedPool))
-	fmt.Printf("coinsToBeMovedFromNotBondedPool = %d \n", coinsToBeMovedFromNotBondedPool.AmountOf(bondDenom).Uint64())
-
 	coinsToBeMovedFromBondedPool := sdk.NewCoins(sdk.NewCoin(bondDenom, amountToBeMovedFromBondedPool))
-	fmt.Printf("coinsToBeMovedFromBondedPool = %d \n", coinsToBeMovedFromBondedPool.AmountOf(bondDenom).Uint64())
 
-	bank.SendCoinsFromModuleToModule(ctx, stakingtypes.NotBondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromNotBondedPool)
-	bank.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, distrtypes.ModuleName, coinsToBeMovedFromBondedPool)
+	if !coinsToBeMovedFromNotBondedPool.Empty() {
+		notBondedPoolAcc := staking.GetNotBondedPool(ctx)
+		distr.FundCommunityPool(ctx, coinsToBeMovedFromNotBondedPool, notBondedPoolAcc.GetAddress())
+	}
+	if !coinsToBeMovedFromBondedPool.Empty() {
+		bondedPoolAcc := staking.GetBondedPool(ctx)
+		distr.FundCommunityPool(ctx, coinsToBeMovedFromBondedPool, bondedPoolAcc.GetAddress())
+	}
 }
 
 //CreateUpgradeHandler make upgrade handler
-func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator,
-	wasmKeeper *wasm.Keeper, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper,
-) upgradetypes.UpgradeHandler {
+func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper, distr *distrkeeper.Keeper) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		for _, addrString := range addressesToBeAdjusted {
 			accAddr, _ := sdk.AccAddressFromBech32(addrString)
 			// unbond the accAddr delegations, send all the unbonding and unbonded tokens to the community pool
-			MoveDelegatorDelegationsToCommunityPool(ctx, accAddr, staking, bank)
+			MoveDelegatorDelegationsToCommunityPool(ctx, accAddr, staking, bank, distr)
 			// send 50k juno from the community pool to the accAddr if the master account has less than 50k juno
 			accAddrAmount := bank.GetBalance(ctx, accAddr, staking.BondDenom(ctx)).Amount
 			if sdk.NewIntFromUint64(50000000000).GT(accAddrAmount) {

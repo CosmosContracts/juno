@@ -73,7 +73,7 @@ func lupercaliaHunt(
 	// unbond the accAddr delegations, send all the unbonding and unbonded tokens to the community pool
 	bankBaseKeeper, _ := app.BankKeeper.(bankkeeper.BaseKeeper)
 
-	lupercalia.MoveDelegatorDelegationsToCommunityPool(ctxCheck, addr2, &app.StakingKeeper, &bankBaseKeeper)
+	lupercalia.MoveDelegatorDelegationsToCommunityPool(ctxCheck, addr2, &app.StakingKeeper, &bankBaseKeeper, &app.DistrKeeper)
 	// send 50k juno from the community pool to the accAddr if the master account has less than 50k juno
 	accAddrAmount := bankBaseKeeper.GetBalance(ctxCheck, addr2, app.StakingKeeper.BondDenom(ctxCheck)).Amount
 	if sdk.NewIntFromUint64(50000000000).GT(accAddrAmount) {
