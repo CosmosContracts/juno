@@ -1,8 +1,6 @@
 package lupercalia
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -47,7 +45,6 @@ func MoveDelegatorDelegationsToCommunityPool(ctx sdk.Context, delAcc sdk.AccAddr
 	delegatorUnbondingDelegations := staking.GetAllUnbondingDelegations(ctx, delAcc)
 	for _, unbondingDelegation := range delegatorUnbondingDelegations {
 		for _, entry := range unbondingDelegation.Entries {
-			fmt.Printf("entry.Balance = %d \n", entry.Balance.Uint64())
 			amountToBeMovedFromNotBondedPool = amountToBeMovedFromNotBondedPool.Add(entry.Balance)
 		}
 		staking.RemoveUnbondingDelegation(ctx, unbondingDelegation)
