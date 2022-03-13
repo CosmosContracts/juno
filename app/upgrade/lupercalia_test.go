@@ -135,9 +135,9 @@ func checkDelegation(
 }
 
 func TestUndelegate(t *testing.T) {
-	genTokens := sdk.NewIntFromUint64(1000000000000)
-	bondTokens := sdk.NewIntFromUint64(999999990000)
-	escapeBondTokens := sdk.NewIntFromUint64(250000000000)
+	genTokens := sdk.NewIntFromUint64(100000000000)
+	bondTokens := sdk.NewIntFromUint64(80000000000)
+	escapeBondTokens := sdk.NewIntFromUint64(25000000000)
 	genCoin := sdk.NewCoin(sdk.DefaultBondDenom, genTokens)
 	bondCoin := sdk.NewCoin(sdk.DefaultBondDenom, bondTokens)
 	escapeBondCoin := sdk.NewCoin(sdk.DefaultBondDenom, escapeBondTokens)
