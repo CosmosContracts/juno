@@ -97,7 +97,8 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 				// move all juno from acc to community pool (uncluding bonded juno)
 				lupercalia.MoveAccountCoinToCommunityPool(suite.ctx, addr2, &suite.app.StakingKeeper, &bankBaseKeeper, &suite.app.DistrKeeper)
 				// send 50k juno from the community pool to the accAddr
-				suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, distrtypes.ModuleName, addr2, sdk.NewCoins(sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewIntFromUint64(50000000000))))
+				err := suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, distrtypes.ModuleName, addr2, sdk.NewCoins(sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewIntFromUint64(50000000000))))
+				suite.Require().NoError(err)
 				feePool := suite.app.DistrKeeper.GetFeePool(suite.ctx)
 				coin := sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewIntFromUint64(50000000000))
 				feePool.CommunityPool = feePool.CommunityPool.Sub(sdk.NewDecCoinsFromCoins(coin))

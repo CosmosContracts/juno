@@ -58,11 +58,15 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 			// move all juno from acc to community pool (uncluding bonded juno)
 			MoveAccountCoinToCommunityPool(ctx, accAddr, staking, bank, distr)
 			// send 50k juno from the community pool to the accAddr
-			bank.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, accAddr, sdk.NewCoins(sdk.NewCoin(staking.BondDenom(ctx), sdk.NewIntFromUint64(50000000000))))
-			feePool := distr.GetFeePool(ctx)
-			coin := sdk.NewCoin(staking.BondDenom(ctx), sdk.NewIntFromUint64(50000000000))
-			feePool.CommunityPool = feePool.CommunityPool.Sub(sdk.NewDecCoinsFromCoins(coin))
-			distr.SetFeePool(ctx, feePool)
+			err := bank.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, accAddr, sdk.NewCoins(sdk.NewCoin(staking.BondDenom(ctx), sdk.NewIntFromUint64(50000000000))))
+			if err == nil {
+				feePool := distr.GetFeePool(ctx)
+				coin := sdk.NewCoin(staking.BondDenom(ctx), sdk.NewIntFromUint64(50000000000))
+				feePool.CommunityPool = feePool.CommunityPool.Sub(sdk.NewDecCoinsFromCoins(coin))
+				distr.SetFeePool(ctx, feePool)
+			} else {
+				panic(err)
+			}
 		}
 		// force an update of validator min commission
 		// we already did this for moneta
