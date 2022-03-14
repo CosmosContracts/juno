@@ -60,6 +60,7 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 	initialBondPool := sdk.ZeroInt()
 	initialUnbondPool := sdk.ZeroInt()
 	initialCommunityPool := sdk.ZeroInt()
+	initialDistAmount := sdk.ZeroInt()
 
 	testCases := []struct {
 		msg               string
@@ -75,7 +76,8 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 
 				initialBondPool = suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.StakingKeeper.GetBondedPool(suite.ctx).GetAddress(), "stake").Amount
 				initialUnbondPool = suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.StakingKeeper.GetNotBondedPool(suite.ctx).GetAddress(), "stake").Amount
-				initialCommunityPool = suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName).GetAddress(), "stake").Amount
+				initialCommunityPool = suite.app.DistrKeeper.GetFeePool(suite.ctx).CommunityPool.AmountOf("stake").RoundInt()
+				initialDistAmount = suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName).GetAddress(), "stake").Amount
 
 				// 1. check if bond pool has correct acc2 delegation
 				delegation := suite.app.StakingKeeper.GetDelegatorDelegations(suite.ctx, addr2, 120)[0]
@@ -96,6 +98,10 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 				lupercalia.MoveAccountCoinToCommunityPool(suite.ctx, addr2, &suite.app.StakingKeeper, &bankBaseKeeper, &suite.app.DistrKeeper)
 				// send 50k juno from the community pool to the accAddr
 				suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, distrtypes.ModuleName, addr2, sdk.NewCoins(sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewIntFromUint64(50000000000))))
+				feePool := suite.app.DistrKeeper.GetFeePool(suite.ctx)
+				coin := sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewIntFromUint64(50000000000))
+				feePool.CommunityPool = feePool.CommunityPool.Sub(sdk.NewDecCoinsFromCoins(coin))
+				suite.app.DistrKeeper.SetFeePool(suite.ctx, feePool)
 
 				suite.app.EndBlock(abci.RequestEndBlock{})
 				suite.app.Commit()
@@ -116,10 +122,11 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 
 				//3. check if community pool has received correct amount
 				//because genTokens and bondTokens are fixed. Therefore, this testcases assume that remaining amount of acc2 before refund is smaller than maxJunoPerAcc.
-				refundJunoToAcc := maxJunoPerAcc.Sub(genTokens.Sub(bondTokens))
-				trueJunoToTransfer := later.Sub(refundJunoToAcc)
-				afterCommunityPool := suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName).GetAddress(), "stake").Amount
+				trueJunoToTransfer := genTokens.Sub(afterAcc2Amount)
+				afterCommunityPool := suite.app.DistrKeeper.GetFeePool(suite.ctx).CommunityPool.AmountOf("stake").RoundInt()
+				afterDistAmount := suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName).GetAddress(), "stake").Amount
 
+				require.Equal(suite.T(), initialDistAmount.Add(trueJunoToTransfer), afterDistAmount)
 				require.Equal(suite.T(), initialCommunityPool.Add(trueJunoToTransfer), afterCommunityPool)
 
 				//4. check if all unbonding delegations are removed
