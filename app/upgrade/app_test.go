@@ -2,10 +2,8 @@ package lupercalia_test
 
 import (
 	"encoding/json"
-	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -15,45 +13,11 @@ import (
 	junoapp "github.com/CosmosContracts/juno/app"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
-	"github.com/CosmosContracts/juno/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
-
-// returns context and an app with updated mint keeper
-func createTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) {
-	app := setup(isCheckTx)
-
-	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
-	app.MintKeeper.SetParams(ctx, types.DefaultParams())
-	app.MintKeeper.SetMinter(ctx, types.DefaultInitialMinter())
-
-	return app, ctx
-}
-
-func setup(isCheckTx bool) *junoapp.App {
-	app, genesisState := genApp(!isCheckTx, 5)
-	if !isCheckTx {
-		// init chain must be called to stop deliverState from being nil
-		stateBytes, err := json.MarshalIndent(genesisState, "", " ")
-		if err != nil {
-			panic(err)
-		}
-
-		// Initialize the chain
-		app.InitChain(
-			abci.RequestInitChain{
-				Validators:      []abci.ValidatorUpdate{},
-				ConsensusParams: simapp.DefaultConsensusParams,
-				AppStateBytes:   stateBytes,
-			},
-		)
-	}
-
-	return app
-}
 
 func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.GenesisState) {
 	db := dbm.NewMemDB()
@@ -124,10 +88,4 @@ var defaultConsensusParams = &abci.ConsensusParams{
 			tmtypes.ABCIPubKeyTypeEd25519,
 		},
 	},
-}
-
-// CheckBalance checks the balance of an account.
-func checkBalance(t *testing.T, app *junoapp.App, addr sdk.AccAddress, balances sdk.Coins) {
-	ctxCheck := app.BaseApp.NewContext(true, tmproto.Header{})
-	require.True(t, balances.IsEqual(app.BankKeeper.GetAllBalances(ctxCheck, addr)))
 }
