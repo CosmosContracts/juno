@@ -95,7 +95,7 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 				bankBaseKeeper, _ := suite.app.BankKeeper.(bankkeeper.BaseKeeper)
 
 				// move all juno from acc to community pool (uncluding bonded juno)
-				lupercalia.MoveAccountCoinToCommunityPool(suite.ctx, addr2, &suite.app.StakingKeeper, &bankBaseKeeper, &suite.app.DistrKeeper)
+				lupercalia.BurnCoinFromAccount(suite.ctx, addr2, &suite.app.StakingKeeper, &bankBaseKeeper)
 				// send 50k juno from the community pool to the accAddr
 				err := suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, distrtypes.ModuleName, addr2, sdk.NewCoins(sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewIntFromUint64(50000000000))))
 				suite.Require().NoError(err)

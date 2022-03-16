@@ -7,15 +7,14 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
 var addressesToBeAdjusted = []string{
 	"juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8",
 }
 
-func MoveAccountCoinToCommunityPool(ctx sdk.Context, accAddr sdk.AccAddress, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper, distr *distrkeeper.Keeper) {
+//BurnCoinFromAccount undelegate all amount in whale address (bypass 28 day unbonding), and send it to dead address
+func BurnCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper) {
 	bondDenom := staking.BondDenom(ctx)
 
 	// this loop will turn all delegator's delegations into unbonding delegations
@@ -46,27 +45,18 @@ func MoveAccountCoinToCommunityPool(ctx sdk.Context, accAddr sdk.AccAddress, sta
 
 	// account balance after finishing unbonding
 	accCoin := bank.GetBalance(ctx, accAddr, bondDenom)
-	// move all coin from that acc to community pool
-	distr.FundCommunityPool(ctx, sdk.NewCoins(accCoin), accAddr)
+
+	//get dead address account and send coin to this address
+	destAcc, _ := sdk.AccAddressFromHex("0000000000000000000000000000000000000000")
+	bank.SendCoins(ctx, accAddr, destAcc, sdk.NewCoins(accCoin))
 }
 
 //CreateUpgradeHandler make upgrade handler
-func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper, distr *distrkeeper.Keeper) upgradetypes.UpgradeHandler {
+func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		for _, addrString := range addressesToBeAdjusted {
 			accAddr, _ := sdk.AccAddressFromBech32(addrString)
-			// move all juno from acc to community pool (uncluding bonded juno)
-			MoveAccountCoinToCommunityPool(ctx, accAddr, staking, bank, distr)
-			// send 50k juno from the community pool to the accAddr
-			err := bank.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, accAddr, sdk.NewCoins(sdk.NewCoin(staking.BondDenom(ctx), sdk.NewIntFromUint64(50000000000))))
-			if err == nil {
-				feePool := distr.GetFeePool(ctx)
-				coin := sdk.NewCoin(staking.BondDenom(ctx), sdk.NewIntFromUint64(50000000000))
-				feePool.CommunityPool = feePool.CommunityPool.Sub(sdk.NewDecCoinsFromCoins(coin))
-				distr.SetFeePool(ctx, feePool)
-			} else {
-				panic(err)
-			}
+			BurnCoinFromAccount(ctx, accAddr, staking, bank)
 		}
 		// force an update of validator min commission
 		// we already did this for moneta
