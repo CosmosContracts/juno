@@ -29,6 +29,16 @@ else
   sed -i 's/keyring-backend = "os"/keyring-backend = "test"/' "$HOME"/.juno/config/client.toml
 fi
 
+echo "Unsafe CORS value: $UNSAFE_CORS"
+
+APP_TOML_CONFIG="$HOME"/.juno/config/app.toml
+CONFIG_TOML_CONFIG="$HOME"/.juno/config/config.toml
+if [ -n $UNSAFE_CORS ]; then
+  echo "Unsafe CORS set... updating app.toml and config.toml"
+  sed -i "s/enabled-unsafe-cors = false/enabled-unsafe-cors = true/" "$APP_TOML_CONFIG"
+  sed -i "s/cors_allowed_origins = \[\]/cors_allowed_origins = \[\"\*\"\]/" "$CONFIG_TOML_CONFIG"
+fi
+
 # are we running for the first time?
 if ! junod keys show validator $KEYRING; then
   (echo "$PASSWORD"; echo "$PASSWORD") | junod keys add validator $KEYRING
