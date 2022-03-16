@@ -19,7 +19,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
 )
@@ -59,8 +58,6 @@ type UpgradeTestSuite struct {
 func (suite *UpgradeTestSuite) TestAdjustFunds() {
 	initialBondPool := sdk.ZeroInt()
 	initialUnbondPool := sdk.ZeroInt()
-	initialCommunityPool := sdk.ZeroInt()
-	initialDistAmount := sdk.ZeroInt()
 
 	testCases := []struct {
 		msg               string
@@ -76,8 +73,6 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 
 				initialBondPool = suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.StakingKeeper.GetBondedPool(suite.ctx).GetAddress(), "stake").Amount
 				initialUnbondPool = suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.StakingKeeper.GetNotBondedPool(suite.ctx).GetAddress(), "stake").Amount
-				initialCommunityPool = suite.app.DistrKeeper.GetFeePool(suite.ctx).CommunityPool.AmountOf("stake").RoundInt()
-				initialDistAmount = suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName).GetAddress(), "stake").Amount
 
 				// 1. check if bond pool has correct acc2 delegation
 				delegation := suite.app.StakingKeeper.GetDelegatorDelegations(suite.ctx, addr2, 120)[0]
@@ -96,13 +91,6 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 
 				// move all juno from acc to community pool (uncluding bonded juno)
 				lupercalia.BurnCoinFromAccount(suite.ctx, addr2, &suite.app.StakingKeeper, &bankBaseKeeper)
-				// send 50k juno from the community pool to the accAddr
-				err := suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, distrtypes.ModuleName, addr2, sdk.NewCoins(sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewIntFromUint64(50000000000))))
-				suite.Require().NoError(err)
-				feePool := suite.app.DistrKeeper.GetFeePool(suite.ctx)
-				coin := sdk.NewCoin(suite.app.StakingKeeper.BondDenom(suite.ctx), sdk.NewIntFromUint64(50000000000))
-				feePool.CommunityPool = feePool.CommunityPool.Sub(sdk.NewDecCoinsFromCoins(coin))
-				suite.app.DistrKeeper.SetFeePool(suite.ctx, feePool)
 
 				suite.app.EndBlock(abci.RequestEndBlock{})
 				suite.app.Commit()
@@ -117,20 +105,11 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 				later := afterBondPool.Add(afterUnbondPool)
 				require.Equal(suite.T(), initial.Sub(bondTokens), later)
 
-				//2. check if acc2 has exactly 50k juno
+				//2. check if acc2 has 0 juno
 				afterAcc2Amount := suite.app.BankKeeper.GetBalance(suite.ctx, addr2, sdk.DefaultBondDenom).Amount
-				require.Equal(suite.T(), maxJunoPerAcc, afterAcc2Amount)
+				require.Equal(suite.T(), sdk.ZeroInt(), afterAcc2Amount)
 
-				//3. check if community pool has received correct amount
-				//because genTokens and bondTokens are fixed. Therefore, this testcases assume that remaining amount of acc2 before refund is smaller than maxJunoPerAcc.
-				trueJunoToTransfer := genTokens.Sub(afterAcc2Amount)
-				afterCommunityPool := suite.app.DistrKeeper.GetFeePool(suite.ctx).CommunityPool.AmountOf("stake").RoundInt()
-				afterDistAmount := suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName).GetAddress(), "stake").Amount
-
-				require.Equal(suite.T(), initialDistAmount.Add(trueJunoToTransfer), afterDistAmount)
-				require.Equal(suite.T(), initialCommunityPool.Add(trueJunoToTransfer), afterCommunityPool)
-
-				//4. check if all unbonding delegations are removed
+				//3. check if all unbonding delegations are removed
 				unbondDels := suite.app.StakingKeeper.GetAllUnbondingDelegations(suite.ctx, addr2)
 
 				require.Equal(suite.T(), len(unbondDels), 0)
