@@ -29,8 +29,6 @@ else
   sed -i 's/keyring-backend = "os"/keyring-backend = "test"/' "$HOME"/.juno/config/client.toml
 fi
 
-echo "Unsafe CORS value: $UNSAFE_CORS"
-
 APP_TOML_CONFIG="$HOME"/.juno/config/app.toml
 CONFIG_TOML_CONFIG="$HOME"/.juno/config/config.toml
 if [ -n $UNSAFE_CORS ]; then
