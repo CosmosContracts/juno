@@ -24,7 +24,10 @@ func BurnCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *staki
 		if !found {
 			continue
 		}
-		staking.Undelegate(ctx, accAddr, validatorValAddr, delegation.GetShares()) //nolint:errcheck // nolint because otherwise we'd have a time and nothing to do with it.
+		_, err := staking.Undelegate(ctx, accAddr, validatorValAddr, delegation.GetShares()) //nolint:errcheck // nolint because otherwise we'd have a time and nothing to do with it.
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	now := ctx.BlockHeader().Time
@@ -40,7 +43,10 @@ func BurnCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *staki
 			unbondingDelegation.Entries[i].CompletionTime = now
 		}
 		staking.SetUnbondingDelegation(ctx, unbondingDelegation)
-		staking.CompleteUnbonding(ctx, accAddr, validatorValAddr)
+		_, err := staking.CompleteUnbonding(ctx, accAddr, validatorValAddr)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// account balance after finishing unbonding
@@ -48,7 +54,10 @@ func BurnCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *staki
 
 	//get dead address account and send coin to this address
 	destAcc, _ := sdk.AccAddressFromHex("0000000000000000000000000000000000000000")
-	bank.SendCoins(ctx, accAddr, destAcc, sdk.NewCoins(accCoin))
+	err := bank.SendCoins(ctx, accAddr, destAcc, sdk.NewCoins(accCoin))
+	if err != nil {
+		panic(err)
+	}
 }
 
 //CreateUpgradeHandler make upgrade handler
