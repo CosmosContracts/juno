@@ -82,15 +82,25 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
+	icacontroller "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller"
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/keeper"
+	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
+	icahost "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host"
+	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
+	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v3/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
 	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
+	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -180,7 +190,10 @@ var (
 		staking.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
-		gov.NewAppModuleBasic(getGovProposalHandlers()...),
+		gov.NewAppModuleBasic(
+			paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.ProposalHandler, upgradeclient.CancelProposalHandler,
+			ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
+		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
@@ -189,9 +202,10 @@ var (
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
-		vesting.AppModuleBasic{},
+		ibcmock.AppModuleBasic{},
+		ica.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
-		// this line is used by starport scaffolding # stargate/app/moduleBasic
+		vesting.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
 
@@ -204,8 +218,8 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		// this line is used by starport scaffolding # stargate/app/maccPerms
-		wasm.ModuleName: {authtypes.Burner},
+		icatypes.ModuleName:            nil,
+		wasm.ModuleName:                {authtypes.Burner},
 	}
 )
 
@@ -241,33 +255,46 @@ type App struct {
 	memKeys map[string]*sdk.MemoryStoreKey
 
 	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    stakingkeeper.Keeper
-	SlashingKeeper   slashingkeeper.Keeper
-	MintKeeper       mintkeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        govkeeper.Keeper
-	CrisisKeeper     crisiskeeper.Keeper
-	UpgradeKeeper    upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	EvidenceKeeper   evidencekeeper.Keeper
-	TransferKeeper   ibctransferkeeper.Keeper
-	AuthzKeeper      authzkeeper.Keeper
-	FeeGrantKeeper   feegrantkeeper.Keeper
+	AccountKeeper       authkeeper.AccountKeeper
+	BankKeeper          bankkeeper.Keeper
+	CapabilityKeeper    *capabilitykeeper.Keeper
+	StakingKeeper       stakingkeeper.Keeper
+	SlashingKeeper      slashingkeeper.Keeper
+	MintKeeper          mintkeeper.Keeper
+	DistrKeeper         distrkeeper.Keeper
+	GovKeeper           govkeeper.Keeper
+	CrisisKeeper        crisiskeeper.Keeper
+	UpgradeKeeper       upgradekeeper.Keeper
+	ParamsKeeper        paramskeeper.Keeper
+	AuthzKeeper         authzkeeper.Keeper
+	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	ICAControllerKeeper icacontrollerkeeper.Keeper
+	ICAHostKeeper       icahostkeeper.Keeper
+	EvidenceKeeper      evidencekeeper.Keeper
+	TransferKeeper      ibctransferkeeper.Keeper
+	FeeGrantKeeper      feegrantkeeper.Keeper
 
 	// make scoped keepers public for test purposes
-	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
-	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
+	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
+	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
+	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
+	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
+	ScopedIBCMockKeeper       capabilitykeeper.ScopedKeeper
+	ScopedICAMockKeeper       capabilitykeeper.ScopedKeeper
 
-	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
+	// make IBC modules public for test purposes
+	// these modules are never directly routed to by the IBC Router
+	ICAAuthModule ibcmock.IBCModule
+
+	// wasm keepers
 	wasmKeeper       wasm.Keeper
 	scopedWasmKeeper capabilitykeeper.ScopedKeeper
 
 	// the module manager
 	mm *module.Manager
+
+	// simulation manager
+	sm *module.SimulationManager
 
 	//ics4Wrapper
 	ICS4Wrapper porttypes.ICS4Wrapper
@@ -330,8 +357,17 @@ func New(
 	// grant capabilities for the ibc and ibc-transfer modules
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	// this line is used by starport scaffolding # stargate/app/scopedKeeper
+	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
+	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
+
+	// NOTE: the IBC mock keeper and application module is used only for testing core IBC. Do
+	// not replicate if you do not need to test core IBC or light clients.
+	scopedIBCMockKeeper := app.CapabilityKeeper.ScopeToModule(ibcmock.ModuleName)
+	scopedICAMockKeeper := app.CapabilityKeeper.ScopeToModule(ibcmock.ModuleName + icacontrollertypes.SubModuleName)
+
+	// seal capability keeper after scoping modules
+	app.CapabilityKeeper.Seal()
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -385,16 +421,55 @@ func New(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+	app.GovKeeper = govkeeper.NewKeeper(
+		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
+		&stakingKeeper, govRouter,
+	)
 
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
-		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName), app.ICS4Wrapper,
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 	)
-	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
+	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
+
+	// NOTE: the IBC mock keeper and application module is used only for testing core IBC. Do
+	// not replicate if you do not need to test core IBC or light clients.
+	mockModule := ibcmock.NewAppModule(&app.IBCKeeper.PortKeeper)
+	mockIBCModule := ibcmock.NewIBCModule(&mockModule, ibcmock.NewMockIBCApp(ibcmock.ModuleName, scopedIBCMockKeeper))
+
+	app.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
+		appCodec, keys[icacontrollertypes.StoreKey], app.GetSubspace(icacontrollertypes.SubModuleName),
+		app.IBCKeeper.ChannelKeeper, // may be replaced with middleware such as ics29 fee
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		scopedICAControllerKeeper, app.MsgServiceRouter(),
+	)
+
+	app.ICAHostKeeper = icahostkeeper.NewKeeper(
+		appCodec, keys[icahosttypes.StoreKey], app.GetSubspace(icahosttypes.SubModuleName),
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		app.AccountKeeper, scopedICAHostKeeper, app.MsgServiceRouter(),
+	)
+
+	icaModule := ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper)
+
+	// initialize ICA module with mock module as the authentication module on the controller side
+	icaAuthModule := ibcmock.NewIBCModule(&mockModule, ibcmock.NewMockIBCApp("", scopedICAMockKeeper))
+	app.ICAAuthModule = icaAuthModule
+
+	icaControllerIBCModule := icacontroller.NewIBCModule(app.ICAControllerKeeper, icaAuthModule)
+	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
+
+	// Create static IBC router, add app routes, then set and seal it
+	ibcRouter := porttypes.NewRouter()
+	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
+		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
+		AddRoute(ibcmock.ModuleName+icacontrollertypes.SubModuleName, icaControllerIBCModule). // ica with mock auth module stack route to ica (top level of middleware stack)
+		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
+		AddRoute(ibcmock.ModuleName, mockIBCModule)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
