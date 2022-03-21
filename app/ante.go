@@ -19,7 +19,7 @@ import (
 type HandlerOptions struct {
 	ante.HandlerOptions
 
-	IBCChannelkeeper  *channelkeeper.Keeper
+	IBCKeeper         *channelkeeper.Keeper
 	TxCounterStoreKey sdk.StoreKey
 	WasmConfig        wasmTypes.WasmConfig
 	Cdc               codec.BinaryCodec
@@ -136,7 +136,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		ibcante.NewAnteDecorator(options.IBCChannelkeeper),
+		ibcante.NewAnteDecorator(options.IBCKeeper),
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
