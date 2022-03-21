@@ -12,22 +12,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 )
 
-// Simulation parameter constants
+// Simulation parameter constants.
 const (
 	Inflation = "inflation"
 )
 
-// GenInflation randomized Inflation
+// GenInflation randomized Inflation.
 func GenInflation(r *rand.Rand) sdk.Dec {
 	return sdk.NewDecWithPrec(int64(r.Intn(99)), 2)
 }
 
-// GenBlocksPerYear randomized BlocksPerYear
+// GenBlocksPerYear randomized BlocksPerYear.
 func GenBlocksPerYear(r *rand.Rand) sdk.Dec {
 	return sdk.NewDec(60 * 60 * 8766 / 5)
 }
 
-// RandomizedGenState generates a random GenesisState for mint
+// RandomizedGenState generates a random GenesisState for mint.
 func RandomizedGenState(simState *module.SimulationState) {
 	// minter
 	var inflation sdk.Dec
