@@ -1,4 +1,3 @@
-package lupercalia
-
+package upgrade
 
 const UpgradeName = "lupercalia"
