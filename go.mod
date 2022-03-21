@@ -124,7 +124,9 @@ require (
 )
 
 replace (
-	github.com/cosmos/iavl => github.com/cosmos/iavl v0.17.3
+	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.45.1-allfast
+	github.com/cosmos/iavl => github.com/osmosis-labs/iavl v0.17.3-osmo-v5.0.20220321022426-8371754f3299
+	github.com/cosmwasm/wasmd => github.com/notional-labs/wasmd v0.21.1-0.20220321065016-39dc6617bd99
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
