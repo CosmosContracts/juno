@@ -3,11 +3,10 @@ package upgrade
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/app"
+	juno "github.com/CosmosContracts/juno/app"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	icamodule "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
 	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
@@ -20,13 +19,13 @@ import (
 
 // Thank you, cosmos hub team.
 // Juno team, we will need to add cw related messages here to ensure maximum interchain intercourse.
-func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper) upgradetypes.UpgradeHandler {
+func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, bank *bankkeeper.BaseKeeper, icaModule icamodule.AppModule, app juno.App, loadLatest bool) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		upgradekeeper.Keeper.SetUpgradeHandler(
+		app.UpgradeKeeper.SetUpgradeHandler(
 			"lupercalia",
 			func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 
-				fromVM[icatypes.ModuleName] = icamodule.ConsensusVersion()
+				fromVM[icatypes.ModuleName] = icaModule.ConsensusVersion()
 				// create ICS27 Controller submodule params
 				controllerParams := icacontrollertypes.Params{}
 				// create ICS27 Host submodule params
@@ -67,15 +66,15 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 				ctx.Logger().Info("start to init interchainaccount module...")
 
 				// initialize ICS27 module
-				icamodule.AppModule.InitModule(ctx, controllerParams, hostParams)
+				icaModule.InitModule(ctx, controllerParams, hostParams)
 
 				ctx.Logger().Info("start to run module migrations...")
 
-				return mm.RunMigrations(ctx, mm.configurator, fromVM)
+				return mm.RunMigrations(ctx, configurator, fromVM)
 			},
 		)
 
-		upgradeInfo, err := juno.UpgradeKeeper.ReadUpgradeInfoFromDisk(ctx, UpgradeName)
+		upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 		if err != nil {
 			panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
 		}
@@ -86,16 +85,16 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 			}
 
 			// configure store loader that checks if version == upgradeHeight and applies store upgrades
-			mm.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 		}
 
-		if app.LoadLatest() {
+		if loadLatest {
 			if err := app.LoadLatestVersion(); err != nil {
 				os.Exit(fmt.Sprintf("failed to load latest version: %s", err))
 			}
 		}
 
-		return mm.RunMigrations(ctx, app.configurator, fromVM)
+		return mm.RunMigrations(ctx, configurator, vm)
 
 	}
 }
