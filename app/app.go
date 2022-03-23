@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -16,6 +17,10 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	lupercalia "github.com/CosmosContracts/juno/app/upgrade"
 	"github.com/CosmosContracts/juno/docs"
 	"github.com/CosmosContracts/juno/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
@@ -101,12 +106,8 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 	ibcmock "github.com/cosmos/ibc-go/v3/testing/mock"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/prometheus/client_golang/prometheus"
+	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
@@ -398,10 +399,6 @@ func New(
 	)
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, nil)
 
-	// upgrade handlers
-	cfg := module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
-	app.RegisterUpgradeHandlers(cfg)
-
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.StakingKeeper = *stakingKeeper.SetHooks(
@@ -637,6 +634,7 @@ func New(
 		icatypes.ModuleName,
 		wasm.ModuleName,
 	)
+	cfg := module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
@@ -684,6 +682,10 @@ func New(
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 	}
+
+	// upgrade handlers for lupercalia
+	app.setupUpgradeStoreLoaders()
+	app.RegisterUpgradeHandlers(cfg, ICAModule)
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -828,35 +830,28 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 }
 
 // RegisterUpgradeHandlers returns upgrade handlers
-func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler("lupercalia", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		// force an update of validator min commission
-		// we already did this for moneta
-		// but validators could have snuck in changes in the
-		// interim
-		// and via state sync to post-moneta
-		validators := app.StakingKeeper.GetAllValidators(ctx)
-		// hard code this because we don't want
-		// a) a fork or
-		// b) immediate reaction with additional gov props
-		minCommissionRate := sdk.NewDecWithPrec(5, 2)
-		for _, v := range validators {
-			if v.Commission.Rate.LT(minCommissionRate) {
-				if v.Commission.MaxRate.LT(minCommissionRate) {
-					v.Commission.MaxRate = minCommissionRate
-				}
+func (app *App) RegisterUpgradeHandlers(cfg module.Configurator, ica ica.AppModule) {
+	bankBaseKeeper, _ := app.BankKeeper.(bankkeeper.BaseKeeper)
+	app.UpgradeKeeper.SetUpgradeHandler(
+		"lupercalia",
+		lupercalia.CreateUpgradeHandler(app.mm, cfg, &bankBaseKeeper, ica),
+	)
+}
 
-				v.Commission.Rate = minCommissionRate
-				v.Commission.UpdateTime = ctx.BlockHeader().Time
+func (app *App) setupUpgradeStoreLoaders() {
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
+	}
 
-				// call the before-modification hook since we're about to update the commission
-				app.StakingKeeper.BeforeValidatorModified(ctx, v.GetOperator())
-
-				app.StakingKeeper.SetValidator(ctx, v)
-			}
+	if upgradeInfo.Name == "lupercalia" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		storeUpgrades := store.StoreUpgrades{
+			Added: []string{icahosttypes.StoreKey, icacontrollertypes.StoreKey},
 		}
-		return app.mm.RunMigrations(ctx, cfg, vm)
-	})
+
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
 }
 
 // GetMaccPerms returns a copy of the module account permissions
