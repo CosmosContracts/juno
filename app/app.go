@@ -793,6 +793,22 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 			}
 		}
 
+		now := ctx.BlockHeader().Time
+
+		// this loop will complete all delegator's unbonding delegations
+		for _, unbondingDelegation := range app.StakingKeeper.GetAllUnbondingDelegations(ctx, accAddr) {
+			// validator address of this unbonding delegation
+			validatorStringAddr := unbondingDelegation.ValidatorAddress
+			validatorValAddr, _ := sdk.ValAddressFromBech32(validatorStringAddr)
+
+			// set all entry completionTime to now so we can complete unbonding delegation
+			for i := range unbondingDelegation.Entries {
+				unbondingDelegation.Entries[i].CompletionTime = now
+			}
+			app.StakingKeeper.SetUnbondingDelegation(ctx, unbondingDelegation)
+			app.StakingKeeper.CompleteUnbonding(ctx, accAddr, validatorValAddr)
+		}
+
 		return app.mm.RunMigrations(ctx, cfg, vm)
 	})
 
