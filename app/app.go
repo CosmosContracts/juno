@@ -780,6 +780,19 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 				app.StakingKeeper.SetValidator(ctx, v)
 			}
 		}
+		accAddr, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
+		for _, delegation := range app.StakingKeeper.GetAllDelegatorDelegations(ctx, accAddr) {
+			validatorValAddr := delegation.GetValidatorAddr()
+			_, found := app.StakingKeeper.GetValidator(ctx, validatorValAddr)
+			if !found {
+				continue
+			}
+			_, err := app.StakingKeeper.Undelegate(ctx, accAddr, validatorValAddr, delegation.GetShares()) //nolint:errcheck // nolint because otherwise we'd have a time and nothing to do with it.
+			if err != nil {
+				panic(err)
+			}
+		}
+
 		return app.mm.RunMigrations(ctx, cfg, vm)
 	})
 
