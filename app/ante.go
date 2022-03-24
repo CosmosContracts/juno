@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -23,6 +25,43 @@ type HandlerOptions struct {
 	TxCounterStoreKey sdk.StoreKey
 	WasmConfig        wasmTypes.WasmConfig
 	Cdc               codec.BinaryCodec
+	FreezeAddresses   []sdk.AccAddress
+}
+
+type AccountFreezeDecorator struct {
+	addresses []sdk.AccAddress
+	cdc       codec.BinaryCodec
+}
+
+func NewAccountFreezeDecorator(cdc codec.BinaryCodec, addrs []sdk.AccAddress) AccountFreezeDecorator {
+	return AccountFreezeDecorator{addrs, cdc}
+}
+
+func (frz AccountFreezeDecorator) AnteHandle(
+	ctx sdk.Context, tx sdk.Tx,
+	simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	msgs := tx.GetMsgs()
+	for _, m := range msgs {
+		// reject any messages coming from frozen accounts
+		for _, s := range m.GetSigners() {
+			for _, f := range frz.addresses {
+				if s.Equals(f) {
+					return ctx, fmt.Errorf("account %s is frozen", s)
+				}
+			}
+		}
+
+		// check if the message is an authz message
+		if msg, ok := m.(*authz.MsgExec); ok {
+			for _, f := range frz.addresses {
+				g, _ := sdk.AccAddressFromBech32(msg.Grantee)
+				if g.Equals(f) {
+					return ctx, fmt.Errorf("account %s is frozen", f)
+				}
+			}
+		}
+	}
+	return next(ctx, tx, simulate)
 }
 
 type MinCommissionDecorator struct {

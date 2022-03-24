@@ -568,6 +568,8 @@ func New(
 	app.MountTransientStores(tkeys)
 	app.MountMemoryStores(memKeys)
 
+	freezeAddress, _ := sdk.AccAddressFromBech32("juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8")
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -581,6 +583,7 @@ func New(
 			TxCounterStoreKey: keys[wasm.StoreKey],
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
+			FreezeAddresses:   []sdk.AccAddress{freezeAddress},
 		},
 	)
 	if err != nil {
