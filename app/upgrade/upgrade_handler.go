@@ -13,9 +13,29 @@ var addressesToBeAdjusted = []string{
 	"juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8",
 }
 
-//BurnCoinFromAccount undelegate all amount in whale address (bypass 28 day unbonding), and send it to dead address
+//BurnCoinFromAccount undelegate all amount in adjsuted address (bypass 28 day unbonding), and send it to dead address
 func BurnCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper) {
 	bondDenom := staking.BondDenom(ctx)
+
+	now := ctx.BlockHeader().Time
+
+	// this loop will complete all delegator's active redelegations
+	for _, activeRedelegation:= range staking.GetRedelegations(ctx, accAddr, 65535) {
+		// src/dest validator addresses of this redelegation
+		redelegationSrc, _ := sdk.ValAddressFromBech32(activeRedelegation.ValidatorSrcAddress)
+		redelegationDst, _ := sdk.ValAddressFromBech32(activeRedelegation.ValidatorDstAddress)
+
+		// set all entry completionTime to now so we can complete redelegation
+		for i := range activeRedelegation.Entries {
+			activeRedelegation.Entries[i].CompletionTime = now
+		}
+
+		staking.SetRedelegation(ctx, activeRedelegation)
+		_, err := staking.CompleteRedelegation(ctx, accAddr, redelegationSrc, redelegationDst)
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	// this loop will turn all delegator's delegations into unbonding delegations
 	for _, delegation := range staking.GetAllDelegatorDelegations(ctx, accAddr) {
@@ -30,7 +50,6 @@ func BurnCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *staki
 		}
 	}
 
-	now := ctx.BlockHeader().Time
 
 	// this loop will complete all delegator's unbonding delegations
 	for _, unbondingDelegation := range staking.GetAllUnbondingDelegations(ctx, accAddr) {
