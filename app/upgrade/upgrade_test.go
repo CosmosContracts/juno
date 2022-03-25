@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/CosmosContracts/juno/app"
 	junoapp "github.com/CosmosContracts/juno/app"
 	lupercalia "github.com/CosmosContracts/juno/app/upgrade"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
@@ -180,7 +181,7 @@ func (suite *UpgradeTestSuite) SetupTest() {
 		},
 	}
 
-	suite.app = setupWithGenesisAccounts(accs, balances...)
+	suite.app = app.SetupWithGenesisAccounts(accs, balances...)
 	suite.ctx = suite.app.BaseApp.NewContext(true, tmproto.Header{})
 	checkBalance(suite.T(), suite.app, addr1, sdk.Coins{genCoin})
 	checkBalance(suite.T(), suite.app, addr2, sdk.Coins{genCoin})

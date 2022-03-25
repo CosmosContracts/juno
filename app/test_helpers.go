@@ -1,8 +1,7 @@
-package lupercalia_test
+package app
 
 import (
 	"encoding/json"
-	"time"
 
 	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -10,19 +9,18 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	junoapp "github.com/CosmosContracts/juno/app"
+	// junoapp "github.com/CosmosContracts/juno/app"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.GenesisState) {
+func setup(withGenesis bool, invCheckPeriod uint) (*App, GenesisState) {
 	db := dbm.NewMemDB()
-	encCdc := cosmoscmd.MakeEncodingConfig(junoapp.ModuleBasics)
-	app := junoapp.New(
+	encCdc := cosmoscmd.MakeEncodingConfig(ModuleBasics)
+	app := New(
 		log.NewNopLogger(),
 		db,
 		nil,
@@ -33,16 +31,16 @@ func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.Genesi
 		encCdc,
 		simapp.EmptyAppOptions{})
 
-	originalApp := app.(*junoapp.App)
+	originalApp := app.(*App)
 	if withGenesis {
-		return originalApp, junoapp.NewDefaultGenesisState(encCdc.Marshaler)
+		return originalApp, NewDefaultGenesisState(encCdc.Marshaler)
 	}
 
-	return originalApp, junoapp.GenesisState{}
+	return originalApp, GenesisState{}
 }
 
-func setupWithGenesisAccounts(genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *junoapp.App {
-	app, genesisState := genApp(true, 0)
+func SetupWithGenesisAccounts(genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *App {
+	app, genesisState := setup(true, 0)
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
 
@@ -62,7 +60,7 @@ func setupWithGenesisAccounts(genAccs []authtypes.GenesisAccount, balances ...ba
 	app.InitChain(
 		abci.RequestInitChain{
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: defaultConsensusParams,
+			ConsensusParams: simapp.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
@@ -71,21 +69,4 @@ func setupWithGenesisAccounts(genAccs []authtypes.GenesisAccount, balances ...ba
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1}})
 
 	return app
-}
-
-var defaultConsensusParams = &abci.ConsensusParams{
-	Block: &abci.BlockParams{
-		MaxBytes: 200000,
-		MaxGas:   2000000,
-	},
-	Evidence: &tmproto.EvidenceParams{
-		MaxAgeNumBlocks: 302400,
-		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
-		MaxBytes:        10000,
-	},
-	Validator: &tmproto.ValidatorParams{
-		PubKeyTypes: []string{
-			tmtypes.ABCIPubKeyTypeEd25519,
-		},
-	},
 }
