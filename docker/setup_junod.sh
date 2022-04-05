@@ -30,9 +30,14 @@ else
 fi
 
 APP_TOML_CONFIG="$HOME"/.juno/config/app.toml
+APP_TOML_CONFIG_NEW="$HOME"/.juno/config/app_new.toml
 CONFIG_TOML_CONFIG="$HOME"/.juno/config/config.toml
 if [ -n $UNSAFE_CORS ]; then
   echo "Unsafe CORS set... updating app.toml and config.toml"
+  # sorry about this bit, but toml is rubbish for structural editing
+  sed -n '1h;1!H;${g;s/# Enable defines if the API server should be enabled.\nenable = false/enable = true/;p;}' "$APP_TOML_CONFIG" > "$APP_TOML_CONFIG_NEW"
+  mv "$APP_TOML_CONFIG_NEW" "$APP_TOML_CONFIG"
+  # ...and breathe
   sed -i "s/enabled-unsafe-cors = false/enabled-unsafe-cors = true/" "$APP_TOML_CONFIG"
   sed -i "s/cors_allowed_origins = \[\]/cors_allowed_origins = \[\"\*\"\]/" "$CONFIG_TOML_CONFIG"
 fi
