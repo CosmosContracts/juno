@@ -7,6 +7,7 @@ services:
       - 1317:1317 # rest
       - 26656:26656 # p2p
       - 26657:26657 # rpc
+    build_arg: arch=${ARCH:-x86_64}
     environment:
       - GAS_LIMIT=${GAS_LIMIT:-100000000}
       - STAKE_TOKEN=${STAKE_TOKEN:-ustake}

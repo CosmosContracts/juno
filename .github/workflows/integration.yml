@@ -1,0 +1,26 @@
+name: contract-ci
+
+on:
+  pull_request:
+  push:
+    tags:
+    branches:
+      - 'main'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker compose
+        run: STAKE_TOKEN="ujunox" docker-compose up -d
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: 'envoylabs/whoami'
+          ref: 'v0.5.5'
+      - name: Run deploy script
+        run: |
+          chmod a+x ./scripts/deploy_ci.sh
+          ./scripts/deploy_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
+
