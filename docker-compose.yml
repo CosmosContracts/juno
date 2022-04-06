@@ -1,14 +1,15 @@
 version: "3"
 services:
   node:
-    build: .
+    build:
+      context: .
+      args:
+        - arch=${ARCH:-x86_64}
     command: ./setup_and_run.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
     ports:
       - 1317:1317 # rest
       - 26656:26656 # p2p
       - 26657:26657 # rpc
-    args:
-      - arch=${ARCH:-x86_64}
     environment:
       - GAS_LIMIT=${GAS_LIMIT:-100000000}
       - STAKE_TOKEN=${STAKE_TOKEN:-ustake}
