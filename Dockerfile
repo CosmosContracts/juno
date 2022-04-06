@@ -27,7 +27,7 @@ RUN cp /lib/libwasmvm_muslc.${arch}.a /lib/libwasmvm_muslc.a
 # force it to use static lib (from above) not standard libgo_cosmwasm.so file
 RUN LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make build
 RUN echo "Ensuring binary is statically linked ..." \
-  && (file /code/build/wasmd | grep "statically linked")
+  && (file /code/build/junod | grep "statically linked")
 
 # --------------------------------------------------------
 FROM alpine:3.15
