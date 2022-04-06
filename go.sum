@@ -95,6 +95,10 @@ github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d h1:nalkkPQ
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d/go.mod h1:URdX5+vg25ts3aCh8H5IFZybJYKWhJHYMTnf+ULtoC4=
 github.com/CosmWasm/wasmd v0.24.0 h1:FPZHdGNCcAV41BNbNs5DTvHbBf7mKqi+1bAi9bON9Vc=
 github.com/CosmWasm/wasmd v0.24.0/go.mod h1:Mv+kbikEbuzD/ryvKAKgVYGFNiMiKL5uVrBEN4KfwY4=
+github.com/CosmWasm/wasmd v0.25.0 h1:Xshr94OaTrOVV0p6g6bTbDYjcmokO1T69hoi11nSnlM=
+github.com/CosmWasm/wasmd v0.25.0/go.mod h1:z9a5HPPJ6HSpsRzUtyi9iT07bO96w9ZJnDAwThHtP9Y=
+github.com/CosmWasm/wasmvm v1.0.0-beta10 h1:N99+PRcrh4FeDP1xQuJGaAsr+7U+TZAHKG8mybnAsKU=
+github.com/CosmWasm/wasmvm v1.0.0-beta10/go.mod h1:y+yd9piV8KlrB7ISRZz1sDwH4UVm4Q9rEX9501dBNog=
 github.com/CosmWasm/wasmvm v1.0.0-beta7 h1:hCa6P8tUTh8viabzeXfede5iPlopSav9Guh+hupXjvU=
 github.com/CosmWasm/wasmvm v1.0.0-beta7/go.mod h1:y+yd9piV8KlrB7ISRZz1sDwH4UVm4Q9rEX9501dBNog=
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
@@ -305,6 +309,8 @@ github.com/coinbase/rosetta-sdk-go v0.7.0/go.mod h1:7nD3oBPIiHqhRprqvMgPoGxe/nyq
 github.com/confio/ics23/go v0.6.3/go.mod h1:E45NqnlpxGnpfTWL/xauN7MRwEE28T4Dd4uraToOaKg=
 github.com/confio/ics23/go v0.6.6 h1:pkOy18YxxJ/r0XFDCnrl4Bjv6h4LkBSpLS6F38mrKL8=
 github.com/confio/ics23/go v0.6.6/go.mod h1:E45NqnlpxGnpfTWL/xauN7MRwEE28T4Dd4uraToOaKg=
+github.com/confio/ics23/go v0.7.0 h1:00d2kukk7sPoHWL4zZBZwzxnpA2pec1NPdwbSokJ5w8=
+github.com/confio/ics23/go v0.7.0/go.mod h1:E45NqnlpxGnpfTWL/xauN7MRwEE28T4Dd4uraToOaKg=
 github.com/containerd/aufs v0.0.0-20200908144142-dab0cbea06f4/go.mod h1:nukgQABAEopAHvB6j7cnP5zJ+/3aVcE7hCYqvIwAHyE=
 github.com/containerd/aufs v0.0.0-20201003224125-76a6863f2989/go.mod h1:AkGGQs9NM2vtYHaUen+NljV0/baGCAPELGm2q9ZXpWU=
 github.com/containerd/aufs v0.0.0-20210316121734-20793ff83c97/go.mod h1:kL5kd6KM5TzQjR79jljyi4olc1Vrx6XBlcyj3gNv2PU=
@@ -429,6 +435,8 @@ github.com/cosmos/ibc-go v1.2.2/go.mod h1:XmYjsRFOs6Q9Cz+CSsX21icNoH27vQKb3squgn
 github.com/cosmos/ibc-go/v2 v2.0.2/go.mod h1:XUmW7wmubCRhIEAGtMGS+5IjiSSmcAwihoN/yPGd6Kk=
 github.com/cosmos/ibc-go/v2 v2.0.3 h1:kZ6SAj7hyxoixsLEUBx431bVGiBW22PCHwkWHafWhXs=
 github.com/cosmos/ibc-go/v2 v2.0.3/go.mod h1:XUmW7wmubCRhIEAGtMGS+5IjiSSmcAwihoN/yPGd6Kk=
+github.com/cosmos/ibc-go/v2 v2.2.0 h1:nqpvElI9ku5oQZtKvLerhZ/UXH7QoL44VBTWwZkS4C8=
+github.com/cosmos/ibc-go/v2 v2.2.0/go.mod h1:rAHRlBcRiHPP/JszN+08SJx3pegww9bcVncIb9QLx7I=
 github.com/cosmos/ledger-cosmos-go v0.11.1 h1:9JIYsGnXP613pb2vPjFeMMjBI5lEDsEaF6oYorTy6J4=
 github.com/cosmos/ledger-cosmos-go v0.11.1/go.mod h1:J8//BsAGTo3OC/vDLjMRFLW6q0WAaXvHnVc7ZmE8iUY=
 github.com/cosmos/ledger-go v0.9.2 h1:Nnao/dLwaVTk1Q5U9THldpUMMXU94BOTWPddSmVB6pI=
@@ -1485,6 +1493,8 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.7.1 h1:5TQK59W5E3v0r2duFAb7P95B6hEeOyEnHRa8MjYSMTY=
+github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/subosito/gotenv v1.2.0 h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/syndtr/gocapability v0.0.0-20170704070218-db04d3cc01c8/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
