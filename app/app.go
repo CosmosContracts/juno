@@ -779,6 +779,10 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 		}
 		return app.mm.RunMigrations(ctx, cfg, vm)
 	})
+
+	app.UpgradeKeeper.SetUpgradeHandler("wasmd-patch", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return app.mm.RunMigrations(ctx, cfg, vm)
+	})
 }
 
 // GetMaccPerms returns a copy of the module account permissions
