@@ -26,7 +26,7 @@ For a SoftwareUpgradeProposal via governance:
 
 If the team needs to upgrade the chain faster than the cadence of governance, then a special procedure applies.
 
-This procedure minimises the amount that is publicly shared about a potential issue.
+This procedure minimizes the amount that is publicly shared about a potential issue.
 
 1. An announcement calling validators to check in on the private validators channel will be posted on the _validators announcement channel_ on discord. No specifics will be shared here, as it is public.
 2. Details of the patch and the upgrade plan will be shared on the private channel, as well as an expected ETA.
