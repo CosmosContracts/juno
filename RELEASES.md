@@ -2,7 +2,7 @@
 
 The `#validators-private` channel on discord will be used for all communications from the team. Only **active validators** should be allowed access, for security reasons.
 
-**The core team will endeavour to always make sure there is 48-72 hours' notice of an impending upgrade, unless there is no alternative.**
+**The core team will endeavour to always make sure there is 48-72 hours notice of an impending upgrade, unless there is no alternative.**
 
 Most of our validator communications is done on the [Juno Discord](https://discord.gg/Juno). You should join, and change your server name to `nick | validator-name`, then ask a mod for permission to see the private validator channels.
 
