@@ -20,7 +20,7 @@ For a SoftwareUpgradeProposal via governance:
 
 1. Validators will be told via announcements channel when the prop is live
 2. Validators will be told via announcements channel if it passes
-3. Validators will be told via announcements channel when the upgrade instructions are available, and the upgrade will be co-ordinated in the private validators channel as the target upgrade block nears.
+3. Validators will be told via announcements channel when the upgrade instructions are available, and the upgrade will be coordinated in the private validators channel as the target upgrade block nears.
 
 ## Emergency upgrade or security patch
 
