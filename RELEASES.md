@@ -16,7 +16,7 @@ In the past, some releases have been consensus-breaking but only incremented a m
 
 ## Scheduled upgrade via governance
 
-For a software upgrade governance proposal:
+For a SoftwareUpgradeProposal via governance:
 
 1. Validators will be told via announcements channel when the prop is live
 2. Validators will be told via announcements channel if it passes
