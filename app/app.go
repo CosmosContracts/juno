@@ -16,6 +16,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	unity "github.com/CosmosContracts/juno/app/upgrade"
 	"github.com/CosmosContracts/juno/docs"
 	"github.com/CosmosContracts/juno/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
@@ -358,7 +359,6 @@ func New(
 
 	// upgrade handlers
 	cfg := module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
-	app.RegisterUpgradeHandlers(cfg)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
@@ -447,6 +447,7 @@ func New(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter,
 	)
+
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -567,6 +568,9 @@ func New(
 	app.MountKVStores(keys)
 	app.MountTransientStores(tkeys)
 	app.MountMemoryStores(memKeys)
+
+	//regiter upgrade
+	app.RegisterUpgradeHandlers(cfg)
 
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
@@ -751,34 +755,8 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 // RegisterUpgradeHandlers returns upgrade handlers
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler("lupercalia", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		// force an update of validator min commission
-		// we already did this for moneta
-		// but validators could have snuck in changes in the
-		// interim
-		// and via state sync to post-moneta
-		validators := app.StakingKeeper.GetAllValidators(ctx)
-		// hard code this because we don't want
-		// a) a fork or
-		// b) immediate reaction with additional gov props
-		minCommissionRate := sdk.NewDecWithPrec(5, 2)
-		for _, v := range validators {
-			if v.Commission.Rate.LT(minCommissionRate) {
-				if v.Commission.MaxRate.LT(minCommissionRate) {
-					v.Commission.MaxRate = minCommissionRate
-				}
-
-				v.Commission.Rate = minCommissionRate
-				v.Commission.UpdateTime = ctx.BlockHeader().Time
-
-				// call the before-modification hook since we're about to update the commission
-				app.StakingKeeper.BeforeValidatorModified(ctx, v.GetOperator())
-
-				app.StakingKeeper.SetValidator(ctx, v)
-			}
-		}
-		return app.mm.RunMigrations(ctx, cfg, vm)
-	})
+	bankBaseKeeper, _ := app.BankKeeper.(bankkeeper.BaseKeeper)
+	app.UpgradeKeeper.SetUpgradeHandler(unity.UpgradeName, unity.CreateUpgradeHandler(app.mm, cfg, &app.StakingKeeper, &bankBaseKeeper))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
