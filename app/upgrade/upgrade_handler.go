@@ -11,14 +11,14 @@ import (
 
 // Address of the account which will have all juno sent to the unity proposal
 var addressesToBeAdjusted = []string{
-	"juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8",
+	"juno1ep4unl6pdet64ph43sqhxd9hvftdmealqmzrze",
 }
 
 // UnityContractByteAddress is the bytes of the public key for the address of the Unity contract
-// $ junod keys parse TBD
+// $ junod keys parse juno1u79psa204mxc98mhzjl9uu05qwrkw349d4allwwn6wess8pzm4msa0sq56
 // human: juno
-// bytes: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-const UnityContractByteAddress = "0000000000000000000000000000000000000000000000000000000000000000"
+// bytes: E78A18754FAECD829F7714BE5E71F403876746A56D7BFFB9D3D3B3081C22DD77
+const UnityContractByteAddress = "E78A18754FAECD829F7714BE5E71F403876746A56D7BFFB9D3D3B3081C22DD77"
 
 // ClawbackCoinFromAccount undelegate all amount in adjusted address (bypass 28 day unbonding), and send it to dead address
 func ClawbackCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper) {
