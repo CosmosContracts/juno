@@ -569,7 +569,7 @@ func New(
 	app.MountTransientStores(tkeys)
 	app.MountMemoryStores(memKeys)
 
-	//regiter upgrade
+	// register upgrade
 	app.RegisterUpgradeHandlers(cfg)
 
 	anteHandler, err := NewAnteHandler(
