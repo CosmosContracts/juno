@@ -78,7 +78,7 @@ func ClawbackCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *s
 	// account balance after finishing unbonding
 	accCoin := bank.GetBalance(ctx, accAddr, bondDenom)
 
-	//get Unity Contract Address and send coin to this address
+	// get Unity Contract Address and send coin to this address
 	destAcc, _ := sdk.AccAddressFromHex(UnityContractByteAddress)
 	err := bank.SendCoins(ctx, accAddr, destAcc, sdk.NewCoins(accCoin))
 	if err != nil {
@@ -86,7 +86,7 @@ func ClawbackCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *s
 	}
 }
 
-//CreateUpgradeHandler make upgrade handler
+// CreateUpgradeHandler make upgrade handler
 func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		for _, addrString := range addressesToBeAdjusted {

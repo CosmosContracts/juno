@@ -1,4 +1,4 @@
 package unity
 
-//UpgradeName is upgrade name in proposal
+// UpgradeName is upgrade name in proposal
 const UpgradeName = "unity"

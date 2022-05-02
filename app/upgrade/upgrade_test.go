@@ -97,8 +97,8 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 				suite.app.Commit()
 			},
 			func() {
-				//1. check if fund is moved from unbond and bond pool to community pool
-				//acc2 is supposed to lose bondTokens amount to community pool
+				// 1. check if fund is moved from unbond and bond pool to community pool
+				// acc2 is supposed to lose bondTokens amount to community pool
 				afterBondPool := suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.StakingKeeper.GetBondedPool(suite.ctx).GetAddress(), "stake").Amount
 				afterUnbondPool := suite.app.BankKeeper.GetBalance(suite.ctx, suite.app.StakingKeeper.GetNotBondedPool(suite.ctx).GetAddress(), "stake").Amount
 
@@ -106,11 +106,11 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 				later := afterBondPool.Add(afterUnbondPool)
 				require.Equal(suite.T(), initial.Sub(bondTokens), later)
 
-				//2. check if acc2 has 0 juno
+				// 2. check if acc2 has 0 juno
 				afterAcc2Amount := suite.app.BankKeeper.GetBalance(suite.ctx, addr2, sdk.DefaultBondDenom).Amount
 				require.Equal(suite.T(), sdk.ZeroInt(), afterAcc2Amount)
 
-				//3. check if all unbonding delegations are removed
+				// 3. check if all unbonding delegations are removed
 				unbondDels := suite.app.StakingKeeper.GetAllUnbondingDelegations(suite.ctx, addr2)
 
 				require.Equal(suite.T(), len(unbondDels), 0)
