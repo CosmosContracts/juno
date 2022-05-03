@@ -25,7 +25,6 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	mintDenom string, blocksPerYear uint64,
 ) Params {
-
 	return Params{
 		MintDenom:     mintDenom,
 		BlocksPerYear: blocksPerYear,
@@ -50,7 +49,6 @@ func (p Params) Validate() error {
 	}
 
 	return nil
-
 }
 
 // String implements the Stringer interface.
