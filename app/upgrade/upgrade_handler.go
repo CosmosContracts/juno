@@ -27,7 +27,7 @@ func ClawbackCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *s
 	now := ctx.BlockHeader().Time
 
 	// this loop will complete all delegator's active redelegations
-	for _, activeRedelegation:= range staking.GetRedelegations(ctx, accAddr, 65535) {
+	for _, activeRedelegation := range staking.GetRedelegations(ctx, accAddr, 65535) {
 		// src/dest validator addresses of this redelegation
 		redelegationSrc, _ := sdk.ValAddressFromBech32(activeRedelegation.ValidatorSrcAddress)
 		redelegationDst, _ := sdk.ValAddressFromBech32(activeRedelegation.ValidatorDstAddress)
@@ -56,7 +56,6 @@ func ClawbackCoinFromAccount(ctx sdk.Context, accAddr sdk.AccAddress, staking *s
 			panic(err)
 		}
 	}
-
 
 	// this loop will complete all delegator's unbonding delegations
 	for _, unbondingDelegation := range staking.GetAllUnbondingDelegations(ctx, accAddr) {
@@ -133,5 +132,4 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		// override here
 		return newVM, err
 	}
-
 }

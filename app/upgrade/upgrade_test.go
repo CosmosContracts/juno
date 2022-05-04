@@ -127,7 +127,6 @@ func (suite *UpgradeTestSuite) TestAdjustFunds() {
 			tc.pre_adjust_funds()
 			tc.adjust_funds()
 			tc.post_adjust_funds()
-
 		})
 	}
 }
@@ -144,7 +143,6 @@ func checkDelegation(
 	t *testing.T, app *junoapp.App, delegatorAddr sdk.AccAddress,
 	validatorAddr sdk.ValAddress, expFound bool, expShares sdk.Dec,
 ) {
-
 	ctxCheck := app.BaseApp.NewContext(true, tmproto.Header{})
 	delegation, found := app.StakingKeeper.GetDelegation(ctxCheck, delegatorAddr, validatorAddr)
 	if expFound {
