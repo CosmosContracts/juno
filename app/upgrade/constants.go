@@ -1,4 +1,4 @@
-package unity
+package veritas
 
 // UpgradeName is upgrade name in proposal
-const UpgradeName = "unity"
+const UpgradeName = "veritas"

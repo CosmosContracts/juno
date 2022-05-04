@@ -16,7 +16,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	unity "github.com/CosmosContracts/juno/app/upgrade"
+	veritas "github.com/CosmosContracts/juno/app/upgrade"
 	"github.com/CosmosContracts/juno/docs"
 	"github.com/CosmosContracts/juno/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
@@ -756,7 +756,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 // RegisterUpgradeHandlers returns upgrade handlers
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 	bankBaseKeeper, _ := app.BankKeeper.(bankkeeper.BaseKeeper)
-	app.UpgradeKeeper.SetUpgradeHandler(unity.UpgradeName, unity.CreateUpgradeHandler(app.mm, cfg, &app.StakingKeeper, &bankBaseKeeper))
+	app.UpgradeKeeper.SetUpgradeHandler(veritas.UpgradeName, veritas.CreateUpgradeHandler(app.mm, cfg, &app.StakingKeeper, &bankBaseKeeper))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
