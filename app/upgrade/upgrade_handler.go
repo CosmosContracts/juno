@@ -9,13 +9,11 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
-// UnityContractByteAddress is the bytes of the public key for the address of the Unity contract
-// $ junod keys parse juno1nz96hjc926e6a74gyvkwvtt0qhu22wx049c6ph6f4q8kp3ffm9xq5938mr
-// human: juno
-// bytes: 988BABCB0556B3AEFAA8232CE62D6F05F8A538CFA971A0DF49A80F60C529D94C
-const UnityContractByteAddress = "988BABCB0556B3AEFAA8232CE62D6F05F8A538CFA971A0DF49A80F60C529D94C"
+// UnityContractAddress is the address of the Unity contract
+const UnityContractAddress = "juno1nz96hjc926e6a74gyvkwvtt0qhu22wx049c6ph6f4q8kp3ffm9xq5938mr"
 
-const UnityContractPlaceHolderAddress = "5BEF9E5318ED6716A11179C70B06656E9FB91D241A1C594F344B325D9110D94C"
+// UnityContractPlaceHolderAddress is the address where the funds were sent in prop 20
+const UnityContractPlaceHolderAddress = "juno1t0heu5cca4n3dgg308rskpn9d60mj8fyrgw9jne5fve9mygsm9xqkcrpl2"
 
 // CreateUpgradeHandler make upgrade handler
 func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, staking *stakingkeeper.Keeper, bank *bankkeeper.BaseKeeper) upgradetypes.UpgradeHandler {
@@ -26,7 +24,7 @@ func CreateUpgradeHandler(mm *module.Manager, configurator module.Configurator, 
 		accCoin := bank.GetBalance(ctx, accAddr, bondDenom)
 
 		// get Unity Contract Address and send coin to this address
-		destAcc, _ := sdk.AccAddressFromHex(UnityContractByteAddress)
+		destAcc, _ := sdk.AccAddressFromBech32(UnityContractAddress)
 		err := bank.SendCoins(ctx, accAddr, destAcc, sdk.NewCoins(accCoin))
 		if err != nil {
 			panic(err)
