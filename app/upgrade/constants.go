@@ -1,3 +1,4 @@
-package upgrade
+package overclock
 
-const UpgradeName = "lupercalia"
+// UpgradeName is upgrade name in proposal
+const UpgradeName = "overclock"

@@ -20,7 +20,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	lupercalia "github.com/CosmosContracts/juno/app/upgrade"
+	overclock "github.com/CosmosContracts/juno/app/upgrade"
 	"github.com/CosmosContracts/juno/docs"
 	"github.com/CosmosContracts/juno/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
@@ -314,7 +314,6 @@ func New(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) cosmoscmd.App {
-
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -518,11 +517,12 @@ func New(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter,
 	)
+
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
 	// we prefer to be more strict in what arguments the modules expect.
-	var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
+	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -644,6 +644,9 @@ func New(
 	app.MountTransientStores(tkeys)
 	app.MountMemoryStores(memKeys)
 
+	// register upgrade
+	app.RegisterUpgradeHandlers(cfg)
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -683,7 +686,7 @@ func New(
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 	}
 
-	// upgrade handlers for lupercalia
+	// upgrade handlers for overclock
 	app.setupUpgradeStoreLoaders()
 	app.RegisterUpgradeHandlers(cfg, ICAModule)
 
@@ -833,8 +836,8 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator, ica ica.AppModule) {
 	bankBaseKeeper, _ := app.BankKeeper.(bankkeeper.BaseKeeper)
 	app.UpgradeKeeper.SetUpgradeHandler(
-		"lupercalia",
-		lupercalia.CreateUpgradeHandler(app.mm, cfg, &bankBaseKeeper, ica),
+		"overclock",
+		overclock.CreateUpgradeHandler(app.mm, cfg, &bankBaseKeeper, ica),
 	)
 }
 
@@ -844,7 +847,7 @@ func (app *App) setupUpgradeStoreLoaders() {
 		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
 	}
 
-	if upgradeInfo.Name == "lupercalia" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if upgradeInfo.Name == "overclock" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		storeUpgrades := store.StoreUpgrades{
 			Added: []string{icahosttypes.StoreKey, icacontrollertypes.StoreKey},
 		}

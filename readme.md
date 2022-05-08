@@ -5,6 +5,8 @@
 
 ❗️For issue disclosure, check out [SECURITY.md](./SECURITY.md) ❗️
 
+🚀 For release procedures, check out [RELEASES.md](./RELEASES.md). 🚀
+
 **Juno** is an open source platform for inter-operable smart contracts which automatically execute, control or document a procedure of events and actions 
 according to the terms of the contract or agreement to be valid and usable across multiple sovereign networks.
 
@@ -170,17 +172,6 @@ JUNO MAX SUPPLY (185.5 Million)
 After year 12 the inflation reward schedule ends. 
 Network incentives would primarily come from smart contract usage and regular tx fees generated on the network.
 
-
-
-
-
-
-
-
-
-
-
-
 **Juno** is a blockchain built using Cosmos SDK and Tendermint and created with [Starport](https://github.com/tendermint/starport).
 
 ## Get started
@@ -188,7 +179,7 @@ Network incentives would primarily come from smart contract usage and regular tx
 If you have [Docker](https://www.docker.com/) installed, then you can run a local node with a single command.
 
 ```bash
-docker-compose up
+STAKE_TOKEN=ujunox UNSAFE_CORS=true docker-compose up
 ```
 
 ## Learn more
