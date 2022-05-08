@@ -5,7 +5,7 @@ COMMIT := $(shell git log -1 --format='%H')
 
 # don't override user values
 ifeq (,$(VERSION))
-  VERSION := $(shell git describe --tags --match 'v[0-9]\.[0-9]\.[0-9]')
+  VERSION := $(shell git describe --tags)
   # if VERSION is empty, then populate it with branch's name and raw commit hash
   ifeq (,$(VERSION))
     VERSION := $(BRANCH)-$(COMMIT)
@@ -70,6 +70,9 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=juno \
 
 ifeq (cleveldb,$(findstring cleveldb,$(JUNO_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
+endif
+ifeq ($(LINK_STATICALLY),true)
+  ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
 endif
 ifeq (,$(findstring nostrip,$(JUNO_BUILD_OPTIONS)))
   ldflags += -w -s
