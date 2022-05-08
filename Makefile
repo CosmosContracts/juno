@@ -5,7 +5,7 @@ COMMIT := $(shell git log -1 --format='%H')
 
 # don't override user values
 ifeq (,$(VERSION))
-  VERSION := $(shell git describe --tags)
+  VERSION := $(shell git describe --tags --match 'v[0-9]\.[0-9]\.[0-9]')
   # if VERSION is empty, then populate it with branch's name and raw commit hash
   ifeq (,$(VERSION))
     VERSION := $(BRANCH)-$(COMMIT)
