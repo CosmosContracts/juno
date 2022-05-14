@@ -16,12 +16,12 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	junoappparams "github.com/CosmosContracts/juno/v5/app/params"
-	veritas "github.com/CosmosContracts/juno/v5/app/upgrade"
-	"github.com/CosmosContracts/juno/v5/docs"
-	"github.com/CosmosContracts/juno/v5/x/mint"
-	mintkeeper "github.com/CosmosContracts/juno/v5/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v5/x/mint/types"
+	junoappparams "github.com/CosmosContracts/juno/v6/app/params"
+	veritas "github.com/CosmosContracts/juno/v6/app/upgrade"
+	"github.com/CosmosContracts/juno/v6/docs"
+	"github.com/CosmosContracts/juno/v6/x/mint"
+	mintkeeper "github.com/CosmosContracts/juno/v6/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v6/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -444,7 +444,7 @@ func New(
 		app.BankKeeper,
 		app.StakingKeeper,
 		app.DistrKeeper,
-		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper,
 		&app.IBCKeeper.PortKeeper,
 		scopedWasmKeeper,
 		app.TransferKeeper,

@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	keep "github.com/CosmosContracts/juno/v5/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v5/x/mint/types"
+	keep "github.com/CosmosContracts/juno/v6/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v6/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"

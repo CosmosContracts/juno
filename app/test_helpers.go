@@ -3,7 +3,7 @@ package app
 import (
 	"encoding/json"
 
-	"github.com/CosmosContracts/juno/v5/app"
+	"github.com/CosmosContracts/juno/v6/app"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
