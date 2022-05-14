@@ -216,7 +216,7 @@ func (ac appCreator) newApp(
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
 
-	return app.NewWasmApp(logger, db, traceStore, true, skipUpgradeHeights,
+	return app.New(logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		ac.encCfg,
@@ -246,7 +246,7 @@ func (ac appCreator) appExport(
 	jailAllowedAddrs []string,
 	appOpts servertypes.AppOptions,
 ) (servertypes.ExportedApp, error) {
-	var wasmApp *app.WasmApp
+	var wasmApp *app.App
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home is not set")
@@ -254,7 +254,7 @@ func (ac appCreator) appExport(
 
 	loadLatest := height == -1
 	var emptyWasmOpts []wasm.Option
-	wasmApp = app.NewWasmApp(
+	wasmApp = app.New(
 		logger,
 		db,
 		traceStore,

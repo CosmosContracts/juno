@@ -38,6 +38,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
@@ -85,16 +86,16 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	transfer "github.com/cosmos/ibc-go/v2/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v2/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v2/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v2/modules/core/02-client"
-	ibcclientclient "github.com/cosmos/ibc-go/v2/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
-	porttypes "github.com/cosmos/ibc-go/v2/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v2/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v2/modules/core/keeper"
+	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v3/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
+	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -108,11 +109,14 @@ const (
 	Name                 = "juno"
 )
 
-// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
+// We pull these out so we can set them with LDFLAGS in the Makefile
 var (
+	NodeDir      = ".junod"
+	Bech32Prefix = "juno"
+
 	// If EnabledSpecificProposals is "", and this is "true", then enable all x/wasm proposals.
 	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
-	ProposalsEnabled = "true"
+	ProposalsEnabled = "false"
 	// If set to non-empty string it must be comma-separated list of values that are all a subset
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
@@ -135,6 +139,27 @@ func GetEnabledProposals() []wasm.ProposalType {
 	}
 	return proposals
 }
+
+// These constants are derived from the above variables.
+// These are the ones we will want to use in the code, based on
+// any overrides above
+var (
+	// DefaultNodeHome default home directories for wasmd
+	DefaultNodeHome = os.ExpandEnv("$HOME/") + NodeDir
+
+	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
+	Bech32PrefixAccAddr = Bech32Prefix
+	// Bech32PrefixAccPub defines the Bech32 prefix of an account's public key
+	Bech32PrefixAccPub = Bech32Prefix + sdk.PrefixPublic
+	// Bech32PrefixValAddr defines the Bech32 prefix of a validator's operator address
+	Bech32PrefixValAddr = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixOperator
+	// Bech32PrefixValPub defines the Bech32 prefix of a validator's operator public key
+	Bech32PrefixValPub = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixOperator + sdk.PrefixPublic
+	// Bech32PrefixConsAddr defines the Bech32 prefix of a consensus node address
+	Bech32PrefixConsAddr = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus
+	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
+	Bech32PrefixConsPub = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus + sdk.PrefixPublic
+)
 
 func GetWasmOpts(appOpts servertypes.AppOptions) []wasm.Option {
 	var wasmOpts []wasm.Option
@@ -166,8 +191,6 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 }
 
 var (
-	// DefaultNodeHome default home directories for the application daemon
-	DefaultNodeHome string
 
 	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
@@ -566,6 +589,32 @@ func New(
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
 	app.mm.RegisterServices(cfg)
+
+	// create the simulation manager and define the order of the modules for deterministic simulations
+	//
+	// NOTE: this is not required apps that don't use the simulator for fuzz testing
+	// transactions
+	app.sm = module.NewSimulationManager(
+		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts),
+		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
+		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
+		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
+		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
+		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		params.NewAppModule(app.ParamsKeeper),
+		evidence.NewAppModule(app.EvidenceKeeper),
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		ibc.NewAppModule(app.IBCKeeper),
+		transferModule,
+	)
+
+	app.sm.RegisterStoreDecoders()
+	// initialize stores
+
 	// initialize stores
 	app.MountKVStores(keys)
 	app.MountTransientStores(tkeys)
