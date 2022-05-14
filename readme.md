@@ -5,6 +5,8 @@
 
 ❗️For issue disclosure, check out [SECURITY.md](./SECURITY.md) ❗️
 
+🚀 For release procedures, check out [RELEASES.md](./RELEASES.md). 🚀
+
 **Juno** is an open source platform for inter-operable smart contracts which automatically execute, control or document a procedure of events and actions 
 according to the terms of the contract or agreement to be valid and usable across multiple sovereign networks.
 
