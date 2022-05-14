@@ -16,11 +16,12 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	veritas "github.com/CosmosContracts/juno/app/upgrade"
-	"github.com/CosmosContracts/juno/docs"
-	"github.com/CosmosContracts/juno/x/mint"
-	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/x/mint/types"
+	junoappparams "github.com/CosmosContracts/juno/v5/app/params"
+	veritas "github.com/CosmosContracts/juno/v5/app/upgrade"
+	"github.com/CosmosContracts/juno/v5/docs"
+	"github.com/CosmosContracts/juno/v5/x/mint"
+	mintkeeper "github.com/CosmosContracts/juno/v5/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v5/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -28,6 +29,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -99,10 +101,6 @@ import (
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/prometheus/client_golang/prometheus"
-
-	// this line is used by starport scaffolding # stargate/app/moduleImport
-
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
 )
 
 const (
@@ -212,7 +210,7 @@ var (
 )
 
 var (
-	_ cosmoscmd.CosmosApp     = (*App)(nil)
+	_ simapp.App              = (*App)(nil)
 	_ servertypes.Application = (*App)(nil)
 )
 
@@ -270,6 +268,10 @@ type App struct {
 
 	// the module manager
 	mm *module.Manager
+
+	// simulation manager
+	sm           *module.SimulationManager
+	configurator module.Configurator
 }
 
 // New returns a reference to an initialized Juno.
@@ -281,10 +283,10 @@ func New(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	invCheckPeriod uint,
-	encodingConfig cosmoscmd.EncodingConfig,
+	encodingConfig junoappparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) cosmoscmd.App {
+) *App {
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry

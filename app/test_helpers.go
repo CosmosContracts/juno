@@ -3,13 +3,12 @@ package app
 import (
 	"encoding/json"
 
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
+	"github.com/CosmosContracts/juno/v5/app"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	// junoapp "github.com/CosmosContracts/juno/app"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,7 +18,7 @@ import (
 
 func setup(withGenesis bool, invCheckPeriod uint) (*App, GenesisState) {
 	db := dbm.NewMemDB()
-	encCdc := cosmoscmd.MakeEncodingConfig(ModuleBasics)
+	encCdc := app.MakeEncodingConfig(ModuleBasics)
 	app := New(
 		log.NewNopLogger(),
 		db,

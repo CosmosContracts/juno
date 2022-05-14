@@ -6,7 +6,7 @@ package testutil
 import (
 	"testing"
 
-	"github.com/CosmosContracts/juno/testutil/network"
+	"github.com/CosmosContracts/juno/v5/testutil/network"
 
 	"github.com/stretchr/testify/suite"
 )
