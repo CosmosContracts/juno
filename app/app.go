@@ -9,6 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	"github.com/spf13/cast"
 	"github.com/tendermint/starport/starport/pkg/openapiconsole"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -16,6 +17,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	encparams "github.com/CosmosContracts/juno/app/params"
 	veritas "github.com/CosmosContracts/juno/app/upgrade"
 	"github.com/CosmosContracts/juno/docs"
 	"github.com/CosmosContracts/juno/x/mint"
@@ -28,6 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -99,10 +102,6 @@ import (
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/prometheus/client_golang/prometheus"
-
-	// this line is used by starport scaffolding # stargate/app/moduleImport
-
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
 )
 
 const (
@@ -234,7 +233,7 @@ var (
 )
 
 var (
-	_ cosmoscmd.CosmosApp     = (*App)(nil)
+	_ simapp.App              = (*App)(nil)
 	_ servertypes.Application = (*App)(nil)
 )
 
@@ -283,6 +282,7 @@ type App struct {
 
 	// the module manager
 	mm *module.Manager
+	sm *module.SimulationManager
 }
 
 // New returns a reference to an initialized Juno.
@@ -294,10 +294,10 @@ func New(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	invCheckPeriod uint,
-	encodingConfig cosmoscmd.EncodingConfig,
+	encodingConfig encparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) cosmoscmd.App {
+) *App {
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -651,6 +651,30 @@ func New(
 	// this line is used by starport scaffolding # stargate/app/beforeInitReturn
 	app.scopedWasmKeeper = scopedWasmKeeper
 
+	// create the simulation manager and define the order of the modules for deterministic simulations
+	//
+	// NOTE: this is not required apps that don't use the simulator for fuzz testing
+	// transactions
+	app.sm = module.NewSimulationManager(
+		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts),
+		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
+		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
+		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
+		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
+		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		params.NewAppModule(app.ParamsKeeper),
+		evidence.NewAppModule(app.EvidenceKeeper),
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		ibc.NewAppModule(app.IBCKeeper),
+		transferModule,
+	)
+
+	app.sm.RegisterStoreDecoders()
+
 	return app
 }
 
@@ -806,4 +830,9 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper
+}
+
+// SimulationManager implements the SimulationApp interface
+func (app *App) SimulationManager() *module.SimulationManager {
+	return app.sm
 }
