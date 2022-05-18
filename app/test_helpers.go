@@ -3,7 +3,6 @@ package app
 import (
 	"encoding/json"
 
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -19,7 +18,7 @@ import (
 
 func setup(withGenesis bool, invCheckPeriod uint) (*App, GenesisState) {
 	db := dbm.NewMemDB()
-	encCdc := cosmoscmd.MakeEncodingConfig(ModuleBasics)
+	encCdc := MakeEncodingConfig()
 	app := New(
 		log.NewNopLogger(),
 		db,
@@ -31,7 +30,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*App, GenesisState) {
 		encCdc,
 		simapp.EmptyAppOptions{})
 
-	originalApp := app.(*App)
+	originalApp := app
 	if withGenesis {
 		return originalApp, NewDefaultGenesisState(encCdc.Marshaler)
 	}
