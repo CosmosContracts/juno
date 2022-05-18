@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
 
 	"github.com/CosmosContracts/juno/app"
 	"github.com/CosmosContracts/juno/x/mint/simulation"
@@ -15,7 +14,7 @@ import (
 )
 
 func TestDecodeStore(t *testing.T) {
-	cdc := cosmoscmd.MakeEncodingConfig(app.ModuleBasics).Marshaler
+	cdc := app.MakeEncodingConfig().Marshaler
 	dec := simulation.NewDecodeStore(cdc)
 
 	minter := types.NewMinter(sdk.OneDec(), sdk.NewDec(15), 1, 1)
