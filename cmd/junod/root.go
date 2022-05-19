@@ -246,7 +246,7 @@ func (ac appCreator) appExport(
 	jailAllowedAddrs []string,
 	appOpts servertypes.AppOptions,
 ) (servertypes.ExportedApp, error) {
-	var wasmApp *app.App
+	var junoApp *app.App
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home is not set")
@@ -254,7 +254,7 @@ func (ac appCreator) appExport(
 
 	loadLatest := height == -1
 	var emptyWasmOpts []wasm.Option
-	wasmApp = app.New(
+	junoApp = app.New(
 		logger,
 		db,
 		traceStore,
@@ -269,10 +269,10 @@ func (ac appCreator) appExport(
 	)
 
 	if height != -1 {
-		if err := wasmApp.LoadHeight(height); err != nil {
+		if err := junoApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	}
 
-	return wasmApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
+	return junoApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
 }
