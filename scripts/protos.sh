@@ -21,25 +21,16 @@ set -eo pipefail
 
 echo "Generating gogo proto code"
 cd proto
-proto_dirs=$(find . \( -path ./third_party -o -path ./vendor \) -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
-
-for dir in $proto_dirs; do
-  for file in $(find "${dir}" -maxdepth 1 -name '*.proto'); do
-    if grep "option go_package" $file &> /dev/null ; then
-      buf generate --template buf.gen.gogo.yaml $file
-    fi
-  done
-done
-
+go get go.buf.build/protocolbuffers/go/gogo/protobuf
+go get go.buf.build/protocolbuffers/go/googleapis/googleapis
+buf mod update
 cd ..
-
-# generate codec/testdata proto code
-(cd testutil/testdata; buf generate)
+buf generate --template buf.gen.gogo.yaml
 
 # move proto files to the right places
-cp -r github.com/cosmos/cosmos-sdk/* ./
-rm -rf github.com
+cp -r ./github.com/CosmosContracts/juno/x/* x/
+rm -rf ./github.com
 
 go mod tidy -compat=1.18
 
-./scripts/protocgen2.sh
+# ./scripts/protocgen2.sh

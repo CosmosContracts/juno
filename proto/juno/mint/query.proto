@@ -3,7 +3,7 @@ package juno.mint;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "mint/mint.proto";
+import "juno/mint/mint.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/mint/types";
 
