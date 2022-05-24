@@ -1,4 +1,8 @@
 version: v1
+name: buf.build/CosmosContracts/juno
+deps:
+  - buf.build/gogo/protobuf
+  - buf.build/googleapis/googleapis
 breaking:
   use:
     - FILE
