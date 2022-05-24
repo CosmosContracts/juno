@@ -447,7 +447,6 @@ func New(
 	// this is the demo controller from
 	// https://github.com/cosmos/interchain-accounts
 	// used with a little faith on our part
-
 	app.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, keys[intertxtypes.StoreKey], app.ICAControllerKeeper, scopedInterTxKeeper)
 	interTxModule := intertx.NewAppModule(appCodec, app.InterTxKeeper)
 	interTxIBCModule := intertx.NewIBCModule(app.InterTxKeeper)
