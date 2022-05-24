@@ -5,9 +5,6 @@ on:
   release:
     types: [published, created, edited]
   push:
-    tags:
-    branches:
-      - 'main'
 
 env:
   REGISTRY: ghcr.io
@@ -46,6 +43,6 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.ref == 'refs/heads/master' }}
           tags: ${{ steps.meta.outputs.tags }}
           build-args: arch=x86_64
