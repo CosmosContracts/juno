@@ -48,4 +48,3 @@ jobs:
           platforms: linux/amd64,linux/arm/v7
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          build-args: arch=x86_64
