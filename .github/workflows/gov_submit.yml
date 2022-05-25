@@ -1,0 +1,26 @@
+name: Gov Contract CI - Submit Contract Prop
+
+on:
+  pull_request:
+  push:
+    tags:
+    branches:
+      - 'main'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker compose
+        run: STAKE_TOKEN="ujunox" docker-compose up -d
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: 'CosmosContracts/cw-unity-prop'
+          ref: 'v0.3.2'
+      - name: Test smart contract gov prop
+        run: |
+          chmod a+x ./scripts/submit_gov_ci.sh
+          ./scripts/submit_gov_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
+
