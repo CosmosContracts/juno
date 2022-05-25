@@ -1,4 +1,4 @@
-name: contract-ci
+name: Contract CI
 
 on:
   pull_request:
