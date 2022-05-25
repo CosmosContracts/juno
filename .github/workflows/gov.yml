@@ -22,9 +22,9 @@ jobs:
       - name: Run deploy script
         run: |
           chmod a+x ./scripts/deploy_ci.sh
-          ./scripts/deploy.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
+          ./scripts/deploy_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
       - name: Test gov prop
         run: |
           chmod a+x ./scripts/submit_gov_ci.sh
-          ./scripts/submit_gov.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
+          ./scripts/submit_gov_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
 
