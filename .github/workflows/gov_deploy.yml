@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Docker compose
-        run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Checkout
         uses: actions/checkout@v2
         with:
           repository: 'CosmosContracts/cw-unity-prop'
           ref: 'v0.3.2'
+      - name: Docker compose
+        run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Test gov deploy
         run: |
           chmod a+x ./scripts/deploy_ci.sh
