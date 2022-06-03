@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/app"
-	"github.com/CosmosContracts/juno/x/mint/simulation"
-	"github.com/CosmosContracts/juno/x/mint/types"
+	"github.com/CosmosContracts/juno/v7/app"
+	"github.com/CosmosContracts/juno/v7/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v7/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 )

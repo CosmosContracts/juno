@@ -17,10 +17,10 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/CosmosContracts/juno/docs"
-	"github.com/CosmosContracts/juno/x/mint"
-	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/x/mint/types"
+	"github.com/CosmosContracts/juno/v7/docs"
+	"github.com/CosmosContracts/juno/v7/x/mint"
+	mintkeeper "github.com/CosmosContracts/juno/v7/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v7/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -109,7 +109,7 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 
-	encparams "github.com/CosmosContracts/juno/app/params"
+	encparams "github.com/CosmosContracts/juno/v7/app/params"
 )
 
 const (
