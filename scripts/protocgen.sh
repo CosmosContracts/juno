@@ -21,16 +21,14 @@ set -eo pipefail
 
 echo "Generating gogo proto code"
 cd proto
-go get go.buf.build/protocolbuffers/go/gogo/protobuf
-go get go.buf.build/protocolbuffers/go/googleapis/googleapis
 buf mod update
 cd ..
-buf generate --template buf.gen.gogo.yaml
+buf generate
 
 # move proto files to the right places
 cp -r ./github.com/CosmosContracts/juno/x/* x/
 rm -rf ./github.com
 
-go mod tidy -compat=1.18
+go mod tidy -compat=1.17
 
 # ./scripts/protocgen2.sh

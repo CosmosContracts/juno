@@ -96,3 +96,16 @@ install: go.sum
 
 build:
 	go build $(BUILD_FLAGS) -o bin/junod ./cmd/junod
+
+###############################################################################
+###                                  Proto                                  ###
+###############################################################################
+
+protoVer=v0.7
+protoImageName=tendermintdev/sdk-proto-gen:$(protoVer)
+containerProtoGen=juno-proto-gen-$(protoVer)
+
+proto-gen:
+	@echo "Generating Protobuf files"
+	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGen}$$"; then docker start -a $(containerProtoGen); else docker run --name $(containerProtoGen) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
+		sh ./scripts/protocgen.sh; fi
