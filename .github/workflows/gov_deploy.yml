@@ -1,4 +1,4 @@
-name: Contract CI
+name: Gov Contract CI - Deploy
 
 on:
   pull_request:
@@ -17,10 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          repository: 'envoylabs/whoami'
-          ref: 'v0.5.6'
-      - name: Run deploy script
+          repository: 'CosmosContracts/cw-unity-prop'
+          ref: 'v0.3.2'
+      - name: Test gov deploy
         run: |
           chmod a+x ./scripts/deploy_ci.sh
-          ./scripts/deploy_ci.sh
+          ./scripts/deploy_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
 
