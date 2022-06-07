@@ -1,5 +1,5 @@
 syntax = "proto3";
-package CosmosContracts.juno.mint;
+package juno.mint;
 
 option go_package = "github.com/CosmosContracts/juno/x/mint/types";
 

@@ -16,10 +16,11 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/CosmosContracts/juno/docs"
-	"github.com/CosmosContracts/juno/x/mint"
-	mintkeeper "github.com/CosmosContracts/juno/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/x/mint/types"
+
+	"github.com/CosmosContracts/juno/v7/docs"
+	"github.com/CosmosContracts/juno/v7/x/mint"
+	mintkeeper "github.com/CosmosContracts/juno/v7/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v7/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -103,6 +104,7 @@ import (
 	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/keeper"
+
 	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
 	icahost "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
@@ -824,6 +826,9 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 // RegisterUpgradeHandlers returns upgrade handlers
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
+	// left here for hysterical raisins - we should probably remove
+	// bankBaseKeeper, _ := app.BankKeeper.(bankkeeper.BaseKeeper)
+	// app.UpgradeKeeper.SetUpgradeHandler(veritas.UpgradeName, veritas.CreateUpgradeHandler(app.mm, cfg, &app.StakingKeeper, &bankBaseKeeper))
 	app.UpgradeKeeper.SetUpgradeHandler("multiverse", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 
 		vm[icatypes.ModuleName] = app.mm.Modules[icatypes.ModuleName].ConsensusVersion()

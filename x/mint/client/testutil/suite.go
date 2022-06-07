@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/suite"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/CosmosContracts/juno/testutil/network"
-	"github.com/CosmosContracts/juno/x/mint/client/cli"
-	minttypes "github.com/CosmosContracts/juno/x/mint/types"
+	"github.com/CosmosContracts/juno/v7/testutil/network"
+	"github.com/CosmosContracts/juno/v7/x/mint/client/cli"
+	minttypes "github.com/CosmosContracts/juno/v7/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
