@@ -1,7 +1,7 @@
-name: ci
+name: Build and Push Docker Image
 
 on:
-  pull_request:
+  workflow_dispatch:
   release:
     types: [published, created, edited]
   push:
@@ -45,7 +45,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          build-args: arch=x86_64
