@@ -23,4 +23,7 @@ jobs:
         run: |
           chmod a+x ./scripts/deploy_ci.sh
           ./scripts/deploy_ci.sh
+      - name: Dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
 
