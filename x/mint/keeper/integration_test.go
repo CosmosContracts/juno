@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"encoding/json"
 
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmoscmd"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"

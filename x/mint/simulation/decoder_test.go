@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmoscmd"
 
 	"github.com/CosmosContracts/juno/v7/app"
 	"github.com/CosmosContracts/juno/v7/x/mint/simulation"

@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/spf13/cast"
-	"github.com/tendermint/starport/starport/pkg/openapiconsole"
+	"github.com/ignite-hq/cli/ignite/pkg/openapiconsole"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
@@ -107,7 +107,7 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 
-	"github.com/tendermint/starport/starport/pkg/cosmoscmd"
+	"github.com/ignite-hq/cli/ignite/pkg/cosmoscmd"
 )
 
 const (
