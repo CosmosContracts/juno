@@ -109,7 +109,7 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 
-	encparams "github.com/CosmosContracts/juno/v7/app/params"
+	encparams "github.com/CosmosContracts/juno/v8/app/params"
 )
 
 const (

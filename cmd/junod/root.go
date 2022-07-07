@@ -34,8 +34,8 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v7/app"
-	"github.com/CosmosContracts/juno/v7/app/params"
+	"github.com/CosmosContracts/juno/v8/app"
+	"github.com/CosmosContracts/juno/v8/app/params"
 )
 
 // NewRootCmd creates a new root command for wasmd. It is called once in the
