@@ -27,3 +27,6 @@ jobs:
           asset_path: ./junod
           asset_name: junod
           asset_content_type: application/octet-stream
+      - name: Dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
