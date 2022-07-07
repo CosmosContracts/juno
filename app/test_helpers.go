@@ -9,7 +9,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	// junoapp "github.com/CosmosContracts/juno/v7/app"
+	// junoapp "github.com/CosmosContracts/juno/v8/app"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
