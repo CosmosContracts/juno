@@ -1,6 +1,5 @@
-on: [push, pull_request]
-name: build juno
-jobs:
+
+
   build:
     runs-on: ubuntu-latest
     name: build
