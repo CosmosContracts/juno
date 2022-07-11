@@ -3,7 +3,7 @@ name: Gov Contract CI - Deploy
 on:
   pull_request:
   push:
-    tags:
+    tags: 
     branches:
       - 'main'
 
@@ -11,11 +11,11 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Docker compose
         run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: 'CosmosContracts/cw-unity-prop'
           ref: 'v0.3.2'
