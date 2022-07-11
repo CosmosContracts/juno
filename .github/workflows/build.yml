@@ -1,14 +1,13 @@
 on: [push, pull_request]
 name: build juno
 jobs:
-
   build:
     runs-on: ubuntu-latest
     name: build
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.18
       - run: go build ./...
@@ -19,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     name: tidy
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.18
       - run: |
