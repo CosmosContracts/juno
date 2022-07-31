@@ -99,7 +99,6 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
 
 	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
@@ -852,12 +851,6 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 }
 
 // RegisterUpgradeHandlers returns upgrade handlers
-func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	// left here for hysterical raisins - we should probably remove
-	// bankBaseKeeper, _ := app.BankKeeper.(bankkeeper.BaseKeeper)
-	// app.UpgradeKeeper.SetUpgradeHandler(veritas.UpgradeName, veritas.CreateUpgradeHandler(app.mm, cfg, &app.StakingKeeper, &bankBaseKeeper))
-	app.UpgradeKeeper.SetUpgradeHandler("multiverse", func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		vm[icatypes.ModuleName] = app.mm.Modules[icatypes.ModuleName].ConsensusVersion()
 
 		// create ICS27 Controller submodule params, controller module not enabled.
 		controllerParams := icacontrollertypes.Params{}
@@ -875,7 +868,7 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 				sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
 				sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
 				sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
-				sdk.MsgTypeURL(&govv1.MsgVote{}),
+				sdk.MsgTypeURL(&govtypes.MsgVote{}),
 				sdk.MsgTypeURL(&authz.MsgExec{}),
 				sdk.MsgTypeURL(&authz.MsgGrant{}),
 				sdk.MsgTypeURL(&authz.MsgRevoke{}),
