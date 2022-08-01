@@ -4,8 +4,8 @@ deps:
   - remote: buf.build
     owner: gogo
     repository: protobuf
-    commit: 4df00b267f944190a229ce3695781e99
+    commit: 5461a3dfa9d941da82028ab185dc2a0e
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: cf209eca30404c41a80fec3caba9903f
+    commit: c3e1b2e164044397af6f283b0773eddf
