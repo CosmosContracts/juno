@@ -199,6 +199,7 @@ var (
 		authzmodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 		wasm.AppModuleBasic{},
+		ica.AppModuleBasic{},
 	)
 
 	// module account permissions
