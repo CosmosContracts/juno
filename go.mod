@@ -6,6 +6,7 @@ require (
 	cosmossdk.io/math v1.0.0-beta.2
 	github.com/CosmWasm/wasmd v0.27.0
 	github.com/cosmos/cosmos-sdk v0.46.0
+	github.com/cosmos/ibc-go/v5 v5.0.0-20220801112651-041096304a27
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -50,7 +51,6 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-alpha7.0.20220208174455-213b76899fac // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/iavl v0.19.0 // indirect
-	github.com/cosmos/ibc-go/v5 v5.0.0-20220801112651-041096304a27 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
 	github.com/cosmos/ledger-go v0.9.2 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
@@ -153,7 +153,7 @@ require (
 // https://github.com/cosmos/cosmos-sdk/issues/8469
 replace (
 	// use ibc4 cw: https://github.com/CosmWasm/wasmd/pull/863
-	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220708024647-b60c0517d289
+	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220801160312-3a00b3e1846c
 
 	// use cosmos flavored gogo/protobuf: https://github.com/cosmos/cosmos-sdk/issues/8469
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
