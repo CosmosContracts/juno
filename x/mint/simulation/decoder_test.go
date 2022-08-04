@@ -5,17 +5,16 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoscmd"
 
-	"github.com/CosmosContracts/juno/v9/app"
-	"github.com/CosmosContracts/juno/v9/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v9/x/mint/types"
+	"github.com/CosmosContracts/juno/v10/app"
+	"github.com/CosmosContracts/juno/v10/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v10/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 )
 
 func TestDecodeStore(t *testing.T) {
-	cdc := cosmoscmd.MakeEncodingConfig(app.ModuleBasics).Marshaler
+	cdc := app.MakeEncodingConfig().Marshaler
 	dec := simulation.NewDecodeStore(cdc)
 
 	minter := types.NewMinter(sdk.OneDec(), sdk.NewDec(15), 1, 1)

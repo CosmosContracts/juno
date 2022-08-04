@@ -3,16 +3,15 @@ package keeper_test
 import (
 	"encoding/json"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoscmd"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	junoapp "github.com/CosmosContracts/juno/v9/app"
+	junoapp "github.com/CosmosContracts/juno/v10/app"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
-	"github.com/CosmosContracts/juno/v9/x/mint/types"
+	"github.com/CosmosContracts/juno/v10/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -51,7 +50,7 @@ func setup(isCheckTx bool) *junoapp.App {
 
 func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.GenesisState) {
 	db := dbm.NewMemDB()
-	encCdc := cosmoscmd.MakeEncodingConfig(junoapp.ModuleBasics)
+	encCdc := junoapp.MakeEncodingConfig()
 	app := junoapp.New(
 		log.NewNopLogger(),
 		db,
@@ -61,12 +60,14 @@ func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.Genesi
 		simapp.DefaultNodeHome,
 		invCheckPeriod,
 		encCdc,
-		simapp.EmptyAppOptions{})
+		junoapp.GetEnabledProposals(),
+		simapp.EmptyAppOptions{},
+		junoapp.GetWasmOpts(simapp.EmptyAppOptions{}),
+	)
 
-	originalApp := app.(*junoapp.App)
 	if withGenesis {
-		return originalApp, junoapp.NewDefaultGenesisState(encCdc.Marshaler)
+		return app, junoapp.NewDefaultGenesisState(encCdc.Marshaler)
 	}
 
-	return originalApp, junoapp.GenesisState{}
+	return app, junoapp.GenesisState{}
 }

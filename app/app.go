@@ -9,17 +9,18 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/spf13/cast"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	"github.com/ignite-hq/cli/ignite/pkg/openapiconsole"
+	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/CosmosContracts/juno/v9/docs"
-	"github.com/CosmosContracts/juno/v9/x/mint"
-	mintkeeper "github.com/CosmosContracts/juno/v9/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v9/x/mint/types"
+	"github.com/CosmosContracts/juno/v10/docs"
+	"github.com/CosmosContracts/juno/v10/x/mint"
+	mintkeeper "github.com/CosmosContracts/juno/v10/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v10/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -27,6 +28,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -106,7 +108,7 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 
-	"github.com/ignite-hq/cli/ignite/pkg/cosmoscmd"
+	encparams "github.com/CosmosContracts/juno/v10/app/params"
 )
 
 const (
@@ -114,8 +116,11 @@ const (
 	Name                 = "juno"
 )
 
-// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
+// We pull these out so we can set them with LDFLAGS in the Makefile
 var (
+	NodeDir      = ".juno"
+	Bech32Prefix = "juno"
+
 	// If EnabledSpecificProposals is "", and this is "true", then enable all x/wasm proposals.
 	// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
 	ProposalsEnabled = "true"
@@ -123,6 +128,27 @@ var (
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
+)
+
+// These constants are derived from the above variables.
+// These are the ones we will want to use in the code, based on
+// any overrides above
+var (
+	// DefaultNodeHome default home directories for Juno
+	DefaultNodeHome = os.ExpandEnv("$HOME/") + NodeDir
+
+	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
+	Bech32PrefixAccAddr = Bech32Prefix
+	// Bech32PrefixAccPub defines the Bech32 prefix of an account's public key
+	Bech32PrefixAccPub = Bech32Prefix + sdk.PrefixPublic
+	// Bech32PrefixValAddr defines the Bech32 prefix of a validator's operator address
+	Bech32PrefixValAddr = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixOperator
+	// Bech32PrefixValPub defines the Bech32 prefix of a validator's operator public key
+	Bech32PrefixValPub = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixOperator + sdk.PrefixPublic
+	// Bech32PrefixConsAddr defines the Bech32 prefix of a consensus node address
+	Bech32PrefixConsAddr = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus
+	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
+	Bech32PrefixConsPub = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus + sdk.PrefixPublic
 )
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
@@ -172,8 +198,6 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 }
 
 var (
-	// DefaultNodeHome default home directories for the application daemon
-	DefaultNodeHome string
 
 	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
@@ -197,7 +221,6 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
-		// this line is used by starport scaffolding # stargate/app/moduleBasic
 		wasm.AppModuleBasic{},
 		ica.AppModuleBasic{},
 	)
@@ -217,18 +240,9 @@ var (
 )
 
 var (
-	_ cosmoscmd.CosmosApp     = (*App)(nil)
+	_ simapp.App              = (*App)(nil)
 	_ servertypes.Application = (*App)(nil)
 )
-
-func init() {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
-}
 
 // App extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
@@ -278,6 +292,7 @@ type App struct {
 
 	// the module manager
 	mm *module.Manager
+	sm *module.SimulationManager
 }
 
 // New returns a reference to an initialized Juno.
@@ -289,10 +304,12 @@ func New(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	invCheckPeriod uint,
-	encodingConfig cosmoscmd.EncodingConfig,
+	encodingConfig encparams.EncodingConfig,
+	enabledProposals []wasm.ProposalType,
 	appOpts servertypes.AppOptions,
+	wasmOpts []wasm.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) cosmoscmd.App {
+) *App {
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -404,6 +421,7 @@ func New(
 		app.BankKeeper,
 		scopedTransferKeeper,
 	)
+
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
 
@@ -438,7 +456,6 @@ func New(
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
 	supportedFeatures := "iterator,staking,stargate"
-	wasmOpts := GetWasmOpts(appOpts)
 	app.wasmKeeper = wasm.NewKeeper(
 		appCodec,
 		keys[wasm.StoreKey],
@@ -459,13 +476,15 @@ func New(
 		wasmOpts...,
 	)
 
+	ibcRouter := porttypes.NewRouter()
+
 	// register wasm gov proposal types
-	enabledProposals := GetEnabledProposals()
+	// The gov proposal types can be individually enabled
 	if len(enabledProposals) != 0 {
 		govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.wasmKeeper, enabledProposals))
 	}
+
 	// Create static IBC router, add transfer route, then set and seal it
-	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
 		AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.wasmKeeper, app.IBCKeeper.ChannelKeeper)).
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule)
@@ -672,6 +691,30 @@ func New(
 	app.scopedWasmKeeper = scopedWasmKeeper
 	app.ScopedICAHostKeeper = scopedICAHostKeeper
 
+	// create the simulation manager and define the order of the modules for deterministic simulations
+	//
+	// NOTE: this is not required apps that don't use the simulator for fuzz testing
+	// transactions
+	app.sm = module.NewSimulationManager(
+		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts),
+		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
+		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
+		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
+		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
+		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
+		params.NewAppModule(app.ParamsKeeper),
+		evidence.NewAppModule(app.EvidenceKeeper),
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		ibc.NewAppModule(app.IBCKeeper),
+		transferModule,
+	)
+
+	app.sm.RegisterStoreDecoders()
+
 	return app
 }
 
@@ -795,6 +838,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 }
 
 // RegisterUpgradeHandlers returns upgrade handlers
+
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {}
 
 // GetMaccPerms returns a copy of the module account permissions
@@ -824,4 +868,9 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper
+}
+
+// SimulationManager implements the SimulationApp interface
+func (app *App) SimulationManager() *module.SimulationManager {
+	return app.sm
 }

@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v9/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v9/x/mint/types"
+	"github.com/CosmosContracts/juno/v10/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v10/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

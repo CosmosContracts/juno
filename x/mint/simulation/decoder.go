@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v9/x/mint/types"
+	"github.com/CosmosContracts/juno/v10/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 )
