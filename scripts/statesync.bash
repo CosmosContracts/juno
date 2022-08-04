@@ -46,7 +46,8 @@ export JUNOD_STATESYNC_TRUST_HEIGHT=$BLOCK_HEIGHT
 export JUNOD_STATESYNC_TRUST_HASH=$TRUST_HASH
 
 # Fetch and set list of seeds from chain registry.
-export JUNOD_P2P_SEEDS="$(curl -s https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/chain.json | jq -r '[foreach .peers.seeds[] as $item (""; "\($item.id)@\($item.address)")] | join(",")')"
+JUNOD_P2P_SEEDS="$(curl -s https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/chain.json | jq -r '[foreach .peers.seeds[] as $item (""; "\($item.id)@\($item.address)")] | join(",")')"
+export JUNOD_P2P_SEEDS
 
 # Start chain.
 junod start --x-crisis-skip-assert-invariants --db_backend pebbledb
