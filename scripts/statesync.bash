@@ -30,9 +30,9 @@ mv juno-phoenix2-genesis.json $HOME/.juno/config/genesis.json
 
 # Get "trust_hash" and "trust_height".
 INTERVAL=1000
-LATEST_HEIGHT=$(curl -s https://juno-rpc.polkachu.com/block | jq -r .result.block.header.height)
-BLOCK_HEIGHT=$(($LATEST_HEIGHT-$INTERVAL)) 
-TRUST_HASH=$(curl -s "https://juno-rpc.polkachu.com/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash)
+LATEST_HEIGHT="$(curl -s https://juno-rpc.polkachu.com/block | jq -r .result.block.header.height)"
+BLOCK_HEIGHT="$(($LATEST_HEIGHT-$INTERVAL))"
+TRUST_HASH="$(curl -s "https://juno-rpc.polkachu.com/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash)"
 
 # Print out block and transaction hash from which to sync state.
 echo "trust_height: $BLOCK_HEIGHT"
