@@ -38,7 +38,7 @@ import (
 	"github.com/CosmosContracts/juno/v10/app/params"
 )
 
-// NewRootCmd creates a new root command for wasmd. It is called once in the
+// NewRootCmd creates a new root command for junod. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	encodingConfig := app.MakeEncodingConfig()
@@ -63,7 +63,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 	rootCmd := &cobra.Command{
 		Use:   version.AppName,
-		Short: "Wasm Daemon (server)",
+		Short: "Juno Smart Contract Zone",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
