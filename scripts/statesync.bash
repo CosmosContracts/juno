@@ -23,7 +23,7 @@ junod init test
 # Get Genesis
 wget https://download.dimi.sh/juno-phoenix2-genesis.tar.gz
 tar -xvf juno-phoenix2-genesis.tar.gz
-mv juno-phoenix2-genesis.json $HOME/.juno/config/genesis.json
+mv juno-phoenix2-genesis.json "$HOME/.juno/config/genesis.json"
 
 
 
