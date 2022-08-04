@@ -224,6 +224,7 @@ var (
 		vesting.AppModuleBasic{},
 		authzmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		ica.AppModuleBasic{},
 	)
 
 	// module account permissions
