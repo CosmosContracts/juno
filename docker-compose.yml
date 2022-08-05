@@ -12,4 +12,4 @@ services:
       - 26657:26657 # rpc
     environment:
       - GAS_LIMIT=${GAS_LIMIT:-100000000}
-      - STAKE_TOKEN=${STAKE_TOKEN:-ustake}
+      - STAKE_TOKEN=${STAKE_TOKEN:-ujunox}
