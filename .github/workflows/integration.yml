@@ -11,11 +11,11 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Docker compose
         run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: 'envoylabs/whoami'
           ref: 'v0.5.6'
@@ -25,5 +25,5 @@ jobs:
           ./scripts/deploy_ci.sh
       - name: Dump docker logs on failure
         if: failure()
-        uses: jwalton/gh-docker-logs@v1
+        uses: jwalton/gh-docker-logs@v2
 

@@ -8,7 +8,7 @@ jobs:
   release-alpine-static:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Docker compose
         run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Copy binary
@@ -29,4 +29,4 @@ jobs:
           asset_content_type: application/octet-stream
       - name: Dump docker logs on failure
         if: failure()
-        uses: jwalton/gh-docker-logs@v1
+        uses: jwalton/gh-docker-logs@v2
