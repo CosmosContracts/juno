@@ -25,5 +25,5 @@ jobs:
           ./scripts/deploy_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
       - name: Dump docker logs on failure
         if: failure()
-        uses: jwalton/gh-docker-logs@v1
+        uses: jwalton/gh-docker-logs@v2
 
