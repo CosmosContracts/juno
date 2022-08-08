@@ -8,7 +8,7 @@ jobs:
   release-alpine-static:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Docker compose
         run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Copy binary
