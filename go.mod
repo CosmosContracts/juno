@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/CosmWasm/wasmd v0.28.0
 	github.com/cosmos/cosmos-sdk v0.45.7
-	github.com/cosmos/ibc-go/v3 v3.2.0
+	github.com/cosmos/ibc-go/v4 v4.0.0
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0
@@ -125,6 +125,7 @@ require (
 )
 
 replace (
+	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220815192235-2327d5d9814b
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
