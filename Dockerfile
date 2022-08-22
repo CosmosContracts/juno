@@ -5,8 +5,13 @@ FROM golang:1.18-alpine3.15 AS go-builder
 # this comes from standard alpine nightly file
 #  https://github.com/rust-lang/docker-rust-nightly/blob/master/alpine3.12/Dockerfile
 # with some changes to support our toolchain, etc
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# we probably want to default to latest and error
+# since this is predominantly for dev use
+# hadolint ignore=DL3018
 RUN set -eux; apk add --no-cache ca-certificates build-base;
 
+# hadolint ignore=DL3006
 RUN apk add git
 # NOTE: add these to run with LEDGER_ENABLED=true
 # RUN apk add libusb-dev linux-headers
