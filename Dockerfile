@@ -11,7 +11,8 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # hadolint ignore=DL3018
 RUN set -eux; apk add --no-cache ca-certificates build-base;
 
-RUN apk add git=~2.37.1-r1
+# hadolint ignore=DL3018
+RUN apk add git
 # NOTE: add these to run with LEDGER_ENABLED=true
 # RUN apk add libusb-dev linux-headers
 
