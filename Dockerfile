@@ -11,8 +11,7 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # hadolint ignore=DL3018
 RUN set -eux; apk add --no-cache ca-certificates build-base;
 
-# hadolint ignore=DL3006
-RUN apk add git
+RUN apk add git=~2.37.1
 # NOTE: add these to run with LEDGER_ENABLED=true
 # RUN apk add libusb-dev linux-headers
 
@@ -26,12 +25,14 @@ RUN sha256sum /lib/libwasmvm_muslc.aarch64.a | grep 7d2239e9f25e96d0d4daba982ce9
 RUN sha256sum /lib/libwasmvm_muslc.x86_64.a | grep f6282df732a13dec836cda1f399dd874b1e3163504dbd9607c6af915b2740479
 
 # Copy the library you want to the final location that will be found by the linker flag `-lwasmvm_muslc`
-RUN cp /lib/libwasmvm_muslc.$(uname -m).a /lib/libwasmvm_muslc.a
+RUN cp "/lib/libwasmvm_muslc.$(uname -m).a" /lib/libwasmvm_muslc.a
 
 # force it to use static lib (from above) not standard libgo_cosmwasm.so file
-RUN LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make build
-RUN file /code/bin/junod
-RUN echo "Ensuring binary is statically linked ..." \
+# then log output of file /code/bin/junod
+# then ensure static linking
+RUN LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make build \
+  && file /code/bin/junod \
+  && echo "Ensuring binary is statically linked ..." \
   && (file /code/bin/junod | grep "statically linked")
 
 # --------------------------------------------------------
