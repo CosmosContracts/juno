@@ -70,14 +70,13 @@ func (m Minter) PhaseInflationRate(phase uint64) sdk.Dec {
 }
 
 // NextPhase returns the new phase.
-func (m Minter) NextPhase(params Params, currentBlock uint64) uint64 {
+func (m Minter) NextPhase(params Params, currentSupply sdk.Int) uint64 {
 	nonePhase := m.Phase == 0
 	if nonePhase {
 		return 1
 	}
 
-	blockNewPhase := m.StartPhaseBlock + params.BlocksPerYear
-	if blockNewPhase > currentBlock {
+	if currentSupply.LT(m.TargetSupply) {
 		return m.Phase
 	}
 
@@ -92,7 +91,14 @@ func (m Minter) NextAnnualProvisions(_ Params, totalSupply sdk.Int) sdk.Dec {
 
 // BlockProvision returns the provisions for a block based on the annual
 // provisions rate.
-func (m Minter) BlockProvision(params Params) sdk.Coin {
+func (m Minter) BlockProvision(params Params, totalSupply sdk.Int) sdk.Coin {
 	provisionAmt := m.AnnualProvisions.QuoInt(sdk.NewInt(int64(params.BlocksPerYear)))
+
+	// Because of rounding, we might mint too many tokens in this phase, let's limit it
+	futureSupply := totalSupply.Add(provisionAmt.TruncateInt())
+	if futureSupply.GT(m.TargetSupply) {
+		return sdk.NewCoin(params.MintDenom, m.TargetSupply.Sub(totalSupply))
+	}
+
 	return sdk.NewCoin(params.MintDenom, provisionAmt.TruncateInt())
 }

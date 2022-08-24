@@ -18,6 +18,11 @@ message Minter {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable)   = false
   ];
+  string target_supply = 5 [
+    (gogoproto.moretags)   = "yaml:\"target_supply\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable)   = false
+  ];
 }
 
 // Params holds parameters for the mint module.
