@@ -130,10 +130,11 @@ func BenchmarkBlockProvision(b *testing.B) {
 	s1 := rand.NewSource(100)
 	r1 := rand.New(s1)
 	minter.AnnualProvisions = sdk.NewDec(r1.Int63n(1000000))
+	totalSupply := sdk.NewInt(100000000000000)
 
 	// run the BlockProvision function b.N times
 	for n := 0; n < b.N; n++ {
-		minter.BlockProvision(params)
+		minter.BlockProvision(params, totalSupply)
 	}
 }
 
