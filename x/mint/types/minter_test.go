@@ -81,7 +81,7 @@ func TestNextPhase(t *testing.T) {
 		minter.StartPhaseBlock = tc.startPhaseBlock
 		params.BlocksPerYear = tc.blocksYear
 
-		phase := minter.NextPhase(params, tc.currentBlock)
+		phase := minter.NextPhase(params, sdk.NewIntFromUint64(tc.currentBlock))
 
 		require.True(t, phase == tc.expPhase,
 			"Test Index: %v\nPhase:  %v\nExpected: %v\n", i, phase, tc.expPhase)
