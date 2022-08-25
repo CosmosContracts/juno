@@ -127,7 +127,7 @@ require (
 )
 
 replace (
-	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220825092456-50ee976120a7
+	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.25.1-0.20220825221754-0f7229d64633
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
