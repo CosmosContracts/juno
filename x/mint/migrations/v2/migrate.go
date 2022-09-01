@@ -28,7 +28,7 @@ func Migrate(
 	cdc.MustUnmarshal(b, &minter)
 
 	// Calculate target supply
-	minter.TargetSupply = sdk.NewInt(1)
+	minter.TargetSupply = minter.AnnualProvisions.Add(minter.AnnualProvisions.Quo(minter.Inflation)).TruncateInt()
 
 	// Save new minter
 	bz := cdc.MustMarshal(&minter)
