@@ -107,41 +107,20 @@ func TestBlockProvision(t *testing.T) {
 		{(secondsPerYear / 5) / 2, 0, sdk.NewInt(1)},
 		{(secondsPerYear / 5) * 3, 3, sdk.NewInt(1)},
 		{(secondsPerYear / 5) * 7, 7, sdk.NewInt(2)},
-	}
-	for i, tc := range tests {
-		minter.AnnualProvisions = sdk.NewDec(tc.annualProvisions)
-		minter.TargetSupply = tc.totalSupply.Add(minter.AnnualProvisions.TruncateInt())
-
-		provisions := minter.BlockProvision(params, tc.totalSupply)
-
-		expProvisions := sdk.NewCoin(params.MintDenom,
-			sdk.NewInt(tc.expProvisions))
-
-		require.True(t, expProvisions.IsEqual(provisions),
-			"test: %v\n\tExp: %v\n\tGot: %v\n",
-			i, tc.expProvisions, provisions)
-	}
-}
-
-func TestBlockProvisionRounding(t *testing.T) {
-	minter := InitialMinter(sdk.NewDecWithPrec(1, 1))
-	params := DefaultParams()
-
-	secondsPerYear := int64(60 * 60 * 8766)
-
-	tests := []struct {
-		annualProvisions int64
-		expProvisions    int64
-		totalSupply      sdk.Int
-	}{
+		// we special case this below to trigger the
+		// conditional in BlockProvision
 		{(secondsPerYear / 5) * 7200, 0, sdk.NewInt(7000)},
 	}
 	for i, tc := range tests {
+		minter.AnnualProvisions = sdk.NewDec(tc.annualProvisions)
 		// if provision amount + total current supply
 		// (totalSupply) exceeds target supply it should
 		// return targetSupply - totalSupply, i.e. zero
-		minter.AnnualProvisions = sdk.NewDec(tc.annualProvisions)
-		minter.TargetSupply = tc.totalSupply
+		if i == 6 {
+			minter.TargetSupply = tc.totalSupply
+		} else {
+			minter.TargetSupply = tc.totalSupply.Add(minter.AnnualProvisions.TruncateInt())
+		}
 
 		provisions := minter.BlockProvision(params, tc.totalSupply)
 
