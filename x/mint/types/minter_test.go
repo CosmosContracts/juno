@@ -68,9 +68,14 @@ func TestNextPhase(t *testing.T) {
 	}{
 		{1, 0, 0, blocksPerYear, 1, sdk.NewInt(10000), sdk.NewInt(14000)},
 		{50, 1, 1, blocksPerYear, 1, sdk.NewInt(12000), sdk.NewInt(14000)},
-		{99, 1, 1, blocksPerYear, 1, sdk.NewInt(13960), sdk.NewInt(11400000)},
+		// if targetSupply is > currentSupply it doesn't
+		// matter how much by
+		{99, 1, 1, blocksPerYear, 1, sdk.NewInt(13960), sdk.NewInt(1140000)},
 		{100, 1, 1, blocksPerYear, 2, sdk.NewInt(14000), sdk.NewInt(14000)},
 		{101, 1, 1, blocksPerYear, 2, sdk.NewInt(16000), sdk.NewInt(14000)},
+		// since currentSupply is larger than targetSupply
+		// next phase returns phase + 1 regardless of inputs
+		{102, 2, 101, blocksPerYear, 3, sdk.NewInt(29000), sdk.NewInt(14000)},
 	}
 	for i, tc := range tests {
 		minter.Phase = tc.currentPhase
@@ -100,10 +105,43 @@ func TestBlockProvision(t *testing.T) {
 		{secondsPerYear/5 + 1, 1, sdk.NewInt(1)},
 		{(secondsPerYear / 5) * 2, 2, sdk.NewInt(1)},
 		{(secondsPerYear / 5) / 2, 0, sdk.NewInt(1)},
+		{(secondsPerYear / 5) * 3, 3, sdk.NewInt(1)},
+		{(secondsPerYear / 5) * 7, 7, sdk.NewInt(2)},
 	}
 	for i, tc := range tests {
 		minter.AnnualProvisions = sdk.NewDec(tc.annualProvisions)
 		minter.TargetSupply = tc.totalSupply.Add(minter.AnnualProvisions.TruncateInt())
+
+		provisions := minter.BlockProvision(params, tc.totalSupply)
+
+		expProvisions := sdk.NewCoin(params.MintDenom,
+			sdk.NewInt(tc.expProvisions))
+
+		require.True(t, expProvisions.IsEqual(provisions),
+			"test: %v\n\tExp: %v\n\tGot: %v\n",
+			i, tc.expProvisions, provisions)
+	}
+}
+
+func TestBlockProvisionRounding(t *testing.T) {
+	minter := InitialMinter(sdk.NewDecWithPrec(1, 1))
+	params := DefaultParams()
+
+	secondsPerYear := int64(60 * 60 * 8766)
+
+	tests := []struct {
+		annualProvisions int64
+		expProvisions    int64
+		totalSupply      sdk.Int
+	}{
+		{(secondsPerYear / 5) * 7200, 0, sdk.NewInt(7000)},
+	}
+	for i, tc := range tests {
+		// if provision amount + total current supply
+		// (totalSupply) exceeds target supply it should
+		// return targetSupply - totalSupply, i.e. zero
+		minter.AnnualProvisions = sdk.NewDec(tc.annualProvisions)
+		minter.TargetSupply = tc.totalSupply
 
 		provisions := minter.BlockProvision(params, tc.totalSupply)
 

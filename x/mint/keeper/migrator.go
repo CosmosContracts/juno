@@ -16,8 +16,8 @@ func NewMigrator(k Keeper) Migrator {
 	}
 }
 
-// Migrate migrates the x/mint module state from the consensus version 1 to
-// version 2. Specifically, it take calculate target supply for the current phase
+// Migrate migrates the x/mint module state from the consensus version
+// 1 to version 2
 func (m Migrator) Migrate1to2(ctx sdk.Context) error {
 	return v2.Migrate(ctx, ctx.KVStore(m.keeper.storeKey), m.keeper.cdc)
 }
