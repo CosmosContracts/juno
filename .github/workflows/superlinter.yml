@@ -20,5 +20,7 @@ jobs:
         env:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_GO: false
+          IGNORE_GENERATED_FILES: true
+          FILTER_REGEX_EXCLUDE: .*.pb.go
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
