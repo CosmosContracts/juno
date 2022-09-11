@@ -21,6 +21,7 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_GO: false
           VALIDATE_BASH: false
+          VALIDATE_GITHUB_ACTIONS: false
           IGNORE_GENERATED_FILES: true
           FILTER_REGEX_EXCLUDE: .*.pb.go
           DEFAULT_BRANCH: "main"

@@ -1,3 +1,4 @@
+---
 name: Gov Contract CI - Deploy
 
 on:
@@ -18,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: 'CosmosContracts/cw-unity-prop'
-          ref: 'v0.3.2'
+          ref: 'v0.3.3'
       - name: Test gov deploy
         run: |
           chmod a+x ./scripts/deploy_ci.sh
