@@ -1,3 +1,4 @@
+---
 name: Contract CI
 
 on:
@@ -18,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: 'envoylabs/whoami'
-          ref: 'v0.5.6'
+          ref: 'v0.7.0'
       - name: Run deploy script
         run: |
           chmod a+x ./scripts/deploy_ci.sh
