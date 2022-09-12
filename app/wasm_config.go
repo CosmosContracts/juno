@@ -8,7 +8,7 @@ const (
 	// DefaultJunoInstanceCost is initially set the same as in wasmd
 	DefaultJunoInstanceCost uint64 = 60_000
 	// DefaultJunoCompileCost set to a large number for testing
-	DefaultJunoCompileCost uint64 = 100
+	DefaultJunoCompileCost uint64 = 3
 )
 
 // JunoGasRegisterConfig is defaults plus a custom compile amount
