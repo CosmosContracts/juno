@@ -19,6 +19,7 @@ else
   echo "$GENESIS_FILE does not exist. Generating..."
 
   junod init --chain-id "$CHAIN_ID" "$MONIKER"
+  junod add-ica-config
   # staking/governance token is hardcoded in config, change this
   sed -i "s/\"stake\"/\"$STAKE\"/" "$GENESIS_FILE"
   # this is essential for sub-1s block times (or header times go crazy)
