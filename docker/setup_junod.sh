@@ -43,7 +43,7 @@ if [ -n $UNSAFE_CORS ]; then
 fi
 
 # are we running for the first time?
-if ! junod keys show validator $KEYRING; then
+if ! junod keys show validator $KEYRING 2> /dev/null; then
   (echo "$PASSWORD"; echo "$PASSWORD") | junod keys add validator $KEYRING
 
   # hardcode the validator account for this instance
