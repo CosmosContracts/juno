@@ -6,4 +6,4 @@ if test -n "$1"; then
 fi
 
 mkdir -p /root/log
-junod start --rpc.laddr tcp://0.0.0.0:26657 --trace
+junod start --grpc.address tcp://0.0.0.0:9090 --rpc.laddr tcp://0.0.0.0:26657 --trace

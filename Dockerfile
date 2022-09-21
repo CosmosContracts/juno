@@ -39,11 +39,12 @@ RUN chmod +x /opt/*.sh
 
 WORKDIR /opt
 
-# rest server
+## rest server
 EXPOSE 1317
 # tendermint p2p
 EXPOSE 26656
 # tendermint rpc
 EXPOSE 26657
+EXPOSE 9090
 
 CMD ["/usr/bin/junod", "version"]

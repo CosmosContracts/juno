@@ -10,6 +10,7 @@ services:
       - 1317:1317 # rest
       - 26656:26656 # p2p
       - 26657:26657 # rpc
+      - 9090:9090 #grpc
     environment:
       - GAS_LIMIT=${GAS_LIMIT:-100000000}
       - STAKE_TOKEN=${STAKE_TOKEN:-ustake}
