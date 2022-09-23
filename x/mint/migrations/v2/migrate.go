@@ -1,7 +1,7 @@
 package v2
 
 import (
-	"github.com/CosmosContracts/juno/v10/x/mint/types"
+	"github.com/CosmosContracts/juno/v11/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -17,7 +17,6 @@ func Migrate(
 	store sdk.KVStore,
 	cdc codec.BinaryCodec,
 ) error {
-
 	// Get minter
 	var minter types.Minter
 	b := store.Get(types.MinterKey)
