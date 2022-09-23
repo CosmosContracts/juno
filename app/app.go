@@ -872,7 +872,7 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 			}
 			app.ICAHostKeeper.SetParams(ctx, newIcaHostParams)
 
-			// transfer module consensus version has been bumped to 2
+			// mint module consensus version bumped
 			return app.mm.RunMigrations(ctx, cfg, fromVM)
 		})
 }
