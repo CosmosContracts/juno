@@ -99,6 +99,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
 
 	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
@@ -838,10 +839,39 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 }
 
 // RegisterUpgradeHandlers returns upgrade handlers
-
+// RegisterUpgradeHandlers returns upgrade handlers
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 	app.UpgradeKeeper.SetUpgradeHandler("v10",
 		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+
+			// update ICA Host to catch missed msg
+			// enumerate all because it's easier to reason about
+			newIcaHostParams := icahosttypes.Params{
+				HostEnabled: true,
+				AllowMessages: []string{
+					sdk.MsgTypeURL(&banktypes.MsgSend{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}), // this was missed last time
+					sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
+					sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
+					sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
+					sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
+					sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
+					sdk.MsgTypeURL(&govtypes.MsgVote{}),
+					sdk.MsgTypeURL(&authz.MsgExec{}),
+					sdk.MsgTypeURL(&authz.MsgGrant{}),
+					sdk.MsgTypeURL(&authz.MsgRevoke{}),
+					// wasm msgs here
+					// note we only support these three for now
+					sdk.MsgTypeURL(&wasmtypes.MsgStoreCode{}),
+					sdk.MsgTypeURL(&wasmtypes.MsgInstantiateContract{}),
+					sdk.MsgTypeURL(&wasmtypes.MsgExecuteContract{}),
+				},
+			}
+			app.ICAHostKeeper.SetParams(ctx, newIcaHostParams)
+
 			// transfer module consensus version has been bumped to 2
 			return app.mm.RunMigrations(ctx, cfg, fromVM)
 		})
