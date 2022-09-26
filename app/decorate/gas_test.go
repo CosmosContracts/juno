@@ -38,10 +38,12 @@ func TestContractGasTXDecorator(t *testing.T) {
 
 			encodingConfig := simappparams.MakeTestEncodingConfig()
 			txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-			txBuilder.SetMsgs(msgs...)
+			err := txBuilder.SetMsgs(msgs...)
+			require.NoError(t, err)
+
 			txBuilder.SetGasLimit(spec.gasUsed)
 
-			_, err := ante.AnteHandle(ctx, txBuilder.GetTx(), false, nextAnte)
+			_, err = ante.AnteHandle(ctx, txBuilder.GetTx(), false, nextAnte)
 			if spec.expErr == false {
 				require.Error(t, err)
 			} else {
