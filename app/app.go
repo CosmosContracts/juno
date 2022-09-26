@@ -849,6 +849,8 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 			newIcaHostParams := icahosttypes.Params{
 				HostEnabled: true,
 				AllowMessages: []string{
+					sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}), // missed but asked for
+
 					sdk.MsgTypeURL(&banktypes.MsgSend{}),
 					sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
 					sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}), // this was missed last time
