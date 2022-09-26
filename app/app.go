@@ -862,6 +862,7 @@ func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 					sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
 					sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
 					sdk.MsgTypeURL(&govtypes.MsgVote{}),
+					sdk.MsgTypeURL(&govtypes.MsgVoteWeighted{}), // required by quick
 					sdk.MsgTypeURL(&authz.MsgExec{}),
 					sdk.MsgTypeURL(&authz.MsgGrant{}),
 					sdk.MsgTypeURL(&authz.MsgRevoke{}),
