@@ -46,7 +46,6 @@ func AddGenesisIcaCmd(defaultNodeHome string) *cobra.Command {
 				HostEnabled: true,
 				AllowMessages: []string{
 					"/cosmos.bank.v1beta1.MsgSend",
-					"/cosmos.bank.v1beta1.MsgMultiSend",
 					"/cosmos.staking.v1beta1.MsgDelegate",
 					"/cosmos.staking.v1beta1.MsgUndelegate",
 					"/cosmos.staking.v1beta1.MsgBeginRedelegate",
@@ -57,6 +56,7 @@ func AddGenesisIcaCmd(defaultNodeHome string) *cobra.Command {
 					"/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission",
 					"/cosmos.distribution.v1beta1.MsgFundCommunityPool",
 					"/cosmos.gov.v1beta1.MsgVote",
+					"/cosmos.gov.v1beta1.MsgVoteWeighted",
 					"/cosmos.authz.v1beta1.MsgExec",
 					"/cosmos.authz.v1beta1.MsgGrant",
 					"/cosmos.authz.v1beta1.MsgRevoke",
