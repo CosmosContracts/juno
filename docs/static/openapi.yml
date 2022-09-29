@@ -1,8 +1,8 @@
 swagger: '2.0'
 info:
   title: HTTP API Console
-  name: ''
   description: ''
+  version: ''
 paths:
   /cosmos/auth/v1beta1/accounts:
     get:
@@ -47481,7 +47481,6 @@ definitions:
     properties:
       tx:
         $ref: '#/definitions/cosmos.tx.v1beta1.Tx'
-        description: tx is the queried transaction.
       tx_response:
         type: object
         properties:
@@ -48185,7 +48184,6 @@ definitions:
               Since: cosmos-sdk 0.45.2
       multi:
         $ref: '#/definitions/cosmos.tx.v1beta1.ModeInfo.Multi'
-        title: multi represents a nested multisig signer
     description: ModeInfo describes the signing mode of a single or nested multisig signer.
   cosmos.tx.v1beta1.ModeInfo.Multi:
     type: object
@@ -48440,9 +48438,6 @@ definitions:
               }
       mode_info:
         $ref: '#/definitions/cosmos.tx.v1beta1.ModeInfo'
-        title: |-
-          mode_info describes the signing mode of the signer and is a nested
-          structure to support nested multisig pubkey's
       sequence:
         type: string
         format: uint64
@@ -48461,9 +48456,6 @@ definitions:
     properties:
       tx:
         $ref: '#/definitions/cosmos.tx.v1beta1.Tx'
-        description: |-
-          tx is the transaction to simulate.
-          Deprecated. Send raw tx bytes instead.
       tx_bytes:
         type: string
         format: byte
@@ -49116,9 +49108,6 @@ definitions:
         description: TxBody is the body of a transaction that all signers sign over.
       auth_info:
         $ref: '#/definitions/cosmos.tx.v1beta1.AuthInfo'
-        title: |-
-          auth_info is the authorization related content of the transaction,
-          specifically signers, signer modes and fee
       signatures:
         type: array
         items:
