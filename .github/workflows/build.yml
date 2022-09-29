@@ -1,3 +1,4 @@
+---
 on: [push, pull_request]
 name: every commit
 jobs:
