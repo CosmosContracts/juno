@@ -93,7 +93,7 @@ and to provide utility in the deployment and execution of smart contracts.
 
 ⚪️ **Rewards**: Fixed yearly reward schedule (Reward model below)
 
-⚪️ **Community pool tax**: 5% of block rewards
+⚪️ **Community pool tax**: 2% of block rewards
 
 
 ✅ Circulating supply at genesis 64.903.243 $JUNO (64.9 Million)
