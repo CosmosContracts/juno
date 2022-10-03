@@ -19,6 +19,14 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
+	distr "github.com/iqlusioninc/liquidity-staking-module/x/distribution"
+	distrclient "github.com/iqlusioninc/liquidity-staking-module/x/distribution/client"
+	distrkeeper "github.com/iqlusioninc/liquidity-staking-module/x/distribution/keeper"
+
+	"github.com/iqlusioninc/liquidity-staking-module/x/slashing"
+	slashingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/slashing/keeper"
+	slashingtypes "github.com/iqlusioninc/liquidity-staking-module/x/slashing/types"
+
 	"github.com/CosmosContracts/juno/v10/docs"
 	"github.com/CosmosContracts/juno/v10/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/v10/x/mint/keeper"
@@ -53,9 +61,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
@@ -76,12 +81,6 @@ import (
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
-	"github.com/cosmos/cosmos-sdk/x/slashing"
-	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
@@ -96,6 +95,8 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
+	"github.com/iqlusioninc/liquidity-staking-module/x/staking"
+	stakingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/staking/keeper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -103,14 +104,14 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/prometheus/client_golang/prometheus"
 
+	encparams "github.com/CosmosContracts/juno/v10/app/params"
 	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
 	icacontrollertypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/types"
 	icahost "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
-
-	encparams "github.com/CosmosContracts/juno/v10/app/params"
+	stakingtypes "github.com/iqlusioninc/liquidity-staking-module/x/staking/types"
 )
 
 const (
