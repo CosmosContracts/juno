@@ -134,7 +134,19 @@ func genesisStateWithValSet(app *App, genesisState GenesisState,
 func setup(withGenesis bool) (*App, GenesisState) {
 	db := dbm.NewMemDB()
 	cdc := MakeEncodingConfig()
-	app := New(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, cdc, simapp.EmptyAppOptions{})
+	app := New(
+		log.NewNopLogger(),
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		DefaultNodeHome,
+		5,
+		cdc,
+		GetEnabledProposals(),
+		simapp.EmptyAppOptions{},
+		GetWasmOpts(simapp.EmptyAppOptions{}),
+	)
 	if withGenesis {
 		return app, NewDefaultGenesisState(cdc.Marshaler)
 	}
