@@ -6,28 +6,6 @@ import (
 	"github.com/CosmosContracts/juno/v10/x/mint/types"
 )
 
-// type MintTestSuite struct {
-// 	suite.Suite
-
-// 	app         *app.App
-// 	ctx         sdk.Context
-// 	queryClient types.QueryClient
-// }
-
-// func (suite *MintTestSuite) SetupTest() {
-// 	app := setup(false)
-// 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
-
-// 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-// 	types.RegisterQueryServer(queryHelper, app.MintKeeper)
-// 	queryClient := types.NewQueryClient(queryHelper)
-
-// 	suite.app = app
-// 	suite.ctx = ctx
-
-// 	suite.queryClient = queryClient
-// }
-
 func (suite *KeeperTestSuite) TestGRPCParams() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
 
@@ -43,7 +21,3 @@ func (suite *KeeperTestSuite) TestGRPCParams() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(annualProvisions.AnnualProvisions, app.MintKeeper.GetMinter(ctx).AnnualProvisions)
 }
-
-// func TestMintTestSuite(t *testing.T) {
-// 	suite.Run(t, new(MintTestSuite))
-// }
