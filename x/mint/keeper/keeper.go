@@ -3,6 +3,7 @@ package keeper
 import (
 	"github.com/tendermint/tendermint/libs/log"
 
+	"cosmossdk.io/math"
 	"github.com/CosmosContracts/juno/v10/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -89,13 +90,13 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 
 // StakingTokenSupply implements an alias call to the underlying staking keeper's
 // StakingTokenSupply to be used in BeginBlocker.
-func (k Keeper) StakingTokenSupply(ctx sdk.Context) sdk.Int {
+func (k Keeper) StakingTokenSupply(ctx sdk.Context) math.Int {
 	return k.stakingKeeper.StakingTokenSupply(ctx)
 }
 
 // TokenSupply implements an alias call to the underlying bank keeper's
 // TokenSupply to be used in BeginBlocker.
-func (k Keeper) TokenSupply(ctx sdk.Context, denom string) sdk.Int {
+func (k Keeper) TokenSupply(ctx sdk.Context, denom string) math.Int {
 	return k.bankKeeper.GetSupply(ctx, denom).Amount
 }
 
