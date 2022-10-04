@@ -3,7 +3,7 @@ module github.com/CosmosContracts/juno/v10
 go 1.18
 
 require (
-	github.com/CosmWasm/wasmd v0.29.0-rc1
+	github.com/CosmWasm/wasmd v0.29.0-rc2
 	github.com/cosmos/cosmos-sdk v0.45.8
 	github.com/cosmos/ibc-go/v3 v3.3.0
 	github.com/gogo/protobuf v1.3.3
