@@ -15,15 +15,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Docker compose
         run: STAKE_TOKEN="ujunox" docker-compose up -d
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          repository: 'CosmosContracts/cw-unity-prop'
-          ref: 'v0.3.3'
       - name: Test smart contract gov prop
         run: |
-          chmod a+x ./scripts/submit_gov_ci.sh
-          ./scripts/submit_gov_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
+          chmod a+x ./scripts/cw_unity_prop/submit_gov_ci.sh
+          ./scripts/cw_unity_prop/submit_gov_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
       - name: Dump docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@v2
