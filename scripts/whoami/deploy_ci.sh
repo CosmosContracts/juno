@@ -3,7 +3,7 @@
 set -e
 
 DEFAULT_DEV_ADDRESS="juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y"
-sleep 10
+sleep 20
 CONTAINER_NAME="juno_node_1"
 BINARY="docker exec -i $CONTAINER_NAME junod"
 DENOM='ujunox'
