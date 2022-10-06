@@ -2,9 +2,9 @@ name: Lint Code Base
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 jobs:
   run-lint:
     runs-on: ubuntu-latest
@@ -21,6 +21,7 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_GO: false
           VALIDATE_BASH: false
+          JSCPD: false
           VALIDATE_GITHUB_ACTIONS: false
           IGNORE_GENERATED_FILES: true
           FILTER_REGEX_EXCLUDE: .*.pb.go
