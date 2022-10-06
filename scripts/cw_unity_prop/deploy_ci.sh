@@ -6,6 +6,8 @@ then
   exit
 fi
 
+sleep 10 
+
 CONTAINER_NAME="juno_node_1"
 BINARY="docker exec -i $CONTAINER_NAME junod"
 DENOM='ujunox'
