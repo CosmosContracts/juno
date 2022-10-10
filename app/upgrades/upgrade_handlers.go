@@ -85,7 +85,7 @@ func CreateV11UpgradeHandler(mm *module.Manager, cfg module.Configurator, icahos
 				sdk.MsgTypeURL(&authz.MsgGrant{}),
 				sdk.MsgTypeURL(&authz.MsgRevoke{}),
 				// wasm msgs here
-				// note we only support three atm
+				// note we only support three atm (well four inc instantiate2)
 				sdk.MsgTypeURL(&wasmtypes.MsgStoreCode{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgInstantiateContract{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgInstantiateContract2{}), // added in wasmd 0.29.0
