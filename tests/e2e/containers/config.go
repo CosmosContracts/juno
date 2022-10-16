@@ -15,16 +15,16 @@ type ImageConfig struct {
 
 //nolint:deadcode
 const (
-	// Current Git branch osmosis repo/version. It is meant to be built locally.
+	// Current Git branch juno repo/version. It is meant to be built locally.
 	// It is used when skipping upgrade by setting OSMOSIS_E2E_SKIP_UPGRADE to true).
 	// This image should be pre-built with `make docker-build-debug` either in CI or locally.
-	CurrentBranchOsmoRepository = "juno"
-	CurrentBranchOsmoTag        = "debug"
+	CurrentBranchRepository = "juno"
+	CurrentBranchTag        = "debug"
 	// Pre-upgrade osmosis repo/tag to pull.
 	// It should be uploaded to Docker Hub. OSMOSIS_E2E_SKIP_UPGRADE should be unset
 	// for this functionality to be used.
-	previousVersionOsmoRepository = "osmolabs/osmosis"
-	previousVersionOsmoTag        = "12.1"
+	previousVersionRepository = "osmolabs/osmosis"
+	previousVersionTag        = "12.1"
 	// Pre-upgrade repo/tag for osmosis initialization (this should be one version below upgradeVersion)
 	previousVersionInitRepository = "osmolabs/osmosis-e2e-init-chain"
 	previousVersionInitTag        = "v12.1.0-e2e-v1"
@@ -46,8 +46,8 @@ func NewImageConfig(isUpgrade, isFork bool) ImageConfig {
 		// If upgrade is not tested, we do not need InitRepository and InitTag
 		// because we directly call the initialization logic without
 		// the need for Docker.
-		config.JunoRepository = CurrentBranchOsmoRepository
-		config.JunoTag = CurrentBranchOsmoTag
+		config.JunoRepository = CurrentBranchRepository
+		config.JunoTag = CurrentBranchTag
 		return config
 	}
 
@@ -61,16 +61,16 @@ func NewImageConfig(isUpgrade, isFork bool) ImageConfig {
 		// Normally, validators switch the binaries pre-fork height
 		// Then, once the fork height is reached, the state breaking-logic
 		// is run.
-		config.JunoRepository = CurrentBranchOsmoRepository
-		config.JunoTag = CurrentBranchOsmoTag
+		config.JunoRepository = CurrentBranchRepository
+		config.JunoTag = CurrentBranchTag
 	} else {
 		// Upgrades are run at the time when upgrade height is reached
 		// and are submitted via a governance proposal. Thefore, we
 		// must start running the previous Osmosis version. Then, the node
 		// should auto-upgrade, at which point we can restart the updated
 		// Osmosis validator container.
-		config.JunoRepository = previousVersionOsmoRepository
-		config.JunoTag = previousVersionOsmoTag
+		config.JunoRepository = previousVersionRepository
+		config.JunoTag = previousVersionTag
 	}
 
 	return config

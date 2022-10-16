@@ -12,11 +12,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	coretypes "github.com/tendermint/tendermint/rpc/core/types"
-
-	"github.com/osmosis-labs/osmosis/v12/app/apptesting/osmoassert"
-	appparams "github.com/osmosis-labs/osmosis/v12/app/params"
-	"github.com/osmosis-labs/osmosis/v12/tests/e2e/configurer/config"
-	"github.com/osmosis-labs/osmosis/v12/tests/e2e/initialization"
 )
 
 // TestIBCTokenTransfer tests that IBC token transfers work as expected.
@@ -85,7 +80,7 @@ func (s *IntegrationTestSuite) TestSuperfluidVoting() {
 		},
 		1*time.Minute,
 		10*time.Millisecond,
-		"Osmosis node failed to retrieve prop tally",
+		"Juno node failed to retrieve prop tally",
 	)
 	noTotal, _, _, _, _ := chainANode.QueryPropTally(chainA.LatestProposalNumber)
 	noTotalFinal, err := strconv.Atoi(noTotal.String())
@@ -357,7 +352,7 @@ func (s *IntegrationTestSuite) TestStateSync() {
 		SnapshotKeepRecent: 2,
 	}
 
-	tempDir, err := os.MkdirTemp("", "osmosis-e2e-statesync-")
+	tempDir, err := os.MkdirTemp("", "e2e-statesync-")
 	s.Require().NoError(err)
 
 	// configure genesis and config files for the state-synchin node.

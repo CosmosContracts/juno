@@ -106,38 +106,6 @@ func (uc *UpgradeConfigurer) ConfigureChain(chainConfig *chain.Config) error {
 }
 
 func (uc *UpgradeConfigurer) CreatePreUpgradeState() error {
-	const lockupWallet = "lockup-wallet"
-	const lockupWalletSuperfluid = "lockup-wallet-superfluid"
-
-	chainA := uc.chainConfigs[0]
-	chainANode, err := chainA.GetDefaultNode()
-	if err != nil {
-		return err
-	}
-	chainB := uc.chainConfigs[1]
-	chainBNode, err := chainB.GetDefaultNode()
-	if err != nil {
-		return err
-	}
-
-	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.OsmoToken)
-	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.OsmoToken)
-	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.StakeToken)
-	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.StakeToken)
-
-	chainANode.CreatePool("pool1A.json", initialization.ValidatorWalletName)
-	chainBNode.CreatePool("pool1B.json", initialization.ValidatorWalletName)
-
-	// enable superfluid assets on chainA
-	chainA.EnableSuperfluidAsset("gamm/pool/1")
-
-	// setup wallets and send gamm tokens to these wallets (only chainA)
-	lockupWalletAddrA, lockupWalletSuperfluidAddrA := chainANode.CreateWallet(lockupWallet), chainANode.CreateWallet(lockupWalletSuperfluid)
-	chainANode.BankSend("10000000000000000000gamm/pool/1", chainA.NodeConfigs[0].PublicAddress, lockupWalletAddrA)
-	chainANode.BankSend("10000000000000000000gamm/pool/1", chainA.NodeConfigs[0].PublicAddress, lockupWalletSuperfluidAddrA)
-
-	// test lock and add to existing lock for both regular and superfluid lockups (only chainA)
-	chainA.LockAndAddToExistingLock(sdk.NewInt(1000000000000000000), "gamm/pool/1", lockupWalletAddrA, lockupWalletSuperfluidAddrA)
 
 	return nil
 }
@@ -210,8 +178,8 @@ func (uc *UpgradeConfigurer) runForkUpgrade() error {
 func (uc *UpgradeConfigurer) upgradeContainers(chainConfig *chain.Config, propHeight int64) error {
 	// upgrade containers to the locally compiled daemon
 	uc.t.Logf("starting upgrade for chain-id: %s...", chainConfig.Id)
-	uc.containerManager.OsmosisRepository = containers.CurrentBranchOsmoRepository
-	uc.containerManager.OsmosisTag = containers.CurrentBranchOsmoTag
+	uc.containerManager.JunoRepository = containers.CurrentBranchRepository
+	uc.containerManager.JunoTag = containers.CurrentBranchTag
 
 	for _, node := range chainConfig.NodeConfigs {
 		if err := node.Run(); err != nil {

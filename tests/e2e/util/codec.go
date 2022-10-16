@@ -8,8 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	osmosisApp "github.com/osmosis-labs/osmosis/v12/app"
-	"github.com/osmosis-labs/osmosis/v12/app/params"
+	junoApp "github.com/CosmosContracts/juno/v11/app"
+	"github.com/CosmosContracts/juno/v11/app/params"
 )
 
 var (
@@ -22,7 +22,7 @@ func init() {
 }
 
 func initEncodingConfigAndCdc() (params.EncodingConfig, codec.Codec) {
-	encodingConfig := osmosisApp.MakeEncodingConfig()
+	encodingConfig := junoApp.MakeEncodingConfig()
 
 	encodingConfig.InterfaceRegistry.RegisterImplementations(
 		(*sdk.Msg)(nil),

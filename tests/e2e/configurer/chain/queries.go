@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"time"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -14,14 +13,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 	tmabcitypes "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/CosmosContracts/juno/v11/tests/e2e/util"
-	epochstypes "github.com/CosmosContracts/juno/v11/x/epochs/types"
-	superfluidtypes "github.com/CosmosContracts/juno/v11/x/superfluid/types"
-	twapqueryproto "github.com/CosmosContracts/juno/v11/x/twap/client/queryproto"
 )
 
 func (n *NodeConfig) QueryGRPCGateway(path string, parameters ...string) ([]byte, error) {
@@ -139,79 +134,6 @@ func (n *NodeConfig) QueryPropStatus(proposalNumber int) (string, error) {
 	proposalStatus := propResp.Proposal.Status
 
 	return proposalStatus.String(), nil
-}
-
-func (n *NodeConfig) QueryIntermediaryAccount(denom string, valAddr string) (int, error) {
-	intAccount := superfluidtypes.GetSuperfluidIntermediaryAccountAddr(denom, valAddr)
-	path := fmt.Sprintf(
-		"cosmos/staking/v1beta1/validators/%s/delegations/%s",
-		valAddr, intAccount,
-	)
-
-	bz, err := n.QueryGRPCGateway(path)
-	require.NoError(n.t, err)
-
-	var stakingResp stakingtypes.QueryDelegationResponse
-	err = util.Cdc.UnmarshalJSON(bz, &stakingResp)
-	require.NoError(n.t, err)
-
-	intAccBalance := stakingResp.DelegationResponse.Balance.Amount.String()
-	intAccountBalance, err := strconv.Atoi(intAccBalance)
-	require.NoError(n.t, err)
-	return intAccountBalance, err
-}
-
-func (n *NodeConfig) QueryCurrentEpoch(identifier string) int64 {
-	path := "juno/epochs/v1beta1/current_epoch"
-
-	bz, err := n.QueryGRPCGateway(path, "identifier", identifier)
-	require.NoError(n.t, err)
-
-	var response epochstypes.QueryCurrentEpochResponse
-	err = util.Cdc.UnmarshalJSON(bz, &response)
-	require.NoError(n.t, err)
-	return response.CurrentEpoch
-}
-
-func (n *NodeConfig) QueryArithmeticTwapToNow(poolId uint64, baseAsset, quoteAsset string, startTime time.Time) (sdk.Dec, error) {
-	path := "juno/twap/v1beta1/ArithmeticTwapToNow"
-
-	bz, err := n.QueryGRPCGateway(
-		path,
-		"pool_id", strconv.FormatInt(int64(poolId), 10),
-		"base_asset", baseAsset,
-		"quote_asset", quoteAsset,
-		"start_time", startTime.Format(time.RFC3339Nano),
-	)
-	if err != nil {
-		return sdk.Dec{}, err
-	}
-
-	var response twapqueryproto.ArithmeticTwapToNowResponse
-	err = util.Cdc.UnmarshalJSON(bz, &response)
-	require.NoError(n.t, err) // this error should not happen
-	return response.ArithmeticTwap, nil
-}
-
-func (n *NodeConfig) QueryArithmeticTwap(poolId uint64, baseAsset, quoteAsset string, startTime time.Time, endTime time.Time) (sdk.Dec, error) {
-	path := "juno/twap/v1beta1/ArithmeticTwap"
-
-	bz, err := n.QueryGRPCGateway(
-		path,
-		"pool_id", strconv.FormatInt(int64(poolId), 10),
-		"base_asset", baseAsset,
-		"quote_asset", quoteAsset,
-		"start_time", startTime.Format(time.RFC3339Nano),
-		"end_time", endTime.Format(time.RFC3339Nano),
-	)
-	if err != nil {
-		return sdk.Dec{}, err
-	}
-
-	var response twapqueryproto.ArithmeticTwapResponse
-	err = util.Cdc.UnmarshalJSON(bz, &response)
-	require.NoError(n.t, err) // this error should not happen
-	return response.ArithmeticTwap, nil
 }
 
 // QueryHashFromBlock gets block hash at a specific height. Otherwise, error.

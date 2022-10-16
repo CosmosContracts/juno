@@ -5,35 +5,14 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
 	appparams "github.com/CosmosContracts/juno/v11/app/params"
 	"github.com/CosmosContracts/juno/v11/tests/e2e/configurer/config"
-	"github.com/CosmosContracts/juno/v11/tests/e2e/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
-
-func (n *NodeConfig) CreatePool(poolFile, from string) uint64 {
-	n.LogActionF("creating pool from file %s", poolFile)
-	cmd := []string{"junod", "tx", "gamm", "create-pool", fmt.Sprintf("--pool-file=/juno/%s", poolFile), fmt.Sprintf("--from=%s", from)}
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
-	require.NoError(n.t, err)
-
-	path := "juno/gamm/v1beta1/num_pools"
-
-	bz, err := n.QueryGRPCGateway(path)
-	require.NoError(n.t, err)
-
-	var numPools gammtypes.QueryNumPoolsResponse
-	err = util.Cdc.UnmarshalJSON(bz, &numPools)
-	require.NoError(n.t, err)
-	poolID := numPools.NumPools
-	n.LogActionF("successfully created pool %d", poolID)
-	return poolID
-}
 
 func (n *NodeConfig) StoreWasmCode(wasmFile, from string) {
 	n.LogActionF("storing wasm code from file %s", wasmFile)
@@ -108,35 +87,6 @@ func (n *NodeConfig) FailIBCTransfer(from, recipient, amount string) {
 	n.LogActionF("Failed to send IBC transfer (as expected)")
 }
 
-// SwapExactAmountIn swaps tokenInCoin to get at least tokenOutMinAmountInt of the other token's pool out.
-// swapRoutePoolIds is the comma separated list of pool ids to swap through.
-// swapRouteDenoms is the comma separated list of denoms to swap through.
-// To reproduce locally:
-// docker container exec <container id> osmosisd tx gamm swap-exact-amount-in <tokeinInCoin> <tokenOutMinAmountInt> --swap-route-pool-ids <swapRoutePoolIds> --swap-route-denoms <swapRouteDenoms> --chain-id=<id>--from=<address> --keyring-backend=test -b=block --yes --log_format=json
-func (n *NodeConfig) SwapExactAmountIn(tokenInCoin, tokenOutMinAmountInt string, swapRoutePoolIds string, swapRouteDenoms string, from string) {
-	n.LogActionF("swapping %s to get a minimum of %s with pool id routes (%s) and denom routes (%s)", tokenInCoin, tokenOutMinAmountInt, swapRoutePoolIds, swapRouteDenoms)
-	cmd := []string{"junod", "tx", "gamm", "swap-exact-amount-in", tokenInCoin, tokenOutMinAmountInt, fmt.Sprintf("--swap-route-pool-ids=%s", swapRoutePoolIds), fmt.Sprintf("--swap-route-denoms=%s", swapRouteDenoms), fmt.Sprintf("--from=%s", from)}
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
-	require.NoError(n.t, err)
-	n.LogActionF("successfully swapped")
-}
-
-func (n *NodeConfig) SubmitUpgradeProposal(upgradeVersion string, upgradeHeight int64, initialDeposit sdk.Coin) {
-	n.LogActionF("submitting upgrade proposal %s for height %d", upgradeVersion, upgradeHeight)
-	cmd := []string{"junod", "tx", "gov", "submit-proposal", "software-upgrade", upgradeVersion, fmt.Sprintf("--title=\"%s upgrade\"", upgradeVersion), "--description=\"upgrade proposal submission\"", fmt.Sprintf("--upgrade-height=%d", upgradeHeight), "--upgrade-info=\"\"", "--from=val", fmt.Sprintf("--deposit=%s", initialDeposit)}
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
-	require.NoError(n.t, err)
-	n.LogActionF("successfully submitted upgrade proposal")
-}
-
-func (n *NodeConfig) SubmitSuperfluidProposal(asset string, initialDeposit sdk.Coin) {
-	n.LogActionF("submitting superfluid proposal for asset %s", asset)
-	cmd := []string{"junod", "tx", "gov", "submit-proposal", "set-superfluid-assets-proposal", fmt.Sprintf("--superfluid-assets=%s", asset), fmt.Sprintf("--title=\"%s superfluid asset\"", asset), fmt.Sprintf("--description=\"%s superfluid asset\"", asset), "--from=val", fmt.Sprintf("--deposit=%s", initialDeposit)}
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
-	require.NoError(n.t, err)
-	n.LogActionF("successfully submitted superfluid proposal for asset %s", asset)
-}
-
 func (n *NodeConfig) SubmitTextProposal(text string, initialDeposit sdk.Coin, isExpedited bool) {
 	n.LogActionF("submitting text gov proposal")
 	cmd := []string{"junod", "tx", "gov", "submit-proposal", "--type=text", fmt.Sprintf("--title=\"%s\"", text), "--description=\"test text proposal\"", "--from=val", fmt.Sprintf("--deposit=%s", initialDeposit)}
@@ -151,9 +101,7 @@ func (n *NodeConfig) SubmitTextProposal(text string, initialDeposit sdk.Coin, is
 func (n *NodeConfig) DepositProposal(proposalNumber int, isExpedited bool) {
 	n.LogActionF("depositing on proposal: %d", proposalNumber)
 	deposit := sdk.NewCoin(appparams.BaseCoinUnit, sdk.NewInt(config.MinDepositValue)).String()
-	if isExpedited {
-		deposit = sdk.NewCoin(appparams.BaseCoinUnit, sdk.NewInt(config.MinExpeditedDepositValue)).String()
-	}
+
 	cmd := []string{"junod", "tx", "gov", "deposit", fmt.Sprintf("%d", proposalNumber), deposit, "--from=val"}
 	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
 	require.NoError(n.t, err)
@@ -174,63 +122,6 @@ func (n *NodeConfig) VoteNoProposal(from string, proposalNumber int) {
 	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
 	require.NoError(n.t, err)
 	n.LogActionF("successfully voted no on proposal: %d", proposalNumber)
-}
-
-func (n *NodeConfig) LockTokens(tokens string, duration string, from string) {
-	n.LogActionF("locking %s for %s", tokens, duration)
-	cmd := []string{"junod", "tx", "lockup", "lock-tokens", tokens, fmt.Sprintf("--duration=%s", duration), fmt.Sprintf("--from=%s", from)}
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
-	require.NoError(n.t, err)
-	n.LogActionF("successfully created lock")
-}
-
-func (n *NodeConfig) AddToExistingLock(tokens sdk.Int, denom, duration, from string) {
-	n.LogActionF("retrieving existing lock ID")
-	durationPath := fmt.Sprintf("/juno/lockup/v1beta1/account_locked_longer_duration/%s?duration=%s", from, duration)
-	bz, err := n.QueryGRPCGateway(durationPath)
-	require.NoError(n.t, err)
-	var accountLockedDurationResp lockuptypes.AccountLockedDurationResponse
-	err = util.Cdc.UnmarshalJSON(bz, &accountLockedDurationResp)
-	require.NoError(n.t, err)
-	var lockID string
-	for _, periodLock := range accountLockedDurationResp.Locks {
-		if periodLock.Coins.AmountOf(denom).GT(sdk.ZeroInt()) {
-			lockID = fmt.Sprintf("%v", periodLock.ID)
-			break
-		}
-	}
-	n.LogActionF("noting previous lockup amount")
-	path := fmt.Sprintf("/juno/lockup/v1beta1/locked_by_id/%s", lockID)
-	bz, err = n.QueryGRPCGateway(path)
-	require.NoError(n.t, err)
-	var lockedResp lockuptypes.LockedResponse
-	err = util.Cdc.UnmarshalJSON(bz, &lockedResp)
-	require.NoError(n.t, err)
-	previousLockupAmount := lockedResp.Lock.Coins.AmountOf(denom)
-	n.LogActionF("previous lockup amount is %v", previousLockupAmount)
-	n.LogActionF("locking %s for %s", tokens, duration)
-	cmd := []string{"junod", "tx", "lockup", "lock-tokens", fmt.Sprintf("%s%s", tokens, denom), fmt.Sprintf("--duration=%s", duration), fmt.Sprintf("--from=%s", from)}
-	_, _, err = n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
-	require.NoError(n.t, err)
-	n.LogActionF("noting new lockup amount")
-	bz, err = n.QueryGRPCGateway(path)
-	require.NoError(n.t, err)
-	err = util.Cdc.UnmarshalJSON(bz, &lockedResp)
-	require.NoError(n.t, err)
-	newLockupAmount := lockedResp.Lock.Coins.AmountOf(denom)
-	n.LogActionF("new lockup amount is %v", newLockupAmount)
-	lockupDelta := newLockupAmount.Sub(previousLockupAmount)
-	require.True(n.t, lockupDelta.Equal(tokens))
-	n.LogActionF("successfully added to existing lock")
-}
-
-func (n *NodeConfig) SuperfluidDelegate(lockNumber int, valAddress string, from string) {
-	lockStr := strconv.Itoa(lockNumber)
-	n.LogActionF("superfluid delegating lock %s to %s", lockStr, valAddress)
-	cmd := []string{"junod", "tx", "superfluid", "delegate", lockStr, valAddress, fmt.Sprintf("--from=%s", from)}
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
-	require.NoError(n.t, err)
-	n.LogActionF("successfully superfluid delegated lock %s to %s", lockStr, valAddress)
 }
 
 func (n *NodeConfig) BankSend(amount string, sendAddress string, receiveAddress string) {

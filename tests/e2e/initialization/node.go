@@ -29,8 +29,8 @@ import (
 	"github.com/tendermint/tendermint/privval"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	osmosisApp "github.com/osmosis-labs/osmosis/v12/app"
-	"github.com/osmosis-labs/osmosis/v12/tests/e2e/util"
+	junoApp "github.com/CosmosContracts/juno/v11/app"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/util"
 )
 
 type internalNode struct {
@@ -258,7 +258,7 @@ func (n *internalNode) init() error {
 		return err
 	}
 
-	appState, err := json.MarshalIndent(osmosisApp.ModuleBasics.DefaultGenesis(util.Cdc), "", " ")
+	appState, err := json.MarshalIndent(junoApp.ModuleBasics.DefaultGenesis(util.Cdc), "", " ")
 	if err != nil {
 		return fmt.Errorf("failed to JSON encode app genesis state: %w", err)
 	}

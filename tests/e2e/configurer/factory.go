@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/osmosis-labs/osmosis/v12/tests/e2e/configurer/chain"
-	"github.com/osmosis-labs/osmosis/v12/tests/e2e/containers"
-	"github.com/osmosis-labs/osmosis/v12/tests/e2e/initialization"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/configurer/chain"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/containers"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/initialization"
 )
 
 type Configurer interface {
@@ -99,12 +99,12 @@ var (
 
 // New returns a new Configurer depending on the values of its parameters.
 // - If only isIBCEnabled, we want to have 2 chains initialized at the current
-// Git branch version of Osmosis codebase.
+// Git branch version of codebase.
 // - If only isUpgradeEnabled, that is invalid and an error is returned.
 // - If both isIBCEnabled and isUpgradeEnabled, we want 2 chains with IBC initialized
-// at the previous Osmosis version.
+// at the previous version.
 // - If !isIBCEnabled and !isUpgradeEnabled, we only need one chain at the current
-// Git branch version of the Osmosis code.
+// Git branch version of the code.
 func New(t *testing.T, isIBCEnabled, isDebugLogEnabled bool, upgradeSettings UpgradeSettings) (Configurer, error) {
 	containerManager, err := containers.NewManager(upgradeSettings.IsEnabled, upgradeSettings.ForkHeight > 0, isDebugLogEnabled)
 	if err != nil {
@@ -113,7 +113,7 @@ func New(t *testing.T, isIBCEnabled, isDebugLogEnabled bool, upgradeSettings Upg
 
 	if isIBCEnabled && upgradeSettings.IsEnabled {
 		// skip none - configure two chains via Docker
-		// to utilize the older version of osmosis to upgrade from
+		// to utilize the older version of to upgrade from
 		return NewUpgradeConfigurer(t,
 			[]*chain.Config{
 				chain.New(t, containerManager, initialization.ChainAID, validatorConfigsChainA),
