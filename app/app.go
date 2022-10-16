@@ -17,10 +17,10 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/CosmosContracts/juno/v10/docs"
-	"github.com/CosmosContracts/juno/v10/x/mint"
-	mintkeeper "github.com/CosmosContracts/juno/v10/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v10/x/mint/types"
+	"github.com/CosmosContracts/juno/v11/docs"
+	"github.com/CosmosContracts/juno/v11/x/mint"
+	mintkeeper "github.com/CosmosContracts/juno/v11/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v11/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -108,7 +108,8 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 
-	encparams "github.com/CosmosContracts/juno/v10/app/params"
+	encparams "github.com/CosmosContracts/juno/v11/app/params"
+	upgrades "github.com/CosmosContracts/juno/v11/app/upgrades"
 )
 
 const (
@@ -840,11 +841,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 // RegisterUpgradeHandlers returns upgrade handlers
 
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler("v10",
-		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			// transfer module consensus version has been bumped to 2
-			return app.mm.RunMigrations(ctx, cfg, fromVM)
-		})
+	app.UpgradeKeeper.SetUpgradeHandler("v11", upgrades.CreateV11UpgradeHandler(app.mm, cfg, &app.ICAHostKeeper))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
