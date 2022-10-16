@@ -18,10 +18,10 @@ import (
 	"github.com/stretchr/testify/require"
 	tmabcitypes "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/CosmosContracts/juno/v10/tests/e2e/util"
-	epochstypes "github.com/CosmosContracts/juno/v10/x/epochs/types"
-	superfluidtypes "github.com/CosmosContracts/juno/v10/x/superfluid/types"
-	twapqueryproto "github.com/CosmosContracts/juno/v10/x/twap/client/queryproto"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/util"
+	epochstypes "github.com/CosmosContracts/juno/v11/x/epochs/types"
+	superfluidtypes "github.com/CosmosContracts/juno/v11/x/superfluid/types"
+	twapqueryproto "github.com/CosmosContracts/juno/v11/x/twap/client/queryproto"
 )
 
 func (n *NodeConfig) QueryGRPCGateway(path string, parameters ...string) ([]byte, error) {

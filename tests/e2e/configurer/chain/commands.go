@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	appparams "github.com/CosmosContracts/juno/v10/app/params"
-	"github.com/CosmosContracts/juno/v10/tests/e2e/configurer/config"
-	"github.com/CosmosContracts/juno/v10/tests/e2e/util"
+	appparams "github.com/CosmosContracts/juno/v11/app/params"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/configurer/config"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )

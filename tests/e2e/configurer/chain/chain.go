@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 
-	appparams "github.com/CosmosContracts/juno/v10/app/params"
-	"github.com/CosmosContracts/juno/v10/tests/e2e/configurer/config"
+	appparams "github.com/CosmosContracts/juno/v11/app/params"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/configurer/config"
 
-	"github.com/CosmosContracts/juno/v10/tests/e2e/containers"
-	"github.com/CosmosContracts/juno/v10/tests/e2e/initialization"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/containers"
+	"github.com/CosmosContracts/juno/v11/tests/e2e/initialization"
 )
 
 type Config struct {

@@ -11,7 +11,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	configurer "github.com/CosmosContracts/juno/v10/tests/e2e/configurer"
+	configurer "github.com/CosmosContracts/juno/v11/tests/e2e/configurer"
 )
 
 const (
