@@ -17,8 +17,8 @@ class Account:
     pubkey: str
     address: str
 
-# Contants
-BONDED_TOKENS_POOL_MODULE_ADDRESS = "osmo1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3aq6l09"
+# Constants
+# BONDED_TOKENS_POOL_MODULE_ADDRESS = "osmo1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3aq6l09"
 DISTRIBUTION_MODULE_ADDRESS = "osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld"
 DISTRIBUTION_MODULE_OFFSET = 2
 
@@ -29,7 +29,7 @@ config = {
 
 def replace(d, old_value, new_value):
     """
-    Replace all the occurences of `old_value` with `new_value`
+    Replace all the occurrences of `old_value` with `new_value`
     in `d` dictionary
     """
     for k in d.keys():
@@ -90,8 +90,8 @@ def create_parser():
         '-c',
         '--chain-id',
         type = str,
-        default="localosmosis",
-        help='Chain ID for the testnet \nDefault: localosmosis\n'
+        default="localjuno",
+        help='Chain ID for the testnet \nDefault: localjuno\n'
     )
 
     parser.add_argument(
@@ -134,7 +134,7 @@ def create_parser():
         '--validator-pubkey',
         type = str,
         help='Validator pubkey to replace'
-    )I wish to make a point to @channel : it isn’t the number of hours worked (that’s meaningless) — it is the value delivered via our accumulated knowledge as a team
+    )
 
     parser.add_argument(
         '--account-address',
@@ -325,42 +325,42 @@ def main():
     for balance in genesis['app_state']['bank']['balances']:
         if balance['address'] == new_account.address:
             for coin in balance['coins']:
-                if coin['denom'] == "uosmo":
+                if coin['denom'] == "ujuno":
                     coin["amount"] = str(int(coin["amount"]) + 1000000000000000)
                     if not args.quiet:
-                        print("\tUpdate {} uosmo balance to {}".format(new_account.address, coin["amount"]))
+                        print("\tUpdate {} ujuno balance to {}".format(new_account.address, coin["amount"]))
                     break
             break
     
-    # Add 1 BN uosmo to bonded_tokens_pool module address
+    # Add 1 BN ujuno to bonded_tokens_pool module address
     for balance in genesis['app_state']['bank']['balances']:
         if balance['address'] == BONDED_TOKENS_POOL_MODULE_ADDRESS:
-            # Find uosmo
+            # Find ujuno
             for coin in balance['coins']:
-                if coin['denom'] == "uosmo":
+                if coin['denom'] == "ujuno":
                     coin["amount"] = str(int(coin["amount"]) + 1000000000000000)
                     if not args.quiet:
-                        print("\tUpdate {} (bonded_tokens_pool_module) uosmo balance to {}".format(BONDED_TOKENS_POOL_MODULE_ADDRESS, coin["amount"]))
+                        print("\tUpdate {} (bonded_tokens_pool_module) ujuno balance to {}".format(BONDED_TOKENS_POOL_MODULE_ADDRESS, coin["amount"]))
                     break
             break
     
     # Distribution module fix
     for balance in genesis['app_state']['bank']['balances']:
         if balance['address'] == DISTRIBUTION_MODULE_ADDRESS:
-            # Find uosmo
+            # Find ujuno
             for coin in balance['coins']:
-                if coin['denom'] == "uosmo":
+                if coin['denom'] == "ujuno":
                     coin["amount"] = str(int(coin["amount"]) - DISTRIBUTION_MODULE_OFFSET)
                     if not args.quiet:
-                        print("\tUpdate {} (distribution_module) uosmo balance to {}".format(DISTRIBUTION_MODULE_ADDRESS, coin["amount"]))
+                        print("\tUpdate {} (distribution_module) ujuno balance to {}".format(DISTRIBUTION_MODULE_ADDRESS, coin["amount"]))
                     break
             break
 
     # Update bank balance 
     for supply in genesis['app_state']['bank']['supply']:
-        if supply["denom"] == "uosmo":
+        if supply["denom"] == "ujuno":
             if not args.quiet:
-                print("\tUpdate total uosmo supply from {} to {}".format(supply["amount"], str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)))
+                print("\tUpdate total ujuno supply from {} to {}".format(supply["amount"], str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)))
             supply["amount"] = str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)
             break
     
