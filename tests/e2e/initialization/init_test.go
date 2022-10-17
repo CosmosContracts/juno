@@ -48,7 +48,7 @@ func TestChainInit(t *testing.T) {
 				IsValidator:        false,
 			},
 		}
-		dataDir, err = os.MkdirTemp("", "osmosis-e2e-testnet-test")
+		dataDir, err = os.MkdirTemp("", "juno-e2e-testnet-test")
 	)
 
 	chain, err := initialization.InitChain(id, dataDir, nodeConfigs, time.Second*3, time.Second, forkHeight)
@@ -105,7 +105,7 @@ func TestSingleNodeInit(t *testing.T) {
 			SnapshotKeepRecent: 1,
 			IsValidator:        false,
 		}
-		dataDir, err = os.MkdirTemp("", "osmosis-e2e-testnet-test")
+		dataDir, err = os.MkdirTemp("", "juno-e2e-testnet-test")
 	)
 
 	// Setup

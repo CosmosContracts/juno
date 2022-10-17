@@ -155,7 +155,7 @@ func (m *Manager) ExecCmd(t *testing.T, containerName string, command []string, 
 
 // RunHermesResource runs a Hermes container. Returns the container resource and error if any.
 // the name of the hermes container is "<chain A id>-<chain B id>-relayer"
-func (m *Manager) RunHermesResource(chainAID, osmoARelayerNodeName, osmoAValMnemonic, chainBID, osmoBRelayerNodeName, osmoBValMnemonic string, hermesCfgPath string) (*dockertest.Resource, error) {
+func (m *Manager) RunHermesResource(chainAID, junoARelayerNodeName, junoAValMnemonic, chainBID, junoBRelayerNodeName, junoBValMnemonic string, hermesCfgPath string) (*dockertest.Resource, error) {
 	hermesResource, err := m.pool.RunWithOptions(
 		&dockertest.RunOptions{
 			Name:       hermesContainerName,
@@ -178,10 +178,10 @@ func (m *Manager) RunHermesResource(chainAID, osmoARelayerNodeName, osmoAValMnem
 			Env: []string{
 				fmt.Sprintf("JUNO_A_E2E_CHAIN_ID=%s", chainAID),
 				fmt.Sprintf("JUNO_B_E2E_CHAIN_ID=%s", chainBID),
-				fmt.Sprintf("JUNO_A_E2E_VAL_MNEMONIC=%s", osmoAValMnemonic),
-				fmt.Sprintf("JUNO_B_E2E_VAL_MNEMONIC=%s", osmoBValMnemonic),
-				fmt.Sprintf("JUNO_A_E2E_VAL_HOST=%s", osmoARelayerNodeName),
-				fmt.Sprintf("JUNO_B_E2E_VAL_HOST=%s", osmoBRelayerNodeName),
+				fmt.Sprintf("JUNO_A_E2E_VAL_MNEMONIC=%s", junoAValMnemonic),
+				fmt.Sprintf("JUNO_B_E2E_VAL_MNEMONIC=%s", junoBValMnemonic),
+				fmt.Sprintf("JUNO_A_E2E_VAL_HOST=%s", junoARelayerNodeName),
+				fmt.Sprintf("JUNO_B_E2E_VAL_HOST=%s", junoBRelayerNodeName),
 			},
 			Entrypoint: []string{
 				"sh",
@@ -214,8 +214,8 @@ func (m *Manager) RunNodeResource(chainId string, containerName, valCondifDir st
 		User:       "root:root",
 		Cmd:        []string{"start"},
 		Mounts: []string{
-			fmt.Sprintf("%s/:/osmosis/.osmosisd", valCondifDir),
-			fmt.Sprintf("%s/scripts:/osmosis", pwd),
+			fmt.Sprintf("%s/:/juno/.junod", valCondifDir),
+			fmt.Sprintf("%s/scripts:/juno", pwd),
 		},
 	}
 

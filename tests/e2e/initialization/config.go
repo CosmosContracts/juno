@@ -37,21 +37,21 @@ type NodeConfig struct {
 
 const (
 	// common
-	BaseDenom           = "uosmo"
+	BaseDenom           = "ujuno"
 	IonDenom            = "uion"
 	StakeDenom          = "stake"
 	MinGasPrice         = "0.000"
 	IbcSendAmount       = 3300000000
 	ValidatorWalletName = "val"
 	// chainA
-	ChainAID      = "osmo-test-a"
-	OsmoBalanceA  = 200000000000
+	ChainAID      = "juno-test-a"
+	JunoBalanceA  = 200000000000
 	IonBalanceA   = 100000000000
 	StakeBalanceA = 110000000000
 	StakeAmountA  = 100000000000
 	// chainB
-	ChainBID      = "osmo-test-b"
-	OsmoBalanceB  = 500000000000
+	ChainBID      = "juno-test-b"
+	JunoBalanceB  = 500000000000
 	IonBalanceB   = 100000000000
 	StakeBalanceB = 440000000000
 	StakeAmountB  = 400000000000
@@ -66,9 +66,9 @@ var (
 	StakeAmountIntB  = sdk.NewInt(StakeAmountB)
 	StakeAmountCoinB = sdk.NewCoin(BaseDenom, StakeAmountIntB)
 
-	InitBalanceStrA = fmt.Sprintf("%d%s,%d%s,%d%s", OsmoBalanceA, BaseDenom, StakeBalanceA, StakeDenom, IonBalanceA, IonDenom)
-	InitBalanceStrB = fmt.Sprintf("%d%s,%d%s,%d%s", OsmoBalanceB, BaseDenom, StakeBalanceB, StakeDenom, IonBalanceB, IonDenom)
-	OsmoToken       = sdk.NewInt64Coin(BaseDenom, IbcSendAmount)  // 3,300uosmo
+	InitBalanceStrA = fmt.Sprintf("%d%s,%d%s,%d%s", JunoBalanceA, BaseDenom, StakeBalanceA, StakeDenom, IonBalanceA, IonDenom)
+	InitBalanceStrB = fmt.Sprintf("%d%s,%d%s,%d%s", JunoBalanceB, BaseDenom, StakeBalanceB, StakeDenom, IonBalanceB, IonDenom)
+	JunoToken       = sdk.NewInt64Coin(BaseDenom, IbcSendAmount)  // 3,300ujuno
 	StakeToken      = sdk.NewInt64Coin(StakeDenom, IbcSendAmount) // 3,300ustake
 	tenM            = sdk.Coins{sdk.NewInt64Coin(BaseDenom, 10_000_000)}
 	fiftyM          = sdk.Coins{sdk.NewInt64Coin(BaseDenom, 50_000_000)}
