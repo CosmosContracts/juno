@@ -113,7 +113,7 @@ func (n *internalNode) createAppConfig(nodeConfig *NodeConfig) {
 	appConfig.BaseConfig.PruningKeepRecent = nodeConfig.PruningKeepRecent
 	appConfig.BaseConfig.PruningInterval = nodeConfig.PruningInterval
 	appConfig.API.Enable = true
-	appConfig.MinGasPrices = fmt.Sprintf("%s%s", MinGasPrice, OsmoDenom)
+	appConfig.MinGasPrices = fmt.Sprintf("%s%s", MinGasPrice, BaseDenom)
 	appConfig.StateSync.SnapshotInterval = nodeConfig.SnapshotInterval
 	appConfig.StateSync.SnapshotKeepRecent = nodeConfig.SnapshotKeepRecent
 

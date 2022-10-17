@@ -87,12 +87,9 @@ func (n *NodeConfig) FailIBCTransfer(from, recipient, amount string) {
 	n.LogActionF("Failed to send IBC transfer (as expected)")
 }
 
-func (n *NodeConfig) SubmitTextProposal(text string, initialDeposit sdk.Coin, isExpedited bool) {
+func (n *NodeConfig) SubmitTextProposal(text string, initialDeposit sdk.Coin) {
 	n.LogActionF("submitting text gov proposal")
 	cmd := []string{"junod", "tx", "gov", "submit-proposal", "--type=text", fmt.Sprintf("--title=\"%s\"", text), "--description=\"test text proposal\"", "--from=val", fmt.Sprintf("--deposit=%s", initialDeposit)}
-	if isExpedited {
-		cmd = append(cmd, "--is-expedited=true")
-	}
 	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
 	require.NoError(n.t, err)
 	n.LogActionF("successfully submitted text gov proposal")
