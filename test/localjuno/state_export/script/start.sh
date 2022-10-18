@@ -32,12 +32,14 @@ edit_config () {
 
     # Expose the rpc
     dasel put string -f $CONFIG_FOLDER/config.toml '.rpc.laddr' "tcp://0.0.0.0:26657"
+
+    # minimum-gas-prices config in app.toml, empty string by default
 }
 
 if [[ ! -d $CONFIG_FOLDER ]]
 then
 
-    # install_prerequisites # TODO: enable
+    install_prerequisites
 
     echo "Chain ID: $CHAIN_ID"
     echo "Moniker:  $MONIKER"
@@ -47,10 +49,13 @@ then
 
     ACCOUNT_PUBKEY=$(junod keys show --keyring-backend test my-key --pubkey | dasel -r json '.key' --plain)
     ACCOUNT_ADDRESS=$(junod keys show -a --keyring-backend test my-key --bech acc)
-    # echo "Account address: $ACCOUNT_ADDRESS"
-    # echo "Account pubkey:  $ACCOUNT_PUBKEY"
+    echo "Account address: $ACCOUNT_ADDRESS"
+    echo "Account pubkey:  $ACCOUNT_PUBKEY"
+    
+    # echo `junod tendermint show-validator --home $JUNO_HOME`
 
-    # TODO:  $JUNO_HOME/config/priv_validator_key.json not found here, but we can't run this without CONFIG_FOLDER being new? hmm
+    # TODO:  $JUNO_HOME/config/priv_validator_key.json not found here, but we can't run this without CONFIG_FOLDER being new? 
+    # So this always fails. Are we meant to call the ../../scripts/setup.sh first within here?
     VALIDATOR_PUBKEY_JSON=$(junod tendermint show-validator --home $JUNO_HOME)
     VALIDATOR_PUBKEY=$(echo $VALIDATOR_PUBKEY_JSON | dasel -r json '.key' --plain)
     VALIDATOR_HEX_ADDRESS=$(junod debug pubkey $VALIDATOR_PUBKEY_JSON --home $JUNO_HOME | grep Address | cut -d " " -f 2)    
@@ -78,4 +83,4 @@ then
     edit_config
 fi
 
-# junod start --home $JUNO_HOME --x-crisis-skip-assert-invariants
+junod start --home $JUNO_HOME --x-crisis-skip-assert-invariants

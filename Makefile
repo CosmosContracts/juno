@@ -104,14 +104,14 @@ localnet-keys:
 
 localnet-init: localnet-clean localnet-build
 
-localnet-build:
-  @STATE="" chmod -R +x test/localjuno
+localnet-build:  
+	@chmod -R +x test/localjuno/
 	@DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f test/localjuno/docker-compose.yml build
 
 localnet-start:  
 	@STATE="" docker-compose -f test/localjuno/docker-compose.yml up
 
-localnet-start-with-state:
+localnet-start-with-state:	
 	@STATE=-s docker-compose -f test/localjuno/docker-compose.yml up
 
 localnet-startd:
@@ -129,6 +129,7 @@ localnet-clean:
 localnet-state-export-init: localnet-state-export-clean localnet-state-export-build 
 
 localnet-state-export-build:
+	@chmod -R +x test/localjuno/
 	@DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f test/localjuno/state_export/docker-compose.yml build
 
 localnet-state-export-start:
