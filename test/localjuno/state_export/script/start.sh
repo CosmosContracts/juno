@@ -15,6 +15,9 @@ MNEMONIC=${MNEMONIC:-$DEFAULT_MNEMONIC}
 CHAIN_ID=${CHAIN_ID:-$DEFAULT_CHAIN_ID}
 MONIKER=${MONIKER:-$DEFAULT_MONIKER}
 
+# Debug print in the docker container, then exit
+# echo $(ls /juno); exit 1
+
 install_prerequisites () {
     apk add -q --no-cache \
         dasel \
@@ -36,23 +39,28 @@ edit_config () {
     # minimum-gas-prices config in app.toml, empty string by default
 }
 
-if [[ ! -d $CONFIG_FOLDER ]]
-then
+# if [[ ! -d $CONFIG_FOLDER ]]
+# then
 
     install_prerequisites
 
     echo "Chain ID: $CHAIN_ID"
     echo "Moniker:  $MONIKER"
 
-    echo $MNEMONIC | junod init -o --chain-id=$CHAIN_ID --home $JUNO_HOME --recover $MONIKER 2> /dev/null
-    echo $MNEMONIC | junod keys add my-key --recover --keyring-backend test > /dev/null 2>&1    
+    echo $MNEMONIC | junod init $MONIKER -o --chain-id=$CHAIN_ID --home $JUNO_HOME &2> /dev/null
+    echo $MNEMONIC | junod keys add my-key --recover --keyring-backend test &2> /dev/null   
 
     ACCOUNT_PUBKEY=$(junod keys show --keyring-backend test my-key --pubkey | dasel -r json '.key' --plain)
     ACCOUNT_ADDRESS=$(junod keys show -a --keyring-backend test my-key --bech acc)
-    echo "Account address: $ACCOUNT_ADDRESS"
     echo "Account pubkey:  $ACCOUNT_PUBKEY"
+    echo "Account address: $ACCOUNT_ADDRESS"
     
-    # echo `junod tendermint show-validator --home $JUNO_HOME`
+    # create a validator    
+    junod add-genesis-account $ACCOUNT_ADDRESS 100000000000ujuno --home $JUNO_HOME # val
+    # junod gentx my-key --moniker=$MONIKER 500000000ujuno --keyring-backend=test --chain-id=$CHAIN_ID --home $JUNO_HOME
+    junod collect-gentxs --home $JUNO_HOME     
+
+    # echo $(ls /juno); exit 1    
 
     # TODO:  $JUNO_HOME/config/priv_validator_key.json not found here, but we can't run this without CONFIG_FOLDER being new? 
     # So this always fails. Are we meant to call the ../../scripts/setup.sh first within here?
@@ -61,14 +69,16 @@ then
     VALIDATOR_HEX_ADDRESS=$(junod debug pubkey $VALIDATOR_PUBKEY_JSON --home $JUNO_HOME | grep Address | cut -d " " -f 2)    
     VALIDATOR_ACCOUNT_ADDRESS=$(junod debug addr $VALIDATOR_HEX_ADDRESS --home $JUNO_HOME | grep Acc | cut -d " " -f 3)
     VALIDATOR_OPERATOR_ADDRESS=$(junod debug addr $VALIDATOR_HEX_ADDRESS --home $JUNO_HOME | grep Val | cut -d " " -f 3)    
-    VALIDATOR_CONSENSUS_ADDRESS=$(junod debug bech32-convert $VALIDATOR_OPERATOR_ADDRESS -p junovalcons  --home $JUNO_HOME)    
+    VALIDATOR_CONSENSUS_ADDRESS=$(junod debug bech32-convert $VALIDATOR_OPERATOR_ADDRESS -p junovalcons  --home $JUNO_HOME)   
+
+    
 
     echo "Validator pubkey:  $VALIDATOR_PUBKEY"
     echo "Validator address: $VALIDATOR_ACCOUNT_ADDRESS"
     echo "Validator operator address: $VALIDATOR_OPERATOR_ADDRESS"
     echo "Validator consensus address: $VALIDATOR_CONSENSUS_ADDRESS"    
 
-    python3 -u testnetify.py \
+    python3 -u /juno/testnetify.py \
     -i /juno/state_export.json \
     -o $CONFIG_FOLDER/genesis.json \
     -c $CHAIN_ID \
@@ -81,6 +91,6 @@ then
     --prune-ibc
 
     edit_config
-fi
+# fi
 
 junod start --home $JUNO_HOME --x-crisis-skip-assert-invariants

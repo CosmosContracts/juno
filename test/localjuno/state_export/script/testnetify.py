@@ -19,12 +19,12 @@ class Account:
 
 # Constants
 # BONDED_TOKENS_POOL_MODULE_ADDRESS = "osmo1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3aq6l09"
-DISTRIBUTION_MODULE_ADDRESS = "osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld"
+# DISTRIBUTION_MODULE_ADDRESS = "osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld" # how to get this for juno? in state_export?
 DISTRIBUTION_MODULE_OFFSET = 2
 
 config = {
     "governance_voting_period": "180s",
-    "epoch_duration": '21600s',
+    # "epoch_duration": '21600s',
 }
 
 def replace(d, old_value, new_value):
@@ -46,8 +46,7 @@ def replace(d, old_value, new_value):
             if d[k] == old_value:
                 d[k] = new_value
 
-def replace_validator(genesis, old_validator, new_validator):
-    
+def replace_validator(genesis, old_validator: Validator, new_validator: Validator):
     replace(genesis, old_validator.hex_address, new_validator.hex_address)
     replace(genesis, old_validator.consensus_address, new_validator.consensus_address)
 
@@ -75,13 +74,11 @@ def replace_validator(genesis, old_validator, new_validator):
     #         gauge['distribute_to']['denom'] = gauge['distribute_to']['denom'].replace(
     #             old_validator.operator_address, new_validator.operator_address)
 
-def replace_account(genesis, old_account, new_account):
-
+def replace_account(genesis, old_account: Account, new_account: Account):
     replace(genesis, old_account.address, new_account.address)
     replace(genesis, old_account.pubkey, new_account.pubkey)
 
 def create_parser():
-
     parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description='Create a testnet from a state export')
@@ -143,6 +140,12 @@ def create_parser():
     )
 
     parser.add_argument(
+        '--account-pubkey', 
+        type = str,        
+        help='The accounts public key'
+    )
+
+    parser.add_argument(
         '-q',
         '--quiet',
         action='store_false',
@@ -164,7 +167,6 @@ def create_parser():
     return parser
 
 def main():
-
     parser = create_parser()
     args = parser.parse_args()
 
@@ -177,11 +179,12 @@ def main():
     )
 
     old_validator = Validator(
-        moniker = "Sentinel dVPN",
-        pubkey = "b77zCh/VsRgVvfGXuW4dB+Dhg4PrMWWBC5G2K/qFgiU=",
-        hex_address = "16A169951A878247DBE258FDDC71638F6606D156",
-        operator_address = "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n",
-        consensus_address = "osmovalcons1z6skn9g6s7py0klztr7acutr3anqd52k9x5p70"
+        # from ping.pub
+        moniker = "notional",
+        pubkey = "ux/IM9uD+a/4rhIurbRiudh9K+M6tH1cNfffpX48Lrw=", 
+        hex_address = "6EC804DBB72380D0AA5AC6A82650A1FA75FBABC5",
+        operator_address = "junovaloper1083svrca4t350mphfv9x45wq9asrs60cpqzg0y",
+        consensus_address = "junovalcons1083svrca4t350mphfv9x45wq9asrs60c4n35r9" # junod debug bech32-convert junovaloper1083svrca4t350mphfv9x45wq9asrs60cpqzg0y -p junovalcons
     )
 
     new_account = Account(
@@ -190,9 +193,11 @@ def main():
     )
 
     old_account = Account(
-        pubkey = "AqlNb1FM8veQrT4/apR5B3hww8VApc0LTtZnXhq7FqG0",
-        address = "osmo1cyw4vw20el8e7ez8080md0r8psg25n0c6j07j5"
+        pubkey = "Ah8/EMTRW6D+Gk3xZghbcoRkKeRA43S8Qo9J+Lzf2HnK", # https://ping.pub/juno/account/juno1083svrca4t350mphfv9x45wq9asrs60c7a585a, "Profile"
+        address = "juno1083svrca4t350mphfv9x45wq9asrs60c7a585a"  # validators account
     )
+
+    # print("EXITING EARLY IN THE FILE"); exit(2)
 
     print("📝 Opening {}... (it may take a while)".format(args.input_genesis))
     with open(args.input_genesis, 'r') as f:
@@ -212,14 +217,14 @@ def main():
     genesis['app_state']['gov']['voting_params']['voting_period'] = config["governance_voting_period"]
 
     # Update epochs module
-    if not args.quiet:
-        print("⌛ Update epochs module")
-        print("\tModify epoch_duration from {} to {}".format(
-            genesis['app_state']['epochs']['epochs'][0]['duration'],
-            config["epoch_duration"]))
-        print("\tReset current_epoch_start_time")
-    genesis['app_state']['epochs']['epochs'][0]['duration'] = config["epoch_duration"]
-    genesis['app_state']['epochs']['epochs'][0]['current_epoch_start_time'] = datetime.now().isoformat() + 'Z'
+    # if not args.quiet:
+    #     print("⌛ Update epochs module")
+    #     print("\tModify epoch_duration from {} to {}".format(
+    #         genesis['app_state']['epochs']['epochs'][0]['duration'],
+    #         config["epoch_duration"]))
+    #     print("\tReset current_epoch_start_time")
+    # genesis['app_state']['epochs']['epochs'][0]['duration'] = config["epoch_duration"]
+    # genesis['app_state']['epochs']['epochs'][0]['current_epoch_start_time'] = datetime.now().isoformat() + 'Z'
     
     # Prune IBC
     if args.prune_ibc:
@@ -333,28 +338,28 @@ def main():
             break
     
     # Add 1 BN ujuno to bonded_tokens_pool module address
-    for balance in genesis['app_state']['bank']['balances']:
-        if balance['address'] == BONDED_TOKENS_POOL_MODULE_ADDRESS:
-            # Find ujuno
-            for coin in balance['coins']:
-                if coin['denom'] == "ujuno":
-                    coin["amount"] = str(int(coin["amount"]) + 1000000000000000)
-                    if not args.quiet:
-                        print("\tUpdate {} (bonded_tokens_pool_module) ujuno balance to {}".format(BONDED_TOKENS_POOL_MODULE_ADDRESS, coin["amount"]))
-                    break
-            break
+    # for balance in genesis['app_state']['bank']['balances']:
+    #     if balance['address'] == BONDED_TOKENS_POOL_MODULE_ADDRESS:
+    #         # Find ujuno
+    #         for coin in balance['coins']:
+    #             if coin['denom'] == "ujuno":
+    #                 coin["amount"] = str(int(coin["amount"]) + 1000000000000000)
+    #                 if not args.quiet:
+    #                     print("\tUpdate {} (bonded_tokens_pool_module) ujuno balance to {}".format(BONDED_TOKENS_POOL_MODULE_ADDRESS, coin["amount"]))
+    #                 break
+    #         break
     
     # Distribution module fix
-    for balance in genesis['app_state']['bank']['balances']:
-        if balance['address'] == DISTRIBUTION_MODULE_ADDRESS:
-            # Find ujuno
-            for coin in balance['coins']:
-                if coin['denom'] == "ujuno":
-                    coin["amount"] = str(int(coin["amount"]) - DISTRIBUTION_MODULE_OFFSET)
-                    if not args.quiet:
-                        print("\tUpdate {} (distribution_module) ujuno balance to {}".format(DISTRIBUTION_MODULE_ADDRESS, coin["amount"]))
-                    break
-            break
+    # for balance in genesis['app_state']['bank']['balances']:
+    #     if balance['address'] == DISTRIBUTION_MODULE_ADDRESS:
+    #         # Find ujuno
+    #         for coin in balance['coins']:
+    #             if coin['denom'] == "ujuno":
+    #                 coin["amount"] = str(int(coin["amount"]) - DISTRIBUTION_MODULE_OFFSET)
+    #                 if not args.quiet:
+    #                     print("\tUpdate {} (distribution_module) ujuno balance to {}".format(DISTRIBUTION_MODULE_ADDRESS, coin["amount"]))
+    #                 break
+    #         break
 
     # Update bank balance 
     for supply in genesis['app_state']['bank']['supply']:
