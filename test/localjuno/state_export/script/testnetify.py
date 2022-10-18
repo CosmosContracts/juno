@@ -147,7 +147,7 @@ def create_parser():
 
     parser.add_argument(
         '-q',
-        '--quiet',
+        '--quiet',        
         action='store_false',
         help='Less verbose output'
     )
@@ -195,21 +195,20 @@ def main():
     old_account = Account(
         pubkey = "Ah8/EMTRW6D+Gk3xZghbcoRkKeRA43S8Qo9J+Lzf2HnK", # https://ping.pub/juno/account/juno1083svrca4t350mphfv9x45wq9asrs60c7a585a, "Profile"
         address = "juno1083svrca4t350mphfv9x45wq9asrs60c7a585a"  # validators account
-    )
-
-    # print("EXITING EARLY IN THE FILE"); exit(2)
+    )    
 
     print("📝 Opening {}... (it may take a while)".format(args.input_genesis))
     with open(args.input_genesis, 'r') as f:
         genesis = json.load(f)
     
     # Replace chain-id
-    if not args.quiet:
+    if args.quiet:
         print("🔗 Replace chain-id {} with {}".format(genesis['chain_id'], args.chain_id))
     genesis['chain_id'] = args.chain_id
+    
 
     # Update gov module
-    if not args.quiet:
+    if args.quiet:
         print("🗳️ Update gov module")
         print("\tModify governance_voting_period from {} to {}".format(
             genesis['app_state']['gov']['voting_params']['voting_period'],
@@ -228,7 +227,7 @@ def main():
     
     # Prune IBC
     if args.prune_ibc:
-        if not args.quiet:
+        if args.quiet:
             print("🕸 Pruning IBC module")
 
         genesis['app_state']["ibc"]["channel_genesis"]["ack_sequences"] = []
@@ -244,7 +243,7 @@ def main():
         genesis['app_state']["ibc"]["client_genesis"]["clients_metadata"] = []
 
     # Impersonate validator
-    if not args.quiet:
+    if args.quiet:
         print("🚀 Replace validator")
 
         # print("\t{:50} -> {}".format(old_validator.moniker, new_validator.moniker))
@@ -256,7 +255,7 @@ def main():
     replace_validator(genesis, old_validator, new_validator)
 
     # Impersonate account
-    if not args.quiet:
+    if args.quiet:
         print("🧪 Replace account")
         print("\t{:20} {}".format("Pubkey", new_account.pubkey))
         print("\t{:20} {}".format("Address", new_account.address))
@@ -264,21 +263,21 @@ def main():
     replace_account(genesis, old_account, new_account)
         
     # Update staking module
-    if not args.quiet:
+    if args.quiet:
         print("🥩 Update staking module")
 
     # Replace validator pub key in genesis['app_state']['staking']['validators']
     for validator in genesis['app_state']['staking']['validators']:
         if validator['description']['moniker'] == old_validator.moniker:
             
-            # Update delegator shares
+            # Update delegator shares            
             validator['delegator_shares'] = str(int(float(validator['delegator_shares']) + 1000000000000000)) + ".000000000000000000"
-            if not args.quiet:
+            if args.quiet:
                 print("\tUpdate delegator shares to {}".format(validator['delegator_shares']))
 
             # Update tokens
             validator['tokens'] = str(int(validator['tokens']) + 1000000000000000)
-            if not args.quiet:
+            if args.quiet:
                 print("\tUpdate tokens to {}".format(validator['tokens']))
             break
     
@@ -288,7 +287,7 @@ def main():
 
             # delegation['validator_address'] = new_validator.operator_address
             delegation['shares'] = str(int(float(delegation['shares'])) + 1000000000000000) + ".000000000000000000"
-            if not args.quiet:
+            if args.quiet:
                 print("\tUpdate {} delegation shares to {} to {}".format(new_account.address, delegation['validator_address'], delegation['shares']))
             break
 
@@ -296,35 +295,35 @@ def main():
     for delegator_starting_info in genesis['app_state']['distribution']['delegator_starting_infos']:
         if delegator_starting_info['delegator_address'] == new_account.address:
             delegator_starting_info['starting_info']['stake'] = str(int(float(delegator_starting_info['starting_info']['stake']) + 1000000000000000))+".000000000000000000"
-            if not args.quiet:
+            if args.quiet:
                 print("\tUpdate {} stake to {}".format(delegator_starting_info['delegator_address'], delegator_starting_info['starting_info']['stake']))
             break
 
-    if not args.quiet:
+    if args.quiet:
         print("🔋 Update validator power")
 
     # Update power in genesis["validators"]
     for validator in genesis["validators"]:
         if validator['name'] == old_validator.moniker:
             validator['power'] = str(int(validator['power']) + 1000000000)
-            if not args.quiet:
+            if args.quiet:
                 print("\tUpdate {} validator power to {}".format(validator['address'], validator['power']))
             break 
     
     for validator_power in genesis['app_state']['staking']['last_validator_powers']:
         if validator_power['address'] == old_validator.operator_address:
             validator_power['power'] = str(int(validator_power['power']) + 1000000000)
-            if not args.quiet:
+            if args.quiet:
                 print("\tUpdate {} last_validator_power to {}".format(old_validator.operator_address, validator_power['power']))
             break
     
     # Update total power
     genesis['app_state']['staking']['last_total_power'] = str(int(genesis['app_state']['staking']['last_total_power']) + 1000000000)
-    if not args.quiet:
+    if args.quiet:
         print("\tUpdate last_total_power to {}".format(genesis['app_state']['staking']['last_total_power']))
 
     # Update bank module
-    if not args.quiet:
+    if args.quiet:
         print("💵 Update bank module")
 
     for balance in genesis['app_state']['bank']['balances']:
@@ -332,7 +331,7 @@ def main():
             for coin in balance['coins']:
                 if coin['denom'] == "ujuno":
                     coin["amount"] = str(int(coin["amount"]) + 1000000000000000)
-                    if not args.quiet:
+                    if args.quiet:
                         print("\tUpdate {} ujuno balance to {}".format(new_account.address, coin["amount"]))
                     break
             break
@@ -364,7 +363,7 @@ def main():
     # Update bank balance 
     for supply in genesis['app_state']['bank']['supply']:
         if supply["denom"] == "ujuno":
-            if not args.quiet:
+            if args.quiet:
                 print("\tUpdate total ujuno supply from {} to {}".format(supply["amount"], str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)))
             supply["amount"] = str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)
             break
