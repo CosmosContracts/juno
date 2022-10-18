@@ -6,6 +6,7 @@ exchanges.json
 juno_out.json
 bin
 .vscode
+state_export.json
 
 # emacs editor config
 \#*\#

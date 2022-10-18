@@ -13,10 +13,9 @@ services:
     volumes:
       - ./scripts/setup.sh:/juno/setup.sh
       - $HOME/.juno/:/juno/.juno/
-    entrypoint:      
+    entrypoint:
       - /juno/setup.sh
     command:
-      - chmod +x /juno/setup.sh
       - $STATE
     ports:
       - 26657:26657

@@ -105,9 +105,10 @@ localnet-keys:
 localnet-init: localnet-clean localnet-build
 
 localnet-build:
+  @STATE="" chmod -R +x test/localjuno
 	@DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f test/localjuno/docker-compose.yml build
 
-localnet-start:
+localnet-start:  
 	@STATE="" docker-compose -f test/localjuno/docker-compose.yml up
 
 localnet-start-with-state:
