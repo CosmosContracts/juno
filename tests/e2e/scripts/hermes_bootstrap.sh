@@ -33,31 +33,31 @@ enabled = true
 host = '127.0.0.1'
 port = 3001
 [[chains]]
-id = '$OSMO_A_E2E_CHAIN_ID'
-rpc_addr = 'http://$OSMO_A_E2E_VAL_HOST:26657'
-grpc_addr = 'http://$OSMO_A_E2E_VAL_HOST:9090'
-websocket_addr = 'ws://$OSMO_A_E2E_VAL_HOST:26657/websocket'
+id = '$JUNO_A_E2E_CHAIN_ID'
+rpc_addr = 'http://$JUNO_A_E2E_VAL_HOST:26657'
+grpc_addr = 'http://$JUNO_A_E2E_VAL_HOST:9090'
+websocket_addr = 'ws://$JUNO_A_E2E_VAL_HOST:26657/websocket'
 rpc_timeout = '10s'
-account_prefix = 'osmo'
-key_name = 'val01-osmosis-a'
+account_prefix = 'juno'
+key_name = 'val01-juno-a'
 store_prefix = 'ibc'
 max_gas = 6000000
-gas_price = { price = 0.000, denom = 'uosmo' }
+gas_price = { price = 0.000, denom = 'ujuno' }
 gas_adjustment = 1.0
 clock_drift = '1m' # to accomdate docker containers
 trusting_period = '239seconds'
 trust_threshold = { numerator = '1', denominator = '3' }
 [[chains]]
-id = '$OSMO_B_E2E_CHAIN_ID'
-rpc_addr = 'http://$OSMO_B_E2E_VAL_HOST:26657'
-grpc_addr = 'http://$OSMO_B_E2E_VAL_HOST:9090'
-websocket_addr = 'ws://$OSMO_B_E2E_VAL_HOST:26657/websocket'
+id = '$JUNO_B_E2E_CHAIN_ID'
+rpc_addr = 'http://$JUNO_B_E2E_VAL_HOST:26657'
+grpc_addr = 'http://$JUNO_B_E2E_VAL_HOST:9090'
+websocket_addr = 'ws://$JUNO_B_E2E_VAL_HOST:26657/websocket'
 rpc_timeout = '10s'
-account_prefix = 'osmo'
-key_name = 'val01-osmosis-b'
+account_prefix = 'juno'
+key_name = 'val01-juno-b'
 store_prefix = 'ibc'
 max_gas = 6000000
-gas_price = { price = 0.000, denom = 'uosmo' }
+gas_price = { price = 0.000, denom = 'ujuno' }
 gas_adjustment = 1.0
 clock_drift = '1m' # to accomdate docker containers
 trusting_period = '239seconds'
@@ -65,8 +65,8 @@ trust_threshold = { numerator = '1', denominator = '3' }
 EOF
 
 # import keys
-hermes keys restore ${OSMO_B_E2E_CHAIN_ID} -n "val01-osmosis-b" -m "${OSMO_B_E2E_VAL_MNEMONIC}"
-hermes keys restore ${OSMO_A_E2E_CHAIN_ID} -n "val01-osmosis-a" -m "${OSMO_A_E2E_VAL_MNEMONIC}"
+hermes keys restore ${JUNO_B_E2E_CHAIN_ID} -n "val01-juno-b" -m "${JUNO_B_E2E_VAL_MNEMONIC}"
+hermes keys restore ${JUNO_A_E2E_CHAIN_ID} -n "val01-juno-a" -m "${JUNO_A_E2E_VAL_MNEMONIC}"
 
 # start Hermes relayer
 hermes start
