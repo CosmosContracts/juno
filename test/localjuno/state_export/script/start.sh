@@ -37,10 +37,11 @@ edit_config () {
     dasel put string -f $CONFIG_FOLDER/config.toml '.rpc.laddr' "tcp://0.0.0.0:26657"
 
     # minimum-gas-prices config in app.toml, empty string by default
+    dasel put string -f $CONFIG_FOLDER/app.toml 'minimum-gas-prices' "0ujuno"
 }
 
-if [[ ! -d $CONFIG_FOLDER ]]
-then
+# if [[ ! -d $CONFIG_FOLDER ]]
+# then
 
     install_prerequisites
 
@@ -58,7 +59,7 @@ then
     # create a validator    
     junod add-genesis-account $ACCOUNT_ADDRESS 100000000000ujuno --home $JUNO_HOME # val
     # junod gentx my-key --moniker=$MONIKER 500000000ujuno --keyring-backend=test --chain-id=$CHAIN_ID --home $JUNO_HOME
-    junod collect-gentxs --home $JUNO_HOME     
+    # junod collect-gentxs --home $JUNO_HOME     
 
     # echo $(ls /juno); exit 1    
 
@@ -89,6 +90,6 @@ then
         --prune-ibc
 
     edit_config
-fi
+# fi
 
 junod start --home $JUNO_HOME --x-crisis-skip-assert-invariants

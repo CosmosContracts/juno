@@ -1,3 +1,4 @@
+import os
 import json
 import argparse
 from datetime import datetime
@@ -19,7 +20,8 @@ class Account:
 
 # Constants
 # BONDED_TOKENS_POOL_MODULE_ADDRESS = "osmo1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3aq6l09"
-# DISTRIBUTION_MODULE_ADDRESS = "osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld" # how to get this for juno? in state_export?
+# DISTRIBUTION_MODULE_ADDRESS = "osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld" # how to get this for juno? in state_export? bech32 convert?
+DISTRIBUTION_MODULE_ADDRESS = "juno1jv65s3grqf6v6jl3dp4t6c9t9rk99cd83d88wr" # junod debug bech32-convert osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld -p juno
 DISTRIBUTION_MODULE_OFFSET = 2
 
 config = {
@@ -60,14 +62,8 @@ def replace_validator(genesis, old_validator: Validator, new_validator: Validato
             validator['consensus_pubkey']['key'] = new_validator.pubkey
 
     # This creates problems
-    # replace(genesis, old_validator.operator_address, new_validator.operator_address)
+    replace(genesis, old_validator.operator_address, new_validator.operator_address)
     
-    # replacing operator_address in lockup > synthetic_locks
-    # for synthetic_lock in genesis['app_state']['lockup']['synthetic_locks']:ß
-    #     if synthetic_lock['synth_denom'].endswith(old_validator.operator_address):
-    #         synthetic_lock['synth_denom'] = synthetic_lock['synth_denom'].replace(
-    #             old_validator.operator_address, new_validator.operator_address)
-
     # Replacing operator_address in incentives > gauges
     # for gauge in genesis['app_state']['incentives']['gauges']:
     #     if gauge['distribute_to']['denom'].endswith(old_validator.operator_address):
@@ -195,12 +191,18 @@ def main():
     old_account = Account(
         pubkey = "Ah8/EMTRW6D+Gk3xZghbcoRkKeRA43S8Qo9J+Lzf2HnK", # https://ping.pub/juno/account/juno1083svrca4t350mphfv9x45wq9asrs60c7a585a, "Profile"
         address = "juno1083svrca4t350mphfv9x45wq9asrs60c7a585a"  # validators account
-    )    
+    )   
 
+
+    # print(args)
     print("📝 Opening {}... (it may take a while)".format(args.input_genesis))
+
+    # input genesis from within the docker container
     with open(args.input_genesis, 'r') as f:
         genesis = json.load(f)
     
+    # print the size of the genesis
+    print("📝 Genesis size: {} bytes".format(len(json.dumps(genesis))))    
     # Replace chain-id
     if args.quiet:
         print("🔗 Replace chain-id {} with {}".format(genesis['chain_id'], args.chain_id))
@@ -215,16 +217,6 @@ def main():
             config["governance_voting_period"]))
     genesis['app_state']['gov']['voting_params']['voting_period'] = config["governance_voting_period"]
 
-    # Update epochs module
-    # if not args.quiet:
-    #     print("⌛ Update epochs module")
-    #     print("\tModify epoch_duration from {} to {}".format(
-    #         genesis['app_state']['epochs']['epochs'][0]['duration'],
-    #         config["epoch_duration"]))
-    #     print("\tReset current_epoch_start_time")
-    # genesis['app_state']['epochs']['epochs'][0]['duration'] = config["epoch_duration"]
-    # genesis['app_state']['epochs']['epochs'][0]['current_epoch_start_time'] = datetime.now().isoformat() + 'Z'
-    
     # Prune IBC
     if args.prune_ibc:
         if args.quiet:
@@ -335,7 +327,7 @@ def main():
                         print("\tUpdate {} ujuno balance to {}".format(new_account.address, coin["amount"]))
                     break
             break
-    
+        
     # Add 1 BN ujuno to bonded_tokens_pool module address
     # for balance in genesis['app_state']['bank']['balances']:
     #     if balance['address'] == BONDED_TOKENS_POOL_MODULE_ADDRESS:
@@ -349,16 +341,16 @@ def main():
     #         break
     
     # Distribution module fix
-    # for balance in genesis['app_state']['bank']['balances']:
-    #     if balance['address'] == DISTRIBUTION_MODULE_ADDRESS:
-    #         # Find ujuno
-    #         for coin in balance['coins']:
-    #             if coin['denom'] == "ujuno":
-    #                 coin["amount"] = str(int(coin["amount"]) - DISTRIBUTION_MODULE_OFFSET)
-    #                 if not args.quiet:
-    #                     print("\tUpdate {} (distribution_module) ujuno balance to {}".format(DISTRIBUTION_MODULE_ADDRESS, coin["amount"]))
-    #                 break
-    #         break
+    for balance in genesis['app_state']['bank']['balances']:
+        if balance['address'] == DISTRIBUTION_MODULE_ADDRESS:
+            # Find ujuno
+            for coin in balance['coins']:
+                if coin['denom'] == "ujuno":
+                    coin["amount"] = str(int(coin["amount"]) - DISTRIBUTION_MODULE_OFFSET)
+                    if not args.quiet:
+                        print("\tUpdate {} (distribution_module) ujuno balance to {}".format(DISTRIBUTION_MODULE_ADDRESS, coin["amount"]))
+                    break
+            break
 
     # Update bank balance 
     for supply in genesis['app_state']['bank']['supply']:
@@ -367,13 +359,17 @@ def main():
                 print("\tUpdate total ujuno supply from {} to {}".format(supply["amount"], str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)))
             supply["amount"] = str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)
             break
-    
+        
     print("📝 Writing {}... (it may take a while)".format(args.output_genesis))
     with open(args.output_genesis, 'w') as f:
         if args.pretty_output:
             f.write(json.dumps(genesis, indent=2))
         else:
-            f.write(json.dumps(genesis))
+            f.write(json.dumps(genesis))    
+    
+    # print("📜 Genesis validator set")
+    # print(genesis["validators"])    
+
 
 if __name__ == '__main__':
     main()
