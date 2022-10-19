@@ -18,15 +18,11 @@ class Account:
     pubkey: str
     address: str
 
-# Constants
-# BONDED_TOKENS_POOL_MODULE_ADDRESS = "osmo1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3aq6l09"
-# DISTRIBUTION_MODULE_ADDRESS = "osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld" # how to get this for juno? in state_export? bech32 convert?
-DISTRIBUTION_MODULE_ADDRESS = "juno1jv65s3grqf6v6jl3dp4t6c9t9rk99cd83d88wr" # junod debug bech32-convert osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld -p juno
+DISTRIBUTION_MODULE_ADDRESS = "juno1jv65s3grqf6v6jl3dp4t6c9t9rk99cd83d88wr" 
 DISTRIBUTION_MODULE_OFFSET = 2
 
 config = {
     "governance_voting_period": "180s",
-    # "epoch_duration": '21600s',
 }
 
 def replace(d, old_value, new_value):
