@@ -17,8 +17,8 @@ RUN apk add git
 # RUN apk add libusb-dev linux-headers
 # needed by github.com/zondax/hid
 RUN apk add linux-headers
-WORKDIR /code
-COPY . /code/
+WORKDIR /juno
+COPY . /juno
 
 # See https://github.com/CosmWasm/wasmvm/releases
 ADD https://github.com/CosmWasm/wasmvm/releases/download/v1.1.1/libwasmvm_muslc.aarch64.a /lib/libwasmvm_muslc.aarch64.a
@@ -27,7 +27,7 @@ RUN sha256sum /lib/libwasmvm_muslc.aarch64.a | grep 9ecb037336bd56076573dc18c266
 RUN sha256sum /lib/libwasmvm_muslc.x86_64.a | grep 6e4de7ba9bad4ae9679c7f9ecf7e283dd0160e71567c6a7be6ae47c81ebe7f32
 
 # Copy the library you want to the final location that will be found by the linker flag `-lwasmvm_muslc`
-RUN cp "/lib/libwasmvm_muslc.$(uname -m).a" /lib/libwasmvm_muslc.a
+RUN cp /lib/libwasmvm_muslc.$(uname -m).a /lib/libwasmvm_muslc.a
 
 # force it to use static lib (from above) not standard libgo_cosmwasm.so file
 # then log output of file /code/bin/junod
@@ -35,12 +35,12 @@ RUN cp "/lib/libwasmvm_muslc.$(uname -m).a" /lib/libwasmvm_muslc.a
 RUN E2E_SCRIPT_NAME=${E2E_SCRIPT_NAME} BUILD_TAGS=muslc LINK_STATICALLY=true make build-e2e-script 
 
 # --------------------------------------------------------
-FROM alpine:3.15
+FROM ubuntu
 
 ARG E2E_SCRIPT_NAME
 
-COPY --from=go-builder /code/build/${E2E_SCRIPT_NAME} /bin/${E2E_SCRIPT_NAME}
-ENV HOME /code
+COPY --from=go-builder /juno/build/${E2E_SCRIPT_NAME} /bin/${E2E_SCRIPT_NAME}
+ENV HOME /juno
 
 WORKDIR $HOME
 
@@ -50,6 +50,10 @@ EXPOSE 1317
 EXPOSE 26656
 # tendermint rpc
 EXPOSE 26657
+
+# Docker ARGs are not expanded in ENTRYPOINT in the exec mode. At the same time,
+# it is impossible to add CMD arguments when running a container in the shell mode.
+# As a workaround, we create the entrypoint.sh script to bypass these issues.
 RUN echo "#!/bin/bash\n${E2E_SCRIPT_NAME} \"\$@\"" >> entrypoint.sh && chmod +x entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]

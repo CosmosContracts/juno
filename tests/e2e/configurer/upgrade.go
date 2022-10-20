@@ -83,6 +83,7 @@ func (uc *UpgradeConfigurer) ConfigureChain(chainConfig *chain.Config) error {
 	var initializedChain initialization.Chain
 	for i := 0; i < config.MaxRetries; i++ {
 		initializedChainBytes, _ := os.ReadFile(fileName)
+		uc.t.Logf(string(initializedChainBytes))
 		err = json.Unmarshal(initializedChainBytes, &initializedChain)
 		if err == nil {
 			break
