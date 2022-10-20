@@ -18,7 +18,9 @@ class Account:
     pubkey: str
     address: str
 
-DISTRIBUTION_MODULE_ADDRESS = "juno1jv65s3grqf6v6jl3dp4t6c9t9rk99cd83d88wr" # junod debug bech32-convert osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld -p juno3669328bc7c4ce3d20b21c8402bd9c6d36c52d64
+# /cosmos.auth.v1beta1.ModuleAccount in genesis state export "distribution" & "bonded_tokens_pool"
+DISTRIBUTION_MODULE_ADDRESS = "juno1jv65s3grqf6v6jl3dp4t6c9t9rk99cd83d88wr"
+BONDED_TOKENS_POOL_MODULE_ADDRESS = "juno1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3rf257t"
 
 config = {
     "governance_voting_period": "180s",
@@ -316,43 +318,24 @@ def main():
         if balance['address'] == new_account.address:
             for coin in balance['coins']:
                 if coin['denom'] == "ujuno":
-                    coin["amount"] = str(int(coin["amount"]) + 2000000000000000) # used to be only 1, but we removed a module so added another 1bn here
+                    coin["amount"] = str(int(coin["amount"]) + 1000000000000000) # used to be only 1, but we removed a module so added another 1bn here
                     if args.quiet:
                         print("\tUpdate {} ujuno balance to {}".format(new_account.address, coin["amount"]))
                     break
             break
         
     # Add 1 BN ujuno to bonded_tokens_pool module address
-    # for balance in genesis['app_state']['bank']['balances']:
-    #     if balance['address'] == BONDED_TOKENS_POOL_MODULE_ADDRESS:
-    #         # Find ujuno
-    #         for coin in balance['coins']:
-    #             if coin['denom'] == "ujuno":
-    #                 coin["amount"] = str(int(coin["amount"]) + 1000000000000000)
-    #                 if not args.quiet:
-    #                     print("\tUpdate {} (bonded_tokens_pool_module) ujuno balance to {}".format(BONDED_TOKENS_POOL_MODULE_ADDRESS, coin["amount"]))
-    #                 break
-    #         break
-    
-    # Distribution module fix
-    # for balance in genesis['app_state']['bank']['balances']:
-    #     if balance['address'] == DISTRIBUTION_MODULE_ADDRESS:
-    #         # Find ujuno
-    #         for coin in balance['coins']:
-    #             if coin['denom'] == "ujuno":
-    #                 coin["amount"] = str(int(coin["amount"]) - DISTRIBUTION_MODULE_OFFSET)
-    #                 if not args.quiet:
-    #                     print("\tUpdate {} (distribution_module) ujuno balance to {}".format(DISTRIBUTION_MODULE_ADDRESS, coin["amount"]))
-    #                 break
-    #         break
+    for balance in genesis['app_state']['bank']['balances']:
+        if balance['address'] == BONDED_TOKENS_POOL_MODULE_ADDRESS:
+            # Find ujuno
+            for coin in balance['coins']:
+                if coin['denom'] == "ujuno":
+                    coin["amount"] = str(int(coin["amount"]) + 1000000000000000)
+                    if not args.quiet:
+                        print("\tUpdate {} (bonded_tokens_pool_module) ujuno balance to {}".format(BONDED_TOKENS_POOL_MODULE_ADDRESS, coin["amount"]))
+                    break
+            break
 
-    # Update bank balance 
-    # for supply in genesis['app_state']['bank']['supply']:
-    #     if supply["denom"] == "ujuno":
-    #         if args.quiet:
-    #             print("\tUpdate total ujuno supply from {} to {}".format(supply["amount"], str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)))
-    #         supply["amount"] = str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)
-    #         break
     for supply in genesis['app_state']['bank']['supply']:
         if supply["denom"] == "ujuno":
             if args.quiet:
