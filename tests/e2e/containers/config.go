@@ -16,19 +16,19 @@ type ImageConfig struct {
 //nolint:deadcode
 const (
 	// Current Git branch juno repo/version. It is meant to be built locally.
-	// It is used when skipping upgrade by setting OSMOSIS_E2E_SKIP_UPGRADE to true).
+	// It is used when skipping upgrade by setting JUNO_E2E_SKIP_UPGRADE to true).
 	// This image should be pre-built with `make docker-build-debug` either in CI or locally.
 	CurrentBranchRepository = "juno"
 	CurrentBranchTag        = "debug"
-	// Pre-upgrade osmosis repo/tag to pull.
-	// It should be uploaded to Docker Hub. OSMOSIS_E2E_SKIP_UPGRADE should be unset
+	// Pre-upgrade juno repo/tag to pull.
+	// It should be uploaded to Docker Hub. JUNO_E2E_SKIP_UPGRADE should be unset
 	// for this functionality to be used.
 	previousVersionRepository = "ducnt87/juno"
 	previousVersionTag        = "11.0"
-	// Pre-upgrade repo/tag for osmosis initialization (this should be one version below upgradeVersion)
+	// Pre-upgrade repo/tag for juno initialization (this should be one version below upgradeVersion)
 	previousVersionInitRepository = "ducnt87/juno-e2e-init-chain"
 	previousVersionInitTag        = "v11.0.0-e2e-v1"
-	// Hermes repo/version for relayer
+	// Hermes repo/version for relayer, use osmosis dockerhub
 	relayerRepository = "osmolabs/hermes"
 	relayerTag        = "0.13.0"
 )
