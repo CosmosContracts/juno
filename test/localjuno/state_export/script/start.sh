@@ -2,6 +2,7 @@
 # set -e 
 # set -o pipefail
 
+# Home path in the docker container
 JUNO_HOME=/juno/.juno
 CONFIG_FOLDER=$JUNO_HOME/config
 
@@ -94,6 +95,5 @@ edit_config () {
     edit_config
 # fi
 
-# junod collect-gentxs --home $JUNO_HOME
-junod validate-genesis --home $JUNO_HOME # File at /root/.juno/config/genesis.json is a valid genesis file
+junod validate-genesis --home $JUNO_HOME
 junod start --x-crisis-skip-assert-invariants --home $JUNO_HOME

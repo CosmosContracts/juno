@@ -58,14 +58,8 @@ def replace_validator(genesis, old_validator: Validator, new_validator: Validato
         if validator['description']['moniker'] == old_validator.moniker:
             validator['consensus_pubkey']['key'] = new_validator.pubkey
 
-    # This creates problems
-    replace(genesis, old_validator.operator_address, new_validator.operator_address)
-    
-    # Replacing operator_address in incentives > gauges
-    # for gauge in genesis['app_state']['incentives']['gauges']:
-    #     if gauge['distribute_to']['denom'].endswith(old_validator.operator_address):
-    #         gauge['distribute_to']['denom'] = gauge['distribute_to']['denom'].replace(
-    #             old_validator.operator_address, new_validator.operator_address)
+    # This creates problems. TODO: change somewhere else in state as well? baseapp crash
+    # replace(genesis, old_validator.operator_address, new_validator.operator_address)    
 
 def replace_account(genesis, old_account: Account, new_account: Account):
     replace(genesis, old_account.address, new_account.address)
@@ -342,24 +336,15 @@ def main():
                 print("\tUpdate total ujuno supply from {} to {}".format(supply["amount"], str(int(supply["amount"]) + 2000000000000000)))
             supply["amount"] = str(int(supply["amount"]) + 2000000000000000)
             break
-            
-    
-    # check if the args.output_genesis path exist    
+                  
     os.makedirs(os.path.dirname(args.output_genesis)  , exist_ok=True)  
-
-    # This writes to /root/.juno/config/genesis.json, this is incorrect
+    
     print("📝 Writing {}... (it may take a while)".format(args.output_genesis))
     with open(args.output_genesis, 'w') as f:
         if args.pretty_output:
             f.write(json.dumps(genesis, indent=2))
         else:
             f.write(json.dumps(genesis))
-
-    # print(os.listdir("/juno"))
-    # print("exiting early from testnet script")
-    # print(os.listdir("/juno/.juno/"))
-    # print(os.listdir("/juno/.juno/config"))
-    # exit(1)
 
 if __name__ == '__main__':
     main()
