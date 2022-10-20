@@ -18,11 +18,7 @@ class Account:
     pubkey: str
     address: str
 
-# Constants
-# BONDED_TOKENS_POOL_MODULE_ADDRESS = "osmo1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3aq6l09"
-# DISTRIBUTION_MODULE_ADDRESS = "osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld" # how to get this for juno? in state_export? bech32 convert?
 DISTRIBUTION_MODULE_ADDRESS = "juno1jv65s3grqf6v6jl3dp4t6c9t9rk99cd83d88wr" # junod debug bech32-convert osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld -p juno
-DISTRIBUTION_MODULE_OFFSET = 2
 
 config = {
     "governance_voting_period": "180s",
@@ -51,8 +47,8 @@ def replace(d, old_value, new_value):
 def replace_validator(genesis, old_validator: Validator, new_validator: Validator):
     replace(genesis, old_validator.hex_address, new_validator.hex_address)
     replace(genesis, old_validator.consensus_address, new_validator.consensus_address)
-
-    # replace(genesis, old_validator.pubkey, new_validator.pubkey)
+    
+    replace(genesis, old_validator.pubkey, new_validator.pubkey)
     for validator in genesis["validators"]:
         if validator['name'] == old_validator.moniker:
             validator['pub_key']['value'] = new_validator.pubkey
@@ -180,7 +176,7 @@ def main():
         pubkey = "ux/IM9uD+a/4rhIurbRiudh9K+M6tH1cNfffpX48Lrw=", 
         hex_address = "6EC804DBB72380D0AA5AC6A82650A1FA75FBABC5",
         operator_address = "junovaloper1083svrca4t350mphfv9x45wq9asrs60cpqzg0y",
-        consensus_address = "junovalcons1083svrca4t350mphfv9x45wq9asrs60c4n35r9" # junod debug bech32-convert junovaloper1083svrca4t350mphfv9x45wq9asrs60cpqzg0y -p junovalcons
+        consensus_address = "junovalcons1dmyqfkahywqdp2j6c65zv59plf6lh279unewtr" # `junod q  tendermint-validator-set | grep -B 5 -A 5 ux/IM9uD`  (where ux/ was found on ping.pub)
     )
 
     new_account = Account(
@@ -189,7 +185,7 @@ def main():
     )
 
     old_account = Account(
-        pubkey = "Ah8/EMTRW6D+Gk3xZghbcoRkKeRA43S8Qo9J+Lzf2HnK", # https://ping.pub/juno/account/juno1083svrca4t350mphfv9x45wq9asrs60c7a585a, "Profile"
+        pubkey = "Ah8/EMTRW6D+Gk3xZghbcoRkKeRA43S8Qo9J+lzf2HnK", # junod q  account juno1083svrca4t350mphfv9x45wq9asrs60c7a585a        
         address = "juno1083svrca4t350mphfv9x45wq9asrs60c7a585a"  # validators account
     )   
 
@@ -276,7 +272,6 @@ def main():
     # Update self delegation on operator address
     for delegation in genesis['app_state']['staking']['delegations']:
         if delegation['delegator_address'] == new_account.address:
-
             # delegation['validator_address'] = new_validator.operator_address
             delegation['shares'] = str(int(float(delegation['shares'])) + 1000000000000000) + ".000000000000000000"
             if args.quiet:
@@ -322,7 +317,7 @@ def main():
         if balance['address'] == new_account.address:
             for coin in balance['coins']:
                 if coin['denom'] == "ujuno":
-                    coin["amount"] = str(int(coin["amount"]) + 1000000000000000)
+                    coin["amount"] = str(int(coin["amount"]) + 2000000000000000) # used to be only 1, but we removed a module so added another 1bn here
                     if args.quiet:
                         print("\tUpdate {} ujuno balance to {}".format(new_account.address, coin["amount"]))
                     break
@@ -341,35 +336,48 @@ def main():
     #         break
     
     # Distribution module fix
-    for balance in genesis['app_state']['bank']['balances']:
-        if balance['address'] == DISTRIBUTION_MODULE_ADDRESS:
-            # Find ujuno
-            for coin in balance['coins']:
-                if coin['denom'] == "ujuno":
-                    coin["amount"] = str(int(coin["amount"]) - DISTRIBUTION_MODULE_OFFSET)
-                    if not args.quiet:
-                        print("\tUpdate {} (distribution_module) ujuno balance to {}".format(DISTRIBUTION_MODULE_ADDRESS, coin["amount"]))
-                    break
-            break
+    # for balance in genesis['app_state']['bank']['balances']:
+    #     if balance['address'] == DISTRIBUTION_MODULE_ADDRESS:
+    #         # Find ujuno
+    #         for coin in balance['coins']:
+    #             if coin['denom'] == "ujuno":
+    #                 coin["amount"] = str(int(coin["amount"]) - DISTRIBUTION_MODULE_OFFSET)
+    #                 if not args.quiet:
+    #                     print("\tUpdate {} (distribution_module) ujuno balance to {}".format(DISTRIBUTION_MODULE_ADDRESS, coin["amount"]))
+    #                 break
+    #         break
 
     # Update bank balance 
+    # for supply in genesis['app_state']['bank']['supply']:
+    #     if supply["denom"] == "ujuno":
+    #         if args.quiet:
+    #             print("\tUpdate total ujuno supply from {} to {}".format(supply["amount"], str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)))
+    #         supply["amount"] = str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)
+    #         break
     for supply in genesis['app_state']['bank']['supply']:
         if supply["denom"] == "ujuno":
             if args.quiet:
-                print("\tUpdate total ujuno supply from {} to {}".format(supply["amount"], str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)))
-            supply["amount"] = str(int(supply["amount"]) + 2000000000000000 - DISTRIBUTION_MODULE_OFFSET)
+                print("\tUpdate total ujuno supply from {} to {}".format(supply["amount"], str(int(supply["amount"]) + 2000000000000000)))
+            supply["amount"] = str(int(supply["amount"]) + 2000000000000000)
             break
-        
+            
+    
+    # check if the args.output_genesis path exist    
+    os.makedirs(os.path.dirname(args.output_genesis)  , exist_ok=True)  
+
+    # This writes to /root/.juno/config/genesis.json, this is incorrect
     print("📝 Writing {}... (it may take a while)".format(args.output_genesis))
     with open(args.output_genesis, 'w') as f:
         if args.pretty_output:
             f.write(json.dumps(genesis, indent=2))
         else:
-            f.write(json.dumps(genesis))    
-    
-    # print("📜 Genesis validator set")
-    # print(genesis["validators"])    
+            f.write(json.dumps(genesis))
 
+    # print(os.listdir("/juno"))
+    # print("exiting early from testnet script")
+    # print(os.listdir("/juno/.juno/"))
+    # print(os.listdir("/juno/.juno/config"))
+    # exit(1)
 
 if __name__ == '__main__':
     main()
