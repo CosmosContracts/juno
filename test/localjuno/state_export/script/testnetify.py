@@ -18,11 +18,10 @@ class Account:
     pubkey: str
     address: str
 
-DISTRIBUTION_MODULE_ADDRESS = "juno1jv65s3grqf6v6jl3dp4t6c9t9rk99cd83d88wr" # junod debug bech32-convert osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld -p juno
+DISTRIBUTION_MODULE_ADDRESS = "juno1jv65s3grqf6v6jl3dp4t6c9t9rk99cd83d88wr" # junod debug bech32-convert osmo1jv65s3grqf6v6jl3dp4t6c9t9rk99cd80yhvld -p juno3669328bc7c4ce3d20b21c8402bd9c6d36c52d64
 
 config = {
     "governance_voting_period": "180s",
-    # "epoch_duration": '21600s',
 }
 
 def replace(d, old_value, new_value):
