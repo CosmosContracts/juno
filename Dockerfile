@@ -16,8 +16,8 @@ RUN apk add git
 # NOTE: add these to run with LEDGER_ENABLED=true
 # RUN apk add libusb-dev linux-headers
 
-WORKDIR /code
-COPY . /code/
+WORKDIR /juno
+COPY . .
 
 # See https://github.com/CosmWasm/wasmvm/releases
 ADD https://github.com/CosmWasm/wasmvm/releases/download/v1.1.1/libwasmvm_muslc.aarch64.a /lib/libwasmvm_muslc.aarch64.a
@@ -32,20 +32,17 @@ RUN cp "/lib/libwasmvm_muslc.$(uname -m).a" /lib/libwasmvm_muslc.a
 # then log output of file /code/bin/junod
 # then ensure static linking
 RUN LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make build \
-  && file /code/bin/junod \
+  && file /juno/bin/junod \
   && echo "Ensuring binary is statically linked ..." \
-  && (file /code/bin/junod | grep "statically linked")
+  && (file /juno/bin/junod | grep "statically linked")
 
 # --------------------------------------------------------
 FROM alpine:3.15
 
-COPY --from=go-builder /code/bin/junod /usr/bin/junod
+COPY --from=go-builder /juno/bin/junod /bin/junod
 
-COPY docker/* /opt/
-RUN chmod +x /opt/*.sh
-
-WORKDIR /opt
-
+ENV HOME /juno
+WORKDIR $HOME
 # rest server
 EXPOSE 1317
 # tendermint p2p
@@ -53,4 +50,4 @@ EXPOSE 26656
 # tendermint rpc
 EXPOSE 26657
 
-ENTRYPOINT ["/usr/bin/junod"]
+ENTRYPOINT ["junod"]
