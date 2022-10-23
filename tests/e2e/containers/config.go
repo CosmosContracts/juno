@@ -66,9 +66,9 @@ func NewImageConfig(isUpgrade, isFork bool) ImageConfig {
 	} else {
 		// Upgrades are run at the time when upgrade height is reached
 		// and are submitted via a governance proposal. Thefore, we
-		// must start running the previous Osmosis version. Then, the node
+		// must start running the previous Juno version. Then, the node
 		// should auto-upgrade, at which point we can restart the updated
-		// Osmosis validator container.
+		// Juno validator container.
 		config.JunoRepository = previousVersionRepository
 		config.JunoTag = previousVersionTag
 	}

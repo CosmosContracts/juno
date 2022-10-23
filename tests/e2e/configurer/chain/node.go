@@ -48,6 +48,9 @@ func NewNodeConfig(t *testing.T, initNode *initialization.Node, initConfig *init
 func (n *NodeConfig) Run() error {
 	n.t.Logf("starting node container: %s", n.Name)
 	resource, err := n.containerManager.RunNodeResource(n.chainId, n.Name, n.ConfigDir)
+	n.t.Logf(n.chainId)
+	n.t.Logf(n.Name)
+	n.t.Logf(n.ConfigDir)
 	if err != nil {
 		return err
 	}
@@ -67,7 +70,7 @@ func (n *NodeConfig) Run() error {
 
 			// debug
 			n.t.Logf("started query height")
-
+			n.t.Logf(n.chainId)
 			_, err := n.QueryCurrentHeight()
 			if err != nil {
 				n.t.Logf(err.Error())
@@ -128,7 +131,7 @@ func (n *NodeConfig) extractOperatorAddressIfValidator() error {
 	if err != nil {
 		return err
 	}
-	re := regexp.MustCompile("osmovaloper(.{39})")
+	re := regexp.MustCompile("junovaloper(.{39})")
 	operAddr := fmt.Sprintf("%s\n", re.FindString(errBuf.String()))
 	n.OperatorAddress = strings.TrimSuffix(operAddr, "\n")
 	return nil

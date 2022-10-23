@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -201,10 +200,10 @@ func (m *Manager) RunHermesResource(chainAID, junoARelayerNodeName, junoAValMnem
 // RunNodeResource runs a node container. Assings containerName to the container.
 // Mounts the container on valConfigDir volume on the running host. Returns the container resource and error if any.
 func (m *Manager) RunNodeResource(chainId string, containerName, valCondifDir string) (*dockertest.Resource, error) {
-	pwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
+	// pwd, err := os.Getwd()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	runOpts := &dockertest.RunOptions{
 		Name:       containerName,
@@ -212,10 +211,9 @@ func (m *Manager) RunNodeResource(chainId string, containerName, valCondifDir st
 		Tag:        m.JunoTag,
 		NetworkID:  m.network.Network.ID,
 		User:       "root:root",
-		Cmd:        []string{"start"},
+		Cmd:        []string{"start", "--trace"},
 		Mounts: []string{
-			fmt.Sprintf("%s/:/juno/.junod", valCondifDir),
-			fmt.Sprintf("%s/scripts:/juno", pwd),
+			fmt.Sprintf("%s/:/juno/.juno", valCondifDir),
 		},
 	}
 

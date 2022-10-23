@@ -40,12 +40,8 @@ RUN LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make build \
 FROM alpine:3.15
 
 COPY --from=go-builder /code/bin/junod /bin/junod
-COPY docker/* /opt/
-RUN chmod +x /opt/*.sh
-WORKDIR /opt
-
 ENV HOME /juno
-
+WORKDIR $HOME
 
 # rest server
 EXPOSE 1317
@@ -54,5 +50,4 @@ EXPOSE 26656
 # tendermint rpc
 EXPOSE 26657
 
-RUN ./setup_junod.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
 ENTRYPOINT ["junod"]

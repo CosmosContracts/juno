@@ -134,7 +134,7 @@ func (n *NodeConfig) CreateWallet(walletName string) string {
 	cmd := []string{"junod", "keys", "add", walletName, "--keyring-backend=test"}
 	outBuf, _, err := n.containerManager.ExecCmd(n.t, n.Name, cmd, "")
 	require.NoError(n.t, err)
-	re := regexp.MustCompile("osmo1(.{38})")
+	re := regexp.MustCompile("juno1(.{38})")
 	walletAddr := fmt.Sprintf("%s\n", re.FindString(outBuf.String()))
 	walletAddr = strings.TrimSuffix(walletAddr, "\n")
 	n.LogActionF("created wallet %s, waller address - %s", walletName, walletAddr)
@@ -146,7 +146,7 @@ func (n *NodeConfig) GetWallet(walletName string) string {
 	cmd := []string{"junod", "keys", "show", walletName, "--keyring-backend=test"}
 	outBuf, _, err := n.containerManager.ExecCmd(n.t, n.Name, cmd, "")
 	require.NoError(n.t, err)
-	re := regexp.MustCompile("osmo1(.{38})")
+	re := regexp.MustCompile("juno1(.{38})")
 	walletAddr := fmt.Sprintf("%s\n", re.FindString(outBuf.String()))
 	walletAddr = strings.TrimSuffix(walletAddr, "\n")
 	n.LogActionF("wallet %s found, waller address - %s", walletName, walletAddr)
