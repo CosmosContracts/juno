@@ -2,10 +2,18 @@
 version: v1
 deps:
   - remote: buf.build
-    owner: gogo
-    repository: protobuf
-    commit: 4df00b267f944190a229ce3695781e99
+    owner: cosmos
+    repository: cosmos-proto
+    commit: 1935555c206d4afb9e94615dfd0fad31
+  - remote: buf.build
+    owner: cosmos
+    repository: cosmos-sdk
+    commit: f10f6b91a06a402fb495bdaa58ab953a
+  - remote: buf.build
+    owner: cosmos
+    repository: gogo-proto
+    commit: 34d970b699f84aa382f3c29773a60836
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: cf209eca30404c41a80fec3caba9903f
+    commit: d1263fe26f8e430a967dc22a4d0cad18
