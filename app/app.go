@@ -96,6 +96,9 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
+	oraclekeeper "github.com/CosmosContracts/juno/v11/x/oracle/keeper"
+	oracletypes "github.com/CosmosContracts/juno/v11/x/oracle/types"
+
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -279,6 +282,7 @@ type App struct {
 	TransferKeeper   ibctransferkeeper.Keeper
 	AuthzKeeper      authzkeeper.Keeper
 	FeeGrantKeeper   feegrantkeeper.Keeper
+	OracleKeeper     oraclekeeper.Keeper
 
 	ICAHostKeeper icahostkeeper.Keeper
 
@@ -325,7 +329,7 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		authzkeeper.StoreKey, feegrant.StoreKey, icahosttypes.StoreKey,
+		authzkeeper.StoreKey, feegrant.StoreKey, icahosttypes.StoreKey, oracletypes.StoreKey,
 		wasm.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
