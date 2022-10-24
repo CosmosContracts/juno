@@ -15,7 +15,7 @@ func TestAggregateVoteHash(t *testing.T) {
 		sdk.AccAddress([]byte("addr1_______________")),
 	}
 
-	aggregateVoteHash := GetAggregateVoteHash("salt", "UMEE:100,ATOM:100", sdk.ValAddress(addrs[0]))
+	aggregateVoteHash := GetAggregateVoteHash("salt", "JUNO:100,ATOM:100", sdk.ValAddress(addrs[0]))
 	hexStr := hex.EncodeToString(aggregateVoteHash)
 	aggregateVoteHashRes, err := AggregateVoteHashFromHexString(hexStr)
 	require.NoError(t, err)

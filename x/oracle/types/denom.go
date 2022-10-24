@@ -31,7 +31,7 @@ func (dl DenomList) String() (out string) {
 	return strings.TrimSpace(out)
 }
 
-// Contains checks whether or not a SymbolDenom (e.g. UMEE) is in the DenomList
+// Contains checks whether or not a SymbolDenom (e.g. JUNO) is in the DenomList
 func (dl DenomList) Contains(symbolDenom string) bool {
 	for _, d := range dl {
 		if strings.EqualFold(d.SymbolDenom, symbolDenom) {

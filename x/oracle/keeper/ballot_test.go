@@ -19,7 +19,7 @@ func (s *IntegrationTestSuite) TestBallot_OrganizeBallotByDenom() {
 		s.ctx, valAddr, types.AggregateExchangeRateVote{
 			ExchangeRateTuples: types.ExchangeRateTuples{
 				types.ExchangeRateTuple{
-					Denom:        "UMEE",
+					Denom:        "ujuno",
 					ExchangeRate: sdk.OneDec(),
 				},
 			},
@@ -36,8 +36,8 @@ func (s *IntegrationTestSuite) TestBallot_OrganizeBallotByDenom() {
 	res = s.app.OracleKeeper.OrganizeBallotByDenom(s.ctx, claimMap)
 	require.Equal([]types.BallotDenom{
 		{
-			Ballot: types.ExchangeRateBallot{types.NewVoteForTally(sdk.OneDec(), "UMEE", valAddr, 1)},
-			Denom:  "UMEE"},
+			Ballot: types.ExchangeRateBallot{types.NewVoteForTally(sdk.OneDec(), "ujuno", valAddr, 1)},
+			Denom:  "ujuno"},
 	}, res)
 }
 

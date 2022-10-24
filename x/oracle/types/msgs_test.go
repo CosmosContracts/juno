@@ -43,7 +43,7 @@ func TestMsgAggregateExchangeRatePrevote(t *testing.T) {
 		sdk.AccAddress([]byte("addr1_______________")),
 	}
 
-	exchangeRates := sdk.DecCoins{sdk.NewDecCoinFromDec(UmeeDenom, sdk.OneDec()), sdk.NewDecCoinFromDec(UmeeDenom, sdk.NewDecWithPrec(32121, 1))}
+	exchangeRates := sdk.DecCoins{sdk.NewDecCoinFromDec(JunoDenom, sdk.OneDec()), sdk.NewDecCoinFromDec(JunoDenom, sdk.NewDecWithPrec(32121, 1))}
 	bz := GetAggregateVoteHash("1", exchangeRates.String(), sdk.ValAddress(addrs[0]))
 	msgInvalidHashLength := "invalid hash length; should equal 20"
 	msgInvalidFeederAddr := "invalid feeder address (empty address string is not allowed): invalid address"
@@ -133,7 +133,7 @@ func TestNewMsgAggregateExchangeRatePrevote(t *testing.T) {
 	vals := GenerateRandomValAddr(2)
 	feederAddr := sdk.AccAddress(vals[1])
 
-	exchangeRates := sdk.DecCoins{sdk.NewDecCoinFromDec(UmeeDenom, sdk.OneDec()), sdk.NewDecCoinFromDec(UmeeDenom, sdk.NewDecWithPrec(32121, 1))}
+	exchangeRates := sdk.DecCoins{sdk.NewDecCoinFromDec(JunoDenom, sdk.OneDec()), sdk.NewDecCoinFromDec(JunoDenom, sdk.NewDecWithPrec(32121, 1))}
 	bz := GetAggregateVoteHash("1", exchangeRates.String(), sdk.ValAddress(vals[0]))
 
 	aggregateExchangeRatePreVote := NewMsgAggregateExchangeRatePrevote(

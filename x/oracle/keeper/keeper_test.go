@@ -99,7 +99,7 @@ var (
 func NewTestMsgCreateValidator(address sdk.ValAddress, pubKey cryptotypes.PubKey, amt sdk.Int) *stakingtypes.MsgCreateValidator {
 	commission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
 	msg, _ := stakingtypes.NewMsgCreateValidator(
-		address, pubKey, sdk.NewCoin(types.UmeeDenom, amt),
+		address, pubKey, sdk.NewCoin(types.JunoDenom, amt),
 		stakingtypes.Description{}, commission, sdk.OneInt(),
 	)
 

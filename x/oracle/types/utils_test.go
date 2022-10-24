@@ -20,9 +20,9 @@ var (
 	_ StakingKeeper           = MockStakingKeeper{}
 	_ stakingtypes.ValidatorI = MockValidator{}
 
-	DenomUmee = Denom{
-		BaseDenom:   UmeeDenom,
-		SymbolDenom: UmeeSymbol,
+	DenomJuno = Denom{
+		BaseDenom:   JunoDenom,
+		SymbolDenom: JunoSymbol,
 		Exponent:    6,
 	}
 	DenomLuna = Denom{
@@ -142,8 +142,7 @@ func (MockStakingKeeper) PowerReduction(ctx sdk.Context) (res sdk.Int) {
 	return sdk.DefaultPowerReduction
 }
 
-func (MockStakingKeeper) Slash(sdk.Context, sdk.ConsAddress, int64, int64, sdk.Dec) sdk.Int {
-	return sdk.ZeroInt()
+func (MockStakingKeeper) Slash(sdk.Context, sdk.ConsAddress, int64, int64, sdk.Dec) {
 }
 
 func (MockStakingKeeper) Jail(sdk.Context, sdk.ConsAddress) {}

@@ -9,13 +9,13 @@ import (
 	"github.com/CosmosContracts/juno/v11/x/oracle/util"
 )
 
-// prependUmeeIfUnique pushs `uumee` denom to the front of the list, if it is not yet included.
-func prependUmeeIfUnique(voteTargets []string) []string {
-	if util.Contains(types.UmeeDenom, voteTargets) {
+// prependJunoIfUnique pushs `ujuno` denom to the front of the list, if it is not yet included.
+func prependJunoIfUnique(voteTargets []string) []string {
+	if util.Contains(types.JunoDenom, voteTargets) {
 		return voteTargets
 	}
 	rewardDenoms := make([]string, len(voteTargets)+1)
-	rewardDenoms[0] = types.UmeeDenom
+	rewardDenoms[0] = types.JunoDenom
 	copy(rewardDenoms[1:], voteTargets)
 	return rewardDenoms
 }
@@ -43,7 +43,7 @@ func (k Keeper) RewardBallotWinners(
 
 	distributionRatio := sdk.NewDec(votePeriod).QuoInt64(rewardDistributionWindow)
 	var periodRewards sdk.DecCoins
-	rewardDenoms := prependUmeeIfUnique(voteTargets)
+	rewardDenoms := prependJunoIfUnique(voteTargets)
 	for _, denom := range rewardDenoms {
 		rewardPool := k.GetRewardPool(ctx, denom)
 

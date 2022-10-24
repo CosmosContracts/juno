@@ -6,20 +6,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPrependUmeeIfUnique(t *testing.T) {
+func TestPrependJunoIfUnique(t *testing.T) {
 	require := require.New(t)
 	tcs := []struct {
 		in  []string
 		out []string
 	}{
-		// Should prepend "uumee" to a slice of denoms, unless it is already present.
-		{[]string{}, []string{"uumee"}},
-		{[]string{"a"}, []string{"uumee", "a"}},
-		{[]string{"x", "a", "heeeyyy"}, []string{"uumee", "x", "a", "heeeyyy"}},
-		{[]string{"x", "a", "uumee"}, []string{"x", "a", "uumee"}},
+		// Should prepend "ujuno" to a slice of denoms, unless it is already present.
+		{[]string{}, []string{"ujuno"}},
+		{[]string{"a"}, []string{"ujuno", "a"}},
+		{[]string{"x", "a", "heeeyyy"}, []string{"ujuno", "x", "a", "heeeyyy"}},
+		{[]string{"x", "a", "ujuno"}, []string{"x", "a", "ujuno"}},
 	}
 	for i, tc := range tcs {
-		require.Equal(tc.out, prependUmeeIfUnique(tc.in), i)
+		require.Equal(tc.out, prependJunoIfUnique(tc.in), i)
 	}
 
 }

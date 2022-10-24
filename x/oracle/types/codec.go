@@ -29,9 +29,9 @@ func init() {
 // RegisterLegacyAminoCodec registers the necessary x/oracle interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgAggregateExchangeRatePrevote{}, "umee/oracle/MsgAggregateExchangeRatePrevote", nil)
-	cdc.RegisterConcrete(&MsgAggregateExchangeRateVote{}, "umee/oracle/MsgAggregateExchangeRateVote", nil)
-	cdc.RegisterConcrete(&MsgDelegateFeedConsent{}, "umee/oracle/MsgDelegateFeedConsent", nil)
+	cdc.RegisterConcrete(&MsgAggregateExchangeRatePrevote{}, "juno/oracle/MsgAggregateExchangeRatePrevote", nil)
+	cdc.RegisterConcrete(&MsgAggregateExchangeRateVote{}, "juno/oracle/MsgAggregateExchangeRateVote", nil)
+	cdc.RegisterConcrete(&MsgDelegateFeedConsent{}, "juno/oracle/MsgDelegateFeedConsent", nil)
 }
 
 // RegisterInterfaces registers the x/oracle interfaces types with the interface registry

@@ -30,7 +30,7 @@ func GenerateSalt(length int) (string, error) {
 func (s *IntegrationTestSuite) TestMsgServer_AggregateExchangeRatePrevote() {
 	ctx := s.ctx
 
-	exchangeRatesStr := "123.2:UMEE"
+	exchangeRatesStr := "123.2:ujuno"
 	salt, err := GenerateSalt(32)
 	s.Require().NoError(err)
 	hash := oracletypes.GetAggregateVoteHash(salt, exchangeRatesStr, valAddr)
@@ -69,8 +69,8 @@ func (s *IntegrationTestSuite) TestMsgServer_AggregateExchangeRatePrevote() {
 func (s *IntegrationTestSuite) TestMsgServer_AggregateExchangeRateVote() {
 	ctx := s.ctx
 
-	ratesStr := "umee:123.2"
-	ratesStrInvalidCoin := "umee:123.2,badcoin:234.5"
+	ratesStr := "ujuno:123.2"
+	ratesStrInvalidCoin := "ujuno:123.2,badcoin:234.5"
 	salt, err := GenerateSalt(32)
 	s.Require().NoError(err)
 	hash := oracletypes.GetAggregateVoteHash(salt, ratesStr, valAddr)
