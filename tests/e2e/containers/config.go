@@ -24,10 +24,10 @@ const (
 	// It should be uploaded to Docker Hub. JUNO_E2E_SKIP_UPGRADE should be unset
 	// for this functionality to be used.
 	previousVersionRepository = "ducnt87/juno"
-	previousVersionTag        = "11.0"
+	previousVersionTag        = "10.0"
 	// Pre-upgrade repo/tag for juno initialization (this should be one version below upgradeVersion)
 	previousVersionInitRepository = "ducnt87/juno-e2e-init-chain"
-	previousVersionInitTag        = "v11.0.0-e2e-v1"
+	previousVersionInitTag        = "v10.0.0-e2e-v1"
 	// Hermes repo/version for relayer, use osmosis dockerhub
 	relayerRepository = "osmolabs/hermes"
 	relayerTag        = "0.13.0"
