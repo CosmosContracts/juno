@@ -48,3 +48,11 @@ func (pv PV) SignProposal(chainID string, proposal *tmproto.Proposal) error {
 	proposal.Signature = sig
 	return nil
 }
+
+// EmptyBaseAppOptions is a stub implementing AppOptions
+type EmptyBaseAppOptions struct{}
+
+// Get implements AppOptions
+func (ao EmptyBaseAppOptions) Get(o string) interface{} {
+	return nil
+}

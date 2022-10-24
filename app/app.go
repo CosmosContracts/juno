@@ -21,6 +21,7 @@ import (
 	"github.com/CosmosContracts/juno/v11/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/v11/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v11/x/mint/types"
+	"github.com/CosmosContracts/juno/v11/x/oracle"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -227,6 +228,7 @@ var (
 		authzmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		ica.AppModuleBasic{},
+		oracle.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -240,6 +242,7 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		icatypes.ModuleName:            nil,
 		wasm.ModuleName:                {authtypes.Burner},
+		oracletypes.ModuleName:         nil,
 	}
 )
 
@@ -396,6 +399,17 @@ func New(
 		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
+	app.OracleKeeper = oraclekeeper.NewKeeper(
+		appCodec,
+		keys[oracletypes.ModuleName],
+		app.GetSubspace(oracletypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.DistrKeeper,
+		app.StakingKeeper,
+		distrtypes.ModuleName,
+	)
+
 	// ... other modules keepers
 
 	// Create IBC Keeper
@@ -532,6 +546,7 @@ func New(
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		transferModule,
 		icaModule,
+		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 	)
@@ -561,6 +576,7 @@ func New(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		oracletypes.ModuleName,
 		wasm.ModuleName,
 	)
 
@@ -585,6 +601,7 @@ func New(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		oracletypes.ModuleName,
 		wasm.ModuleName,
 	)
 
@@ -614,6 +631,7 @@ func New(
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		oracletypes.ModuleName,
 		wasm.ModuleName,
 	)
 
@@ -872,6 +890,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
+	paramsKeeper.Subspace(oracletypes.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper

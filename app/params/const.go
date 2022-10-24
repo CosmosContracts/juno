@@ -1,13 +1,13 @@
 package params
 
 const (
-	// Name defines the application name of the Umee network.
+	// Name defines the application name of the Juno network.
 	Name = "ujuno"
 
 	// BondDenom defines the native staking token denomination.
 	BondDenom = "ujuno"
 
-	// DisplayDenom defines the name, symbol, and display value of the umee token.
+	// DisplayDenom defines the name, symbol, and display value of the Juno token.
 	DisplayDenom = "JUNO"
 
 	// DefaultGasLimit - set to the same value as cosmos-sdk flags.DefaultGasLimit

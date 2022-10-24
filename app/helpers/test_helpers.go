@@ -8,6 +8,8 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/CosmosContracts/juno/v11/app"
 	junoApp "github.com/CosmosContracts/juno/v11/app"
+	"github.com/CosmosContracts/juno/v11/app/params"
+	appparams "github.com/CosmosContracts/juno/v11/app/params"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -29,7 +31,7 @@ const (
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used
-// in GaiaApp testing.
+// in junoApp testing.
 var DefaultConsensusParams = &abci.ConsensusParams{
 	Block: &abci.BlockParams{
 		MaxBytes: 200000,
@@ -66,7 +68,7 @@ func Setup(t *testing.T, isCheckTx bool, invCheckPeriod uint) *junoApp.App {
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(appparams.BondDenom, sdk.NewInt(100000000000000))),
 	}
 
 	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
@@ -74,21 +76,21 @@ func Setup(t *testing.T, isCheckTx bool, invCheckPeriod uint) *junoApp.App {
 	return app
 }
 
-// SetupWithGenesisValSet initializes a new GaiaApp with a validator set and genesis accounts
+// SetupWithGenesisValSet initializes a new junoApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
-// of one consensus engine unit in the default token of the GaiaApp from first genesis
-// account. A Nop logger is set in GaiaApp.
+// of one consensus engine unit in the default token of the junoApp from first genesis
+// account. A Nop logger is set in junoApp.
 func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *junoApp.App {
 	t.Helper()
 
-	gaiaApp, genesisState := setup(true, 5)
-	genesisState = genesisStateWithValSet(t, gaiaApp, genesisState, valSet, genAccs, balances...)
+	junoApp, genesisState := setup(true, 5)
+	genesisState = genesisStateWithValSet(t, junoApp, genesisState, valSet, genAccs, balances...)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)
 
 	// init chain will set the validator set and initialize the genesis accounts
-	gaiaApp.InitChain(
+	junoApp.InitChain(
 		abci.RequestInitChain{
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
@@ -97,15 +99,15 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	)
 
 	// commit genesis changes
-	gaiaApp.Commit()
-	gaiaApp.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
-		Height:             gaiaApp.LastBlockHeight() + 1,
-		AppHash:            gaiaApp.LastCommitID().Hash,
+	junoApp.Commit()
+	junoApp.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+		Height:             junoApp.LastBlockHeight() + 1,
+		AppHash:            junoApp.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),
 		NextValidatorsHash: valSet.Hash(),
 	}})
 
-	return gaiaApp
+	return junoApp
 }
 
 func setup(withGenesis bool, invCheckPeriod uint) (*junoApp.App, junoApp.GenesisState) {
@@ -123,7 +125,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*junoApp.App, junoApp.Genesis
 		invCheckPeriod,
 		encCdc,
 		app.GetEnabledProposals(),
-		nil,
+		EmptyBaseAppOptions{},
 		emptyWasmOpts,
 	)
 	if withGenesis {
@@ -170,7 +172,17 @@ func genesisStateWithValSet(t *testing.T,
 
 	}
 	// set validators and delegations
-	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
+	defaultStParams := stakingtypes.DefaultParams()
+	stParams := stakingtypes.NewParams(
+		defaultStParams.UnbondingTime,
+		defaultStParams.MaxValidators,
+		defaultStParams.MaxEntries,
+		defaultStParams.HistoricalEntries,
+		params.BondDenom,
+	)
+
+	// set validators and delegations
+	stakingGenesis := stakingtypes.NewGenesisState(stParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
@@ -181,17 +193,23 @@ func genesisStateWithValSet(t *testing.T,
 
 	for range delegations {
 		// add delegated tokens to total supply
-		totalSupply = totalSupply.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))
+		totalSupply = totalSupply.Add(sdk.NewCoin(appparams.BondDenom, bondAmt))
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(appparams.BondDenom, bondAmt)},
 	})
 
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	bankGenesis := banktypes.NewGenesisState(
+		banktypes.DefaultGenesisState().Params,
+		balances,
+		totalSupply,
+		[]banktypes.Metadata{},
+	)
+
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	return genesisState
