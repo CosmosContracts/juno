@@ -6,12 +6,15 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcante "github.com/cosmos/ibc-go/v3/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
+	feeante "github.com/CosmosContracts/juno/v11/x/globalfee/ante"
 )
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
@@ -19,10 +22,12 @@ import (
 type HandlerOptions struct {
 	ante.HandlerOptions
 
-	IBCKeeper         *ibckeeper.Keeper
-	TxCounterStoreKey sdk.StoreKey
-	WasmConfig        wasmTypes.WasmConfig
-	Cdc               codec.BinaryCodec
+	IBCKeeper            *ibckeeper.Keeper
+	TxCounterStoreKey    sdk.StoreKey
+	WasmConfig           wasmTypes.WasmConfig
+	Cdc                  codec.BinaryCodec
+	BypassMinFeeMsgTypes []string
+	GlobalFeeSubspace    paramtypes.Subspace
 }
 
 type MinCommissionDecorator struct {
@@ -114,6 +119,10 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
 
+	if options.GlobalFeeSubspace.Name() == "" {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "param store is required for ante builder")
+	}
+
 	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
@@ -131,6 +140,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+		feeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

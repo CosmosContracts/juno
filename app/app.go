@@ -91,10 +91,13 @@ import (
 	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
 	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
 	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
+
+	"github.com/CosmosContracts/juno/v11/x/globalfee"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
@@ -624,6 +627,11 @@ func New(
 	// register upgrade
 	app.RegisterUpgradeHandlers(cfg)
 
+	bypassMinFeeMsgTypes := cast.ToStringSlice(appOpts.Get(BypassMinFeeMsgTypesKey))
+	if bypassMinFeeMsgTypes == nil {
+		bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
+	}
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -633,10 +641,12 @@ func New(
 				SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			IBCKeeper:         app.IBCKeeper,
-			TxCounterStoreKey: keys[wasm.StoreKey],
-			WasmConfig:        wasmConfig,
-			Cdc:               appCodec,
+			IBCKeeper:            app.IBCKeeper,
+			TxCounterStoreKey:    keys[wasm.StoreKey],
+			WasmConfig:           wasmConfig,
+			Cdc:                  appCodec,
+			BypassMinFeeMsgTypes: bypassMinFeeMsgTypes,
+			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
 		},
 	)
 	if err != nil {
@@ -717,6 +727,15 @@ func New(
 	app.sm.RegisterStoreDecoders()
 
 	return app
+}
+
+// GetDefaultBypassFeeMessages returns a list of messages that should not be charged fees
+func GetDefaultBypassFeeMessages() []string {
+	return []string{
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+	}
 }
 
 // Name returns the name of the App
