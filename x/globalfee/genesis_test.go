@@ -84,7 +84,7 @@ func TestInitExportGenesis(t *testing.T) {
 			exp: types.GenesisState{Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("JUNO", sdk.NewInt(1)))}},
 		},
 		"multiple fee options": {
-			src: `{"params":{"minimum_gas_prices":[{"denom":"JUNO", "amount":"1"}, {"denom":"BLX", "amount":"0.001"}]}}`,
+			src: `{"params":{"minimum_gas_prices":[{"denom":"BLX", "amount":"0.001"}, {"denom":"JUNO", "amount":"1"}]}}`,
 			exp: types.GenesisState{Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("JUNO", sdk.NewInt(1)),
 				sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)))}},
 		},
