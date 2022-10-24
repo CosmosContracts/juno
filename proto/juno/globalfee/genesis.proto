@@ -4,7 +4,7 @@ package juno.globalfee.v1beta1;
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/CosmosContracts/juno/x/globalfee/types";
+option go_package = "github.com/CosmosContracts/juno/v11/x/globalfee/types";
 
 // GenesisState - initial state of module
 message GenesisState {
@@ -21,7 +21,7 @@ message Params {
   // When multiple coins are defined then they are accepted alternatively.
   // The list must be sorted by denoms asc. No duplicate denoms or zero amount
   // values allowed. For more information see
-  // https://docs.cosmos.network/main/modules/auth#concepts
+  // https://docs.cosmos.network/master/modules/auth/01_concepts.html
   repeated cosmos.base.v1beta1.DecCoin minimum_gas_prices = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "minimum_gas_prices,omitempty",

@@ -2,6 +2,7 @@
 
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
+HTTPS_GIT := https://github.com/CosmosContracts/juno.git
 
 # don't override user values
 ifeq (,$(VERSION))
@@ -103,6 +104,23 @@ build:
 protoVer=v0.7
 protoImageName=tendermintdev/sdk-proto-gen:$(protoVer)
 containerProtoGen=juno-proto-gen-$(protoVer)
+containerProtoGenAny=juno-proto-gen-any-$(protoVer)
+containerProtoGenSwagger=juno-proto-gen-swagger-$(protoVer)
+containerProtoFmt=juno-proto-fmt-$(protoVer)
+DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.7.0
+
+proto-all: proto-format proto-lint proto-gen
+
+proto-format:
+	@echo "Formatting Protobuf files"
+	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoFmt}$$"; then docker start -a $(containerProtoFmt); else docker run --name $(containerProtoFmt) -v $(CURDIR):/workspace --workdir /workspace tendermintdev/docker-build-proto \
+		find ./ -not -path "./third_party/*" -name "*.proto" -exec clang-format -i {} \; ; fi
+
+proto-lint:
+	@$(DOCKER_BUF) lint --error-format=json
+
+proto-check-breaking:
+	@$(DOCKER_BUF) breaking --against $(HTTPS_GIT)
 
 proto-gen:
 	@echo "Generating Protobuf files"
