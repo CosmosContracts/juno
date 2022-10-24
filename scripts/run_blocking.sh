@@ -6,4 +6,4 @@ GIT_TAG=$(git describe --tags)
 
 echo "> Running $GIT_TAG..."
 
-docker run --rm -it -p 26657:26657 --name juno-local cosmoscontracts/juno:$GIT_TAG /bin/sh -c "./setup_and_run.sh"
+docker run --rm -it -p 26657:26657 --name juno-local cosmoscontracts/juno:$GIT_TAG /bin/sh -c "./setup_and_run.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y"
