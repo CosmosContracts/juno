@@ -33,7 +33,7 @@ func TestValidateGenesis(t *testing.T) {
 		expErr bool
 	}{
 		"all good": {
-			src: `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"1"}]}}`,
+			src: `{"params":{"minimum_gas_prices":[{"denom":"JUNO", "amount":"1"}]}}`,
 		},
 		"empty minimum": {
 			src: `{"params":{"minimum_gas_prices":[]}}`,
@@ -42,23 +42,23 @@ func TestValidateGenesis(t *testing.T) {
 			src: `{"params":{}}`,
 		},
 		"zero amount allowed": {
-			src:    `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"0"}]}}`,
+			src:    `{"params":{"minimum_gas_prices":[{"denom":"JUNO", "amount":"0"}]}}`,
 			expErr: false,
 		},
 		"duplicate denoms not allowed": {
-			src:    `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"1"},{"denom":"ALX", "amount":"2"}]}}`,
+			src:    `{"params":{"minimum_gas_prices":[{"denom":"JUNO", "amount":"1"},{"denom":"JUNO", "amount":"2"}]}}`,
 			expErr: true,
 		},
 		"negative amounts not allowed": {
-			src:    `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"-1"}]}}`,
+			src:    `{"params":{"minimum_gas_prices":[{"denom":"JUNO", "amount":"-1"}]}}`,
 			expErr: true,
 		},
 		"denom must be sorted": {
-			src:    `{"params":{"minimum_gas_prices":[{"denom":"ZLX", "amount":"1"},{"denom":"ALX", "amount":"2"}]}}`,
+			src:    `{"params":{"minimum_gas_prices":[{"denom":"ZLX", "amount":"1"},{"denom":"JUNO", "amount":"2"}]}}`,
 			expErr: true,
 		},
 		"sorted denoms is allowed": {
-			src:    `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"1"},{"denom":"ZLX", "amount":"2"}]}}`,
+			src:    `{"params":{"minimum_gas_prices":[{"denom":"JUNO", "amount":"1"},{"denom":"ZLX", "amount":"2"}]}}`,
 			expErr: false,
 		},
 	}
@@ -80,12 +80,12 @@ func TestInitExportGenesis(t *testing.T) {
 		exp types.GenesisState
 	}{
 		"single fee": {
-			src: `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"1"}]}}`,
-			exp: types.GenesisState{Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.NewInt(1)))}},
+			src: `{"params":{"minimum_gas_prices":[{"denom":"JUNO", "amount":"1"}]}}`,
+			exp: types.GenesisState{Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("JUNO", sdk.NewInt(1)))}},
 		},
 		"multiple fee options": {
-			src: `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"1"}, {"denom":"BLX", "amount":"0.001"}]}}`,
-			exp: types.GenesisState{Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.NewInt(1)),
+			src: `{"params":{"minimum_gas_prices":[{"denom":"JUNO", "amount":"1"}, {"denom":"BLX", "amount":"0.001"}]}}`,
+			exp: types.GenesisState{Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("JUNO", sdk.NewInt(1)),
 				sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)))}},
 		},
 		"no fee set": {

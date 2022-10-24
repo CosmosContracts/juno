@@ -8,24 +8,18 @@ import (
 	"github.com/CosmosContracts/juno/v11/x/globalfee/types"
 )
 
-var _ types.QueryServer = &GrpcQuerier{}
+var _ types.QueryServer = &Querier{}
 
-// ParamSource is a read only subset of paramtypes.Subspace
-type ParamSource interface {
-	Get(ctx sdk.Context, key []byte, ptr interface{})
-	Has(ctx sdk.Context, key []byte) bool
+type Querier struct {
+	paramSource paramSource
 }
 
-type GrpcQuerier struct {
-	paramSource ParamSource
-}
-
-func NewGrpcQuerier(paramSource ParamSource) GrpcQuerier {
-	return GrpcQuerier{paramSource: paramSource}
+func NewQuerier(paramSource paramSource) Querier {
+	return Querier{paramSource: paramSource}
 }
 
 // MinimumGasPrices return minimum gas prices
-func (g GrpcQuerier) MinimumGasPrices(stdCtx context.Context, _ *types.QueryMinimumGasPricesRequest) (*types.QueryMinimumGasPricesResponse, error) {
+func (g Querier) MinimumGasPrices(stdCtx context.Context, _ *types.QueryMinimumGasPricesRequest) (*types.QueryMinimumGasPricesResponse, error) {
 	var minGasPrices sdk.DecCoins
 	ctx := sdk.UnwrapSDKContext(stdCtx)
 	if g.paramSource.Has(ctx, types.ParamStoreKeyMinGasPrices) {

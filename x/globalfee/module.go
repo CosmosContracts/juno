@@ -3,6 +3,7 @@ package globalfee
 import (
 	"context"
 	"encoding/json"
+	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -10,6 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -58,7 +60,9 @@ func (a AppModuleBasic) RegisterRESTRoutes(context client.Context, router *mux.R
 }
 
 func (a AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	_ = types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
 }
 
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
@@ -84,12 +88,6 @@ func NewAppModule(paramSpace paramstypes.Subspace) *AppModule {
 	}
 
 	return &AppModule{paramSpace: paramSpace}
-}
-
-// InitModule will initialize the globalfee module.
-// It should only be called once and as an alternative to InitGenesis.
-func (a AppModule) InitModule(ctx sdk.Context, globalfeeParams types.Params) {
-	a.paramSpace.SetParamSet(ctx, &globalfeeParams)
 }
 
 func (a AppModule) InitGenesis(ctx sdk.Context, marshaler codec.JSONCodec, message json.RawMessage) []abci.ValidatorUpdate {
@@ -121,7 +119,7 @@ func (a AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
 }
 
 func (a AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterQueryServer(cfg.QueryServer(), NewGrpcQuerier(a.paramSpace))
+	types.RegisterQueryServer(cfg.QueryServer(), NewQuerier(a.paramSpace))
 }
 
 func (a AppModule) BeginBlock(context sdk.Context, block abci.RequestBeginBlock) {
@@ -137,4 +135,27 @@ func (a AppModule) EndBlock(context sdk.Context, block abci.RequestEndBlock) []a
 // should be set to 1.
 func (a AppModule) ConsensusVersion() uint64 {
 	return 1
+}
+
+// GenerateGenesisState genesis state for simulations only. Set to empty global fee
+func (a AppModule) GenerateGenesisState(simstate *module.SimulationState) {
+	twasmGenesis := types.GenesisState{
+		Params: types.DefaultParams(),
+	}
+	simstate.GenState[ModuleName] = simstate.Cdc.MustMarshalJSON(&twasmGenesis)
+}
+
+func (a AppModule) ProposalContents(simState module.SimulationState) []simtypes.WeightedProposalContent {
+	return nil
+}
+
+func (a AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
+	return nil
+}
+
+func (a AppModule) RegisterStoreDecoder(registry sdk.StoreDecoderRegistry) {
+}
+
+func (a AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
+	return nil
 }

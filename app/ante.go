@@ -14,7 +14,7 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	feeante "github.com/CosmosContracts/juno/v11/x/globalfee/ante"
+	"github.com/CosmosContracts/juno/v11/x/globalfee"
 )
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
@@ -135,12 +135,12 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewRejectExtensionOptionsDecorator(),
 		ante.NewMempoolFeeDecorator(),
+		globalfee.NewGlobalMinimumChainFeeDecorator(options.GlobalFeeSubspace), // after local min fee check
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
-		feeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

@@ -19,18 +19,18 @@ func TestQueryMinimumGasPrices(t *testing.T) {
 		"one coin": {
 			setupStore: func(ctx sdk.Context, s paramtypes.Subspace) {
 				s.SetParamSet(ctx, &types.Params{
-					MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt())),
+					MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("JUNO", sdk.OneInt())),
 				})
 			},
-			expMin: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt())),
+			expMin: sdk.NewDecCoins(sdk.NewDecCoin("JUNO", sdk.OneInt())),
 		},
 		"multiple coins": {
 			setupStore: func(ctx sdk.Context, s paramtypes.Subspace) {
 				s.SetParamSet(ctx, &types.Params{
-					MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt()), sdk.NewDecCoin("BLX", sdk.NewInt(2))),
+					MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("JUNO", sdk.OneInt()), sdk.NewDecCoin("BLX", sdk.NewInt(2))),
 				})
 			},
-			expMin: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt()), sdk.NewDecCoin("BLX", sdk.NewInt(2))),
+			expMin: sdk.NewDecCoins(sdk.NewDecCoin("JUNO", sdk.OneInt()), sdk.NewDecCoin("BLX", sdk.NewInt(2))),
 		},
 		"no min gas price set": {
 			setupStore: func(ctx sdk.Context, s paramtypes.Subspace) {
@@ -46,7 +46,7 @@ func TestQueryMinimumGasPrices(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx, _, subspace := setupTestStore(t)
 			spec.setupStore(ctx, subspace)
-			q := NewGrpcQuerier(subspace)
+			q := NewQuerier(subspace)
 			gotResp, gotErr := q.MinimumGasPrices(sdk.WrapSDKContext(ctx), nil)
 			require.NoError(t, gotErr)
 			require.NotNil(t, gotResp)
