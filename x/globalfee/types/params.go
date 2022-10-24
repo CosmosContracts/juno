@@ -13,8 +13,7 @@ var ParamStoreKeyMinGasPrices = []byte("MinimumGasPricesParam")
 
 // DefaultParams returns default parameters
 func DefaultParams() Params {
-	// return Params{MinimumGasPrices: sdk.DecCoins{}}
-	return Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ujuno", sdk.NewInt(1)), sdk.NewDecCoin("ucosm", sdk.NewInt(1)))}
+	return Params{MinimumGasPrices: sdk.DecCoins{}}
 }
 
 func ParamKeyTable() paramtypes.KeyTable {
