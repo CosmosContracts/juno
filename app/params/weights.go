@@ -20,11 +20,4 @@ const (
 	DefaultWeightCommunitySpendProposal int = 5
 	DefaultWeightTextProposal           int = 5
 	DefaultWeightParamChangeProposal    int = 5
-
-	DefaultWeightMsgStoreCode           int = 100
-	DefaultWeightMsgInstantiateContract int = 50
-	DefaultWeightMsgExecuteContract     int = 100
-	DefaultWeightMsgUpdateAdmin         int = 100
-	DefaultWeightMsgClearAdmin          int = 100
-	DefaultWeightMsgMigrateContract     int = 100
 )
