@@ -23,8 +23,8 @@ func GenInflation(r *rand.Rand) sdk.Dec {
 }
 
 // GenBlocksPerYear randomized BlocksPerYear
-func GenBlocksPerYear(r *rand.Rand) sdk.Dec {
-	return sdk.NewDec(60 * 60 * 8766 / 5)
+func GenBlocksPerYear(r *rand.Rand) sdk.Int {
+	return sdk.NewIntFromUint64(uint64(60 * 60 * 8766 / 5))
 }
 
 // RandomizedGenState generates a random GenesisState for mint
