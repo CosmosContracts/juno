@@ -144,7 +144,7 @@ build-e2e-script:
 	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/ ./tests/e2e/initialization/$(E2E_SCRIPT_NAME)
 
 docker-build-debug:
-	@DOCKER_BUILDKIT=1 docker build -t juno:${COMMIT} --build-arg BASE_IMG_TAG=debug -f tests/e2e/initialization/init.Dockerfile .
+	@DOCKER_BUILDKIT=1 docker build -t juno:${COMMIT} --build-arg BASE_IMG_TAG=debug -f tests/e2e/initialization/Dockerfile .
 	@DOCKER_BUILDKIT=1 docker tag juno:${COMMIT} juno:debug
 
 docker-build-e2e-init-chain:
