@@ -71,7 +71,6 @@ var (
 	JunoToken       = sdk.NewInt64Coin(BaseDenom, IbcSendAmount)  // 3,300ujuno
 	StakeToken      = sdk.NewInt64Coin(StakeDenom, IbcSendAmount) // 3,300ustake
 	tenM            = sdk.Coins{sdk.NewInt64Coin(BaseDenom, 10_000_000)}
-	fiftyM          = sdk.Coins{sdk.NewInt64Coin(BaseDenom, 50_000_000)}
 )
 
 func addAccount(path, moniker, amountStr string, accAddr sdk.AccAddress, forkHeight int) error {
