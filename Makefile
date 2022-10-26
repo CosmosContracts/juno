@@ -97,23 +97,12 @@ build:
 	go build $(BUILD_FLAGS) -o bin/junod ./cmd/junod
 
 ###############################################################################
-###                                  Tests                                  ###
+###                                  Tests e2e                              ###
 ###############################################################################
 
 PACKAGES_UNIT=$(shell go list ./... | grep -E -v 'tests/e2e')
 PACKAGES_E2E=$(shell go list -tags e2e ./... | grep '/e2e')
 TEST_PACKAGES=./...
-
-test-all: test-race test-cover
-
-test-unit:
-	@VERSION=$(VERSION) go test -mod=readonly -tags='ledger test_ledger_mock norace' $(PACKAGES_UNIT)
-
-test-race:
-	@VERSION=$(VERSION) go test -mod=readonly -race -tags='ledger test_ledger_mock' $(PACKAGES_UNIT)
-
-test-cover:
-	@VERSION=$(VERSION) go test -mod=readonly -timeout 30m -coverprofile=coverage.txt -tags='norace' -covermode=atomic $(PACKAGES_UNIT)
 
 # test-e2e runs a full e2e test suite
 # deletes any pre-existing Juno containers before running.
@@ -129,12 +118,12 @@ test-e2e: e2e-setup test-e2e-ci
 # does not do any validation about the state of the Docker environment
 # As a result, avoid using this locally.
 test-e2e-ci:
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION)  go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) 
+	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION)  go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
 
 # test-e2e-debug runs a full e2e test suite but does
 # not attempt to delete Docker resources at the end.
 test-e2e-debug: e2e-setup
-	@VERSION=$(VERSION) JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_CLEANUP=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 
+	@VERSION=$(VERSION) JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_CLEANUP=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
 
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_UNIT)
