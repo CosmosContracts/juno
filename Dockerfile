@@ -47,8 +47,6 @@ COPY --from=go-builder /code/bin/junod /usr/bin/junod
 COPY docker/* /opt/
 RUN chmod +x /opt/*.sh
 
-RUN mkdir -p /juno/
-COPY test/* /juno/
 
 WORKDIR /opt
 
