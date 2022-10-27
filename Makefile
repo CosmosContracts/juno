@@ -100,46 +100,46 @@ build:
 ###                                 Localnet                                ###
 ###############################################################################
 localnet-keys:
-	. test/localjuno/scripts/add_keys.sh
+	. tests/localjuno/scripts/add_keys.sh
 
 localnet-init: localnet-clean localnet-build
 
 localnet-build:  
-	@chmod -R +x test/localjuno/
-	@DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f test/localjuno/docker-compose.yml build
+	@chmod -R +x tests/localjuno/
+	@DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f tests/localjuno/docker-compose.yml build
 
 localnet-start:  
-	@STATE="" docker-compose -f test/localjuno/docker-compose.yml up
+	@STATE="" docker-compose -f tests/localjuno/docker-compose.yml up
 
 localnet-start-with-state:	
-	@STATE=-s docker-compose -f test/localjuno/docker-compose.yml up
+	@STATE=-s docker-compose -f tests/localjuno/docker-compose.yml up
 
 localnet-startd:
-	@STATE="" docker-compose -f test/localjuno/docker-compose.yml up -d
+	@STATE="" docker-compose -f tests/localjuno/docker-compose.yml up -d
 
 localnet-startd-with-state:
-	@STATE=-s docker-compose -f test/localjuno/docker-compose.yml up -d
+	@STATE=-s docker-compose -f tests/localjuno/docker-compose.yml up -d
 
 localnet-stop:
-	@STATE="" docker-compose -f test/localjuno/docker-compose.yml down
+	@STATE="" docker-compose -f tests/localjuno/docker-compose.yml down
 
 localnet-clean:
-	@rm -rfI $(HOME)/.juno/
+	@rm -rfI $(HOME)/.juno/Dockerfile
 
 localnet-state-export-init: localnet-state-export-clean localnet-state-export-build 
 
 localnet-state-export-build:
-	@chmod -R +x test/localjuno/
-	@DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f test/localjuno/state_export/docker-compose.yml build
+	@chmod -R +x tests/localjuno/
+	@DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose -f tests/localjuno/state_export/docker-compose.yml build
 
 localnet-state-export-start:
-	@docker-compose -f test/localjuno/state_export/docker-compose.yml up
+	@docker-compose -f tests/localjuno/state_export/docker-compose.yml up
 
 localnet-state-export-startd:
-	@docker-compose -f test/localjuno/state_export/docker-compose.yml up -d
+	@docker-compose -f tests/localjuno/state_export/docker-compose.yml up -d
 
 localnet-state-export-stop:
-	@docker-compose -f test/localjuno/docker-compose.yml down
+	@docker-compose -f tests/localjuno/docker-compose.yml down
 
 localnet-state-export-clean: localnet-clean
 

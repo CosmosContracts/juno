@@ -6,7 +6,7 @@ services:
     image: juno
     build:
       context: ../../../
-      dockerfile: Dockerfile
+      dockerfile: ./tests/localjuno/init.Dockerfile
       args:
         RUNNER_IMAGE: alpine:3.16
         GO_VERSION: 1.18
