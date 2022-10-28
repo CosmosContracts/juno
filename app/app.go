@@ -113,6 +113,8 @@ import (
 
 	encparams "github.com/CosmosContracts/juno/v11/app/params"
 	upgrades "github.com/CosmosContracts/juno/v11/app/upgrades"
+
+	wasmbinding "github.com/CosmosContracts/juno/v11/wasmbinding"
 )
 
 const (
@@ -461,6 +463,8 @@ func New(
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1"
+
+	wasmOpts = append(wasmOpts, wasmbinding.RegisterCustomPlugins(app.OracleKeeper)...)
 	app.wasmKeeper = wasm.NewKeeper(
 		appCodec,
 		keys[wasm.StoreKey],

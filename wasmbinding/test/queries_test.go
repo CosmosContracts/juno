@@ -1,0 +1,1 @@
+package wasmbinding_test
