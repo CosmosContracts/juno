@@ -1,4 +1,4 @@
-package helpers
+package app
 
 import (
 	"encoding/json"
@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/CosmosContracts/juno/v11/app"
-	junoApp "github.com/CosmosContracts/juno/v11/app"
+	apphelpers "github.com/CosmosContracts/juno/v11/app/helpers"
 	"github.com/CosmosContracts/juno/v11/app/params"
 	appparams "github.com/CosmosContracts/juno/v11/app/params"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -29,6 +28,14 @@ import (
 const (
 	SimAppChainID = "juno-app"
 )
+
+// EmptyBaseAppOptions is a stub implementing AppOptions
+type EmptyBaseAppOptions struct{}
+
+// Get implements AppOptions
+func (ao EmptyBaseAppOptions) Get(o string) interface{} {
+	return nil
+}
 
 // DefaultConsensusParams defines the default Tendermint consensus params used
 // in junoApp testing.
@@ -53,10 +60,10 @@ type EmptyAppOptions struct{}
 
 func (EmptyAppOptions) Get(o string) interface{} { return nil }
 
-func Setup(t *testing.T, isCheckTx bool, invCheckPeriod uint) *junoApp.App {
+func Setup(t *testing.T, isCheckTx bool, invCheckPeriod uint) *App {
 	t.Helper()
 
-	privVal := NewPV()
+	privVal := apphelpers.NewPV()
 	pubKey, err := privVal.GetPubKey()
 	require.NoError(t, err)
 	// create validator set with single validator
@@ -78,9 +85,9 @@ func Setup(t *testing.T, isCheckTx bool, invCheckPeriod uint) *junoApp.App {
 
 // SetupWithGenesisValSet initializes a new junoApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
-// of one consensus engine unit in the default token of the junoApp from first genesis
-// account. A Nop logger is set in junoApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *junoApp.App {
+// of one consensus engine unit in the default token of the JunoApp from first genesis
+// account. A Nop logger is set in JunoApp.
+func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *App {
 	t.Helper()
 
 	junoApp, genesisState := setup(true, 5)
@@ -110,36 +117,36 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	return junoApp
 }
 
-func setup(withGenesis bool, invCheckPeriod uint) (*junoApp.App, junoApp.GenesisState) {
+func setup(withGenesis bool, invCheckPeriod uint) (*App, GenesisState) {
 	db := dbm.NewMemDB()
-	encCdc := junoApp.MakeEncodingConfig()
+	encCdc := MakeEncodingConfig()
 	var emptyWasmOpts []wasm.Option
 
-	app := junoApp.New(
+	app := New(
 		log.NewNopLogger(),
 		db,
 		nil,
 		true,
 		map[int64]bool{},
-		junoApp.DefaultNodeHome,
+		DefaultNodeHome,
 		invCheckPeriod,
 		encCdc,
-		app.GetEnabledProposals(),
+		GetEnabledProposals(),
 		EmptyBaseAppOptions{},
 		emptyWasmOpts,
 	)
 	if withGenesis {
-		return app, junoApp.NewDefaultGenesisState(encCdc.Marshaler)
+		return app, NewDefaultGenesisState(encCdc.Marshaler)
 	}
 
-	return app, junoApp.GenesisState{}
+	return app, GenesisState{}
 }
 
 func genesisStateWithValSet(t *testing.T,
-	app *junoApp.App, genesisState junoApp.GenesisState,
+	app *App, genesisState GenesisState,
 	valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
 	balances ...banktypes.Balance,
-) junoApp.GenesisState {
+) GenesisState {
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)

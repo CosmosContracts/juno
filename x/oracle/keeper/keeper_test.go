@@ -19,8 +19,8 @@ import (
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
+	"github.com/CosmosContracts/juno/v11/app"
 	junoApp "github.com/CosmosContracts/juno/v11/app"
-	"github.com/CosmosContracts/juno/v11/app/helpers"
 	appparams "github.com/CosmosContracts/juno/v11/app/params"
 	"github.com/CosmosContracts/juno/v11/x/oracle/keeper"
 	"github.com/CosmosContracts/juno/v11/x/oracle/types"
@@ -47,34 +47,34 @@ const (
 func (s *IntegrationTestSuite) SetupTest() {
 	require := s.Require()
 	isCheckTx := false
-	app := helpers.Setup(s.T(), isCheckTx, 1)
-	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{
+	junoApp := app.Setup(s.T(), isCheckTx, 1)
+	ctx := junoApp.BaseApp.NewContext(isCheckTx, tmproto.Header{
 		ChainID: fmt.Sprintf("test-chain-%s", tmrand.Str(4)),
 		Height:  9,
 	})
 
-	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQuerier(app.OracleKeeper))
+	queryHelper := baseapp.NewQueryServerTestHelper(ctx, junoApp.InterfaceRegistry())
+	types.RegisterQueryServer(queryHelper, keeper.NewQuerier(junoApp.OracleKeeper))
 
-	sh := teststaking.NewHelper(s.T(), ctx, app.StakingKeeper)
+	sh := teststaking.NewHelper(s.T(), ctx, junoApp.StakingKeeper)
 	sh.Denom = bondDenom
 	amt := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
 
 	// mint and send coins to validators
-	require.NoError(app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, initCoins))
-	require.NoError(app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, initCoins))
-	require.NoError(app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, initCoins))
-	require.NoError(app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr2, initCoins))
+	require.NoError(junoApp.BankKeeper.MintCoins(ctx, minttypes.ModuleName, initCoins))
+	require.NoError(junoApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, initCoins))
+	require.NoError(junoApp.BankKeeper.MintCoins(ctx, minttypes.ModuleName, initCoins))
+	require.NoError(junoApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr2, initCoins))
 
 	sh.CreateValidator(valAddr, valPubKey, amt, true)
 	sh.CreateValidator(valAddr2, valPubKey2, amt, true)
 
-	staking.EndBlocker(ctx, app.StakingKeeper)
+	staking.EndBlocker(ctx, junoApp.StakingKeeper)
 
-	s.app = app
+	s.app = junoApp
 	s.ctx = ctx
 	s.queryClient = types.NewQueryClient(queryHelper)
-	s.msgServer = keeper.NewMsgServerImpl(app.OracleKeeper)
+	s.msgServer = keeper.NewMsgServerImpl(junoApp.OracleKeeper)
 }
 
 // Test addresses
