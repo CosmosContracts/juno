@@ -7,6 +7,7 @@ on:
     # - 'v[0-9]+.[0-9]+.[0-9]+' # ignore rc
     branches:
       - 'ducnt/e2e'
+  pull_request:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -36,13 +37,16 @@ jobs:
             latest=false
             suffix=-e2e
           tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=pr-latest,event=pr
+            type=semver,pattern={{raw}}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ../../../
+          context: .
           file: tests/e2e/initialization/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
