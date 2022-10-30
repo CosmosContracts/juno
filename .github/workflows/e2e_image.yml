@@ -2,11 +2,12 @@
 name: Build and Push Docker Image for E2E Test
 
 on:
+  workflow_dispatch:
   push:
     tags:
-    # - 'v[0-9]+.[0-9]+.[0-9]+' # ignore rc
+      - 'v[0-9]+.[0-9]+.[0-9]+' # ignore rc
     branches:
-      - 'ducnt/e2e'
+      - 'main'
   pull_request:
 env:
   REGISTRY: ghcr.io
@@ -32,10 +33,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-e2e
           flavor: |
             latest=false
-            suffix=-e2e
           tags: |
             type=ref,event=branch
             type=ref,event=pr
