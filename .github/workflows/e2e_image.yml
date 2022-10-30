@@ -4,8 +4,9 @@ name: Build and Push Docker Image for E2E Test
 on:
   push:
     tags:
-    - 'v[0-9]+.[0-9]+.[0-9]+' # ignore rc
-
+    # - 'v[0-9]+.[0-9]+.[0-9]+' # ignore rc
+    branches:
+      - 'ducnt/e2e'
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
