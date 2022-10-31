@@ -1,5 +1,5 @@
 ---
-name: Build and Push Docker Image for E2E Test
+name: Build and Push Docker Image for init E2E Test
 
 on:
   release:
@@ -32,9 +32,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-e2e
-          flavor: |
-            latest=false
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-e2e-init-chain
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -46,7 +44,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: tests/e2e/initialization/Dockerfile
+          file: tests/e2e/initialization/init.Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
