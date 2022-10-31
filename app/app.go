@@ -114,7 +114,7 @@ import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 
 	encparams "github.com/CosmosContracts/juno/v11/app/params"
-	upgrades "github.com/CosmosContracts/juno/v11/app/upgrades"
+	v12 "github.com/CosmosContracts/juno/v11/app/upgrades/v12"
 )
 
 const (
@@ -527,6 +527,8 @@ func New(
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 
+	app.setupUpgradeStoreLoaders()
+
 	app.mm = module.NewManager(
 		genutil.NewAppModule(
 			app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx,
@@ -864,10 +866,25 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
 }
 
-// RegisterUpgradeHandlers returns upgrade handlers
+// Add new modules store loader
+func (app *App) setupUpgradeStoreLoaders() {
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(err)
+	}
 
+	if upgradeInfo.Name == v12.UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		storeUpgrades := store.StoreUpgrades{
+			Added: []string{tokenfactorytypes.ModuleName},
+		}
+
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
+}
+
+// RegisterUpgradeHandlers returns upgrade handlers
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler("v11", upgrades.CreateV11UpgradeHandler(app.mm, cfg, &app.ICAHostKeeper))
+	app.UpgradeKeeper.SetUpgradeHandler(v12.UpgradeName, v12.CreateUpgradeHandler(app.mm, cfg))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
