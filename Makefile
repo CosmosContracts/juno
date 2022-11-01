@@ -124,7 +124,7 @@ localnet-stop:
 	@STATE="" docker-compose -f tests/localjuno/docker-compose.yml down
 
 localnet-clean:
-	@rm -rfI $(HOME)/.juno/Dockerfile
+	@rm -rfI $(HOME)/.juno/
 
 localnet-state-export-init: localnet-state-export-clean localnet-state-export-build 
 
