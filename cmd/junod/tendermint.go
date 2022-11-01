@@ -50,12 +50,12 @@ func resetWasm(dbDir string) error {
 		if err := os.RemoveAll(wasmDir); err == nil {
 			fmt.Println("Removed wasm", "dir", wasmDir)
 		} else {
-			fmt.Println("error removing wasm", "dir", wasmDir, "err", err)
+			return fmt.Errorf("error removing wasm  dir: %s; err: %w", wasmDir, err)
 		}
 	}
 
 	if err := tmos.EnsureDir(wasmDir, 0700); err != nil {
-		fmt.Println("unable to recreate wasm", "err", err)
+		return fmt.Errorf("unable to recreate wasm %w", err)
 	}
 	return nil
 }
@@ -68,12 +68,12 @@ func resetApp(dbDir string) error {
 		if err := os.RemoveAll(appDir); err == nil {
 			fmt.Println("Removed application.db", "dir", appDir)
 		} else {
-			fmt.Println("error removing application.db", "dir", appDir, "err", err)
+			return fmt.Errorf("error removing application.db  dir: %s; err: %w", appDir, err)
 		}
 	}
 
 	if err := tmos.EnsureDir(appDir, 0700); err != nil {
-		fmt.Println("unable to recreate application.db", "err", err)
+		return fmt.Errorf("unable to recreate application.db %w", err)
 	}
 	return nil
 }
