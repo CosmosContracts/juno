@@ -36,6 +36,7 @@ var (
 		provider.ProviderKraken:   {},
 		provider.ProviderBinance:  {},
 		provider.ProviderOsmosis:  {},
+		provider.ProviderJuno:     {},
 		provider.ProviderOkx:      {},
 		provider.ProviderHuobi:    {},
 		provider.ProviderGate:     {},
