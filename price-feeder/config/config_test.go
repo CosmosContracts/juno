@@ -709,7 +709,6 @@ base = "ATOM"
 quote = "USDT"
 providers = [
 	"kraken",
-	"binance",
 ]
 
 [[currency_pairs]]
@@ -756,5 +755,5 @@ enabled = false
 
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).Level(zerolog.InfoLevel).With().Timestamp().Logger()
 	err = config.CheckProviderMins(context.TODO(), logger, cfg)
-	require.EqualError(t, err, "must have at least 3 providers for ATOM")
+	require.EqualError(t, err, "must have at least 2 providers for ATOM")
 }

@@ -31,11 +31,11 @@ BUILD_FLAGS := -ldflags '$(ldflags)'
 
 build: go.sum
 	@echo "--> Building..."
-	CGO_ENABLED=0 go build -mod=readonly -o $(BUILD_DIR)/ $(BUILD_FLAGS) ./...
+	CGO_ENABLED=1 go build -mod=readonly -o $(BUILD_DIR)/ $(BUILD_FLAGS) ./...
 
 install: go.sum
 	@echo "--> Installing..."
-	CGO_ENABLED=0 go install -mod=readonly $(BUILD_FLAGS) ./...
+	CGO_ENABLED=1 go install -mod=readonly $(BUILD_FLAGS) ./...
 
 .PHONY: build install
 
