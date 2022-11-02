@@ -2,8 +2,8 @@ version: "3"
 
 services:
 
-  JUNOD:
-    image: juno
+  Junod:
+    image: local:juno
     build:
       context: ../../
       dockerfile: tests/localjuno/local.Dockerfile

@@ -67,7 +67,7 @@ then
     
     python3 -u /juno/testnetify.py \
         -i /juno/state_export.json \
-        --output /juno/.juno/config/genesis.json \
+        --output $CONFIG_FOLDER/genesis.json \
         -c $CHAIN_ID \
         --validator-hex-address $VALIDATOR_HEX_ADDRESS \
         --validator-operator-address $VALIDATOR_OPERATOR_ADDRESS \
