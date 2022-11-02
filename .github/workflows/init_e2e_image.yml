@@ -32,14 +32,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-e2e-init-chain
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=raw,value=pr-latest,event=pr
-            type=semver,pattern={{raw}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=branch-e2e-init-chain
+            type=ref,event=pr-e2e-init-chain
+            type=raw,value=pr-latest,event=pr-e2e-init-chain
+            type=semver,pattern={{raw}}-e2e-init-chain
+            type=semver,pattern={{version}}-e2e-init-chain
+            type=semver,pattern={{major}}.{{minor}}-e2e-init-chain
       - name: Build and push
         uses: docker/build-push-action@v3
         with:

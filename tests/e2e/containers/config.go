@@ -23,11 +23,11 @@ const (
 	// Pre-upgrade juno repo/tag to pull.
 	// It should be uploaded to Docker Hub. JUNO_E2E_SKIP_UPGRADE should be unset
 	// for this functionality to be used.
-	previousVersionRepository = "ghcr.io/cosmoscontracts/juno-e2e"
-	previousVersionTag        = "10.0.0"
+	previousVersionRepository = "ghcr.io/cosmoscontracts/juno"
+	previousVersionTag        = "10.0.0-e2e"
 	// Pre-upgrade repo/tag for juno initialization (this should be one version below upgradeVersion)
-	previousVersionInitRepository = "ghcr.io/cosmoscontracts/juno-e2e-init-chain"
-	previousVersionInitTag        = "v10.0.0"
+	previousVersionInitRepository = "ghcr.io/cosmoscontracts/juno"
+	previousVersionInitTag        = "10.0.0-e2e-init-chain"
 	// Hermes repo/version for relayer, use osmosis dockerhub
 	relayerRepository = "osmolabs/hermes"
 	relayerTag        = "0.13.0"
