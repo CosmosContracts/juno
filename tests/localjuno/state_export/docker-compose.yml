@@ -3,10 +3,10 @@ version: "3"
 services:
 
   junod:
-    image: juno
+    image: local:juno
     build:
       context: ../../../
-      dockerfile: ./tests/localjuno/init.Dockerfile
+      dockerfile: ./tests/localjuno/local.Dockerfile
       args:
         RUNNER_IMAGE: alpine:3.16
         GO_VERSION: 1.18
