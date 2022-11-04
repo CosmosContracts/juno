@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 	apphelpers "github.com/CosmosContracts/juno/v11/app/helpers"
 	"github.com/CosmosContracts/juno/v11/app/params"
 	appparams "github.com/CosmosContracts/juno/v11/app/params"
@@ -18,6 +19,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -220,4 +223,31 @@ func genesisStateWithValSet(t *testing.T,
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	return genesisState
+}
+
+func keyPubAddr() (crypto.PrivKey, crypto.PubKey, sdk.AccAddress) {
+	key := ed25519.GenPrivKey()
+	pub := key.PubKey()
+	addr := sdk.AccAddress(pub.Address())
+	return key, pub, addr
+}
+
+func RandomAccountAddress() sdk.AccAddress {
+	_, _, addr := keyPubAddr()
+	return addr
+}
+
+func ExecuteRawCustom(t *testing.T, ctx sdk.Context, app *App, contract sdk.AccAddress, sender sdk.AccAddress, msg json.RawMessage, funds sdk.Coin) error {
+	t.Helper()
+	oracleBz, err := json.Marshal(msg)
+	require.NoError(t, err)
+	// no funds sent if amount is 0
+	var coins sdk.Coins
+	if !funds.Amount.IsNil() {
+		coins = sdk.Coins{funds}
+	}
+
+	contractKeeper := keeper.NewDefaultPermissionKeeper(app.WasmKeeper())
+	_, err = contractKeeper.Execute(ctx, contract, sender, oracleBz, coins)
+	return err
 }
