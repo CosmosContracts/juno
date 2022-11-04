@@ -4,70 +4,94 @@ import (
 	"encoding/json"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/CosmosContracts/juno/v11/app"
 	appparams "github.com/CosmosContracts/juno/v11/app/params"
+	"github.com/CosmosContracts/juno/v11/wasmbinding"
+	"github.com/CosmosContracts/juno/v11/wasmbinding/bindings"
 	"github.com/CosmosContracts/juno/v11/x/oracle/wasm"
 	oracle "github.com/CosmosContracts/juno/v11/x/oracle/wasm"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
-func SetupCustomApp(t *testing.T, addr sdk.AccAddress) (*app.App, sdk.Context) {
-	junoApp, ctx := CreateTestInput(t)
+func TestQueryExchangeRate(t *testing.T) {
+	actor := RandomAccountAddress()
+	junoApp := app.Setup(t, false, 1)
+	ctx := junoApp.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "kujira-1", Time: time.Now().UTC()})
+
 	wasmKeeper := junoApp.WasmKeeper()
-	storeOracleQuerierCode(t, ctx, junoApp, addr)
+	plugin := wasmbinding.NewQueryPlugin(junoApp.OracleKeeper)
+	querier := wasmbinding.CustomQuerier(plugin)
+
+	// Store Oracle querier
+	storeOracleQuerierCode(t, ctx, junoApp, actor)
 
 	cInfo := wasmKeeper.GetCodeInfo(ctx, 1)
 	require.NotNil(t, cInfo)
 
-	return junoApp, ctx
-}
-
-func TestQueryExchangeRate(t *testing.T) {
-	actor := RandomAccountAddress()
-	junoApp, ctx := SetupCustomApp(t, actor)
-
+	// Init Oracle querier
 	oracleQuerier := instantiateOracleQuerierContract(t, ctx, junoApp, actor)
 	require.NotEmpty(t, oracleQuerier)
 
 	actorAmount := sdk.NewCoins(sdk.NewCoin(appparams.BondDenom, sdk.NewInt(100000000000000)))
 	fundAccount(t, ctx, junoApp, actor, actorAmount)
 
-	ExchangeRateC := sdk.NewDec(1700)
-	ExchangeRateB := sdk.NewDecWithPrec(17, 1)
-	ExchangeRateD := sdk.NewDecWithPrec(19, 1)
-	junoApp.OracleKeeper.SetExchangeRate(ctx, "a", sdk.NewDec(1))
-	junoApp.OracleKeeper.SetExchangeRate(ctx, "b", ExchangeRateB)
-	junoApp.OracleKeeper.SetExchangeRate(ctx, "c", ExchangeRateC)
-	junoApp.OracleKeeper.SetExchangeRate(ctx, "d", ExchangeRateD)
+	// Set exchange rate for coin "a"
+	ExchangeRate := sdk.NewDecWithPrec(1792, 2)
+	junoApp.OracleKeeper.SetExchangeRate(ctx, "a", ExchangeRate)
 
-	msg := json.RawMessage(`{"get_exchange_rate": {"denom":"b"}}`)
+	msg := json.RawMessage(`{"set_exchange_rate": {"denom":"a"}}`)
+
+	// Call setExchangeRate
 	err := executeRawCustom(t, ctx, junoApp, oracleQuerier, actor, msg, sdk.Coin{})
 	require.NoError(t, err)
 
+	// Query Chain
+	queryParams := wasm.ExchangeRateQueryParams{
+		Denom: "a",
+	}
+	bz, err := json.Marshal(bindings.CosmosQuery{
+		Oracle: &wasm.OracleQuery{
+			ExchangeRate: &queryParams,
+		},
+	})
+	require.NoError(t, err)
+
+	res, err := querier(ctx, bz)
+	require.NoError(t, err)
+
+	var exchangeRatesResponse wasm.ExchangeRateQueryResponse
+	err = json.Unmarshal(res, &exchangeRatesResponse)
+	require.NoError(t, err)
+
+	exchangeRate, err := sdk.NewDecFromStr(exchangeRatesResponse.Rate)
+	require.NoError(t, err)
+
+	// Query contract
 	query := oracle.OracleQuery{
 		ExchangeRate: &wasm.ExchangeRateQueryParams{
-			Denom: "b",
+			Denom: "a",
 		},
 	}
-	resp := oracle.ExchangeRateQueryResponse{}
-	queryRate(t, ctx, junoApp, oracleQuerier, query, &resp)
-
-}
-
-func queryRate(t *testing.T, ctx sdk.Context, junoApp *app.App, contract sdk.AccAddress, request oracle.OracleQuery, response interface{}) {
-	queryBz, err := json.Marshal(request)
+	queryBz, err := json.Marshal(query)
 	require.NoError(t, err)
 
-	resBz, err := junoApp.WasmKeeper().QuerySmart(ctx, contract, queryBz)
+	resBz, err := junoApp.WasmKeeper().QuerySmart(ctx, oracleQuerier, queryBz)
+	require.NoError(t, err)
 	var rate string
 	json.Unmarshal(resBz, &rate)
+
+	// convert to sdk.Dec to match precision
+	oracleRate, err := sdk.NewDecFromStr(rate)
 	require.NoError(t, err)
-	require.Equal(t, rate, "1.7")
+
+	require.Equal(t, oracleRate, exchangeRate)
 }
 
 func storeOracleQuerierCode(t *testing.T, ctx sdk.Context, junoApp *app.App, addr sdk.AccAddress) {
