@@ -373,7 +373,7 @@ func TestGenerateExchangeRatesString(t *testing.T) {
 				"ATOM": sdk.MustNewDecFromStr("40.13"),
 				"OSMO": sdk.MustNewDecFromStr("8.69"),
 			},
-			expected: "ATOM:40.130000000000000000,OSMO:8.690000000000000000,JUNO:3.720000000000000000",
+			expected: "ATOM:40.130000000000000000,JUNO:3.720000000000000000,OSMO:8.690000000000000000",
 		},
 	}
 
