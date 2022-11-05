@@ -801,6 +801,11 @@ func (app *App) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
+// WasmKeeper returns Juno's WasmKeeper.
+func (app *App) WasmKeeper() wasm.Keeper {
+	return app.wasmKeeper
+}
+
 // InterfaceRegistry returns Juno's InterfaceRegistry
 func (app *App) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
