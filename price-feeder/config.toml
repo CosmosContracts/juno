@@ -58,6 +58,13 @@ quote = "USD"
 [[currency_pairs]]
 base = "JUNO"
 providers = [
+  "juno",
+]
+quote = "USD"
+
+[[currency_pairs]]
+base = "JUNO"
+providers = [
   "bitget",
 ]
 quote = "USDT"
@@ -80,14 +87,14 @@ providers = [
 quote = "USDT"
 
 [account]
-address = "juno15x87cdlt9ed0xhgtsdutdec3njg42q3a9vw7fn"
+address = "juno1pry5cux508t55pf00pryl6hp09cfahml5k6w8m"
 chain_id = "test-1"
-validator = "junovaloper15x87cdlt9ed0xhgtsdutdec3njg42q3a63c3j2"
+validator = "junovaloper1pry5cux508t55pf00pryl6hp09cfahmlttvpuz"
 prefix = "juno"
 
 [keyring]
 backend = "test"
-dir = "/home/vuong/.juno"
+dir = "/Users/nhan/.juno"
 
 [rpc]
 grpc_endpoint = "localhost:9090"
