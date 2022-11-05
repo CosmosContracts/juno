@@ -220,7 +220,7 @@ func (ac appCreator) newApp(
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
 
-	return app.New(logger, db, traceStore, true, skipUpgradeHeights,
+	return app.New(logger, db, traceStore, true, skipUpgradeHeights, false,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		ac.encCfg,
@@ -266,6 +266,7 @@ func (ac appCreator) appExport(
 		traceStore,
 		loadLatest,
 		map[int64]bool{},
+		false,
 		homePath,
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		ac.encCfg,

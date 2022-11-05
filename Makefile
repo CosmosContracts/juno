@@ -2,6 +2,8 @@
 
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
+BINDIR ?= $(GOPATH)/bin
+SIMAPP = ./app
 
 # don't override user values
 ifeq (,$(VERSION))
@@ -86,7 +88,7 @@ ifeq (,$(findstring nostrip,$(JUNO_BUILD_OPTIONS)))
 endif
  
 #$(info $$BUILD_FLAGS is [$(BUILD_FLAGS)])
-
+include contrib/devtools/Makefile
 
 all: install
 
@@ -95,6 +97,14 @@ install: go.sum
 
 build:
 	go build $(BUILD_FLAGS) -o bin/junod ./cmd/junod
+
+###############################################################################
+###                                Testing                                  ###
+###############################################################################
+
+test-sim-multi-seed-short: runsim
+	@echo "Running short multi-seed application simulation. This may take awhile!"
+	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
 
 ###############################################################################
 ###                                  Proto                                  ###

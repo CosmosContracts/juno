@@ -23,20 +23,26 @@ type HandlerOptions struct {
 	TxCounterStoreKey sdk.StoreKey
 	WasmConfig        wasmTypes.WasmConfig
 	Cdc               codec.BinaryCodec
+	IsSims            bool
 }
 
 type MinCommissionDecorator struct {
-	cdc codec.BinaryCodec
+	cdc    codec.BinaryCodec
+	isSims bool
 }
 
-func NewMinCommissionDecorator(cdc codec.BinaryCodec) MinCommissionDecorator {
-	return MinCommissionDecorator{cdc}
+func NewMinCommissionDecorator(cdc codec.BinaryCodec, isSims bool) MinCommissionDecorator {
+	return MinCommissionDecorator{cdc, isSims}
 }
 
 func (min MinCommissionDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx,
 	simulate bool, next sdk.AnteHandler,
 ) (newCtx sdk.Context, err error) {
+	if min.isSims {
+		return next(ctx, tx, simulate)
+	}
+
 	msgs := tx.GetMsgs()
 	minCommissionRate := sdk.NewDecWithPrec(5, 2)
 
@@ -121,7 +127,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 	anteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		NewMinCommissionDecorator(options.Cdc),
+		NewMinCommissionDecorator(options.Cdc, options.IsSims),
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewRejectExtensionOptionsDecorator(),

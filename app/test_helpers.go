@@ -128,6 +128,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*App, GenesisState) {
 		nil,
 		true,
 		map[int64]bool{},
+		false,
 		DefaultNodeHome,
 		invCheckPeriod,
 		encCdc,
