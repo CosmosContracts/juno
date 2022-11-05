@@ -59,6 +59,8 @@ func TestQueryExchangeRate(t *testing.T) {
 		oracleQuerier,
 		actorAmount,
 	)
+	require.NoError(t, err)
+
 	// Set exchange rate for coin "a"
 	ExchangeRate := sdk.NewDecWithPrec(1792, 2)
 	junoApp.OracleKeeper.SetExchangeRate(ctx, "a", ExchangeRate)
@@ -102,7 +104,9 @@ func TestQueryExchangeRate(t *testing.T) {
 	resBz, err := junoApp.WasmKeeper().QuerySmart(ctx, oracleQuerier, queryBz)
 	require.NoError(t, err)
 	var rate string
-	json.Unmarshal(resBz, &rate)
+
+	err = json.Unmarshal(resBz, &rate)
+	require.NoError(t, err)
 
 	// convert to sdk.Dec to match precision
 	oracleRate, err := sdk.NewDecFromStr(rate)
