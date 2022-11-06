@@ -14,6 +14,14 @@ import (
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
+var (
+	DefaultIsAppSimulation = false
+)
+
+func updateAppSimulationFlag(flag bool) {
+	DefaultIsAppSimulation = flag
+}
+
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
 // channel keeper.
 type HandlerOptions struct {
@@ -23,23 +31,21 @@ type HandlerOptions struct {
 	TxCounterStoreKey sdk.StoreKey
 	WasmConfig        wasmTypes.WasmConfig
 	Cdc               codec.BinaryCodec
-	IsSims            bool
 }
 
 type MinCommissionDecorator struct {
-	cdc    codec.BinaryCodec
-	isSims bool
+	cdc codec.BinaryCodec
 }
 
-func NewMinCommissionDecorator(cdc codec.BinaryCodec, isSims bool) MinCommissionDecorator {
-	return MinCommissionDecorator{cdc, isSims}
+func NewMinCommissionDecorator(cdc codec.BinaryCodec) MinCommissionDecorator {
+	return MinCommissionDecorator{cdc}
 }
 
 func (min MinCommissionDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx,
 	simulate bool, next sdk.AnteHandler,
 ) (newCtx sdk.Context, err error) {
-	if min.isSims {
+	if DefaultIsAppSimulation {
 		return next(ctx, tx, simulate)
 	}
 
@@ -127,7 +133,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 	anteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		NewMinCommissionDecorator(options.Cdc, options.IsSims),
+		NewMinCommissionDecorator(options.Cdc),
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewRejectExtensionOptionsDecorator(),

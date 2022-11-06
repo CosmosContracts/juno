@@ -94,7 +94,8 @@ func TestFullAppSimulation(t *testing.T) {
 		require.NoError(t, os.RemoveAll(dir))
 	}()
 	encConf := MakeEncodingConfig()
-	app := New(logger, db, nil, true, map[int64]bool{}, true, t.TempDir(), simapp.FlagPeriodValue, encConf,
+	updateAppSimulationFlag(true)
+	app := New(logger, db, nil, true, map[int64]bool{}, t.TempDir(), simapp.FlagPeriodValue, encConf,
 		wasm.EnableAllProposals, simapp.EmptyAppOptions{}, nil, fauxMerkleModeOpt)
 	require.Equal(t, "juno", app.Name())
 

@@ -57,7 +57,6 @@ func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.Genesi
 		nil,
 		true,
 		map[int64]bool{},
-		false,
 		simapp.DefaultNodeHome,
 		invCheckPeriod,
 		encCdc,

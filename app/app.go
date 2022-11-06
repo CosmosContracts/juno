@@ -313,7 +313,6 @@ func New(
 	traceStore io.Writer,
 	loadLatest bool,
 	skipUpgradeHeights map[int64]bool,
-	isSims bool,
 	homePath string,
 	invCheckPeriod uint,
 	encodingConfig encparams.EncodingConfig,
@@ -666,7 +665,6 @@ func New(
 			TxCounterStoreKey: keys[wasm.StoreKey],
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
-			IsSims:            isSims,
 		},
 	)
 	if err != nil {
