@@ -13,7 +13,7 @@ import (
 // Note, BroadcastTx is copied from the SDK except it removes a few unnecessary
 // things like prompting for confirmation and printing the response. Instead,
 // we return the TxResponse.
-func BroadcastTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) (*sdk.TxResponse, error) {
+func BroadcastTx(clientCtx client.Context, txf tx.Factory, gasPrice string, msgs ...sdk.Msg) (*sdk.TxResponse, error) {
 	txf, err := prepareFactory(clientCtx, txf)
 	if err != nil {
 		return nil, err
@@ -30,6 +30,9 @@ func BroadcastTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) (*sd
 	if err != nil {
 		return nil, err
 	}
+
+	feeAmount, err := calculateFeeAmount(gasPrice, adjusted)
+	unsignedTx.SetFeeAmount(feeAmount)
 
 	unsignedTx.SetFeeGranter(clientCtx.GetFeeGranterAddress())
 	// unsignedTx.SetFeePayer(clientCtx.GetFeePayerAddress())
@@ -74,4 +77,20 @@ func prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error
 	}
 
 	return txf, nil
+}
+
+func calculateFeeAmount(gasPrice string, gas uint64) (sdk.Coins, error) {
+	var feeAmount sdk.Coins
+	coins, err := sdk.ParseDecCoins(gasPrice)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, coin := range coins {
+		intGas := sdk.NewIntFromUint64(gas)
+		amount := coin.Amount.Mul(sdk.NewDecFromInt(intGas)).Ceil().TruncateInt()
+
+		feeAmount = append(feeAmount, sdk.NewCoin(coin.Denom, amount))
+	}
+	return feeAmount, nil
 }

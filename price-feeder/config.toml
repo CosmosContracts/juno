@@ -1,6 +1,6 @@
 gas_adjustment = 1.5
 provider_min_override = true
-
+gas_price = "0.0001stake"
 [server]
 listen_addr = "0.0.0.0:7171"
 read_timeout = "20s"
@@ -80,9 +80,9 @@ providers = [
 quote = "USDT"
 
 [account]
-address = "juno15x87cdlt9ed0xhgtsdutdec3njg42q3a9vw7fn"
+address = "juno1dykyy8sqfw78frjt9th6k2s0c64q3nqwdy7eh7"
 chain_id = "test-1"
-validator = "junovaloper15x87cdlt9ed0xhgtsdutdec3njg42q3a63c3j2"
+validator = "junovaloper1dykyy8sqfw78frjt9th6k2s0c64q3nqwjegkv8"
 prefix = "juno"
 
 [keyring]

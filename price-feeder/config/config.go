@@ -77,6 +77,7 @@ type (
 		ProviderTimeout     string              `mapstructure:"provider_timeout"`
 		ProviderMinOverride bool                `mapstructure:"provider_min_override"`
 		ProviderEndpoints   []provider.Endpoint `mapstructure:"provider_endpoints" validate:"dive"`
+		GasPrice            string              `mapstructure:"gas_price"`
 	}
 
 	// Server defines the API server configuration.

@@ -66,6 +66,7 @@ func NewOracleClient(
 	validatorAddrString string,
 	grpcEndpoint string,
 	gasAdjustment float64,
+	gasPrice string,
 ) (OracleClient, error) {
 
 	oracleAddr, err := sdk.AccAddressFromBech32(oracleAddrString)
@@ -87,6 +88,7 @@ func NewOracleClient(
 		Encoding:            junoapp.MakeEncodingConfig(),
 		GasAdjustment:       gasAdjustment,
 		GRPCEndpoint:        grpcEndpoint,
+		GasPrices:           gasPrice,
 	}
 
 	clientCtx, err := oracleClient.CreateClientContext()
@@ -163,7 +165,7 @@ func (oc OracleClient) BroadcastTx(nextBlockHeight, timeoutHeight int64, msgs ..
 		// set last check height to latest block height
 		lastCheckHeight = latestBlockHeight
 
-		resp, err := BroadcastTx(clientCtx, factory, msgs...)
+		resp, err := BroadcastTx(clientCtx, factory, oc.GasPrices, msgs...)
 		if resp != nil && resp.Code != 0 {
 			telemetry.IncrCounter(1, "failure", "tx", "code")
 			err = fmt.Errorf("invalid response code from tx: %d", resp.Code)
