@@ -23,6 +23,8 @@ import (
 //nolint:gosec
 const (
 	OpWeightMsgAggregateExchangeRatePrevote = "op_weight_msg_exchange_rate_aggregate_prevote"
+	OpWeightMsgAggregateExchangeRateVote    = "op_weight_msg_exchange_rate_aggregate_vote"
+	OpWeightMsgDelegateFeedConsent          = "op_weight_msg_exchange_feed_consent"
 
 	salt = "89b8164ca0b4b8703ae9ab25962f3dd6d1de5d656f5442971a93b2ca7893f654"
 )
@@ -57,6 +59,8 @@ func WeightedOperations(
 ) simulation.WeightedOperations {
 	var (
 		weightMsgAggregateExchangeRatePrevote int
+		weightMsgAggregateExchangeRateVote    int
+		weightMsgDelegateFeedConsent          int
 		voteHashMap                           = make(map[string]string)
 	)
 
@@ -65,11 +69,29 @@ func WeightedOperations(
 			weightMsgAggregateExchangeRatePrevote = simappparams.DefaultWeightMsgSend * 2
 		},
 	)
+	simstate.AppParams.GetOrGenerate(simstate.Cdc, OpWeightMsgAggregateExchangeRateVote, &weightMsgAggregateExchangeRateVote, nil,
+		func(_ *rand.Rand) {
+			weightMsgAggregateExchangeRateVote = simappparams.DefaultWeightMsgSend * 2
+		},
+	)
+	simstate.AppParams.GetOrGenerate(simstate.Cdc, OpWeightMsgDelegateFeedConsent, &weightMsgDelegateFeedConsent, nil,
+		func(_ *rand.Rand) {
+			weightMsgDelegateFeedConsent = simappparams.DefaultWeightMsgSetWithdrawAddress
+		},
+	)
 
 	return simulation.WeightedOperations{
 		simulation.NewWeightedOperation(
 			weightMsgAggregateExchangeRatePrevote,
 			SimulateMsgAggregateExchangeRatePrevote(ak, bk, k, voteHashMap),
+		),
+		simulation.NewWeightedOperation(
+			weightMsgAggregateExchangeRateVote,
+			SimulateMsgAggregateExchangeRateVote(ak, bk, k, voteHashMap),
+		),
+		simulation.NewWeightedOperation(
+			weightMsgDelegateFeedConsent,
+			SimulateMsgDelegateFeedConsent(ak, bk, k),
 		),
 	}
 }
@@ -115,6 +137,83 @@ func SimulateMsgAggregateExchangeRatePrevote(
 		voteHashMap[address.String()] = exchangeRatesStr
 
 		return deliver(r, app, ctx, ak, bk, feederSimAccount, msg, nil)
+	}
+}
+
+// SimulateMsgAggregateExchangeRateVote generates a MsgAggregateExchangeRateVote with random values.
+func SimulateMsgAggregateExchangeRateVote(
+	ak types.AccountKeeper,
+	bk bankkeeper.Keeper,
+	k keeper.Keeper,
+	voteHashMap map[string]string,
+) simtypes.Operation {
+	return func(
+		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
+	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+		simAccount, _ := simtypes.RandomAcc(r, accs)
+		address := sdk.ValAddress(simAccount.Address)
+		noop := func(comment string) simtypes.OperationMsg {
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(new(types.MsgAggregateExchangeRateVote)), comment)
+		}
+
+		// ensure the validator exists
+		val := k.StakingKeeper.Validator(ctx, address)
+		if val == nil || !val.IsBonded() {
+			return noop("unable to find validator"), nil, nil
+		}
+
+		// ensure vote hash exists
+		exchangeRatesStr, ok := voteHashMap[address.String()]
+		if !ok {
+			return noop("vote hash does not exist"), nil, nil
+		}
+
+		// get prevote
+		prevote, err := k.GetAggregateExchangeRatePrevote(ctx, address)
+		if err != nil {
+			return noop("prevote not found"), nil, nil
+		}
+
+		params := k.GetParams(ctx)
+		if (uint64(ctx.BlockHeight())/params.VotePeriod)-(prevote.SubmitBlock/params.VotePeriod) != 1 {
+			return noop("reveal period of submitted vote does not match with registered prevote"), nil, nil
+		}
+
+		feederAddr, _ := k.GetFeederDelegation(ctx, address)
+		feederSimAccount, _ := simtypes.FindAccount(accs, feederAddr)
+		msg := types.NewMsgAggregateExchangeRateVote(salt, exchangeRatesStr, feederAddr, address)
+
+		return deliver(r, app, ctx, ak, bk, feederSimAccount, msg, nil)
+	}
+}
+
+// SimulateMsgDelegateFeedConsent generates a MsgDelegateFeedConsent with random values.
+func SimulateMsgDelegateFeedConsent(ak types.AccountKeeper, bk bankkeeper.Keeper, k keeper.Keeper) simtypes.Operation {
+	return func(
+		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
+	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+		simAccount, _ := simtypes.RandomAcc(r, accs)
+		delegateAccount, _ := simtypes.RandomAcc(r, accs)
+		valAddress := sdk.ValAddress(simAccount.Address)
+		delegateValAddress := sdk.ValAddress(delegateAccount.Address)
+		noop := func(comment string) simtypes.OperationMsg {
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(new(types.MsgDelegateFeedConsent)), comment)
+		}
+
+		// ensure the validator exists
+		val := k.StakingKeeper.Validator(ctx, valAddress)
+		if val == nil {
+			return noop("unable to find validator"), nil, nil
+		}
+
+		// ensure the target address is not a validator
+		val2 := k.StakingKeeper.Validator(ctx, delegateValAddress)
+		if val2 != nil {
+			return noop("unable to delegate to validator"), nil, nil
+		}
+
+		msg := types.NewMsgDelegateFeedConsent(valAddress, delegateAccount.Address)
+		return deliver(r, app, ctx, ak, bk, simAccount, msg, nil)
 	}
 }
 
