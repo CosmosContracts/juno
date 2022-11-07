@@ -3,8 +3,7 @@ on:
   push:
     tags:
       - "price-feeder/v*.*.*"
-  pull_request:
-    
+
 
 jobs:
   price-feeder-docker:
