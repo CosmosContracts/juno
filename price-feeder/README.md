@@ -1,8 +1,7 @@
-# Oracle Price Feeder
 
-This is Juno version of [Umee's price feeder](https://github.com/umee-network/umee/tree/main/price-feeder)
 
 # Oracle Price Feeder
+This is Juno version of [Umee's price feeder](https://github.com/umee-network/umee/tree/main/price-feeder), work with SDK 0.45.9.
 
 The `price-feeder` tool is an extension of Juno's `x/oracle` module, both of
 which are based on Terra's [x/oracle](https://github.com/terra-money/classic-core/tree/main/x/oracle) and Umee [x/oracle](https://github.com/umee-network/tree/umee/x/oracle) module.
