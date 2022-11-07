@@ -87,7 +87,7 @@ prefix = "juno"
 
 [keyring]
 backend = "test"
-dir = "/home/vuong/.juno"
+dir = "/home/<user>/.juno"
 
 [rpc]
 grpc_endpoint = "localhost:9090"
