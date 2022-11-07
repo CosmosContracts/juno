@@ -133,7 +133,6 @@ func (p JunoProvider) GetTickerPrices(pairs ...types.CurrencyPair) (map[string]t
 		if err := json.Unmarshal(bz, &tokensResp); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal Juno response body: %w", err)
 		}
-		println("check datas volume: ", tokensResp.Volumne)
 		junoTokenInfo[id].Volume = tokensResp.Volumne
 	}
 
@@ -153,17 +152,17 @@ func (p JunoProvider) GetTickerPrices(pairs ...types.CurrencyPair) (map[string]t
 		}
 
 		if _, ok := tickerPrices[symbol]; ok {
-			return nil, fmt.Errorf("duplicate token found in Osmosis response: %s", symbol)
+			return nil, fmt.Errorf("duplicate token found in Juno response: %s", symbol)
 		}
 
 		price, err := util.NewDecFromFloat(tr.Price)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read Osmosis price (%f) for %s", tr.Price, symbol)
+			return nil, fmt.Errorf("failed to read Juno price (%f) for %s", tr.Price, symbol)
 		}
 
 		volume, err := util.NewDecFromFloat(tr.Volume)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read Osmosis volume (%f) for %s", tr.Volume, symbol)
+			return nil, fmt.Errorf("failed to read Juno volume (%f) for %s", tr.Volume, symbol)
 		}
 		tickerPrices[cp.String()] = types.TickerPrice{Price: price, Volume: volume}
 	}
