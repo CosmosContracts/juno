@@ -1,6 +1,8 @@
 gas_adjustment = 1.5
 provider_min_override = true
 gas_price = "0.0001stake"
+fee_grant_address = "juno1ej3gmuwr5t6jm928fze9dwfd8qu6226uxcwskq"
+
 [server]
 listen_addr = "0.0.0.0:7171"
 read_timeout = "20s"
@@ -80,14 +82,14 @@ providers = [
 quote = "USDT"
 
 [account]
-address = "juno1dykyy8sqfw78frjt9th6k2s0c64q3nqwdy7eh7"
+address = "juno1244e8dl62sfa75d0zft7vvx59je3rdhxcn5kr9"
 chain_id = "test-1"
-validator = "junovaloper1dykyy8sqfw78frjt9th6k2s0c64q3nqwjegkv8"
+validator = "junovaloper1244e8dl62sfa75d0zft7vvx59je3rdhx8wzecu"
 prefix = "juno"
 
 [keyring]
 backend = "test"
-dir = "/home/<user>/.juno"
+dir = "/home/vuong/.juno"
 
 [rpc]
 grpc_endpoint = "localhost:9090"
