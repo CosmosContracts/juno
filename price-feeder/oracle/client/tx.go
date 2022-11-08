@@ -33,8 +33,8 @@ func BroadcastTx(clientCtx client.Context, txf tx.Factory, gasPrice string, msgs
 
 	feeAmount, err := calculateFeeAmount(gasPrice, adjusted)
 	unsignedTx.SetFeeAmount(feeAmount)
-
 	unsignedTx.SetFeeGranter(clientCtx.GetFeeGranterAddress())
+
 	// unsignedTx.SetFeePayer(clientCtx.GetFeePayerAddress())
 
 	if err = tx.Sign(txf, clientCtx.GetFromName(), unsignedTx, true); err != nil {

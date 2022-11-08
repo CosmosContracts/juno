@@ -41,6 +41,7 @@ type (
 		ValidatorAddrString string
 		Encoding            junoparams.EncodingConfig
 		GasPrices           string
+		FeeGrantAddress     string
 		GasAdjustment       float64
 		GRPCEndpoint        string
 		KeyringPassphrase   string
@@ -67,6 +68,7 @@ func NewOracleClient(
 	grpcEndpoint string,
 	gasAdjustment float64,
 	gasPrice string,
+	feeGrantAddress string,
 ) (OracleClient, error) {
 
 	oracleAddr, err := sdk.AccAddressFromBech32(oracleAddrString)
@@ -89,6 +91,7 @@ func NewOracleClient(
 		GasAdjustment:       gasAdjustment,
 		GRPCEndpoint:        grpcEndpoint,
 		GasPrices:           gasPrice,
+		FeeGrantAddress:     feeGrantAddress,
 	}
 
 	clientCtx, err := oracleClient.CreateClientContext()
@@ -164,6 +167,13 @@ func (oc OracleClient) BroadcastTx(nextBlockHeight, timeoutHeight int64, msgs ..
 
 		// set last check height to latest block height
 		lastCheckHeight = latestBlockHeight
+		if oc.FeeGrantAddress != "" {
+			feeGrandAccAddress, err := sdk.AccAddressFromBech32(oc.FeeGrantAddress)
+			if err != nil {
+				return err
+			}
+			clientCtx = clientCtx.WithFeeGranterAddress(feeGrandAccAddress)
+		}
 
 		resp, err := BroadcastTx(clientCtx, factory, oc.GasPrices, msgs...)
 		if resp != nil && resp.Code != 0 {
