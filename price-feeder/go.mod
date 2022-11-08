@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/CosmosContracts/juno/v11 v11.0.0
 	github.com/armon/go-metrics v0.4.1
-	github.com/cosmos/cosmos-sdk v0.45.9
+	github.com/cosmos/cosmos-sdk v0.45.10
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golangci/golangci-lint v1.50.1
 	github.com/gorilla/mux v1.8.0
