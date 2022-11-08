@@ -50,4 +50,5 @@ EXPOSE 26656
 # tendermint rpc
 EXPOSE 26657
 
-CMD ["/usr/bin/junod", "version"]
+ENTRYPOINT ["/usr/bin/junod"]
+CMD ["version"]
