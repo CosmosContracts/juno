@@ -48,6 +48,12 @@ func (s *IntegrationTestSuite) SetupTest() {
 	require := s.Require()
 	isCheckTx := false
 	junoApp := app.Setup(s.T(), isCheckTx, 1)
+
+	/*  `Height:  9` because this check :
+	if (uint64(ctx.BlockHeight())/params.VotePeriod)-(aggregatePrevote.SubmitBlock/params.VotePeriod) != 1 {
+		return nil, types.ErrRevealPeriodMissMatch
+	}
+	*/
 	ctx := junoApp.BaseApp.NewContext(isCheckTx, tmproto.Header{
 		ChainID: fmt.Sprintf("test-chain-%s", tmrand.Str(4)),
 		Height:  9,

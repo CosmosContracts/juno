@@ -1,5 +1,7 @@
 gas_adjustment = 1.5
 provider_min_override = true
+gas_price = "0.0001stake"
+fee_grant_address = ""
 
 [server]
 listen_addr = "0.0.0.0:7171"
@@ -94,7 +96,7 @@ prefix = "juno"
 
 [keyring]
 backend = "test"
-dir = "/Users/nhan/.juno"
+dir = "/home/<user>/.juno"
 
 [rpc]
 grpc_endpoint = "localhost:9090"

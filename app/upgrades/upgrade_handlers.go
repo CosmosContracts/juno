@@ -13,6 +13,9 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
+	oraclekeeper "github.com/CosmosContracts/juno/v11/x/oracle/keeper"
+	oracletypes "github.com/CosmosContracts/juno/v11/x/oracle/types"
+
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 )
 
@@ -96,5 +99,21 @@ func CreateV11UpgradeHandler(mm *module.Manager, cfg module.Configurator, icahos
 
 		return mm.RunMigrations(ctx, cfg, vm)
 
+	}
+}
+
+// CreateV12UpgradeHandler makes an upgrade handler for v11 of Juno
+func CreateV12UpgradeHandler(mm *module.Manager, cfg module.Configurator, oracleKeeper *oraclekeeper.Keeper) upgradetypes.UpgradeHandler {
+	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		oracleParams := oracletypes.DefaultParams()
+		oracleParams.AcceptList = oracletypes.DenomList{
+			{
+				BaseDenom:   oracletypes.JunoDenom,
+				SymbolDenom: oracletypes.JunoSymbol,
+				Exponent:    oracletypes.JunoExponent,
+			},
+		}
+		oracleKeeper.SetParams(ctx, oracleParams)
+		return mm.RunMigrations(ctx, cfg, vm)
 	}
 }

@@ -11,7 +11,7 @@ const (
 	JunoSymbol      string = "JUNO"
 	JunoExponent           = uint32(6)
 	AtomDenom       string = "ibc/6842C591DC4588411A565C9FF650FB15A17DFE3F0A43201E8141E4D14B8D171A"
-	AtomSymbol      string = "atom"
+	AtomSymbol      string = "ATOM"
 	AtomExponent           = uint32(6)
 	USDDenom        string = "USD"
 	BlocksPerMinute        = uint64(10)
