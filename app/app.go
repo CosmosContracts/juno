@@ -2,12 +2,10 @@ package app
 
 import (
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/CosmosContracts/juno/v11/docs"
 	"github.com/CosmosContracts/juno/v11/x/mint"
 	mintkeeper "github.com/CosmosContracts/juno/v11/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v11/x/mint/types"
@@ -89,7 +87,8 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
-	"github.com/ignite-hq/cli/ignite/pkg/openapiconsole"
+
+	//	"github.com/ignite/cli/ignite/pkg/openapiconsole"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -856,8 +855,9 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register app's OpenAPI routes.
-	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
-	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
+	// TODO: replace
+	//	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
+	// apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
