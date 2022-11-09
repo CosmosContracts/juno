@@ -131,7 +131,7 @@ func (s *IntegrationTestSuite) TestExpeditedProposals() {
 	chainA.LatestProposalNumber += 1
 	chainANode.DepositProposal(chainA.LatestProposalNumber, true)
 	totalTimeChan := make(chan time.Duration, 1)
-	go chainANode.QueryPropStatusTimed(chainA.LatestProposalNumber, "PROPOSAL_STATUS_PASSED", totalTimeChan)
+	go chainANode.QueryPropStatusTimed(chainA.LatestProposalNumber, "PROPOSAL_STATUS_VOTING_PERIOD", totalTimeChan)
 	for _, node := range chainA.NodeConfigs {
 		node.VoteYesProposal(initialization.ValidatorWalletName, chainA.LatestProposalNumber)
 	}
