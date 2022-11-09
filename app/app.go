@@ -630,7 +630,7 @@ func New(
 	app.MountMemoryStores(memKeys)
 
 	// register upgrade
-	app.RegisterUpgradeHandlers(cfg)
+	app.RegisterUpgradeHandlers(cfg, app.ParamsKeeper)
 
 	bypassMinFeeMsgTypes := cast.ToStringSlice(appOpts.Get(BypassMinFeeMsgTypesKey))
 	if bypassMinFeeMsgTypes == nil {
@@ -865,8 +865,8 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 // RegisterUpgradeHandlers returns upgrade handlers
 
-func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler("v11", upgrades.CreateV11UpgradeHandler(app.mm, cfg, &app.ICAHostKeeper))
+func (app *App) RegisterUpgradeHandlers(cfg module.Configurator, Paramspace paramskeeper.Keeper) {
+	app.UpgradeKeeper.SetUpgradeHandler("v12", upgrades.CreateV12UpgradeHandler(app.mm, cfg, Paramspace))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
