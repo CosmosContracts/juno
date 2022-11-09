@@ -15,8 +15,6 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 
 	t.Run("valid_request_single_ticker", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			//require.Equal(t, "/prices/tokens/current", req.URL.String())
-			println("check req: ", req.URL.String())
 			var resp string
 			if req.URL.String() == "/prices/tokens/current" {
 				resp = `{
@@ -41,21 +39,21 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 				resp = `
 				{
 					"date": "2022-11-07",
-					"volumes": 5
+					"volumes": 51
 				}
 				`
 			} else if req.URL.String() == "/volumes/tokens/AKT/current" {
 				resp = `
 				{
 					"date": "2022-11-07",
-					"volumes": 0
+					"volumes": 500
 				}
 				`
 			} else if req.URL.String() == "/volumes/tokens/ARTO/current" {
 				resp = `
 				{
 					"date": "2022-11-07",
-					"volumes": 0
+					"volumes": 500
 				}
 				`
 			}
@@ -70,7 +68,7 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, prices, 1)
 		require.Equal(t, sdk.MustNewDecFromStr("2.93"), prices["JUNOUSDT"].Price)
-		require.Equal(t, sdk.MustNewDecFromStr("5"), prices["JUNOUSDT"].Volume)
+		require.Equal(t, sdk.MustNewDecFromStr("51"), prices["JUNOUSDT"].Volume)
 	})
 
 	t.Run("valid_request_multi_ticker", func(t *testing.T) {

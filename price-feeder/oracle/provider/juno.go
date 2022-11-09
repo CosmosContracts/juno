@@ -28,7 +28,7 @@ type (
 	// JunoProvider defines an Oracle provider implemented by the Juno public
 	// API.
 	//
-	// REF: https://api-osmosis.imperator.co/swagger/#/
+	// REF: https://api-junoswap.enigma-validator.com/swagger/#/
 	JunoProvider struct {
 		baseURL string
 		client  *http.Client
@@ -111,7 +111,6 @@ func (p JunoProvider) GetTickerPrices(pairs ...types.CurrencyPair) (map[string]t
 	}
 
 	// Get volume of tokens
-
 	for id, symbol := range listSymbol {
 		path := fmt.Sprintf("%s%s/%s/current", p.baseURL, junoVolumeTokenEndpoint, symbol)
 		resp, err = p.client.Get(path)
@@ -213,7 +212,7 @@ func (p JunoProvider) GetAvailablePairs() (map[string]struct{}, error) {
 	return availablePairs, nil
 }
 
-// SubscribeCurrencyPairs performs a no-op since osmosis does not use websockets
+// SubscribeCurrencyPairs performs a no-op since juno does not use websockets
 func (p JunoProvider) SubscribeCurrencyPairs(pairs ...types.CurrencyPair) error {
 	return nil
 }
