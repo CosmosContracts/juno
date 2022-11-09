@@ -63,8 +63,6 @@ github.com/CosmWasm/wasmd v0.29.1 h1:uagvdFfNYzkxUurKmVooHqkPqWo0dF+KvAzgUt4aOn0
 github.com/CosmWasm/wasmd v0.29.1/go.mod h1:agYHzj3R0O+UExLHlXLuEfLqhIrCC+pF5ouAmbe9/68=
 github.com/CosmWasm/wasmvm v1.1.1 h1:0xtdrmmsP9fibe+x42WcMkp5aQ738BICgcH3FNVLzm4=
 github.com/CosmWasm/wasmvm v1.1.1/go.mod h1:ei0xpvomwSdONsxDuONzV7bL1jSET1M8brEx0FCXc+A=
-github.com/CosmosContracts/juno/v11 v11.0.0 h1:teO6hKiR8QFm+bzYgWaz9jdDxESzPikZR8nNOB/1WqA=
-github.com/CosmosContracts/juno/v11 v11.0.0/go.mod h1:3UiYNaq7k3AKcTI5jskdtJiUmuoAUKvHumG8NQMXDPk=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/zstd v1.4.1/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
 github.com/DataDog/zstd v1.4.5/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
