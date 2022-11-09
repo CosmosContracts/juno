@@ -1,0 +1,51 @@
+---
+name: Build and Push Docker Image for E2E Test
+
+on:
+  release:
+    types: [published, created, edited]
+  push:
+    tags:
+    branches:
+      - 'main'
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            latest=false
+          tags: |
+            type=ref,event=branch-e2e
+            type=ref,event=pr-e2e
+            type=raw,value=pr-latest,event=pr-e2e
+            type=semver,pattern={{raw}}-e2e
+            type=semver,pattern={{version}}-e2e
+            type=semver,pattern={{major}}.{{minor}}-e2e
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: tests/e2e/initialization/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
