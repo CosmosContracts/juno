@@ -470,6 +470,9 @@ func NewProvider(
 	case provider.ProviderOsmosis:
 		return provider.NewOsmosisProvider(endpoint), nil
 
+	case provider.ProviderJuno:
+		return provider.NewJunoProvider(endpoint), nil
+
 	case provider.ProviderHuobi:
 		return provider.NewHuobiProvider(ctx, logger, endpoint, providerPairs...)
 

@@ -19,6 +19,7 @@ const (
 	ProviderKraken   Name = "kraken"
 	ProviderBinance  Name = "binance"
 	ProviderOsmosis  Name = "osmosis"
+	ProviderJuno     Name = "juno"
 	ProviderHuobi    Name = "huobi"
 	ProviderOkx      Name = "okx"
 	ProviderGate     Name = "gate"

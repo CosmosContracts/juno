@@ -60,6 +60,13 @@ quote = "USD"
 [[currency_pairs]]
 base = "JUNO"
 providers = [
+  "juno",
+]
+quote = "USD"
+
+[[currency_pairs]]
+base = "JUNO"
+providers = [
   "bitget",
 ]
 quote = "USDT"
@@ -82,9 +89,9 @@ providers = [
 quote = "USDT"
 
 [account]
-address = "juno1244e8dl62sfa75d0zft7vvx59je3rdhxcn5kr9"
+address = "juno1pry5cux508t55pf00pryl6hp09cfahml5k6w8m"
 chain_id = "test-1"
-validator = "junovaloper1244e8dl62sfa75d0zft7vvx59je3rdhx8wzecu"
+validator = "junovaloper1pry5cux508t55pf00pryl6hp09cfahmlttvpuz"
 prefix = "juno"
 
 [keyring]
