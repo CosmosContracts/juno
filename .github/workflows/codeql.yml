@@ -54,10 +54,6 @@ jobs:
 
       - name: Build
         run: make build
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
