@@ -13,7 +13,7 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 )
@@ -101,7 +101,8 @@ func CreateV11UpgradeHandler(mm *module.Manager, cfg module.Configurator, icahos
 	}
 }
 
-func CreateV12UpgradeHandler(mm *module.Manager, configurator module.Configurator, paramSpace paramskeeper.Keeper) upgradetypes.UpgradeHandler {
+// TO-DO import GenesisState (make it defined)
+func CreateV12UpgradeHandler(mm *module.Manager, configurator module.Configurator, paramSpace paramstypes.Subspace, genesisState GenesisState) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrading", UpgradeName)
 		paramSpace.SetParamSet(ctx, &genesisState.Params)

@@ -105,7 +105,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
-	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
 	icahost "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
@@ -629,9 +628,6 @@ func New(
 	app.MountTransientStores(tkeys)
 	app.MountMemoryStores(memKeys)
 
-	// register upgrade
-	app.RegisterUpgradeHandlers(cfg, app.ParamsKeeper)
-
 	bypassMinFeeMsgTypes := cast.ToStringSlice(appOpts.Get(BypassMinFeeMsgTypesKey))
 	if bypassMinFeeMsgTypes == nil {
 		bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
@@ -673,14 +669,19 @@ func New(
 		}
 	}
 
+	// register upgrade
+	// TO-DO: get current genesisState for update
+	app.RegisterUpgradeHandlers(cfg, app.GetSubspace(globalfee.ModuleName), GenesisState{})
+
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
 		panic(err)
 	}
 
-	if upgradeInfo.Name == "multiverse" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if upgradeInfo.Name == "v12" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		storeUpgrades := store.StoreUpgrades{
-			Added: []string{icacontrollertypes.StoreKey, icahosttypes.StoreKey},
+			//remove icacontrollertypes.StoreKey, icahosttypes.StoreKey because it's update from v11
+			Added: []string{globalfee.ModuleName},
 		}
 
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
@@ -865,8 +866,8 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 // RegisterUpgradeHandlers returns upgrade handlers
 
-func (app *App) RegisterUpgradeHandlers(cfg module.Configurator, Paramspace paramskeeper.Keeper) {
-	app.UpgradeKeeper.SetUpgradeHandler("v12", upgrades.CreateV12UpgradeHandler(app.mm, cfg, Paramspace))
+func (app *App) RegisterUpgradeHandlers(cfg module.Configurator, Paramspace paramstypes.Subspace, genesisState GenesisState) {
+	app.UpgradeKeeper.SetUpgradeHandler("v12", upgrades.CreateV12UpgradeHandler(app.mm, cfg, Paramspace, genesisState))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
