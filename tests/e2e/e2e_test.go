@@ -4,12 +4,7 @@
 package e2e
 
 import (
-	"fmt"
-	"time"
-
-	appparams "github.com/CosmosContracts/juno/v11/app/params"
 	"github.com/CosmosContracts/juno/v11/tests/e2e/initialization"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // TestIBCTokenTransfer tests that IBC token transfers work as expected.
