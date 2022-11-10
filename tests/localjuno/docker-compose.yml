@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+
+  Junod:
+    image: local:juno
+    build:
+      context: ../../
+      dockerfile: tests/localjuno/local.Dockerfile
+      args:
+        RUNNER_IMAGE: alpine:3.16
+        GO_VERSION: 1.18
+    volumes:
+      - ./scripts/setup.sh:/juno/setup.sh
+      - $HOME/.juno/:/juno/.juno/
+    entrypoint:
+      - /juno/setup.sh
+    command:
+      - $STATE
+    ports:
+      - 26657:26657
+      - 1317:1317
+      - 9090:9090
+      - 9091:9091

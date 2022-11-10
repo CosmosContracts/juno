@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+
+  junod:
+    image: local:juno
+    build:
+      context: ../../../
+      dockerfile: ./tests/localjuno/local.Dockerfile
+      args:
+        RUNNER_IMAGE: alpine:3.16
+        GO_VERSION: 1.18
+    volumes:
+      - ./script/start.sh:/juno/start.sh
+      - ./script/testnetify.py:/juno/testnetify.py
+      - ./state_export.json:/juno/state_export.json
+      - $HOME/.juno/:/juno/.juno/
+    entrypoint:      
+      - /juno/start.sh
+    environment:
+      - MONIKER=val
+      - CHAIN_ID=localjuno
+    ports:
+      - 26657:26657
+      - 1317:1317
+      - 9090:9090
+      - 9091:9091
