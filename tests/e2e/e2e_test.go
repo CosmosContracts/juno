@@ -121,35 +121,3 @@ func (s *IntegrationTestSuite) TestIBCTokenTransferAndCreatePool() {
 // 	err = chainA.RemoveNode(stateSynchingNode.Name)
 // 	s.NoError(err)
 // }
-
-func (s *IntegrationTestSuite) TestExpeditedProposals() {
-	chainA := s.configurer.GetChainConfig(0)
-	chainANode, err := chainA.GetDefaultNode()
-	s.NoError(err)
-
-	chainANode.SubmitTextProposal("expedited text proposal", sdk.NewCoin(appparams.BaseCoinUnit, sdk.NewInt(1000000)))
-	chainA.LatestProposalNumber += 1
-	chainANode.DepositProposal(chainA.LatestProposalNumber, true)
-	totalTimeChan := make(chan time.Duration, 1)
-	go chainANode.QueryPropStatusTimed(chainA.LatestProposalNumber, "PROPOSAL_STATUS_VOTING_PERIOD", totalTimeChan)
-	for _, node := range chainA.NodeConfigs {
-		node.VoteYesProposal(initialization.ValidatorWalletName, chainA.LatestProposalNumber)
-	}
-	// if querying proposal takes longer than timeoutPeriod, stop the goroutine and error
-	var elapsed time.Duration
-	timeoutPeriod := time.Duration(2 * time.Minute)
-	select {
-	case elapsed = <-totalTimeChan:
-	case <-time.After(timeoutPeriod):
-		err := fmt.Errorf("go routine took longer than %s", timeoutPeriod)
-		s.Require().NoError(err)
-	}
-
-	// compare the time it took to reach pass status to expected expedited voting period
-	expeditedVotingPeriodDuration := time.Duration(chainA.ExpeditedVotingPeriod * float32(time.Second))
-	timeDelta := elapsed - expeditedVotingPeriodDuration
-	// ensure delta is within two seconds of expected time
-	s.Require().Less(timeDelta, 3*time.Second)
-	s.T().Logf("expeditedVotingPeriodDuration within two seconds of expected time: %v", timeDelta)
-	close(totalTimeChan)
-}
