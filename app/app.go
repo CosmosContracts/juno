@@ -671,7 +671,7 @@ func New(
 	}
 
 	// register upgrade
-	app.RegisterUpgradeHandlers(cfg, app.GetSubspace(globalfee.ModuleName), globalfeetypes.DefaultParams)
+	app.RegisterUpgradeHandlers(cfg, app.GetSubspace(globalfee.ModuleName), &globalfeetypes.DefaultGenesisState().Params)
 
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
