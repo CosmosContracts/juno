@@ -101,11 +101,11 @@ func CreateV11UpgradeHandler(mm *module.Manager, cfg module.Configurator, icahos
 	}
 }
 
-// TO-DO import GenesisState (make it defined)
-func CreateV12UpgradeHandler(mm *module.Manager, configurator module.Configurator, paramSpace paramstypes.Subspace, genesisState GenesisState) upgradetypes.UpgradeHandler {
+func CreateV12UpgradeHandler(mm *module.Manager, configurator module.Configurator, paramSpace paramstypes.Subspace, paramSet paramstypes.ParamSet) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrading", UpgradeName)
-		paramSpace.SetParamSet(ctx, &genesisState.Params)
+		//setting the Params for globalfee
+		paramSpace.SetParamSet(ctx, paramSet)
 		logger.Debug("running module migrations")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}

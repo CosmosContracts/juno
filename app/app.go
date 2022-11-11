@@ -98,6 +98,7 @@ import (
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	"github.com/CosmosContracts/juno/v11/x/globalfee"
+	globalfeetypes "github.com/CosmosContracts/juno/v11/x/globalfee/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
@@ -670,8 +671,7 @@ func New(
 	}
 
 	// register upgrade
-	// TO-DO: get current genesisState for update
-	app.RegisterUpgradeHandlers(cfg, app.GetSubspace(globalfee.ModuleName), GenesisState{})
+	app.RegisterUpgradeHandlers(cfg, app.GetSubspace(globalfee.ModuleName), globalfeetypes.DefaultParams)
 
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
@@ -866,8 +866,8 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 // RegisterUpgradeHandlers returns upgrade handlers
 
-func (app *App) RegisterUpgradeHandlers(cfg module.Configurator, Paramspace paramstypes.Subspace, genesisState GenesisState) {
-	app.UpgradeKeeper.SetUpgradeHandler("v12", upgrades.CreateV12UpgradeHandler(app.mm, cfg, Paramspace, genesisState))
+func (app *App) RegisterUpgradeHandlers(cfg module.Configurator, Paramspace paramstypes.Subspace, params paramstypes.ParamSet) {
+	app.UpgradeKeeper.SetUpgradeHandler("v12", upgrades.CreateV12UpgradeHandler(app.mm, cfg, Paramspace, params))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
