@@ -24,7 +24,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
-	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -47,12 +46,11 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/prometheus/client_golang/prometheus"
 
-	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
-	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
-
 	"github.com/CosmosContracts/juno/v12/app/keepers"
 	encparams "github.com/CosmosContracts/juno/v12/app/params"
 	upgrades "github.com/CosmosContracts/juno/v12/app/upgrades"
+	v10 "github.com/CosmosContracts/juno/v12/app/upgrades/v10"
+	v11 "github.com/CosmosContracts/juno/v12/app/upgrades/v11"
 )
 
 const (
@@ -72,6 +70,8 @@ var (
 	// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
+
+	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade}
 )
 
 // These constants are derived from the above variables.
@@ -248,7 +248,7 @@ func New(
 	app.MountMemoryStores(app.GetMemoryStoreKey())
 
 	// register upgrade
-	app.RegisterUpgradeHandlers(cfg)
+	app.setupUpgradeHandlers(cfg)
 
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
@@ -289,18 +289,7 @@ func New(
 		}
 	}
 
-	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
-	if err != nil {
-		panic(err)
-	}
-
-	if upgradeInfo.Name == "multiverse" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		storeUpgrades := store.StoreUpgrades{
-			Added: []string{icacontrollertypes.StoreKey, icahosttypes.StoreKey},
-		}
-
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
-	}
+	app.setupUpgradeStoreLoaders()
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -329,7 +318,9 @@ func New(
 }
 
 // Name returns the name of the App
-func (app *App) Name() string { return app.BaseApp.Name() }
+func (app *App) Name() string {
+	return app.BaseApp.Name()
+}
 
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
@@ -426,9 +417,37 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.interfaceRegistry)
 }
 
-// RegisterUpgradeHandlers returns upgrade handlers
-func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
-	app.UpgradeKeeper.SetUpgradeHandler("v11", upgrades.CreateV11UpgradeHandler(app.mm, cfg, &app.ICAHostKeeper))
+// configure store loader that checks if version == upgradeHeight and applies store upgrades
+func (app *App) setupUpgradeStoreLoaders() {
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic("failed to read upgrade info from disk" + err.Error())
+	}
+
+	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		return
+	}
+
+	for _, upgrade := range Upgrades {
+		if upgradeInfo.Name == upgrade.UpgradeName {
+			app.SetStoreLoader(
+				upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades),
+			)
+		}
+	}
+}
+
+func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
+	for _, upgrade := range Upgrades {
+		app.UpgradeKeeper.SetUpgradeHandler(
+			upgrade.UpgradeName,
+			upgrade.CreateUpgradeHandler(
+				app.mm,
+				cfg,
+				&app.AppKeepers,
+			),
+		)
+	}
 }
 
 // GetMaccPerms returns a copy of the module account permissions
