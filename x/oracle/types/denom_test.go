@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/CosmosContracts/juno/v11/x/oracle/types"
+	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 	"github.com/stretchr/testify/require"
 )
 

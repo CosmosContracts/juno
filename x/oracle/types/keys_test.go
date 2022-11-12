@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	appparams "github.com/CosmosContracts/juno/v11/app/params"
-	"github.com/CosmosContracts/juno/v11/x/oracle/types"
+	appparams "github.com/CosmosContracts/juno/v12/app/params"
+	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 func TestGetExchangeRateKey(t *testing.T) {

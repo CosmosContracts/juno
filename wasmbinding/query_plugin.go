@@ -3,8 +3,8 @@ package wasmbinding
 import (
 	"encoding/json"
 
-	"github.com/CosmosContracts/juno/v11/wasmbinding/bindings"
-	oracle "github.com/CosmosContracts/juno/v11/x/oracle/wasm"
+	"github.com/CosmosContracts/juno/v12/wasmbinding/bindings"
+	oracle "github.com/CosmosContracts/juno/v12/x/oracle/wasm"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

@@ -1,6 +1,6 @@
 package oracle
 
-import oracletypes "github.com/CosmosContracts/juno/v11/x/oracle/types"
+import oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 
 const (
 	// paramsCacheInterval represents the amount of blocks

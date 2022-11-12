@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/CosmosContracts/juno/v11/x/oracle/types"
+	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 var _ types.QueryServer = querier{}

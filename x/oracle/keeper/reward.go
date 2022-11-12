@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v11/x/oracle/types"
-	"github.com/CosmosContracts/juno/v11/x/oracle/util"
+	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	"github.com/CosmosContracts/juno/v12/x/oracle/util"
 )
 
 // prependJunoIfUnique pushs `ujuno` denom to the front of the list, if it is not yet included.

@@ -3,7 +3,7 @@ module github.com/CosmosContracts/juno/price-feeder
 go 1.18
 
 require (
-	github.com/CosmosContracts/juno/v11 v11.0.0
+	github.com/CosmosContracts/juno/v12 v11.0.0
 	github.com/armon/go-metrics v0.4.1
 	github.com/cosmos/cosmos-sdk v0.45.10
 	github.com/go-playground/validator/v10 v10.11.1
@@ -274,6 +274,6 @@ require (
 )
 
 replace (
-	github.com/CosmosContracts/juno/v11 => ../
+	github.com/CosmosContracts/juno/v12 => ../
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 )

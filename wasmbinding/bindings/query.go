@@ -1,7 +1,7 @@
 package bindings
 
 import (
-	oracle "github.com/CosmosContracts/juno/v11/x/oracle/wasm"
+	oracle "github.com/CosmosContracts/juno/v12/x/oracle/wasm"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )

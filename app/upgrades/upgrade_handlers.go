@@ -13,8 +13,8 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
-	oraclekeeper "github.com/CosmosContracts/juno/v11/x/oracle/keeper"
-	oracletypes "github.com/CosmosContracts/juno/v11/x/oracle/types"
+	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 )

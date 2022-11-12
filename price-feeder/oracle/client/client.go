@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	junoapp "github.com/CosmosContracts/juno/v11/app"
-	junoparams "github.com/CosmosContracts/juno/v11/app/params"
+	junoapp "github.com/CosmosContracts/juno/v12/app"
+	junoparams "github.com/CosmosContracts/juno/v12/app/params"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/rpc"

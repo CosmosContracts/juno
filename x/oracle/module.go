@@ -16,9 +16,9 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/CosmosContracts/juno/v11/x/oracle/client/cli"
-	"github.com/CosmosContracts/juno/v11/x/oracle/keeper"
-	"github.com/CosmosContracts/juno/v11/x/oracle/types"
+	"github.com/CosmosContracts/juno/v12/x/oracle/client/cli"
+	"github.com/CosmosContracts/juno/v12/x/oracle/keeper"
+	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 )
 
