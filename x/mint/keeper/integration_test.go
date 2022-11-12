@@ -8,10 +8,10 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	junoapp "github.com/CosmosContracts/juno/v11/app"
+	junoapp "github.com/CosmosContracts/juno/v12/app"
 	"github.com/cosmos/cosmos-sdk/simapp"
 
-	"github.com/CosmosContracts/juno/v11/x/mint/types"
+	"github.com/CosmosContracts/juno/v12/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

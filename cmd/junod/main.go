@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/CosmosContracts/juno/v11/app"
+	"github.com/CosmosContracts/juno/v12/app"
 	"github.com/cosmos/cosmos-sdk/server"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
