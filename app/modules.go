@@ -115,7 +115,7 @@ func appModules(
 		transfer.NewAppModule(app.TransferKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
-		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 	}
 }
 
@@ -141,7 +141,7 @@ func simulationModules(
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
-		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transfer.NewAppModule(app.TransferKeeper),
 	}
