@@ -66,8 +66,8 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.2 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
-	github.com/cosmos/iavl v0.19.3 // indirect
-	github.com/cosmos/ibc-go/v3 v3.3.0 // indirect
+	github.com/cosmos/iavl v0.19.4 // indirect
+	github.com/cosmos/ibc-go/v3 v3.4.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
 	github.com/cosmos/ledger-go v0.9.3 // indirect
 	github.com/creachadair/taskgroup v0.3.2 // indirect
