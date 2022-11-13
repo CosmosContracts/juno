@@ -3,7 +3,7 @@ module github.com/CosmosContracts/juno/price-feeder
 go 1.18
 
 require (
-	github.com/CosmosContracts/juno/v12 v11.0.0
+	github.com/CosmosContracts/juno/v12 v12.0.0
 	github.com/armon/go-metrics v0.4.1
 	github.com/cosmos/cosmos-sdk v0.45.10
 	github.com/go-playground/validator/v10 v10.11.1
