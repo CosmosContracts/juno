@@ -114,8 +114,7 @@ import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 
 	encparams "github.com/CosmosContracts/juno/v12/app/params"
-	v12 "github.com/CosmosContracts/juno/v11/app/upgrades/v12"
-
+	v12 "github.com/CosmosContracts/juno/v12/app/upgrades/v12"
 )
 
 const (
@@ -272,7 +271,7 @@ type App struct {
 
 	// keepers
 	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
+	BankKeeper       bankkeeper.BaseKeeper
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
 	SlashingKeeper   slashingkeeper.Keeper
@@ -477,8 +476,7 @@ func New(
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
-	// wasmOpts = append(bindings.RegisterCustomPlugins(&app.BankKeeper, &app.TokenFactoryKeeper), wasmOpts...)
-	wasmOpts = append(bindings.RegisterCustomPlugins(&bankkeeper.BaseKeeper{}, &app.TokenFactoryKeeper), wasmOpts...)
+	wasmOpts = append(bindings.RegisterCustomPlugins(&app.BankKeeper, &app.TokenFactoryKeeper), wasmOpts...)
 
 	app.wasmKeeper = wasm.NewKeeper(
 		appCodec,

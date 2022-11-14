@@ -17,8 +17,8 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
 	github.com/tendermint/tendermint v0.34.22
-	github.com/tendermint/tm-db v0.6.7
-	google.golang.org/genproto v0.0.0-20220725144611-272f38e5d71b
+	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
+	google.golang.org/genproto v0.0.0-20220815135757-37a418bb8959
 	google.golang.org/grpc v1.50.0
 	gopkg.in/yaml.v2 v2.4.0
 )
