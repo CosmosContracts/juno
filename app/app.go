@@ -18,11 +18,12 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/CosmosContracts/juno/v11/docs"
-	"github.com/CosmosContracts/juno/v11/x/mint"
-	mintkeeper "github.com/CosmosContracts/juno/v11/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v11/x/mint/types"
-	"github.com/CosmosContracts/juno/v11/x/oracle"
+	"github.com/CosmosContracts/juno/v12/docs"
+	"github.com/CosmosContracts/juno/v12/wasmbinding"
+	"github.com/CosmosContracts/juno/v12/x/mint"
+	mintkeeper "github.com/CosmosContracts/juno/v12/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
+	"github.com/CosmosContracts/juno/v12/x/oracle"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -98,8 +99,8 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
-	oraclekeeper "github.com/CosmosContracts/juno/v11/x/oracle/keeper"
-	oracletypes "github.com/CosmosContracts/juno/v11/x/oracle/types"
+	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
@@ -113,10 +114,8 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 
-	encparams "github.com/CosmosContracts/juno/v11/app/params"
-	upgrades "github.com/CosmosContracts/juno/v11/app/upgrades"
-
-	wasmbinding "github.com/CosmosContracts/juno/v11/wasmbinding"
+	encparams "github.com/CosmosContracts/juno/v12/app/params"
+	upgrades "github.com/CosmosContracts/juno/v12/app/upgrades"
 )
 
 const (
@@ -800,6 +799,11 @@ func (app *App) LegacyAmino() *codec.LegacyAmino {
 // for modules to register their own custom testing types.
 func (app *App) AppCodec() codec.Codec {
 	return app.appCodec
+}
+
+// WasmKeeper returns Juno's WasmKeeper.
+func (app *App) WasmKeeper() wasm.Keeper {
+	return app.wasmKeeper
 }
 
 // InterfaceRegistry returns Juno's InterfaceRegistry

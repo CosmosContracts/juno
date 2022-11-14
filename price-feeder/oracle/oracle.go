@@ -22,7 +22,7 @@ import (
 	"github.com/CosmosContracts/juno/price-feeder/oracle/provider"
 	"github.com/CosmosContracts/juno/price-feeder/oracle/types"
 	pfsync "github.com/CosmosContracts/juno/price-feeder/pkg/sync"
-	oracletypes "github.com/CosmosContracts/juno/v11/x/oracle/types"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 )
 
@@ -469,6 +469,9 @@ func NewProvider(
 
 	case provider.ProviderOsmosis:
 		return provider.NewOsmosisProvider(endpoint), nil
+
+	case provider.ProviderJuno:
+		return provider.NewJunoProvider(endpoint), nil
 
 	case provider.ProviderHuobi:
 		return provider.NewHuobiProvider(ctx, logger, endpoint, providerPairs...)

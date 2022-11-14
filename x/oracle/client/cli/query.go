@@ -9,8 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v11/x/oracle/types"
-	"github.com/CosmosContracts/juno/v11/x/oracle/util"
+	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	"github.com/CosmosContracts/juno/v12/x/oracle/util"
 )
 
 // GetQueryCmd returns the CLI query commands for the x/oracle module.

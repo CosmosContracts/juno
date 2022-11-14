@@ -19,11 +19,11 @@ import (
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/CosmosContracts/juno/v11/app"
-	junoApp "github.com/CosmosContracts/juno/v11/app"
-	appparams "github.com/CosmosContracts/juno/v11/app/params"
-	"github.com/CosmosContracts/juno/v11/x/oracle/keeper"
-	"github.com/CosmosContracts/juno/v11/x/oracle/types"
+	"github.com/CosmosContracts/juno/v12/app"
+	junoApp "github.com/CosmosContracts/juno/v12/app"
+	appparams "github.com/CosmosContracts/juno/v12/app/params"
+	"github.com/CosmosContracts/juno/v12/x/oracle/keeper"
+	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 const (

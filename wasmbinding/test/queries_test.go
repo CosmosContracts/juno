@@ -9,11 +9,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v11/x/oracle/wasm"
+	"github.com/CosmosContracts/juno/v12/x/oracle/wasm"
 
-	"github.com/CosmosContracts/juno/v11/app"
-	"github.com/CosmosContracts/juno/v11/wasmbinding"
-	"github.com/CosmosContracts/juno/v11/wasmbinding/bindings"
+	"github.com/CosmosContracts/juno/v12/app"
+	"github.com/CosmosContracts/juno/v12/wasmbinding"
+	"github.com/CosmosContracts/juno/v12/wasmbinding/bindings"
 
 	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
 )
