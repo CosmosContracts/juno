@@ -17,10 +17,10 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/CosmosContracts/juno/v11/docs"
-	"github.com/CosmosContracts/juno/v11/x/mint"
-	mintkeeper "github.com/CosmosContracts/juno/v11/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v11/x/mint/types"
+	"github.com/CosmosContracts/juno/v12/docs"
+	"github.com/CosmosContracts/juno/v12/x/mint"
+	mintkeeper "github.com/CosmosContracts/juno/v12/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -113,8 +113,9 @@ import (
 	tokenfactorykeeper "github.com/CosmWasm/token-factory/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 
-	encparams "github.com/CosmosContracts/juno/v11/app/params"
+	encparams "github.com/CosmosContracts/juno/v12/app/params"
 	v12 "github.com/CosmosContracts/juno/v11/app/upgrades/v12"
+
 )
 
 const (
