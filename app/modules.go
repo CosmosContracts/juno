@@ -1,6 +1,8 @@
 package app
 
 import (
+	"github.com/CosmWasm/token-factory/x/tokenfactory"
+	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmWasm/wasmd/x/wasm"
 	encparams "github.com/CosmosContracts/juno/v12/app/params"
 	"github.com/CosmosContracts/juno/v12/x/mint"
@@ -56,6 +58,7 @@ var maccPerms = map[string][]string{
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:            nil,
 	wasm.ModuleName:                {authtypes.Burner},
+	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 }
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -82,6 +85,7 @@ var ModuleBasics = module.NewBasicManager(
 	authzmodule.AppModuleBasic{},
 	wasm.AppModuleBasic{},
 	ica.AppModuleBasic{},
+	tokenfactory.AppModuleBasic{},
 )
 
 func appModules(
@@ -116,6 +120,7 @@ func appModules(
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
 	}
 }
 
@@ -172,6 +177,7 @@ func orderBeginBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
+		tokenfactorytypes.ModuleName,
 	}
 }
 
@@ -198,6 +204,7 @@ func orderEndBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
+		tokenfactorytypes.ModuleName,
 	}
 }
 
@@ -224,5 +231,6 @@ func orderInitBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
+		tokenfactorytypes.ModuleName,
 	}
 }
