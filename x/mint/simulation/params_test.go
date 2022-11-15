@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v11/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v12/x/mint/simulation"
 )
 
 func TestParamChangest(t *testing.T) {
@@ -19,7 +19,7 @@ func TestParamChangest(t *testing.T) {
 		simValue    string
 		subspace    string
 	}{
-		{"mint/BlocksPerYear", "BlocksPerYear", "\"6311520.000000000000000000\"", "mint"},
+		{"mint/BlocksPerYear", "BlocksPerYear", "\"6311520\"", "mint"},
 	}
 
 	paramChanges := simulation.ParamChanges(r)

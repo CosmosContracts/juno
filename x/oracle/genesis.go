@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v11/x/oracle/keeper"
-	"github.com/CosmosContracts/juno/v11/x/oracle/types"
+	"github.com/CosmosContracts/juno/v12/x/oracle/keeper"
+	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 // InitGenesis initializes the x/oracle module's state from a provided genesis

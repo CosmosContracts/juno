@@ -1,7 +1,7 @@
 package wasmbinding
 
 import (
-	oraclekeeper "github.com/CosmosContracts/juno/v11/x/oracle/keeper"
+	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
 )
 
 type QueryPlugin struct {

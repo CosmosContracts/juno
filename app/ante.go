@@ -14,6 +14,14 @@ import (
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
+var (
+	DefaultIsAppSimulation = false
+)
+
+func updateAppSimulationFlag(flag bool) {
+	DefaultIsAppSimulation = flag
+}
+
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
 // channel keeper.
 type HandlerOptions struct {
@@ -37,6 +45,10 @@ func (min MinCommissionDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx,
 	simulate bool, next sdk.AnteHandler,
 ) (newCtx sdk.Context, err error) {
+	if DefaultIsAppSimulation {
+		return next(ctx, tx, simulate)
+	}
+
 	msgs := tx.GetMsgs()
 	minCommissionRate := sdk.NewDecWithPrec(5, 2)
 
