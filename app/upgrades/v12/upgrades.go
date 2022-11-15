@@ -1,4 +1,4 @@
-package v11
+package v12
 
 import (
 	"github.com/CosmosContracts/juno/v12/app/keepers"
