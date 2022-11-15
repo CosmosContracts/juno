@@ -27,7 +27,6 @@ threshold = "1.5"
 base = "USDT"
 providers = [
   "coinbase",
-  "ftx",
 ]
 quote = "USD"
 
@@ -43,7 +42,6 @@ quote = "USDT"
 base = "ATOM"
 providers = [
   "kraken",
-  "ftx",
   "osmosis",
 ]
 quote = "USD"

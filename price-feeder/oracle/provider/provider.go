@@ -24,7 +24,6 @@ const (
 	ProviderOkx      Name = "okx"
 	ProviderGate     Name = "gate"
 	ProviderCoinbase Name = "coinbase"
-	ProviderFTX      Name = "ftx"
 	ProviderBitget   Name = "bitget"
 	ProviderMexc     Name = "mexc"
 	ProviderCrypto   Name = "crypto"

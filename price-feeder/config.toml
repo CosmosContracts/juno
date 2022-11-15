@@ -29,7 +29,7 @@ threshold = "1.5"
 base = "USDT"
 providers = [
   "coinbase",
-  "ftx",
+  "crypto"
 ]
 quote = "USD"
 
@@ -45,8 +45,8 @@ quote = "USDT"
 base = "ATOM"
 providers = [
   "kraken",
-  "ftx",
   "osmosis",
+  "bitgen"
 ]
 quote = "USD"
 
@@ -116,3 +116,5 @@ prometheus-retention-time = 100
 name = "binance"
 rest = "https://api1.binance.com"
 websocket = "stream.binance.com:9443"
+
+juno1jxa3ksucx7ter57xyuczvmk6qkeqmqvj37g237
