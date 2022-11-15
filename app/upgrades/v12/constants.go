@@ -1,4 +1,4 @@
-package v11
+package v12
 
 import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
