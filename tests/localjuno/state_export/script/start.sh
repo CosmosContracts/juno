@@ -55,7 +55,7 @@ then
     echo "Account address: $ACCOUNT_ADDRESS"
 
     ACCOUNT_HEX_ADDRESS=$(junod debug pubkey $ACCOUNT_ADDRESS_JSON --home $JUNO_HOME | grep Address | cut -d " " -f 2)    
-    ACCOUNT_OPERATOR_ADDRESS=$(junod debug addr $VALIDATOR_HEX_ADDRESS --home $JUNO_HOME | grep Val | cut -d " " -f 3)    
+    ACCOUNT_OPERATOR_ADDRESS=$(junod debug addr $ACCOUNT_HEX_ADDRESS --home $JUNO_HOME | grep Val | cut -d " " -f 3)    
 
     VALIDATOR_PUBKEY_JSON=$(junod tendermint show-validator --home $JUNO_HOME)
     VALIDATOR_PUBKEY=$(echo $VALIDATOR_PUBKEY_JSON | dasel -r json '.key' --plain)
@@ -66,17 +66,17 @@ then
     VALIDATOR_CONSENSUS_ADDRESS=$(junod tendermint show-address --home $JUNO_HOME)   
     echo "Validator pubkey:  $VALIDATOR_PUBKEY"
     echo "Validator address: $VALIDATOR_ACCOUNT_ADDRESS"
-    echo "Validator operator address: $VALIDATOR_OPERATOR_ADDRESS"
+    echo "Validator operator address: $VALIDATOR_OPERATOR_ADDRESS" 
     echo "Validator consensus address: $VALIDATOR_CONSENSUS_ADDRESS"    
      
     python3 -u /juno/testnetify.py \
         -i /juno/state_export.json \
         --output $CONFIG_FOLDER/genesis.json \
         -c $CHAIN_ID \
-        --validator-hex-address $ACCOUNT_HEX_ADDRESS \
+        --validator-hex-address $VALIDATOR_HEX_ADDRESS \
         --validator-operator-address $ACCOUNT_OPERATOR_ADDRESS \
         --validator-consensus-address $VALIDATOR_CONSENSUS_ADDRESS \
-        --validator-pubkey $ACCOUNT_PUBKEY \
+        --validator-pubkey $VALIDATOR_PUBKEY \
         --account-pubkey $ACCOUNT_PUBKEY \
         --account-address $ACCOUNT_ADDRESS \
         --prune-ibc
