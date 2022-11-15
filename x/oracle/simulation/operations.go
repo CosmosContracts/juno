@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/CosmosContracts/juno/v11/x/oracle/keeper"
-	"github.com/CosmosContracts/juno/v11/x/oracle/types"
+	"github.com/CosmosContracts/juno/v12/x/oracle/keeper"
+	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
