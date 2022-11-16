@@ -119,6 +119,7 @@ func appModules(
 		transfer.NewAppModule(app.TransferKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
+		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 	}
 }

@@ -155,6 +155,7 @@ var (
 type App struct {
 	*baseapp.BaseApp
 	keepers.AppKeepers
+
 	cdc               *codec.LegacyAmino
 	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
