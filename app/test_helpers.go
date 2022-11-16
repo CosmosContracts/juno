@@ -247,7 +247,7 @@ func ExecuteRawCustom(t *testing.T, ctx sdk.Context, app *App, contract sdk.AccA
 		coins = sdk.Coins{funds}
 	}
 
-	contractKeeper := keeper.NewDefaultPermissionKeeper(app.WasmKeeper())
+	contractKeeper := keeper.NewDefaultPermissionKeeper(app.GetWasmKeeper())
 	_, err = contractKeeper.Execute(ctx, contract, sender, oracleBz, coins)
 	return err
 }

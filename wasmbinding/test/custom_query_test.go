@@ -14,7 +14,6 @@ import (
 	"github.com/CosmosContracts/juno/v12/wasmbinding"
 	"github.com/CosmosContracts/juno/v12/wasmbinding/bindings"
 	"github.com/CosmosContracts/juno/v12/x/oracle/wasm"
-	oracle "github.com/CosmosContracts/juno/v12/x/oracle/wasm"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -38,7 +37,7 @@ func TestQueryExchangeRate(t *testing.T) {
 	junoApp := app.Setup(t, false, 1)
 	ctx := junoApp.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "kujira-1", Time: time.Now().UTC()})
 
-	wasmKeeper := junoApp.WasmKeeper()
+	wasmKeeper := junoApp.GetWasmKeeper()
 	plugin := wasmbinding.NewQueryPlugin(junoApp.OracleKeeper)
 	querier := wasmbinding.CustomQuerier(plugin)
 
@@ -93,7 +92,7 @@ func TestQueryExchangeRate(t *testing.T) {
 	require.NoError(t, err)
 
 	// Query contract
-	query := oracle.OracleQuery{
+	query := wasm.OracleQuery{
 		ExchangeRate: &wasm.ExchangeRateQueryParams{
 			Denom: "a",
 		},
@@ -101,7 +100,7 @@ func TestQueryExchangeRate(t *testing.T) {
 	queryBz, err := json.Marshal(query)
 	require.NoError(t, err)
 
-	resBz, err := junoApp.WasmKeeper().QuerySmart(ctx, oracleQuerier, queryBz)
+	resBz, err := junoApp.GetWasmKeeper().QuerySmart(ctx, oracleQuerier, queryBz)
 	require.NoError(t, err)
 	var rate string
 
@@ -135,7 +134,7 @@ func storeOracleQuerierCode(t *testing.T, ctx sdk.Context, junoApp *app.App, add
 
 func instantiateOracleQuerierContract(t *testing.T, ctx sdk.Context, junoApp *app.App, funder sdk.AccAddress) sdk.AccAddress {
 	initMsgBz := []byte("{}")
-	contractKeeper := keeper.NewDefaultPermissionKeeper(junoApp.WasmKeeper())
+	contractKeeper := keeper.NewDefaultPermissionKeeper(junoApp.GetWasmKeeper())
 	codeID := uint64(1)
 	addr, _, err := contractKeeper.Instantiate(ctx, codeID, funder, funder, initMsgBz, "demo contract", nil)
 	require.NoError(t, err)
