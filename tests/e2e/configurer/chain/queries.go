@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 	tmabcitypes "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/CosmosContracts/juno/v11/tests/e2e/util"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/util"
 )
 
 func (n *NodeConfig) QueryGRPCGateway(path string, parameters ...string) ([]byte, error) {

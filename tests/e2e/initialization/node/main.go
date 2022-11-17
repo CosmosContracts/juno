@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmosContracts/juno/v11/tests/e2e/initialization"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
 )
 
 func main() {

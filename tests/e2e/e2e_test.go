@@ -4,7 +4,7 @@
 package e2e
 
 import (
-	"github.com/CosmosContracts/juno/v11/tests/e2e/initialization"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
 )
 
 // TestIBCTokenTransfer tests that IBC token transfers work as expected.

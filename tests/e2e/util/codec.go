@@ -8,8 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	junoApp "github.com/CosmosContracts/juno/v11/app"
-	"github.com/CosmosContracts/juno/v11/app/params"
+	junoApp "github.com/CosmosContracts/juno/v12/app"
+	"github.com/CosmosContracts/juno/v12/app/params"
 )
 
 var (

@@ -9,11 +9,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	appparams "github.com/CosmosContracts/juno/v11/app/params"
-	"github.com/CosmosContracts/juno/v11/tests/e2e/configurer/chain"
-	"github.com/CosmosContracts/juno/v11/tests/e2e/configurer/config"
-	"github.com/CosmosContracts/juno/v11/tests/e2e/containers"
-	"github.com/CosmosContracts/juno/v11/tests/e2e/initialization"
+	appparams "github.com/CosmosContracts/juno/v12/app/params"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/configurer/chain"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/configurer/config"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/containers"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
 )
 
 type UpgradeSettings struct {

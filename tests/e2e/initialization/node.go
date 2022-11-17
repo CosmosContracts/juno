@@ -29,8 +29,8 @@ import (
 	"github.com/tendermint/tendermint/privval"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	junoApp "github.com/CosmosContracts/juno/v11/app"
-	"github.com/CosmosContracts/juno/v11/tests/e2e/util"
+	junoApp "github.com/CosmosContracts/juno/v12/app"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/util"
 )
 
 type internalNode struct {

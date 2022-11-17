@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/CosmosContracts/juno/v11/tests/e2e/configurer/chain"
-	"github.com/CosmosContracts/juno/v11/tests/e2e/containers"
-	"github.com/CosmosContracts/juno/v11/tests/e2e/initialization"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/configurer/chain"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/containers"
+	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
 )
 
 type Configurer interface {
