@@ -30,7 +30,8 @@ func NewMinCommissionDecorator() MinCommissionDecorator {
 
 func (MinCommissionDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx,
-	simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	simulate bool, next sdk.AnteHandler,
+) (newCtx sdk.Context, err error) {
 	msgs := tx.GetMsgs()
 	minCommissionRate := sdk.NewDecWithPrec(5, 2)
 	for _, m := range msgs {
@@ -74,7 +75,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
 
-	var sigGasConsumer = options.SigGasConsumer
+	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
 	}

@@ -71,7 +71,6 @@ func (m Minter) PhaseInflationRate(phase uint64) sdk.Dec {
 
 // NextPhase returns the new phase.
 func (m Minter) NextPhase(params Params, currentBlock uint64) uint64 {
-
 	nonePhase := m.Phase == 0
 	if nonePhase {
 		return 1
