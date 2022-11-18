@@ -14,30 +14,35 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func (n *NodeConfig) StoreWasmCode(wasmFile, from string) {
+func (n *NodeConfig) StoreWasmCode(wasmFile, from string) (out string) {
 	n.LogActionF("storing wasm code from file %s", wasmFile)
 	cmd := []string{"junod", "tx", "wasm", "store", wasmFile, fmt.Sprintf("--from=%s", from), "--gas=auto", "--gas-prices=0.1ujuno", "--gas-adjustment=1.3"}
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
+	stdout, _, err := n.containerManager.ExecCmd(n.t, n.chainId, cmd, "")
 	require.NoError(n.t, err)
 	n.LogActionF("successfully stored")
+	// TODO: return just the codeID
+	return stdout.String()
 }
 
-func (n *NodeConfig) InstantiateWasmContract(codeId, initMsg, from string) {
+func (n *NodeConfig) InstantiateWasmContract(codeId, initMsg, from string) (out string) {
 	n.LogActionF("instantiating wasm contract %s with %s", codeId, initMsg)
 	cmd := []string{"junod", "tx", "wasm", "instantiate", codeId, initMsg, fmt.Sprintf("--from=%s", from), "--no-admin", "--label=ratelimit"}
 	n.LogActionF(strings.Join(cmd, " "))
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
+	stdout, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
 	require.NoError(n.t, err)
 	n.LogActionF("successfully initialized")
+	// TODO: return just the contract address
+	return stdout.String()
 }
 
-func (n *NodeConfig) WasmExecute(contract, execMsg, from string) {
+func (n *NodeConfig) WasmExecute(contract, execMsg, from string) (out string) {
 	n.LogActionF("executing %s on wasm contract %s from %s", execMsg, contract, from)
 	cmd := []string{"junod", "tx", "wasm", "execute", contract, execMsg, fmt.Sprintf("--from=%s", from)}
 	n.LogActionF(strings.Join(cmd, " "))
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
+	stdout, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
 	require.NoError(n.t, err)
 	n.LogActionF("successfully executed")
+	return stdout.String()
 }
 
 // QueryParams extracts the params for a given subspace and key. This is done generically via json to avoid having to
@@ -175,7 +180,7 @@ func (n *NodeConfig) QueryPropStatusTimed(proposalNumber int, desiredStatus stri
 
 func (n *NodeConfig) SubmitUpgradeProposal(upgradeVersion string, upgradeHeight int64, initialDeposit sdk.Coin) {
 	n.LogActionF("submitting upgrade proposal %s for height %d", upgradeVersion, upgradeHeight)
-	cmd := []string{"junod", "tx", "gov", "submit-proposal", "software-upgrade", upgradeVersion, fmt.Sprintf("--title=\"%s upgrade\"", upgradeVersion), "--description=\"upgrade proposal submission\"", fmt.Sprintf("--upgrade-height=%d", upgradeHeight), "--upgrade-info=\"\"", "--from=val", fmt.Sprintf("--deposit=%s", initialDeposit)}
+	cmd := []string{"junod", "tx", "gov", "submit-proposal", "software-upgrade", upgradeVersion, fmt.Sprintf("--title=\"%s upgrade\"", upgradeVersion), "--description=\"upgrade proposal submission\"", fmt.Sprintf("--upgrade-height=%d", upgradeHeight), "--upgrade-info=''", "--from=val", fmt.Sprintf("--deposit=%s", initialDeposit), fmt.Sprintf("--chain-id=%s", n.chainId)}
 	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
 	require.NoError(n.t, err)
 	n.LogActionF("successfully submitted upgrade proposal")

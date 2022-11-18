@@ -1,10 +1,6 @@
-//go:build e2e
-// +build e2e
-
-package e2e
+package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -29,16 +25,6 @@ const (
 	upgradeVersionEnv = "JUNO_E2E_UPGRADE_VERSION"
 )
 
-type IntegrationTestSuite struct {
-	suite.Suite
-
-	configurer    configurer.Configurer
-	skipUpgrade   bool
-	skipIBC       bool
-	skipStateSync bool
-	forkHeight    int
-}
-
 func TestIntegrationTestSuite(t *testing.T) {
 	suite.Run(t, new(IntegrationTestSuite))
 }
@@ -62,7 +48,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 		s.skipUpgrade, err = strconv.ParseBool(str)
 		s.Require().NoError(err)
 		if s.skipUpgrade {
-			s.T().Log(fmt.Sprintf("%s was true, skipping upgrade tests", skipUpgradeEnv))
+			s.T().Logf("%s was true, skipping upgrade tests", skipUpgradeEnv)
 		}
 	}
 	upgradeSettings.IsEnabled = !s.skipUpgrade
@@ -70,18 +56,18 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	if str := os.Getenv(forkHeightEnv); len(str) > 0 {
 		upgradeSettings.ForkHeight, err = strconv.ParseInt(str, 0, 64)
 		s.Require().NoError(err)
-		s.T().Log(fmt.Sprintf("fork upgrade is enabled, %s was set to height %d", forkHeightEnv, upgradeSettings.ForkHeight))
+		s.T().Logf("fork upgrade is enabled, %s was set to height %d", forkHeightEnv, upgradeSettings.ForkHeight)
 	}
 
 	if str := os.Getenv(skipIBCEnv); len(str) > 0 {
 		s.skipIBC, err = strconv.ParseBool(str)
 		s.Require().NoError(err)
 		if s.skipIBC {
-			s.T().Log(fmt.Sprintf("%s was true, skipping IBC tests", skipIBCEnv))
+			s.T().Logf("%s was true, skipping IBC tests", skipIBCEnv)
 		}
 	}
 
-	if str := os.Getenv("JUNO_E2E_SKIP_STATE_SYNC"); len(str) > 0 {
+	if str := os.Getenv(skipStateSyncEnv); len(str) > 0 {
 		s.skipStateSync, err = strconv.ParseBool(str)
 		s.Require().NoError(err)
 		if s.skipStateSync {
@@ -100,7 +86,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 	if str := os.Getenv(upgradeVersionEnv); len(str) > 0 {
 		upgradeSettings.Version = str
-		s.T().Log(fmt.Sprintf("upgrade version set to %s", upgradeSettings.Version))
+		s.T().Logf("upgrade tests are enabled, %s was set to %s", upgradeVersionEnv, upgradeSettings.Version)
 	}
 
 	s.configurer, err = configurer.New(s.T(), !s.skipIBC, isDebugLogEnabled, upgradeSettings)
