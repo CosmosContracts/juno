@@ -1,6 +1,6 @@
 module github.com/CosmosContracts/juno/v11
 
-go 1.18
+go 1.19
 
 require (
 	github.com/CosmWasm/wasmd v0.29.2
