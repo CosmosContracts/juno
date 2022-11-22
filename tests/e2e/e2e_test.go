@@ -1,10 +1,10 @@
-//go:build e2e
-// +build e2e
-
-package e2e
+package main
 
 import (
+	"fmt"
+
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
+	"github.com/stretchr/testify/require"
 )
 
 // TestIBCTokenTransfer tests that IBC token transfers work as expected.
@@ -19,7 +19,19 @@ func (s *IntegrationTestSuite) TestIBCTokenTransferAndCreatePool() {
 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.JunoToken)
 	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.StakeToken)
 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.StakeToken)
+}
 
+func (s *IntegrationTestSuite) TestTokenFactoryBindings() {
+	chainA := s.configurer.GetChainConfig(0)
+	addr := chainA.NodeConfigs[0].PublicAddress
+	stdout := chainA.NodeConfigs[0].StoreWasmCode("scripts/tokenfactory.wasm", addr)
+	fmt.Println(stdout)
+	require.True(s.T(), len(stdout) > 0)
+
+	cAddr := chainA.NodeConfigs[0].InstantiateWasmContract("1", "{}", addr)
+	fmt.Println(cAddr)
+
+	chainA.NodeConfigs[0].WasmExecute(cAddr, `{"create_subdenom":{"subdenom":"test"}}`, addr)
 }
 
 //TODO
