@@ -149,13 +149,6 @@ make localnet-state-export-stop
 make localnet-state-export-clean
 ```
 
-Note: At some point, all the validators (except yours) will get jailed at the same block due to them being offline.
 
-When this happens, it may take a little bit of time to process. Once all validators are jailed, you will continue to hit blocks as you did before.
-If you are only running the validator for a short time (< 24 hours) you will not experience this.
-- These keys are added to your `--keyring-backend test`
-- If the keys are already on your keyring, you will get an `"Error: aborted"`
-- Ensure you use the name of the account as listed in the table below, as well as ensure you append the `--keyring-backend test` to your txs
-- Example: `osmosisd tx bank send lo-test2 osmo1cyyzpxplxdzkeea7kwsydadg87357qnahakaks --keyring-backend test --chain-id LocalOsmosis`
 
 
