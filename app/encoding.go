@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/CosmosContracts/juno/v11/app/params"
+	"github.com/CosmosContracts/juno/v12/app/params"
 
 	"github.com/cosmos/cosmos-sdk/std"
 )
