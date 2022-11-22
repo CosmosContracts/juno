@@ -25,7 +25,6 @@ func (n *NodeConfig) StoreWasmCode(wasmFile, from string) (out string) {
 }
 
 func (n *NodeConfig) InstantiateWasmContract(codeId, initMsg, from string) (out string) {
-	// also need to add way to pass funds in
 	n.LogActionF("instantiating wasm contract %s with %s", codeId, initMsg)
 	cmd := []string{"junod", "tx", "wasm", "instantiate", codeId, initMsg, fmt.Sprintf("--from=%s", from), "--no-admin", "--label=ratelimit"}
 	n.LogActionF(strings.Join(cmd, " "))

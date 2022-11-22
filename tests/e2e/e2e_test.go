@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"fmt"
+
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
 	"github.com/stretchr/testify/require"
 )
