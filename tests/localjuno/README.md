@@ -13,9 +13,9 @@ Ensure you have docker and docker-compose installed:
 
 ## 1. LocalJuno - No Initial State
 
-The following commands must be executed from the root folder of the Osmosis repository.
+The following commands must be executed from the root folder of the Juno repository.
 
-1. Make any change to the osmosis code that you want to test
+1. Make any change to the juno code that you want to test
 
 2. Initialize LocalJuno:
 
@@ -64,7 +64,7 @@ make localnet-clean
 
 ## 2. LocalJuno - With Mainnet State
 
-Running LocalOsmosis with mainnet state is resource intensive and can take a bit of time.
+Running LocalJuno with mainnet state is resource intensive and can take a bit of time.
 It is recommended to only use this method if you are testing a new feature that must be thoroughly tested before pushing to production.
 
 A few things to note before getting started. The below method will only work if you are using the same version as mainnet. In other words,
@@ -80,7 +80,7 @@ if mainnet is on v11.0.0 and you try to do this on a v12.0.0 tag or on main, you
 
 ```sh
 cd $HOME
-osmosisd export > state_export.json
+junod export > state_export.json
 ```
 
 After a while (~15 minutes), this will create a file called `state_export.json` which is a snapshot of the current mainnet state.
