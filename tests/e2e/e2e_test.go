@@ -1,15 +1,13 @@
-//go:build e2e
-// +build e2e
-
-package e2e
+package main
 
 import (
+	"fmt"
+
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
 )
 
 // TestIBCTokenTransfer tests that IBC token transfers work as expected.
-// Additionally, it attempst to create a pool with IBC denoms.
-func (s *IntegrationTestSuite) TestIBCTokenTransferAndCreatePool() {
+func (s *IntegrationTestSuite) TestIBCTokenTransfer() {
 	if s.skipIBC {
 		s.T().Skip("Skipping IBC tests")
 	}
@@ -20,6 +18,45 @@ func (s *IntegrationTestSuite) TestIBCTokenTransferAndCreatePool() {
 	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.StakeToken)
 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.StakeToken)
 
+}
+
+// TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
+func (s *IntegrationTestSuite) TestTokenFactoryBindings() {
+	chainA := s.configurer.GetChainConfig(0)
+
+	// get teh keyName of chainA node, using internalNode
+	addr := chainA.NodeConfigs[0].PublicAddress
+
+	chainA.NodeConfigs[0].StoreWasmCode("scripts/tokenfactory.wasm", addr) // code_id: 1
+	chainA.LatestCodeId = 1
+	codeId := fmt.Sprint(chainA.LatestCodeId)
+
+	contractAddr, err := chainA.NodeConfigs[0].InstantiateWasmContract(codeId, "{}", "tokenfactorylabel", addr)
+	s.Require().NoError(err)
+
+	println("contractAddr: ", contractAddr)
+
+	/*
+		- Execute on contract to:
+		- query cost to make a token (1 juno)
+		- create subdenom token and make sure it cost 1 juno. Try less (err), and more (still success?)
+		- mint 100 tokens
+		- send 50 tokens to another account
+		- query balances and ensure each have 50 tokens
+
+		- Burn 10 from contract (success)
+		- Burn 10 from another account (fail)
+
+		- Try to create a token with a name that already exists (fail)
+		- Try to create a token with a name that is too long (fail)
+		- Try to create a token with a name that is too short (fail)
+
+		- change admin to other account
+		- try to mint more tokens (err) from old admin
+		- try to mint more tokens (success) from new admin
+
+
+	*/
 }
 
 //TODO

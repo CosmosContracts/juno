@@ -14,21 +14,78 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type TransactionOutput struct { // junod q tx <hash>
+	Height    string   `json:"height"`
+	Txhash    string   `json:"txhash"`
+	Codespace string   `json:"codespace"`
+	Code      int      `json:"code"`
+	Data      string   `json:"data"`
+	RawLog    string   `json:"raw_log"`
+	Logs      []string `json:"logs"`
+	Info      string   `json:"info"`
+	GasWanted string   `json:"gas_wanted"`
+	GasUsed   string   `json:"gas_used"`
+	Tx        string   `json:"tx"`
+	Timestamp string   `json:"timestamp"`
+	Events    []string `json:"events"`
+}
+
+type Contracts struct { // junod q wasm list-contract-by-code  1 --output json
+	Contracts  []string `json:"contracts"`
+	Pagination struct {
+		NextKey string `json:"next_key"`
+		Total   string `json:"total"`
+	} `json:"pagination"`
+}
+
 func (n *NodeConfig) StoreWasmCode(wasmFile, from string) {
 	n.LogActionF("storing wasm code from file %s", wasmFile)
-	cmd := []string{"junod", "tx", "wasm", "store", wasmFile, fmt.Sprintf("--from=%s", from), "--gas=auto", "--gas-prices=0.1ujuno", "--gas-adjustment=1.3"}
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
+	cmd := []string{"junod", "tx", "wasm", "store", wasmFile, fmt.Sprintf("--from=%s", from), "--gas=auto", "--gas-prices=0.1ujuno", "--gas-adjustment=1.3", "--output=json", "--yes", "--keyring-backend=test"}
+	_, _, err := n.containerManager.ExecCmd(n.t, n.Name, cmd, "")
 	require.NoError(n.t, err)
 	n.LogActionF("successfully stored")
 }
 
-func (n *NodeConfig) InstantiateWasmContract(codeId, initMsg, from string) {
+func (n *NodeConfig) InstantiateWasmContract(codeId, initMsg, label string, from string) (contractAddr string, err error) {
 	n.LogActionF("instantiating wasm contract %s with %s", codeId, initMsg)
-	cmd := []string{"junod", "tx", "wasm", "instantiate", codeId, initMsg, fmt.Sprintf("--from=%s", from), "--no-admin", "--label=ratelimit"}
+	cmd := []string{
+		"junod", "tx", "wasm", "instantiate", codeId, initMsg,
+		fmt.Sprintf("--from=%s", from), fmt.Sprintf("--admin=%s", from), fmt.Sprintf("--label=%s", label),
+		"--output=json", "--yes", "--keyring-backend=test",
+		fmt.Sprintf("--chain-id=%s", n.chainId), "--gas=500000",
+		"--gas-prices=0.1ujuno", "--gas-adjustment=1.3",
+	}
 	n.LogActionF(strings.Join(cmd, " "))
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
+	stdout, _, err := n.containerManager.ExecCmd(n.t, n.Name, cmd, "")
 	require.NoError(n.t, err)
 	n.LogActionF("successfully initialized")
+
+	n.LogActionF("stdout: %s", stdout.String())
+
+	var txOutput TransactionOutput
+	err = json.Unmarshal(stdout.Bytes(), &txOutput)
+	require.NoError(n.t, err)
+
+	idx := 0 // since we want the first contract address in the list
+	return n.GetContractsByCodeID(string(codeId), idx)
+}
+
+func (n *NodeConfig) GetContractsByCodeID(codeID string, contractIdx int) (add string, err error) {
+	n.LogActionF("getting contracts by codeID %s", codeID)
+
+	cmd := []string{"junod", "q", "wasm", "list-contract-by-code", codeID, "--output=json"}
+	stdout, _, err := n.containerManager.ExecCmd(n.t, n.Name, cmd, "")
+	require.NoError(n.t, err)
+
+	var contracts Contracts
+	err = json.Unmarshal(stdout.Bytes(), &contracts)
+	require.NoError(n.t, err)
+
+	if len(contracts.Contracts) > contractIdx {
+		return contracts.Contracts[contractIdx], nil
+	} else {
+		return "", fmt.Errorf("no contract found at index %d", contractIdx)
+	}
 }
 
 func (n *NodeConfig) WasmExecute(contract, execMsg, from string) {
