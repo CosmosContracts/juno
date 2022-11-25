@@ -76,7 +76,7 @@ jobs:
             ghcr.io/CosmosContracts/juno:${{ env.MAJOR_VERSION }}
             ghcr.io/CosmosContracts/juno:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}
             ghcr.io/CosmosContracts/juno:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}
-  eve-e2e-images:
+  juno-e2e-images:
     runs-on: ubuntu-latest
     steps:
       - 
