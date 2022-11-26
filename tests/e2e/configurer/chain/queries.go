@@ -16,6 +16,8 @@ import (
 	"github.com/stretchr/testify/require"
 	tmabcitypes "github.com/tendermint/tendermint/abci/types"
 
+	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
+
 	"github.com/CosmosContracts/juno/v12/tests/e2e/util"
 )
 
@@ -52,7 +54,7 @@ func (n *NodeConfig) QueryGRPCGateway(path string, parameters ...string) ([]byte
 		}
 
 		return resp.StatusCode != http.StatusServiceUnavailable
-	}, time.Minute, time.Millisecond*10, "failed to execute HTTP request")
+	}, time.Minute, time.Millisecond*100, "failed to execute HTTP request")
 
 	defer resp.Body.Close()
 
@@ -103,6 +105,33 @@ func (n *NodeConfig) QueryContractsFromId(codeId int) ([]string, error) {
 	}
 
 	return contractsResponse.Contracts, nil
+}
+
+func (n *NodeConfig) QueryTokenFactoryParams() (tokenfactorytypes.QueryParamsResponse, error) {
+	path := "/osmosis/tokenfactory/v1beta1/params"
+	bz, err := n.QueryGRPCGateway(path)
+	require.NoError(n.t, err)
+
+	var paramsResponse tokenfactorytypes.QueryParamsResponse // DenomCreationFee
+	if err := util.Cdc.UnmarshalJSON(bz, &paramsResponse); err != nil {
+		return tokenfactorytypes.QueryParamsResponse{}, err
+	}
+
+	return paramsResponse, nil
+}
+
+func (n *NodeConfig) QueryDenomsFromCreator(creator string) ([]string, error) {
+	path := fmt.Sprintf("/osmosis/tokenfactory/v1beta1/denoms_from_creator/%s", creator)
+	bz, err := n.QueryGRPCGateway(path)
+
+	require.NoError(n.t, err)
+
+	var paramsResponse tokenfactorytypes.QueryDenomsFromCreatorResponse
+	if err := util.Cdc.UnmarshalJSON(bz, &paramsResponse); err != nil {
+		return nil, err
+	}
+
+	return paramsResponse.Denoms, nil
 }
 
 func (n *NodeConfig) QueryPropTally(proposalNumber int) (sdk.Int, sdk.Int, sdk.Int, sdk.Int, error) {
