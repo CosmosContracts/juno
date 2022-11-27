@@ -29,7 +29,7 @@ func (n *NodeConfig) StoreWasmCode(wasmFile, from string) {
 func (n *NodeConfig) InstantiateWasmContract(codeId, initMsg, label, from, admin string) {
 	n.LogActionF("instantiating wasm contract %s with %s", codeId, initMsg)
 	// TODO: set admin as the validator address?
-	cmd := []string{"junod", "tx", "wasm", "instantiate", codeId, initMsg, fmt.Sprintf("--from=%s", from), "--gas=5000000", "--label=ratelimit"}
+	cmd := []string{"junod", "tx", "wasm", "instantiate", codeId, initMsg, fmt.Sprintf("--from=%s", from), "--gas=5000000", fmt.Sprintf("--label=%s", label)}
 
 	if admin == "" {
 		cmd = append(cmd, "--no-admin")
