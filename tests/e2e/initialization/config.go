@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -226,6 +227,12 @@ func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.
 		return err
 	}
 
+	cost, _ := sdk.ParseCoinsNormalized("1000000ujuno")
+	err = updateModuleGenesis(appGenState, tokenfactorytypes.ModuleName, &tokenfactorytypes.GenesisState{}, updateTokenFactoryGenesis(cost))
+	if err != nil {
+		return err
+	}
+
 	bz, err := json.MarshalIndent(appGenState, "", "  ")
 	if err != nil {
 		return err
@@ -281,6 +288,12 @@ func updateGovGenesis(votingPeriod, expeditedVotingPeriod time.Duration) func(*g
 	return func(govGenState *govtypes.GenesisState) {
 		govGenState.VotingParams.VotingPeriod = votingPeriod
 		govGenState.DepositParams.MinDeposit = tenM
+	}
+}
+
+func updateTokenFactoryGenesis(denomCreationFees sdk.Coins) func(*tokenfactorytypes.GenesisState) {
+	return func(tokenfactorytypes *tokenfactorytypes.GenesisState) {
+		tokenfactorytypes.Params.DenomCreationFee = denomCreationFees
 	}
 }
 

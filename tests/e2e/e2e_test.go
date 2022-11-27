@@ -2,8 +2,16 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+const (
+	tfSuccessCode  = "\"code\":0,"
+	tfAlreadyExist = "attempting to create a denom that already exists"
 )
 
 // TestIBCTokenTransfer tests that IBC token transfers work as expected.
@@ -21,42 +29,77 @@ func (s *IntegrationTestSuite) TestIBCTokenTransfer() {
 }
 
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
+// docker network prune && make test-e2e-skip
 func (s *IntegrationTestSuite) TestTokenFactoryBindings() {
 	chainA := s.configurer.GetChainConfig(0)
+	node := chainA.NodeConfigs[0]
+	wallet := initialization.ValidatorWalletName
+	mintCost := "1000000ujuno" // set in config.go
 
-	// get teh keyName of chainA node, using internalNode
-	addr := chainA.NodeConfigs[0].PublicAddress
-
-	chainA.NodeConfigs[0].StoreWasmCode("scripts/tokenfactory.wasm", addr) // code_id: 1
+	// Store Contract
+	node.StoreWasmCode("/juno/tokenfactory.wasm", wallet)
 	chainA.LatestCodeId = 1
-	codeId := fmt.Sprint(chainA.LatestCodeId)
 
-	contractAddr, err := chainA.NodeConfigs[0].InstantiateWasmContract(codeId, "{}", "tokenfactorylabel", addr)
+	// Instantiate to codeId 1
+	node.InstantiateWasmContract(
+		strconv.Itoa(chainA.LatestCodeId),
+		"{}",
+		"tokenfactorylabel",
+		wallet,
+		"", // no admin
+	)
+
+	// Get codeId 1 contracts
+	contracts, err := node.QueryContractsFromId(chainA.LatestCodeId)
+	s.NoError(err)
+	s.Require().Len(contracts, 1, "Wrong number of contracts for the tokenfactory.wasm initialization")
+
+	contractAddr := contracts[0]
+
+	// Successfully create a denom for the wasm contract
+	node.WasmExecute(contractAddr, `{"create_denom":{"subdenom":"test"}}`, wallet, mintCost, tfSuccessCode)
+	node.WasmExecute(contractAddr, `{"create_denom":{"subdenom":"moreThanEnough"}}`, wallet, "20000000ujuno", tfSuccessCode)
+	// failing to create a denom
+	node.WasmExecute(contractAddr, fmt.Sprintf(`{"create_denom":{"subdenom":"%s"}}`, strings.Repeat("a", 61)), wallet, mintCost, "subdenom too long")
+
+	ourDenom := fmt.Sprintf("factory/%s/test", contractAddr) // factory/juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8/test
+
+	denoms, err := node.QueryDenomsFromCreator(contractAddr)
+	s.NoError(err)
+	s.Require().Len(denoms, 2, "Wrong number of denoms for the token factory")
+
+	// Mint some tokens to an account (our contract in this case) via bank module
+	amt := 100
+	msg := fmt.Sprintf(`{"mint_tokens":{"amount":"%d","denom":"%s","mint_to_address":"%s"}}`, amt, ourDenom, contractAddr)
+	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
+
+	// Mint Balance Check
+	balance, err := node.QueryBalances(contractAddr)
 	s.Require().NoError(err)
+	s.checkBalance(balance, sdk.NewCoins(sdk.NewCoin(ourDenom, sdk.NewInt(int64(amt)))))
 
-	println("contractAddr: ", contractAddr)
+	// Burn some of the tokens (can only be done for the contract which owns them = blank)
+	msg = fmt.Sprintf(`{"burn_tokens":{"amount":"5","denom":"%s","burn_from_address":""}}`, ourDenom)
+	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
 
-	/*
-		- Execute on contract to:
-		- query cost to make a token (1 juno)
-		- create subdenom token and make sure it cost 1 juno. Try less (err), and more (still success?)
-		- mint 100 tokens
-		- send 50 tokens to another account
-		- query balances and ensure each have 50 tokens
+	// Balance Check after burn -5
+	balance, err = node.QueryBalances(contractAddr)
+	s.Require().NoError(err)
+	s.checkBalance(balance, sdk.NewCoins(sdk.NewCoin(ourDenom, sdk.NewInt(int64(amt-5)))))
 
-		- Burn 10 from contract (success)
-		- Burn 10 from another account (fail)
+	// Transfer admin to another account
+	msg = fmt.Sprintf(`{"change_admin":{"denom":"%s","new_admin_address":"%s"}}`, ourDenom, "juno1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaavju90c")
+	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
+}
 
-		- Try to create a token with a name that already exists (fail)
-		- Try to create a token with a name that is too long (fail)
-		- Try to create a token with a name that is too short (fail)
-
-		- change admin to other account
-		- try to mint more tokens (err) from old admin
-		- try to mint more tokens (success) from new admin
-
-
-	*/
+func (s *IntegrationTestSuite) checkBalance(coins sdk.Coins, expected sdk.Coins) {
+	for _, coin := range coins {
+		for _, expectedCoin := range expected {
+			if coin.Denom == expectedCoin.Denom {
+				s.Require().Equal(expectedCoin.Amount, coin.Amount)
+			}
+		}
+	}
 }
 
 //TODO

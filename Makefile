@@ -124,7 +124,7 @@ test-e2e-ci:
 	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION)  go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
 
 test-e2e-ci-skip:
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_UPGRADE=True  go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
+	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_UPGRADE=True  go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
 
 # test-e2e-debug runs a full e2e test suite but does
 # not attempt to delete Docker resources at the end.

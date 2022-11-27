@@ -14,10 +14,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	successCode = "\"code\":0,"
+)
+
 func (n *NodeConfig) StoreWasmCode(wasmFile, from string) {
 	n.LogActionF("storing wasm code from file %s", wasmFile)
 	cmd := []string{"junod", "tx", "wasm", "store", wasmFile, fmt.Sprintf("--from=%s", from), "--gas=5000000", "--gas-prices=0.1ujuno", "--gas-adjustment=1.5", "--output=json"}
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
+	_, _, err := n.containerManager.ExecTxCmdWithSuccessString(n.t, n.chainId, n.Name, cmd, successCode)
 	require.NoError(n.t, err)
 	n.LogActionF("successfully stored")
 }
@@ -34,20 +38,20 @@ func (n *NodeConfig) InstantiateWasmContract(codeId, initMsg, label, from, admin
 	}
 
 	n.LogActionF(strings.Join(cmd, " "))
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
+	_, _, err := n.containerManager.ExecTxCmdWithSuccessString(n.t, n.chainId, n.Name, cmd, successCode)
 	require.NoError(n.t, err)
 	n.LogActionF("successfully initialized")
 }
 
-func (n *NodeConfig) WasmExecute(contract, execMsg, from string, amount uint) {
+func (n *NodeConfig) WasmExecute(contract, execMsg, from, amounts string, successString string) {
 	n.LogActionF("executing %s on wasm contract %s from %s", execMsg, contract, from)
 	cmd := []string{"junod", "tx", "wasm", "execute", contract, execMsg, fmt.Sprintf("--from=%s", from)}
-	if amount > 0 {
-		cmd = append(cmd, fmt.Sprintf("--amount=%dujuno", amount))
+	if len(amounts) > 0 {
+		cmd = append(cmd, fmt.Sprintf("--amount=%s", amounts))
 	}
 
 	n.LogActionF(strings.Join(cmd, " "))
-	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainId, n.Name, cmd)
+	_, _, err := n.containerManager.ExecTxCmdWithSuccessString(n.t, n.chainId, n.Name, cmd, successString)
 	require.NoError(n.t, err)
 	n.LogActionF("successfully executed")
 }
