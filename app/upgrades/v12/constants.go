@@ -1,6 +1,7 @@
 package v12
 
 import (
+	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmosContracts/juno/v12/app/upgrades"
 	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 	store "github.com/cosmos/cosmos-sdk/store/types"
@@ -13,7 +14,6 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateV12UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
-		// Oracle, TokenFactory (todo, tokenfactorytypes.ModuleName)
-		Added: []string{oracletypes.ModuleName},
+		Added: []string{tokenfactorytypes.ModuleName, oracletypes.ModuleName},
 	},
 }

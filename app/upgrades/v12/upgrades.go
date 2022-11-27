@@ -1,6 +1,7 @@
 package v12
 
 import (
+	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmosContracts/juno/v12/app/keepers"
 	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,11 +16,16 @@ func CreateV12UpgradeHandler(
 	keepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+
 		// Oracle
 		newOracleParams := oracletypes.DefaultParams()
 		keepers.OracleKeeper.SetParams(ctx, newOracleParams)
 
-		// TokenFactory (TODO)
+		// TokenFactory
+		newTokenFactoryParams := tokenfactorytypes.Params{
+			DenomCreationFee: sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1000000))),
+		}
+		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
 
 		return mm.RunMigrations(ctx, cfg, vm)
 	}

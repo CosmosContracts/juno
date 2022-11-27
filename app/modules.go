@@ -1,6 +1,8 @@
 package app
 
 import (
+	"github.com/CosmWasm/token-factory/x/tokenfactory"
+	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmWasm/wasmd/x/wasm"
 	encparams "github.com/CosmosContracts/juno/v12/app/params"
 	"github.com/CosmosContracts/juno/v12/x/mint"
@@ -59,6 +61,7 @@ var maccPerms = map[string][]string{
 	icatypes.ModuleName:            nil,
 	wasm.ModuleName:                {authtypes.Burner},
 	oracletypes.ModuleName:         nil,
+	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 }
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -84,6 +87,7 @@ var ModuleBasics = module.NewBasicManager(
 	vesting.AppModuleBasic{},
 	authzmodule.AppModuleBasic{},
 	oracle.AppModuleBasic{},
+	tokenfactory.AppModuleBasic{},
 	wasm.AppModuleBasic{},
 	ica.AppModuleBasic{},
 )
@@ -119,6 +123,7 @@ func appModules(
 		transfer.NewAppModule(app.TransferKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
+		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 	}
@@ -178,6 +183,7 @@ func orderBeginBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		oracletypes.ModuleName,
+		tokenfactorytypes.ModuleName,
 		wasm.ModuleName,
 	}
 }
@@ -205,6 +211,7 @@ func orderEndBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		oracletypes.ModuleName,
+		tokenfactorytypes.ModuleName,
 		wasm.ModuleName,
 	}
 }
@@ -232,6 +239,7 @@ func orderInitBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		oracletypes.ModuleName,
+		tokenfactorytypes.ModuleName,
 		wasm.ModuleName,
 	}
 }
