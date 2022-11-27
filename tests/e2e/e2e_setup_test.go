@@ -97,6 +97,9 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	if str := os.Getenv(upgradeVersionEnv); len(str) > 0 {
 		upgradeSettings.Version = str
 		s.T().Logf("upgrade version set to %s", upgradeSettings.Version)
+	} else {
+		upgradeSettings.Version = "v12"
+		s.T().Logf("upgrade version not set, defaulting to %s", upgradeSettings.Version)
 	}
 
 	s.configurer, err = configurer.New(s.T(), !s.skipIBC, isDebugLogEnabled, upgradeSettings)
