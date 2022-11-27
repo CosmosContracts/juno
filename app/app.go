@@ -46,8 +46,6 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/prometheus/client_golang/prometheus"
 
-	oraclebinding "github.com/CosmosContracts/juno/v12/wasmbinding"
-
 	"github.com/CosmosContracts/juno/v12/app/keepers"
 	encparams "github.com/CosmosContracts/juno/v12/app/params"
 	upgrades "github.com/CosmosContracts/juno/v12/app/upgrades"
@@ -198,9 +196,6 @@ func New(
 		interfaceRegistry: interfaceRegistry,
 		invCheckPeriod:    invCheckPeriod,
 	}
-
-	// Setup wasm bindings
-	wasmOpts = append(wasmOpts, oraclebinding.RegisterCustomPlugins(app.OracleKeeper)...)
 
 	// Setup keepers
 	app.AppKeepers = keepers.NewAppKeepers(

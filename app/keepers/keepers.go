@@ -299,11 +299,11 @@ func NewAppKeepers(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	// The last arguments can contain custom message handlers, and custom query handlers,
-	// if we want to allow any custom callbacks
+	// Setup wasm bindings
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
 	wasmOpts = append(wasmOpts, oraclebindings.RegisterCustomPlugins(appKeepers.OracleKeeper)...)
-	wasmOpts = append(wasmOpts, tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper))
+	wasmOpts = append(wasmOpts, tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)...)
+
 	appKeepers.WasmKeeper = wasm.NewKeeper(
 		appCodec,
 		appKeepers.keys[wasm.StoreKey],
