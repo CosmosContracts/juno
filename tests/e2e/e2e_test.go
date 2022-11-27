@@ -34,7 +34,12 @@ func (s *IntegrationTestSuite) TestTokenFactoryBindings() {
 	chainA := s.configurer.GetChainConfig(0)
 	node := chainA.NodeConfigs[0]
 	wallet := initialization.ValidatorWalletName
-	mintCost := "1000000ujuno" // set in config.go
+
+	params, err := node.QueryTokenFactoryParams()
+	s.Require().NoError(err)
+	mintCost := params.Params.DenomCreationFee[0]
+
+	mintCostStr := fmt.Sprintf("%s%s", mintCost.Amount.String(), mintCost.Denom)
 
 	// Store Contract
 	node.StoreWasmCode("/juno/tokenfactory.wasm", wallet)
@@ -57,16 +62,15 @@ func (s *IntegrationTestSuite) TestTokenFactoryBindings() {
 	contractAddr := contracts[0]
 
 	// Successfully create a denom for the wasm contract
-	node.WasmExecute(contractAddr, `{"create_denom":{"subdenom":"test"}}`, wallet, mintCost, tfSuccessCode)
-	node.WasmExecute(contractAddr, `{"create_denom":{"subdenom":"moreThanEnough"}}`, wallet, "20000000ujuno", tfSuccessCode)
+	node.WasmExecute(contractAddr, `{"create_denom":{"subdenom":"test"}}`, wallet, mintCostStr, tfSuccessCode)
 	// failing to create a denom
-	node.WasmExecute(contractAddr, fmt.Sprintf(`{"create_denom":{"subdenom":"%s"}}`, strings.Repeat("a", 61)), wallet, mintCost, "subdenom too long")
+	node.WasmExecute(contractAddr, fmt.Sprintf(`{"create_denom":{"subdenom":"%s"}}`, strings.Repeat("a", 61)), wallet, mintCostStr, "subdenom too long")
 
 	ourDenom := fmt.Sprintf("factory/%s/test", contractAddr) // factory/juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8/test
 
 	denoms, err := node.QueryDenomsFromCreator(contractAddr)
 	s.NoError(err)
-	s.Require().Len(denoms, 2, "Wrong number of denoms for the token factory")
+	s.Require().Len(denoms, 1, "Wrong number of denoms for the token factory")
 
 	// Mint some tokens to an account (our contract in this case) via bank module
 	amt := 100

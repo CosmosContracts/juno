@@ -227,7 +227,7 @@ func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.
 		return err
 	}
 
-	cost, _ := sdk.ParseCoinsNormalized("1000000ujuno")
+	cost, _ := sdk.ParseCoinsNormalized("1000000ujuno,10000000stake")
 	err = updateModuleGenesis(appGenState, tokenfactorytypes.ModuleName, &tokenfactorytypes.GenesisState{}, updateTokenFactoryGenesis(cost))
 	if err != nil {
 		return err
