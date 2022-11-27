@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -17,7 +16,7 @@ const (
 	// Environment variable name to skip the IBC tests
 	skipIBCEnv = "JUNO_E2E_SKIP_IBC"
 	// Environment variable name to skip state sync testing
-	skipStateSyncEnv = "JUNO_E2E_SKIP_STATE_SYNC"
+	// skipStateSyncEnv = "JUNO_E2E_SKIP_STATE_SYNC"
 	// Environment variable name to determine if this upgrade is a fork
 	forkHeightEnv = "JUNO_E2E_FORK_HEIGHT"
 	// Environment variable name to skip cleaning up Docker resources in teardown
@@ -33,7 +32,7 @@ type IntegrationTestSuite struct {
 	skipUpgrade   bool
 	skipIBC       bool
 	skipStateSync bool
-	forkHeight    int
+	// forkHeight    int
 }
 
 func TestIntegrationTestSuite(t *testing.T) {
@@ -59,7 +58,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 		s.skipUpgrade, err = strconv.ParseBool(str)
 		s.Require().NoError(err)
 		if s.skipUpgrade {
-			s.T().Log(fmt.Sprintf("%s was true, skipping upgrade tests", skipUpgradeEnv))
+			s.T().Logf("%s was true, skipping upgrade tests", skipUpgradeEnv)
 		}
 	}
 	upgradeSettings.IsEnabled = !s.skipUpgrade
@@ -67,14 +66,14 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	if str := os.Getenv(forkHeightEnv); len(str) > 0 {
 		upgradeSettings.ForkHeight, err = strconv.ParseInt(str, 0, 64)
 		s.Require().NoError(err)
-		s.T().Log(fmt.Sprintf("fork upgrade is enabled, %s was set to height %d", forkHeightEnv, upgradeSettings.ForkHeight))
+		s.T().Logf("fork upgrade is enabled, %s was set to height %d", forkHeightEnv, upgradeSettings.ForkHeight)
 	}
 
 	if str := os.Getenv(skipIBCEnv); len(str) > 0 {
 		s.skipIBC, err = strconv.ParseBool(str)
 		s.Require().NoError(err)
 		if s.skipIBC {
-			s.T().Log(fmt.Sprintf("%s was true, skipping IBC tests", skipIBCEnv))
+			s.T().Logf("%s was true, skipping IBC tests", skipIBCEnv)
 		}
 	}
 
@@ -97,7 +96,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 	if str := os.Getenv(upgradeVersionEnv); len(str) > 0 {
 		upgradeSettings.Version = str
-		s.T().Log(fmt.Sprintf("upgrade version set to %s", upgradeSettings.Version))
+		s.T().Logf("upgrade version set to %s", upgradeSettings.Version)
 	}
 
 	s.configurer, err = configurer.New(s.T(), !s.skipIBC, isDebugLogEnabled, upgradeSettings)
