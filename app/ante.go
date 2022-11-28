@@ -5,15 +5,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcante "github.com/cosmos/ibc-go/v3/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	decorators "github.com/CosmosContracts/juno/v10/app/decorators"
+	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
 )
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC

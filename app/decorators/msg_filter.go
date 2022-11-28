@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types" // TODO: Switch to v3
+	ibcchanneltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types" // TODO: Switch to v3
 )
 
 // MsgFilterDecorator defines an AnteHandler decorator for the v9 upgrade that
