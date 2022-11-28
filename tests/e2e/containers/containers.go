@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -54,14 +55,14 @@ func NewManager(isUpgrade bool, isFork bool, isDebugLogEnabled bool) (docker *Ma
 
 // ExecTxCmd Runs ExecTxCmdWithSuccessString searching for `code: 0`
 func (m *Manager) ExecTxCmd(t *testing.T, chainId string, containerName string, command []string) (bytes.Buffer, bytes.Buffer, error) {
-	return m.ExecTxCmdWithSuccessString(t, chainId, containerName, command, "code: 0")
+	return m.ExecTxCmdWithSuccessString(t, chainId, containerName, command, "\"code\":0")
 }
 
 // ExecTxCmdWithSuccessString Runs ExecCmd, with flags for txs added.
 // namely adding flags `--chain-id={chain-id} -b=block --yes --keyring-backend=test "--log_format=json"`,
 // and searching for `successStr`
 func (m *Manager) ExecTxCmdWithSuccessString(t *testing.T, chainId string, containerName string, command []string, successStr string) (bytes.Buffer, bytes.Buffer, error) {
-	allTxArgs := []string{fmt.Sprintf("--chain-id=%s", chainId), "-b=block", "--yes", "--keyring-backend=test", "--log_format=json"}
+	allTxArgs := []string{fmt.Sprintf("--chain-id=%s", chainId), "-b=block", "--yes", "--keyring-backend=test", "--output=json", "--log_format=json"}
 	txCommand := append(command, allTxArgs...)
 	return m.ExecCmd(t, containerName, txCommand, successStr)
 }
@@ -200,10 +201,10 @@ func (m *Manager) RunHermesResource(chainAID, junoARelayerNodeName, junoAValMnem
 // RunNodeResource runs a node container. Assings containerName to the container.
 // Mounts the container on valConfigDir volume on the running host. Returns the container resource and error if any.
 func (m *Manager) RunNodeResource(chainId string, containerName, valCondifDir string) (*dockertest.Resource, error) {
-	// pwd, err := os.Getwd()
-	// if err != nil {
-	// 	return nil, err
-	// }
+	pwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
 
 	runOpts := &dockertest.RunOptions{
 		Name:       containerName,
@@ -214,6 +215,7 @@ func (m *Manager) RunNodeResource(chainId string, containerName, valCondifDir st
 		Cmd:        []string{"start", "--trace"},
 		Mounts: []string{
 			fmt.Sprintf("%s/:/juno/.juno", valCondifDir),
+			fmt.Sprintf("%s/scripts:/juno", pwd),
 		},
 	}
 
