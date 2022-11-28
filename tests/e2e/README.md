@@ -193,13 +193,13 @@ This debug configuration helps to run e2e tests locally and skip the desired tes
     ],
     "buildFlags": "-tags e2e",
     "env": {
-        "EVE_E2E_SKIP_IBC": "true",
-        "EVE_E2E_SKIP_UPGRADE": "true",
-        "EVE_E2E_SKIP_CLEANUP": "true",
-        "EVE_E2E_SKIP_STATE_SYNC": "true",
-        "EVE_E2E_UPGRADE_VERSION": "v11",
-        "EVE_E2E_DEBUG_LOG": "true",
-        "EVE_E2E_FORK_HEIGHT": "42345124" 
+        "JUNO_E2E_SKIP_IBC": "true",
+        "JUNO_E2E_SKIP_UPGRADE": "true",
+        "JUNO_E2E_SKIP_CLEANUP": "true",
+        "JUNO_E2E_SKIP_STATE_SYNC": "true",
+        "JUNO_E2E_UPGRADE_VERSION": "v11",
+        "JUNO_E2E_DEBUG_LOG": "true",
+        "JUNO_E2E_FORK_HEIGHT": "42345124" 
     }
 }
 ```
