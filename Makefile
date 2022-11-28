@@ -114,22 +114,17 @@ TEST_PACKAGES=./...
 # Utilizes Go cache.
 test-e2e: e2e-setup test-e2e-ci
 
-# Runs the test suit but skipsc IBC and Upgrade test.
-test-e2e-skip: e2e-setup test-e2e-ci-skip
-
 # test-e2e-ci runs a full e2e test suite
 # does not do any validation about the state of the Docker environment
 # As a result, avoid using this locally.
 test-e2e-ci:
 	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION)  go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
 
-test-e2e-ci-skip:
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_UPGRADE=True  go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
-
 # test-e2e-debug runs a full e2e test suite but does
 # not attempt to delete Docker resources at the end.
 test-e2e-debug: e2e-setup
 	@VERSION=$(VERSION) JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_CLEANUP=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
+
 test-e2e-short: e2e-setup
 	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_STATE_SYNC=True JUNO_E2E_SKIP_CLEANUP=True go test -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
 
