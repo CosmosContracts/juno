@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: 'CosmosContracts/cw-unity-prop'
-          ref: 'v0.3.3'
+          ref: 'v0.3.4-alpha'
       - name: Test smart contract gov prop
         run: |
           chmod a+x ./scripts/submit_gov_ci.sh
