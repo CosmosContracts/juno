@@ -77,14 +77,15 @@ func (q Querier) Revenue(
 	}
 
 	// check if the contract is a non-zero hex address
-	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
+	contract, err := sdk.AccAddressFromBech32(req.ContractAddress)
+	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"invalid format for contract %s, should be non-zero hex ('0x...')", req.ContractAddress,
+			"invalid format for contract %s, should be bech32 ('juno...')", req.ContractAddress,
 		)
 	}
 
-	revenue, found := q.GetRevenue(ctx, sdk.MustAccAddressFromBech32(req.ContractAddress))
+	revenue, found := q.GetRevenue(ctx, contract)
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,

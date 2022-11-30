@@ -134,7 +134,13 @@ func (k Keeper) UpdateRevenue(
 		return nil, types.ErrRevenueDisabled
 	}
 
-	contract := sdk.MustAccAddressFromBech32(msg.ContractAddress)
+	contract, err := sdk.AccAddressFromBech32(msg.ContractAddress)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidAddress,
+			"invalid contract address (%s)", err,
+		)
+	}
 
 	revenue, found := k.GetRevenue(ctx, contract)
 	if !found {
@@ -152,11 +158,6 @@ func (k Keeper) UpdateRevenue(
 		)
 	}
 
-	// check if updating revenue to default withdrawer
-	if msg.WithdrawerAddress == revenue.DeployerAddress {
-		msg.WithdrawerAddress = ""
-	}
-
 	// revenue with the given withdraw address is already registered
 	if msg.WithdrawerAddress == revenue.WithdrawerAddress {
 		return nil, sdkerrors.Wrapf(
@@ -165,16 +166,24 @@ func (k Keeper) UpdateRevenue(
 		)
 	}
 
+	withdrawAddr, err := sdk.AccAddressFromBech32(revenue.WithdrawerAddress)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidAddress,
+			"invalid withdrawer address (%s)", err,
+		)
+	}
+
 	// only delete withdrawer map if is not default
 	if revenue.WithdrawerAddress != "" {
-		k.DeleteWithdrawerMap(ctx, sdk.MustAccAddressFromBech32(revenue.WithdrawerAddress), contract)
+		k.DeleteWithdrawerMap(ctx, withdrawAddr, contract)
 	}
 
 	// only add withdrawer map if new entry is not default
 	if msg.WithdrawerAddress != "" {
 		k.SetWithdrawerMap(
 			ctx,
-			sdk.MustAccAddressFromBech32(msg.WithdrawerAddress),
+			withdrawAddr,
 			contract,
 		)
 	}
@@ -208,8 +217,13 @@ func (k Keeper) CancelRevenue(
 		return nil, types.ErrRevenueDisabled
 	}
 
-	// contract := common.HexToAddress(msg.ContractAddress)
-	contract := sdk.MustAccAddressFromBech32(msg.ContractAddress)
+	contract, err := sdk.AccAddressFromBech32(msg.ContractAddress)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrInvalidAddress,
+			"invalid contract address (%s)", err,
+		)
+	}
 
 	fee, found := k.GetRevenue(ctx, contract)
 	if !found {

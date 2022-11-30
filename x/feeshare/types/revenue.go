@@ -16,19 +16,31 @@ func NewRevenue(contract sdk.Address, deployer, withdrawer sdk.AccAddress) Reven
 
 // GetContractAddr returns the contract address
 func (fs Revenue) GetContractAddr() sdk.Address {
-	return sdk.MustAccAddressFromBech32(fs.ContractAddress)
+	contract, err := sdk.AccAddressFromBech32(fs.ContractAddress)
+	if err != nil {
+		return nil
+	}
+	return contract
 }
 
 // GetDeployerAddr returns the contract deployer address
 func (fs Revenue) GetDeployerAddr() sdk.AccAddress {
-	return sdk.MustAccAddressFromBech32(fs.DeployerAddress)
+	contract, err := sdk.AccAddressFromBech32(fs.DeployerAddress)
+	if err != nil {
+		return nil
+	}
+	return contract
 }
 
 // GetWithdrawerAddr returns the account address to where the funds proceeding
 // from the fees will be received. If the withdraw address is not defined, it
 // defaults to the deployer address.
 func (fs Revenue) GetWithdrawerAddr() sdk.AccAddress {
-	return sdk.MustAccAddressFromBech32(fs.WithdrawerAddress)
+	contract, err := sdk.AccAddressFromBech32(fs.WithdrawerAddress)
+	if err != nil {
+		return nil
+	}
+	return contract
 }
 
 // Validate performs a stateless validation of a Revenue
