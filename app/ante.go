@@ -342,13 +342,16 @@ func FeeSharePayout(bankKeeper authforktypes.BankKeeper, ctx sdk.Context, acc ty
 
 		var splitFees sdk.Coins
 		for _, c := range fees {
-			divisor := sdk.NewDec(100).Quo(splitNumber).RoundInt64()
-			// Ex: 10 coins / (100/50=2) = 5 coins is 50%
-			// So each contract gets 5 coins / 2 contracts = 2.5 coins per. Does it round up?
-			// This means if multiple contracts are in the message, the community pool may get less than 50% for these edge cases.
-			reward := sdk.NewCoin(c.Denom, c.Amount.QuoRaw(divisor).QuoRaw(int64(numPairs)))
-			if !reward.Amount.IsZero() {
-				splitFees = append(splitFees, reward)
+			// Move this to params or governance to change
+			if c.Denom == "ujuno" || c.Denom == "ujunox" {
+				divisor := sdk.NewDec(100).Quo(splitNumber).RoundInt64()
+				// Ex: 10 coins / (100/50=2) = 5 coins is 50%
+				// So each contract gets 5 coins / 2 contracts = 2.5 coins per. Does it round up?
+				// This means if multiple contracts are in the message, the community pool may get less than 50% for these edge cases.
+				reward := sdk.NewCoin(c.Denom, c.Amount.QuoRaw(divisor).QuoRaw(int64(numPairs)))
+				if !reward.Amount.IsZero() {
+					splitFees = append(splitFees, reward)
+				}
 			}
 		}
 
