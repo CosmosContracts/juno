@@ -9,6 +9,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	revtypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -22,9 +23,8 @@ type Keeper struct {
 
 	accountKeeper revtypes.AccountKeeper
 	bankKeeper    revtypes.BankKeeper
-	// wasmKeeper    revtypes.WasmKeeper
+	wasmKeeper    wasmkeeper.Keeper
 
-	hooks            revtypes.RevenueHooks
 	feeCollectorName string
 }
 
@@ -35,6 +35,7 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	ak revtypes.AccountKeeper,
 	bk revtypes.BankKeeper,
+	wk wasmkeeper.Keeper,
 	feeCollector string,
 ) Keeper {
 	// set KeyTable if it has not already been set
@@ -48,7 +49,7 @@ func NewKeeper(
 		paramstore:       ps,
 		accountKeeper:    ak,
 		bankKeeper:       bk,
-		hooks:            nil,
+		wasmKeeper:       wk,
 		feeCollectorName: feeCollector,
 	}
 }
@@ -63,7 +64,6 @@ func (k Keeper) SendCoinsFromAccountToFeeCollector(ctx sdk.Context, senderAddr s
 
 // SendCoinsFromFeeCollectorToAccount transfers amt from the fee collector account to the recipient.
 func (k Keeper) SendCoinsFromFeeCollectorToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
-	// ensure recipientAddr is set
 	if recipientAddr.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "recipient address cannot be empty")
 	}

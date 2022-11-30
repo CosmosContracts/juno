@@ -279,15 +279,6 @@ func NewAppKeepers(
 		appKeepers.DistrKeeper,
 	)
 
-	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
-		appKeepers.keys[feesharetypes.StoreKey],
-		appCodec,
-		appKeepers.GetSubspace(feesharetypes.ModuleName),
-		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
-		authtypes.FeeCollectorName,
-	)
-
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	wasmDir := filepath.Join(homePath, "data")
 
@@ -318,6 +309,16 @@ func NewAppKeepers(
 		wasmConfig,
 		supportedFeatures,
 		wasmOpts...,
+	)
+
+	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
+		appKeepers.keys[feesharetypes.StoreKey],
+		appCodec,
+		appKeepers.GetSubspace(feesharetypes.ModuleName),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.WasmKeeper,
+		authtypes.FeeCollectorName,
 	)
 
 	ibcRouter := porttypes.NewRouter()

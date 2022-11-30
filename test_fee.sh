@@ -22,10 +22,17 @@ CWTEMPLATE_CODEID=1
 CWTEMPLATE_TX_INIT=$(junod tx wasm instantiate "1" '{"count":1}' --label "juno-template" --admin juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk $JUNOD_COMMAND_ARGS -y | jq -r '.txhash') && echo $CWTEMPLATE_TX_INIT
 CWTEMPLATE_ADDR=$(junod query tx $CWTEMPLATE_TX_INIT --output json | jq -r '.logs[0].events[0].attributes[0].value') && echo "$CWTEMPLATE_ADDR"
 
+# Sets the other account as admin so we can see what happens if we try to register a contract we are not the admin of
+CWTEMPLATE_TX_INIT=$(junod tx wasm instantiate "1" '{"count":1}' --label "juno-template" --admin juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl $JUNOD_COMMAND_ARGS -y | jq -r '.txhash') && echo $CWTEMPLATE_TX_INIT
+CWTEMPLATE_ADDR2=$(junod query tx $CWTEMPLATE_TX_INIT --output json | jq -r '.logs[0].events[0].attributes[0].value') && echo "$CWTEMPLATE_ADDR2"
+
 
 # Register for fee share for that given contract
 junod tx feeshare register $CWTEMPLATE_ADDR juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk $JUNOD_COMMANDARGS_FEEACC
 junod q bank balances juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
+
+# Try to register a feeshare which we are not the wasm admin of (fails)
+# junod tx feeshare register $CWTEMPLATE_ADDR2 juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk $JUNOD_COMMANDARGS_FEEACC
 
 TX1=$(junod tx wasm execute "$CWTEMPLATE_ADDR" '{"increment":{}}' $JUNOD_COMMAND_ARGS | jq -r '.txhash') && echo $TX1
 TX2=$(junod tx wasm execute "$CWTEMPLATE_ADDR" '{"reset":{"count":0}}' $JUNOD_COMMAND_ARGS | jq -r '.txhash') && echo $TX2

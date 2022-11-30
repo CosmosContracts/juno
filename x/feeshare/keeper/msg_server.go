@@ -27,7 +27,6 @@ func (k Keeper) RegisterRevenue(
 		return nil, types.ErrRevenueDisabled
 	}
 
-	// bech32 convert msg.ContractAddress
 	contract, err := sdk.AccAddressFromBech32(msg.ContractAddress)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
@@ -61,19 +60,21 @@ func (k Keeper) RegisterRevenue(
 	// }
 
 	// TODO: Check that the admin of the contract is the one requesting the funds. If not, unauthorized.
-	// info, err := k.wasmKeeper.GetContractInfo(ctx, contract)
-	// if err != nil {
-	// 	return nil, sdkerrors.Wrapf(
-	// 		sdkerrors.ErrInvalidRequest,
-	// 		"contract not found %s", contract,
-	// 	)
-	// }
-	// if info.Admin != deployer.String() {
-	// 	return nil, sdkerrors.Wrapf(
-	// 		sdkerrors.ErrUnauthorized,
-	// 		"you are not an admin of this contract %s", deployer,
-	// 	)
-	// }
+	info := k.wasmKeeper.GetContractInfo(ctx, contract)
+	// Do we want to do anything with the Creator if no admin is set?
+	if len(info.Admin) == 0 {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrUnauthorized,
+			"contract %s has no admin set", contract,
+		)
+	}
+
+	if info.Admin != deployer.String() {
+		return nil, sdkerrors.Wrapf(
+			sdkerrors.ErrUnauthorized,
+			"you are not an admin of this contract %s", deployer,
+		)
+	}
 
 	withdrawer, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
 	if err != nil {
@@ -91,7 +92,7 @@ func (k Keeper) RegisterRevenue(
 	// The effective withdrawer is the withdraw address that is stored after the
 	// revenue registration is completed. It defaults to the deployer address if
 	// the withdraw address in the msg is omitted. When omitted, the withdraw map
-	// dosn't need to be set.
+	// doesn't need to be set.
 	effectiveWithdrawer := msg.DeployerAddress
 
 	if len(withdrawer.String()) != 0 {

@@ -75,11 +75,11 @@ func GetCmdQueryRevenues() *cobra.Command {
 // distribution
 func GetCmdQueryRevenue() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "contract CONTRACT_ADDRESS",
+		Use:     "contract [contract_address]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "Query a registered contract for fee distribution by hex address",
-		Long:    "Query a registered contract for fee distribution by hex address",
-		Example: fmt.Sprintf("%s query revenue contract <contract-address>", version.AppName),
+		Short:   "Query a registered contract for fee distribution by its bech32 address",
+		Long:    "Query a registered contract for fee distribution by its bech32 address",
+		Example: fmt.Sprintf("%s query feeshare contract <contract-address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -108,7 +108,7 @@ func GetCmdQueryRevenue() *cobra.Command {
 func GetCmdQueryParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
-		Short: "Query the current revenue module parameters",
+		Short: "Query the current feeshare module parameters",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -137,11 +137,11 @@ func GetCmdQueryParams() *cobra.Command {
 // that a deployer has registered for fee distribution
 func GetCmdQueryDeployerRevenues() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "deployer-contracts DEPLOYER_ADDRESS",
+		Use:     "deployer-contracts [deployer_address]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "Query all contracts that a given deployer has registered for fee distribution",
-		Long:    "Query all contracts that a given deployer has registered for fee distribution",
-		Example: fmt.Sprintf("%s query revenue deployer-contracts <deployer-address>", version.AppName),
+		Short:   "Query all contracts that a given deployer has registered for feeshare distribution",
+		Long:    "Query all contracts that a given deployer has registered for feeshare distribution",
+		Example: fmt.Sprintf("%s query feeshare deployer-contracts <deployer-address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -176,11 +176,11 @@ func GetCmdQueryDeployerRevenues() *cobra.Command {
 // address
 func GetCmdQueryWithdrawerRevenues() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "withdrawer-contracts WITHDRAWER_ADDRESS",
+		Use:     "withdrawer-contracts [withdraw_address]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "Query all contracts that have been registered for fee distribution with a given withdrawer address",
-		Long:    "Query all contracts that have been registered for fee distribution with a given withdrawer address",
-		Example: fmt.Sprintf("%s query revenue withdrawer-contracts <withdrawer-address>", version.AppName),
+		Short:   "Query all contracts that have been registered for feeshare distribution with a given withdrawer address",
+		Long:    "Query all contracts that have been registered for feeshare distribution with a given withdrawer address",
+		Example: fmt.Sprintf("%s query feeshare withdrawer-contracts <withdrawer-address>", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
