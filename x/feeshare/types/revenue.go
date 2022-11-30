@@ -7,11 +7,6 @@ import (
 // NewRevenue returns an instance of Revenue. If the provided withdrawer
 // address is empty, it sets the value to an empty string.
 func NewRevenue(contract sdk.Address, deployer, withdrawer sdk.AccAddress) Revenue {
-	// withdrawerAddr := ""
-	// if len(withdrawer) > 0 {
-	// 	withdrawerAddr = withdrawer.String()
-	// }
-
 	return Revenue{
 		ContractAddress:   contract.String(),
 		DeployerAddress:   deployer.String(),
@@ -33,10 +28,6 @@ func (fs Revenue) GetDeployerAddr() sdk.AccAddress {
 // from the fees will be received. If the withdraw address is not defined, it
 // defaults to the deployer address.
 func (fs Revenue) GetWithdrawerAddr() sdk.AccAddress {
-	if fs.WithdrawerAddress == "" {
-		return nil
-	}
-
 	return sdk.MustAccAddressFromBech32(fs.WithdrawerAddress)
 }
 

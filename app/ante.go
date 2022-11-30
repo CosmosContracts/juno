@@ -280,6 +280,12 @@ func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	return next(ctx, tx, simulate)
 }
 
+// matches a contract string address to the contract withdraw address
+type PayoutContracts struct {
+	contractAddr sdk.AccAddress
+	withdrawAddr sdk.AccAddress
+}
+
 // DeductFees deducts fees from the given account.
 // TODO: If one message in the Tx is found to be wasm execute, we split 50% evenly between messages
 func DeductFees(bankKeeper authforktypes.BankKeeper, ctx sdk.Context, acc types.AccountI, fees sdk.Coins, revKeeper authforktypes.FeeShareKeeper, msgs []sdk.Msg) error {
@@ -287,56 +293,72 @@ func DeductFees(bankKeeper authforktypes.BankKeeper, ctx sdk.Context, acc types.
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "invalid fee amount: %s", fees)
 	}
 
-	// TODO: This only sends it to one contract, we need to split 50% between each if there are multiple.
+	// Send all fees to the module to hold. If fees need to be paid, we just pay out of this module account
+	// helps with rounding errors since we deal with % & ensures all fees are accounted for
+	// TODO: Send to "distribution" or types.FeeCollectorName ?
+	err := bankKeeper.SendCoinsFromAccountToModule(ctx, acc.GetAddress(), types.FeeCollectorName, fees)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
+	}
 
-	// loop through msgs
-	contracts := make([]sdk.AccAddress, 0)
+	// Payout feeshare to dAPP developers if they registered.
+	err = FeeSharePayout(bankKeeper, ctx, acc, fees, revKeeper, msgs)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
+	}
+
+	return nil
+}
+
+func FeeSharePayout(bankKeeper authforktypes.BankKeeper, ctx sdk.Context, acc types.AccountI, fees sdk.Coins, revKeeper authforktypes.FeeShareKeeper, msgs []sdk.Msg) error {
+	// Pairs of contract address and withdraw address if one is set. If not, we don't place it in here
+	pairs := make([]PayoutContracts, 0)
 	for _, msg := range msgs {
-		// if msg is wasm execute, split fees
 		if _, ok := msg.(*wasmTypes.MsgExecuteContract); ok {
-			// send 50% of fees to the users addres if they are setup to do so
-			// revKeeper
-			// contract = msg.(*wasmTypes.MsgExcuteContract).Contract
-			cAddr, err := sdk.AccAddressFromBech32(msg.(*wasmTypes.MsgExecuteContract).Contract)
+			contractAddr, err := sdk.AccAddressFromBech32(msg.(*wasmTypes.MsgExecuteContract).Contract)
 			if err != nil {
 				return err
 			}
-			contracts = append(contracts, cAddr)
+
+			shareData, _ := revKeeper.GetRevenue(ctx, contractAddr)
+			withdrawAddr := shareData.GetWithdrawerAddr()
+			if withdrawAddr != nil {
+				pairs = append(pairs, PayoutContracts{contractAddr, withdrawAddr})
+			}
 		}
 	}
 
-	if len(contracts) > 0 {
-		// Right now we only send to first message contract for simplicity
+	// FeeShare logic payouts for contracts
+	numPairs := len(pairs)
+	if numPairs > 0 {
+		govPercent := revKeeper.GetParams(ctx).DeveloperShares // 0.500000000
+
+		// multiply times 100 = 50. This way we can do 100/50 = 2 for the split fee amount
+		// if above is 25%, then 100/25 = 4 = they get 1/4th of the total fee between contracts
+		splitNumber := govPercent.MulInt64(100)
+
+		// Gets XX% of the fees based off governance params based off the number of contracts we execute on
+		// (majority of the time this is only 1 contract). Should we simplify and only get the first contract?
+
 		var splitFees sdk.Coins
 		for _, c := range fees {
-			splitFees = append(splitFees, sdk.NewCoin(c.Denom, c.Amount.QuoRaw(2)))
-		}
-
-		revenueData, _ := revKeeper.GetRevenue(ctx, contracts[0])
-		withdrawAddr := revenueData.GetWithdrawerAddr()
-
-		// sendPerson, err := sdk.AccAddressFromBech32("juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk")
-		// if err != nil {
-		// 	return err
-		// }
-
-		if withdrawAddr != nil {
-			// send the rest to the FeeCollector module.
-			// In case of odds, we will take the original fees and subtract the split fees
-			// to ensure we don't send more than the original fees.
-			// halfFees
-			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, "distribution", withdrawAddr, fees.Sub(splitFees))
-			if err != nil {
-				return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
+			divisor := sdk.NewDec(100).Quo(splitNumber).RoundInt64()
+			// Ex: 10 coins / (100/50=2) = 5 coins is 50%
+			// So each contract gets 5 coins / 2 contracts = 2.5 coins per. Does it round up?
+			// This means if multiple contracts are in the message, the community pool may get less than 50% for these edge cases.
+			reward := sdk.NewCoin(c.Denom, c.Amount.QuoRaw(divisor).QuoRaw(int64(numPairs)))
+			if !reward.Amount.IsZero() {
+				splitFees = append(splitFees, reward)
 			}
-			fees = fees.Sub(splitFees)
 		}
 
-	}
-
-	err := bankKeeper.SendCoinsFromAccountToModule(ctx, acc.GetAddress(), "distribution", fees)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
+		// pay fees evenly between pairs of contracts
+		for _, p := range pairs {
+			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, types.FeeCollectorName, p.withdrawAddr, splitFees)
+			if err != nil {
+				return sdkerrors.Wrapf(sdkerrors.Error{}, err.Error())
+			}
+		}
 	}
 
 	return nil

@@ -19,10 +19,12 @@ type FeegrantKeeper interface {
 }
 
 type AccountKeeper interface {
-	GetModuleAddress(name string) sdk.AccAddress
 	GetAccount(ctx sdk.Context, addr sdk.AccAddress) (account acctypes.AccountI)
+	GetModuleAddress(name string) sdk.AccAddress
 }
 
 type FeeShareKeeper interface {
+	GetParams(ctx sdk.Context) revtypes.Params
 	GetRevenue(ctx sdk.Context, contract sdk.Address) (revtypes.Revenue, bool)
+	// SendCoinsFromFeeCollectorToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 }

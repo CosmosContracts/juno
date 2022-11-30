@@ -10,6 +10,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	revtypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // Keeper of this module maintains collections of revenues for contracts
@@ -52,15 +53,21 @@ func NewKeeper(
 	}
 }
 
-// SetHooks set the epoch hooks
-func (k *Keeper) SetHooks(rh revtypes.RevenueHooks) *Keeper {
-	if k.hooks != nil {
-		panic("cannot set revenue hooks twice")
+// SendCoinsFromAccountToFeeCollector transfers amt to the fee collector account.
+func (k Keeper) SendCoinsFromAccountToFeeCollector(ctx sdk.Context, senderAddr sdk.AccAddress, amt sdk.Coins) error {
+	if senderAddr.Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "senderAddr address cannot be empty")
 	}
+	return k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, k.feeCollectorName, amt)
+}
 
-	k.hooks = rh
-
-	return k
+// SendCoinsFromFeeCollectorToAccount transfers amt from the fee collector account to the recipient.
+func (k Keeper) SendCoinsFromFeeCollectorToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
+	// ensure recipientAddr is set
+	if recipientAddr.Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "recipient address cannot be empty")
+	}
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, k.feeCollectorName, recipientAddr, amt)
 }
 
 // Logger returns a module-specific logger.
