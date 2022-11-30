@@ -56,6 +56,9 @@ import (
 	icahost "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
+
+	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 )
 
 type AppKeepers struct {
@@ -81,6 +84,7 @@ type AppKeepers struct {
 	TransferKeeper   ibctransferkeeper.Keeper
 	AuthzKeeper      authzkeeper.Keeper
 	FeeGrantKeeper   feegrantkeeper.Keeper
+	FeeShareKeeper   feesharekeeper.Keeper
 
 	ICAHostKeeper icahostkeeper.Keeper
 
@@ -275,6 +279,15 @@ func NewAppKeepers(
 		appKeepers.DistrKeeper,
 	)
 
+	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
+		appKeepers.keys[feesharetypes.StoreKey],
+		appCodec,
+		appKeepers.GetSubspace(feesharetypes.ModuleName),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		authtypes.FeeCollectorName,
+	)
+
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	wasmDir := filepath.Join(homePath, "data")
 
@@ -352,6 +365,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
+	paramsKeeper.Subspace(feesharetypes.ModuleName)
 
 	return paramsKeeper
 }

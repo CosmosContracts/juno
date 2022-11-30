@@ -266,6 +266,8 @@ func New(
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
 			IBCKeeper:         app.IBCKeeper,
+			feesharekeeper:    app.FeeShareKeeper,
+			BankKeeperFork:    app.BankKeeper, // since we need extra methods
 			TxCounterStoreKey: app.GetKey(wasm.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
