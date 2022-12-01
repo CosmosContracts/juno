@@ -9,15 +9,11 @@ import (
 
 // Parameter store key
 var (
-	DefaultEnableRevenue   = true
+	DefaultEnableFeeShare  = true
 	DefaultDeveloperShares = sdk.NewDecWithPrec(50, 2) // 50%
-	// Cost for executing `crypto.CreateAddress` must be at least 36 gas for the
-	// contained keccak256(word) operation
-	DefaultAddrDerivationCostCreate = uint64(50)
 
-	ParamStoreKeyEnableRevenue            = []byte("EnableRevenue")
-	ParamStoreKeyDeveloperShares          = []byte("DeveloperShares")
-	ParamStoreKeyAddrDerivationCostCreate = []byte("AddrDerivationCostCreate")
+	ParamStoreKeyEnableFeeShare  = []byte("EnableFeeShare")
+	ParamStoreKeyDeveloperShares = []byte("DeveloperShares")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -27,31 +23,27 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // NewParams creates a new Params object
 func NewParams(
-	enableRevenue bool,
+	enableFeeShare bool,
 	developerShares sdk.Dec,
-	addrDerivationCostCreate uint64,
 ) Params {
 	return Params{
-		EnableRevenue:            enableRevenue,
-		DeveloperShares:          developerShares,
-		AddrDerivationCostCreate: addrDerivationCostCreate,
+		EnableFeeShare:  enableFeeShare,
+		DeveloperShares: developerShares,
 	}
 }
 
 func DefaultParams() Params {
 	return Params{
-		EnableRevenue:            DefaultEnableRevenue,
-		DeveloperShares:          DefaultDeveloperShares,
-		AddrDerivationCostCreate: DefaultAddrDerivationCostCreate,
+		EnableFeeShare:  DefaultEnableFeeShare,
+		DeveloperShares: DefaultDeveloperShares,
 	}
 }
 
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableRevenue, &p.EnableRevenue, validateBool),
+		paramtypes.NewParamSetPair(ParamStoreKeyEnableFeeShare, &p.EnableFeeShare, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperShares, &p.DeveloperShares, validateShares),
-		paramtypes.NewParamSetPair(ParamStoreKeyAddrDerivationCostCreate, &p.AddrDerivationCostCreate, validateUint64),
 	}
 }
 
@@ -101,11 +93,11 @@ func validateShares(i interface{}) error {
 }
 
 func (p Params) Validate() error {
-	if err := validateBool(p.EnableRevenue); err != nil {
+	if err := validateBool(p.EnableFeeShare); err != nil {
 		return err
 	}
 	if err := validateShares(p.DeveloperShares); err != nil {
 		return err
 	}
-	return validateUint64(p.AddrDerivationCostCreate)
+	return nil
 }

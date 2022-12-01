@@ -25,8 +25,8 @@ func (suite *CodecTestSuite) TestRegisterInterfaces() {
 	impls := registry.ListImplementations(sdk.MsgInterfaceProtoName)
 	suite.Require().Equal(3, len(impls))
 	suite.Require().ElementsMatch([]string{
-		"/juno.feeshare.v1.MsgRegisterRevenue",
-		"/juno.feeshare.v1.MsgCancelRevenue",
-		"/juno.feeshare.v1.MsgUpdateRevenue",
+		"/juno.feeshare.v1.MsgRegisterFeeShare",
+		"/juno.feeshare.v1.MsgCancelFeeShare",
+		"/juno.feeshare.v1.MsgUpdateFeeShare",
 	}, impls)
 }

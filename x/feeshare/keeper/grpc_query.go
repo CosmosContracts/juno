@@ -16,7 +16,7 @@ import (
 
 var _ types.QueryServer = Querier{}
 
-// Querier defines a wrapper around the x/revenue keeper providing gRPC method
+// Querier defines a wrapper around the x/FeeShare keeper providing gRPC method
 // handlers.
 type Querier struct {
 	Keeper
@@ -26,43 +26,43 @@ func NewQuerier(k Keeper) Querier {
 	return Querier{Keeper: k}
 }
 
-// Revenues returns all Revenues that have been registered for fee distribution
-func (q Querier) Revenues(
+// FeeShares returns all FeeShares that have been registered for fee distribution
+func (q Querier) FeeShares(
 	c context.Context,
-	req *types.QueryRevenuesRequest,
-) (*types.QueryRevenuesResponse, error) {
+	req *types.QueryFeeSharesRequest,
+) (*types.QueryFeeSharesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	var revenues []types.Revenue
-	store := prefix.NewStore(ctx.KVStore(q.storeKey), types.KeyPrefixRevenue)
+	var feeshares []types.FeeShare
+	store := prefix.NewStore(ctx.KVStore(q.storeKey), types.KeyPrefixFeeShare)
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(_, value []byte) error {
-		var revenue types.Revenue
-		if err := q.cdc.Unmarshal(value, &revenue); err != nil {
+		var feeshare types.FeeShare
+		if err := q.cdc.Unmarshal(value, &feeshare); err != nil {
 			return err
 		}
-		revenues = append(revenues, revenue)
+		feeshares = append(feeshares, feeshare)
 		return nil
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &types.QueryRevenuesResponse{
-		Revenues:   revenues,
+	return &types.QueryFeeSharesResponse{
+		Feeshare:   feeshares,
 		Pagination: pageRes,
 	}, nil
 }
 
-// Revenue returns the Revenue that has been registered for fee distribution for a given
+// FeeShare returns the FeeShare that has been registered for fee distribution for a given
 // contract
-func (q Querier) Revenue(
+func (q Querier) FeeShare(
 	c context.Context,
-	req *types.QueryRevenueRequest,
-) (*types.QueryRevenueResponse, error) {
+	req *types.QueryFeeShareRequest,
+) (*types.QueryFeeShareResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -85,7 +85,7 @@ func (q Querier) Revenue(
 		)
 	}
 
-	revenue, found := q.GetRevenue(ctx, contract)
+	feeshare, found := q.GetFeeShare(ctx, contract)
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,
@@ -94,7 +94,7 @@ func (q Querier) Revenue(
 		)
 	}
 
-	return &types.QueryRevenueResponse{Revenue: revenue}, nil
+	return &types.QueryFeeShareResponse{Feeshare: feeshare}, nil
 }
 
 // Params returns the fees module params
@@ -107,12 +107,12 @@ func (q Querier) Params(
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-// DeployerRevenues returns all contracts that have been registered for fee
+// DeployerFeeShares returns all contracts that have been registered for fee
 // distribution by a given deployer
-func (q Querier) DeployerRevenues( // nolint: dupl
+func (q Querier) DeployerFeeShares( // nolint: dupl
 	c context.Context,
-	req *types.QueryDeployerRevenuesRequest,
-) (*types.QueryDeployerRevenuesResponse, error) {
+	req *types.QueryDeployerFeeSharesRequest,
+) (*types.QueryDeployerFeeSharesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -148,17 +148,17 @@ func (q Querier) DeployerRevenues( // nolint: dupl
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryDeployerRevenuesResponse{
+	return &types.QueryDeployerFeeSharesResponse{
 		ContractAddresses: contracts,
 		Pagination:        pageRes,
 	}, nil
 }
 
-// WithdrawerRevenues returns all fees for a given withdraw address
-func (q Querier) WithdrawerRevenues( // nolint: dupl
+// WithdrawerFeeShares returns all fees for a given withdraw address
+func (q Querier) WithdrawerFeeShares( // nolint: dupl
 	c context.Context,
-	req *types.QueryWithdrawerRevenuesRequest,
-) (*types.QueryWithdrawerRevenuesResponse, error) {
+	req *types.QueryWithdrawerFeeSharesRequest,
+) (*types.QueryWithdrawerFeeSharesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -194,7 +194,7 @@ func (q Querier) WithdrawerRevenues( // nolint: dupl
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &types.QueryWithdrawerRevenuesResponse{
+	return &types.QueryWithdrawerFeeSharesResponse{
 		ContractAddresses: contracts,
 		Pagination:        pageRes,
 	}, nil

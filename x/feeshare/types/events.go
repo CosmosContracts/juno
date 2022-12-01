@@ -1,11 +1,11 @@
 package types
 
-// revenue events
+// feeshare events
 const (
-	EventTypeRegisterRevenue      = "register_revenue"
-	EventTypeCancelRevenue        = "cancel_revenue"
-	EventTypeUpdateRevenue        = "update_revenue"
-	EventTypeDistributeDevRevenue = "distribute_dev_revenue"
+	EventTypeRegisterFeeShare      = "register_feeshare"
+	EventTypeCancelFeeShare        = "cancel_feeshare"
+	EventTypeUpdateFeeShare        = "update_feeshare"
+	EventTypeDistributeDevFeeShare = "distribute_dev_feeshare"
 
 	AttributeKeyContract          = "contract"
 	AttributeKeyWithdrawerAddress = "withdrawer_address"

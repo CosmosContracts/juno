@@ -8,23 +8,23 @@ option go_package = "github.com/CosmosContracts/juno/x/feeshare/types";
 
 // Msg defines the fees Msg service.
 service Msg {
-  // RegisterRevenue registers a new contract for receiving transaction fees
-  rpc RegisterRevenue(MsgRegisterRevenue) returns (MsgRegisterRevenueResponse) {
-    option (google.api.http).post = "/juno/feeshare/v1/tx/register_revenue";
+  // RegisterFeeShare registers a new contract for receiving transaction fees
+  rpc RegisterFeeShare(MsgRegisterFeeShare) returns (MsgRegisterFeeShareResponse) {
+    option (google.api.http).post = "/juno/feeshare/v1/tx/register_FeeShare";
   };
-  // UpdateRevenue updates the withdrawer address of a revenue
-  rpc UpdateRevenue(MsgUpdateRevenue) returns (MsgUpdateRevenueResponse) {
-    option (google.api.http).post = "/juno/feeshare/v1/tx/update_revenue";
+  // UpdateFeeShare updates the withdrawer address of a FeeShare
+  rpc UpdateFeeShare(MsgUpdateFeeShare) returns (MsgUpdateFeeShareResponse) {
+    option (google.api.http).post = "/juno/feeshare/v1/tx/update_FeeShare";
   };
-  // CancelRevenue cancels a contract's fee registration and further receival
+  // CancelFeeShare cancels a contract's fee registration and further receival
   // of transaction fees
-  rpc CancelRevenue(MsgCancelRevenue) returns (MsgCancelRevenueResponse) {
-    option (google.api.http).post = "/juno/feeshare/v1/tx/cancel_revenue";
+  rpc CancelFeeShare(MsgCancelFeeShare) returns (MsgCancelFeeShareResponse) {
+    option (google.api.http).post = "/juno/feeshare/v1/tx/cancel_FeeShare";
   };
 }
 
-// MsgRegisterRevenue defines a message that registers a Revenue
-message MsgRegisterRevenue {
+// MsgRegisterFeeShare defines a message that registers a FeeShare
+message MsgRegisterFeeShare {
   option (gogoproto.equal) = false;
   // contract_address in bech32 format
   string contract_address = 1;
@@ -36,12 +36,12 @@ message MsgRegisterRevenue {
   string withdrawer_address = 3;
 }
 
-// MsgRegisterRevenueResponse defines the MsgRegisterRevenue response type
-message MsgRegisterRevenueResponse {}
+// MsgRegisterFeeShareResponse defines the MsgRegisterFeeShare response type
+message MsgRegisterFeeShareResponse {}
 
-// MsgUpdateRevenue defines a message that updates the withdrawer address for a
-// registered Revenue
-message MsgUpdateRevenue {
+// MsgUpdateFeeShare defines a message that updates the withdrawer address for a
+// registered FeeShare
+message MsgUpdateFeeShare {
   option (gogoproto.equal) = false;
   // contract_address in bech32 format
   string contract_address = 1;
@@ -53,11 +53,11 @@ message MsgUpdateRevenue {
   string withdrawer_address = 3;
 }
 
-// MsgUpdateRevenueResponse defines the MsgUpdateRevenue response type
-message MsgUpdateRevenueResponse {}
+// MsgUpdateFeeShareResponse defines the MsgUpdateFeeShare response type
+message MsgUpdateFeeShareResponse {}
 
-// MsgCancelRevenue defines a message that cancels a registered Revenue
-message MsgCancelRevenue {
+// MsgCancelFeeShare defines a message that cancels a registered FeeShare
+message MsgCancelFeeShare {
   option (gogoproto.equal) = false;
   // contract_address in bech32 format
   string contract_address = 1;
@@ -66,5 +66,5 @@ message MsgCancelRevenue {
   string deployer_address = 2;
 }
 
-// MsgCancelRevenueResponse defines the MsgCancelRevenue response type
-message MsgCancelRevenueResponse {}
+// MsgCancelFeeShareResponse defines the MsgCancelFeeShare response type
+message MsgCancelFeeShareResponse {}

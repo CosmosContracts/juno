@@ -28,7 +28,3 @@ type BankKeeper interface {
 type WasmKeeper interface {
 	GetContractInfo(ctx sdk.Context, contractAddr sdk.AccAddress) (wasmtypes.ContractInfo, error)
 }
-
-type RevenueHooks interface {
-	PostTxProcessing(ctx sdk.Context, msg wasmtypes.MsgExecuteContract, feeTx sdk.FeeTx) error
-}

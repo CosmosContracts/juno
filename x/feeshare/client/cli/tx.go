@@ -13,28 +13,28 @@ import (
 	"github.com/CosmosContracts/juno/v12/x/feeshare/types"
 )
 
-// NewTxCmd returns a root CLI command handler for certain modules/revenue
+// NewTxCmd returns a root CLI command handler for certain modules/FeeShare
 // transaction commands.
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "revenue subcommands",
+		Short:                      "FeeShare subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 
 	txCmd.AddCommand(
-		NewRegisterRevenue(),
-		NewCancelRevenue(),
-		NewUpdateRevenue(),
+		NewRegisterFeeShare(),
+		NewCancelFeeShare(),
+		NewUpdateFeeShare(),
 	)
 	return txCmd
 }
 
-// NewRegisterRevenue returns a CLI command handler for registering a
+// NewRegisterFeeShare returns a CLI command handler for registering a
 // contract for fee distribution
-func NewRegisterRevenue() *cobra.Command {
+func NewRegisterFeeShare() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register [contract_bech32] [withdraw_bech32]",
 		Short: "Register a contract for fee distribution. Only the contract admin can register a contract.",
@@ -58,7 +58,7 @@ func NewRegisterRevenue() *cobra.Command {
 				return fmt.Errorf("invalid withdrawer bech32 address %w", err)
 			}
 
-			msg := &types.MsgRegisterRevenue{
+			msg := &types.MsgRegisterFeeShare{
 				ContractAddress:   contract,
 				DeployerAddress:   deployer.String(),
 				WithdrawerAddress: withdrawer,
@@ -76,9 +76,9 @@ func NewRegisterRevenue() *cobra.Command {
 	return cmd
 }
 
-// NewCancelRevenue returns a CLI command handler for canceling a
+// NewCancelFeeShare returns a CLI command handler for canceling a
 // contract for fee distribution
-func NewCancelRevenue() *cobra.Command {
+func NewCancelFeeShare() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cancel [contract_bech32]",
 		Short: "Cancel a contract from feeshare distribution",
@@ -97,7 +97,7 @@ func NewCancelRevenue() *cobra.Command {
 				return fmt.Errorf("invalid contract bech32 address %w", err)
 			}
 
-			msg := &types.MsgCancelRevenue{
+			msg := &types.MsgCancelFeeShare{
 				ContractAddress: contract,
 				DeployerAddress: deployer.String(),
 			}
@@ -114,9 +114,9 @@ func NewCancelRevenue() *cobra.Command {
 	return cmd
 }
 
-// NewUpdateRevenue returns a CLI command handler for updating the withdraw
+// NewUpdateFeeShare returns a CLI command handler for updating the withdraw
 // address of a contract for fee distribution
-func NewUpdateRevenue() *cobra.Command {
+func NewUpdateFeeShare() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update [contract_bech32] [",
 		Short: "Update withdrawer address for a contract registered for feeshare distribution.",
@@ -140,7 +140,7 @@ func NewUpdateRevenue() *cobra.Command {
 				return fmt.Errorf("invalid withdrawer bech32 address %w", err)
 			}
 
-			msg := &types.MsgUpdateRevenue{
+			msg := &types.MsgUpdateFeeShare{
 				ContractAddress:   contract,
 				DeployerAddress:   deployer.String(),
 				WithdrawerAddress: withdrawer,

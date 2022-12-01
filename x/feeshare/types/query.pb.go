@@ -30,24 +30,24 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryRevenuesRequest is the request type for the Query/Revenues RPC method.
-type QueryRevenuesRequest struct {
+// QueryFeeSharesRequest is the request type for the Query/FeeShares RPC method.
+type QueryFeeSharesRequest struct {
 	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryRevenuesRequest) Reset()         { *m = QueryRevenuesRequest{} }
-func (m *QueryRevenuesRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryRevenuesRequest) ProtoMessage()    {}
-func (*QueryRevenuesRequest) Descriptor() ([]byte, []int) {
+func (m *QueryFeeSharesRequest) Reset()         { *m = QueryFeeSharesRequest{} }
+func (m *QueryFeeSharesRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeSharesRequest) ProtoMessage()    {}
+func (*QueryFeeSharesRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_affabc6f0bd2ad33, []int{0}
 }
-func (m *QueryRevenuesRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeSharesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryRevenuesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeSharesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryRevenuesRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeSharesRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -57,45 +57,45 @@ func (m *QueryRevenuesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryRevenuesRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryRevenuesRequest.Merge(m, src)
+func (m *QueryFeeSharesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeSharesRequest.Merge(m, src)
 }
-func (m *QueryRevenuesRequest) XXX_Size() int {
+func (m *QueryFeeSharesRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryRevenuesRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryRevenuesRequest.DiscardUnknown(m)
+func (m *QueryFeeSharesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeSharesRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryRevenuesRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeSharesRequest proto.InternalMessageInfo
 
-func (m *QueryRevenuesRequest) GetPagination() *query.PageRequest {
+func (m *QueryFeeSharesRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QueryRevenuesResponse is the response type for the Query/Revenues RPC method.
-type QueryRevenuesResponse struct {
-	// revenues is a slice of all stored Reveneue
-	Revenues []Revenue `protobuf:"bytes,1,rep,name=revenues,proto3" json:"revenues"`
+// QueryFeeSharesResponse is the response type for the Query/FeeShares RPC method.
+type QueryFeeSharesResponse struct {
+	// FeeShare is a slice of all stored Reveneue
+	Feeshare []FeeShare `protobuf:"bytes,1,rep,name=feeshare,proto3" json:"feeshare"`
 	// pagination defines the pagination in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryRevenuesResponse) Reset()         { *m = QueryRevenuesResponse{} }
-func (m *QueryRevenuesResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryRevenuesResponse) ProtoMessage()    {}
-func (*QueryRevenuesResponse) Descriptor() ([]byte, []int) {
+func (m *QueryFeeSharesResponse) Reset()         { *m = QueryFeeSharesResponse{} }
+func (m *QueryFeeSharesResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeSharesResponse) ProtoMessage()    {}
+func (*QueryFeeSharesResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_affabc6f0bd2ad33, []int{1}
 }
-func (m *QueryRevenuesResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeSharesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryRevenuesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeSharesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryRevenuesResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeSharesResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -105,50 +105,50 @@ func (m *QueryRevenuesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *QueryRevenuesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryRevenuesResponse.Merge(m, src)
+func (m *QueryFeeSharesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeSharesResponse.Merge(m, src)
 }
-func (m *QueryRevenuesResponse) XXX_Size() int {
+func (m *QueryFeeSharesResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryRevenuesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryRevenuesResponse.DiscardUnknown(m)
+func (m *QueryFeeSharesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeSharesResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryRevenuesResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeSharesResponse proto.InternalMessageInfo
 
-func (m *QueryRevenuesResponse) GetRevenues() []Revenue {
+func (m *QueryFeeSharesResponse) GetFeeshare() []FeeShare {
 	if m != nil {
-		return m.Revenues
+		return m.Feeshare
 	}
 	return nil
 }
 
-func (m *QueryRevenuesResponse) GetPagination() *query.PageResponse {
+func (m *QueryFeeSharesResponse) GetPagination() *query.PageResponse {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QueryRevenueRequest is the request type for the Query/Revenue RPC method.
-type QueryRevenueRequest struct {
+// QueryFeeShareRequest is the request type for the Query/FeeShare RPC method.
+type QueryFeeShareRequest struct {
 	// contract_address of a registered contract in bech32 format
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 }
 
-func (m *QueryRevenueRequest) Reset()         { *m = QueryRevenueRequest{} }
-func (m *QueryRevenueRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryRevenueRequest) ProtoMessage()    {}
-func (*QueryRevenueRequest) Descriptor() ([]byte, []int) {
+func (m *QueryFeeShareRequest) Reset()         { *m = QueryFeeShareRequest{} }
+func (m *QueryFeeShareRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeShareRequest) ProtoMessage()    {}
+func (*QueryFeeShareRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_affabc6f0bd2ad33, []int{2}
 }
-func (m *QueryRevenueRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeShareRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryRevenueRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeShareRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryRevenueRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeShareRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -158,43 +158,43 @@ func (m *QueryRevenueRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *QueryRevenueRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryRevenueRequest.Merge(m, src)
+func (m *QueryFeeShareRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeShareRequest.Merge(m, src)
 }
-func (m *QueryRevenueRequest) XXX_Size() int {
+func (m *QueryFeeShareRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryRevenueRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryRevenueRequest.DiscardUnknown(m)
+func (m *QueryFeeShareRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeShareRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryRevenueRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeShareRequest proto.InternalMessageInfo
 
-func (m *QueryRevenueRequest) GetContractAddress() string {
+func (m *QueryFeeShareRequest) GetContractAddress() string {
 	if m != nil {
 		return m.ContractAddress
 	}
 	return ""
 }
 
-// QueryRevenueResponse is the response type for the Query/Revenue RPC method.
-type QueryRevenueResponse struct {
-	// revenue is a stored Reveneue for the queried contract
-	Revenue Revenue `protobuf:"bytes,1,opt,name=revenue,proto3" json:"revenue"`
+// QueryFeeShareResponse is the response type for the Query/FeeShare RPC method.
+type QueryFeeShareResponse struct {
+	// FeeShare is a stored Reveneue for the queried contract
+	Feeshare FeeShare `protobuf:"bytes,1,opt,name=feeshare,proto3" json:"feeshare"`
 }
 
-func (m *QueryRevenueResponse) Reset()         { *m = QueryRevenueResponse{} }
-func (m *QueryRevenueResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryRevenueResponse) ProtoMessage()    {}
-func (*QueryRevenueResponse) Descriptor() ([]byte, []int) {
+func (m *QueryFeeShareResponse) Reset()         { *m = QueryFeeShareResponse{} }
+func (m *QueryFeeShareResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeShareResponse) ProtoMessage()    {}
+func (*QueryFeeShareResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_affabc6f0bd2ad33, []int{3}
 }
-func (m *QueryRevenueResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeShareResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryRevenueResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeShareResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryRevenueResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeShareResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -204,23 +204,23 @@ func (m *QueryRevenueResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryRevenueResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryRevenueResponse.Merge(m, src)
+func (m *QueryFeeShareResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeShareResponse.Merge(m, src)
 }
-func (m *QueryRevenueResponse) XXX_Size() int {
+func (m *QueryFeeShareResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryRevenueResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryRevenueResponse.DiscardUnknown(m)
+func (m *QueryFeeShareResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeShareResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryRevenueResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeShareResponse proto.InternalMessageInfo
 
-func (m *QueryRevenueResponse) GetRevenue() Revenue {
+func (m *QueryFeeShareResponse) GetFeeshare() FeeShare {
 	if m != nil {
-		return m.Revenue
+		return m.Feeshare
 	}
-	return Revenue{}
+	return FeeShare{}
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -262,7 +262,7 @@ var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 type QueryParamsResponse struct {
-	// params is the returned revenue parameter
+	// params is the returned FeeShare parameter
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
 
@@ -306,27 +306,27 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryDeployerRevenuesRequest is the request type for the
-// Query/DeployerRevenues RPC method.
-type QueryDeployerRevenuesRequest struct {
+// QueryDeployerFeeSharesRequest is the request type for the
+// Query/DeployerFeeShares RPC method.
+type QueryDeployerFeeSharesRequest struct {
 	// deployer_address in bech32 format
 	DeployerAddress string `protobuf:"bytes,1,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
 	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryDeployerRevenuesRequest) Reset()         { *m = QueryDeployerRevenuesRequest{} }
-func (m *QueryDeployerRevenuesRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryDeployerRevenuesRequest) ProtoMessage()    {}
-func (*QueryDeployerRevenuesRequest) Descriptor() ([]byte, []int) {
+func (m *QueryDeployerFeeSharesRequest) Reset()         { *m = QueryDeployerFeeSharesRequest{} }
+func (m *QueryDeployerFeeSharesRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryDeployerFeeSharesRequest) ProtoMessage()    {}
+func (*QueryDeployerFeeSharesRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_affabc6f0bd2ad33, []int{6}
 }
-func (m *QueryDeployerRevenuesRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryDeployerFeeSharesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryDeployerRevenuesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryDeployerFeeSharesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryDeployerRevenuesRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryDeployerFeeSharesRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -336,35 +336,35 @@ func (m *QueryDeployerRevenuesRequest) XXX_Marshal(b []byte, deterministic bool)
 		return b[:n], nil
 	}
 }
-func (m *QueryDeployerRevenuesRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryDeployerRevenuesRequest.Merge(m, src)
+func (m *QueryDeployerFeeSharesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryDeployerFeeSharesRequest.Merge(m, src)
 }
-func (m *QueryDeployerRevenuesRequest) XXX_Size() int {
+func (m *QueryDeployerFeeSharesRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryDeployerRevenuesRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryDeployerRevenuesRequest.DiscardUnknown(m)
+func (m *QueryDeployerFeeSharesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryDeployerFeeSharesRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryDeployerRevenuesRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryDeployerFeeSharesRequest proto.InternalMessageInfo
 
-func (m *QueryDeployerRevenuesRequest) GetDeployerAddress() string {
+func (m *QueryDeployerFeeSharesRequest) GetDeployerAddress() string {
 	if m != nil {
 		return m.DeployerAddress
 	}
 	return ""
 }
 
-func (m *QueryDeployerRevenuesRequest) GetPagination() *query.PageRequest {
+func (m *QueryDeployerFeeSharesRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QueryDeployerRevenuesResponse is the response type for the
-// Query/DeployerRevenues RPC method.
-type QueryDeployerRevenuesResponse struct {
+// QueryDeployerFeeSharesResponse is the response type for the
+// Query/DeployerFeeShares RPC method.
+type QueryDeployerFeeSharesResponse struct {
 	// contract_addresses is the slice of registered contract addresses for a
 	// deployer
 	ContractAddresses []string `protobuf:"bytes,1,rep,name=contract_addresses,json=contractAddresses,proto3" json:"contract_addresses,omitempty"`
@@ -372,18 +372,18 @@ type QueryDeployerRevenuesResponse struct {
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryDeployerRevenuesResponse) Reset()         { *m = QueryDeployerRevenuesResponse{} }
-func (m *QueryDeployerRevenuesResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryDeployerRevenuesResponse) ProtoMessage()    {}
-func (*QueryDeployerRevenuesResponse) Descriptor() ([]byte, []int) {
+func (m *QueryDeployerFeeSharesResponse) Reset()         { *m = QueryDeployerFeeSharesResponse{} }
+func (m *QueryDeployerFeeSharesResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryDeployerFeeSharesResponse) ProtoMessage()    {}
+func (*QueryDeployerFeeSharesResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_affabc6f0bd2ad33, []int{7}
 }
-func (m *QueryDeployerRevenuesResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryDeployerFeeSharesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryDeployerRevenuesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryDeployerFeeSharesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryDeployerRevenuesResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryDeployerFeeSharesResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -393,53 +393,53 @@ func (m *QueryDeployerRevenuesResponse) XXX_Marshal(b []byte, deterministic bool
 		return b[:n], nil
 	}
 }
-func (m *QueryDeployerRevenuesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryDeployerRevenuesResponse.Merge(m, src)
+func (m *QueryDeployerFeeSharesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryDeployerFeeSharesResponse.Merge(m, src)
 }
-func (m *QueryDeployerRevenuesResponse) XXX_Size() int {
+func (m *QueryDeployerFeeSharesResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryDeployerRevenuesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryDeployerRevenuesResponse.DiscardUnknown(m)
+func (m *QueryDeployerFeeSharesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryDeployerFeeSharesResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryDeployerRevenuesResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryDeployerFeeSharesResponse proto.InternalMessageInfo
 
-func (m *QueryDeployerRevenuesResponse) GetContractAddresses() []string {
+func (m *QueryDeployerFeeSharesResponse) GetContractAddresses() []string {
 	if m != nil {
 		return m.ContractAddresses
 	}
 	return nil
 }
 
-func (m *QueryDeployerRevenuesResponse) GetPagination() *query.PageResponse {
+func (m *QueryDeployerFeeSharesResponse) GetPagination() *query.PageResponse {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QueryWithdrawerRevenuesRequest is the request type for the
-// Query/WithdrawerRevenues RPC method.
-type QueryWithdrawerRevenuesRequest struct {
+// QueryWithdrawerFeeSharesRequest is the request type for the
+// Query/WithdrawerFeeShares RPC method.
+type QueryWithdrawerFeeSharesRequest struct {
 	// withdrawer_address in bech32 format
 	WithdrawerAddress string `protobuf:"bytes,1,opt,name=withdrawer_address,json=withdrawerAddress,proto3" json:"withdrawer_address,omitempty"`
 	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryWithdrawerRevenuesRequest) Reset()         { *m = QueryWithdrawerRevenuesRequest{} }
-func (m *QueryWithdrawerRevenuesRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryWithdrawerRevenuesRequest) ProtoMessage()    {}
-func (*QueryWithdrawerRevenuesRequest) Descriptor() ([]byte, []int) {
+func (m *QueryWithdrawerFeeSharesRequest) Reset()         { *m = QueryWithdrawerFeeSharesRequest{} }
+func (m *QueryWithdrawerFeeSharesRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryWithdrawerFeeSharesRequest) ProtoMessage()    {}
+func (*QueryWithdrawerFeeSharesRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_affabc6f0bd2ad33, []int{8}
 }
-func (m *QueryWithdrawerRevenuesRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryWithdrawerFeeSharesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryWithdrawerRevenuesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryWithdrawerFeeSharesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryWithdrawerRevenuesRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryWithdrawerFeeSharesRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -449,35 +449,35 @@ func (m *QueryWithdrawerRevenuesRequest) XXX_Marshal(b []byte, deterministic boo
 		return b[:n], nil
 	}
 }
-func (m *QueryWithdrawerRevenuesRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryWithdrawerRevenuesRequest.Merge(m, src)
+func (m *QueryWithdrawerFeeSharesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryWithdrawerFeeSharesRequest.Merge(m, src)
 }
-func (m *QueryWithdrawerRevenuesRequest) XXX_Size() int {
+func (m *QueryWithdrawerFeeSharesRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryWithdrawerRevenuesRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryWithdrawerRevenuesRequest.DiscardUnknown(m)
+func (m *QueryWithdrawerFeeSharesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryWithdrawerFeeSharesRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryWithdrawerRevenuesRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryWithdrawerFeeSharesRequest proto.InternalMessageInfo
 
-func (m *QueryWithdrawerRevenuesRequest) GetWithdrawerAddress() string {
+func (m *QueryWithdrawerFeeSharesRequest) GetWithdrawerAddress() string {
 	if m != nil {
 		return m.WithdrawerAddress
 	}
 	return ""
 }
 
-func (m *QueryWithdrawerRevenuesRequest) GetPagination() *query.PageRequest {
+func (m *QueryWithdrawerFeeSharesRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QueryWithdrawerRevenuesResponse is the response type for the
-// Query/WithdrawerRevenues RPC method.
-type QueryWithdrawerRevenuesResponse struct {
+// QueryWithdrawerFeeSharesResponse is the response type for the
+// Query/WithdrawerFeeShares RPC method.
+type QueryWithdrawerFeeSharesResponse struct {
 	// contract_addresses is the slice of registered contract addresses for a
 	// withdrawer
 	ContractAddresses []string `protobuf:"bytes,1,rep,name=contract_addresses,json=contractAddresses,proto3" json:"contract_addresses,omitempty"`
@@ -485,18 +485,18 @@ type QueryWithdrawerRevenuesResponse struct {
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryWithdrawerRevenuesResponse) Reset()         { *m = QueryWithdrawerRevenuesResponse{} }
-func (m *QueryWithdrawerRevenuesResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryWithdrawerRevenuesResponse) ProtoMessage()    {}
-func (*QueryWithdrawerRevenuesResponse) Descriptor() ([]byte, []int) {
+func (m *QueryWithdrawerFeeSharesResponse) Reset()         { *m = QueryWithdrawerFeeSharesResponse{} }
+func (m *QueryWithdrawerFeeSharesResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryWithdrawerFeeSharesResponse) ProtoMessage()    {}
+func (*QueryWithdrawerFeeSharesResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_affabc6f0bd2ad33, []int{9}
 }
-func (m *QueryWithdrawerRevenuesResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryWithdrawerFeeSharesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryWithdrawerRevenuesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryWithdrawerFeeSharesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryWithdrawerRevenuesResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryWithdrawerFeeSharesResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -506,26 +506,26 @@ func (m *QueryWithdrawerRevenuesResponse) XXX_Marshal(b []byte, deterministic bo
 		return b[:n], nil
 	}
 }
-func (m *QueryWithdrawerRevenuesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryWithdrawerRevenuesResponse.Merge(m, src)
+func (m *QueryWithdrawerFeeSharesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryWithdrawerFeeSharesResponse.Merge(m, src)
 }
-func (m *QueryWithdrawerRevenuesResponse) XXX_Size() int {
+func (m *QueryWithdrawerFeeSharesResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryWithdrawerRevenuesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryWithdrawerRevenuesResponse.DiscardUnknown(m)
+func (m *QueryWithdrawerFeeSharesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryWithdrawerFeeSharesResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryWithdrawerRevenuesResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryWithdrawerFeeSharesResponse proto.InternalMessageInfo
 
-func (m *QueryWithdrawerRevenuesResponse) GetContractAddresses() []string {
+func (m *QueryWithdrawerFeeSharesResponse) GetContractAddresses() []string {
 	if m != nil {
 		return m.ContractAddresses
 	}
 	return nil
 }
 
-func (m *QueryWithdrawerRevenuesResponse) GetPagination() *query.PageResponse {
+func (m *QueryWithdrawerFeeSharesResponse) GetPagination() *query.PageResponse {
 	if m != nil {
 		return m.Pagination
 	}
@@ -533,64 +533,64 @@ func (m *QueryWithdrawerRevenuesResponse) GetPagination() *query.PageResponse {
 }
 
 func init() {
-	proto.RegisterType((*QueryRevenuesRequest)(nil), "juno.feeshare.v1.QueryRevenuesRequest")
-	proto.RegisterType((*QueryRevenuesResponse)(nil), "juno.feeshare.v1.QueryRevenuesResponse")
-	proto.RegisterType((*QueryRevenueRequest)(nil), "juno.feeshare.v1.QueryRevenueRequest")
-	proto.RegisterType((*QueryRevenueResponse)(nil), "juno.feeshare.v1.QueryRevenueResponse")
+	proto.RegisterType((*QueryFeeSharesRequest)(nil), "juno.feeshare.v1.QueryFeeSharesRequest")
+	proto.RegisterType((*QueryFeeSharesResponse)(nil), "juno.feeshare.v1.QueryFeeSharesResponse")
+	proto.RegisterType((*QueryFeeShareRequest)(nil), "juno.feeshare.v1.QueryFeeShareRequest")
+	proto.RegisterType((*QueryFeeShareResponse)(nil), "juno.feeshare.v1.QueryFeeShareResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "juno.feeshare.v1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "juno.feeshare.v1.QueryParamsResponse")
-	proto.RegisterType((*QueryDeployerRevenuesRequest)(nil), "juno.feeshare.v1.QueryDeployerRevenuesRequest")
-	proto.RegisterType((*QueryDeployerRevenuesResponse)(nil), "juno.feeshare.v1.QueryDeployerRevenuesResponse")
-	proto.RegisterType((*QueryWithdrawerRevenuesRequest)(nil), "juno.feeshare.v1.QueryWithdrawerRevenuesRequest")
-	proto.RegisterType((*QueryWithdrawerRevenuesResponse)(nil), "juno.feeshare.v1.QueryWithdrawerRevenuesResponse")
+	proto.RegisterType((*QueryDeployerFeeSharesRequest)(nil), "juno.feeshare.v1.QueryDeployerFeeSharesRequest")
+	proto.RegisterType((*QueryDeployerFeeSharesResponse)(nil), "juno.feeshare.v1.QueryDeployerFeeSharesResponse")
+	proto.RegisterType((*QueryWithdrawerFeeSharesRequest)(nil), "juno.feeshare.v1.QueryWithdrawerFeeSharesRequest")
+	proto.RegisterType((*QueryWithdrawerFeeSharesResponse)(nil), "juno.feeshare.v1.QueryWithdrawerFeeSharesResponse")
 }
 
 func init() { proto.RegisterFile("juno/feeshare/v1/query.proto", fileDescriptor_affabc6f0bd2ad33) }
 
 var fileDescriptor_affabc6f0bd2ad33 = []byte{
 	// 670 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x55, 0x4d, 0x6b, 0x13, 0x4f,
-	0x18, 0xcf, 0xf4, 0xff, 0xef, 0xdb, 0xd3, 0x83, 0xe9, 0x58, 0x21, 0x2e, 0x71, 0x5b, 0x16, 0xfb,
-	0x26, 0x74, 0xa7, 0x5b, 0x51, 0x11, 0x2f, 0xda, 0x8a, 0x82, 0x20, 0xb4, 0x7b, 0x11, 0x3c, 0x28,
-	0x93, 0x64, 0xdc, 0xae, 0xb4, 0x3b, 0xdb, 0x9d, 0x4d, 0x6a, 0x90, 0x20, 0xf8, 0x05, 0x54, 0x3c,
-	0x14, 0x0f, 0x7e, 0x01, 0x8f, 0x7e, 0x8a, 0x1e, 0x0b, 0x5e, 0x3c, 0x89, 0x24, 0x7e, 0x05, 0xef,
-	0x92, 0x99, 0xd9, 0xa4, 0xd9, 0x75, 0x1b, 0x2b, 0x05, 0x6f, 0xcb, 0xf3, 0xf6, 0xfb, 0x3d, 0xbf,
-	0x79, 0x9e, 0x67, 0xa1, 0xfc, 0xbc, 0x1e, 0x70, 0xf2, 0x8c, 0x31, 0xb1, 0x4d, 0x23, 0x46, 0x1a,
-	0x0e, 0xd9, 0xab, 0xb3, 0xa8, 0x69, 0x87, 0x11, 0x8f, 0x39, 0x2e, 0x76, 0xbd, 0x76, 0xe2, 0xb5,
-	0x1b, 0x8e, 0x71, 0xa5, 0xca, 0xc5, 0x2e, 0x17, 0xa4, 0x42, 0x05, 0x53, 0xa1, 0xa4, 0xe1, 0x54,
-	0x58, 0x4c, 0x1d, 0x12, 0x52, 0xcf, 0x0f, 0x68, 0xec, 0xf3, 0x40, 0x65, 0x1b, 0x66, 0xa6, 0xb6,
-	0xc7, 0x02, 0x26, 0x7c, 0x91, 0xeb, 0x8f, 0x58, 0x83, 0x05, 0x75, 0xa6, 0xfd, 0x33, 0x1e, 0xf7,
-	0xb8, 0xfc, 0x24, 0xdd, 0x2f, 0x6d, 0x2d, 0x7b, 0x9c, 0x7b, 0x3b, 0x8c, 0xd0, 0xd0, 0x27, 0x34,
-	0x08, 0x78, 0x2c, 0x21, 0x75, 0x4d, 0xeb, 0x09, 0xcc, 0x6c, 0x75, 0x59, 0xb9, 0xaa, 0x92, 0x70,
-	0xd9, 0x5e, 0x9d, 0x89, 0x18, 0xdf, 0x03, 0xe8, 0xf3, 0x2b, 0xa1, 0x39, 0xb4, 0x34, 0xb5, 0xb6,
-	0x60, 0xab, 0x66, 0xec, 0x6e, 0x33, 0xb6, 0xea, 0x5b, 0x37, 0x63, 0x6f, 0x52, 0x8f, 0xe9, 0x5c,
-	0xf7, 0x58, 0xa6, 0xf5, 0x11, 0xc1, 0x85, 0x14, 0x80, 0x08, 0x79, 0x20, 0x18, 0xbe, 0x05, 0x13,
-	0x9a, 0xbe, 0x28, 0xa1, 0xb9, 0xff, 0x96, 0xa6, 0xd6, 0x2e, 0xda, 0x69, 0xf9, 0x6c, 0x9d, 0xb5,
-	0xfe, 0xff, 0xe1, 0xb7, 0xd9, 0x82, 0xdb, 0x4b, 0xc0, 0xf7, 0x07, 0xe8, 0x8d, 0x48, 0x7a, 0x8b,
-	0x43, 0xe9, 0x29, 0xe4, 0x01, 0x7e, 0xb7, 0xe1, 0xfc, 0x71, 0x7a, 0x49, 0xfb, 0xcb, 0x50, 0xac,
-	0xf2, 0x20, 0x8e, 0x68, 0x35, 0x7e, 0x4a, 0x6b, 0xb5, 0x88, 0x09, 0x21, 0x45, 0x98, 0x74, 0xcf,
-	0x25, 0xf6, 0x3b, 0xca, 0x6c, 0x6d, 0x0d, 0x2a, 0xd8, 0xeb, 0xef, 0x26, 0x8c, 0x6b, 0xba, 0x5a,
-	0xbe, 0xa1, 0xed, 0x25, 0xf1, 0xd6, 0x0c, 0x60, 0x59, 0x72, 0x93, 0x46, 0x74, 0x37, 0x79, 0x12,
-	0xeb, 0xa1, 0xa6, 0x9a, 0x58, 0x35, 0xce, 0x75, 0x18, 0x0b, 0xa5, 0x45, 0xc3, 0x94, 0xb2, 0x30,
-	0x2a, 0x43, 0xa3, 0xe8, 0x68, 0xeb, 0x1d, 0x82, 0xb2, 0xac, 0x77, 0x97, 0x85, 0x3b, 0xbc, 0xc9,
-	0xa2, 0xf4, 0x08, 0x2c, 0x43, 0xb1, 0xa6, 0x5d, 0x69, 0x0d, 0x12, 0xbb, 0xd6, 0x20, 0x35, 0x2d,
-	0x23, 0x7f, 0x3d, 0x2d, 0x07, 0x08, 0x2e, 0xe5, 0x70, 0xd2, 0xdd, 0xae, 0x00, 0x4e, 0x3f, 0x8c,
-	0x9e, 0x9f, 0x49, 0x77, 0x3a, 0xf5, 0x34, 0x67, 0x39, 0x27, 0x07, 0x08, 0x4c, 0xc9, 0xec, 0x91,
-	0x1f, 0x6f, 0xd7, 0x22, 0xba, 0x9f, 0xd5, 0x6b, 0x05, 0xf0, 0x7e, 0xcf, 0x99, 0x52, 0x6c, 0xba,
-	0xef, 0x39, 0x6b, 0xcd, 0x3e, 0x20, 0x98, 0xcd, 0x65, 0xf6, 0x6f, 0x55, 0x5b, 0xfb, 0x39, 0x0a,
-	0xa3, 0x92, 0x1b, 0x7e, 0x05, 0x13, 0x09, 0x2b, 0xbc, 0x90, 0x9d, 0xd0, 0xdf, 0xdd, 0x20, 0x63,
-	0x71, 0x68, 0x9c, 0x82, 0xb4, 0xac, 0xd7, 0x5f, 0x7e, 0xbc, 0x1f, 0x29, 0x63, 0x83, 0xe4, 0x5d,
-	0x48, 0x81, 0xdf, 0x20, 0x18, 0xd7, 0x89, 0x78, 0xfe, 0xe4, 0xc2, 0x09, 0xfe, 0xc2, 0xb0, 0x30,
-	0x0d, 0x7f, 0x4d, 0xc2, 0x13, 0xbc, 0x92, 0x0f, 0x4f, 0x5e, 0xa6, 0xf5, 0x6f, 0xe1, 0x7d, 0x18,
-	0x53, 0x8b, 0x89, 0x2f, 0xe7, 0x00, 0x0d, 0xec, 0xbf, 0x31, 0x3f, 0x24, 0x4a, 0xb3, 0x99, 0x93,
-	0x6c, 0x0c, 0x5c, 0xca, 0xb2, 0x51, 0x9b, 0x8f, 0x3f, 0x21, 0x28, 0xa6, 0x17, 0x0c, 0xdb, 0x39,
-	0xd5, 0x73, 0xae, 0x83, 0x41, 0xfe, 0x38, 0xfe, 0x34, 0x2a, 0xa5, 0x0f, 0x4e, 0x0b, 0x7f, 0x46,
-	0x80, 0xb3, 0x93, 0x8d, 0x57, 0x73, 0xe0, 0x73, 0xd7, 0xd3, 0x70, 0x4e, 0x91, 0xa1, 0x29, 0xdf,
-	0x90, 0x94, 0x1d, 0x4c, 0x4e, 0xa2, 0x9c, 0xdd, 0xf9, 0xd6, 0xfa, 0x83, 0xc3, 0xb6, 0x89, 0x8e,
-	0xda, 0x26, 0xfa, 0xde, 0x36, 0xd1, 0xdb, 0x8e, 0x59, 0x38, 0xea, 0x98, 0x85, 0xaf, 0x1d, 0xb3,
-	0xf0, 0x78, 0xd5, 0xf3, 0xe3, 0xed, 0x7a, 0xc5, 0xae, 0xf2, 0x5d, 0xb2, 0x21, 0x17, 0x6a, 0x43,
-	0x0f, 0x86, 0x50, 0x20, 0x2f, 0xfa, 0x30, 0x71, 0x33, 0x64, 0xa2, 0x32, 0x26, 0x7f, 0xd4, 0x57,
-	0x7f, 0x05, 0x00, 0x00, 0xff, 0xff, 0x12, 0xf8, 0x25, 0xc5, 0x7a, 0x08, 0x00, 0x00,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x95, 0xcf, 0x6b, 0x13, 0x41,
+	0x14, 0xc7, 0x33, 0x55, 0x43, 0xfb, 0x7a, 0xb0, 0x9d, 0x56, 0x09, 0x6b, 0xbb, 0x0d, 0xab, 0xf6,
+	0x87, 0xd0, 0x9d, 0x24, 0x42, 0xf1, 0xe0, 0xa5, 0xad, 0x54, 0x10, 0x84, 0x1a, 0x11, 0xc1, 0x4b,
+	0x99, 0x24, 0xe3, 0x76, 0xa5, 0xdd, 0xd9, 0xee, 0x6c, 0x5a, 0x83, 0xe4, 0xa2, 0xe0, 0x59, 0xec,
+	0xa5, 0x78, 0xf1, 0x3f, 0xf0, 0xe8, 0xdf, 0xd0, 0x63, 0xc1, 0x8b, 0x27, 0x91, 0xc4, 0x3f, 0x44,
+	0x32, 0x33, 0x9b, 0x98, 0xdd, 0x6c, 0x63, 0xa4, 0xe0, 0x6d, 0x33, 0xef, 0xc7, 0xf7, 0xf3, 0xde,
+	0xbc, 0x79, 0x81, 0xb9, 0x57, 0x75, 0x8f, 0x93, 0x97, 0x8c, 0x89, 0x5d, 0x1a, 0x30, 0x72, 0x58,
+	0x24, 0x07, 0x75, 0x16, 0x34, 0x6c, 0x3f, 0xe0, 0x21, 0xc7, 0x53, 0x1d, 0xab, 0x1d, 0x59, 0xed,
+	0xc3, 0xa2, 0x71, 0xa7, 0xca, 0xc5, 0x3e, 0x17, 0xa4, 0x42, 0x05, 0x53, 0xae, 0xe4, 0xb0, 0x58,
+	0x61, 0x21, 0x2d, 0x12, 0x9f, 0x3a, 0xae, 0x47, 0x43, 0x97, 0x7b, 0x2a, 0xda, 0x30, 0x13, 0xb9,
+	0x1d, 0xe6, 0x31, 0xe1, 0x0a, 0x6d, 0x5f, 0x48, 0xd8, 0xbb, 0x4a, 0xca, 0x61, 0xd6, 0xe1, 0x0e,
+	0x97, 0x9f, 0xa4, 0xf3, 0xa5, 0x4f, 0xe7, 0x1c, 0xce, 0x9d, 0x3d, 0x46, 0xa8, 0xef, 0x12, 0xea,
+	0x79, 0x3c, 0x94, 0x9a, 0x3a, 0xa9, 0xb5, 0x03, 0xd7, 0x9e, 0x74, 0xb0, 0xb6, 0x18, 0x7b, 0xda,
+	0x49, 0x25, 0xca, 0xec, 0xa0, 0xce, 0x44, 0x88, 0xb7, 0x00, 0x7a, 0x84, 0x39, 0x94, 0x47, 0xcb,
+	0x93, 0xa5, 0x45, 0x5b, 0x95, 0x63, 0x77, 0xca, 0xb1, 0x55, 0xe5, 0xba, 0x1c, 0x7b, 0x9b, 0x3a,
+	0x4c, 0xc7, 0x96, 0xff, 0x88, 0xb4, 0x3e, 0x23, 0xb8, 0x1e, 0x57, 0x10, 0x3e, 0xf7, 0x04, 0xc3,
+	0xf7, 0x61, 0x3c, 0xaa, 0x20, 0x87, 0xf2, 0x97, 0x96, 0x27, 0x4b, 0x86, 0x1d, 0xef, 0xa0, 0x1d,
+	0x85, 0x6d, 0x5c, 0x3e, 0xfd, 0xb1, 0x90, 0x29, 0x77, 0x23, 0xf0, 0xc3, 0x3e, 0xc0, 0x31, 0x09,
+	0xb8, 0x34, 0x14, 0x50, 0x49, 0xf7, 0x11, 0xae, 0xc3, 0x6c, 0x1f, 0x60, 0xd4, 0x81, 0x15, 0x98,
+	0xaa, 0x72, 0x2f, 0x0c, 0x68, 0x35, 0xdc, 0xa1, 0xb5, 0x5a, 0xc0, 0x84, 0x90, 0x7d, 0x98, 0x28,
+	0x5f, 0x8d, 0xce, 0xd7, 0xd5, 0xb1, 0xf5, 0x2c, 0xd6, 0xc5, 0x94, 0x12, 0xd1, 0x68, 0x25, 0x5a,
+	0xb3, 0x80, 0x65, 0xda, 0x6d, 0x1a, 0xd0, 0xfd, 0xe8, 0x66, 0xac, 0xc7, 0x30, 0xd3, 0x77, 0xaa,
+	0xa5, 0xd6, 0x20, 0xeb, 0xcb, 0x13, 0x2d, 0x94, 0x4b, 0x0a, 0xa9, 0x08, 0x2d, 0xa3, 0xbd, 0xad,
+	0x8f, 0x08, 0xe6, 0x65, 0xbe, 0x07, 0xcc, 0xdf, 0xe3, 0x0d, 0x16, 0x24, 0x46, 0x61, 0x05, 0xa6,
+	0x6a, 0xda, 0x16, 0x6f, 0x44, 0x74, 0xae, 0x1b, 0x11, 0x9b, 0x9a, 0xb1, 0x7f, 0x9e, 0x9a, 0x13,
+	0x04, 0x66, 0x1a, 0x94, 0xae, 0x77, 0x15, 0x70, 0xfc, 0x7a, 0x98, 0x90, 0x73, 0x34, 0x51, 0x9e,
+	0x8e, 0x5d, 0x10, 0x13, 0x17, 0x37, 0x2e, 0x27, 0x08, 0x16, 0x24, 0xda, 0x73, 0x37, 0xdc, 0xad,
+	0x05, 0xf4, 0x68, 0x40, 0xc7, 0x56, 0x01, 0x1f, 0x75, 0xad, 0xb1, 0x9e, 0x4d, 0xf7, 0x2c, 0x17,
+	0xdd, 0xb5, 0x4f, 0x08, 0xf2, 0xe9, 0x68, 0xff, 0xb7, 0x6f, 0xa5, 0xf7, 0x59, 0xb8, 0x22, 0xe1,
+	0xf0, 0x3b, 0x04, 0x13, 0x5d, 0x2e, 0xbc, 0x94, 0x9c, 0xd3, 0x81, 0x1b, 0xc9, 0x58, 0x1e, 0xee,
+	0xa8, 0x64, 0xad, 0x9b, 0x6f, 0xbf, 0xfd, 0x3a, 0x1e, 0x9b, 0xc7, 0x37, 0x48, 0x62, 0x65, 0xf6,
+	0x74, 0x8f, 0x11, 0x8c, 0x47, 0xbf, 0xf0, 0xe2, 0x90, 0xdc, 0x11, 0xc3, 0xd2, 0x50, 0x3f, 0x8d,
+	0xb0, 0x26, 0x11, 0x0a, 0xd8, 0x3e, 0x07, 0x81, 0xbc, 0x89, 0x5f, 0x44, 0x13, 0x1f, 0x41, 0x56,
+	0xbd, 0x52, 0x7c, 0x2b, 0x45, 0xaa, 0x6f, 0x19, 0x18, 0xb7, 0x87, 0x78, 0x69, 0x9c, 0xbc, 0xc4,
+	0x31, 0x70, 0x2e, 0x89, 0xa3, 0xd6, 0x00, 0xfe, 0x82, 0x60, 0x3a, 0xf1, 0xd8, 0x30, 0x49, 0x49,
+	0x9f, 0xb6, 0x2b, 0x8c, 0xc2, 0xdf, 0x07, 0x8c, 0xd4, 0xa9, 0xf8, 0x02, 0x6a, 0xe2, 0xaf, 0x08,
+	0x66, 0x06, 0xcc, 0x39, 0x2e, 0xa6, 0x10, 0xa4, 0x3f, 0x57, 0xa3, 0x34, 0x4a, 0x88, 0xc6, 0xbe,
+	0x27, 0xb1, 0x4b, 0xb8, 0x70, 0x2e, 0x76, 0x72, 0x0b, 0x34, 0x37, 0x1e, 0x9d, 0xb6, 0x4c, 0x74,
+	0xd6, 0x32, 0xd1, 0xcf, 0x96, 0x89, 0x3e, 0xb4, 0xcd, 0xcc, 0x59, 0xdb, 0xcc, 0x7c, 0x6f, 0x9b,
+	0x99, 0x17, 0x05, 0xc7, 0x0d, 0x77, 0xeb, 0x15, 0xbb, 0xca, 0xf7, 0xc9, 0xa6, 0x7c, 0x61, 0x9b,
+	0x7a, 0x40, 0x84, 0x52, 0x79, 0xdd, 0xd3, 0x09, 0x1b, 0x3e, 0x13, 0x95, 0xac, 0xfc, 0x17, 0xbf,
+	0xfb, 0x3b, 0x00, 0x00, 0xff, 0xff, 0x21, 0xcd, 0xde, 0xfb, 0x98, 0x08, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -605,18 +605,18 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Revenues retrieves all registered revenues
-	Revenues(ctx context.Context, in *QueryRevenuesRequest, opts ...grpc.CallOption) (*QueryRevenuesResponse, error)
-	// Revenue retrieves a registered revenue for a given contract address
-	Revenue(ctx context.Context, in *QueryRevenueRequest, opts ...grpc.CallOption) (*QueryRevenueResponse, error)
-	// Params retrieves the revenue module params
+	// FeeShares retrieves all registered FeeShares
+	FeeShares(ctx context.Context, in *QueryFeeSharesRequest, opts ...grpc.CallOption) (*QueryFeeSharesResponse, error)
+	// FeeShare retrieves a registered FeeShare for a given contract address
+	FeeShare(ctx context.Context, in *QueryFeeShareRequest, opts ...grpc.CallOption) (*QueryFeeShareResponse, error)
+	// Params retrieves the FeeShare module params
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// DeployerRevenues retrieves all revenues that a given deployer has
+	// DeployerFeeShares retrieves all FeeShares that a given deployer has
 	// registered
-	DeployerRevenues(ctx context.Context, in *QueryDeployerRevenuesRequest, opts ...grpc.CallOption) (*QueryDeployerRevenuesResponse, error)
-	// WithdrawerRevenues retrieves all revenues with a given withdrawer
+	DeployerFeeShares(ctx context.Context, in *QueryDeployerFeeSharesRequest, opts ...grpc.CallOption) (*QueryDeployerFeeSharesResponse, error)
+	// WithdrawerFeeShares retrieves all FeeShares with a given withdrawer
 	// address
-	WithdrawerRevenues(ctx context.Context, in *QueryWithdrawerRevenuesRequest, opts ...grpc.CallOption) (*QueryWithdrawerRevenuesResponse, error)
+	WithdrawerFeeShares(ctx context.Context, in *QueryWithdrawerFeeSharesRequest, opts ...grpc.CallOption) (*QueryWithdrawerFeeSharesResponse, error)
 }
 
 type queryClient struct {
@@ -627,18 +627,18 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) Revenues(ctx context.Context, in *QueryRevenuesRequest, opts ...grpc.CallOption) (*QueryRevenuesResponse, error) {
-	out := new(QueryRevenuesResponse)
-	err := c.cc.Invoke(ctx, "/juno.feeshare.v1.Query/Revenues", in, out, opts...)
+func (c *queryClient) FeeShares(ctx context.Context, in *QueryFeeSharesRequest, opts ...grpc.CallOption) (*QueryFeeSharesResponse, error) {
+	out := new(QueryFeeSharesResponse)
+	err := c.cc.Invoke(ctx, "/juno.feeshare.v1.Query/FeeShares", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) Revenue(ctx context.Context, in *QueryRevenueRequest, opts ...grpc.CallOption) (*QueryRevenueResponse, error) {
-	out := new(QueryRevenueResponse)
-	err := c.cc.Invoke(ctx, "/juno.feeshare.v1.Query/Revenue", in, out, opts...)
+func (c *queryClient) FeeShare(ctx context.Context, in *QueryFeeShareRequest, opts ...grpc.CallOption) (*QueryFeeShareResponse, error) {
+	out := new(QueryFeeShareResponse)
+	err := c.cc.Invoke(ctx, "/juno.feeshare.v1.Query/FeeShare", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -654,18 +654,18 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
-func (c *queryClient) DeployerRevenues(ctx context.Context, in *QueryDeployerRevenuesRequest, opts ...grpc.CallOption) (*QueryDeployerRevenuesResponse, error) {
-	out := new(QueryDeployerRevenuesResponse)
-	err := c.cc.Invoke(ctx, "/juno.feeshare.v1.Query/DeployerRevenues", in, out, opts...)
+func (c *queryClient) DeployerFeeShares(ctx context.Context, in *QueryDeployerFeeSharesRequest, opts ...grpc.CallOption) (*QueryDeployerFeeSharesResponse, error) {
+	out := new(QueryDeployerFeeSharesResponse)
+	err := c.cc.Invoke(ctx, "/juno.feeshare.v1.Query/DeployerFeeShares", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) WithdrawerRevenues(ctx context.Context, in *QueryWithdrawerRevenuesRequest, opts ...grpc.CallOption) (*QueryWithdrawerRevenuesResponse, error) {
-	out := new(QueryWithdrawerRevenuesResponse)
-	err := c.cc.Invoke(ctx, "/juno.feeshare.v1.Query/WithdrawerRevenues", in, out, opts...)
+func (c *queryClient) WithdrawerFeeShares(ctx context.Context, in *QueryWithdrawerFeeSharesRequest, opts ...grpc.CallOption) (*QueryWithdrawerFeeSharesResponse, error) {
+	out := new(QueryWithdrawerFeeSharesResponse)
+	err := c.cc.Invoke(ctx, "/juno.feeshare.v1.Query/WithdrawerFeeShares", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -674,76 +674,76 @@ func (c *queryClient) WithdrawerRevenues(ctx context.Context, in *QueryWithdrawe
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Revenues retrieves all registered revenues
-	Revenues(context.Context, *QueryRevenuesRequest) (*QueryRevenuesResponse, error)
-	// Revenue retrieves a registered revenue for a given contract address
-	Revenue(context.Context, *QueryRevenueRequest) (*QueryRevenueResponse, error)
-	// Params retrieves the revenue module params
+	// FeeShares retrieves all registered FeeShares
+	FeeShares(context.Context, *QueryFeeSharesRequest) (*QueryFeeSharesResponse, error)
+	// FeeShare retrieves a registered FeeShare for a given contract address
+	FeeShare(context.Context, *QueryFeeShareRequest) (*QueryFeeShareResponse, error)
+	// Params retrieves the FeeShare module params
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// DeployerRevenues retrieves all revenues that a given deployer has
+	// DeployerFeeShares retrieves all FeeShares that a given deployer has
 	// registered
-	DeployerRevenues(context.Context, *QueryDeployerRevenuesRequest) (*QueryDeployerRevenuesResponse, error)
-	// WithdrawerRevenues retrieves all revenues with a given withdrawer
+	DeployerFeeShares(context.Context, *QueryDeployerFeeSharesRequest) (*QueryDeployerFeeSharesResponse, error)
+	// WithdrawerFeeShares retrieves all FeeShares with a given withdrawer
 	// address
-	WithdrawerRevenues(context.Context, *QueryWithdrawerRevenuesRequest) (*QueryWithdrawerRevenuesResponse, error)
+	WithdrawerFeeShares(context.Context, *QueryWithdrawerFeeSharesRequest) (*QueryWithdrawerFeeSharesResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) Revenues(ctx context.Context, req *QueryRevenuesRequest) (*QueryRevenuesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Revenues not implemented")
+func (*UnimplementedQueryServer) FeeShares(ctx context.Context, req *QueryFeeSharesRequest) (*QueryFeeSharesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FeeShares not implemented")
 }
-func (*UnimplementedQueryServer) Revenue(ctx context.Context, req *QueryRevenueRequest) (*QueryRevenueResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Revenue not implemented")
+func (*UnimplementedQueryServer) FeeShare(ctx context.Context, req *QueryFeeShareRequest) (*QueryFeeShareResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FeeShare not implemented")
 }
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
-func (*UnimplementedQueryServer) DeployerRevenues(ctx context.Context, req *QueryDeployerRevenuesRequest) (*QueryDeployerRevenuesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeployerRevenues not implemented")
+func (*UnimplementedQueryServer) DeployerFeeShares(ctx context.Context, req *QueryDeployerFeeSharesRequest) (*QueryDeployerFeeSharesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeployerFeeShares not implemented")
 }
-func (*UnimplementedQueryServer) WithdrawerRevenues(ctx context.Context, req *QueryWithdrawerRevenuesRequest) (*QueryWithdrawerRevenuesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WithdrawerRevenues not implemented")
+func (*UnimplementedQueryServer) WithdrawerFeeShares(ctx context.Context, req *QueryWithdrawerFeeSharesRequest) (*QueryWithdrawerFeeSharesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WithdrawerFeeShares not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_Revenues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryRevenuesRequest)
+func _Query_FeeShares_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryFeeSharesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).Revenues(ctx, in)
+		return srv.(QueryServer).FeeShares(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/juno.feeshare.v1.Query/Revenues",
+		FullMethod: "/juno.feeshare.v1.Query/FeeShares",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Revenues(ctx, req.(*QueryRevenuesRequest))
+		return srv.(QueryServer).FeeShares(ctx, req.(*QueryFeeSharesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_Revenue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryRevenueRequest)
+func _Query_FeeShare_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryFeeShareRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).Revenue(ctx, in)
+		return srv.(QueryServer).FeeShare(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/juno.feeshare.v1.Query/Revenue",
+		FullMethod: "/juno.feeshare.v1.Query/FeeShare",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Revenue(ctx, req.(*QueryRevenueRequest))
+		return srv.(QueryServer).FeeShare(ctx, req.(*QueryFeeShareRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -766,38 +766,38 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_DeployerRevenues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryDeployerRevenuesRequest)
+func _Query_DeployerFeeShares_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryDeployerFeeSharesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).DeployerRevenues(ctx, in)
+		return srv.(QueryServer).DeployerFeeShares(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/juno.feeshare.v1.Query/DeployerRevenues",
+		FullMethod: "/juno.feeshare.v1.Query/DeployerFeeShares",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).DeployerRevenues(ctx, req.(*QueryDeployerRevenuesRequest))
+		return srv.(QueryServer).DeployerFeeShares(ctx, req.(*QueryDeployerFeeSharesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_WithdrawerRevenues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryWithdrawerRevenuesRequest)
+func _Query_WithdrawerFeeShares_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryWithdrawerFeeSharesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).WithdrawerRevenues(ctx, in)
+		return srv.(QueryServer).WithdrawerFeeShares(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/juno.feeshare.v1.Query/WithdrawerRevenues",
+		FullMethod: "/juno.feeshare.v1.Query/WithdrawerFeeShares",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).WithdrawerRevenues(ctx, req.(*QueryWithdrawerRevenuesRequest))
+		return srv.(QueryServer).WithdrawerFeeShares(ctx, req.(*QueryWithdrawerFeeSharesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -807,31 +807,31 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Revenues",
-			Handler:    _Query_Revenues_Handler,
+			MethodName: "FeeShares",
+			Handler:    _Query_FeeShares_Handler,
 		},
 		{
-			MethodName: "Revenue",
-			Handler:    _Query_Revenue_Handler,
+			MethodName: "FeeShare",
+			Handler:    _Query_FeeShare_Handler,
 		},
 		{
 			MethodName: "Params",
 			Handler:    _Query_Params_Handler,
 		},
 		{
-			MethodName: "DeployerRevenues",
-			Handler:    _Query_DeployerRevenues_Handler,
+			MethodName: "DeployerFeeShares",
+			Handler:    _Query_DeployerFeeShares_Handler,
 		},
 		{
-			MethodName: "WithdrawerRevenues",
-			Handler:    _Query_WithdrawerRevenues_Handler,
+			MethodName: "WithdrawerFeeShares",
+			Handler:    _Query_WithdrawerFeeShares_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "juno/feeshare/v1/query.proto",
 }
 
-func (m *QueryRevenuesRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeSharesRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -841,12 +841,12 @@ func (m *QueryRevenuesRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryRevenuesRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeSharesRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryRevenuesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeSharesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -866,7 +866,7 @@ func (m *QueryRevenuesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryRevenuesResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeSharesResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -876,12 +876,12 @@ func (m *QueryRevenuesResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryRevenuesResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeSharesResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryRevenuesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeSharesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -898,10 +898,10 @@ func (m *QueryRevenuesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Revenues) > 0 {
-		for iNdEx := len(m.Revenues) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.Feeshare) > 0 {
+		for iNdEx := len(m.Feeshare) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Revenues[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.Feeshare[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -915,7 +915,7 @@ func (m *QueryRevenuesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryRevenueRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeShareRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -925,12 +925,12 @@ func (m *QueryRevenueRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryRevenueRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeShareRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryRevenueRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeShareRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -945,7 +945,7 @@ func (m *QueryRevenueRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryRevenueResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeShareResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -955,18 +955,18 @@ func (m *QueryRevenueResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryRevenueResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeShareResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryRevenueResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeShareResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	{
-		size, err := m.Revenue.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.Feeshare.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -1034,7 +1034,7 @@ func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryDeployerRevenuesRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryDeployerFeeSharesRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1044,12 +1044,12 @@ func (m *QueryDeployerRevenuesRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryDeployerRevenuesRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryDeployerFeeSharesRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryDeployerRevenuesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryDeployerFeeSharesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1076,7 +1076,7 @@ func (m *QueryDeployerRevenuesRequest) MarshalToSizedBuffer(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryDeployerRevenuesResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryDeployerFeeSharesResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1086,12 +1086,12 @@ func (m *QueryDeployerRevenuesResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryDeployerRevenuesResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryDeployerFeeSharesResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryDeployerRevenuesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryDeployerFeeSharesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1120,7 +1120,7 @@ func (m *QueryDeployerRevenuesResponse) MarshalToSizedBuffer(dAtA []byte) (int, 
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryWithdrawerRevenuesRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryWithdrawerFeeSharesRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1130,12 +1130,12 @@ func (m *QueryWithdrawerRevenuesRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryWithdrawerRevenuesRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryWithdrawerFeeSharesRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryWithdrawerRevenuesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryWithdrawerFeeSharesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1162,7 +1162,7 @@ func (m *QueryWithdrawerRevenuesRequest) MarshalToSizedBuffer(dAtA []byte) (int,
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryWithdrawerRevenuesResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryWithdrawerFeeSharesResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1172,12 +1172,12 @@ func (m *QueryWithdrawerRevenuesResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryWithdrawerRevenuesResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryWithdrawerFeeSharesResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryWithdrawerRevenuesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryWithdrawerFeeSharesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1217,7 +1217,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryRevenuesRequest) Size() (n int) {
+func (m *QueryFeeSharesRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1230,14 +1230,14 @@ func (m *QueryRevenuesRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryRevenuesResponse) Size() (n int) {
+func (m *QueryFeeSharesResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.Revenues) > 0 {
-		for _, e := range m.Revenues {
+	if len(m.Feeshare) > 0 {
+		for _, e := range m.Feeshare {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -1249,7 +1249,7 @@ func (m *QueryRevenuesResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryRevenueRequest) Size() (n int) {
+func (m *QueryFeeShareRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1262,13 +1262,13 @@ func (m *QueryRevenueRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryRevenueResponse) Size() (n int) {
+func (m *QueryFeeShareResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.Revenue.Size()
+	l = m.Feeshare.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
@@ -1293,7 +1293,7 @@ func (m *QueryParamsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryDeployerRevenuesRequest) Size() (n int) {
+func (m *QueryDeployerFeeSharesRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1310,7 +1310,7 @@ func (m *QueryDeployerRevenuesRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryDeployerRevenuesResponse) Size() (n int) {
+func (m *QueryDeployerFeeSharesResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1329,7 +1329,7 @@ func (m *QueryDeployerRevenuesResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryWithdrawerRevenuesRequest) Size() (n int) {
+func (m *QueryWithdrawerFeeSharesRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1346,7 +1346,7 @@ func (m *QueryWithdrawerRevenuesRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryWithdrawerRevenuesResponse) Size() (n int) {
+func (m *QueryWithdrawerFeeSharesResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1371,7 +1371,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryRevenuesRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeSharesRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1394,10 +1394,10 @@ func (m *QueryRevenuesRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryRevenuesRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeSharesRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryRevenuesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeSharesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1457,7 +1457,7 @@ func (m *QueryRevenuesRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryRevenuesResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeSharesResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1480,15 +1480,15 @@ func (m *QueryRevenuesResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryRevenuesResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeSharesResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryRevenuesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeSharesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Revenues", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Feeshare", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1515,8 +1515,8 @@ func (m *QueryRevenuesResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Revenues = append(m.Revenues, Revenue{})
-			if err := m.Revenues[len(m.Revenues)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Feeshare = append(m.Feeshare, FeeShare{})
+			if err := m.Feeshare[len(m.Feeshare)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1577,7 +1577,7 @@ func (m *QueryRevenuesResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryRevenueRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeShareRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1600,10 +1600,10 @@ func (m *QueryRevenueRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryRevenueRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeShareRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryRevenueRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeShareRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1659,7 +1659,7 @@ func (m *QueryRevenueRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryRevenueResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeShareResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1682,15 +1682,15 @@ func (m *QueryRevenueResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryRevenueResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeShareResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryRevenueResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeShareResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Revenue", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Feeshare", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1717,7 +1717,7 @@ func (m *QueryRevenueResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Revenue.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Feeshare.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1875,7 +1875,7 @@ func (m *QueryParamsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryDeployerRevenuesRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryDeployerFeeSharesRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1898,10 +1898,10 @@ func (m *QueryDeployerRevenuesRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryDeployerRevenuesRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryDeployerFeeSharesRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryDeployerRevenuesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryDeployerFeeSharesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1993,7 +1993,7 @@ func (m *QueryDeployerRevenuesRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryDeployerRevenuesResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryDeployerFeeSharesResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2016,10 +2016,10 @@ func (m *QueryDeployerRevenuesResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryDeployerRevenuesResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryDeployerFeeSharesResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryDeployerRevenuesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryDeployerFeeSharesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2111,7 +2111,7 @@ func (m *QueryDeployerRevenuesResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryWithdrawerRevenuesRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryWithdrawerFeeSharesRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2134,10 +2134,10 @@ func (m *QueryWithdrawerRevenuesRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryWithdrawerRevenuesRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryWithdrawerFeeSharesRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryWithdrawerRevenuesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryWithdrawerFeeSharesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2229,7 +2229,7 @@ func (m *QueryWithdrawerRevenuesRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryWithdrawerRevenuesResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryWithdrawerFeeSharesResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2252,10 +2252,10 @@ func (m *QueryWithdrawerRevenuesResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryWithdrawerRevenuesResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryWithdrawerFeeSharesResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryWithdrawerRevenuesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryWithdrawerFeeSharesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

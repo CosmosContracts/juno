@@ -24,9 +24,8 @@ func CreateV12UpgradeHandler(
 		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
 
 		newFeeShareParams := feesharetypes.Params{
-			EnableRevenue:            true,
-			DeveloperShares:          sdk.NewDecWithPrec(50, 2), // = 50%
-			AddrDerivationCostCreate: 0,
+			EnableFeeShare:  true,
+			DeveloperShares: sdk.NewDecWithPrec(50, 2), // = 50%
 		}
 		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
 

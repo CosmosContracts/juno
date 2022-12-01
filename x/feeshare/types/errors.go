@@ -6,10 +6,10 @@ import (
 
 // errors
 var (
-	ErrInternalRevenue              = sdkerrrors.Register(ModuleName, 2, "internal revenue error")
-	ErrRevenueDisabled              = sdkerrrors.Register(ModuleName, 3, "revenue module is disabled by governance")
-	ErrRevenueAlreadyRegistered     = sdkerrrors.Register(ModuleName, 4, "revenue already exists for given contract")
-	ErrRevenueNoContractDeployed    = sdkerrrors.Register(ModuleName, 5, "no contract deployed")
-	ErrRevenueContractNotRegistered = sdkerrrors.Register(ModuleName, 6, "no revenue registered for contract")
-	ErrRevenueDeployerIsNotEOA      = sdkerrrors.Register(ModuleName, 7, "no revenue registered for contract")
+	ErrInternalFeeShare              = sdkerrrors.Register(ModuleName, 2, "internal feeshare error")
+	ErrFeeShareDisabled              = sdkerrrors.Register(ModuleName, 3, "feeshare module is disabled by governance")
+	ErrFeeShareAlreadyRegistered     = sdkerrrors.Register(ModuleName, 4, "feeshare already exists for given contract")
+	ErrFeeShareNoContractDeployed    = sdkerrrors.Register(ModuleName, 5, "no contract deployed")
+	ErrFeeShareContractNotRegistered = sdkerrrors.Register(ModuleName, 6, "no feeshare registered for contract")
+	ErrFeeShareDeployerIsNotEOA      = sdkerrrors.Register(ModuleName, 7, "no feeshare registered for contract")
 )

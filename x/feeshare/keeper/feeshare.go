@@ -7,71 +7,71 @@ import (
 	"github.com/CosmosContracts/juno/v12/x/feeshare/types"
 )
 
-// GetRevenues returns all registered Revenues.
-func (k Keeper) GetRevenues(ctx sdk.Context) []types.Revenue {
-	revenues := []types.Revenue{}
+// GetFeeShares returns all registered FeeShares.
+func (k Keeper) GetFeeShares(ctx sdk.Context) []types.FeeShare {
+	feeshares := []types.FeeShare{}
 
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixRevenue)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixFeeShare)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var revenue types.Revenue
-		k.cdc.MustUnmarshal(iterator.Value(), &revenue)
+		var feeshare types.FeeShare
+		k.cdc.MustUnmarshal(iterator.Value(), &feeshare)
 
-		revenues = append(revenues, revenue)
+		feeshares = append(feeshares, feeshare)
 	}
 
-	return revenues
+	return feeshares
 }
 
-// IterateRevenues iterates over all registered contracts and performs a
-// callback with the corresponding Revenue.
-func (k Keeper) IterateRevenues(
+// IterateFeeShares iterates over all registered contracts and performs a
+// callback with the corresponding FeeShare.
+func (k Keeper) IterateFeeShares(
 	ctx sdk.Context,
-	handlerFn func(fee types.Revenue) (stop bool),
+	handlerFn func(fee types.FeeShare) (stop bool),
 ) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixRevenue)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixFeeShare)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var revenue types.Revenue
-		k.cdc.MustUnmarshal(iterator.Value(), &revenue)
+		var feeshare types.FeeShare
+		k.cdc.MustUnmarshal(iterator.Value(), &feeshare)
 
-		if handlerFn(revenue) {
+		if handlerFn(feeshare) {
 			break
 		}
 	}
 }
 
-// GetRevenue returns the Revenue for a registered contract
-func (k Keeper) GetRevenue(
+// GetFeeShare returns the FeeShare for a registered contract
+func (k Keeper) GetFeeShare(
 	ctx sdk.Context,
 	contract sdk.Address,
-) (types.Revenue, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixRevenue)
+) (types.FeeShare, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeShare)
 	bz := store.Get(contract.Bytes())
 	if len(bz) == 0 {
-		return types.Revenue{}, false
+		return types.FeeShare{}, false
 	}
 
-	var revenue types.Revenue
-	k.cdc.MustUnmarshal(bz, &revenue)
-	return revenue, true
+	var feeshare types.FeeShare
+	k.cdc.MustUnmarshal(bz, &feeshare)
+	return feeshare, true
 }
 
-// SetRevenue stores the Revenue for a registered contract.
-func (k Keeper) SetRevenue(ctx sdk.Context, revenue types.Revenue) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixRevenue)
-	key := revenue.GetContractAddr()
-	bz := k.cdc.MustMarshal(&revenue)
+// SetFeeShare stores the FeeShare for a registered contract.
+func (k Keeper) SetFeeShare(ctx sdk.Context, feeshare types.FeeShare) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeShare)
+	key := feeshare.GetContractAddr()
+	bz := k.cdc.MustMarshal(&feeshare)
 	store.Set(key.Bytes(), bz)
 }
 
-// DeleteRevenue deletes a Revenue of a registered contract.
-func (k Keeper) DeleteRevenue(ctx sdk.Context, fee types.Revenue) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixRevenue)
+// DeleteFeeShare deletes a FeeShare of a registered contract.
+func (k Keeper) DeleteFeeShare(ctx sdk.Context, fee types.FeeShare) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeShare)
 	key := fee.GetContractAddr()
 	store.Delete(key.Bytes())
 }
@@ -120,13 +120,13 @@ func (k Keeper) DeleteWithdrawerMap(
 	store.Delete(key)
 }
 
-// IsRevenueRegistered checks if a contract was registered for receiving
+// IsFeeShareRegistered checks if a contract was registered for receiving
 // transaction fees
-func (k Keeper) IsRevenueRegistered(
+func (k Keeper) IsFeeShareRegistered(
 	ctx sdk.Context,
 	contract sdk.Address,
 ) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixRevenue)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeShare)
 	return store.Has(contract.Bytes())
 }
 
@@ -142,7 +142,7 @@ func (k Keeper) IsDeployerMapSet(
 	return store.Has(key)
 }
 
-// IsWithdrawerMapSet checks if a giveb contract-by-withdrawer mapping is set in
+// IsWithdrawerMapSet checks if a give contract-by-withdrawer mapping is set in
 // store
 func (k Keeper) IsWithdrawerMapSet(
 	ctx sdk.Context,

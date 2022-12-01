@@ -20,7 +20,6 @@ func TestParamSetPairs(t *testing.T) {
 
 func TestParamsValidate(t *testing.T) {
 	devShares := sdk.NewDecWithPrec(60, 2)
-	derivCostCreate := uint64(50)
 
 	testCases := []struct {
 		name     string
@@ -30,22 +29,22 @@ func TestParamsValidate(t *testing.T) {
 		{"default", DefaultParams(), false},
 		{
 			"valid: enabled",
-			NewParams(true, devShares, derivCostCreate),
+			NewParams(true, devShares),
 			false,
 		},
 		{
 			"valid: disabled",
-			NewParams(false, devShares, derivCostCreate),
+			NewParams(false, devShares),
 			false,
 		},
 		{
 			"valid: 100% devs",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), derivCostCreate},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(1))},
 			false,
 		},
 		{
 			"invalid: 51% must be divisible by 5",
-			Params{true, sdk.NewDecWithPrec(51, 2), derivCostCreate},
+			Params{true, sdk.NewDecWithPrec(51, 2)},
 			true,
 		},
 		{
@@ -55,18 +54,13 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"invalid: share > 1",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(2)), derivCostCreate},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(2))},
 			true,
 		},
 		{
 			"invalid: share < 0",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1)), derivCostCreate},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1))},
 			true,
-		},
-		{
-			"invalid: wrong address derivation cost",
-			NewParams(true, devShares, 50),
-			false,
 		},
 	}
 	for _, tc := range testCases {
@@ -108,7 +102,7 @@ func TestParamsValidateShares(t *testing.T) {
 }
 
 func TestParamsValidateBool(t *testing.T) {
-	err := validateBool(DefaultEnableRevenue)
+	err := validateBool(DefaultEnableFeeShare)
 	require.NoError(t, err)
 	err = validateBool(true)
 	require.NoError(t, err)
@@ -117,20 +111,5 @@ func TestParamsValidateBool(t *testing.T) {
 	err = validateBool("")
 	require.Error(t, err)
 	err = validateBool(int64(123))
-	require.Error(t, err)
-}
-
-func TestParamsValidateUint64(t *testing.T) {
-	err := validateUint64(DefaultAddrDerivationCostCreate)
-	require.NoError(t, err)
-	err = validateUint64(uint64(0))
-	require.NoError(t, err)
-	err = validateUint64(uint64(1))
-	require.NoError(t, err)
-	err = validateUint64("")
-	require.Error(t, err)
-	err = validateUint64(int64(123))
-	require.Error(t, err)
-	err = validateUint64(int64(-1))
 	require.Error(t, err)
 }

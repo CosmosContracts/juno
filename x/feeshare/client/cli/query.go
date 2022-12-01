@@ -24,22 +24,22 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	feesQueryCmd.AddCommand(
-		GetCmdQueryRevenues(),
-		GetCmdQueryRevenue(),
+		GetCmdQueryFeeShares(),
+		GetCmdQueryFeeShare(),
 		GetCmdQueryParams(),
-		GetCmdQueryDeployerRevenues(),
-		GetCmdQueryWithdrawerRevenues(),
+		GetCmdQueryDeployerFeeShares(),
+		GetCmdQueryWithdrawerFeeShares(),
 	)
 
 	return feesQueryCmd
 }
 
-// GetCmdQueryRevenues implements a command to return all registered contracts
+// GetCmdQueryFeeShares implements a command to return all registered contracts
 // for fee distribution
-func GetCmdQueryRevenues() *cobra.Command {
+func GetCmdQueryFeeShares() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "contracts",
-		Short: "Query all revenues",
+		Short: "Query all FeeShares",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -53,11 +53,11 @@ func GetCmdQueryRevenues() *cobra.Command {
 				return err
 			}
 
-			req := &types.QueryRevenuesRequest{
+			req := &types.QueryFeeSharesRequest{
 				Pagination: pageReq,
 			}
 
-			res, err := queryClient.Revenues(context.Background(), req)
+			res, err := queryClient.FeeShares(context.Background(), req)
 			if err != nil {
 				return err
 			}
@@ -71,9 +71,9 @@ func GetCmdQueryRevenues() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryRevenue implements a command to return a registered contract for fee
+// GetCmdQueryFeeShare implements a command to return a registered contract for fee
 // distribution
-func GetCmdQueryRevenue() *cobra.Command {
+func GetCmdQueryFeeShare() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "contract [contract_address]",
 		Args:    cobra.ExactArgs(1),
@@ -88,10 +88,10 @@ func GetCmdQueryRevenue() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			req := &types.QueryRevenueRequest{ContractAddress: args[0]}
+			req := &types.QueryFeeShareRequest{ContractAddress: args[0]}
 
 			// Query store
-			res, err := queryClient.Revenue(context.Background(), req)
+			res, err := queryClient.FeeShare(context.Background(), req)
 			if err != nil {
 				return err
 			}
@@ -103,7 +103,7 @@ func GetCmdQueryRevenue() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryParams implements a command to return the current revenue
+// GetCmdQueryParams implements a command to return the current FeeShare
 // parameters.
 func GetCmdQueryParams() *cobra.Command {
 	cmd := &cobra.Command{
@@ -133,9 +133,9 @@ func GetCmdQueryParams() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryDeployerRevenues implements a command that returns all contracts
+// GetCmdQueryDeployerFeeShares implements a command that returns all contracts
 // that a deployer has registered for fee distribution
-func GetCmdQueryDeployerRevenues() *cobra.Command {
+func GetCmdQueryDeployerFeeShares() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "deployer-contracts [deployer_address]",
 		Args:    cobra.ExactArgs(1),
@@ -156,7 +156,7 @@ func GetCmdQueryDeployerRevenues() *cobra.Command {
 			}
 
 			// Query store
-			res, err := queryClient.DeployerRevenues(context.Background(), &types.QueryDeployerRevenuesRequest{
+			res, err := queryClient.DeployerFeeShares(context.Background(), &types.QueryDeployerFeeSharesRequest{
 				DeployerAddress: args[0],
 				Pagination:      pageReq,
 			})
@@ -171,10 +171,10 @@ func GetCmdQueryDeployerRevenues() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryWithdrawerRevenues implements a command that returns all
+// GetCmdQueryWithdrawerFeeShares implements a command that returns all
 // contracts that have registered for fee distribution with a given withdraw
 // address
-func GetCmdQueryWithdrawerRevenues() *cobra.Command {
+func GetCmdQueryWithdrawerFeeShares() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "withdrawer-contracts [withdraw_address]",
 		Args:    cobra.ExactArgs(1),
@@ -195,7 +195,7 @@ func GetCmdQueryWithdrawerRevenues() *cobra.Command {
 			}
 
 			// Query store
-			res, err := queryClient.WithdrawerRevenues(context.Background(), &types.QueryWithdrawerRevenuesRequest{
+			res, err := queryClient.WithdrawerFeeShares(context.Background(), &types.QueryWithdrawerFeeSharesRequest{
 				WithdrawerAddress: args[0],
 				Pagination:        pageReq,
 			})

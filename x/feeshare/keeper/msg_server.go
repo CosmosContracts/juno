@@ -11,7 +11,7 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-// CheckIfDeployerIsContractAdmin ensures the deployer is the contract's admin for all msg_server revenue functions.
+// CheckIfDeployerIsContractAdmin ensures the deployer is the contract's admin for all msg_server feeshare functions.
 // If not, it returns an error & we know the user is not authorized to perform the action.
 func (k Keeper) CheckIfDeployerIsContractAdmin(ctx sdk.Context, contract sdk.AccAddress, deployer string) (deployerAddr sdk.AccAddress, errr error) {
 	deployerAddr, err := sdk.AccAddressFromBech32(deployer)
@@ -32,16 +32,16 @@ func (k Keeper) CheckIfDeployerIsContractAdmin(ctx sdk.Context, contract sdk.Acc
 	return deployerAddr, nil
 }
 
-// RegisterRevenue registers a contract to receive transaction fees
-func (k Keeper) RegisterRevenue(
+// RegisterFeeShare registers a contract to receive transaction fees
+func (k Keeper) RegisterFeeShare(
 	goCtx context.Context,
-	msg *types.MsgRegisterRevenue,
-) (*types.MsgRegisterRevenueResponse, error) {
+	msg *types.MsgRegisterFeeShare,
+) (*types.MsgRegisterFeeShareResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	params := k.GetParams(ctx)
-	if !params.EnableRevenue {
-		return nil, types.ErrRevenueDisabled
+	if !params.EnableFeeShare {
+		return nil, types.ErrFeeShareDisabled
 	}
 
 	// Get Contract
@@ -51,8 +51,8 @@ func (k Keeper) RegisterRevenue(
 	}
 
 	// Check if contract is already registered
-	if k.IsRevenueRegistered(ctx, contract) {
-		return nil, sdkerrors.Wrapf(types.ErrRevenueAlreadyRegistered, "contract is already registered %s", contract)
+	if k.IsFeeShareRegistered(ctx, contract) {
+		return nil, sdkerrors.Wrapf(types.ErrFeeShareAlreadyRegistered, "contract is already registered %s", contract)
 	}
 
 	// Check that the person who signed the message is the wasm contract admin, if so return the deployer address
@@ -68,8 +68,8 @@ func (k Keeper) RegisterRevenue(
 	}
 
 	// prevent storing the same address for deployer and withdrawer
-	revenue := types.NewRevenue(contract, deployer, withdrawer)
-	k.SetRevenue(ctx, revenue)
+	feeshare := types.NewFeeShare(contract, deployer, withdrawer)
+	k.SetFeeShare(ctx, feeshare)
 	k.SetDeployerMap(ctx, deployer, contract)
 
 	if len(withdrawer.String()) != 0 {
@@ -86,7 +86,7 @@ func (k Keeper) RegisterRevenue(
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeRegisterRevenue,
+				types.EventTypeRegisterFeeShare,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, msg.WithdrawerAddress),
@@ -94,21 +94,21 @@ func (k Keeper) RegisterRevenue(
 		},
 	)
 
-	return &types.MsgRegisterRevenueResponse{}, nil
+	return &types.MsgRegisterFeeShareResponse{}, nil
 }
 
-// UpdateRevenue updates the withdraw address of a given Revenue. If the given
+// UpdateFeeShare updates the withdraw address of a given FeeShare. If the given
 // withdraw address is empty or the same as the deployer address, the withdraw
 // address is removed.
-func (k Keeper) UpdateRevenue(
+func (k Keeper) UpdateFeeShare(
 	goCtx context.Context,
-	msg *types.MsgUpdateRevenue,
-) (*types.MsgUpdateRevenueResponse, error) {
+	msg *types.MsgUpdateFeeShare,
+) (*types.MsgUpdateFeeShareResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	params := k.GetParams(ctx)
-	if !params.EnableRevenue {
-		return nil, types.ErrRevenueDisabled
+	if !params.EnableFeeShare {
+		return nil, types.ErrFeeShareDisabled
 	}
 
 	contract, err := sdk.AccAddressFromBech32(msg.ContractAddress)
@@ -119,17 +119,17 @@ func (k Keeper) UpdateRevenue(
 		)
 	}
 
-	revenue, found := k.GetRevenue(ctx, contract)
+	feeshare, found := k.GetFeeShare(ctx, contract)
 	if !found {
 		return nil, sdkerrors.Wrapf(
-			types.ErrRevenueContractNotRegistered,
+			types.ErrFeeShareContractNotRegistered,
 			"contract %s is not registered", msg.ContractAddress,
 		)
 	}
 
-	// revenue with the given withdraw address is already registered
-	if msg.WithdrawerAddress == revenue.WithdrawerAddress {
-		return nil, sdkerrors.Wrapf(types.ErrRevenueAlreadyRegistered, "revenue with withdraw address %s is already registered", msg.WithdrawerAddress)
+	// feeshare with the given withdraw address is already registered
+	if msg.WithdrawerAddress == feeshare.WithdrawerAddress {
+		return nil, sdkerrors.Wrapf(types.ErrFeeShareAlreadyRegistered, "feeshare with withdraw address %s is already registered", msg.WithdrawerAddress)
 	}
 
 	// Check that the person who signed the message is the wasm contract admin, if so return the deployer address
@@ -138,7 +138,7 @@ func (k Keeper) UpdateRevenue(
 		return nil, err
 	}
 
-	withdrawAddr, err := sdk.AccAddressFromBech32(revenue.WithdrawerAddress)
+	withdrawAddr, err := sdk.AccAddressFromBech32(feeshare.WithdrawerAddress)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
 			sdkerrors.ErrInvalidAddress,
@@ -147,7 +147,7 @@ func (k Keeper) UpdateRevenue(
 	}
 
 	// only delete withdrawer map if is not default
-	if revenue.WithdrawerAddress != "" {
+	if feeshare.WithdrawerAddress != "" {
 		k.DeleteWithdrawerMap(ctx, withdrawAddr, contract)
 	}
 
@@ -159,14 +159,14 @@ func (k Keeper) UpdateRevenue(
 			contract,
 		)
 	}
-	// update revenue
-	revenue.WithdrawerAddress = msg.WithdrawerAddress
-	k.SetRevenue(ctx, revenue)
+	// update feeshare
+	feeshare.WithdrawerAddress = msg.WithdrawerAddress
+	k.SetFeeShare(ctx, feeshare)
 
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeUpdateRevenue,
+				types.EventTypeUpdateFeeShare,
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, msg.WithdrawerAddress),
@@ -174,19 +174,19 @@ func (k Keeper) UpdateRevenue(
 		},
 	)
 
-	return &types.MsgUpdateRevenueResponse{}, nil
+	return &types.MsgUpdateFeeShareResponse{}, nil
 }
 
-// CancelRevenue deletes the Revenue for a given contract
-func (k Keeper) CancelRevenue(
+// CancelFeeShare deletes the FeeShare for a given contract
+func (k Keeper) CancelFeeShare(
 	goCtx context.Context,
-	msg *types.MsgCancelRevenue,
-) (*types.MsgCancelRevenueResponse, error) {
+	msg *types.MsgCancelFeeShare,
+) (*types.MsgCancelFeeShareResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	params := k.GetParams(ctx)
-	if !params.EnableRevenue {
-		return nil, types.ErrRevenueDisabled
+	if !params.EnableFeeShare {
+		return nil, types.ErrFeeShareDisabled
 	}
 
 	contract, err := sdk.AccAddressFromBech32(msg.ContractAddress)
@@ -194,9 +194,9 @@ func (k Keeper) CancelRevenue(
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
 	}
 
-	fee, found := k.GetRevenue(ctx, contract)
+	fee, found := k.GetFeeShare(ctx, contract)
 	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrRevenueContractNotRegistered, "contract %s is not registered", msg.ContractAddress)
+		return nil, sdkerrors.Wrapf(types.ErrFeeShareContractNotRegistered, "contract %s is not registered", msg.ContractAddress)
 	}
 
 	// Check that the person who signed the message is the wasm contract admin, if so return the deployer address
@@ -205,7 +205,7 @@ func (k Keeper) CancelRevenue(
 		return nil, err
 	}
 
-	k.DeleteRevenue(ctx, fee)
+	k.DeleteFeeShare(ctx, fee)
 	k.DeleteDeployerMap(
 		ctx,
 		fee.GetDeployerAddr(),
@@ -224,12 +224,12 @@ func (k Keeper) CancelRevenue(
 	ctx.EventManager().EmitEvents(
 		sdk.Events{
 			sdk.NewEvent(
-				types.EventTypeCancelRevenue,
+				types.EventTypeCancelFeeShare,
 				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 			),
 		},
 	)
 
-	return &types.MsgCancelRevenueResponse{}, nil
+	return &types.MsgCancelFeeShareResponse{}, nil
 }

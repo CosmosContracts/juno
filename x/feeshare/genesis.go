@@ -1,4 +1,4 @@
-package revenue
+package feeshare
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,13 +15,13 @@ func InitGenesis(
 ) {
 	k.SetParams(ctx, data.Params)
 
-	for _, revenue := range data.Revenues {
-		contract := revenue.GetContractAddr()
-		deployer := revenue.GetDeployerAddr()
-		withdrawer := revenue.GetWithdrawerAddr()
+	for _, share := range data.FeeShare {
+		contract := share.GetContractAddr()
+		deployer := share.GetDeployerAddr()
+		withdrawer := share.GetWithdrawerAddr()
 
 		// Set initial contracts receiving transaction fees
-		k.SetRevenue(ctx, revenue)
+		k.SetFeeShare(ctx, share)
 		k.SetDeployerMap(ctx, deployer, contract)
 
 		if len(withdrawer) != 0 {
@@ -34,6 +34,6 @@ func InitGenesis(
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params:   k.GetParams(ctx),
-		Revenues: k.GetRevenues(ctx),
+		FeeShare: k.GetFeeShares(ctx),
 	}
 }

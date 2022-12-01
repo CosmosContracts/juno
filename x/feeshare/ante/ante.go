@@ -58,7 +58,7 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, fees s
 				return err
 			}
 
-			shareData, _ := revKeeper.GetRevenue(ctx, contractAddr)
+			shareData, _ := revKeeper.GetFeeShare(ctx, contractAddr)
 			withdrawAddr := shareData.GetWithdrawerAddr()
 			if withdrawAddr != nil {
 				pairs = append(pairs, PayoutContracts{contractAddr, withdrawAddr})

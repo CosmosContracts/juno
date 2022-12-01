@@ -1,30 +1,26 @@
 syntax = "proto3";
 package juno.feeshare.v1;
 
-import "juno/feeshare/v1/revenue.proto";
+import "juno/feeshare/v1/feeshare.proto";
 import "gogoproto/gogo.proto";
-
 option go_package = "github.com/CosmosContracts/juno/x/feeshare/types";
 
 // GenesisState defines the module's genesis state.
 message GenesisState {
   // params are the feeshare module parameters
   Params params = 1 [ (gogoproto.nullable) = false ];
-  // revenues is a slice of active registered contracts for fee distribution
-  repeated Revenue revenues = 2 [ (gogoproto.nullable) = false ];
+  // FeeShare is a slice of active registered contracts for fee distribution
+  repeated FeeShare fee_share = 2 [ (gogoproto.nullable) = false ];
 }
 
-// Params defines the revenue module params
+// Params defines the feeshare module params
 message Params {
-  // enable_revenue defines a parameter to enable the feeshare module
-  bool enable_revenue = 1;
+  // enable_feeshare defines a parameter to enable the feeshare module
+  bool enable_fee_share = 1;
   // developer_shares defines the proportion of the transaction fees to be
   // distributed to the registered contract owner
   string developer_shares = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
-  ];
-  // addr_derivation_cost_create defines the cost of address derivation for
-  // verifying the contract deployer at fee registration
-  uint64 addr_derivation_cost_create = 3;
+  ];  
 }

@@ -23,9 +23,9 @@ var (
 
 const (
 	// Amino names
-	cancelRevenueName   = "juno/MsgCancelRevenue"
-	registerRevenueName = "juno/MsgRegisterRevenue"
-	updateRevenueName   = "juno/MsgUpdateRevenue"
+	cancelFeeShareName   = "juno/MsgCancelFeeShare"
+	registerFeeShareName = "juno/MsgRegisterFeeShare"
+	updateFeeShareName   = "juno/MsgUpdateFeeShare"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -38,19 +38,19 @@ func init() {
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgRegisterRevenue{},
-		&MsgCancelRevenue{},
-		&MsgUpdateRevenue{},
+		&MsgRegisterFeeShare{},
+		&MsgCancelFeeShare{},
+		&MsgUpdateFeeShare{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
-// RegisterLegacyAminoCodec registers the necessary x/revenue interfaces and
+// RegisterLegacyAminoCodec registers the necessary x/FeeShare interfaces and
 // concrete types on the provided LegacyAmino codec. These types are used for
 // Amino JSON serialization and EIP-712 compatibility.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgCancelRevenue{}, cancelRevenueName, nil)
-	cdc.RegisterConcrete(&MsgRegisterRevenue{}, registerRevenueName, nil)
-	cdc.RegisterConcrete(&MsgUpdateRevenue{}, updateRevenueName, nil)
+	cdc.RegisterConcrete(&MsgCancelFeeShare{}, cancelFeeShareName, nil)
+	cdc.RegisterConcrete(&MsgRegisterFeeShare{}, registerFeeShareName, nil)
+	cdc.RegisterConcrete(&MsgUpdateFeeShare{}, updateFeeShareName, nil)
 }

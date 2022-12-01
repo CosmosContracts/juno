@@ -14,7 +14,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// Keeper of this module maintains collections of revenues for contracts
+// Keeper of this module maintains collections of feeshares for contracts
 // registered to receive transaction fees.
 type Keeper struct {
 	storeKey   storetypes.StoreKey

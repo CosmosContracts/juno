@@ -25,6 +25,6 @@ type AccountKeeper interface {
 
 type FeeShareKeeper interface {
 	GetParams(ctx sdk.Context) revtypes.Params
-	GetRevenue(ctx sdk.Context, contract sdk.Address) (revtypes.Revenue, bool)
+	GetFeeShare(ctx sdk.Context, contract sdk.Address) (revtypes.FeeShare, bool)
 	// SendCoinsFromFeeCollectorToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 }

@@ -1,4 +1,4 @@
-package revenue
+package feeshare
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,14 +14,14 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 		switch msg := msg.(type) {
-		case *types.MsgRegisterRevenue:
-			res, err := server.RegisterRevenue(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgRegisterFeeShare:
+			res, err := server.RegisterFeeShare(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgUpdateRevenue:
-			res, err := server.UpdateRevenue(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgUpdateFeeShare:
+			res, err := server.UpdateFeeShare(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgCancelRevenue:
-			res, err := server.CancelRevenue(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgCancelFeeShare:
+			res, err := server.CancelFeeShare(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		default:
 			return nil, sdkerror.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)

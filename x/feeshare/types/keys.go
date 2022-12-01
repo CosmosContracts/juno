@@ -23,19 +23,19 @@ const (
 
 // KVStore key prefixes
 var (
-	KeyPrefixRevenue    = []byte{prefixFeeShare}
+	KeyPrefixFeeShare   = []byte{prefixFeeShare}
 	KeyPrefixDeployer   = []byte{prefixDeployer}
 	KeyPrefixWithdrawer = []byte{prefixWithdrawer}
 )
 
 // GetKeyPrefixDeployer returns the KVStore key prefix for storing
-// registered revenue contract for a deployer
+// registered feeshare contract for a deployer
 func GetKeyPrefixDeployer(deployerAddress sdk.AccAddress) []byte {
 	return append(KeyPrefixDeployer, deployerAddress.Bytes()...)
 }
 
 // GetKeyPrefixWithdrawer returns the KVStore key prefix for storing
-// registered revenue contract for a withdrawer
+// registered feeshare contract for a withdrawer
 func GetKeyPrefixWithdrawer(withdrawerAddress sdk.AccAddress) []byte {
 	return append(KeyPrefixWithdrawer, withdrawerAddress.Bytes()...)
 }

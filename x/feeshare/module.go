@@ -1,4 +1,4 @@
-package revenue
+package feeshare
 
 import (
 	"context"
