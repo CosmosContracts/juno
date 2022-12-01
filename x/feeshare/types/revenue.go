@@ -2,6 +2,7 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerror "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // NewRevenue returns an instance of Revenue. If the provided withdrawer
@@ -53,10 +54,12 @@ func (fs Revenue) Validate() error {
 		return err
 	}
 
-	if fs.WithdrawerAddress != "" {
-		if _, err := sdk.AccAddressFromBech32(fs.WithdrawerAddress); err != nil {
-			return err
-		}
+	if fs.WithdrawerAddress == "" {
+		return sdkerror.Wrap(sdkerror.ErrInvalidAddress, "withdrawer address cannot be empty")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(fs.WithdrawerAddress); err != nil {
+		return err
 	}
 
 	return nil

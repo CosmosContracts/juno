@@ -26,10 +26,10 @@ service Msg {
 // MsgRegisterRevenue defines a message that registers a Revenue
 message MsgRegisterRevenue {
   option (gogoproto.equal) = false;
-  // contract_address in hex format
+  // contract_address in bech32 format
   string contract_address = 1;
   // deployer_address is the bech32 address of message sender. It must be the
-  // same as the origin EOA sending the transaction which deploys the contract
+  // same the contract's admin address
   string deployer_address = 2;
   // withdrawer_address is the bech32 address of account receiving the
   // transaction fees
@@ -43,10 +43,10 @@ message MsgRegisterRevenueResponse {}
 // registered Revenue
 message MsgUpdateRevenue {
   option (gogoproto.equal) = false;
-  // contract_address in hex format
+  // contract_address in bech32 format
   string contract_address = 1;
   // deployer_address is the bech32 address of message sender. It must be the
-  // same as the origin EOA sending the transaction which deploys the contract
+  // same the contract's admin address
   string deployer_address = 2;
   // withdrawer_address is the bech32 address of account receiving the
   // transaction fees
@@ -59,10 +59,10 @@ message MsgUpdateRevenueResponse {}
 // MsgCancelRevenue defines a message that cancels a registered Revenue
 message MsgCancelRevenue {
   option (gogoproto.equal) = false;
-  // contract_address in hex format
+  // contract_address in bech32 format
   string contract_address = 1;
   // deployer_address is the bech32 address of message sender. It must be the
-  // same as the origin EOA sending the transaction which deploys the contract
+  // same the contract's admin address
   string deployer_address = 2;
 }
 

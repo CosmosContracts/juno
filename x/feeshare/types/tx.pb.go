@@ -31,10 +31,10 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgRegisterRevenue defines a message that registers a Revenue
 type MsgRegisterRevenue struct {
-	// contract_address in hex format
+	// contract_address in bech32 format
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// deployer_address is the bech32 address of message sender. It must be the
-	// same as the origin EOA sending the transaction which deploys the contract
+	// same the contract's admin address
 	DeployerAddress string `protobuf:"bytes,2,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
 	// withdrawer_address is the bech32 address of account receiving the
 	// transaction fees
@@ -135,10 +135,10 @@ var xxx_messageInfo_MsgRegisterRevenueResponse proto.InternalMessageInfo
 // MsgUpdateRevenue defines a message that updates the withdrawer address for a
 // registered Revenue
 type MsgUpdateRevenue struct {
-	// contract_address in hex format
+	// contract_address in bech32 format
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// deployer_address is the bech32 address of message sender. It must be the
-	// same as the origin EOA sending the transaction which deploys the contract
+	// same the contract's admin address
 	DeployerAddress string `protobuf:"bytes,2,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
 	// withdrawer_address is the bech32 address of account receiving the
 	// transaction fees
@@ -238,10 +238,10 @@ var xxx_messageInfo_MsgUpdateRevenueResponse proto.InternalMessageInfo
 
 // MsgCancelRevenue defines a message that cancels a registered Revenue
 type MsgCancelRevenue struct {
-	// contract_address in hex format
+	// contract_address in bech32 format
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// deployer_address is the bech32 address of message sender. It must be the
-	// same as the origin EOA sending the transaction which deploys the contract
+	// same the contract's admin address
 	DeployerAddress string `protobuf:"bytes,2,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
 }
 

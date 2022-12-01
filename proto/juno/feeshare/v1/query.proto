@@ -60,7 +60,7 @@ message QueryRevenuesResponse {
 
 // QueryRevenueRequest is the request type for the Query/Revenue RPC method.
 message QueryRevenueRequest {
-  // contract_address of a registered contract in hex format
+  // contract_address of a registered contract in bech32 format
   string contract_address = 1;
 }
 

@@ -56,7 +56,7 @@ upload_and_init juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
 register_fee_share $CWTEMPLATE_ADDR juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
 execute $CWTEMPLATE_ADDR
 
-# overrites old contract adderss
+# overrites old contract adderss, should error code 4
 try_to_register_for_non_admin_contract
 
 

@@ -133,7 +133,7 @@ func (m *QueryRevenuesResponse) GetPagination() *query.PageResponse {
 
 // QueryRevenueRequest is the request type for the Query/Revenue RPC method.
 type QueryRevenueRequest struct {
-	// contract_address of a registered contract in hex format
+	// contract_address of a registered contract in bech32 format
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 }
 
