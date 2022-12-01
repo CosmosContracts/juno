@@ -57,14 +57,6 @@ func (msg MsgRegisterFeeShare) ValidateBasic() error {
 		}
 	}
 
-	// if len(msg.Nonces) < 1 {
-	// 	return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid nonces - empty array")
-	// }
-
-	// if len(msg.Nonces) > 20 {
-	// 	return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid nonces - array length must be less than 20")
-	// }
-
 	return nil
 }
 
