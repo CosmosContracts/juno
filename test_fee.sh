@@ -18,6 +18,8 @@ export JUNOD_COMMANDARGS_FEEACC="--gas 1000000 --gas-prices="0ujuno" -y --from f
 
 function upload_and_init () {
     ADMIN=$1
+    # TODO: save output to file so we can read it for the future instead of $CWTEMPLATE_ADDR
+
     # cw_template = the basic counter contract
     echo "Uploading example contract to chain store"
     cw_template=$(junod tx wasm store cw_template.wasm $JUNOD_COMMAND_ARGS | jq -r '.txhash')
@@ -41,10 +43,11 @@ function register_fee_share () {
     balance $ACCOUNT
 }
 function try_to_register_for_non_admin_contract () {    
+    ADDRESS=$1
     # Sets the other account as admin so we can see what happens if we try to register a contract we are not the admin of (fails)    
     echo "THIS WILL FAIL!!! SHOULD RETURN CODE 4 - Setting $KEY_ADDR as admin of $CWTEMPLATE_ADDR"
     upload_and_init juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl
-    register_fee_share $CWTEMPLATE_ADDR juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
+    register_fee_share $ADDRESS juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
 }
 function execute () {
     CONTRACT_ADDR=$1
@@ -52,28 +55,43 @@ function execute () {
     TX1=$(junod tx wasm execute "$CONTRACT_ADDR" '{"increment":{}}' $JUNOD_COMMAND_ARGS | jq -r '.txhash') && echo $TX1
     echo "Executing contract 2"
     TX2=$(junod tx wasm execute "$CONTRACT_ADDR" '{"reset":{"count":0}}' $JUNOD_COMMAND_ARGS | jq -r '.txhash') && echo $TX2
-    balance juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
+    balance juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk    
 }
 
 upload_and_init juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
+FIRST_CONTRACT=$CWTEMPLATE_ADDR
 
-register_fee_share $CWTEMPLATE_ADDR juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
-execute $CWTEMPLATE_ADDR
+upload_and_init juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl # this accoutn admin
+SECOND_CONTRACT=$CWTEMPLATE_ADDR
 
-# overrites old contract adderss, should error code 4
-try_to_register_for_non_admin_contract
+# todo ENSURE THAT THE CONTRACT IS NOT "" OR NULL
+register_fee_share $FIRST_CONTRACT juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
+register_fee_share $SECOND_CONTRACT juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl # this address for withdraw right?
+
+execute $FIRST_CONTRACT
+execute $SECOND_CONTRACT
+balance juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl  
+
+# should error code 4
+try_to_register_for_non_admin_contract $SECOND_CONTRACT
 
 # junod q feeshare contracts
 # junod q feeshare contract $CWTEMPLATE_ADDR
 # junod q feeshare deployer-contracts juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
 
 # TODO: test if you execute 2 messages in 1 Tx on a single contract. Should split fees evenly between each provided they both are registered.
-# junod tx wasm execute "$CWTEMPLATE_ADDR" '{"increment":{}}' --from $KEY_ADDR --generate-only | jq  > ~/Desktop/test1.json
-# secondMsg=$(cat ~/Desktop/test1.json | jq .body.messages[0])
-# # using JQ, append secondMsg to  ~/Desktop/test1.json .body.messages
-# cat ~/Desktop/test1.json | jq ".body.messages += [$secondMsg]" > ~/Desktop/test2.json
-# # sign it
-# junod tx sign ~/Desktop/test2.json --from $KEY --chain-id juno-t1 | jq > ~/Desktop/testsign.json
-# junod tx broadcast ~/Desktop/testsign.json
+function do_multimsg () {
+    junod tx wasm execute "$FIRST_CONTRACT" '{"increment":{}}' --from $KEY_ADDR --generate-only | jq  > ~/Desktop/test1.json
+    junod tx wasm execute "$FIRST_CONTRACT" '{"increment":{}}' --from $KEY_ADDR --generate-only | jq  > ~/Desktop/test2.json
+    secondMsg=$(cat ~/Desktop/test2.json | jq .body.messages[0])
+    # using JQ, append secondMsg to  ~/Desktop/test1.json .body.messages
+    cat ~/Desktop/test1.json | jq ".body.messages += [$secondMsg]" > ~/Desktop/test3.json
+    # sign it
+    junod tx sign ~/Desktop/test3.json --from $KEY --chain-id juno-t1 | jq > ~/Desktop/testsign.json
+    junod tx broadcast ~/Desktop/testsign.json
+    # junod export > ~/Desktop/t.json
+}
 
-# junod export > ~/Desktop/t.json
+do_multimsg
+
+
