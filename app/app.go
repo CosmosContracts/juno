@@ -38,7 +38,7 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
+	ibcclientclient "github.com/cosmos/ibc-go/v4/modules/core/02-client/client"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	"github.com/CosmWasm/wasmd/x/wasm"

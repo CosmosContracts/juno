@@ -39,12 +39,14 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
-	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
-	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v3/modules/core"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
+	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
+	ibcfee "github.com/cosmos/ibc-go/v4/modules/apps/29-fee"
+	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
+	transfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
+	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v4/modules/core"
+	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 )
 
 // module account permissions
@@ -57,6 +59,7 @@ var maccPerms = map[string][]string{
 	govtypes.ModuleName:            {authtypes.Burner},
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:            nil,
+	ibcfeetypes.ModuleName:         nil,
 	wasm.ModuleName:                {authtypes.Burner},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 }
@@ -77,6 +80,7 @@ var ModuleBasics = module.NewBasicManager(
 	crisis.AppModuleBasic{},
 	slashing.AppModuleBasic{},
 	ibc.AppModuleBasic{},
+	ibcfee.AppModuleBasic{},
 	feegrantmodule.AppModuleBasic{},
 	upgrade.AppModuleBasic{},
 	evidence.AppModuleBasic{},
@@ -117,6 +121,7 @@ func appModules(
 		params.NewAppModule(app.ParamsKeeper),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		transfer.NewAppModule(app.TransferKeeper),
+		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
@@ -149,6 +154,7 @@ func simulationModules(
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transfer.NewAppModule(app.TransferKeeper),
+		ibcfee.NewAppModule(app.IBCFeeKeeper),
 	}
 }
 
@@ -176,6 +182,7 @@ func orderBeginBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		ibcfeetypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 	}
@@ -203,6 +210,7 @@ func orderEndBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		ibcfeetypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 	}
@@ -230,6 +238,7 @@ func orderInitBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		ibcfeetypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 	}
