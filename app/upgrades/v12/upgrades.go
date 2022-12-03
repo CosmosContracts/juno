@@ -15,6 +15,8 @@ func CreateV12UpgradeHandler(
 	keepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		// transfer module consensus version has been bumped to 2
+		// the above is https://github.com/cosmos/ibc-go/blob/v5.1.0/docs/migrations/v3-to-v4.md
 
 		// Set the creation fee for the token factory to cost 1 JUNO token
 		newTokenFactoryParams := tokenfactorytypes.Params{
