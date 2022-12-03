@@ -1,0 +1,165 @@
+# This workflow pushes new juno docker images on every new tag.
+#
+# On every new `vX.Y.Z` tag the following images are pushed:
+#
+# CosmosContracts/juno:X.Y.Z    # is pushed
+# CosmosContracts/juno:X.Y      # is updated to X.Y.Z
+# CosmosContracts/juno:X        # is updated to X.Y.Z
+# CosmosContracts/juno:latest   # is updated to X.Y.Z
+#
+# CosmosContracts/juno-e2e:X.Y.Z    # is pushed
+# CosmosContracts/juno-e2e:X.Y      # is updated to X.Y.Z
+# CosmosContracts/juno-e2e:X        # is updated to X.Y.Z
+# CosmosContracts/juno-e2e:latest   # is updated to X.Y.Z
+#
+# On every new `vX.Y.0` tag the following images are pushed:
+#
+# CosmosContracts/juno-e2e-init-chain:X.Y.0    # is pushed
+# CosmosContracts/juno-e2e-init-chain:X.Y      # is updated to X.Y.0
+# CosmosContracts/juno-e2e-init-chain:X        # is updated to X.Y.0
+# All the images above have support for linux/amd64 and linux/arm64.
+#
+# Due to QEMU virtualization used to build multi-platform docker images
+# this workflow might take a while to complete.
+
+name: Push Docker Images
+
+on:
+  release:
+    types: [published, created, edited]
+  push:
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+' # ignore rc
+jobs:
+  juno-images:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3
+      - 
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Parse tag
+        id: tag
+        run: |
+          VERSION=$(echo ${{ github.ref_name }} | sed "s/v//")
+          MAJOR_VERSION=$(echo $VERSION | cut -d '.' -f 1)
+          MINOR_VERSION=$(echo $VERSION | cut -d '.' -f 2)
+          PATCH_VERSION=$(echo $VERSION | cut -d '.' -f 3)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
+          echo "MINOR_VERSION=$MINOR_VERSION" >> $GITHUB_ENV
+          echo "PATCH_VERSION=$PATCH_VERSION" >> $GITHUB_ENV
+      - 
+        name: Build and push 
+        id: build_push_image
+        uses: docker/build-push-action@v3
+        with:
+          file: Dockerfile
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/CosmosContracts/juno:${{ env.MAJOR_VERSION }}
+            ghcr.io/CosmosContracts/juno:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}
+            ghcr.io/CosmosContracts/juno:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}
+  juno-e2e-images:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3
+      - 
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Parse tag
+        id: tag
+        run: |
+          VERSION=$(echo ${{ github.ref_name }} | sed "s/v//")
+          MAJOR_VERSION=$(echo $VERSION | cut -d '.' -f 1)
+          MINOR_VERSION=$(echo $VERSION | cut -d '.' -f 2)
+          PATCH_VERSION=$(echo $VERSION | cut -d '.' -f 3)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
+          echo "MINOR_VERSION=$MINOR_VERSION" >> $GITHUB_ENV
+          echo "PATCH_VERSION=$PATCH_VERSION" >> $GITHUB_ENV
+      - 
+        name: Build and push 
+        id: build_push_e2e_image
+        uses: docker/build-push-action@v3
+        with:
+          file: tests/e2e/initialization/Dockerfile
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/CosmosContracts/juno-e2e:${{ env.MAJOR_VERSION }}
+            ghcr.io/CosmosContracts/juno-e2e:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}
+            ghcr.io/CosmosContracts/juno-e2e:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}
+  e2e-init-chain-images:
+    if: startsWith(github.ref, 'refs/tags/v') && endsWith(github.ref, '.0')
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v3
+      - 
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Parse tag
+        id: tag
+        run: |
+          VERSION=$(echo ${{ github.ref_name }} | sed "s/v//")
+          MAJOR_VERSION=$(echo $VERSION | cut -d '.' -f 1)
+          MINOR_VERSION=$(echo $VERSION | cut -d '.' -f 2)
+          PATCH_VERSION=$(echo $VERSION | cut -d '.' -f 3)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
+          echo "MINOR_VERSION=$MINOR_VERSION" >> $GITHUB_ENV
+          echo "PATCH_VERSION=$PATCH_VERSION" >> $GITHUB_ENV
+      - 
+        name: Build and push 
+        id: build_push_e2e_init_image
+        uses: docker/build-push-action@v3
+        with:
+          file: tests/e2e/initialization/init.Dockerfile
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            E2E_SCRIPT_NAME=chain
+          tags: |
+            ghcr.io/CosmosContracts/juno-e2e-init-chain:${{ env.MAJOR_VERSION }}
+            ghcr.io/CosmosContracts/juno-e2e-init-chain:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}
+            ghcr.io/CosmosContracts/juno-e2e-init-chain:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}
