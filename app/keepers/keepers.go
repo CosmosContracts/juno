@@ -3,8 +3,8 @@ package keepers
 import (
 	"path/filepath"
 
-	mintkeeper "github.com/CosmosContracts/juno/v12/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
+	mintkeeper "github.com/CosmosContracts/juno/v13/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v13/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"

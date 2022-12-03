@@ -2,7 +2,7 @@ package v12
 
 import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
-	"github.com/CosmosContracts/juno/v12/app/upgrades"
+	"github.com/CosmosContracts/juno/v13/app/upgrades"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 )
 

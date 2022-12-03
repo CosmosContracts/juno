@@ -15,7 +15,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/CosmosContracts/juno/v12/docs"
+	"github.com/CosmosContracts/juno/v13/docs"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -46,12 +46,12 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/CosmosContracts/juno/v12/app/keepers"
-	encparams "github.com/CosmosContracts/juno/v12/app/params"
-	upgrades "github.com/CosmosContracts/juno/v12/app/upgrades"
-	v10 "github.com/CosmosContracts/juno/v12/app/upgrades/v10"
-	v11 "github.com/CosmosContracts/juno/v12/app/upgrades/v11"
-	v12 "github.com/CosmosContracts/juno/v12/app/upgrades/v12"
+	"github.com/CosmosContracts/juno/v13/app/keepers"
+	encparams "github.com/CosmosContracts/juno/v13/app/params"
+	upgrades "github.com/CosmosContracts/juno/v13/app/upgrades"
+	v10 "github.com/CosmosContracts/juno/v13/app/upgrades/v10"
+	v11 "github.com/CosmosContracts/juno/v13/app/upgrades/v11"
+	v12 "github.com/CosmosContracts/juno/v13/app/upgrades/v12"
 )
 
 const (

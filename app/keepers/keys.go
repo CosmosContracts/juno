@@ -3,7 +3,7 @@ package keepers
 import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmWasm/wasmd/x/wasm"
-	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
+	minttypes "github.com/CosmosContracts/juno/v13/x/mint/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"

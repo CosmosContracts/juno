@@ -2,7 +2,7 @@ package v10
 
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v12/app/keepers"
+	"github.com/CosmosContracts/juno/v13/app/keepers"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -22,7 +22,6 @@ func CreateV10UpgradeHandler(
 	keepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-
 		// update ICA Host to catch missed msg
 		// enumerate all because it's easier to reason about
 		newIcaHostParams := icahosttypes.Params{
