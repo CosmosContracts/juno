@@ -38,9 +38,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibcfee "github.com/cosmos/ibc-go/v4/modules/apps/29-fee"
-	ibcfeekeeper "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/keeper"
-	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 	transfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v4/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
@@ -80,7 +77,6 @@ type AppKeepers struct {
 	UpgradeKeeper    upgradekeeper.Keeper
 	ParamsKeeper     paramskeeper.Keeper
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	IBCFeeKeeper     ibcfeekeeper.Keeper
 	EvidenceKeeper   evidencekeeper.Keeper
 	TransferKeeper   ibctransferkeeper.Keeper
 	AuthzKeeper      authzkeeper.Keeper
@@ -217,16 +213,6 @@ func NewAppKeepers(
 		scopedIBCKeeper,
 	)
 
-	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
-		appCodec, appKeepers.keys[ibcfeetypes.StoreKey],
-		appKeepers.GetSubspace(ibcfeetypes.ModuleName), // this isn't even used in the keeper but is required?
-		appKeepers.IBCKeeper.ChannelKeeper,             // may be replaced with IBC middleware
-		appKeepers.IBCKeeper.ChannelKeeper,
-		&appKeepers.IBCKeeper.PortKeeper,
-		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
-	)
-
 	appKeepers.FeeGrantKeeper = feegrantkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[feegrant.StoreKey],
@@ -327,18 +313,15 @@ func NewAppKeepers(
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule
 	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper)
-	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
 
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is:
 	// channel.RecvPacket -> fee.OnRecvPacket -> icaHost.OnRecvPacket
 	var icaHostStack porttypes.IBCModule
 	icaHostStack = icahost.NewIBCModule(appKeepers.ICAHostKeeper)
-	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, appKeepers.IBCFeeKeeper)
 
 	// Create fee enabled wasm ibc Stack
 	var wasmStack porttypes.IBCModule
-	wasmStack = wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCFeeKeeper)
-	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, appKeepers.IBCFeeKeeper)
+	wasmStack = wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, nil)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter().
