@@ -5,17 +5,22 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
-var MiniumInitialDeposit = sdk.NewInt64Coin("ujuno", 10000000)
+var MiniumInitialDepositRate = sdk.NewDecWithPrec(20, 2)
 
 type GovPreventSpamDecorator struct {
-	cdc codec.BinaryCodec
+	govKeeper govkeeper.Keeper
+	cdc       codec.BinaryCodec
 }
 
-func NewGovPreventSpamDecorator(cdc codec.BinaryCodec) MinCommissionDecorator {
-	return MinCommissionDecorator{cdc}
+func NewGovPreventSpamDecorator(cdc codec.BinaryCodec, govKeeper govkeeper.Keeper) GovPreventSpamDecorator {
+	return GovPreventSpamDecorator{
+		govKeeper: govKeeper,
+		cdc:       cdc,
+	}
 }
 
 func (gpsd GovPreventSpamDecorator) AnteHandle(
@@ -24,21 +29,24 @@ func (gpsd GovPreventSpamDecorator) AnteHandle(
 ) (newCtx sdk.Context, err error) {
 	msgs := tx.GetMsgs()
 
-	err = gpsd.checkSpamSubmitProposalMsg(msgs)
+	err = gpsd.checkSpamSubmitProposalMsg(ctx, msgs)
 
 	if err != nil {
 		return ctx, err
 	}
+
 	return next(ctx, tx, simulate)
 }
 
-func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(msgs []sdk.Msg) error {
+func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(ctx sdk.Context, msgs []sdk.Msg) error {
 	validMsg := func(m sdk.Msg) error {
 		switch msg := m.(type) {
 		case *govtypes.MsgSubmitProposal:
 			// prevent spam gov msg
-			if msg.InitialDeposit.IsAllLT(sdk.NewCoins(MiniumInitialDeposit)) {
-				return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "not enough initial deposit")
+			depositParams := gpsd.govKeeper.GetDepositParams(ctx)
+			miniumInitialDeposit := gpsd.calcMiniumInitialDeposit(depositParams.MinDeposit)
+			if msg.InitialDeposit.IsAllLT(miniumInitialDeposit) {
+				return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "not enough initial deposits")
 			}
 		}
 
@@ -77,4 +85,13 @@ func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(msgs []sdk.Msg) e
 		}
 	}
 	return nil
+}
+
+func (gpsd GovPreventSpamDecorator) calcMiniumInitialDeposit(minDeposit sdk.Coins) (miniumInitialDeposit sdk.Coins) {
+	for _, coin := range minDeposit {
+		miniumInitialCoin := MiniumInitialDepositRate.MulInt(coin.Amount).RoundInt()
+		miniumInitialDeposit = miniumInitialDeposit.Add(sdk.NewCoin(coin.Denom, miniumInitialCoin))
+	}
+
+	return
 }

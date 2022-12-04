@@ -9,6 +9,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
@@ -19,6 +20,7 @@ import (
 type HandlerOptions struct {
 	ante.HandlerOptions
 
+	GovKeeper         govkeeper.Keeper
 	IBCKeeper         *ibckeeper.Keeper
 	TxCounterStoreKey sdk.StoreKey
 	WasmConfig        wasmTypes.WasmConfig
@@ -53,7 +55,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewRejectExtensionOptionsDecorator(),
 		decorators.MsgFilterDecorator{},
-		decorators.NewGovPreventSpamDecorator(options.Cdc),
+		decorators.NewGovPreventSpamDecorator(options.Cdc, options.GovKeeper),
 		ante.NewMempoolFeeDecorator(),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
