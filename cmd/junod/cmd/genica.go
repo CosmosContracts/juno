@@ -1,8 +1,9 @@
-package main
+package cmd
 
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/spf13/cobra"
 
 	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
