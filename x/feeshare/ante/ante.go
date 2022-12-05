@@ -1,4 +1,4 @@
-package app
+package ante
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -6,6 +6,7 @@ import (
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	authforktypes "github.com/CosmosContracts/juno/v12/x/auth/types"
+	feeshare "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
@@ -41,16 +42,10 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	return next(ctx, tx, simulate)
 }
 
-type PayoutContracts struct {
-	contractAddr sdk.AccAddress
-	withdrawAddr sdk.AccAddress
-}
-
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
 func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, fees sdk.Coins, revKeeper authforktypes.FeeShareKeeper, msgs []sdk.Msg) error {
-	// Pairs of contract address and withdraw address if one is set. If not, we don't place it in here
-	pairs := make([]PayoutContracts, 0)
+	toPay := make([]sdk.AccAddress, 0)
 	for _, msg := range msgs {
 		if _, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
 			contractAddr, err := sdk.AccAddressFromBech32(msg.(*wasmtypes.MsgExecuteContract).Contract)
@@ -59,15 +54,16 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, fees s
 			}
 
 			shareData, _ := revKeeper.GetFeeShare(ctx, contractAddr)
+
 			withdrawAddr := shareData.GetWithdrawerAddr()
-			if withdrawAddr != nil {
-				pairs = append(pairs, PayoutContracts{contractAddr, withdrawAddr})
+			if withdrawAddr != nil && !withdrawAddr.Empty() {
+				toPay = append(toPay, withdrawAddr)
 			}
 		}
 	}
 
 	// FeeShare logic payouts for contracts
-	numPairs := len(pairs)
+	numPairs := len(toPay)
 	if numPairs > 0 {
 		govPercent := revKeeper.GetParams(ctx).DeveloperShares // 0.500000000
 
@@ -90,11 +86,11 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, fees s
 			}
 		}
 
-		// pay fees evenly between pairs of contracts
-		for _, p := range pairs {
-			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, types.FeeCollectorName, p.withdrawAddr, splitFees)
+		// pay fees evenly between all withdraw addresses
+		for _, withdrawAddr := range toPay {
+			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, types.FeeCollectorName, withdrawAddr, splitFees)
 			if err != nil {
-				return sdkerrors.Wrapf(sdkerrors.Error{}, err.Error())
+				return sdkerrors.Wrapf(feeshare.ErrFeeSharePayment, "failed to pay fees to contract developer: %s", err.Error())
 			}
 		}
 	}
