@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -54,7 +54,7 @@ func resetWasm(dbDir string) error {
 		}
 	}
 
-	if err := tmos.EnsureDir(wasmDir, 0700); err != nil {
+	if err := tmos.EnsureDir(wasmDir, 0o700); err != nil {
 		return fmt.Errorf("unable to recreate wasm %w", err)
 	}
 	return nil
@@ -72,7 +72,7 @@ func resetApp(dbDir string) error {
 		}
 	}
 
-	if err := tmos.EnsureDir(appDir, 0700); err != nil {
+	if err := tmos.EnsureDir(appDir, 0o700); err != nil {
 		return fmt.Errorf("unable to recreate application.db %w", err)
 	}
 	return nil
