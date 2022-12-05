@@ -17,7 +17,6 @@ func Migrate(
 	store sdk.KVStore,
 	cdc codec.BinaryCodec,
 ) error {
-
 	// Get minter
 	var minter types.Minter
 	b := store.Get(types.MinterKey)

@@ -22,7 +22,6 @@ func CreateV11UpgradeHandler(
 	keepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-
 		// update ICA Host to add new messages available
 		// enumerate all because it's easier to reason about
 		newIcaHostParams := icahosttypes.Params{

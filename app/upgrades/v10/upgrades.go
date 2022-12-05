@@ -22,7 +22,6 @@ func CreateV10UpgradeHandler(
 	keepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-
 		// update ICA Host to catch missed msg
 		// enumerate all because it's easier to reason about
 		newIcaHostParams := icahosttypes.Params{
