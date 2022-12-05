@@ -28,8 +28,8 @@ const (
 	// Pre-upgrade repo/tag for juno initialization (this should be one version below upgradeVersion)
 	previousVersionInitRepository = "ghcr.io/cosmoscontracts/juno"
 	previousVersionInitTag        = "11.0.0-e2e-init-chain"
-	// Hermes repo/version for relayer, use osmosis dockerhub
-	relayerRepository = "osmolabs/hermes"
+	// Hermes repo/version for relayer
+	relayerRepository = "ghcr.io/cosmoscontracts/hermes"
 	relayerTag        = "0.13.0"
 )
 
