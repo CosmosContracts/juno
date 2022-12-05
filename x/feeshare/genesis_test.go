@@ -82,26 +82,15 @@ func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 			false,
 		},
 		{
-			"custom genesis - feeshare enabled, 1% developer shares fails as it is not modulus of 5",
-			types.GenesisState{
-				Params: types.Params{
-					EnableFeeShare:  true,
-					DeveloperShares: sdk.NewDecWithPrec(1, 2),
-					AllowedDenoms:   []string{"ujuno"},
-				},
-			},
-			true,
-		},
-		{
 			"custom genesis - feeshare enabled, all denoms allowed",
 			types.GenesisState{
 				Params: types.Params{
 					EnableFeeShare:  true,
-					DeveloperShares: sdk.NewDecWithPrec(1, 2),
+					DeveloperShares: sdk.NewDecWithPrec(10, 2),
 					AllowedDenoms:   []string(nil),
 				},
 			},
-			true,
+			false,
 		},
 	}
 

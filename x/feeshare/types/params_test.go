@@ -44,11 +44,6 @@ func TestParamsValidate(t *testing.T) {
 			false,
 		},
 		{
-			"invalid: 51% must be divisible by 5",
-			Params{true, sdk.NewDecWithPrec(51, 2), acceptedDenoms},
-			true,
-		},
-		{
 			"empty",
 			Params{},
 			true,
