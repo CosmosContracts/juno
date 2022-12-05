@@ -26,7 +26,7 @@ cd ..
 buf generate
 
 # move proto files to the right places
-sudo cp -r ./github.com/CosmosContracts/juno/x/* x/
+cp -r ./github.com/CosmosContracts/juno/x/* x/
 rm -rf ./github.com
 
 go mod tidy -compat=1.17
