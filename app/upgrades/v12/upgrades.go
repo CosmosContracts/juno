@@ -2,6 +2,7 @@ package v12
 
 import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
+	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/CosmosContracts/juno/v12/app/keepers"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -23,6 +24,9 @@ func CreateV12UpgradeHandler(
 			DenomCreationFee: sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1000000))),
 		}
 		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
+
+		// https://github.com/CosmWasm/wasmd/blob/016e3bc06b0e2a7c680dc1c9f78104ec931dde41/x/wasm/module_integration_test.go
+		vm[wasm.ModuleName] = 1
 
 		return mm.RunMigrations(ctx, cfg, vm)
 	}
