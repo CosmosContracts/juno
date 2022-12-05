@@ -10,7 +10,7 @@ Most of our validator communications is done on the [Juno Discord](https://disco
 
 **If a change crosses a major version number, i.e. `3.x.x -> 4.x.x` then it is definitely consensus-breaking.**
 
-In the past, some releases have been consensus-breaking but only incremented a minor version, if clearly indicated. In future we will look to be clearer. 
+In the past, some releases have been consensus-breaking but only incremented a minor version, if clearly indicated. In future we will look to be clearer.
 
 **Only patch versions, i.e. `x.x.1 -> x.x.2`, or `3.1.0 -> 3.1.1` are guaranteed to be non-consensus breaking.**
 
