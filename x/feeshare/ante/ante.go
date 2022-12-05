@@ -49,13 +49,9 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 func FeePayLogic(fees sdk.Coins, govPercent sdk.Dec, numPairs int) sdk.Coins {
 	var splitFees sdk.Coins
 	for _, c := range fees {
-		amt := c.Amount.QuoRaw(int64(100))                             // makes the fee smaller (500 -> 5)
-		amt = amt.MulRaw(int64(govPercent.MulInt64(100).RoundInt64())) // multiple by the govPercent
-		amt = amt.QuoRaw(int64(numPairs))                              // split between the pairs evenly
-
-		reward := sdk.NewCoin(c.Denom, amt)
-		if !reward.Amount.IsZero() {
-			splitFees = append(splitFees, reward)
+		rewardAmount := govPercent.MulInt(c.Amount).QuoInt64(int64(numPairs)).RoundInt()
+		if !rewardAmount.IsZero() {
+			splitFees = append(splitFees, sdk.NewCoin(c.Denom, rewardAmount))
 		}
 	}
 	return splitFees

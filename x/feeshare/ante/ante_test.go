@@ -51,11 +51,11 @@ func (suite *AnteTestSuite) TestFeeLogic() {
 			sdk.NewCoin("ujuno", sdk.NewInt(50)),
 		},
 		{
-			"67% fee / 7 contracts @ 500 fee = 47 per",
+			"67% fee / 7 contracts @ 500 fee = 48 per",
 			feeCoins,
 			sdk.NewDecWithPrec(67, 2),
 			7,
-			sdk.NewCoin("ujuno", sdk.NewInt(47)),
+			sdk.NewCoin("ujuno", sdk.NewInt(48)),
 		},
 		{
 			"50% fee / 1 contracts @ 500 fee = 250 per",
