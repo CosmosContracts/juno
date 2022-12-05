@@ -22,7 +22,7 @@ from_scratch () {
   # remove existing daemon.
   rm -rf ~/.juno/* 
   
-  # juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xpysfwwn
+  # juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
   echo "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry" | junod keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --recover
   # juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl
   echo "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise" | junod keys add feeacc --keyring-backend $KEYRING --algo $KEYALGO --recover
@@ -49,9 +49,11 @@ from_scratch () {
 
   update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom":"ujuno","amount":"100"}]'
 
+  update_test_genesis '.app_state["feeshare"]["params"]["allowed_denoms"]=["ujuno"]'
+
   # Allocate genesis accounts
-  junod add-genesis-account $KEY 10000000ujuno --keyring-backend $KEYRING
-  junod add-genesis-account feeacc 1000000ujuno --keyring-backend $KEYRING
+  junod add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
+  junod add-genesis-account feeacc 1000000ujuno,1000utest --keyring-backend $KEYRING
 
   junod gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAINID
 

@@ -11,9 +11,11 @@ import (
 var (
 	DefaultEnableFeeShare  = true
 	DefaultDeveloperShares = sdk.NewDecWithPrec(50, 2) // 50%
+	DefaultAllowedDenoms   = []string(nil)             // all allowed
 
 	ParamStoreKeyEnableFeeShare  = []byte("EnableFeeShare")
 	ParamStoreKeyDeveloperShares = []byte("DeveloperShares")
+	ParamStoreKeyAllowedDenoms   = []byte("AllowedDenoms")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -25,10 +27,12 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	enableFeeShare bool,
 	developerShares sdk.Dec,
+	allowedDenoms []string,
 ) Params {
 	return Params{
 		EnableFeeShare:  enableFeeShare,
 		DeveloperShares: developerShares,
+		AllowedDenoms:   allowedDenoms,
 	}
 }
 
@@ -36,6 +40,7 @@ func DefaultParams() Params {
 	return Params{
 		EnableFeeShare:  DefaultEnableFeeShare,
 		DeveloperShares: DefaultDeveloperShares,
+		AllowedDenoms:   DefaultAllowedDenoms,
 	}
 }
 
@@ -44,6 +49,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableFeeShare, &p.EnableFeeShare, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyDeveloperShares, &p.DeveloperShares, validateShares),
+		paramtypes.NewParamSetPair(ParamStoreKeyAllowedDenoms, &p.AllowedDenoms, validateArray),
 	}
 }
 
@@ -82,11 +88,29 @@ func validateShares(i interface{}) error {
 	return nil
 }
 
+func validateArray(i interface{}) error {
+	_, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	for _, denom := range i.([]string) {
+		if denom == "" {
+			return fmt.Errorf("denom cannot be blank")
+		}
+	}
+
+	return nil
+}
+
 func (p Params) Validate() error {
 	if err := validateBool(p.EnableFeeShare); err != nil {
 		return err
 	}
 	if err := validateShares(p.DeveloperShares); err != nil {
+		return err
+	}
+	if err := validateArray(p.AllowedDenoms); err != nil {
 		return err
 	}
 	return nil

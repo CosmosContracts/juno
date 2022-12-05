@@ -54,6 +54,7 @@ func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 				Params: types.Params{
 					EnableFeeShare:  false,
 					DeveloperShares: types.DefaultDeveloperShares,
+					AllowedDenoms:   []string{"ujuno"},
 				},
 			},
 			false,
@@ -64,6 +65,7 @@ func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 				Params: types.Params{
 					EnableFeeShare:  true,
 					DeveloperShares: sdk.NewDecWithPrec(0, 2),
+					AllowedDenoms:   []string{"ujuno"},
 				},
 			},
 			false,
@@ -74,6 +76,7 @@ func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 				Params: types.Params{
 					EnableFeeShare:  true,
 					DeveloperShares: sdk.NewDecWithPrec(100, 2),
+					AllowedDenoms:   []string{"ujuno"},
 				},
 			},
 			false,
@@ -84,6 +87,18 @@ func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 				Params: types.Params{
 					EnableFeeShare:  true,
 					DeveloperShares: sdk.NewDecWithPrec(1, 2),
+					AllowedDenoms:   []string{"ujuno"},
+				},
+			},
+			true,
+		},
+		{
+			"custom genesis - feeshare enabled, all denoms allowed",
+			types.GenesisState{
+				Params: types.Params{
+					EnableFeeShare:  true,
+					DeveloperShares: sdk.NewDecWithPrec(1, 2),
+					AllowedDenoms:   []string(nil),
 				},
 			},
 			true,

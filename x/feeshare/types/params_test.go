@@ -20,6 +20,7 @@ func TestParamSetPairs(t *testing.T) {
 
 func TestParamsValidate(t *testing.T) {
 	devShares := sdk.NewDecWithPrec(60, 2)
+	acceptedDenoms := []string{"ujuno"}
 
 	testCases := []struct {
 		name     string
@@ -29,22 +30,22 @@ func TestParamsValidate(t *testing.T) {
 		{"default", DefaultParams(), false},
 		{
 			"valid: enabled",
-			NewParams(true, devShares),
+			NewParams(true, devShares, acceptedDenoms),
 			false,
 		},
 		{
 			"valid: disabled",
-			NewParams(false, devShares),
+			NewParams(false, devShares, acceptedDenoms),
 			false,
 		},
 		{
 			"valid: 100% devs",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(1))},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), acceptedDenoms},
 			false,
 		},
 		{
 			"invalid: 51% must be divisible by 5",
-			Params{true, sdk.NewDecWithPrec(51, 2)},
+			Params{true, sdk.NewDecWithPrec(51, 2), acceptedDenoms},
 			true,
 		},
 		{
@@ -54,12 +55,17 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"invalid: share > 1",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(2))},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(2)), acceptedDenoms},
 			true,
 		},
 		{
 			"invalid: share < 0",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1))},
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1)), acceptedDenoms},
+			true,
+		},
+		{
+			"valid: all denoms allowed",
+			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1)), []string{}},
 			true,
 		},
 	}

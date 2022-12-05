@@ -26,6 +26,7 @@ func CreateV12UpgradeHandler(
 		newFeeShareParams := feesharetypes.Params{
 			EnableFeeShare:  true,
 			DeveloperShares: sdk.NewDecWithPrec(50, 2), // = 50%
+			AllowedDenoms:   []string{"ujuno"},
 		}
 		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
 
