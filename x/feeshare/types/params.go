@@ -81,10 +81,6 @@ func validateShares(i interface{}) error {
 		return fmt.Errorf("value cannot be greater than 1: %T", i)
 	}
 
-	if v.MulInt64(100).TruncateInt64()%5 != 0 {
-		return fmt.Errorf("value must be divisible by 5: %T", i)
-	}
-
 	return nil
 }
 

@@ -42,6 +42,25 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	return next(ctx, tx, simulate)
 }
 
+// FeePayLogic takes the total fees and splits them based on the governance params
+// and the number of contracts we are executing on.
+// This returns the amount of fees each contract developer should get.
+// tested in ante_test.go
+func FeePayLogic(fees sdk.Coins, govPercent sdk.Dec, numPairs int) sdk.Coins {
+	var splitFees sdk.Coins
+	for _, c := range fees {
+		amt := c.Amount.QuoRaw(int64(100))                             // makes the fee smaller (500 -> 5)
+		amt = amt.MulRaw(int64(govPercent.MulInt64(100).RoundInt64())) // multiple by the govPercent
+		amt = amt.QuoRaw(int64(numPairs))                              // split between the pairs evenly
+
+		reward := sdk.NewCoin(c.Denom, amt)
+		if !reward.Amount.IsZero() {
+			splitFees = append(splitFees, reward)
+		}
+	}
+	return splitFees
+}
+
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
 func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, totalFees sdk.Coins, revKeeper authforktypes.FeeShareKeeper, msgs []sdk.Msg) error {
@@ -90,22 +109,13 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, totalF
 	if numPairs > 0 {
 		// multiply times 100 = 50. This way we can do 100/50 = 2 for the split fee amount
 		// if above is 25%, then 100/25 = 4 = they get 1/4th of the total fee between contracts
-		splitNumber := params.DeveloperShares.MulInt64(100)
+		// govPercent := int64(params.DeveloperShares.MulInt64(100).RoundInt64())
+
+		govPercent := params.DeveloperShares
+		splitFees := FeePayLogic(fees, govPercent, numPairs)
 
 		// Gets XX% of the fees based off governance params based off the number of contracts we execute on
 		// (majority of the time this is only 1 contract). Should we simplify and only get the first contract?
-
-		var splitFees sdk.Coins
-		for _, c := range fees {
-			divisor := sdk.NewDec(100).Quo(splitNumber).RoundInt64()
-			// Ex: 10 coins / (100/50=2) = 5 coins is 50%
-			// So each contract gets 5 coins / 2 contracts = 2.5 coins per. Does it round up?
-			// This means if multiple contracts are in the message, the community pool may get less than 50% for these edge cases.
-			reward := sdk.NewCoin(c.Denom, c.Amount.QuoRaw(divisor).QuoRaw(int64(numPairs)))
-			if !reward.Amount.IsZero() {
-				splitFees = append(splitFees, reward)
-			}
-		}
 
 		// pay fees evenly between all withdraw addresses
 		for _, withdrawAddr := range toPay {
