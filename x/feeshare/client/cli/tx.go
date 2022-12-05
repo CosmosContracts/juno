@@ -49,14 +49,7 @@ func NewRegisterFeeShare() *cobra.Command {
 			deployer := cliCtx.GetFromAddress()
 
 			contract := args[0]
-			if _, err := sdk.AccAddressFromBech32(contract); err != nil {
-				return fmt.Errorf("invalid contract hex address %w", err)
-			}
-
 			withdrawer := args[1]
-			if _, err := sdk.AccAddressFromBech32(withdrawer); err != nil {
-				return fmt.Errorf("invalid withdrawer bech32 address %w", err)
-			}
 
 			msg := &types.MsgRegisterFeeShare{
 				ContractAddress:   contract,
@@ -93,9 +86,6 @@ func NewCancelFeeShare() *cobra.Command {
 			deployer := cliCtx.GetFromAddress()
 
 			contract := args[0]
-			if _, err := sdk.AccAddressFromBech32(contract); err != nil {
-				return fmt.Errorf("invalid contract bech32 address %w", err)
-			}
 
 			msg := &types.MsgCancelFeeShare{
 				ContractAddress: contract,
@@ -136,9 +126,6 @@ func NewUpdateFeeShare() *cobra.Command {
 			}
 
 			withdrawer := args[1]
-			if _, err := sdk.AccAddressFromBech32(withdrawer); err != nil {
-				return fmt.Errorf("invalid withdrawer bech32 address %w", err)
-			}
 
 			msg := &types.MsgUpdateFeeShare{
 				ContractAddress:   contract,

@@ -71,10 +71,7 @@ func (k Keeper) RegisterFeeShare(
 	feeshare := types.NewFeeShare(contract, deployer, withdrawer)
 	k.SetFeeShare(ctx, feeshare)
 	k.SetDeployerMap(ctx, deployer, contract)
-
-	if len(withdrawer.String()) != 0 {
-		k.SetWithdrawerMap(ctx, withdrawer, contract)
-	}
+	k.SetWithdrawerMap(ctx, withdrawer, contract)
 
 	k.Logger(ctx).Debug(
 		"registering contract for transaction fees",
@@ -146,21 +143,15 @@ func (k Keeper) UpdateFeeShare(
 		)
 	}
 
-	// only delete withdrawer map if is not default
-	if feeshare.WithdrawerAddress != "" {
-		k.DeleteWithdrawerMap(ctx, withdrawAddr, contract)
-	}
+	k.DeleteWithdrawerMap(ctx, withdrawAddr, contract)
+	k.SetWithdrawerMap(
+		ctx,
+		withdrawAddr,
+		contract,
+	)
 
-	// only add withdrawer map if new entry is not default
-	if msg.WithdrawerAddress != "" {
-		k.SetWithdrawerMap(
-			ctx,
-			withdrawAddr,
-			contract,
-		)
-	}
 	// update feeshare
-	feeshare.WithdrawerAddress = msg.WithdrawerAddress
+	feeshare.WithdrawerAddress = withdrawAddr.String()
 	k.SetFeeShare(ctx, feeshare)
 
 	ctx.EventManager().EmitEvents(
@@ -212,11 +203,11 @@ func (k Keeper) CancelFeeShare(
 		contract,
 	)
 
-	// delete entry from withdrawer map if not default
-	if fee.WithdrawerAddress != "" {
+	withdrawAddr := fee.GetWithdrawerAddr()
+	if withdrawAddr != nil {
 		k.DeleteWithdrawerMap(
 			ctx,
-			fee.GetWithdrawerAddr(),
+			withdrawAddr,
 			contract,
 		)
 	}

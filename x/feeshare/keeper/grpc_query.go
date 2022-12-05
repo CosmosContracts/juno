@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -69,13 +68,6 @@ func (q Querier) FeeShare(
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if strings.TrimSpace(req.ContractAddress) == "" {
-		return nil, status.Error(
-			codes.InvalidArgument,
-			"contract address is empty",
-		)
-	}
-
 	// check if the contract is a non-zero hex address
 	contract, err := sdk.AccAddressFromBech32(req.ContractAddress)
 	if err != nil {
@@ -119,13 +111,6 @@ func (q Querier) DeployerFeeShares( // nolint: dupl
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if strings.TrimSpace(req.DeployerAddress) == "" {
-		return nil, status.Error(
-			codes.InvalidArgument,
-			"deployer address is empty",
-		)
-	}
-
 	deployer, err := sdk.AccAddressFromBech32(req.DeployerAddress)
 	if err != nil {
 		return nil, status.Errorf(
@@ -164,13 +149,6 @@ func (q Querier) WithdrawerFeeShares( // nolint: dupl
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-
-	if strings.TrimSpace(req.WithdrawerAddress) == "" {
-		return nil, status.Error(
-			codes.InvalidArgument,
-			"withdraw address is empty",
-		)
-	}
 
 	deployer, err := sdk.AccAddressFromBech32(req.WithdrawerAddress)
 	if err != nil {

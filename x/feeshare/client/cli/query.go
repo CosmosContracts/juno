@@ -89,6 +89,9 @@ func GetCmdQueryFeeShare() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			req := &types.QueryFeeShareRequest{ContractAddress: args[0]}
+			if err := req.ValidateBasic(); err != nil {
+				return err
+			}
 
 			// Query store
 			res, err := queryClient.FeeShare(context.Background(), req)
@@ -155,11 +158,17 @@ func GetCmdQueryDeployerFeeShares() *cobra.Command {
 				return err
 			}
 
-			// Query store
-			res, err := queryClient.DeployerFeeShares(context.Background(), &types.QueryDeployerFeeSharesRequest{
+			deployerFeeShareReq := &types.QueryDeployerFeeSharesRequest{
 				DeployerAddress: args[0],
 				Pagination:      pageReq,
-			})
+			}
+			if deployerFeeShareReq.ValidateBasic() != nil {
+				return err
+			}
+
+			// Query store
+			res, err := queryClient.DeployerFeeShares(context.Background(), deployerFeeShareReq)
+
 			if err != nil {
 				return err
 			}
@@ -194,11 +203,17 @@ func GetCmdQueryWithdrawerFeeShares() *cobra.Command {
 				return err
 			}
 
-			// Query store
-			res, err := queryClient.WithdrawerFeeShares(context.Background(), &types.QueryWithdrawerFeeSharesRequest{
+			withdrawReq := &types.QueryWithdrawerFeeSharesRequest{
 				WithdrawerAddress: args[0],
 				Pagination:        pageReq,
-			})
+			}
+
+			if err := withdrawReq.ValidateBasic(); err != nil {
+				return err
+			}
+
+			// Query store
+			res, err := queryClient.WithdrawerFeeShares(context.Background(), withdrawReq)
 			if err != nil {
 				return err
 			}
