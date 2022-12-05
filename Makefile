@@ -108,11 +108,6 @@ containerProtoGenAny=juno-proto-gen-any-$(protoVer)
 containerProtoGenSwagger=juno-proto-gen-swagger-$(protoVer)
 containerProtoFmt=juno-proto-fmt-$(protoVer)
 
-# proto-gen:
-# 	@echo "Generating Protobuf files"
-# 	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGen}$$"; then docker start -a $(containerProtoGen); else docker run --name $(containerProtoGen) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
-# 		sh ./scripts/protocgen.sh; fi
-
 proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
