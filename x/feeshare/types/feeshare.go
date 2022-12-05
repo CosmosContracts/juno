@@ -5,8 +5,7 @@ import (
 	sdkerror "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// NewFeeShare returns an instance of FeeShare. If the provided withdrawer
-// address is empty, it sets the value to an empty string.
+// NewFeeShare returns an instance of FeeShare.
 func NewFeeShare(contract sdk.Address, deployer, withdrawer sdk.AccAddress) FeeShare {
 	return FeeShare{
 		ContractAddress:   contract.String(),
@@ -34,8 +33,7 @@ func (fs FeeShare) GetDeployerAddr() sdk.AccAddress {
 }
 
 // GetWithdrawerAddr returns the account address to where the funds proceeding
-// from the fees will be received. If the withdraw address is not defined, it
-// defaults to the deployer address.
+// from the fees will be received.
 func (fs FeeShare) GetWithdrawerAddr() sdk.AccAddress {
 	contract, err := sdk.AccAddressFromBech32(fs.WithdrawerAddress)
 	if err != nil {

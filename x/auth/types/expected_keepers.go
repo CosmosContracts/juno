@@ -1,6 +1,6 @@
 package types
 
-// Used for the Juno antehandler so we can properly send 50% of fees to dAPP developers
+// Used for the Juno ante handler so we can properly send 50% of fees to dAPP developers via fee share module
 
 import (
 	revtypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
@@ -26,5 +26,4 @@ type AccountKeeper interface {
 type FeeShareKeeper interface {
 	GetParams(ctx sdk.Context) revtypes.Params
 	GetFeeShare(ctx sdk.Context, contract sdk.Address) (revtypes.FeeShare, bool)
-	// SendCoinsFromFeeCollectorToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 }

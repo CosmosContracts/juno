@@ -107,15 +107,8 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, totalF
 	// FeeShare logic payouts for contracts
 	numPairs := len(toPay)
 	if numPairs > 0 {
-		// multiply times 100 = 50. This way we can do 100/50 = 2 for the split fee amount
-		// if above is 25%, then 100/25 = 4 = they get 1/4th of the total fee between contracts
-		// govPercent := int64(params.DeveloperShares.MulInt64(100).RoundInt64())
-
 		govPercent := params.DeveloperShares
 		splitFees := FeePayLogic(fees, govPercent, numPairs)
-
-		// Gets XX% of the fees based off governance params based off the number of contracts we execute on
-		// (majority of the time this is only 1 contract). Should we simplify and only get the first contract?
 
 		// pay fees evenly between all withdraw addresses
 		for _, withdrawAddr := range toPay {

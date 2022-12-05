@@ -25,6 +25,7 @@ type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 }
 
+// WasmKeeper defines the expected interface needed to retrieve cosmwasm contracts.
 type WasmKeeper interface {
 	GetContractInfo(ctx sdk.Context, contractAddr sdk.AccAddress) (wasmtypes.ContractInfo, error)
 }

@@ -11,17 +11,10 @@ import (
 
 type AnteTestSuite struct {
 	suite.Suite
-	address1 sdk.AccAddress
-	address2 sdk.AccAddress
 }
 
 func TestAnteSuite(t *testing.T) {
 	suite.Run(t, new(AnteTestSuite))
-}
-
-func (suite *AnteTestSuite) SetupTest() {
-	suite.address1 = sdk.AccAddress([]byte("cosmos1"))
-	suite.address2 = sdk.AccAddress([]byte("cosmos2"))
 }
 
 func (suite *AnteTestSuite) TestFeeLogic() {
