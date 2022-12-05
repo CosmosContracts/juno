@@ -45,6 +45,12 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
 func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, fees sdk.Coins, revKeeper authforktypes.FeeShareKeeper, msgs []sdk.Msg) error {
+
+	params := revKeeper.GetParams(ctx)
+	if !params.EnableFeeShare {
+		return nil
+	}
+
 	toPay := make([]sdk.AccAddress, 0)
 	for _, msg := range msgs {
 		if _, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
@@ -65,11 +71,9 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, fees s
 	// FeeShare logic payouts for contracts
 	numPairs := len(toPay)
 	if numPairs > 0 {
-		govPercent := revKeeper.GetParams(ctx).DeveloperShares // 0.500000000
-
 		// multiply times 100 = 50. This way we can do 100/50 = 2 for the split fee amount
 		// if above is 25%, then 100/25 = 4 = they get 1/4th of the total fee between contracts
-		splitNumber := govPercent.MulInt64(100)
+		splitNumber := params.DeveloperShares.MulInt64(100)
 
 		// Gets XX% of the fees based off governance params based off the number of contracts we execute on
 		// (majority of the time this is only 1 contract). Should we simplify and only get the first contract?
