@@ -51,7 +51,7 @@ func FeePayLogic(fees sdk.Coins, govPercent sdk.Dec, numPairs int) sdk.Coins {
 	for _, c := range fees {
 		rewardAmount := govPercent.MulInt(c.Amount).QuoInt64(int64(numPairs)).RoundInt()
 		if !rewardAmount.IsZero() {
-			splitFees = append(splitFees, sdk.NewCoin(c.Denom, rewardAmount))
+			splitFees = splitFees.Add(sdk.NewCoin(c.Denom, rewardAmount))
 		}
 	}
 	return splitFees
