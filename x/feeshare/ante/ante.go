@@ -44,13 +44,30 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
-func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, fees sdk.Coins, revKeeper authforktypes.FeeShareKeeper, msgs []sdk.Msg) error {
+func FeeSharePayout(ctx sdk.Context, bankKeeper authforktypes.BankKeeper, totalFees sdk.Coins, revKeeper authforktypes.FeeShareKeeper, msgs []sdk.Msg) error {
 
 	params := revKeeper.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil
 	}
 
+	// Get only allowed governance fees to be paid (helps for taxes)
+	// Juno v13 will have a globalFee for setting more allowed denoms later.
+	var fees sdk.Coins
+	if len(params.AllowedDenoms) == 0 {
+		// If empty, we allow all denoms to be used as payment
+		fees = totalFees
+	} else {
+		for _, fee := range totalFees {
+			for _, allowed := range params.AllowedDenoms {
+				if fee.Denom == allowed {
+					fees = fees.Add(fee)
+				}
+			}
+		}
+	}
+
+	// Get valid withdraw addresses from contracts
 	toPay := make([]sdk.AccAddress, 0)
 	for _, msg := range msgs {
 		if _, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
