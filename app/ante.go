@@ -60,7 +60,6 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewRejectExtensionOptionsDecorator(),
 		decorators.MsgFilterDecorator{},
-		ante.NewMempoolFeeDecorator(),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
