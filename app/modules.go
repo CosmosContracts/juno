@@ -39,6 +39,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/cosmos/gaia/v8/x/globalfee"
 	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
@@ -86,6 +87,7 @@ var ModuleBasics = module.NewBasicManager(
 	wasm.AppModuleBasic{},
 	ica.AppModuleBasic{},
 	tokenfactory.AppModuleBasic{},
+	globalfee.AppModuleBasic{},
 )
 
 func appModules(
@@ -121,6 +123,7 @@ func appModules(
 		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
+		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 	}
 }
 
@@ -178,6 +181,7 @@ func orderBeginBlockers() []string {
 		icatypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
+		globalfee.ModuleName,
 	}
 }
 
@@ -205,6 +209,7 @@ func orderEndBlockers() []string {
 		icatypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
+		globalfee.ModuleName,
 	}
 }
 
@@ -232,5 +237,6 @@ func orderInitBlockers() []string {
 		icatypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
+		globalfee.ModuleName,
 	}
 }
