@@ -7,6 +7,7 @@ require (
 	github.com/CosmWasm/wasmd v0.29.2
 	github.com/cosmos/cosmos-sdk v0.45.11
 	github.com/cosmos/ibc-go/v3 v3.4.0
+	github.com/cosmos/interchain-accounts v0.1.7 // v0.2.5 requires IBC v4, bump to this when we merge v12
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0

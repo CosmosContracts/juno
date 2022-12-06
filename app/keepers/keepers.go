@@ -56,6 +56,15 @@ import (
 	icahost "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
+
+	// ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
+	icacontroller "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller"
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/keeper"
+	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
+
+	intertx "github.com/cosmos/interchain-accounts/x/inter-tx"
+	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
+	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 )
 
 type AppKeepers struct {
@@ -82,12 +91,16 @@ type AppKeepers struct {
 	AuthzKeeper      authzkeeper.Keeper
 	FeeGrantKeeper   feegrantkeeper.Keeper
 
-	ICAHostKeeper icahostkeeper.Keeper
+	ICAControllerKeeper icacontrollerkeeper.Keeper
+	ICAHostKeeper       icahostkeeper.Keeper
+	InterTxKeeper       intertxkeeper.Keeper
 
 	// make scoped keepers public for test purposes
-	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
-	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
-	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
+	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
+	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
+	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
+	ScopedInterTxKeeper       capabilitykeeper.ScopedKeeper
+	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 	WasmKeeper         wasm.Keeper
@@ -132,7 +145,9 @@ func NewAppKeepers(
 
 	// grant capabilities for the ibc and ibc-transfer modules
 	scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
+	scopedICAControllerKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedICAHostKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
+	scopedInterTxKeeper := appKeepers.CapabilityKeeper.ScopeToModule(intertxtypes.ModuleName)
 	scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 	scopedWasmKeeper := appKeepers.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
@@ -257,7 +272,25 @@ func NewAppKeepers(
 		scopedICAHostKeeper,
 		bApp.MsgServiceRouter(),
 	)
+
+	appKeepers.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[icacontrollertypes.StoreKey],
+		appKeepers.GetSubspace(icacontrollertypes.SubModuleName),
+		appKeepers.IBCKeeper.ChannelKeeper, // may be replaced with middleware such as ics29 fee
+		appKeepers.IBCKeeper.ChannelKeeper,
+		&appKeepers.IBCKeeper.PortKeeper,
+		scopedICAControllerKeeper,
+		bApp.MsgServiceRouter(),
+	)
 	icaHostIBCModule := icahost.NewIBCModule(appKeepers.ICAHostKeeper)
+
+	// this is the demo controller from
+	// https://github.com/cosmos/interchain-accounts
+	// used with a little faith on our part
+	appKeepers.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, appKeepers.keys[intertxtypes.StoreKey], appKeepers.ICAControllerKeeper, scopedInterTxKeeper)
+	interTxIBCModule := intertx.NewIBCModule(appKeepers.InterTxKeeper)
+	icaControllerIBCModule := icacontroller.NewIBCModule(appKeepers.ICAControllerKeeper, interTxIBCModule)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -318,7 +351,10 @@ func NewAppKeepers(
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
 		AddRoute(wasm.ModuleName, wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper)).
-		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule)
+		AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
+		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
+		AddRoute(intertxtypes.ModuleName, icaControllerIBCModule)
+
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
 	appKeepers.GovKeeper = govkeeper.NewKeeper(
@@ -331,6 +367,8 @@ func NewAppKeepers(
 	// this line is used by starport scaffolding # stargate/appKeepers/beforeInitReturn
 	appKeepers.scopedWasmKeeper = scopedWasmKeeper
 	appKeepers.ScopedICAHostKeeper = scopedICAHostKeeper
+	appKeepers.ScopedICAControllerKeeper = scopedICAControllerKeeper
+	appKeepers.ScopedInterTxKeeper = scopedInterTxKeeper
 
 	return appKeepers
 }
@@ -349,6 +387,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
+	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
