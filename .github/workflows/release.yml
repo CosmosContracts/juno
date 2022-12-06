@@ -1,3 +1,4 @@
+---
 name: release binary
 
 on:
@@ -8,14 +9,14 @@ jobs:
   release-alpine-static:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Docker compose
         run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Copy binary
         run: docker cp juno_node_1:/usr/bin/junod ./junod
       - name: Get release
         id: get_release
-        uses: bruceadams/get-release@v1.2.3
+        uses: bruceadams/get-release@v1.3.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Upload release binary
@@ -29,4 +30,4 @@ jobs:
           asset_content_type: application/octet-stream
       - name: Dump docker logs on failure
         if: failure()
-        uses: jwalton/gh-docker-logs@v1
+        uses: jwalton/gh-docker-logs@v2

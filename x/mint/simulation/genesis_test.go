@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v7/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v7/x/mint/types"
+	"github.com/CosmosContracts/juno/v12/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v12/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -42,11 +42,11 @@ func TestRandomizedGenState(t *testing.T) {
 
 	require.Equal(t, uint64(6311520), mintGenesis.Params.BlocksPerYear)
 	require.Equal(t, "stake", mintGenesis.Params.MintDenom)
-	require.Equal(t, "0stake", mintGenesis.Minter.BlockProvision(mintGenesis.Params).String())
+	require.Equal(t, "0stake", mintGenesis.Minter.BlockProvision(mintGenesis.Params, sdk.NewInt(0)).String())
 	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.NextAnnualProvisions(mintGenesis.Params, sdk.OneInt()).String())
 	require.Equal(t, "0.400000000000000000", mintGenesis.Minter.PhaseInflationRate(1).String())
 	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.Inflation.String())
-	require.Equal(t, uint64(1), mintGenesis.Minter.NextPhase(mintGenesis.Params, 1))
+	require.Equal(t, uint64(1), mintGenesis.Minter.NextPhase(mintGenesis.Params, sdk.NewInt(1)))
 	require.Equal(t, uint64(0), mintGenesis.Minter.Phase)
 	require.Equal(t, "0.000000000000000000", mintGenesis.Minter.AnnualProvisions.String())
 }

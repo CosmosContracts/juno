@@ -7,7 +7,7 @@ FEE=${FEE_TOKEN:-ucosm}
 CHAIN_ID=${CHAIN_ID:-testing}
 MONIKER=${MONIKER:-node001}
 KEYRING="--keyring-backend test"
-BLOCK_GAS_LIMIT=${GAS_LIMIT:-100000000} # should mirror mainnet
+BLOCK_GAS_LIMIT=${GAS_LIMIT:-10000000} # should mirror mainnet
 
 echo "Configured Block Gas Limit: $BLOCK_GAS_LIMIT"
 
@@ -19,6 +19,7 @@ else
   echo "$GENESIS_FILE does not exist. Generating..."
 
   junod init --chain-id "$CHAIN_ID" "$MONIKER"
+  junod add-ica-config
   # staking/governance token is hardcoded in config, change this
   sed -i "s/\"stake\"/\"$STAKE\"/" "$GENESIS_FILE"
   # this is essential for sub-1s block times (or header times go crazy)

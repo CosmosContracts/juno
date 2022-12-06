@@ -63,25 +63,27 @@ func TestNextPhase(t *testing.T) {
 	blocksPerYear := uint64(100)
 	tests := []struct {
 		currentBlock, currentPhase, startPhaseBlock, blocksYear, expPhase uint64
+		currentSupply                                                     sdk.Int
+		targetSupply                                                      sdk.Int
 	}{
-		{1, 0, 0, blocksPerYear, 1},
-		{50, 1, 1, blocksPerYear, 1},
-		{99, 1, 1, blocksPerYear, 1},
-		{100, 1, 1, blocksPerYear, 1},
-		{101, 1, 1, blocksPerYear, 2},
-		// increase blocks_per_year
-		{102, 2, 101, blocksPerYear * 2, 2},
-		{201, 2, 101, blocksPerYear * 2, 2},
-		{299, 2, 101, blocksPerYear * 2, 2},
-		{300, 2, 101, blocksPerYear * 2, 2},
-		{301, 2, 101, blocksPerYear * 2, 3},
+		{1, 0, 0, blocksPerYear, 1, sdk.NewInt(10000), sdk.NewInt(14000)},
+		{50, 1, 1, blocksPerYear, 1, sdk.NewInt(12000), sdk.NewInt(14000)},
+		// if targetSupply is > currentSupply it doesn't
+		// matter how much by
+		{99, 1, 1, blocksPerYear, 1, sdk.NewInt(13960), sdk.NewInt(1140000)},
+		{100, 1, 1, blocksPerYear, 2, sdk.NewInt(14000), sdk.NewInt(14000)},
+		{101, 1, 1, blocksPerYear, 2, sdk.NewInt(16000), sdk.NewInt(14000)},
+		// since currentSupply is larger than targetSupply
+		// next phase returns phase + 1 regardless of inputs
+		{102, 2, 101, blocksPerYear, 3, sdk.NewInt(29000), sdk.NewInt(14000)},
 	}
 	for i, tc := range tests {
 		minter.Phase = tc.currentPhase
 		minter.StartPhaseBlock = tc.startPhaseBlock
+		minter.TargetSupply = tc.targetSupply
 		params.BlocksPerYear = tc.blocksYear
 
-		phase := minter.NextPhase(params, tc.currentBlock)
+		phase := minter.NextPhase(params, tc.currentSupply)
 
 		require.True(t, phase == tc.expPhase,
 			"Test Index: %v\nPhase:  %v\nExpected: %v\n", i, phase, tc.expPhase)
@@ -97,15 +99,30 @@ func TestBlockProvision(t *testing.T) {
 	tests := []struct {
 		annualProvisions int64
 		expProvisions    int64
+		totalSupply      sdk.Int
 	}{
-		{secondsPerYear / 5, 1},
-		{secondsPerYear/5 + 1, 1},
-		{(secondsPerYear / 5) * 2, 2},
-		{(secondsPerYear / 5) / 2, 0},
+		{secondsPerYear / 5, 1, sdk.NewInt(1)},
+		{secondsPerYear/5 + 1, 1, sdk.NewInt(1)},
+		{(secondsPerYear / 5) * 2, 2, sdk.NewInt(1)},
+		{(secondsPerYear / 5) / 2, 0, sdk.NewInt(1)},
+		{(secondsPerYear / 5) * 3, 3, sdk.NewInt(1)},
+		{(secondsPerYear / 5) * 7, 7, sdk.NewInt(2)},
+		// we special case this below to trigger the
+		// conditional in BlockProvision
+		{(secondsPerYear / 5) * 7200, 0, sdk.NewInt(7000)},
 	}
 	for i, tc := range tests {
 		minter.AnnualProvisions = sdk.NewDec(tc.annualProvisions)
-		provisions := minter.BlockProvision(params)
+		// if provision amount + total current supply
+		// (totalSupply) exceeds target supply it should
+		// return targetSupply - totalSupply, i.e. zero
+		if i == 6 {
+			minter.TargetSupply = tc.totalSupply
+		} else {
+			minter.TargetSupply = tc.totalSupply.Add(minter.AnnualProvisions.TruncateInt())
+		}
+
+		provisions := minter.BlockProvision(params, tc.totalSupply)
 
 		expProvisions := sdk.NewCoin(params.MintDenom,
 			sdk.NewInt(tc.expProvisions))
@@ -130,10 +147,12 @@ func BenchmarkBlockProvision(b *testing.B) {
 	s1 := rand.NewSource(100)
 	r1 := rand.New(s1)
 	minter.AnnualProvisions = sdk.NewDec(r1.Int63n(1000000))
+	totalSupply := sdk.NewInt(100000000000000)
+	minter.TargetSupply = sdk.NewInt(200000000000000)
 
 	// run the BlockProvision function b.N times
 	for n := 0; n < b.N; n++ {
-		minter.BlockProvision(params)
+		minter.BlockProvision(params, totalSupply)
 	}
 }
 

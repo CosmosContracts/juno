@@ -1,3 +1,4 @@
+---
 version: "3"
 services:
   node:
@@ -11,5 +12,5 @@ services:
       - 26656:26656 # p2p
       - 26657:26657 # rpc
     environment:
-      - GAS_LIMIT=${GAS_LIMIT:-100000000}
-      - STAKE_TOKEN=${STAKE_TOKEN:-ustake}
+      - GAS_LIMIT=${GAS_LIMIT:-10000000}
+      - STAKE_TOKEN=${STAKE_TOKEN:-ujunox}
