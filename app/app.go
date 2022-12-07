@@ -265,6 +265,8 @@ func New(
 				SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
+
+			GovKeeper:         app.GovKeeper,
 			IBCKeeper:         app.IBCKeeper,
 			FeeShareKeeper:    app.FeeShareKeeper,
 			BankKeeperFork:    app.BankKeeper, // since we need extra methods
