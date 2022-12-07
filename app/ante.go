@@ -11,6 +11,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
@@ -30,6 +31,7 @@ type HandlerOptions struct {
 	BypassMinFeeMsgTypes []string
 	GlobalFeeSubspace    paramtypes.Subspace
 	StakingSubspace      paramtypes.Subspace
+
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -60,6 +62,8 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewRejectExtensionOptionsDecorator(),
 		decorators.MsgFilterDecorator{},
+		decorators.NewGovPreventSpamDecorator(options.Cdc, options.GovKeeper),
+		ante.NewMempoolFeeDecorator(),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),

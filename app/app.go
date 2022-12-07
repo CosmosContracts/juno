@@ -283,6 +283,7 @@ func New(
 			BypassMinFeeMsgTypes: bypassMinFeeMsgTypes,
 			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
 			StakingSubspace:      app.GetSubspace(stakingtypes.ModuleName),
+
 		},
 	)
 	if err != nil {
