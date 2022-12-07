@@ -1,5 +1,4 @@
 # End-to-end Tests
-
 ## Structure
 
 ### `e2e` Package
