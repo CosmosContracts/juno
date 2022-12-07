@@ -24,7 +24,6 @@ If it is not triaged in a couple of days, feel free to tag `@the-frey` or `@jake
 
 If you're here because you're trying to figure out how to notify us of a security issue, go to [Discord](https://discord.gg/wHdzjS5vXx), and alert the core engineers:
 
-
 - Jake (Meow) `Meow Stargaze ✨🔭#1736`
 - Dimi `dimi 🦙#2998`
 - Alex (the-frey) `the-frey#8626`

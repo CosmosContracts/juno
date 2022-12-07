@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/CosmosContracts/juno/v12/app"
+	"github.com/CosmosContracts/juno/v12/cmd/junod/cmd"
 	"github.com/cosmos/cosmos-sdk/server"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
@@ -11,7 +12,8 @@ import (
 
 func main() {
 	app.SetAddressPrefixes()
-	rootCmd, _ := NewRootCmd()
+	rootCmd, _ := cmd.NewRootCmd()
+
 	if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {
 		switch e := err.(type) {
 		case server.ErrorCode:
