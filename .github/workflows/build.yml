@@ -2,7 +2,6 @@
 on: [push, pull_request]
 name: every commit
 jobs:
-
   build:
     runs-on: ubuntu-latest
     name: build
@@ -11,10 +10,23 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - run: go build ./...
-# Use --check or --exit-code when available (Go 1.18?)
-# https://github.com/golang/go/issues/27005
+
+  test:
+    runs-on: ubuntu-latest
+    name: test
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Test
+        run: go test ./...
+
+
   tidy:
     runs-on: ubuntu-latest
     name: tidy
@@ -23,7 +35,7 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - run: |
           go mod tidy
           CHANGES_IN_REPO=$(git status --porcelain)

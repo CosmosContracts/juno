@@ -262,6 +262,8 @@ func New(
 				SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
+
+			GovKeeper:         app.GovKeeper,
 			IBCKeeper:         app.IBCKeeper,
 			TxCounterStoreKey: app.GetKey(wasm.StoreKey),
 			WasmConfig:        wasmConfig,

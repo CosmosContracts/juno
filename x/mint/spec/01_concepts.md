@@ -7,9 +7,11 @@ order: 0
 ## The Minting Mechanism
 
 The minting mechanism was designed to:
- - allow for a inflation rate determined by Juno Tokenemics
 
-It can be broken down in the following way: 
+- allow for a inflation rate determined by Juno Tokenemics
+
+It can be broken down in the following way:
+
 - Phase 1: Fixed inflation 40%
 - Phase 2: Fixed inflation 20%
 - Phase 3: Fixed inflation 10%
