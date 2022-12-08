@@ -11,10 +11,12 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-// CheckIfDeployerIsContractAdmin ensures the deployer is the contract's admin for all msg_server feeshare functions.
-// If not, it returns an error & we know the user is not authorized to perform the action.
-func (k Keeper) CheckIfDeployerIsContractAdmin(ctx sdk.Context, contract sdk.AccAddress, deployer string) (deployerAddr sdk.AccAddress, errr error) {
-	deployerAddr, err := sdk.AccAddressFromBech32(deployer)
+// GetContractAdminOrCreatorAddress ensures the deployer is the contract's admin OR creator if no admin is set for all msg_server feeshare functions.
+func (k Keeper) GetContractAdminOrCreatorAddress(ctx sdk.Context, contract sdk.AccAddress, deployer string) (feeShareAccessAddr sdk.AccAddress, errr error) {
+	var controllingAccount sdk.AccAddress
+
+	// Ensures deployer String is valid
+	_, err := sdk.AccAddressFromBech32(deployer)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid deployer address %s", deployer)
 	}
@@ -22,14 +24,30 @@ func (k Keeper) CheckIfDeployerIsContractAdmin(ctx sdk.Context, contract sdk.Acc
 	info := k.wasmKeeper.GetContractInfo(ctx, contract)
 
 	if len(info.Admin) == 0 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "contract %s has no admin set", contract)
+		// no admin, see if they are the creator of the contract
+		if info.Creator != deployer {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "you are not the creator of this contract %s", info.Creator)
+		}
+
+		creatorAddr, err := sdk.AccAddressFromBech32(info.Creator)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address %s", info.Creator)
+		}
+		controllingAccount = creatorAddr
+	} else {
+		// Admin is set, so we check if the deployer is the admin
+		if info.Admin != deployer {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "you are not an admin of this contract %s", deployer)
+		}
+
+		adminAddr, err := sdk.AccAddressFromBech32(info.Admin)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid admin address %s", info.Admin)
+		}
+		controllingAccount = adminAddr
 	}
 
-	if info.Admin != deployer {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "you are not an admin of this contract %s", deployer)
-	}
-
-	return deployerAddr, nil
+	return controllingAccount, nil
 }
 
 // RegisterFeeShare registers a contract to receive transaction fees
@@ -56,7 +74,7 @@ func (k Keeper) RegisterFeeShare(
 	}
 
 	// Check that the person who signed the message is the wasm contract admin, if so return the deployer address
-	deployer, err := k.CheckIfDeployerIsContractAdmin(ctx, contract, msg.DeployerAddress)
+	deployer, err := k.GetContractAdminOrCreatorAddress(ctx, contract, msg.DeployerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +148,7 @@ func (k Keeper) UpdateFeeShare(
 	}
 
 	// Check that the person who signed the message is the wasm contract admin, if so return the deployer address
-	_, err = k.CheckIfDeployerIsContractAdmin(ctx, contract, msg.DeployerAddress)
+	_, err = k.GetContractAdminOrCreatorAddress(ctx, contract, msg.DeployerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +209,7 @@ func (k Keeper) CancelFeeShare(
 	}
 
 	// Check that the person who signed the message is the wasm contract admin, if so return the deployer address
-	_, err = k.CheckIfDeployerIsContractAdmin(ctx, contract, msg.DeployerAddress)
+	_, err = k.GetContractAdminOrCreatorAddress(ctx, contract, msg.DeployerAddress)
 	if err != nil {
 		return nil, err
 	}
