@@ -123,7 +123,6 @@ func appModules(
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
 		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
-		// this line is used by starport scaffolding # stargate/app/appModule
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 	}
 }
