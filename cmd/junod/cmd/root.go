@@ -107,7 +107,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		AddGenesisWasmMsgCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		// testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
-		debug.Cmd(),
+		ConvertBech32Cmd(),
 		config.Cmd(),
 		pruning.PruningCmd(ac.newApp),
 	)
@@ -120,7 +120,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		queryCommand(),
 		txCommand(),
 		keys.Commands(app.DefaultNodeHome),
-		bech32Cmd,
 		ResetWasmCmd,
 		ResetAppCmd,
 	)
