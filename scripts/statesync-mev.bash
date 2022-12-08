@@ -26,6 +26,7 @@ junod init test
 aria2c https://download.dimi.sh/juno-phoenix2-genesis.tar.gz
 tar -xvf juno-phoenix2-genesis.tar.gz
 mv juno-phoenix2-genesis.json "$HOME/.juno/config/genesis.json"
+rm juno-phoenix2-genesis.tar.gz
 
 # Get "trust_hash" and "trust_height".
 INTERVAL=1000
