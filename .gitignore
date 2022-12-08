@@ -6,6 +6,7 @@ exchanges.json
 juno_out.json
 bin
 .vscode
+.ash_history
 
 # emacs editor config
 \#*\#
