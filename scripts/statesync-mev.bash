@@ -23,7 +23,7 @@ go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbl
 junod init test
 
 # Get Genesis
-wget https://download.dimi.sh/juno-phoenix2-genesis.tar.gz
+aria2c https://download.dimi.sh/juno-phoenix2-genesis.tar.gz
 tar -xvf juno-phoenix2-genesis.tar.gz
 mv juno-phoenix2-genesis.json "$HOME/.juno/config/genesis.json"
 
@@ -40,7 +40,7 @@ echo "trust_hash: $TRUST_HASH"
 # Export state sync variables.
 export JUNOD_STATESYNC_ENABLE=true
 export JUNOD_P2P_MAX_NUM_OUTBOUND_PEERS=200
-export JUNOD_STATESYNC_RPC_SERVERS="https://rpc-juno-ia.notional.ventures:443,https://juno-rpc.polkachu.com:443"
+export JUNOD_STATESYNC_RPC_SERVERS="https://juno-rpc.polkachu.com:443,https://rpc-juno-ia.notional.ventures:443,https://juno-rpc.polkachu.com:443"
 export JUNOD_STATESYNC_TRUST_HEIGHT=$BLOCK_HEIGHT
 export JUNOD_STATESYNC_TRUST_HASH=$TRUST_HASH
 
