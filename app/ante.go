@@ -5,13 +5,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	ibcante "github.com/cosmos/ibc-go/v3/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
@@ -24,6 +24,7 @@ import (
 type HandlerOptions struct {
 	ante.HandlerOptions
 
+	GovKeeper            govkeeper.Keeper
 	IBCKeeper            *ibckeeper.Keeper
 	TxCounterStoreKey    sdk.StoreKey
 	WasmConfig           wasmTypes.WasmConfig
@@ -31,7 +32,6 @@ type HandlerOptions struct {
 	BypassMinFeeMsgTypes []string
 	GlobalFeeSubspace    paramtypes.Subspace
 	StakingSubspace      paramtypes.Subspace
-
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
