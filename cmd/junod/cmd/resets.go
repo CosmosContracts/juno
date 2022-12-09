@@ -12,10 +12,24 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 )
 
+// Cmd creates a main CLI command
+func ResetCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "reset",
+		Short: "Reset commands for different parts of application state",
+		RunE:  client.ValidateCmd,
+	}
+
+	cmd.AddCommand(ResetWasmCmd)
+	cmd.AddCommand(ResetAppCmd)
+
+	return cmd
+}
+
 // ResetWasmCmd removes the database of the specified Tendermint core instance.
 var ResetWasmCmd = &cobra.Command{
-	Use:   "reset-wasm",
-	Short: "Remove WASM files",
+	Use:   "wasm",
+	Short: "Reset WASM files",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		clientCtx := client.GetClientContextFromCmd(cmd)
 		serverCtx := server.GetServerContextFromCmd(cmd)
@@ -29,8 +43,8 @@ var ResetWasmCmd = &cobra.Command{
 
 // ResetWasmCmd removes the database of the specified Tendermint core instance.
 var ResetAppCmd = &cobra.Command{
-	Use:   "reset-app",
-	Short: "Remove App files",
+	Use:   "app",
+	Short: "Reset App files",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		clientCtx := client.GetClientContextFromCmd(cmd)
 		serverCtx := server.GetServerContextFromCmd(cmd)
