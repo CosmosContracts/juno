@@ -15,12 +15,8 @@ import (
 	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
 )
 
-var (
-	DefaultIsAppSimulation = false
-)
-
 func updateAppSimulationFlag(flag bool) {
-	DefaultIsAppSimulation = flag
+	decorators.UpdateSimsFlag(flag)
 }
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
