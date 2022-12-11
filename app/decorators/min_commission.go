@@ -8,6 +8,14 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+var (
+	DefaultIsAppSimulation = false
+)
+
+func UpdateSimsFlag(flag bool) {
+	DefaultIsAppSimulation = flag
+}
+
 type MinCommissionDecorator struct {
 	cdc codec.BinaryCodec
 }
@@ -20,6 +28,9 @@ func (min MinCommissionDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx,
 	simulate bool, next sdk.AnteHandler,
 ) (newCtx sdk.Context, err error) {
+	if DefaultIsAppSimulation {
+		return next(ctx, tx, simulate)
+	}
 	msgs := tx.GetMsgs()
 	minCommissionRate := sdk.NewDecWithPrec(5, 2)
 
