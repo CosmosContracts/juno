@@ -3,6 +3,7 @@ package keepers
 import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmWasm/wasmd/x/wasm"
+	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
 	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -31,7 +32,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		authzkeeper.StoreKey, feegrant.StoreKey, icahosttypes.StoreKey, oracletypes.StoreKey,
-		tokenfactorytypes.StoreKey, wasm.StoreKey,
+		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, wasm.StoreKey,
 	)
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	appKeepers.memKeys = sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
