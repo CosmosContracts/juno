@@ -47,7 +47,9 @@ func CreateV12UpgradeHandler(
 		vm[icatypes.ModuleName] = mm.Modules[icatypes.ModuleName].ConsensusVersion()
 
 		// create ICS27 Controller submodule params, controller module not enabled.
-		controllerParams := icacontrollertypes.Params{}
+		controllerParams := icacontrollertypes.Params{
+			ControllerEnabled: true,
+		}
 
 		// create ICS27 Host submodule params
 		hostParams := icahosttypes.Params{
@@ -69,6 +71,7 @@ func CreateV12UpgradeHandler(
 				// wasm msgs here
 				sdk.MsgTypeURL(&wasmtypes.MsgStoreCode{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgInstantiateContract{}),
+				sdk.MsgTypeURL(&wasmtypes.MsgInstantiateContract2{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgExecuteContract{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgMigrateContract{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgUpdateAdmin{}),
