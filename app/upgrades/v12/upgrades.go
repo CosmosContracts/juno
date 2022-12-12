@@ -3,6 +3,7 @@ package v12
 import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmosContracts/juno/v12/app/keepers"
+	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -34,6 +35,13 @@ func CreateV12UpgradeHandler(
 			DenomCreationFee: sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1000000))),
 		}
 		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
+
+		newFeeShareParams := feesharetypes.Params{
+			EnableFeeShare:  true,
+			DeveloperShares: sdk.NewDecWithPrec(50, 2), // = 50%
+			AllowedDenoms:   []string{"ujuno"},
+		}
+		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
 
 		// ICA - https://github.com/CosmosContracts/juno/blob/integrate_ica_changes/app/app.go#L846-L885
 		vm[icatypes.ModuleName] = mm.Modules[icatypes.ModuleName].ConsensusVersion()
