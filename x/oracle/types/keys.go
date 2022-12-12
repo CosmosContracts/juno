@@ -23,7 +23,15 @@ var (
 	KeyPrefixMissCounter                  = []byte{0x03} // prefix for each key to a miss counter
 	KeyPrefixAggregateExchangeRatePrevote = []byte{0x04} // prefix for each key to a aggregate prevote
 	KeyPrefixAggregateExchangeRateVote    = []byte{0x05} // prefix for each key to a aggregate vote
+	KeyPrefixPriceHistory                 = []byte{0x06} // prefix for price history
 )
+
+// Store price history <Prefix> <baseDenom> <votePeriodCount> <PriceHistory>
+func GetPriceHistoryKey(denom string) (key []byte) {
+	key = append(key, KeyPrefixPriceHistory...)
+	key = append(key, []byte(denom)...)
+	return key
+}
 
 // GetExchangeRateKey - stored by *denom*
 func GetExchangeRateKey(denom string) (key []byte) {

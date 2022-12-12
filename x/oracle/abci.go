@@ -20,6 +20,22 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
 
 	params := k.GetParams(ctx)
+	// remove out of date history price
+	for _, denom := range params.PriceTrackingList {
+		var keys []uint64
+		k.IterateDenomHistoryPrice(ctx, denom.BaseDenom, func(key uint64, priceHistory types.PriceHistory) bool {
+			goneTime := ctx.BlockTime().Sub(priceHistory.PriceUpdateTime)
+			if goneTime > params.PriceHistoryTrackingDuration {
+				keys = append(keys, key)
+				return false
+			}
+			return true
+		})
+		for _, key := range keys {
+			k.DeleteDenomHistoryPrice(ctx, denom.BaseDenom, key)
+		}
+	}
+
 	if isPeriodLastBlock(ctx, params.VotePeriod) {
 		// Build claim map over all validators in active set
 		validatorClaimMap := make(map[string]types.Claim)
@@ -54,6 +70,11 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 
 			// Set the exchange rate, emit ABCI event
 			if err = k.SetExchangeRateWithEvent(ctx, ballotDenom.Denom, exchangeRate); err != nil {
+				return err
+			}
+
+			// set the price history
+			if err = k.SetDenomPriceHistory(ctx, ballotDenom.Denom, exchangeRate, ctx.BlockTime(), ctx.BlockHeight()); err != nil {
 				return err
 			}
 		}

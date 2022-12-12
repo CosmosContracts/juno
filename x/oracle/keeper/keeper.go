@@ -3,8 +3,10 @@ package keeper
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -68,6 +70,110 @@ func NewKeeper(
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// Set Price history
+func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, baseDenom string, exchangeRate sdk.Dec, time time.Time, blockHeight int64) error {
+	// Check if not in tracking list
+	found, denom := k.isInTrackingList(ctx, baseDenom)
+	if !found {
+		// if not in tracking list, doing nothing => just return nil
+		return nil
+	}
+	// Calculate voting Period count
+	params := k.GetParams(ctx)
+	votingPeriodCount := (uint64(ctx.BlockHeight()) + 1) / params.VotePeriod
+	if votingPeriodCount == 0 {
+		return sdkerrors.Wrap(types.ErrInvalidVotePeriod, "Voting period must be positive")
+	}
+
+	// Get store
+	store := ctx.KVStore(k.storeKey)
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(baseDenom))
+
+	// Store data to store
+	powerReduction := ten.Power(uint64(denom.Exponent))
+	priceHistory := &types.PriceHistory{
+		Denom:           denom,
+		Price:           exchangeRate.Quo(powerReduction),
+		VotePeriodCount: votingPeriodCount,
+		PriceUpdateTime: time,
+	}
+	bz, err := k.cdc.Marshal(priceHistory)
+	if err != nil {
+		return err
+	}
+	key := sdk.Uint64ToBigEndian(votingPeriodCount)
+	priceHistoryStore.Set(key, bz)
+
+	return nil
+}
+
+// Get History Price from symbol denom
+func (k Keeper) GetPriceHistoryWithSymbolDenom(ctx sdk.Context, symbolDenom string, blockHeight int64) (types.PriceHistory, error) {
+	var priceHistory types.PriceHistory
+	// Get baseDenom
+	found, baseDenom := k.getBaseDenomFromSymbolDenom(ctx, symbolDenom)
+	if !found {
+		return priceHistory, sdkerrors.Wrapf(types.ErrUnknownDenom, "unkown denom %s", symbolDenom)
+	}
+
+	return k.GetPriceHistoryWithBaseDenom(ctx, baseDenom, blockHeight)
+}
+
+// Get History Price from base Denom
+func (k Keeper) GetPriceHistoryWithBaseDenom(ctx sdk.Context, baseDenom string, blockHeight int64) (types.PriceHistory, error) {
+	var priceHistory types.PriceHistory
+	// Check if in tracking list
+	found, _ := k.isInTrackingList(ctx, baseDenom)
+	if !found {
+		return priceHistory, sdkerrors.Wrapf(types.ErrUnknownDenom, "denom %s not in tracking list", baseDenom)
+	}
+
+	// Calculate votingPeriodCount
+	params := k.GetParams(ctx)
+	votingPeriodCount := (uint64)(blockHeight) / params.VotePeriod
+	if votingPeriodCount == 0 {
+		return priceHistory, sdkerrors.Wrap(types.ErrInvalidVotePeriod, "Voting period must be positive")
+	}
+
+	// Get store
+	store := ctx.KVStore(k.storeKey)
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(baseDenom))
+	// Get data from store
+	key := sdk.Uint64ToBigEndian(votingPeriodCount)
+	bz := priceHistoryStore.Get(key)
+	if bz == nil {
+		return priceHistory, sdkerrors.Wrapf(types.ErrInvalidVotePeriod, "Voting period have no exchange price %d", votingPeriodCount)
+	}
+	k.cdc.MustUnmarshal(bz, &priceHistory)
+
+	return priceHistory, nil
+}
+
+// Iterate over history price
+func (k Keeper) IterateDenomHistoryPrice(ctx sdk.Context, baseDenom string, cb func(uint64, types.PriceHistory) bool) {
+	store := ctx.KVStore(k.storeKey)
+	iter := sdk.KVStorePrefixIterator(store, types.GetPriceHistoryKey(baseDenom))
+
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		var priceHistory types.PriceHistory
+		k.cdc.MustUnmarshal(iter.Value(), &priceHistory)
+		if cb(sdk.BigEndianToUint64(iter.Key()), priceHistory) {
+			break
+		}
+	}
+}
+
+func (k Keeper) DeleteDenomHistoryPrice(ctx sdk.Context, baseDenom string, votingPeriodCount uint64) {
+	// Get store
+	store := ctx.KVStore(k.storeKey)
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(baseDenom))
+	// Delete
+	key := sdk.Uint64ToBigEndian(votingPeriodCount)
+	priceHistoryStore.Delete(key)
 }
 
 // GetExchangeRate gets the consensus exchange rate of USD denominated in the
@@ -394,4 +500,29 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	}
 
 	return nil
+}
+
+func (k Keeper) isInTrackingList(ctx sdk.Context, baseDenom string) (bool, types.Denom) {
+	var denom types.Denom
+	params := k.GetParams(ctx)
+	for _, trackingDenom := range params.PriceTrackingList {
+		if trackingDenom.BaseDenom == baseDenom {
+			denom = trackingDenom
+			return true, denom
+		}
+	}
+
+	return false, denom
+}
+
+func (k Keeper) getBaseDenomFromSymbolDenom(ctx sdk.Context, symbolDenom string) (bool, string) {
+	var baseDenom string
+	params := k.GetParams(ctx)
+	for _, denom := range params.AcceptList {
+		if denom.SymbolDenom == symbolDenom {
+			baseDenom = denom.BaseDenom
+			return true, baseDenom
+		}
+	}
+	return false, ""
 }
