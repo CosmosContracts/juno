@@ -5,6 +5,7 @@ import (
 	"github.com/CosmosContracts/juno/v12/app/upgrades"
 	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	store "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/cosmos/gaia/v8/x/globalfee"
 )
 
 // UpgradeName defines the on-chain upgrade name for the Juno v12 upgrade.
@@ -14,6 +15,6 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateV12UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
-		Added: []string{tokenfactorytypes.ModuleName, feesharetypes.ModuleName},
+		Added: []string{tokenfactorytypes.ModuleName, feesharetypes.ModuleName, globalfee.ModuleName},
 	},
 }
