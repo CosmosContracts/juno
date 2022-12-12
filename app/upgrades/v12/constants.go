@@ -3,6 +3,7 @@ package v12
 import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmosContracts/juno/v12/app/upgrades"
+	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	globalfee "github.com/cosmos/gaia/v8/x/globalfee"
 )
@@ -14,6 +15,6 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateV12UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
-		Added: []string{tokenfactorytypes.ModuleName, globalfee.ModuleName},
+		Added: []string{tokenfactorytypes.ModuleName, globalfee.ModuleName, feesharetypes.ModuleName},
 	},
 }

@@ -16,18 +16,23 @@ import (
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
 
+	authforktypes "github.com/CosmosContracts/juno/v12/x/auth/types"
+	feeshareante "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
 	gaiafeeante "github.com/cosmos/gaia/v8/x/globalfee/ante"
 )
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
-// channel keeper.
+// channel keeper and a BankKeeper with an added method for fee sharing.
 type HandlerOptions struct {
 	ante.HandlerOptions
 
 	GovKeeper            govkeeper.Keeper
 	IBCKeeper            *ibckeeper.Keeper
 	TxCounterStoreKey    sdk.StoreKey
+	BankKeeperFork       authforktypes.BankKeeper // SendCoinsFromModuleToAccount
 	WasmConfig           wasmTypes.WasmConfig
+	FeeShareKeeper       feesharekeeper.Keeper
 	Cdc                  codec.BinaryCodec
 	BypassMinFeeMsgTypes []string
 	GlobalFeeSubspace    paramtypes.Subspace
@@ -70,6 +75,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+		feeshareante.NewFeeSharePayoutDecorator(options.AccountKeeper, options.BankKeeperFork, options.FeegrantKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
