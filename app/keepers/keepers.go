@@ -59,6 +59,8 @@ import (
 
 	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
+
+	"github.com/cosmos/gaia/v8/x/globalfee"
 )
 
 type AppKeepers struct {
@@ -362,6 +364,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
+	paramsKeeper.Subspace(globalfee.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)
 
 	return paramsKeeper
