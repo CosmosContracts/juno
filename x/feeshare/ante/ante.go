@@ -13,17 +13,13 @@ import (
 // FeeSharePayoutDecorator Run his after we already deduct the fee from the account with
 // the ante.NewDeductFeeDecorator() decorator. We pull funds from the FeeCollector ModuleAccount
 type FeeSharePayoutDecorator struct {
-	ak             authforktypes.AccountKeeper
 	bankKeeper     authforktypes.BankKeeper
-	feegrantKeeper authforktypes.FeegrantKeeper
 	feesharekeeper authforktypes.FeeShareKeeper
 }
 
-func NewFeeSharePayoutDecorator(ak authforktypes.AccountKeeper, bk authforktypes.BankKeeper, fk authforktypes.FeegrantKeeper, fs authforktypes.FeeShareKeeper) FeeSharePayoutDecorator {
+func NewFeeSharePayoutDecorator(bk authforktypes.BankKeeper, fs authforktypes.FeeShareKeeper) FeeSharePayoutDecorator {
 	return FeeSharePayoutDecorator{
-		ak:             ak,
 		bankKeeper:     bk,
-		feegrantKeeper: fk,
 		feesharekeeper: fs,
 	}
 }
