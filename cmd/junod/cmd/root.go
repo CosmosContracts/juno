@@ -97,9 +97,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		encCfg: encodingConfig,
 	}
 
-	debugCmd := debug.Cmd()
-	debugCmd.AddCommand(ConvertBech32Cmd())
-
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
