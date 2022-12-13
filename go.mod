@@ -7,7 +7,6 @@ require (
 	github.com/CosmWasm/wasmd v0.30.0
 	github.com/cosmos/cosmos-sdk v0.45.11
 	github.com/cosmos/gaia/v8 v8.0.0-20221212173159-be2b14f2704f
-	github.com/cosmos/ibc-go/v3 v3.4.0
 	github.com/cosmos/ibc-go/v4 v4.2.0
 	github.com/cosmos/interchain-accounts v0.2.5
 	github.com/gogo/protobuf v1.3.3

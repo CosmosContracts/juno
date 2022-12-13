@@ -65,7 +65,7 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 
-	// ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
+	// ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
