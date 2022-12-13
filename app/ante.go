@@ -14,7 +14,7 @@ import (
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
 
-	authforktypes "github.com/CosmosContracts/juno/v12/x/auth/types"
+	anteInterface "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
 	feeshareante "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
 )
@@ -27,7 +27,7 @@ type HandlerOptions struct {
 	GovKeeper         govkeeper.Keeper
 	IBCKeeper         *ibckeeper.Keeper
 	FeeShareKeeper    feesharekeeper.Keeper
-	BankKeeperFork    authforktypes.BankKeeper // SendCoinsFromModuleToAccount
+	BankKeeperFork    anteInterface.BankKeeper
 	TxCounterStoreKey sdk.StoreKey
 	WasmConfig        wasmTypes.WasmConfig
 	Cdc               codec.BinaryCodec
