@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 )
 
 // Returns "ujuno" if the chainID starts with "juno-" (ex: juno-1 or juno-t1 for local)
@@ -28,19 +29,25 @@ func CreateV12UpgradeHandler(
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		nativeDenom := GetChainsDenomToken(ctx.ChainID())
+		// transfer module consensus version has been bumped to 2
+		// the above is https://github.com/cosmos/ibc-go/blob/v5.1.0/docs/migrations/v3-to-v4.md
 
-		// Set the creation fee for the token factory to cost 1 JUNO token
+		// TokenFactory
 		newTokenFactoryParams := tokenfactorytypes.Params{
 			DenomCreationFee: sdk.NewCoins(sdk.NewCoin(nativeDenom, sdk.NewInt(1000000))),
 		}
 		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
 
+		// FeeShare
 		newFeeShareParams := feesharetypes.Params{
 			EnableFeeShare:  true,
 			DeveloperShares: sdk.NewDecWithPrec(50, 2), // = 50%
 			AllowedDenoms:   []string{nativeDenom},
 		}
 		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
+
+		// IBCFee
+		vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
 
 		return mm.RunMigrations(ctx, cfg, vm)
 	}
