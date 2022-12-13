@@ -41,6 +41,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/cosmos/gaia/v8/x/globalfee"
 	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 	ibcfee "github.com/cosmos/ibc-go/v4/modules/apps/29-fee"
@@ -93,6 +94,7 @@ var ModuleBasics = module.NewBasicManager(
 	ica.AppModuleBasic{},
 	tokenfactory.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
+	globalfee.AppModuleBasic{},
 )
 
 func appModules(
@@ -127,6 +129,7 @@ func appModules(
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
+		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 	}
@@ -189,6 +192,7 @@ func orderBeginBlockers() []string {
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
+		globalfee.ModuleName,
 		wasm.ModuleName,
 	}
 }
@@ -218,6 +222,7 @@ func orderEndBlockers() []string {
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
+		globalfee.ModuleName,
 		wasm.ModuleName,
 	}
 }
@@ -240,12 +245,14 @@ func orderInitBlockers() []string {
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		feegrant.ModuleName,
+		// additional non simd modules
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
+		globalfee.ModuleName,
 		wasm.ModuleName,
 	}
 }
