@@ -5,6 +5,8 @@ import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmWasm/wasmd/x/wasm"
 	encparams "github.com/CosmosContracts/juno/v12/app/params"
+	feeshare "github.com/CosmosContracts/juno/v12/x/feeshare"
+	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v12/x/mint"
 	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -39,12 +41,15 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
-	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
-	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v3/modules/core"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	"github.com/cosmos/gaia/v8/x/globalfee"
+	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
+	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
+	ibcfee "github.com/cosmos/ibc-go/v4/modules/apps/29-fee"
+	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
+	transfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
+	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v4/modules/core"
+	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 )
 
 // module account permissions
@@ -57,6 +62,7 @@ var maccPerms = map[string][]string{
 	govtypes.ModuleName:            {authtypes.Burner},
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:            nil,
+	ibcfeetypes.ModuleName:         nil,
 	wasm.ModuleName:                {authtypes.Burner},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 }
@@ -77,6 +83,7 @@ var ModuleBasics = module.NewBasicManager(
 	crisis.AppModuleBasic{},
 	slashing.AppModuleBasic{},
 	ibc.AppModuleBasic{},
+	ibcfee.AppModuleBasic{},
 	feegrantmodule.AppModuleBasic{},
 	upgrade.AppModuleBasic{},
 	evidence.AppModuleBasic{},
@@ -86,6 +93,8 @@ var ModuleBasics = module.NewBasicManager(
 	wasm.AppModuleBasic{},
 	ica.AppModuleBasic{},
 	tokenfactory.AppModuleBasic{},
+	feeshare.AppModuleBasic{},
+	globalfee.AppModuleBasic{},
 )
 
 func appModules(
@@ -117,10 +126,12 @@ func appModules(
 		params.NewAppModule(app.ParamsKeeper),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		transfer.NewAppModule(app.TransferKeeper),
+		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
-		// this line is used by starport scaffolding # stargate/app/appModule
-		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
+		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
+		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 	}
 }
 
@@ -149,6 +160,8 @@ func simulationModules(
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transfer.NewAppModule(app.TransferKeeper),
+		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
+		ibcfee.NewAppModule(app.IBCFeeKeeper),
 	}
 }
 
@@ -176,8 +189,11 @@ func orderBeginBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
-		wasm.ModuleName,
+		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		feesharetypes.ModuleName,
+		globalfee.ModuleName,
+		wasm.ModuleName,
 	}
 }
 
@@ -203,8 +219,11 @@ func orderEndBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
-		wasm.ModuleName,
+		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		feesharetypes.ModuleName,
+		globalfee.ModuleName,
+		wasm.ModuleName,
 	}
 }
 
@@ -226,11 +245,14 @@ func orderInitBlockers() []string {
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		feegrant.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/initGenesis
+		// additional non simd modules
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
-		wasm.ModuleName,
+		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		feesharetypes.ModuleName,
+		globalfee.ModuleName,
+		wasm.ModuleName,
 	}
 }

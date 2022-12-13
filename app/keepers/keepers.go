@@ -38,24 +38,34 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	ibcclient "github.com/cosmos/ibc-go/v3/modules/core/02-client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	porttypes "github.com/cosmos/ibc-go/v3/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
+	ibcfee "github.com/cosmos/ibc-go/v4/modules/apps/29-fee"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/keeper"
+	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
+	transfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v4/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	ibcclient "github.com/cosmos/ibc-go/v4/modules/core/02-client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v4/modules/core/03-connection/types"
+	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	"github.com/CosmWasm/token-factory/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmWasm/token-factory/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 
-	icahost "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host"
-	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
-	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
+	icahost "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host"
+	icahostkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/keeper"
+	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
+
+	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
+
+	"github.com/cosmos/gaia/v8/x/globalfee"
 )
 
 type AppKeepers struct {
@@ -77,10 +87,12 @@ type AppKeepers struct {
 	UpgradeKeeper    upgradekeeper.Keeper
 	ParamsKeeper     paramskeeper.Keeper
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	IBCFeeKeeper     ibcfeekeeper.Keeper
 	EvidenceKeeper   evidencekeeper.Keeper
 	TransferKeeper   ibctransferkeeper.Keeper
 	AuthzKeeper      authzkeeper.Keeper
 	FeeGrantKeeper   feegrantkeeper.Keeper
+	FeeShareKeeper   feesharekeeper.Keeper
 
 	ICAHostKeeper icahostkeeper.Keeper
 
@@ -89,7 +101,6 @@ type AppKeepers struct {
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
-	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 	WasmKeeper         wasm.Keeper
 	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
@@ -134,7 +145,6 @@ func NewAppKeepers(
 	scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedICAHostKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 	scopedWasmKeeper := appKeepers.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
 	// add keepers
@@ -213,6 +223,16 @@ func NewAppKeepers(
 		scopedIBCKeeper,
 	)
 
+	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
+		appCodec, appKeepers.keys[ibcfeetypes.StoreKey],
+		appKeepers.GetSubspace(ibcfeetypes.ModuleName), // this isn't even used in the keeper but is required?
+		appKeepers.IBCKeeper.ChannelKeeper,             // may be replaced with IBC middleware
+		appKeepers.IBCKeeper.ChannelKeeper,
+		&appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+	)
+
 	appKeepers.FeeGrantKeeper = feegrantkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[feegrant.StoreKey],
@@ -245,8 +265,6 @@ func NewAppKeepers(
 		scopedTransferKeeper,
 	)
 
-	transferIBCModule := transfer.NewIBCModule(appKeepers.TransferKeeper)
-
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[icahosttypes.StoreKey],
@@ -257,7 +275,6 @@ func NewAppKeepers(
 		scopedICAHostKeeper,
 		bApp.MsgServiceRouter(),
 	)
-	icaHostIBCModule := icahost.NewIBCModule(appKeepers.ICAHostKeeper)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -275,7 +292,6 @@ func NewAppKeepers(
 		appKeepers.DistrKeeper,
 	)
 
-	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	wasmDir := filepath.Join(homePath, "data")
 
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
@@ -287,6 +303,19 @@ func NewAppKeepers(
 	// if we want to allow any custom callbacks
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
 	wasmOpts = append(bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper), wasmOpts...)
+
+	// Stargate Queries
+	accepted := wasmkeeper.AcceptedStargateQueries{
+		"/ibc.core.client.v1.Query/ClientState":    &ibcclienttypes.QueryClientStateResponse{},
+		"/ibc.core.client.v1.Query/ConsensusState": &ibcclienttypes.QueryConsensusStateResponse{},
+		"/ibc.core.connection.v1.Query/Connection": &ibcconnectiontypes.QueryConnectionResponse{},
+	}
+	querierOpts := wasmkeeper.WithQueryPlugins(
+		&wasmkeeper.QueryPlugins{
+			Stargate: wasmkeeper.AcceptListStargateQuerier(accepted, bApp.GRPCQueryRouter(), appCodec),
+		})
+	wasmOpts = append(wasmOpts, querierOpts)
+
 	appKeepers.WasmKeeper = wasm.NewKeeper(
 		appCodec,
 		appKeepers.keys[wasm.StoreKey],
@@ -307,7 +336,15 @@ func NewAppKeepers(
 		wasmOpts...,
 	)
 
-	ibcRouter := porttypes.NewRouter()
+	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
+		appKeepers.keys[feesharetypes.StoreKey],
+		appCodec,
+		appKeepers.GetSubspace(feesharetypes.ModuleName),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.WasmKeeper,
+		authtypes.FeeCollectorName,
+	)
 
 	// register wasm gov proposal types
 	// The gov proposal types can be individually enabled
@@ -315,10 +352,27 @@ func NewAppKeepers(
 		govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(appKeepers.WasmKeeper, enabledProposals))
 	}
 
+	// Create Transfer Stack
+	var transferStack porttypes.IBCModule
+	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper)
+	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
+
+	// RecvPacket, message that originates from core IBC and goes down to app, the flow is:
+	// channel.RecvPacket -> fee.OnRecvPacket -> icaHost.OnRecvPacket
+	var icaHostStack porttypes.IBCModule
+	icaHostStack = icahost.NewIBCModule(appKeepers.ICAHostKeeper)
+	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, appKeepers.IBCFeeKeeper)
+
+	// Create fee enabled wasm ibc Stack
+	var wasmStack porttypes.IBCModule
+	wasmStack = wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCFeeKeeper)
+	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, appKeepers.IBCFeeKeeper)
+
 	// Create static IBC router, add transfer route, then set and seal it
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
-		AddRoute(wasm.ModuleName, wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper)).
-		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule)
+	ibcRouter := porttypes.NewRouter().
+		AddRoute(ibctransfertypes.ModuleName, transferStack).
+		AddRoute(wasm.ModuleName, wasmStack).
+		AddRoute(icahosttypes.SubModuleName, icaHostStack)
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
 	appKeepers.GovKeeper = govkeeper.NewKeeper(
@@ -328,7 +382,6 @@ func NewAppKeepers(
 
 	appKeepers.ScopedIBCKeeper = scopedIBCKeeper
 	appKeepers.ScopedTransferKeeper = scopedTransferKeeper
-	// this line is used by starport scaffolding # stargate/appKeepers/beforeInitReturn
 	appKeepers.scopedWasmKeeper = scopedWasmKeeper
 	appKeepers.ScopedICAHostKeeper = scopedICAHostKeeper
 
@@ -352,6 +405,8 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
+	paramsKeeper.Subspace(globalfee.ModuleName)
+	paramsKeeper.Subspace(feesharetypes.ModuleName)
 
 	return paramsKeeper
 }
