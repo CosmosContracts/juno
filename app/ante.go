@@ -8,6 +8,8 @@ import (
 	ibcante "github.com/cosmos/ibc-go/v3/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
@@ -17,6 +19,7 @@ import (
 	authforktypes "github.com/CosmosContracts/juno/v12/x/auth/types"
 	feeshareante "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
+	gaiafeeante "github.com/cosmos/gaia/v8/x/globalfee/ante"
 )
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
@@ -24,13 +27,16 @@ import (
 type HandlerOptions struct {
 	ante.HandlerOptions
 
-	GovKeeper         govkeeper.Keeper
-	IBCKeeper         *ibckeeper.Keeper
-	FeeShareKeeper    feesharekeeper.Keeper
-	BankKeeperFork    authforktypes.BankKeeper // SendCoinsFromModuleToAccount
-	TxCounterStoreKey sdk.StoreKey
-	WasmConfig        wasmTypes.WasmConfig
-	Cdc               codec.BinaryCodec
+	GovKeeper            govkeeper.Keeper
+	IBCKeeper            *ibckeeper.Keeper
+	FeeShareKeeper       feesharekeeper.Keeper
+	BankKeeperFork       authforktypes.BankKeeper // SendCoinsFromModuleToAccount
+	TxCounterStoreKey    sdk.StoreKey
+	WasmConfig           wasmTypes.WasmConfig
+	Cdc                  codec.BinaryCodec
+	BypassMinFeeMsgTypes []string
+	GlobalFeeSubspace    paramtypes.Subspace
+	StakingSubspace      paramtypes.Subspace
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -67,6 +73,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
 		feeshareante.NewFeeSharePayoutDecorator(options.AccountKeeper, options.BankKeeperFork, options.FeegrantKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
