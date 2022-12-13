@@ -26,10 +26,10 @@ var (
 	KeyPrefixPriceHistory                 = []byte{0x06} // prefix for price history
 )
 
-// Store price history <Prefix> <baseDenom> <votePeriodCount> <PriceHistory>
-func GetPriceHistoryKey(denom string) (key []byte) {
+// Store price history <Prefix> <baseDenom> <votePeriodCount> <PriceHistoryEntry>
+func GetPriceHistoryKey(baseDenom string) (key []byte) {
 	key = append(key, KeyPrefixPriceHistory...)
-	key = append(key, []byte(denom)...)
+	key = append(key, []byte(baseDenom)...)
 	return key
 }
 

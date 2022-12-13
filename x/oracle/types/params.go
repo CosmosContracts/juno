@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	time "time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -18,6 +19,7 @@ var (
 	KeySlashFraction            = []byte("SlashFraction")
 	KeySlashWindow              = []byte("SlashWindow")
 	KeyMinValidPerWindow        = []byte("MinValidPerWindow")
+	KeyPriceTrackingDuration    = []byte("PriceTrackingDuration")
 )
 
 // Default parameter values
@@ -43,8 +45,9 @@ var (
 			Exponent:    AtomExponent,
 		},
 	}
-	DefaultSlashFraction     = sdk.NewDecWithPrec(1, 4) // 0.01%
-	DefaultMinValidPerWindow = sdk.NewDecWithPrec(5, 2) // 5%
+	DefaultSlashFraction         = sdk.NewDecWithPrec(1, 4) // 0.01%
+	DefaultMinValidPerWindow     = sdk.NewDecWithPrec(5, 2) // 5%
+	DefaultPriceTrackingDuration = time.Hour * 24 * 30      // 30 days
 )
 
 var _ paramstypes.ParamSet = &Params{}
@@ -60,6 +63,8 @@ func DefaultParams() Params {
 		SlashFraction:            DefaultSlashFraction,
 		SlashWindow:              DefaultSlashWindow,
 		MinValidPerWindow:        DefaultMinValidPerWindow,
+		PriceTrackingList:        DefaultAcceptList,
+		PriceTrackingDuration:    DefaultPriceTrackingDuration,
 	}
 }
 
@@ -112,6 +117,11 @@ func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 			&p.MinValidPerWindow,
 			validateMinValidPerWindow,
 		),
+		paramstypes.NewParamSetPair(
+			KeyPriceTrackingDuration,
+			&p.PriceTrackingDuration,
+			validateTrackingDuration,
+		),
 	}
 }
 
@@ -158,6 +168,37 @@ func (p Params) Validate() error {
 			return fmt.Errorf("oracle parameter AcceptList Denom must have SymbolDenom")
 		}
 	}
+	return nil
+}
+
+func validateTrackingList(i interface{}) error {
+	v, ok := i.(DenomList)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	for _, d := range v {
+		if len(d.BaseDenom) == 0 {
+			return fmt.Errorf("oracle parameter AcceptList Denom must have BaseDenom")
+		}
+		if len(d.SymbolDenom) == 0 {
+			return fmt.Errorf("oracle parameter AcceptList Denom must have SymbolDenom")
+		}
+	}
+
+	return nil
+}
+
+func validateTrackingDuration(i interface{}) error {
+	v, ok := i.(time.Duration)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == 0 {
+		return fmt.Errorf("vote period must be positive: %d", v)
+	}
+
 	return nil
 }
 

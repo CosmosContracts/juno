@@ -48,11 +48,11 @@ message Params {
     (gogoproto.castrepeated) = "DenomList",
     (gogoproto.nullable)     = false
   ];
-  google.protobuf.Duration price_history_tracking_duration = 10 [
+  google.protobuf.Duration price_tracking_duration = 10 [
     (gogoproto.nullable) = false,
     (gogoproto.stdduration) = true,
-    (gogoproto.jsontag) = "history_price_tracking_duration,omitempty",
-    (gogoproto.moretags) = "yaml:\"history_price_tracking_duration\""
+    (gogoproto.jsontag) = "price_tracking_duration,omitempty",
+    (gogoproto.moretags) = "yaml:\"price_tracking_duration\""
   ];
 }
 

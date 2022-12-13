@@ -23,16 +23,16 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// remove out of date history price
 	for _, denom := range params.PriceTrackingList {
 		var keys []uint64
-		k.IterateDenomHistoryPrice(ctx, denom.BaseDenom, func(key uint64, priceHistory types.PriceHistoryEntry) bool {
+		k.IterateDenomPriceHistory(ctx, denom.BaseDenom, func(key uint64, priceHistory types.PriceHistoryEntry) bool {
 			goneTime := ctx.BlockTime().Sub(priceHistory.PriceUpdateTime)
-			if goneTime > params.PriceHistoryTrackingDuration {
+			if goneTime > params.PriceTrackingDuration {
 				keys = append(keys, key)
 				return false
 			}
 			return true
 		})
 		for _, key := range keys {
-			k.DeleteDenomHistoryPrice(ctx, denom.BaseDenom, key)
+			k.DeleteDenomPriceHistory(ctx, denom.BaseDenom, key)
 		}
 	}
 

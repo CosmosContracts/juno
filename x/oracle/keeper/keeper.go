@@ -93,12 +93,6 @@ func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, baseDenom string, exchange
 
 	// Store data to store
 	powerReduction := ten.Power(uint64(denom.Exponent))
-	// priceHistory := &types.PriceHistory{
-	// 	Denom:           denom,
-	// 	Price:           exchangeRate.Quo(powerReduction),
-	// 	VotePeriodCount: votingPeriodCount,
-	// 	PriceUpdateTime: time,
-	// }
 	priceHistoryEntry := &types.PriceHistoryEntry{
 		Price:           exchangeRate.Quo(powerReduction),
 		VotePeriodCount: votingPeriodCount,
@@ -157,7 +151,7 @@ func (k Keeper) GetPriceHistoryWithBaseDenom(ctx sdk.Context, baseDenom string, 
 }
 
 // Iterate over history price
-func (k Keeper) IterateDenomHistoryPrice(ctx sdk.Context, baseDenom string, cb func(uint64, types.PriceHistoryEntry) bool) {
+func (k Keeper) IterateDenomPriceHistory(ctx sdk.Context, baseDenom string, cb func(uint64, types.PriceHistoryEntry) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iter := sdk.KVStorePrefixIterator(store, types.GetPriceHistoryKey(baseDenom))
 
@@ -172,7 +166,8 @@ func (k Keeper) IterateDenomHistoryPrice(ctx sdk.Context, baseDenom string, cb f
 	}
 }
 
-func (k Keeper) DeleteDenomHistoryPrice(ctx sdk.Context, baseDenom string, votingPeriodCount uint64) {
+// Delete denom history price
+func (k Keeper) DeleteDenomPriceHistory(ctx sdk.Context, baseDenom string, votingPeriodCount uint64) {
 	// Get store
 	store := ctx.KVStore(k.storeKey)
 	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(baseDenom))
@@ -180,6 +175,25 @@ func (k Keeper) DeleteDenomHistoryPrice(ctx sdk.Context, baseDenom string, votin
 	key := sdk.Uint64ToBigEndian(votingPeriodCount)
 	priceHistoryStore.Delete(key)
 }
+
+// appendPriceHistory
+func (k Keeper) appendPriceHistory(ctx sdk.Context, baseDenom string, priceHistoryEntrys ...types.PriceHistoryEntry) error {
+	store := ctx.KVStore(k.storeKey)
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(baseDenom))
+
+	for _, priceHistoryEntry := range priceHistoryEntrys {
+		key := sdk.Uint64ToBigEndian(priceHistoryEntry.VotePeriodCount)
+		bz, err := k.cdc.Marshal(&priceHistoryEntry)
+		if err != nil {
+			return err
+		}
+		priceHistoryStore.Set(key, bz)
+	}
+
+	return nil
+}
+
+// Iterate all current price history
 
 // GetExchangeRate gets the consensus exchange rate of USD denominated in the
 // denom asset from the store.
