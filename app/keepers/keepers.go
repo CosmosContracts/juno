@@ -402,7 +402,8 @@ func NewAppKeepers(
 	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, appKeepers.IBCFeeKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
+	ibcRouter := porttypes.NewRouter().
+		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
 		AddRoute(wasm.ModuleName, wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper)).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
