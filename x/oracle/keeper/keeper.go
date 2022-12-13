@@ -93,13 +93,18 @@ func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, baseDenom string, exchange
 
 	// Store data to store
 	powerReduction := ten.Power(uint64(denom.Exponent))
-	priceHistory := &types.PriceHistory{
-		Denom:           denom,
+	// priceHistory := &types.PriceHistory{
+	// 	Denom:           denom,
+	// 	Price:           exchangeRate.Quo(powerReduction),
+	// 	VotePeriodCount: votingPeriodCount,
+	// 	PriceUpdateTime: time,
+	// }
+	priceHistoryEntry := &types.PriceHistoryEntry{
 		Price:           exchangeRate.Quo(powerReduction),
 		VotePeriodCount: votingPeriodCount,
 		PriceUpdateTime: time,
 	}
-	bz, err := k.cdc.Marshal(priceHistory)
+	bz, err := k.cdc.Marshal(priceHistoryEntry)
 	if err != nil {
 		return err
 	}
@@ -110,31 +115,31 @@ func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, baseDenom string, exchange
 }
 
 // Get History Price from symbol denom
-func (k Keeper) GetPriceHistoryWithSymbolDenom(ctx sdk.Context, symbolDenom string, blockHeight int64) (types.PriceHistory, error) {
-	var priceHistory types.PriceHistory
+func (k Keeper) GetPriceHistoryWithSymbolDenom(ctx sdk.Context, symbolDenom string, blockHeight int64) (types.PriceHistoryEntry, error) {
+	var priceHistoryEntry types.PriceHistoryEntry
 	// Get baseDenom
 	found, baseDenom := k.getBaseDenomFromSymbolDenom(ctx, symbolDenom)
 	if !found {
-		return priceHistory, sdkerrors.Wrapf(types.ErrUnknownDenom, "unkown denom %s", symbolDenom)
+		return priceHistoryEntry, sdkerrors.Wrapf(types.ErrUnknownDenom, "unkown denom %s", symbolDenom)
 	}
 
 	return k.GetPriceHistoryWithBaseDenom(ctx, baseDenom, blockHeight)
 }
 
 // Get History Price from base Denom
-func (k Keeper) GetPriceHistoryWithBaseDenom(ctx sdk.Context, baseDenom string, blockHeight int64) (types.PriceHistory, error) {
-	var priceHistory types.PriceHistory
+func (k Keeper) GetPriceHistoryWithBaseDenom(ctx sdk.Context, baseDenom string, blockHeight int64) (types.PriceHistoryEntry, error) {
+	var priceHistoryEntry types.PriceHistoryEntry
 	// Check if in tracking list
 	found, _ := k.isInTrackingList(ctx, baseDenom)
 	if !found {
-		return priceHistory, sdkerrors.Wrapf(types.ErrUnknownDenom, "denom %s not in tracking list", baseDenom)
+		return priceHistoryEntry, sdkerrors.Wrapf(types.ErrUnknownDenom, "denom %s not in tracking list", baseDenom)
 	}
 
 	// Calculate votingPeriodCount
 	params := k.GetParams(ctx)
 	votingPeriodCount := (uint64)(blockHeight) / params.VotePeriod
 	if votingPeriodCount == 0 {
-		return priceHistory, sdkerrors.Wrap(types.ErrInvalidVotePeriod, "Voting period must be positive")
+		return priceHistoryEntry, sdkerrors.Wrap(types.ErrInvalidVotePeriod, "Voting period must be positive")
 	}
 
 	// Get store
@@ -144,24 +149,24 @@ func (k Keeper) GetPriceHistoryWithBaseDenom(ctx sdk.Context, baseDenom string, 
 	key := sdk.Uint64ToBigEndian(votingPeriodCount)
 	bz := priceHistoryStore.Get(key)
 	if bz == nil {
-		return priceHistory, sdkerrors.Wrapf(types.ErrInvalidVotePeriod, "Voting period have no exchange price %d", votingPeriodCount)
+		return priceHistoryEntry, sdkerrors.Wrapf(types.ErrInvalidVotePeriod, "Voting period have no exchange price %d", votingPeriodCount)
 	}
-	k.cdc.MustUnmarshal(bz, &priceHistory)
+	k.cdc.MustUnmarshal(bz, &priceHistoryEntry)
 
-	return priceHistory, nil
+	return priceHistoryEntry, nil
 }
 
 // Iterate over history price
-func (k Keeper) IterateDenomHistoryPrice(ctx sdk.Context, baseDenom string, cb func(uint64, types.PriceHistory) bool) {
+func (k Keeper) IterateDenomHistoryPrice(ctx sdk.Context, baseDenom string, cb func(uint64, types.PriceHistoryEntry) bool) {
 	store := ctx.KVStore(k.storeKey)
 	iter := sdk.KVStorePrefixIterator(store, types.GetPriceHistoryKey(baseDenom))
 
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
-		var priceHistory types.PriceHistory
-		k.cdc.MustUnmarshal(iter.Value(), &priceHistory)
-		if cb(sdk.BigEndianToUint64(iter.Key()), priceHistory) {
+		var priceHistoryEntry types.PriceHistoryEntry
+		k.cdc.MustUnmarshal(iter.Value(), &priceHistoryEntry)
+		if cb(sdk.BigEndianToUint64(iter.Key()), priceHistoryEntry) {
 			break
 		}
 	}
