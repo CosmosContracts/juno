@@ -528,15 +528,3 @@ func (k Keeper) isInTrackingList(ctx sdk.Context, symbolDenom string) (bool, typ
 
 	return false, denom
 }
-
-func (k Keeper) getBaseDenomFromSymbolDenom(ctx sdk.Context, symbolDenom string) (bool, string) {
-	var baseDenom string
-	params := k.GetParams(ctx)
-	for _, denom := range params.AcceptList {
-		if denom.SymbolDenom == symbolDenom {
-			baseDenom = denom.BaseDenom
-			return true, baseDenom
-		}
-	}
-	return false, ""
-}
