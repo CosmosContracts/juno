@@ -19,6 +19,7 @@ var (
 	KeySlashFraction            = []byte("SlashFraction")
 	KeySlashWindow              = []byte("SlashWindow")
 	KeyMinValidPerWindow        = []byte("MinValidPerWindow")
+	KeyPriceTrackingList        = []byte("PriceTrackingList")
 	KeyPriceTrackingDuration    = []byte("PriceTrackingDuration")
 )
 
@@ -116,6 +117,11 @@ func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 			KeyMinValidPerWindow,
 			&p.MinValidPerWindow,
 			validateMinValidPerWindow,
+		),
+		paramstypes.NewParamSetPair(
+			KeyPriceTrackingList,
+			&p.PriceTrackingList,
+			validateTrackingList,
 		),
 		paramstypes.NewParamSetPair(
 			KeyPriceTrackingDuration,
