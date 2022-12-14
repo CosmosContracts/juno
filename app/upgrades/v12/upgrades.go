@@ -89,6 +89,7 @@ func CreateV12UpgradeHandler(
 			panic("mm.Modules[icatypes.ModuleName] is not of type ica.AppModule")
 		}
 		icamodule.InitModule(ctx, controllerParams, hostParams)
+
 		// IBCFee
 		vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
 
