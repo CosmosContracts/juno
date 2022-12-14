@@ -34,13 +34,15 @@ service Query {
         "/juno/oracle/v1/price_history/{denom}/{block_height}";
   }
 
+  // AllPriceHistory return all price history of denom
   rpc AllPriceHistory(QueryAllPriceHistory)
       returns (QueryAllPriceHistoryRespone) {
     option (google.api.http).get = 
         "/juno/oracle/v1/price_history/{denom}";
   }
 
-  rpc PriceTrackingList(QueryPriceTrackingLists)
+  // PriceTrackingLists return all price tracking denom
+  rpc PriceTrackingLists(QueryPriceTrackingLists)
       returns (QueryPriceTrackingListsRespone) {
     option (google.api.http).get = 
         "/juno/oracle/v1/price_history/tracking_lists";

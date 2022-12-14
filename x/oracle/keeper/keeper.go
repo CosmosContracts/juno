@@ -517,9 +517,10 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 
 func (k Keeper) isInTrackingList(ctx sdk.Context, symbolDenom string) (bool, types.Denom) {
 	var denom types.Denom
+	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	params := k.GetParams(ctx)
 	for _, trackingDenom := range params.PriceTrackingList {
-		if trackingDenom.SymbolDenom == symbolDenom {
+		if trackingDenom.SymbolDenom == upperSymbolDenom {
 			denom = trackingDenom
 			return true, denom
 		}
