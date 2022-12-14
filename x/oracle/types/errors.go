@@ -26,6 +26,7 @@ var (
 	ErrExistingPrevote       = sdkerrors.Register(ModuleName, 15, "prevote already submitted for this voting period")
 	ErrBallotNotSorted       = sdkerrors.Register(ModuleName, 16, "ballot must be sorted before this operation")
 	ErrInvalidVotePeriod     = sdkerrors.Register(ModuleName, 17, "invalid voting period")
+	ErrEmpty                 = sdkerrors.Register(ModuleName, 18, "empty")
 
 	// 4XX = Price Sensitive
 	ErrInvalidOraclePrice = sdkerrors.Register(ModuleName, 401, "invalid oracle price")

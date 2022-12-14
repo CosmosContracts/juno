@@ -14,6 +14,9 @@ const (
 
 	// QuerierRoute is the query router key for the oracle module
 	QuerierRoute = ModuleName
+
+	// RouterKey is the msg router key for the oracle module
+	RouterKey = ModuleName
 )
 
 // KVStore key prefixes
