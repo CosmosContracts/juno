@@ -22,6 +22,8 @@ import (
 	gaiafeeante "github.com/cosmos/gaia/v8/x/globalfee/ante"
 )
 
+const maxBypassMinFeeMsgGasUsage = 1_000_000
+
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
 // channel keeper and a BankKeeper with an added method for fee sharing.
 type HandlerOptions struct {
@@ -73,7 +75,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace),
+		gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace, maxBypassMinFeeMsgGasUsage),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
 		feeshareante.NewFeeSharePayoutDecorator(options.AccountKeeper, options.BankKeeperFork, options.FeegrantKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
