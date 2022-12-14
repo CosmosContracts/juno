@@ -41,7 +41,7 @@ var ResetWasmCmd = &cobra.Command{
 	},
 }
 
-// ResetWasmCmd removes the database of the specified Tendermint core instance.
+// ResetAppCmd removes the database of the specified Tendermint core instance.
 var ResetAppCmd = &cobra.Command{
 	Use:   "app",
 	Short: "Reset App files",

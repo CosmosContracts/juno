@@ -31,9 +31,12 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibcclientclient "github.com/cosmos/ibc-go/v3/modules/core/02-client/client"
+	ibcclientclient "github.com/cosmos/ibc-go/v4/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
 	"github.com/ignite-hq/cli/ignite/pkg/openapiconsole"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -41,6 +44,9 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
+
+	gaiaappparams "github.com/cosmos/gaia/v8/app/params"
+	"github.com/cosmos/gaia/v8/x/globalfee"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
@@ -158,7 +164,6 @@ func GetWasmOpts(appOpts servertypes.AppOptions) []wasm.Option {
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
-	// this line is used by starport scaffolding # stargate/app/govProposalHandlers
 	govProposalHandlers = wasmclient.ProposalHandlers
 
 	govProposalHandlers = append(govProposalHandlers,
@@ -168,7 +173,6 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		upgradeclient.CancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
-		// this line is used by starport scaffolding # stargate/app/govProposalHandler
 	)
 
 	return govProposalHandlers
@@ -288,6 +292,11 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
+	bypassMinFeeMsgTypes := cast.ToStringSlice(appOpts.Get(gaiaappparams.BypassMinFeeMsgTypesKey))
+	if bypassMinFeeMsgTypes == nil {
+		bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
+	}
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -298,11 +307,16 @@ func New(
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
 
-			GovKeeper:         app.GovKeeper,
-			IBCKeeper:         app.IBCKeeper,
-			TxCounterStoreKey: app.GetKey(wasm.StoreKey),
-			WasmConfig:        wasmConfig,
-			Cdc:               appCodec,
+			GovKeeper:            app.GovKeeper,
+			IBCKeeper:            app.IBCKeeper,
+			FeeShareKeeper:       app.FeeShareKeeper,
+			BankKeeperFork:       app.BankKeeper, // since we need extra methods
+			TxCounterStoreKey:    app.GetKey(wasm.StoreKey),
+			WasmConfig:           wasmConfig,
+			Cdc:                  appCodec,
+			BypassMinFeeMsgTypes: bypassMinFeeMsgTypes,
+			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
+			StakingSubspace:      app.GetSubspace(stakingtypes.ModuleName),
 		},
 	)
 	if err != nil {
@@ -350,6 +364,14 @@ func New(
 	app.sm.RegisterStoreDecoders()
 
 	return app
+}
+
+func GetDefaultBypassFeeMessages() []string {
+	return []string{
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+	}
 }
 
 // Name returns the name of the App

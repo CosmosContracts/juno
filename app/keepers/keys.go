@@ -3,6 +3,7 @@ package keepers
 import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmWasm/wasmd/x/wasm"
+	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
 	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -19,9 +20,10 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -31,7 +33,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		authzkeeper.StoreKey, feegrant.StoreKey, icahosttypes.StoreKey, oracletypes.StoreKey,
-		tokenfactorytypes.StoreKey, wasm.StoreKey,
+		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, wasm.StoreKey, ibcfeetypes.StoreKey,
 	)
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	appKeepers.memKeys = sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
