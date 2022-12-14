@@ -24,7 +24,7 @@ message AddTrackingPriceHistoryProposal {
 
 }
 
-// AddTrackingPriceHistoryWithAcceptListProposal add denom to tracking price history list and accept list (in this situation, denom not in AcceptList)
+// AddTrackingPriceHistoryWithAcceptListProposal add denom to tracking price history list and accept list (in this situation, denom don't have to in AcceptList)
 message AddTrackingPriceHistoryWithAcceptListProposal {
     // Title is a short summary
     string title = 1;
@@ -33,6 +33,20 @@ message AddTrackingPriceHistoryWithAcceptListProposal {
     // Denom
     repeated Denom tracking_list = 3 [
     (gogoproto.moretags)     = "yaml:\"tracking_list\"",
+    (gogoproto.castrepeated) = "DenomList",
+    (gogoproto.nullable)     = false
+    ];
+}
+
+// RemoveTrackingPriceHistoryProposal remove denom from tracking price history list (in this situation, denom don't have to in AcceptList)
+message RemoveTrackingPriceHistoryProposal {
+    // Title is a short summary
+    string title = 1;
+    // Description is a human readable text
+    string description = 2;
+    // Denom
+    repeated Denom remove_tracking_list = 3 [
+    (gogoproto.moretags)     = "yaml:\"remove_tracking_list\"",
     (gogoproto.castrepeated) = "DenomList",
     (gogoproto.nullable)     = false
     ];

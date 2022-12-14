@@ -36,6 +36,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 	cdc.RegisterConcrete(&AddTrackingPriceHistoryProposal{}, "juno/oracle/AddTrackingPriceHistoryProposal", nil)
 	cdc.RegisterConcrete(&AddTrackingPriceHistoryWithAcceptListProposal{}, "juno/oracle/AddTrackingPriceHistoryWithAcceptListProposal", nil)
+	cdc.RegisterConcrete(&RemoveTrackingPriceHistoryProposal{}, "juno/oracle/RemoveTrackingPriceHistoryProposal", nil)
 }
 
 // RegisterInterfaces registers the x/oracle interfaces types with the interface registry
@@ -51,6 +52,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*govtypes.Content)(nil),
 		&AddTrackingPriceHistoryProposal{},
 		&AddTrackingPriceHistoryWithAcceptListProposal{},
+		&RemoveTrackingPriceHistoryProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
