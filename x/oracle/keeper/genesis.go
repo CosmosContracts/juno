@@ -56,7 +56,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	}
 
 	for _, historyPrice := range genState.PriceHistory {
-		err := k.appendPriceHistory(ctx, historyPrice.Denom.BaseDenom, historyPrice.PriceHistoryEntry...)
+		err := k.appendPriceHistory(ctx, historyPrice.Denom.SymbolDenom, historyPrice.PriceHistoryEntry...)
 		if err != nil {
 			panic(err)
 		}
@@ -127,7 +127,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	for _, denom := range params.PriceTrackingList {
 		// Get price history entry list
 		var priceHistoryEntryLists []types.PriceHistoryEntry
-		k.IterateDenomPriceHistory(ctx, denom.BaseDenom, func(votingPeriodCount uint64, priceHistoryEntry types.PriceHistoryEntry) bool {
+		k.IterateDenomPriceHistory(ctx, denom.SymbolDenom, func(votingPeriodCount uint64, priceHistoryEntry types.PriceHistoryEntry) bool {
 			priceHistoryEntryLists = append(priceHistoryEntryLists, priceHistoryEntry)
 			return false
 		})

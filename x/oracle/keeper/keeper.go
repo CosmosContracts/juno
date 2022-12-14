@@ -73,9 +73,10 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Set Price history
-func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, baseDenom string, exchangeRate sdk.Dec, time time.Time, blockHeight int64) error {
+func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, symbolDenom string, exchangeRate sdk.Dec, time time.Time, blockHeight int64) error {
 	// Check if not in tracking list
-	found, denom := k.isInTrackingList(ctx, baseDenom)
+	upperSymbolDenom := strings.ToUpper(symbolDenom)
+	found, _ := k.isInTrackingList(ctx, upperSymbolDenom)
 	if !found {
 		// if not in tracking list, doing nothing => just return nil
 		return nil
@@ -89,12 +90,11 @@ func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, baseDenom string, exchange
 
 	// Get store
 	store := ctx.KVStore(k.storeKey)
-	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(baseDenom))
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(upperSymbolDenom))
 
 	// Store data to store
-	powerReduction := ten.Power(uint64(denom.Exponent))
 	priceHistoryEntry := &types.PriceHistoryEntry{
-		Price:           exchangeRate.Quo(powerReduction),
+		Price:           exchangeRate,
 		VotePeriodCount: votingPeriodCount,
 		PriceUpdateTime: time,
 	}
@@ -109,24 +109,13 @@ func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, baseDenom string, exchange
 }
 
 // Get History Price from symbol denom
-func (k Keeper) GetPriceHistoryWithSymbolDenom(ctx sdk.Context, symbolDenom string, blockHeight int64) (types.PriceHistoryEntry, error) {
-	var priceHistoryEntry types.PriceHistoryEntry
-	// Get baseDenom
-	found, baseDenom := k.getBaseDenomFromSymbolDenom(ctx, symbolDenom)
-	if !found {
-		return priceHistoryEntry, sdkerrors.Wrapf(types.ErrUnknownDenom, "unkown denom %s", symbolDenom)
-	}
-
-	return k.GetPriceHistoryWithBaseDenom(ctx, baseDenom, blockHeight)
-}
-
-// Get History Price from base Denom
-func (k Keeper) GetPriceHistoryWithBaseDenom(ctx sdk.Context, baseDenom string, blockHeight int64) (types.PriceHistoryEntry, error) {
+func (k Keeper) GetDenomPriceHistoryWithBlockHeight(ctx sdk.Context, symbolDenom string, blockHeight int64) (types.PriceHistoryEntry, error) {
 	var priceHistoryEntry types.PriceHistoryEntry
 	// Check if in tracking list
-	found, _ := k.isInTrackingList(ctx, baseDenom)
+	upperSymbolDenom := strings.ToUpper(symbolDenom)
+	found, _ := k.isInTrackingList(ctx, upperSymbolDenom)
 	if !found {
-		return priceHistoryEntry, sdkerrors.Wrapf(types.ErrUnknownDenom, "denom %s not in tracking list", baseDenom)
+		return priceHistoryEntry, sdkerrors.Wrapf(types.ErrUnknownDenom, "denom %s not in tracking list", upperSymbolDenom)
 	}
 
 	// Calculate votingPeriodCount
@@ -138,7 +127,7 @@ func (k Keeper) GetPriceHistoryWithBaseDenom(ctx sdk.Context, baseDenom string, 
 
 	// Get store
 	store := ctx.KVStore(k.storeKey)
-	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(baseDenom))
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(upperSymbolDenom))
 	// Get data from store
 	key := sdk.Uint64ToBigEndian(votingPeriodCount)
 	bz := priceHistoryStore.Get(key)
@@ -151,9 +140,11 @@ func (k Keeper) GetPriceHistoryWithBaseDenom(ctx sdk.Context, baseDenom string, 
 }
 
 // Iterate over history price
-func (k Keeper) IterateDenomPriceHistory(ctx sdk.Context, baseDenom string, cb func(uint64, types.PriceHistoryEntry) bool) {
+func (k Keeper) IterateDenomPriceHistory(ctx sdk.Context, symbolDenom string, cb func(uint64, types.PriceHistoryEntry) bool) {
+	// Get store
+	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.GetPriceHistoryKey(baseDenom))
+	iter := sdk.KVStorePrefixIterator(store, types.GetPriceHistoryKey(upperSymbolDenom))
 
 	defer iter.Close()
 
@@ -167,19 +158,22 @@ func (k Keeper) IterateDenomPriceHistory(ctx sdk.Context, baseDenom string, cb f
 }
 
 // Delete denom history price
-func (k Keeper) DeleteDenomPriceHistory(ctx sdk.Context, baseDenom string, votingPeriodCount uint64) {
+func (k Keeper) DeleteDenomPriceHistory(ctx sdk.Context, symbolDenom string, votingPeriodCount uint64) {
 	// Get store
+	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	store := ctx.KVStore(k.storeKey)
-	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(baseDenom))
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(upperSymbolDenom))
 	// Delete
 	key := sdk.Uint64ToBigEndian(votingPeriodCount)
 	priceHistoryStore.Delete(key)
 }
 
 // appendPriceHistory
-func (k Keeper) appendPriceHistory(ctx sdk.Context, baseDenom string, priceHistoryEntrys ...types.PriceHistoryEntry) error {
+func (k Keeper) appendPriceHistory(ctx sdk.Context, symbolDenom string, priceHistoryEntrys ...types.PriceHistoryEntry) error {
+	// Get store
+	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	store := ctx.KVStore(k.storeKey)
-	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(baseDenom))
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(upperSymbolDenom))
 
 	for _, priceHistoryEntry := range priceHistoryEntrys {
 		key := sdk.Uint64ToBigEndian(priceHistoryEntry.VotePeriodCount)
@@ -521,11 +515,11 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	return nil
 }
 
-func (k Keeper) isInTrackingList(ctx sdk.Context, baseDenom string) (bool, types.Denom) {
+func (k Keeper) isInTrackingList(ctx sdk.Context, symbolDenom string) (bool, types.Denom) {
 	var denom types.Denom
 	params := k.GetParams(ctx)
 	for _, trackingDenom := range params.PriceTrackingList {
-		if trackingDenom.BaseDenom == baseDenom {
+		if trackingDenom.SymbolDenom == symbolDenom {
 			denom = trackingDenom
 			return true, denom
 		}
