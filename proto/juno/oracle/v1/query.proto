@@ -27,6 +27,25 @@ service Query {
         "/juno/oracle/v1/denoms/active_exchange_rates";
   }
 
+  // PriceHistoryAt return price of denom at specific block height
+  rpc PriceHistoryAt(QueryPriceHistoryAt)
+      returns (QueryPriceHistoryAtRespone) {
+    option (google.api.http).get = 
+        "/juno/oracle/v1/price_history/{denom}/{block_height}";
+  }
+
+  rpc AllPriceHistory(QueryAllPriceHistory)
+      returns (QueryAllPriceHistoryRespone) {
+    option (google.api.http).get = 
+        "/juno/oracle/v1/price_history/{denom}";
+  }
+
+  rpc PriceTrackingList(QueryPriceTrackingLists)
+      returns (QueryPriceTrackingListsRespone) {
+    option (google.api.http).get = 
+        "/juno/oracle/v1/price_history/tracking_lists";
+  }
+
   // FeederDelegation returns feeder delegation of a validator
   rpc FeederDelegation(QueryFeederDelegation)
       returns (QueryFeederDelegationResponse) {
@@ -228,4 +247,27 @@ message QueryParams {}
 message QueryParamsResponse {
   // params defines the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryPriceTrackingLists{}
+
+message QueryPriceTrackingListsRespone {
+  repeated string price_traking_lists = 1;
+}
+
+message QueryPriceHistoryAt{
+  string denom = 1;
+  uint64 block_height = 2;
+}
+
+message QueryPriceHistoryAtRespone{
+  PriceHistoryEntry price_history_entry = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryAllPriceHistory{
+  string denom = 1;
+}
+
+message QueryAllPriceHistoryRespone{
+  PriceHistory price_history = 1 [(gogoproto.nullable) = false];
 }

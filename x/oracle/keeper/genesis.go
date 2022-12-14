@@ -125,13 +125,18 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 
 	priceHistory := []types.PriceHistory{}
 	for _, denom := range params.PriceTrackingList {
-		var tempPriceHistory types.PriceHistory
+		// Get price history entry list
+		var priceHistoryEntryLists []types.PriceHistoryEntry
 		k.IterateDenomPriceHistory(ctx, denom.BaseDenom, func(votingPeriodCount uint64, priceHistoryEntry types.PriceHistoryEntry) bool {
-			tempPriceHistory.PriceHistoryEntry = append(tempPriceHistory.PriceHistoryEntry, priceHistoryEntry)
+			priceHistoryEntryLists = append(priceHistoryEntryLists, priceHistoryEntry)
 			return false
 		})
-		tempPriceHistory.Denom = denom
-		priceHistory = append(priceHistory, tempPriceHistory)
+		// Add to priceHistory
+		denomPriceHistory := types.PriceHistory{
+			Denom:             denom,
+			PriceHistoryEntry: priceHistoryEntryLists,
+		}
+		priceHistory = append(priceHistory, denomPriceHistory)
 	}
 
 	return types.NewGenesisState(
