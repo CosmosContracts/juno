@@ -65,7 +65,14 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 
+	// ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
+	icacontroller "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller"
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/keeper"
+	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
+
 	"github.com/cosmos/gaia/v8/x/globalfee"
+	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
+	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 )
 
 type AppKeepers struct {
@@ -94,12 +101,17 @@ type AppKeepers struct {
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	FeeShareKeeper   feesharekeeper.Keeper
 
-	ICAHostKeeper icahostkeeper.Keeper
+	ICAControllerKeeper icacontrollerkeeper.Keeper
+	ICAHostKeeper       icahostkeeper.Keeper
+	InterTxKeeper       intertxkeeper.Keeper
 
 	// make scoped keepers public for test purposes
-	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
-	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
-	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
+	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
+	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
+	ScopedFeeMockKeeper       capabilitykeeper.ScopedKeeper
+	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
+	ScopedInterTxKeeper       capabilitykeeper.ScopedKeeper
+	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
 
 	WasmKeeper         wasm.Keeper
 	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
@@ -143,7 +155,9 @@ func NewAppKeepers(
 
 	// grant capabilities for the ibc and ibc-transfer modules
 	scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
+	scopedICAControllerKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedICAHostKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
+	scopedInterTxKeeper := appKeepers.CapabilityKeeper.ScopeToModule(intertxtypes.ModuleName)
 	scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := appKeepers.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
@@ -276,6 +290,26 @@ func NewAppKeepers(
 		bApp.MsgServiceRouter(),
 	)
 
+	// ICA Controller keeper
+	appKeepers.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
+		appCodec, appKeepers.keys[icacontrollertypes.StoreKey], appKeepers.GetSubspace(icacontrollertypes.SubModuleName),
+		appKeepers.IBCFeeKeeper, // use ics29 fee as ics4Wrapper in middleware stack
+		appKeepers.IBCKeeper.ChannelKeeper, &appKeepers.IBCKeeper.PortKeeper,
+		scopedICAControllerKeeper, bApp.MsgServiceRouter(),
+	)
+
+	icaHostIBCModule := icahost.NewIBCModule(appKeepers.ICAHostKeeper)
+
+	// initialize ICA module with mock module as the authentication module on the controller side
+	var icaControllerStack porttypes.IBCModule
+	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, appKeepers.ICAControllerKeeper)
+	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, appKeepers.IBCFeeKeeper)
+
+	// this is the demo controller from
+	// https://github.com/cosmos/interchain-accounts
+	// used with a little faith on our part
+	appKeepers.InterTxKeeper = intertxkeeper.NewKeeper(appCodec, appKeepers.keys[intertxtypes.StoreKey], appKeepers.ICAControllerKeeper, scopedInterTxKeeper)
+
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, appKeepers.keys[evidencetypes.StoreKey], &appKeepers.StakingKeeper, appKeepers.SlashingKeeper,
@@ -358,9 +392,7 @@ func NewAppKeepers(
 
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is:
 	// channel.RecvPacket -> fee.OnRecvPacket -> icaHost.OnRecvPacket
-	var icaHostStack porttypes.IBCModule
-	icaHostStack = icahost.NewIBCModule(appKeepers.ICAHostKeeper)
-	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, appKeepers.IBCFeeKeeper)
+	icaHostStack := ibcfee.NewIBCMiddleware(icaHostIBCModule, appKeepers.IBCFeeKeeper)
 
 	// Create fee enabled wasm ibc Stack
 	var wasmStack porttypes.IBCModule
@@ -371,7 +403,10 @@ func NewAppKeepers(
 	ibcRouter := porttypes.NewRouter().
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
 		AddRoute(wasm.ModuleName, wasmStack).
-		AddRoute(icahosttypes.SubModuleName, icaHostStack)
+		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
+		AddRoute(icahosttypes.SubModuleName, icaHostStack).
+		AddRoute(intertxtypes.ModuleName, icaControllerStack)
+
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
 	appKeepers.GovKeeper = govkeeper.NewKeeper(
@@ -383,6 +418,8 @@ func NewAppKeepers(
 	appKeepers.ScopedTransferKeeper = scopedTransferKeeper
 	appKeepers.scopedWasmKeeper = scopedWasmKeeper
 	appKeepers.ScopedICAHostKeeper = scopedICAHostKeeper
+	appKeepers.ScopedICAControllerKeeper = scopedICAControllerKeeper
+	appKeepers.ScopedInterTxKeeper = scopedInterTxKeeper
 
 	return appKeepers
 }
@@ -401,6 +438,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
+	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)

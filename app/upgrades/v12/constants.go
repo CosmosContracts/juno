@@ -7,6 +7,7 @@ import (
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/gaia/v8/x/globalfee"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
+	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the Juno v12 upgrade.
@@ -16,6 +17,6 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateV12UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
-		Added: []string{tokenfactorytypes.ModuleName, feesharetypes.ModuleName, globalfee.ModuleName, ibcfeetypes.ModuleName},
+		Added: []string{tokenfactorytypes.ModuleName, feesharetypes.ModuleName, globalfee.ModuleName, ibcfeetypes.ModuleName, intertxtypes.ModuleName},
 	},
 }

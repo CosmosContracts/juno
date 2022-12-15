@@ -8,7 +8,20 @@ import (
 	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
+	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
+
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 )
 
@@ -45,6 +58,49 @@ func CreateV12UpgradeHandler(
 			AllowedDenoms:   []string{nativeDenom},
 		}
 		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
+
+		// ICA - https://github.com/CosmosContracts/juno/blob/integrate_ica_changes/app/app.go#L846-L885
+		vm[icatypes.ModuleName] = mm.Modules[icatypes.ModuleName].ConsensusVersion()
+
+		// create ICS27 Controller submodule params, controller module not enabled.
+		controllerParams := icacontrollertypes.Params{
+			ControllerEnabled: true,
+		}
+
+		// create ICS27 Host submodule params
+		hostParams := icahosttypes.Params{
+			HostEnabled: true,
+			AllowMessages: []string{
+				sdk.MsgTypeURL(&banktypes.MsgSend{}),
+				sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
+				sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
+				sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
+				sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
+				sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
+				sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
+				sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
+				sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
+				sdk.MsgTypeURL(&govtypes.MsgVote{}),
+				sdk.MsgTypeURL(&authz.MsgExec{}),
+				sdk.MsgTypeURL(&authz.MsgGrant{}),
+				sdk.MsgTypeURL(&authz.MsgRevoke{}),
+				// wasm msgs here
+				sdk.MsgTypeURL(&wasmtypes.MsgStoreCode{}),
+				sdk.MsgTypeURL(&wasmtypes.MsgInstantiateContract{}),
+				sdk.MsgTypeURL(&wasmtypes.MsgInstantiateContract2{}),
+				sdk.MsgTypeURL(&wasmtypes.MsgExecuteContract{}),
+				sdk.MsgTypeURL(&wasmtypes.MsgMigrateContract{}),
+				sdk.MsgTypeURL(&wasmtypes.MsgUpdateAdmin{}),
+				sdk.MsgTypeURL(&wasmtypes.MsgClearAdmin{}),
+			},
+		}
+
+		// initialize ICS27 module
+		icamodule, correctTypecast := mm.Modules[icatypes.ModuleName].(ica.AppModule)
+		if !correctTypecast {
+			panic("mm.Modules[icatypes.ModuleName] is not of type ica.AppModule")
+		}
+		icamodule.InitModule(ctx, controllerParams, hostParams)
 
 		// IBCFee
 		vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
