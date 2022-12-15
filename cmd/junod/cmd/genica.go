@@ -64,7 +64,7 @@ func AddGenesisIcaCmd(defaultNodeHome string) *cobra.Command {
 					"/cosmos.authz.v1beta1.MsgRevoke",
 					"/cosmwasm.wasm.v1.MsgStoreCode",
 					"/cosmwasm.wasm.v1.MsgInstantiateContract",
-					"/cosmwasm.wasm.v1.InstantiateContract2",
+					"/cosmwasm.wasm.v1.MsgInstantiateContract2",
 					"/cosmwasm.wasm.v1.MsgExecuteContract",
 					"/ibc.applications.transfer.v1.MsgTransfer",
 				},

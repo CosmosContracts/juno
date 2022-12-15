@@ -6,7 +6,7 @@ package types
 import (
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
@@ -89,6 +89,7 @@ type Params struct {
 	// allowed_denoms defines the list of denoms that are allowed to be paid to the
 	// contract withdraw addresses. If said denom is not in the list, the fees
 	// will ONLY be sent to the community pool.
+	// If this list is empty, all denoms are allowed.
 	AllowedDenoms []string `protobuf:"bytes,3,rep,name=allowed_denoms,json=allowedDenoms,proto3" json:"allowed_denoms,omitempty"`
 }
 

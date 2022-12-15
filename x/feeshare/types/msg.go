@@ -67,7 +67,7 @@ func (msg *MsgRegisterFeeShare) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgRegisterFeeShare) GetSigners() []sdk.AccAddress {
-	from := sdk.MustAccAddressFromBech32(msg.DeployerAddress)
+	from, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	return []sdk.AccAddress{from}
 }
 
@@ -108,7 +108,7 @@ func (msg *MsgCancelFeeShare) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgCancelFeeShare) GetSigners() []sdk.AccAddress {
-	funder := sdk.MustAccAddressFromBech32(msg.DeployerAddress)
+	funder, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	return []sdk.AccAddress{funder}
 }
 
@@ -155,6 +155,6 @@ func (msg *MsgUpdateFeeShare) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgUpdateFeeShare) GetSigners() []sdk.AccAddress {
-	from := sdk.MustAccAddressFromBech32(msg.DeployerAddress)
+	from, _ := sdk.AccAddressFromBech32(msg.DeployerAddress)
 	return []sdk.AccAddress{from}
 }
