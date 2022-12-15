@@ -374,7 +374,6 @@ func NewAppKeepers(
 		appKeepers.keys[feesharetypes.StoreKey],
 		appCodec,
 		appKeepers.GetSubspace(feesharetypes.ModuleName),
-		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		authtypes.FeeCollectorName,
