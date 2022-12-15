@@ -8,6 +8,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.45.11
 	github.com/cosmos/gaia/v8 v8.0.0-20221214153136-e8833fa991a8
 	github.com/cosmos/ibc-go/v4 v4.2.0
+	github.com/cosmos/interchain-accounts v0.2.5
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0
