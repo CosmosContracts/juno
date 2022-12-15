@@ -52,6 +52,8 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v4/modules/core"
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
+	intertx "github.com/cosmos/interchain-accounts/x/inter-tx"
+	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 )
 
 // module account permissions
@@ -97,6 +99,8 @@ var ModuleBasics = module.NewBasicManager(
 	tokenfactory.AppModuleBasic{},
 	wasm.AppModuleBasic{},
 	ica.AppModuleBasic{},
+	intertx.AppModuleBasic{},
+	tokenfactory.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
 )
@@ -137,6 +141,8 @@ func appModules(
 		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
+		intertx.NewAppModule(appCodec, app.InterTxKeeper),
 	}
 }
 
@@ -196,6 +202,7 @@ func orderBeginBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		oracletypes.ModuleName,
+		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
@@ -227,6 +234,7 @@ func orderEndBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		oracletypes.ModuleName,
+		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
@@ -258,6 +266,7 @@ func orderInitBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		oracletypes.ModuleName,
+		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
