@@ -202,7 +202,7 @@ func validateTrackingDuration(i interface{}) error {
 	}
 
 	if v == 0 {
-		return fmt.Errorf("vote period must be positive: %d", v)
+		return fmt.Errorf("tracking duration must be positive: %d", v)
 	}
 
 	return nil
