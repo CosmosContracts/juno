@@ -25,10 +25,7 @@ import (
 func updateAppSimulationFlag(flag bool) {
 	decorators.UpdateSimsFlag(flag)
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> juno/oracle
 const maxBypassMinFeeMsgGasUsage = 1_000_000
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC

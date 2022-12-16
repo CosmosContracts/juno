@@ -106,7 +106,6 @@ build:
 test-sim-multi-seed-short: runsim
 	@echo "Running short multi-seed application simulation. This may take awhile!"
 	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
-=========
 ###                                  Tests e2e                              ###
 ###############################################################################
 
@@ -168,7 +167,7 @@ e2e-remove-resources:
 	tests/e2e/scripts/run/remove_stale_resources.sh
 
 .PHONY: test-mutation
->>>>>>>>> Temporary merge branch 2
+
 
 ###############################################################################
 ###                                  Proto                                  ###

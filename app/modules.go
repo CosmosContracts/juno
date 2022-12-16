@@ -135,21 +135,15 @@ func appModules(
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		transfer.NewAppModule(app.TransferKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
-<<<<<<< HEAD
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
-=======
->>>>>>> juno/oracle
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
 		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		intertx.NewAppModule(appCodec, app.InterTxKeeper),
-<<<<<<< HEAD
-=======
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
->>>>>>> juno/oracle
 	}
 }
 
@@ -208,10 +202,7 @@ func orderBeginBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
-<<<<<<< HEAD
 		oracletypes.ModuleName,
-=======
->>>>>>> juno/oracle
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		oracletypes.ModuleName,
@@ -244,10 +235,7 @@ func orderEndBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
-<<<<<<< HEAD
 		oracletypes.ModuleName,
-=======
->>>>>>> juno/oracle
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		oracletypes.ModuleName,
@@ -281,10 +269,7 @@ func orderInitBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		oracletypes.ModuleName,
-<<<<<<< HEAD
-=======
 		tokenfactorytypes.ModuleName,
->>>>>>> juno/oracle
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
