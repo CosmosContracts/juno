@@ -45,8 +45,7 @@ quote = "USDT"
 base = "ATOM"
 providers = [
   "kraken",
-  "osmosis",
-  "bitgen"
+  "osmosis"
 ]
 quote = "USD"
 
@@ -96,7 +95,7 @@ prefix = "juno"
 
 [keyring]
 backend = "test"
-dir = "/home/<user>/.juno"
+dir = "/home/ducnt/.juno"
 
 [rpc]
 grpc_endpoint = "localhost:9090"

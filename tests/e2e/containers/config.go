@@ -11,6 +11,9 @@ type ImageConfig struct {
 
 	RelayerRepository string
 	RelayerTag        string
+
+	PriceFeederRepository string
+	PriceFeederTag        string
 }
 
 //nolint:deadcode
@@ -41,8 +44,10 @@ const (
 // If isFork is true, utilizes provided fork height to initiate fork logic
 func NewImageConfig(isUpgrade, isFork bool) ImageConfig {
 	config := ImageConfig{
-		RelayerRepository: relayerRepository,
-		RelayerTag:        relayerTag,
+		RelayerRepository:     relayerRepository,
+		RelayerTag:            relayerTag,
+		PriceFeederRepository: pricefeederRepository,
+		PriceFeederTag:        pricefeederTag,
 	}
 
 	if !isUpgrade {
