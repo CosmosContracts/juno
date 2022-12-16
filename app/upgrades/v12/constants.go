@@ -18,6 +18,10 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateV12UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
+<<<<<<< HEAD
 		Added: []string{tokenfactorytypes.ModuleName, feesharetypes.ModuleName, globalfee.ModuleName, ibcfeetypes.ModuleName, intertxtypes.ModuleName, oracletypes.ModuleName},
+=======
+		Added: []string{tokenfactorytypes.ModuleName, oracletypes.ModuleName, feesharetypes.ModuleName, globalfee.ModuleName, ibcfeetypes.ModuleName, intertxtypes.ModuleName},
+>>>>>>> juno/oracle
 	},
 }

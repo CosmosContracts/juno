@@ -77,6 +77,12 @@ import (
 	"github.com/cosmos/gaia/v8/x/globalfee"
 	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
+<<<<<<< HEAD
+=======
+
+	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
+>>>>>>> juno/oracle
 )
 
 type AppKeepers struct {
@@ -104,8 +110,12 @@ type AppKeepers struct {
 	AuthzKeeper      authzkeeper.Keeper
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	FeeShareKeeper   feesharekeeper.Keeper
+<<<<<<< HEAD
 	OracleKeeper     oraclekeeper.Keeper
+=======
+>>>>>>> juno/oracle
 
+	OracleKeeper        oraclekeeper.Keeper
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
 	InterTxKeeper       intertxkeeper.Keeper
@@ -351,14 +361,22 @@ func NewAppKeepers(
 
 	// Setup wasm bindings
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
+<<<<<<< HEAD
 	wasmOpts = append(wasmOpts, tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)...)
 	wasmOpts = append(wasmOpts, oraclebindings.RegisterCustomPlugins(appKeepers.OracleKeeper)...)
+=======
+	wasmOpts = append(tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper), wasmOpts...)
+>>>>>>> juno/oracle
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
 		"/ibc.core.client.v1.Query/ClientState":    &ibcclienttypes.QueryClientStateResponse{},
 		"/ibc.core.client.v1.Query/ConsensusState": &ibcclienttypes.QueryConsensusStateResponse{},
 		"/ibc.core.connection.v1.Query/Connection": &ibcconnectiontypes.QueryConnectionResponse{},
+
+		// oracle query
+		"/juno.oracle.v1.Query/ExchangeRates": &oracletypes.QueryExchangeRatesResponse{},
+		"/juno.oracle.v1.Query/Params":        &oracletypes.QueryParamsResponse{},
 	}
 	querierOpts := wasmkeeper.WithQueryPlugins(
 		&wasmkeeper.QueryPlugins{

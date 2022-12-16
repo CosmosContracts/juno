@@ -25,6 +25,10 @@ import (
 func updateAppSimulationFlag(flag bool) {
 	decorators.UpdateSimsFlag(flag)
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> juno/oracle
 const maxBypassMinFeeMsgGasUsage = 1_000_000
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
@@ -32,17 +36,16 @@ const maxBypassMinFeeMsgGasUsage = 1_000_000
 type HandlerOptions struct {
 	ante.HandlerOptions
 
-	GovKeeper         govkeeper.Keeper
-	IBCKeeper         *ibckeeper.Keeper
-	FeeShareKeeper    feesharekeeper.Keeper
-	BankKeeperFork    anteInterface.BankKeeper
-	TxCounterStoreKey sdk.StoreKey
-	WasmConfig        wasmTypes.WasmConfig
-	Cdc               codec.BinaryCodec
-  BypassMinFeeMsgTypes []string
+	GovKeeper            govkeeper.Keeper
+	IBCKeeper            *ibckeeper.Keeper
+	FeeShareKeeper       feesharekeeper.Keeper
+	BankKeeperFork       anteInterface.BankKeeper
+	TxCounterStoreKey    sdk.StoreKey
+	WasmConfig           wasmTypes.WasmConfig
+	Cdc                  codec.BinaryCodec
+	BypassMinFeeMsgTypes []string
 	GlobalFeeSubspace    paramtypes.Subspace
 	StakingSubspace      paramtypes.Subspace
-
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
