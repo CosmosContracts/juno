@@ -25,7 +25,7 @@ func ProposalAddTrackingPriceHistoryCmd() *cobra.Command {
 				return err
 			}
 
-			proposal, err := ParseAirdopInitialProposal(clientCtx.Codec, args[0])
+			proposal, err := ParseAddTrackingPriceHistoryProposal(clientCtx.Codec, args[0])
 			if err != nil {
 				return err
 			}
@@ -38,7 +38,75 @@ func ProposalAddTrackingPriceHistoryCmd() *cobra.Command {
 				return err
 			}
 			if err = msg.ValidateBasic(); err != nil {
-				return nil
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	return cmd
+}
+
+func ProposalAddTrackingPriceHistoryWithAcceptListCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add-tracking-price-history-with-accept-list [json-proposal]",
+		Short: "Add tracking price history list with accept list",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, _, _, deposit, err := getProposalInfo(cmd)
+			if err != nil {
+				return err
+			}
+
+			proposal, err := AddTrackingPriceHistoryWithAcceptListProposal(clientCtx.Codec, args[0])
+			if err != nil {
+				return err
+			}
+			if err = proposal.ValidateBasic(); err != nil {
+				return err
+			}
+
+			msg, err := govtypes.NewMsgSubmitProposal(&proposal, deposit, clientCtx.GetFromAddress())
+			if err != nil {
+				return err
+			}
+			if err = msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	return cmd
+}
+
+func ProposalRemoveTrackingPriceHistoryCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "remove-tracking-price-history [json-proposal]",
+		Short: "Remove tracking price history from tracking list",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, _, _, deposit, err := getProposalInfo(cmd)
+			if err != nil {
+				return err
+			}
+
+			proposal, err := ParseRemoveTrackingPriceHistoryProposal(clientCtx.Codec, args[0])
+			if err != nil {
+				return err
+			}
+			if err = proposal.ValidateBasic(); err != nil {
+				return err
+			}
+
+			msg, err := govtypes.NewMsgSubmitProposal(&proposal, deposit, clientCtx.GetFromAddress())
+			if err != nil {
+				return err
+			}
+			if err = msg.ValidateBasic(); err != nil {
+				return err
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
@@ -77,8 +145,40 @@ func getProposalInfo(cmd *cobra.Command) (client.Context, string, string, sdk.Co
 	return clientCtx, proposalTitle, proposalDescr, deposit, nil
 }
 
-func ParseAirdopInitialProposal(cdc codec.JSONCodec, proposalFile string) (types.AddTrackingPriceHistoryProposal, error) {
+func ParseAddTrackingPriceHistoryProposal(cdc codec.JSONCodec, proposalFile string) (types.AddTrackingPriceHistoryProposal, error) {
 	var proposal types.AddTrackingPriceHistoryProposal
+
+	contents, err := os.ReadFile(proposalFile)
+	if err != nil {
+		return proposal, err
+	}
+
+	err = cdc.UnmarshalJSON(contents, &proposal)
+	if err != nil {
+		return proposal, err
+	}
+
+	return proposal, nil
+}
+
+func AddTrackingPriceHistoryWithAcceptListProposal(cdc codec.JSONCodec, proposalFile string) (types.AddTrackingPriceHistoryWithAcceptListProposal, error) {
+	var proposal types.AddTrackingPriceHistoryWithAcceptListProposal
+
+	contents, err := os.ReadFile(proposalFile)
+	if err != nil {
+		return proposal, err
+	}
+
+	err = cdc.UnmarshalJSON(contents, &proposal)
+	if err != nil {
+		return proposal, err
+	}
+
+	return proposal, nil
+}
+
+func ParseRemoveTrackingPriceHistoryProposal(cdc codec.JSONCodec, proposalFile string) (types.RemoveTrackingPriceHistoryProposal, error) {
+	var proposal types.RemoveTrackingPriceHistoryProposal
 
 	contents, err := os.ReadFile(proposalFile)
 	if err != nil {
