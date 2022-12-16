@@ -110,10 +110,10 @@ func (s *IntegrationTestSuite) checkBalance(coins sdk.Coins, expected sdk.Coins)
 }
 
 // TestOracle tests that the Oracle module and Price-feeder work as expected.
-func (s *IntegrationTestSuite) TestOracle() {
-	chainA := s.configurer.GetChainConfig(0)
+// func (s *IntegrationTestSuite) TestOracle() {
+// 	chainA := s.configurer.GetChainConfig(0)
 
-}
+// }
 
 //TODO
 

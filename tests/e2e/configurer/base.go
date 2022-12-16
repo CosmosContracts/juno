@@ -59,7 +59,12 @@ func (bc *baseConfigurer) RunValidators() error {
 	}
 	return nil
 }
-
+func (bc *baseConfigurer) RunPriceFeeder() error {
+	if err := bc.runPriceFeeder(); err != nil {
+		return err
+	}
+	return nil
+}
 func (bc *baseConfigurer) runValidators(chainConfig *chain.Config) error {
 	bc.t.Logf("starting %s validator containers...", chainConfig.Id)
 	for _, node := range chainConfig.NodeConfigs {
@@ -162,7 +167,74 @@ func (bc *baseConfigurer) runIBCRelayer(chainConfigA *chain.Config, chainConfigB
 	// create the client, connection and channel between the two chains
 	return bc.connectIBCChains(chainConfigA, chainConfigB)
 }
+func (bc *baseConfigurer) runPriceFeeder() error {
+	bc.t.Log("starting Price-Feeder container...")
 
+	tmpDir, err := os.MkdirTemp("", "e2e-testnet-price-feeder-")
+	if err != nil {
+		return err
+	}
+
+	pricefeederCfgPath := path.Join(tmpDir, "price-feeder")
+
+	if err := os.MkdirAll(pricefeederCfgPath, 0o755); err != nil {
+		return err
+	}
+
+	_, err = util.CopyFile(
+		filepath.Join("./scripts/", "config.toml"),
+		filepath.Join(pricefeederCfgPath, "config.toml"),
+	)
+	if err != nil {
+		return err
+	}
+	pricefeederPass := "keyring-testing"
+
+	pricefeederResource, err := bc.containerManager.RunPriceFeederResource(
+		pricefeederPass,
+		pricefeederCfgPath,
+	)
+	if err != nil {
+		return err
+	}
+
+	endpoint := fmt.Sprintf("http://%s/state", pricefeederResource.GetHostPort("3031/tcp"))
+
+	require.Eventually(bc.t, func() bool {
+		resp, err := http.Get(endpoint)
+		if err != nil {
+			return false
+		}
+
+		defer resp.Body.Close()
+
+		bz, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return false
+		}
+
+		var respBody map[string]interface{}
+		if err := json.Unmarshal(bz, &respBody); err != nil {
+			return false
+		}
+
+		status, ok := respBody["status"].(string)
+		require.True(bc.t, ok)
+		result, ok := respBody["result"].(map[string]interface{})
+		require.True(bc.t, ok)
+
+		chains, ok := result["chains"].([]interface{})
+		require.True(bc.t, ok)
+
+		return status == "success" && len(chains) == 2
+	},
+		5*time.Minute,
+		time.Second,
+		"price-feeder not healthy")
+
+	bc.t.Logf("started Price-feeder container: %s", pricefeederResource.Container.ID)
+	return nil
+}
 func (bc *baseConfigurer) connectIBCChains(chainA *chain.Config, chainB *chain.Config) error {
 	bc.t.Logf("connecting %s and %s chains via IBC", chainA.ChainMeta.Id, chainB.ChainMeta.Id)
 	cmd := []string{"hermes", "create", "channel", chainA.ChainMeta.Id, chainB.ChainMeta.Id, "--port-a=transfer", "--port-b=transfer"}

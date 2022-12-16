@@ -205,29 +205,28 @@ func (m *Manager) RunHermesResource(chainAID, junoARelayerNodeName, junoAValMnem
 }
 
 // RunPriceFeederResource runs a Price-Feedee container. Returns the container resource and error if any.
-func (m *Manager) RunPriceFeederResource(chainAID, junoAValMnemonic, pricefeederCfgPath string) (*dockertest.Resource, error) {
+func (m *Manager) RunPriceFeederResource(pricefeederPass, pricefeederCfgPath string) (*dockertest.Resource, error) {
 	pricefeederResource, err := m.pool.RunWithOptions(
 		&dockertest.RunOptions{
 			Name:       pricefeederContainerName,
-			Repository: m.RelayerRepository,
-			Tag:        m.RelayerTag,
+			Repository: m.PriceFeederRepository,
+			Tag:        m.PriceFeederTag,
 			NetworkID:  m.network.Network.ID,
 			Cmd: []string{
-				"start",
+				"price-feeder /price-feeder/config.toml",
 			},
 			User: "root:root",
 			Mounts: []string{
-				fmt.Sprintf("%s/:/root/price-feeder", pricefeederCfgPath),
+				fmt.Sprintf("%s/:/price-feeder", pricefeederCfgPath),
 			},
 			ExposedPorts: []string{
-				"3031",
+				"7171",
 			},
 			PortBindings: map[docker.Port][]docker.PortBinding{
 				"7171/tcp": {{HostIP: "", HostPort: "7171"}},
 			},
 			Env: []string{
-				fmt.Sprintf("JUNO_A_E2E_CHAIN_ID=%s", chainAID),
-				fmt.Sprintf("JUNO_A_E2E_VAL_MNEMONIC=%s", junoAValMnemonic),
+				fmt.Sprintf("PRICE_FEEDER_PASS=%s", pricefeederPass),
 			},
 		},
 		noRestart,
@@ -235,7 +234,7 @@ func (m *Manager) RunPriceFeederResource(chainAID, junoAValMnemonic, pricefeeder
 	if err != nil {
 		return nil, err
 	}
-	m.resources[hermesContainerName] = pricefeederResource
+	m.resources[pricefeederContainerName] = pricefeederResource
 	return pricefeederResource, nil
 }
 

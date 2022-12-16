@@ -12,7 +12,19 @@ func baseSetup(configurer Configurer) error {
 	}
 	return nil
 }
+func withPriceFeeder(setupHandler setupFn) setupFn {
+	return func(configurer Configurer) error {
+		if err := setupHandler(configurer); err != nil {
+			return err
+		}
 
+		if err := configurer.RunPriceFeeder(); err != nil {
+			return err
+		}
+
+		return nil
+	}
+}
 func withIBC(setupHandler setupFn) setupFn {
 	return func(configurer Configurer) error {
 		if err := setupHandler(configurer); err != nil {
