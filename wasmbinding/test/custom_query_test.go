@@ -1,6 +1,7 @@
 package wasmbinding_test
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"os"
 	"testing"
@@ -35,7 +36,7 @@ var (
 func TestQueryExchangeRate(t *testing.T) {
 	actor := app.RandomAccountAddress()
 	junoApp := app.Setup(t, false, 1)
-	ctx := junoApp.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "kujira-1", Time: time.Now().UTC()})
+	ctx := junoApp.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: time.Now().UTC()})
 
 	wasmKeeper := junoApp.GetWasmKeeper()
 	plugin := wasmbinding.NewQueryPlugin(junoApp.OracleKeeper)
@@ -116,10 +117,13 @@ func TestQueryExchangeRate(t *testing.T) {
 
 func storeOracleQuerierCode(t *testing.T, ctx sdk.Context, junoApp *app.App, addr sdk.AccAddress, wasmCode []byte) {
 	govKeeper := junoApp.GovKeeper
+	checksum, err := hex.DecodeString("7060793B65D423D4862F7299F8B987CAB8F5108DDEA9A7B46BBC63E627E602F6")
+	require.NoError(t, err)
 
 	src := wasmtypes.StoreCodeProposalFixture(func(p *wasmtypes.StoreCodeProposal) {
 		p.RunAs = addr.String()
 		p.WASMByteCode = wasmCode
+		p.CodeHash = checksum
 	})
 
 	// when stored

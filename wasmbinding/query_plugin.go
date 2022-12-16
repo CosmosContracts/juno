@@ -2,6 +2,7 @@ package wasmbinding
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/CosmosContracts/juno/v12/wasmbinding/bindings"
 	oracle "github.com/CosmosContracts/juno/v12/x/oracle/wasm"
@@ -16,7 +17,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 	return func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
 		var contractQuery bindings.CosmosQuery
 		if err := json.Unmarshal(request, &contractQuery); err != nil {
-			return nil, sdkerrors.Wrap(err, "kujira query")
+			return nil, sdkerrors.Wrap(err, "oracles query")
 		}
 
 		if contractQuery.Oracle != nil {
@@ -32,7 +33,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			return bz, nil
 		} else {
-			return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown Custom variant"}
+			return nil, wasmvmtypes.UnsupportedRequest{Kind: fmt.Sprint("unknown Custom variant : ", contractQuery)}
 		}
 	}
 }
