@@ -36,11 +36,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		authzkeeper.StoreKey, feegrant.StoreKey, icahosttypes.StoreKey, ibcfeetypes.StoreKey,
 		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, wasm.StoreKey, intertxtypes.StoreKey,
-<<<<<<< HEAD
-		icacontrollertypes.StoreKey,oracletypes.StoreKey,
-=======
 		icacontrollertypes.StoreKey, oracletypes.StoreKey,
->>>>>>> juno/oracle
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
