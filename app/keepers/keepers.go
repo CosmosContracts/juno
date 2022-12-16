@@ -351,8 +351,8 @@ func NewAppKeepers(
 
 	// Setup wasm bindings
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
-	wasmOpts = append(wasmOpts, tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)...)
-	wasmOpts = append(wasmOpts, oraclebindings.RegisterCustomPlugins(appKeepers.OracleKeeper)...)
+	wasmOpts = append(tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper), wasmOpts...)
+	wasmOpts = append(oraclebindings.RegisterCustomPlugins(appKeepers.OracleKeeper), wasmOpts...)
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
