@@ -74,6 +74,7 @@ import (
 	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 
+	oraclebindings "github.com/CosmosContracts/juno/v12/wasmbinding"
 	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
 	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
