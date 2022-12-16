@@ -16,7 +16,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 	return func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
 		var contractQuery bindings.CosmosQuery
 		if err := json.Unmarshal(request, &contractQuery); err != nil {
-			return nil, sdkerrors.Wrap(err, "kujira query")
+			return nil, sdkerrors.Wrap(err, "oracles query")
 		}
 
 		if contractQuery.Oracle != nil {

@@ -20,7 +20,7 @@ import (
 
 func TestQueryExchangeRates(t *testing.T) {
 	junoApp := app.Setup(t, false, 1)
-	ctx := junoApp.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "kujira-1", Time: time.Now().UTC()})
+	ctx := junoApp.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: time.Now().UTC()})
 
 	ExchangeRateC := sdk.NewDec(1700)
 	ExchangeRateB := sdk.NewDecWithPrec(17, 1)
