@@ -54,7 +54,6 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	tfbindings "github.com/CosmWasm/token-factory/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmWasm/token-factory/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 
@@ -351,8 +350,7 @@ func NewAppKeepers(
 
 	// Setup wasm bindings
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
-	wasmOpts = append(tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper), wasmOpts...)
-	wasmOpts = append(oraclebindings.RegisterCustomPlugins(appKeepers.OracleKeeper), wasmOpts...)
+	wasmOpts = append(oraclebindings.RegisterCustomPlugins(&appKeepers.BankKeeper, appKeepers.OracleKeeper, &appKeepers.TokenFactoryKeeper), wasmOpts...)
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
