@@ -65,7 +65,6 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 
-	oraclebindings "github.com/CosmosContracts/juno/v12/wasmbinding"
 	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
 	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 
@@ -77,9 +76,6 @@ import (
 	"github.com/cosmos/gaia/v8/x/globalfee"
 	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
-
-	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
-	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 type AppKeepers struct {
