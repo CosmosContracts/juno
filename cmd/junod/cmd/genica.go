@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
-	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
+	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
+	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -64,7 +64,7 @@ func AddGenesisIcaCmd(defaultNodeHome string) *cobra.Command {
 					"/cosmos.authz.v1beta1.MsgRevoke",
 					"/cosmwasm.wasm.v1.MsgStoreCode",
 					"/cosmwasm.wasm.v1.MsgInstantiateContract",
-					"/cosmwasm.wasm.v1.InstantiateContract2",
+					"/cosmwasm.wasm.v1.MsgInstantiateContract2",
 					"/cosmwasm.wasm.v1.MsgExecuteContract",
 					"/ibc.applications.transfer.v1.MsgTransfer",
 				},
