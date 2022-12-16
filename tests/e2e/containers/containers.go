@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	hermesContainerName = "hermes-relayer"
+	hermesContainerName      = "hermes-relayer"
+	pricefeederContainerName = "price-feeder"
 	// The maximum number of times debug logs are printed to console
 	// per CLI command.
 	maxDebugLogsPerCommand = 3
@@ -70,6 +71,11 @@ func (m *Manager) ExecTxCmdWithSuccessString(t *testing.T, chainId string, conta
 // ExecHermesCmd executes command on the hermes relaer container.
 func (m *Manager) ExecHermesCmd(t *testing.T, command []string, success string) (bytes.Buffer, bytes.Buffer, error) {
 	return m.ExecCmd(t, hermesContainerName, command, success)
+}
+
+// ExecPriceFeederCmd executes command on the price-feeder container.
+func (m *Manager) ExecPriceFeederCmd(t *testing.T, command []string, success string) (bytes.Buffer, bytes.Buffer, error) {
+	return m.ExecCmd(t, pricefeederContainerName, command, success)
 }
 
 // ExecCmd executes command by running it on the node container (specified by containerName)
@@ -196,6 +202,41 @@ func (m *Manager) RunHermesResource(chainAID, junoARelayerNodeName, junoAValMnem
 	}
 	m.resources[hermesContainerName] = hermesResource
 	return hermesResource, nil
+}
+
+// RunPriceFeederResource runs a Price-Feedee container. Returns the container resource and error if any.
+func (m *Manager) RunPriceFeederResource(chainAID, junoAValMnemonic, pricefeederCfgPath string) (*dockertest.Resource, error) {
+	pricefeederResource, err := m.pool.RunWithOptions(
+		&dockertest.RunOptions{
+			Name:       pricefeederContainerName,
+			Repository: m.RelayerRepository,
+			Tag:        m.RelayerTag,
+			NetworkID:  m.network.Network.ID,
+			Cmd: []string{
+				"start",
+			},
+			User: "root:root",
+			Mounts: []string{
+				fmt.Sprintf("%s/:/root/price-feeder", pricefeederCfgPath),
+			},
+			ExposedPorts: []string{
+				"3031",
+			},
+			PortBindings: map[docker.Port][]docker.PortBinding{
+				"7171/tcp": {{HostIP: "", HostPort: "7171"}},
+			},
+			Env: []string{
+				fmt.Sprintf("JUNO_A_E2E_CHAIN_ID=%s", chainAID),
+				fmt.Sprintf("JUNO_A_E2E_VAL_MNEMONIC=%s", junoAValMnemonic),
+			},
+		},
+		noRestart,
+	)
+	if err != nil {
+		return nil, err
+	}
+	m.resources[hermesContainerName] = pricefeederResource
+	return pricefeederResource, nil
 }
 
 // RunNodeResource runs a node container. Assings containerName to the container.

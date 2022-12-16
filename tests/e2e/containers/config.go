@@ -31,6 +31,9 @@ const (
 	// Hermes repo/version for relayer
 	relayerRepository = "ghcr.io/cosmoscontracts/hermes"
 	relayerTag        = "0.13.0"
+	// Price-Feeder tool repo/tag for Oracle
+	pricefeederRepository = "ghcr.io/cosmoscontracts/price-feeder"
+	pricefeederTag        = "0.0.1"
 )
 
 // Returns ImageConfig needed for running e2e test.

@@ -109,6 +109,15 @@ func (s *IntegrationTestSuite) checkBalance(coins sdk.Coins, expected sdk.Coins)
 	}
 }
 
+// TestOracle tests that the Oracle module and Price-feeder work as expected.
+func (s *IntegrationTestSuite) TestOracle() {
+	if s.skipIBC {
+		s.T().Skip("Skipping IBC tests")
+	}
+	chainA := s.configurer.GetChainConfig(0)
+
+}
+
 //TODO
 
 // func (s *IntegrationTestSuite) TestStateSync() {
