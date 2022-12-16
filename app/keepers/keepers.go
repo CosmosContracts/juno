@@ -74,6 +74,7 @@ import (
 	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 
+	oraclebindings "github.com/CosmosContracts/juno/v12/wasmbinding"
 	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
 	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
@@ -350,7 +351,6 @@ func NewAppKeepers(
 
 	// Setup wasm bindings
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
-	wasmOpts = append(tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper), wasmOpts...)
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
@@ -363,6 +363,8 @@ func NewAppKeepers(
 			Stargate: wasmkeeper.AcceptListStargateQuerier(accepted, bApp.GRPCQueryRouter(), appCodec),
 		})
 	wasmOpts = append(wasmOpts, querierOpts)
+	wasmOpts = append(oraclebindings.RegisterCustomPlugins(appKeepers.OracleKeeper), wasmOpts...)
+	wasmOpts = append(tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper), wasmOpts...)
 
 	appKeepers.WasmKeeper = wasm.NewKeeper(
 		appCodec,
