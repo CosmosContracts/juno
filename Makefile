@@ -172,10 +172,6 @@ e2e-remove-resources:
 	tests/e2e/scripts/run/remove_stale_resources.sh
 
 .PHONY: test-mutation
-<<<<<<< HEAD
-
-=======
->>>>>>> juno/oracle
 
 ###############################################################################
 ###                                  Proto                                  ###

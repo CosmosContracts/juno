@@ -45,12 +45,7 @@ quote = "USDT"
 base = "ATOM"
 providers = [
   "kraken",
-<<<<<<< HEAD
   "osmosis"
-=======
-  "osmosis",
-  "bitget"
->>>>>>> juno/oracle
 ]
 quote = "USD"
 
