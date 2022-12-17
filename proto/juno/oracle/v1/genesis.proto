@@ -22,6 +22,7 @@ message GenesisState {
       [(gogoproto.nullable) = false];
   repeated AggregateExchangeRateVote aggregate_exchange_rate_votes = 6
       [(gogoproto.nullable) = false];
+  repeated PriceHistory price_history = 7 [ (gogoproto.nullable) = false ];
 }
 
 // FeederDelegation is the address for where oracle feeder authority are

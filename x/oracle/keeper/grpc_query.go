@@ -249,3 +249,78 @@ func (q querier) AggregateVotes(
 		AggregateVotes: votes,
 	}, nil
 }
+
+// PriceTrackingLists queries all price tracking lists
+func (q querier) PriceTrackingLists(
+	goCtx context.Context,
+	req *types.QueryPriceTrackingLists,
+) (*types.QueryPriceTrackingListsRespone, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	params := q.GetParams(ctx)
+
+	var result []string
+	for _, trackingDenom := range params.PriceTrackingList {
+		result = append(result, trackingDenom.SymbolDenom)
+	}
+
+	return &types.QueryPriceTrackingListsRespone{
+		PriceTrakingLists: result,
+	}, nil
+}
+
+func (q querier) PriceHistoryAt(
+	goCtx context.Context,
+	req *types.QueryPriceHistoryAt,
+) (*types.QueryPriceHistoryAtRespone, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	found, _ := q.isInTrackingList(ctx, req.Denom)
+	if !found {
+		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
+	}
+
+	priceHistoryEntry, err := q.GetDenomPriceHistoryWithBlockHeight(ctx, req.Denom, int64(req.BlockHeight))
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryPriceHistoryAtRespone{
+		PriceHistoryEntry: priceHistoryEntry,
+	}, nil
+}
+
+func (q querier) AllPriceHistory(
+	goCtx context.Context,
+	req *types.QueryAllPriceHistory,
+) (*types.QueryAllPriceHistoryRespone, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	found, denom := q.isInTrackingList(ctx, req.Denom)
+	if !found {
+		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
+	}
+
+	var priceHistory types.PriceHistory
+	var priceHistoryEntryLists []types.PriceHistoryEntry
+	q.IterateDenomPriceHistory(ctx, req.Denom, func(_ uint64, priceHistoryEntry types.PriceHistoryEntry) bool {
+		priceHistoryEntryLists = append(priceHistoryEntryLists, priceHistoryEntry)
+		return false
+	})
+
+	priceHistory.Denom = denom
+	priceHistory.PriceHistoryEntry = priceHistoryEntryLists
+
+	return &types.QueryAllPriceHistoryRespone{
+		PriceHistory: priceHistory,
+	}, nil
+}

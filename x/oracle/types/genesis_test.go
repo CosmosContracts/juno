@@ -10,7 +10,15 @@ import (
 
 func TestGenesisValidation(t *testing.T) {
 	// Valid state
-	genState := NewGenesisState(DefaultParams(), []ExchangeRateTuple{}, []FeederDelegation{}, []MissCounter{}, []AggregateExchangeRatePrevote{}, []AggregateExchangeRateVote{})
+	genState := NewGenesisState(
+		DefaultParams(),
+		[]ExchangeRateTuple{},
+		[]FeederDelegation{},
+		[]MissCounter{},
+		[]AggregateExchangeRatePrevote{},
+		[]AggregateExchangeRateVote{},
+		[]PriceHistory{},
+	)
 	require.NoError(t, ValidateGenesis(genState))
 
 	// Invalid Vote Period
@@ -67,6 +75,7 @@ func TestGetGenesisStateFromAppState(t *testing.T) {
 		MissCounters:                  []MissCounter{},
 		AggregateExchangeRatePrevotes: []AggregateExchangeRatePrevote{},
 		AggregateExchangeRateVotes:    []AggregateExchangeRateVote{},
+		PriceHistory:                  []PriceHistory{},
 	}
 
 	bz, err := json.Marshal(emptyGenesis)

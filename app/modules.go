@@ -265,7 +265,6 @@ func orderInitBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		oracletypes.ModuleName,
-		tokenfactorytypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,

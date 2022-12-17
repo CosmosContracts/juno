@@ -14,6 +14,9 @@ const (
 
 	// QuerierRoute is the query router key for the oracle module
 	QuerierRoute = ModuleName
+
+	// RouterKey is the msg router key for the oracle module
+	RouterKey = ModuleName
 )
 
 // KVStore key prefixes
@@ -23,7 +26,15 @@ var (
 	KeyPrefixMissCounter                  = []byte{0x03} // prefix for each key to a miss counter
 	KeyPrefixAggregateExchangeRatePrevote = []byte{0x04} // prefix for each key to a aggregate prevote
 	KeyPrefixAggregateExchangeRateVote    = []byte{0x05} // prefix for each key to a aggregate vote
+	KeyPrefixPriceHistory                 = []byte{0x06} // prefix for price history
 )
+
+// Store price history <Prefix> <baseDenom> <votePeriodCount> <PriceHistoryEntry>
+func GetPriceHistoryKey(symbolDenom string) (key []byte) {
+	key = append(key, KeyPrefixPriceHistory...)
+	key = append(key, []byte(symbolDenom)...)
+	return key
+}
 
 // GetExchangeRateKey - stored by *denom*
 func GetExchangeRateKey(denom string) (key []byte) {

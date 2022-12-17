@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"time"
 
 	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,6 +19,7 @@ const (
 	slashFractionKey            = "slash_fraction"
 	slashWindowKey              = "slash_window"
 	minValidPerWindowKey        = "min_valid_per_window"
+	priceTrackingDurationKey    = "price_tracking_duration"
 )
 
 // GenVotePeriod produces a randomized VotePeriod in the range of [5, 100]
@@ -53,6 +55,10 @@ func GenSlashWindow(r *rand.Rand) uint64 {
 // GenMinValidPerWindow produces a randomized MinValidPerWindow in the range of [0, 0.500]
 func GenMinValidPerWindow(r *rand.Rand) sdk.Dec {
 	return sdk.ZeroDec().Add(sdk.NewDecWithPrec(int64(r.Intn(500)), 3))
+}
+
+func GenPriceTrackingDuration(r *rand.Rand) time.Duration {
+	return time.Second * time.Duration((100 + r.Int63n(1_000_000)))
 }
 
 // RandomizedGenState generates a random GenesisState for oracle
@@ -99,6 +105,12 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { minValidPerWindow = GenMinValidPerWindow(r) },
 	)
 
+	var priceTrackingDuration time.Duration
+	simState.AppParams.GetOrGenerate(
+		simState.Cdc, priceTrackingDurationKey, &priceTrackingDuration, simState.Rand,
+		func(r *rand.Rand) { priceTrackingDuration = GenPriceTrackingDuration(r) },
+	)
+
 	oracleGenesis := types.NewGenesisState(
 		types.Params{
 			VotePeriod:               votePeriod,
@@ -111,12 +123,17 @@ func RandomizedGenState(simState *module.SimulationState) {
 			SlashFraction:     slashFraction,
 			SlashWindow:       slashWindow,
 			MinValidPerWindow: minValidPerWindow,
+			PriceTrackingList: types.DenomList{
+				{SymbolDenom: types.JunoSymbol, BaseDenom: types.JunoDenom},
+			},
+			PriceTrackingDuration: priceTrackingDuration,
 		},
 		[]types.ExchangeRateTuple{},
 		[]types.FeederDelegation{},
 		[]types.MissCounter{},
 		[]types.AggregateExchangeRatePrevote{},
 		[]types.AggregateExchangeRateVote{},
+		[]types.PriceHistory{},
 	)
 
 	bz, err := json.MarshalIndent(&oracleGenesis.Params, "", " ")

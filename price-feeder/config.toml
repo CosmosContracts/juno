@@ -46,7 +46,7 @@ base = "ATOM"
 providers = [
   "kraken",
   "osmosis",
-  "bitgen"
+  "bitget"
 ]
 quote = "USD"
 
