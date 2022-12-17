@@ -213,11 +213,11 @@ func (m *Manager) RunPriceFeederResource(pricefeederPass, pricefeederCfgPath str
 			Tag:        m.PriceFeederTag,
 			NetworkID:  m.network.Network.ID,
 			Cmd: []string{
-				"price-feeder /price-feeder/config.toml",
+				"price-feeder/config.toml",
 			},
 			User: "root:root",
 			Mounts: []string{
-				fmt.Sprintf("%s/:/price-feeder", pricefeederCfgPath),
+				fmt.Sprintf("%s:/price-feeder", pricefeederCfgPath),
 			},
 			ExposedPorts: []string{
 				"7171",

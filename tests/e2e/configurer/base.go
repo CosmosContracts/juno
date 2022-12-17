@@ -188,8 +188,7 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 	if err != nil {
 		return err
 	}
-	pricefeederPass := "keyring-testing"
-
+	pricefeederPass := "test"
 	pricefeederResource, err := bc.containerManager.RunPriceFeederResource(
 		pricefeederPass,
 		pricefeederCfgPath,
@@ -198,7 +197,7 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 		return err
 	}
 
-	endpoint := fmt.Sprintf("http://%s/state", pricefeederResource.GetHostPort("3031/tcp"))
+	endpoint := fmt.Sprintf("http://%s/state", pricefeederResource.GetHostPort("7171/tcp"))
 
 	require.Eventually(bc.t, func() bool {
 		resp, err := http.Get(endpoint)

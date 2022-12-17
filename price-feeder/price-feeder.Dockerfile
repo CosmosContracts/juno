@@ -17,5 +17,5 @@ FROM alpine:3.17
 RUN apk add bash curl jq
 COPY --from=builder /go/bin/price-feeder /usr/local/bin/
 EXPOSE 7171
-CMD ["price-feeder"]
+ENTRYPOINT [ "price-feeder" ]
 STOPSIGNAL SIGTERM

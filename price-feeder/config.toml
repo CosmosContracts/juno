@@ -88,9 +88,9 @@ providers = [
 quote = "USDT"
 
 [account]
-address = "juno1pry5cux508t55pf00pryl6hp09cfahml5k6w8m"
-chain_id = "test-1"
-validator = "junovaloper1pry5cux508t55pf00pryl6hp09cfahmlttvpuz"
+address = "juno13p7ssr4w5eqmh2kwcjyakf4a3qk3epjm09faty"
+chain_id = "juno-test-a"
+validator = "junovaloper13p7ssr4w5eqmh2kwcjyakf4a3qk3epjmscljsa"
 prefix = "juno"
 
 [keyring]
