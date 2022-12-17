@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "juno/oracle/v1/oracle.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/oracle/types";
 
@@ -263,13 +264,17 @@ message QueryPriceHistoryAt{
 }
 
 message QueryPriceHistoryAtRespone{
-  PriceHistoryEntry price_history_entry = 1 [(gogoproto.nullable) = false];
+  Denom denom = 1 [(gogoproto.nullable) = false];
+  PriceHistoryEntry price_history_entry = 2 [(gogoproto.nullable) = false];
 }
 
 message QueryAllPriceHistory{
   string denom = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 message QueryAllPriceHistoryRespone{
-  PriceHistory price_history = 1 [(gogoproto.nullable) = false];
-}
+  Denom denom = 1 [(gogoproto.nullable) = false];
+  repeated PriceHistoryEntry price_history_entrys = 2 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 3;
+} 
