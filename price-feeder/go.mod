@@ -19,7 +19,11 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/tendermint/spm v0.1.9
 	github.com/tendermint/tendermint v0.34.24
+<<<<<<< HEAD
 	golang.org/x/sync v0.1.0
+=======
+	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
+>>>>>>> juno/oracle
 	google.golang.org/grpc v1.50.1
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -70,8 +74,12 @@ require (
 	github.com/cosmos/gogoproto v1.4.3 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.4 // indirect
+<<<<<<< HEAD
 	github.com/cosmos/ibc-go/v4 v4.2.0 // indirect
 	github.com/cosmos/interchain-accounts v0.2.5 // indirect
+=======
+	github.com/cosmos/ibc-go/v3 v3.4.0 // indirect
+>>>>>>> juno/oracle
 	github.com/cosmos/ledger-cosmos-go v0.12.0 // indirect
 	github.com/creachadair/taskgroup v0.3.2 // indirect
 	github.com/curioswitch/go-reassign v0.2.0 // indirect

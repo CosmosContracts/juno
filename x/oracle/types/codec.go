@@ -6,6 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 var (
@@ -32,14 +33,26 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgAggregateExchangeRatePrevote{}, "juno/oracle/MsgAggregateExchangeRatePrevote", nil)
 	cdc.RegisterConcrete(&MsgAggregateExchangeRateVote{}, "juno/oracle/MsgAggregateExchangeRateVote", nil)
 	cdc.RegisterConcrete(&MsgDelegateFeedConsent{}, "juno/oracle/MsgDelegateFeedConsent", nil)
+
+	cdc.RegisterConcrete(&AddTrackingPriceHistoryProposal{}, "juno/oracle/AddTrackingPriceHistoryProposal", nil)
+	cdc.RegisterConcrete(&AddTrackingPriceHistoryWithAcceptListProposal{}, "juno/oracle/AddTrackingPriceHistoryWithAcceptListProposal", nil)
+	cdc.RegisterConcrete(&RemoveTrackingPriceHistoryProposal{}, "juno/oracle/RemoveTrackingPriceHistoryProposal", nil)
 }
 
 // RegisterInterfaces registers the x/oracle interfaces types with the interface registry
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterImplementations((*sdk.Msg)(nil),
+	registry.RegisterImplementations(
+		(*sdk.Msg)(nil),
 		&MsgDelegateFeedConsent{},
 		&MsgAggregateExchangeRatePrevote{},
 		&MsgAggregateExchangeRateVote{},
+	)
+
+	registry.RegisterImplementations(
+		(*govtypes.Content)(nil),
+		&AddTrackingPriceHistoryProposal{},
+		&AddTrackingPriceHistoryWithAcceptListProposal{},
+		&RemoveTrackingPriceHistoryProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

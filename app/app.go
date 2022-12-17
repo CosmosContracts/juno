@@ -59,6 +59,7 @@ import (
 	v10 "github.com/CosmosContracts/juno/v12/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v12/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v12/app/upgrades/v12"
+	oracleclient "github.com/CosmosContracts/juno/v12/x/oracle/client"
 )
 
 const (
@@ -173,6 +174,9 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		upgradeclient.CancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
+		oracleclient.ProposalHandlerAddTrackingPriceHistory,
+		oracleclient.ProposalHandlerAddTrackingPriceHistoryWithAcceptList,
+		oracleclient.ProposalRemoveTrackingPriceHistory,
 	)
 
 	return govProposalHandlers

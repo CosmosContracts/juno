@@ -265,7 +265,10 @@ func orderInitBlockers() []string {
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		oracletypes.ModuleName,
+<<<<<<< HEAD
 		tokenfactorytypes.ModuleName,
+=======
+>>>>>>> juno/oracle
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,

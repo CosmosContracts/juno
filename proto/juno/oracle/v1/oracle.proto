@@ -2,6 +2,8 @@ syntax = "proto3";
 package juno.oracle.v1;
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/oracle/types";
 
@@ -41,6 +43,17 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable)   = false
   ];
+  repeated Denom price_tracking_list = 9 [
+    (gogoproto.moretags)     = "yaml:\"price_tracking_list\"",
+    (gogoproto.castrepeated) = "DenomList",
+    (gogoproto.nullable)     = false
+  ];
+  google.protobuf.Duration price_tracking_duration = 10 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdduration) = true,
+    (gogoproto.jsontag) = "price_tracking_duration,omitempty",
+    (gogoproto.moretags) = "yaml:\"price_tracking_duration\""
+  ];
 }
 
 // Denom - the object to hold configurations of each denom
@@ -52,6 +65,32 @@ message Denom {
   string base_denom   = 1 [(gogoproto.moretags) = "yaml:\"base_denom\""];
   string symbol_denom = 2 [(gogoproto.moretags) = "yaml:\"symbol_denom\""];
   uint32 exponent     = 3 [(gogoproto.moretags) = "yaml:\"exponent\""];
+}
+
+message PriceHistoryEntry {
+  string price = 1 [
+    (gogoproto.moretags)   = "yaml:\"price\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
+  uint64 vote_period_count = 2;
+  google.protobuf.Timestamp price_update_time = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"price_update_time\""
+  ];
+}
+
+// History Price
+message PriceHistory {
+  Denom denom = 1 [
+    (gogoproto.moretags)     = "yaml:\"denom\"",
+    (gogoproto.nullable)     = false
+  ];
+  repeated PriceHistoryEntry price_history_entry = 2 [
+    (gogoproto.moretags)     = "yaml:\"price_history_entry\"",
+    (gogoproto.nullable)     = false
+  ];
 }
 
 // AggregateExchangeRatePrevote -
