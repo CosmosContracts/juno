@@ -1,0 +1,117 @@
+gas_adjustment = 1.5
+provider_min_override = true
+gas_price = "0.0001stake"
+fee_grant_address = ""
+
+[server]
+listen_addr = "0.0.0.0:7171"
+read_timeout = "20s"
+verbose_cors = true
+write_timeout = "20s"
+
+[[deviation_thresholds]]
+base = "USDT"
+threshold = "1.5"
+
+[[deviation_thresholds]]
+base = "ATOM"
+threshold = "1.5"
+
+[[deviation_thresholds]]
+base = "JUNO"
+threshold = "1.5"
+
+[[deviation_thresholds]]
+base = "USDC"
+threshold = "1.5"
+
+[[currency_pairs]]
+base = "USDT"
+providers = [
+  "coinbase",
+  "crypto"
+]
+quote = "USD"
+
+[[currency_pairs]]
+base = "ATOM"
+providers = [
+  "okx",
+  "binance"
+]
+quote = "USDT"
+
+[[currency_pairs]]
+base = "ATOM"
+providers = [
+  "kraken",
+  "osmosis"
+]
+quote = "USD"
+
+[[currency_pairs]]
+base = "JUNO"
+providers = [
+  "osmosis",
+]
+quote = "USD"
+
+[[currency_pairs]]
+base = "JUNO"
+providers = [
+  "juno",
+]
+quote = "USD"
+
+[[currency_pairs]]
+base = "JUNO"
+providers = [
+  "bitget",
+]
+quote = "USDT"
+
+[[currency_pairs]]
+base = "JUNO"
+providers = [
+  "bitget",
+]
+quote = "USDT"
+
+
+[[currency_pairs]]
+base = "USDC"
+providers = [
+  "okx",
+  "bitget",
+  "kraken",
+]
+quote = "USDT"
+
+[account]
+address = "juno1pry5cux508t55pf00pryl6hp09cfahml5k6w8m"
+chain_id = "test-1"
+validator = "junovaloper1pry5cux508t55pf00pryl6hp09cfahmlttvpuz"
+prefix = "juno"
+
+[keyring]
+backend = "test"
+dir = "/home/ducnt/.juno"
+
+[rpc]
+grpc_endpoint = "localhost:9090"
+rpc_timeout = "100ms"
+tmrpc_endpoint = "http://localhost:26657"
+
+[telemetry]
+enable-hostname = true
+enable-hostname-label = true
+enable-service-label = true
+enabled = true
+global-labels = [["chain_id", "test-1"]]
+service-name = "price-feeder"
+prometheus-retention-time = 100
+
+[[provider_endpoints]]
+name = "binance"
+rest = "https://api1.binance.com"
+websocket = "stream.binance.com:9443"
