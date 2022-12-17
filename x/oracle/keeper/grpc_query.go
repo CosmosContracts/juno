@@ -336,3 +336,37 @@ func (q querier) AllPriceHistory(
 		Pagination:         pageRes,
 	}, nil
 }
+
+func (q querier) CurrentVotePeriodCount(
+	goCtx context.Context,
+	req *types.QueryCurrentVotePeriodCount,
+) (*types.QueryCurrentVotePeriodCountRespone, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	found, _ := q.isInTrackingList(ctx, req.Denom)
+	if !found {
+		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
+	}
+
+	store := ctx.KVStore(q.storeKey)
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(req.Denom))
+	iter := sdk.KVStoreReversePrefixIterator(priceHistoryStore, []byte{})
+
+	defer iter.Close()
+
+	var currentVotePeriodCount uint64
+	if iter.Valid() {
+		currentVotePeriodCount = sdk.BigEndianToUint64(iter.Key())
+	}
+
+	if currentVotePeriodCount == 0 {
+		return nil, status.Errorf(codes.Internal, "Denom %s not have price tracking data", req.Denom)
+	}
+
+	return &types.QueryCurrentVotePeriodCountRespone{
+		VotePeriodCount: currentVotePeriodCount,
+	}, nil
+}

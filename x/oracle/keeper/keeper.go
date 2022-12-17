@@ -144,7 +144,8 @@ func (k Keeper) IterateDenomPriceHistory(ctx sdk.Context, symbolDenom string, cb
 	// Get store
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.GetPriceHistoryKey(upperSymbolDenom))
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(upperSymbolDenom))
+	iter := sdk.KVStorePrefixIterator(priceHistoryStore, []byte{})
 
 	defer iter.Close()
 
