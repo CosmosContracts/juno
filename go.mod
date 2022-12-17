@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/CosmWasm/token-factory v0.0.0-20221024170206-1345f322c887
 	github.com/CosmWasm/wasmd v0.30.0
+	github.com/CosmWasm/wasmvm v1.1.1
 	github.com/cosmos/cosmos-sdk v0.45.11
 	github.com/cosmos/gaia/v8 v8.0.0-20221214153136-e8833fa991a8
 	github.com/cosmos/ibc-go/v4 v4.2.0
