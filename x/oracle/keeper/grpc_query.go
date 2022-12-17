@@ -288,7 +288,7 @@ func (q querier) PriceHistoryAt(
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
 
-	priceHistoryEntry, err := q.GetDenomPriceHistoryWithBlockHeight(ctx, req.Denom, int64(req.BlockHeight))
+	priceHistoryEntry, err := q.GetDenomPriceHistoryWithBlockHeight(ctx, req.Denom, req.BlockHeight)
 	if err != nil {
 		return nil, err
 	}

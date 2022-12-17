@@ -73,7 +73,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Set Price history
-func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, symbolDenom string, exchangeRate sdk.Dec, time time.Time, blockHeight int64) error {
+func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, symbolDenom string, exchangeRate sdk.Dec, time time.Time, blockHeight uint64) error {
 	// Check if not in tracking list
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	found, _ := k.isInTrackingList(ctx, upperSymbolDenom)
@@ -83,7 +83,7 @@ func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, symbolDenom string, exchan
 	}
 	// Calculate voting Period count
 	params := k.GetParams(ctx)
-	votingPeriodCount := (uint64(ctx.BlockHeight()) + 1) / params.VotePeriod
+	votingPeriodCount := (blockHeight + 1) / params.VotePeriod
 	if votingPeriodCount == 0 {
 		return sdkerrors.Wrap(types.ErrInvalidVotePeriod, "Voting period must be positive")
 	}
@@ -109,7 +109,7 @@ func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, symbolDenom string, exchan
 }
 
 // Get History Price from symbol denom
-func (k Keeper) GetDenomPriceHistoryWithBlockHeight(ctx sdk.Context, symbolDenom string, blockHeight int64) (types.PriceHistoryEntry, error) {
+func (k Keeper) GetDenomPriceHistoryWithBlockHeight(ctx sdk.Context, symbolDenom string, blockHeight uint64) (types.PriceHistoryEntry, error) {
 	var priceHistoryEntry types.PriceHistoryEntry
 	// Check if in tracking list
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
@@ -187,8 +187,6 @@ func (k Keeper) appendPriceHistory(ctx sdk.Context, symbolDenom string, priceHis
 
 	return nil
 }
-
-// Iterate all current price history
 
 // GetExchangeRate gets the consensus exchange rate of USD denominated in the
 // denom asset from the store.
