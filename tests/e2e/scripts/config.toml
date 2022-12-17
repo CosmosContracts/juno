@@ -95,7 +95,7 @@ prefix = "juno"
 
 [keyring]
 backend = "test"
-dir = "/home/ducnt/.juno"
+dir = "/home/<user>/.juno"
 
 [rpc]
 grpc_endpoint = "localhost:9090"
