@@ -10,8 +10,9 @@ import (
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/CosmosContracts/juno/v12/app"
-	junoApp "github.com/CosmosContracts/juno/v12/app"
 	"github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
 	"github.com/CosmosContracts/juno/v12/x/feeshare/types"
 )
@@ -19,15 +20,12 @@ import (
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	ctx         sdk.Context
-	app         *junoApp.App
-	queryClient types.QueryClient
-	msgServer   types.MsgServer
+	ctx               sdk.Context
+	app               *app.App
+	queryClient       types.QueryClient
+	feeShareMsgServer types.MsgServer
+	wasmMsgServer     wasmtypes.MsgServer
 }
-
-const (
-	initialPower = int64(10000000000)
-)
 
 func (s *IntegrationTestSuite) SetupTest() {
 	isCheckTx := false
@@ -42,7 +40,8 @@ func (s *IntegrationTestSuite) SetupTest() {
 	types.RegisterQueryServer(queryHelper, keeper.NewQuerier(s.app.FeeShareKeeper))
 
 	s.queryClient = types.NewQueryClient(queryHelper)
-	s.msgServer = s.app.FeeShareKeeper
+	s.feeShareMsgServer = s.app.FeeShareKeeper
+	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl(wasmkeeper.NewDefaultPermissionKeeper(s.app.WasmKeeper))
 }
 
 func TestKeeperTestSuite(t *testing.T) {
