@@ -17,6 +17,7 @@ require (
 	github.com/prometheus/client_golang v1.14.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
+	github.com/strangelove-ventures/packet-forward-middleware/v4 v4.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.8.1
 	github.com/tendermint/tendermint v0.34.24
 	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
@@ -162,6 +163,8 @@ replace (
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	// use cosmos-flavored protocol buffers
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	// packet forward middleware compatible with ibc v4
+	github.com/strangelove-ventures/packet-forward-middleware/v4 => github.com/notional-labs/packet-forward-middleware/v4 v4.0.0-20221218190023-d9c0ee1cebc6
 	// use grpc version that's compatible with cosmos-flavored protocol buffers
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
