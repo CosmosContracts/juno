@@ -34,22 +34,17 @@ func (s *IntegrationTestSuite) TestStoreCode() {
 	s.Require().Equal(wasmtypes.DefaultParams().InstantiateDefaultPermission.With(sender), info.InstantiateConfig)
 }
 
-func (s *IntegrationTestSuite) TestGetContractAdminOrCreatorAddress() {
-	_, _, sender := testdata.KeyTestPubAddr()
-	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
+func (s *IntegrationTestSuite) InstantiateContract(sender string, admin string) string {
 	msgStoreCode := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
 		m.WASMByteCode = wasmContract
-		m.Sender = sender.String()
+		m.Sender = sender
 	})
 	_, err := s.app.MsgServiceRouter().Handler(msgStoreCode)(s.ctx, msgStoreCode)
 	s.Require().NoError(err)
 
 	msgInstantiate := wasmtypes.MsgInstantiateContractFixture(func(m *wasmtypes.MsgInstantiateContract) {
-		m.Sender = sender.String()
-		m.Admin = ""
+		m.Sender = sender
+		m.Admin = admin
 		m.Msg = []byte(`{}`)
 	})
 	resp, err := s.app.MsgServiceRouter().Handler(msgInstantiate)(s.ctx, msgInstantiate)
@@ -58,25 +53,20 @@ func (s *IntegrationTestSuite) TestGetContractAdminOrCreatorAddress() {
 	s.Require().NoError(s.app.AppCodec().Unmarshal(resp.Data, &resultNoAdmin))
 	contractInfo := s.app.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(resultNoAdmin.Address))
 	s.Require().Equal(contractInfo.CodeID, uint64(1))
-	s.Require().Equal(contractInfo.Admin, "")
-	s.Require().Equal(contractInfo.Creator, sender.String())
+	s.Require().Equal(contractInfo.Admin, admin)
+	s.Require().Equal(contractInfo.Creator, sender)
 
-	msgInstantiateWithAdmin := wasmtypes.MsgInstantiateContractFixture(func(m *wasmtypes.MsgInstantiateContract) {
-		m.Sender = sender.String()
-		m.Admin = admin.String()
-		m.Msg = []byte(`{}`)
-	})
-	resp, err = s.app.MsgServiceRouter().Handler(msgInstantiateWithAdmin)(s.ctx, msgInstantiateWithAdmin)
-	s.Require().NoError(err)
-	var resultWithAdmin wasmtypes.MsgInstantiateContractResponse
-	s.Require().NoError(s.app.AppCodec().Unmarshal(resp.Data, &resultWithAdmin))
-	contractInfo = s.app.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(resultWithAdmin.Address))
-	s.Require().Equal(contractInfo.CodeID, uint64(1))
-	s.Require().Equal(contractInfo.Admin, admin.String())
-	s.Require().Equal(contractInfo.Creator, sender.String())
+	return resultNoAdmin.Address
+}
 
-	noAdminContractAddress := resultNoAdmin.Address
-	withAdminContractAddress := resultWithAdmin.Address
+func (s *IntegrationTestSuite) TestGetContractAdminOrCreatorAddress() {
+	_, _, sender := testdata.KeyTestPubAddr()
+	_, _, admin := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	noAdminContractAddress := s.InstantiateContract(sender.String(), "")
+	withAdminContractAddress := s.InstantiateContract(sender.String(), admin.String())
 
 	for _, tc := range []struct {
 		desc            string
@@ -120,26 +110,7 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 	_, _, sender := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
-	msgStoreCode := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
-		m.WASMByteCode = wasmContract
-		m.Sender = sender.String()
-	})
-	_, err := s.app.MsgServiceRouter().Handler(msgStoreCode)(s.ctx, msgStoreCode)
-	s.Require().NoError(err)
-
-	msgInstantiate := wasmtypes.MsgInstantiateContractFixture(func(m *wasmtypes.MsgInstantiateContract) {
-		m.Sender = sender.String()
-		m.Admin = ""
-		m.Msg = []byte(`{}`)
-	})
-	resp, err := s.app.MsgServiceRouter().Handler(msgInstantiate)(s.ctx, msgInstantiate)
-	s.Require().NoError(err)
-	var resultNoAdmin wasmtypes.MsgInstantiateContractResponse
-	s.Require().NoError(s.app.AppCodec().Unmarshal(resp.Data, &resultNoAdmin))
-	contractInfo := s.app.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(resultNoAdmin.Address))
-	s.Require().Equal(contractInfo.CodeID, uint64(1))
-	s.Require().Equal(contractInfo.Admin, "")
-	s.Require().Equal(contractInfo.Creator, sender.String())
+	contractAddress := s.InstantiateContract(sender.String(), "")
 
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
@@ -152,7 +123,7 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 		{
 			desc: "Success",
 			msg: &types.MsgRegisterFeeShare{
-				ContractAddress:   resultNoAdmin.Address,
+				ContractAddress:   contractAddress,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: withdrawer.String(),
 			},
@@ -172,7 +143,7 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 		{
 			desc: "Invalid deployer address",
 			msg: &types.MsgRegisterFeeShare{
-				ContractAddress:   resultNoAdmin.Address,
+				ContractAddress:   contractAddress,
 				DeployerAddress:   "Invalid",
 				WithdrawerAddress: withdrawer.String(),
 			},
@@ -182,7 +153,7 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 		{
 			desc: "Invalid withdrawer address",
 			msg: &types.MsgRegisterFeeShare{
-				ContractAddress:   resultNoAdmin.Address,
+				ContractAddress:   contractAddress,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: "Invalid",
 			},
@@ -199,6 +170,100 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 				s.Require().Equal(resp, tc.resp)
 			} else {
 				resp, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, tc.msg)
+				s.Require().Error(err)
+				s.Require().Nil(resp)
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestUpdateFeeShare() {
+	_, _, sender := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	contractAddress := s.InstantiateContract(sender.String(), "")
+	_, _, withdrawer := testdata.KeyTestPubAddr()
+
+	contractAddressNoRegisFeeShare := s.InstantiateContract(sender.String(), "")
+	s.Require().NotEqual(contractAddress, contractAddressNoRegisFeeShare)
+
+	// RegsisFeeShare
+	goCtx := sdk.WrapSDKContext(s.ctx)
+	msg := &types.MsgRegisterFeeShare{
+		ContractAddress:   contractAddress,
+		DeployerAddress:   sender.String(),
+		WithdrawerAddress: withdrawer.String(),
+	}
+	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
+	s.Require().NoError(err)
+	_, _, newWithdrawer := testdata.KeyTestPubAddr()
+	s.Require().NotEqual(withdrawer, newWithdrawer)
+
+	for _, tc := range []struct {
+		desc      string
+		msg       *types.MsgUpdateFeeShare
+		res       *types.MsgCancelFeeShareResponse
+		shouldErr bool
+	}{
+		{
+			desc: "Success",
+			msg: &types.MsgUpdateFeeShare{
+				ContractAddress:   contractAddress,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: newWithdrawer.String(),
+			},
+			res:       &types.MsgCancelFeeShareResponse{},
+			shouldErr: false,
+		},
+		{
+			desc: "Invalid - contract not regis",
+			msg: &types.MsgUpdateFeeShare{
+				ContractAddress:   contractAddressNoRegisFeeShare,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: newWithdrawer.String(),
+			},
+			res:       nil,
+			shouldErr: true,
+		},
+		{
+			desc: "Invalid - Invalid DeployerAddress",
+			msg: &types.MsgUpdateFeeShare{
+				ContractAddress:   contractAddress,
+				DeployerAddress:   "Invalid",
+				WithdrawerAddress: newWithdrawer.String(),
+			},
+			res:       nil,
+			shouldErr: true,
+		},
+		{
+			desc: "Invalid - Invalid WithdrawerAddress",
+			msg: &types.MsgUpdateFeeShare{
+				ContractAddress:   contractAddress,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: "Invalid",
+			},
+			res:       nil,
+			shouldErr: true,
+		},
+		{
+			desc: "Invalid - Invalid WithdrawerAddress not change",
+			msg: &types.MsgUpdateFeeShare{
+				ContractAddress:   contractAddress,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: withdrawer.String(),
+			},
+			res:       nil,
+			shouldErr: true,
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			goCtx := sdk.WrapSDKContext(s.ctx)
+			if !tc.shouldErr {
+				_, err := s.feeShareMsgServer.UpdateFeeShare(goCtx, tc.msg)
+				s.Require().NoError(err)
+			} else {
+				resp, err := s.feeShareMsgServer.UpdateFeeShare(goCtx, tc.msg)
 				s.Require().Error(err)
 				s.Require().Nil(resp)
 			}

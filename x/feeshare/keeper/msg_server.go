@@ -120,7 +120,6 @@ func (k Keeper) UpdateFeeShare(
 	msg *types.MsgUpdateFeeShare,
 ) (*types.MsgUpdateFeeShareResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	params := k.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil, types.ErrFeeShareDisabled
