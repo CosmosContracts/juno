@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -36,8 +37,8 @@ func (s *IntegrationTestSuite) TestStoreCode() {
 func (s *IntegrationTestSuite) TestGetContractAdminOrCreatorAddress() {
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-	s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
 	msgStoreCode := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
 		m.WASMByteCode = wasmContract
@@ -110,6 +111,96 @@ func (s *IntegrationTestSuite) TestGetContractAdminOrCreatorAddress() {
 			} else {
 				_, err := s.app.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
 				s.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestRegisterFeeShare() {
+	_, _, sender := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	msgStoreCode := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
+		m.WASMByteCode = wasmContract
+		m.Sender = sender.String()
+	})
+	_, err := s.app.MsgServiceRouter().Handler(msgStoreCode)(s.ctx, msgStoreCode)
+	s.Require().NoError(err)
+
+	msgInstantiate := wasmtypes.MsgInstantiateContractFixture(func(m *wasmtypes.MsgInstantiateContract) {
+		m.Sender = sender.String()
+		m.Admin = ""
+		m.Msg = []byte(`{}`)
+	})
+	resp, err := s.app.MsgServiceRouter().Handler(msgInstantiate)(s.ctx, msgInstantiate)
+	s.Require().NoError(err)
+	var resultNoAdmin wasmtypes.MsgInstantiateContractResponse
+	s.Require().NoError(s.app.AppCodec().Unmarshal(resp.Data, &resultNoAdmin))
+	contractInfo := s.app.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(resultNoAdmin.Address))
+	s.Require().Equal(contractInfo.CodeID, uint64(1))
+	s.Require().Equal(contractInfo.Admin, "")
+	s.Require().Equal(contractInfo.Creator, sender.String())
+
+	_, _, withdrawer := testdata.KeyTestPubAddr()
+
+	for _, tc := range []struct {
+		desc      string
+		msg       *types.MsgRegisterFeeShare
+		resp      *types.MsgRegisterFeeShareResponse
+		shouldErr bool
+	}{
+		{
+			desc: "Success",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   resultNoAdmin.Address,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: withdrawer.String(),
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: false,
+		},
+		{
+			desc: "Invalid contract address",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   "Invalid",
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: withdrawer.String(),
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: true,
+		},
+		{
+			desc: "Invalid deployer address",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   resultNoAdmin.Address,
+				DeployerAddress:   "Invalid",
+				WithdrawerAddress: withdrawer.String(),
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: true,
+		},
+		{
+			desc: "Invalid withdrawer address",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   resultNoAdmin.Address,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: "Invalid",
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: true,
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			goCtx := sdk.WrapSDKContext(s.ctx)
+			if !tc.shouldErr {
+				resp, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, tc.msg)
+				s.Require().NoError(err)
+				s.Require().Equal(resp, tc.resp)
+			} else {
+				resp, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, tc.msg)
+				s.Require().Error(err)
+				s.Require().Nil(resp)
 			}
 		})
 	}
