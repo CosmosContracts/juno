@@ -13,7 +13,7 @@ import (
 //go:embed testdata/reflect.wasm
 var wasmContract []byte
 
-func (s *IntegrationTestSuite) TestStoreCode() {
+func (s *IntegrationTestSuite) StoreCode() {
 	_, _, sender := testdata.KeyTestPubAddr()
 	msg := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
 		m.WASMByteCode = wasmContract
@@ -49,14 +49,14 @@ func (s *IntegrationTestSuite) InstantiateContract(sender string, admin string) 
 	})
 	resp, err := s.app.MsgServiceRouter().Handler(msgInstantiate)(s.ctx, msgInstantiate)
 	s.Require().NoError(err)
-	var resultNoAdmin wasmtypes.MsgInstantiateContractResponse
-	s.Require().NoError(s.app.AppCodec().Unmarshal(resp.Data, &resultNoAdmin))
-	contractInfo := s.app.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(resultNoAdmin.Address))
+	var result wasmtypes.MsgInstantiateContractResponse
+	s.Require().NoError(s.app.AppCodec().Unmarshal(resp.Data, &result))
+	contractInfo := s.app.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(result.Address))
 	s.Require().Equal(contractInfo.CodeID, uint64(1))
 	s.Require().Equal(contractInfo.Admin, admin)
 	s.Require().Equal(contractInfo.Creator, sender)
 
-	return resultNoAdmin.Address
+	return result.Address
 }
 
 func (s *IntegrationTestSuite) TestGetContractAdminOrCreatorAddress() {
