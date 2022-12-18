@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"strings"
+
 	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -31,6 +33,10 @@ func handleAddTrackingPriceHistoryProposal(ctx sdk.Context, k Keeper, p types.Ad
 	if err := p.ValidateBasic(); err != nil {
 		return err
 	}
+
+	for i, _ := range p.TrackingList {
+		p.TrackingList[i].SymbolDenom = strings.ToUpper(p.TrackingList[i].SymbolDenom)
+	}
 	// Get params
 	params := k.GetParams(ctx)
 	// Check if not in accept list
@@ -39,7 +45,7 @@ func handleAddTrackingPriceHistoryProposal(ctx sdk.Context, k Keeper, p types.Ad
 	if !isSubset {
 		return sdkerrors.Wrap(types.ErrUnknownDenom, "Denom not in accept list")
 	}
-	// Check if already in tracking list then add to tracking list
+	// Check if not in tracking list then add to tracking list
 	currentTrackingList := params.PriceTrackingList
 	unSubList, _, isSubset := isSubSet(currentTrackingList, p.TrackingList)
 	if !isSubset {
@@ -58,6 +64,10 @@ func handleAddTrackingPriceHistoryWithAcceptListProposal(ctx sdk.Context, k Keep
 	if err := p.ValidateBasic(); err != nil {
 		return err
 	}
+
+	for i, _ := range p.TrackingList {
+		p.TrackingList[i].SymbolDenom = strings.ToUpper(p.TrackingList[i].SymbolDenom)
+	}
 	// Get params
 	params := k.GetParams(ctx)
 	// Check if not in accept list then add to accept list
@@ -66,7 +76,7 @@ func handleAddTrackingPriceHistoryWithAcceptListProposal(ctx sdk.Context, k Keep
 	if !isSubset {
 		currentAcceptList = append(currentAcceptList, unSubList...)
 	}
-	// Check if already in tracking list then add to tracking list
+	// Check if not in tracking list then add to tracking list
 	currentTrackingList := params.PriceTrackingList
 	unSubList, _, isSubset = isSubSet(currentTrackingList, p.TrackingList)
 	if !isSubset {
@@ -85,6 +95,9 @@ func handleRemoveTrackingPriceHistoryProposal(ctx sdk.Context, k Keeper, p types
 	// Validate
 	if err := p.ValidateBasic(); err != nil {
 		return err
+	}
+	for i, _ := range p.RemoveTrackingList {
+		p.RemoveTrackingList[i].SymbolDenom = strings.ToUpper(p.RemoveTrackingList[i].SymbolDenom)
 	}
 	// Get params
 	params := k.GetParams(ctx)

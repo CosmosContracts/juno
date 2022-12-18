@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -274,6 +275,115 @@ func GetCmdQuerySlashWindow() *cobra.Command {
 		},
 	}
 
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdQueryPriceTrackingLists() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "price-tracking-lists",
+		Short: "Query current price tracking list",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.PriceTrackingLists(cmd.Context(), &types.QueryPriceTrackingLists{})
+			if err != nil {
+				return err
+			}
+			return util.PrintOrErr(res, err, clientCtx)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdQueryPriceHistoryAt() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "price-history-at [symbolDenom] [blockHeight]",
+		Short: "Query price history at specific block height",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			blockHeight, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			req := &types.QueryPriceHistoryAt{
+				Denom:       strings.ToUpper(args[0]),
+				BlockHeight: blockHeight,
+			}
+			res, err := queryClient.PriceHistoryAt(cmd.Context(), req)
+			return util.PrintOrErr(res, err, clientCtx)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdQueryCurrentVotePeriodCount() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "current-vote-period-count [denom]",
+		Short: "Query current vote period count",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			req := &types.QueryCurrentVotePeriodCount{
+				Denom: strings.ToUpper(args[0]),
+			}
+			res, err := queryClient.CurrentVotePeriodCount(cmd.Context(), req)
+			return util.PrintOrErr(res, err, clientCtx)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdQueryAllPriceHistory() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "all-price-history [denom]",
+		Short: "Show all price history storage on chain",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			req := &types.QueryAllPriceHistory{
+				Denom:      strings.ToUpper(args[0]),
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.AllPriceHistory(cmd.Context(), req)
+			return util.PrintOrErr(res, err, clientCtx)
+		},
+	}
+
+	flags.AddPaginationFlagsToCmd(cmd, cmd.Use)
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }

@@ -3,7 +3,9 @@ package keeper
 import (
 	"context"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -281,17 +283,18 @@ func (q querier) PriceHistoryAt(
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	found, _ := q.isInTrackingList(ctx, req.Denom)
+	found, denom := q.isInTrackingList(ctx, req.Denom)
 	if !found {
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
 
-	priceHistoryEntry, err := q.GetDenomPriceHistoryWithBlockHeight(ctx, req.Denom, int64(req.BlockHeight))
+	priceHistoryEntry, err := q.GetDenomPriceHistoryWithBlockHeight(ctx, req.Denom, req.BlockHeight)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.QueryPriceHistoryAtRespone{
+		Denom:             denom,
 		PriceHistoryEntry: priceHistoryEntry,
 	}, nil
 }
@@ -310,17 +313,60 @@ func (q querier) AllPriceHistory(
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
 
-	var priceHistory types.PriceHistory
-	var priceHistoryEntryLists []types.PriceHistoryEntry
-	q.IterateDenomPriceHistory(ctx, req.Denom, func(_ uint64, priceHistoryEntry types.PriceHistoryEntry) bool {
-		priceHistoryEntryLists = append(priceHistoryEntryLists, priceHistoryEntry)
-		return false
-	})
+	store := ctx.KVStore(q.storeKey)
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(req.Denom))
 
-	priceHistory.Denom = denom
-	priceHistory.PriceHistoryEntry = priceHistoryEntryLists
+	var priceHistoryEntrys []types.PriceHistoryEntry
+
+	pageRes, err := query.Paginate(priceHistoryStore, req.Pagination, func(key []byte, value []byte) error {
+		var priceHistoryEntry types.PriceHistoryEntry
+		if err := q.cdc.Unmarshal(value, &priceHistoryEntry); err != nil {
+			return err
+		}
+		priceHistoryEntrys = append(priceHistoryEntrys, priceHistoryEntry)
+		return nil
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
 	return &types.QueryAllPriceHistoryRespone{
-		PriceHistory: priceHistory,
+		Denom:              denom,
+		PriceHistoryEntrys: priceHistoryEntrys,
+		Pagination:         pageRes,
+	}, nil
+}
+
+func (q querier) CurrentVotePeriodCount(
+	goCtx context.Context,
+	req *types.QueryCurrentVotePeriodCount,
+) (*types.QueryCurrentVotePeriodCountRespone, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	found, _ := q.isInTrackingList(ctx, req.Denom)
+	if !found {
+		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
+	}
+
+	store := ctx.KVStore(q.storeKey)
+	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(req.Denom))
+	iter := sdk.KVStoreReversePrefixIterator(priceHistoryStore, []byte{})
+
+	defer iter.Close()
+
+	var currentVotePeriodCount uint64
+	if iter.Valid() {
+		currentVotePeriodCount = sdk.BigEndianToUint64(iter.Key())
+	}
+
+	if currentVotePeriodCount == 0 {
+		return nil, status.Errorf(codes.Internal, "Denom %s not have price tracking data", req.Denom)
+	}
+
+	return &types.QueryCurrentVotePeriodCountRespone{
+		VotePeriodCount: currentVotePeriodCount,
 	}, nil
 }
