@@ -1,0 +1,37 @@
+run:
+  tests: true
+
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - depguard
+    - dogsled
+    - errcheck
+    - goconst
+    - gocritic
+    - gofumpt
+    - goimports
+    - revive
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - nakedret
+    - prealloc
+    - exportloopref
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unused
+    - unparam
+    - misspell
+
+
+linters-settings:
+  gosec:
+    excludes:
+      - G404
