@@ -12,7 +12,7 @@ import (
 var _ types.MsgServer = &Keeper{}
 
 // GetContractAdminOrCreatorAddress ensures the deployer is the contract's admin OR creator if no admin is set for all msg_server feeshare functions.
-func (k Keeper) GetContractAdminOrCreatorAddress(ctx sdk.Context, contract sdk.AccAddress, deployer string) (feeShareAccessAddr sdk.AccAddress, errr error) {
+func (k Keeper) GetContractAdminOrCreatorAddress(ctx sdk.Context, contract sdk.AccAddress, deployer string) (sdk.AccAddress, error) {
 	var controllingAccount sdk.AccAddress
 
 	// Ensures deployer String is valid
