@@ -202,7 +202,7 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 	for _, tc := range []struct {
 		desc      string
 		msg       *types.MsgUpdateFeeShare
-		res       *types.MsgCancelFeeShareResponse
+		resp      *types.MsgCancelFeeShareResponse
 		shouldErr bool
 	}{
 		{
@@ -212,7 +212,7 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: newWithdrawer.String(),
 			},
-			res:       &types.MsgCancelFeeShareResponse{},
+			resp:      &types.MsgCancelFeeShareResponse{},
 			shouldErr: false,
 		},
 		{
@@ -222,7 +222,7 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: newWithdrawer.String(),
 			},
-			res:       nil,
+			resp:      nil,
 			shouldErr: true,
 		},
 		{
@@ -232,7 +232,7 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 				DeployerAddress:   "Invalid",
 				WithdrawerAddress: newWithdrawer.String(),
 			},
-			res:       nil,
+			resp:      nil,
 			shouldErr: true,
 		},
 		{
@@ -242,7 +242,7 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: "Invalid",
 			},
-			res:       nil,
+			resp:      nil,
 			shouldErr: true,
 		},
 		{
@@ -252,7 +252,7 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: withdrawer.String(),
 			},
-			res:       nil,
+			resp:      nil,
 			shouldErr: true,
 		},
 	} {
@@ -266,6 +266,73 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 				resp, err := s.feeShareMsgServer.UpdateFeeShare(goCtx, tc.msg)
 				s.Require().Error(err)
 				s.Require().Nil(resp)
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestCancelFeeShare() {
+	_, _, sender := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	contractAddress := s.InstantiateContract(sender.String(), "")
+	_, _, withdrawer := testdata.KeyTestPubAddr()
+
+	// RegsisFeeShare
+	goCtx := sdk.WrapSDKContext(s.ctx)
+	msg := &types.MsgRegisterFeeShare{
+		ContractAddress:   contractAddress,
+		DeployerAddress:   sender.String(),
+		WithdrawerAddress: withdrawer.String(),
+	}
+	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
+	s.Require().NoError(err)
+
+	for _, tc := range []struct {
+		desc      string
+		msg       *types.MsgCancelFeeShare
+		resp      *types.MsgCancelFeeShareResponse
+		shouldErr bool
+	}{
+		{
+			desc: "Success",
+			msg: &types.MsgCancelFeeShare{
+				ContractAddress: contractAddress,
+				DeployerAddress: sender.String(),
+			},
+			resp:      &types.MsgCancelFeeShareResponse{},
+			shouldErr: false,
+		},
+		{
+			desc: "Invalid - contract Address",
+			msg: &types.MsgCancelFeeShare{
+				ContractAddress: "Invalid",
+				DeployerAddress: sender.String(),
+			},
+			resp:      nil,
+			shouldErr: true,
+		},
+		{
+			desc: "Invalid - deployer Address",
+			msg: &types.MsgCancelFeeShare{
+				ContractAddress: contractAddress,
+				DeployerAddress: "Invalid",
+			},
+			resp:      nil,
+			shouldErr: true,
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			goCtx := sdk.WrapSDKContext(s.ctx)
+			if !tc.shouldErr {
+				resp, err := s.feeShareMsgServer.CancelFeeShare(goCtx, tc.msg)
+				s.Require().NoError(err)
+				s.Require().Equal(resp, tc.resp)
+			} else {
+				resp, err := s.feeShareMsgServer.CancelFeeShare(goCtx, tc.msg)
+				s.Require().Error(err)
+				s.Require().Equal(resp, tc.resp)
 			}
 		})
 	}
