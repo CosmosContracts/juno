@@ -34,7 +34,7 @@ func handleAddTrackingPriceHistoryProposal(ctx sdk.Context, k Keeper, p types.Ad
 		return err
 	}
 
-	for i, _ := range p.TrackingList {
+	for i := range p.TrackingList {
 		p.TrackingList[i].SymbolDenom = strings.ToUpper(p.TrackingList[i].SymbolDenom)
 	}
 	// Get params
@@ -65,7 +65,7 @@ func handleAddTrackingPriceHistoryWithAcceptListProposal(ctx sdk.Context, k Keep
 		return err
 	}
 
-	for i, _ := range p.TrackingList {
+	for i := range p.TrackingList {
 		p.TrackingList[i].SymbolDenom = strings.ToUpper(p.TrackingList[i].SymbolDenom)
 	}
 	// Get params
@@ -96,7 +96,7 @@ func handleRemoveTrackingPriceHistoryProposal(ctx sdk.Context, k Keeper, p types
 	if err := p.ValidateBasic(); err != nil {
 		return err
 	}
-	for i, _ := range p.RemoveTrackingList {
+	for i := range p.RemoveTrackingList {
 		p.RemoveTrackingList[i].SymbolDenom = strings.ToUpper(p.RemoveTrackingList[i].SymbolDenom)
 	}
 	// Get params
