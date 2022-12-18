@@ -159,16 +159,16 @@ func (k Keeper) UpdateFeeShare(
 			"invalid withdrawer address (%s)", err,
 		)
 	}
+	newWithdrawAddr, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid WithdrawerAddress %s", msg.WithdrawerAddress)
+	}
 
 	k.DeleteWithdrawerMap(ctx, withdrawAddr, contract)
-	k.SetWithdrawerMap(
-		ctx,
-		withdrawAddr,
-		contract,
-	)
+	k.SetWithdrawerMap(ctx, newWithdrawAddr, contract)
 
 	// update feeshare
-	feeshare.WithdrawerAddress = withdrawAddr.String()
+	feeshare.WithdrawerAddress = newWithdrawAddr.String()
 	k.SetFeeShare(ctx, feeshare)
 
 	ctx.EventManager().EmitEvents(
