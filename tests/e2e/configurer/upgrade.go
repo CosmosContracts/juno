@@ -107,7 +107,6 @@ func (uc *UpgradeConfigurer) ConfigureChain(chainConfig *chain.Config) error {
 }
 
 func (uc *UpgradeConfigurer) CreatePreUpgradeState() error {
-
 	return nil
 }
 
