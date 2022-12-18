@@ -121,16 +121,6 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 		shouldErr bool
 	}{
 		{
-			desc: "Success",
-			msg: &types.MsgRegisterFeeShare{
-				ContractAddress:   contractAddress,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: withdrawer.String(),
-			},
-			resp:      &types.MsgRegisterFeeShareResponse{},
-			shouldErr: false,
-		},
-		{
 			desc: "Invalid contract address",
 			msg: &types.MsgRegisterFeeShare{
 				ContractAddress:   "Invalid",
@@ -159,6 +149,16 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 			},
 			resp:      &types.MsgRegisterFeeShareResponse{},
 			shouldErr: true,
+		},
+		{
+			desc: "Success",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   contractAddress,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: withdrawer.String(),
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: false,
 		},
 	} {
 		tc := tc
@@ -206,16 +206,6 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 		shouldErr bool
 	}{
 		{
-			desc: "Success",
-			msg: &types.MsgUpdateFeeShare{
-				ContractAddress:   contractAddress,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: newWithdrawer.String(),
-			},
-			resp:      &types.MsgCancelFeeShareResponse{},
-			shouldErr: false,
-		},
-		{
 			desc: "Invalid - contract not regis",
 			msg: &types.MsgUpdateFeeShare{
 				ContractAddress:   contractAddressNoRegisFeeShare,
@@ -254,6 +244,16 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 			},
 			resp:      nil,
 			shouldErr: true,
+		},
+		{
+			desc: "Success",
+			msg: &types.MsgUpdateFeeShare{
+				ContractAddress:   contractAddress,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: newWithdrawer.String(),
+			},
+			resp:      &types.MsgCancelFeeShareResponse{},
+			shouldErr: false,
 		},
 	} {
 		tc := tc
@@ -295,15 +295,6 @@ func (s *IntegrationTestSuite) TestCancelFeeShare() {
 		shouldErr bool
 	}{
 		{
-			desc: "Success",
-			msg: &types.MsgCancelFeeShare{
-				ContractAddress: contractAddress,
-				DeployerAddress: sender.String(),
-			},
-			resp:      &types.MsgCancelFeeShareResponse{},
-			shouldErr: false,
-		},
-		{
 			desc: "Invalid - contract Address",
 			msg: &types.MsgCancelFeeShare{
 				ContractAddress: "Invalid",
@@ -320,6 +311,15 @@ func (s *IntegrationTestSuite) TestCancelFeeShare() {
 			},
 			resp:      nil,
 			shouldErr: true,
+		},
+		{
+			desc: "Success",
+			msg: &types.MsgCancelFeeShare{
+				ContractAddress: contractAddress,
+				DeployerAddress: sender.String(),
+			},
+			resp:      &types.MsgCancelFeeShareResponse{},
+			shouldErr: false,
 		},
 	} {
 		tc := tc
