@@ -21,7 +21,7 @@ type NodeConfig struct {
 
 	OperatorAddress  string
 	SnapshotInterval uint64
-	chainId          string
+	chainId          string //nolint:revive
 	rpcClient        *rpchttp.HTTP
 	t                *testing.T
 	containerManager *containers.Manager

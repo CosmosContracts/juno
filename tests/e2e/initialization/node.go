@@ -41,7 +41,7 @@ type internalNode struct {
 	privateKey   cryptotypes.PrivKey
 	consensusKey privval.FilePVKey
 	nodeKey      p2p.NodeKey
-	peerId       string
+	peerID       string
 	isValidator  bool
 }
 
@@ -209,7 +209,7 @@ func (n *internalNode) export() *Node {
 		Mnemonic:      n.mnemonic,
 		PublicAddress: n.keyInfo.GetAddress().String(),
 		PublicKey:     n.keyInfo.GetPubKey().Address().String(),
-		PeerId:        n.peerId,
+		PeerId:        n.peerID,
 		IsValidator:   n.isValidator,
 	}
 }

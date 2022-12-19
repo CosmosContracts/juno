@@ -28,7 +28,7 @@ type Config struct {
 	LatestLockNumber     int
 	NodeConfigs          []*NodeConfig
 
-	LatestCodeId int
+	LatestCodeID int
 
 	t                *testing.T
 	containerManager *containers.Manager

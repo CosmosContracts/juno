@@ -26,10 +26,10 @@ func (n *NodeConfig) StoreWasmCode(wasmFile, from string) {
 	n.LogActionF("successfully stored")
 }
 
-func (n *NodeConfig) InstantiateWasmContract(codeId, initMsg, label, from, admin string) {
-	n.LogActionF("instantiating wasm contract %s with %s", codeId, initMsg)
+func (n *NodeConfig) InstantiateWasmContract(codeID, initMsg, label, from, admin string) {
+	n.LogActionF("instantiating wasm contract %s with %s", codeID, initMsg)
 	// TODO: set admin as the validator address?
-	cmd := []string{"junod", "tx", "wasm", "instantiate", codeId, initMsg, fmt.Sprintf("--from=%s", from), "--gas=5000000", fmt.Sprintf("--label=%s", label)}
+	cmd := []string{"junod", "tx", "wasm", "instantiate", codeID, initMsg, fmt.Sprintf("--from=%s", from), "--gas=5000000", fmt.Sprintf("--label=%s", label)}
 
 	if admin == "" {
 		cmd = append(cmd, "--no-admin")

@@ -14,7 +14,7 @@ func main() {
 	var (
 		valConfig             []*initialization.NodeConfig
 		dataDir               string
-		chainId               string
+		chainId               string //nolint:revive,stylecheck
 		config                string
 		votingPeriod          time.Duration
 		expeditedVotingPeriod time.Duration
