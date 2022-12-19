@@ -86,3 +86,35 @@ func (s *IntegrationTestSuite) TestFeeShares() {
 
 	})
 }
+
+func (s *IntegrationTestSuite) TestFeeShare() {
+	s.SetupTest()
+	_, _, sender := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	_, _, withdrawer := testdata.KeyTestPubAddr()
+
+	contractAddress := s.InstantiateContract(sender.String(), "")
+	goCtx := sdk.WrapSDKContext(s.ctx)
+	msg := &types.MsgRegisterFeeShare{
+		ContractAddress:   contractAddress,
+		DeployerAddress:   sender.String(),
+		WithdrawerAddress: withdrawer.String(),
+	}
+
+	feeShare := types.FeeShare{
+		ContractAddress:   contractAddress,
+		DeployerAddress:   sender.String(),
+		WithdrawerAddress: withdrawer.String(),
+	}
+	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
+	s.Require().NoError(err)
+
+	req := &types.QueryFeeShareRequest{
+		ContractAddress: contractAddress,
+	}
+	goCtx = sdk.WrapSDKContext(s.ctx)
+	resp, err := s.queryClient.FeeShare(goCtx, req)
+	s.Require().NoError(err)
+	s.Require().Equal(resp.Feeshare, feeShare)
+}
