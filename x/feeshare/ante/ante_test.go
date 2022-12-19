@@ -18,7 +18,6 @@ func TestAnteSuite(t *testing.T) {
 }
 
 func (suite *AnteTestSuite) TestFeeLogic() {
-
 	// We expect all to pass
 	feeCoins := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(500)), sdk.NewCoin("utoken", sdk.NewInt(250)))
 

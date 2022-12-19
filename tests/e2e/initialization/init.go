@@ -23,7 +23,7 @@ func InitChain(id, dataDir string, nodeConfigs []*NodeConfig, votingPeriod, expe
 		chain.nodes = append(chain.nodes, newNode)
 	}
 
-	if err := initGenesis(chain, votingPeriod, expeditedVotingPeriod, forkHeight); err != nil {
+	if err := initGenesis(chain, votingPeriod, forkHeight); err != nil {
 		return nil, err
 	}
 

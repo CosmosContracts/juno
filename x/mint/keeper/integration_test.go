@@ -16,7 +16,7 @@ import (
 )
 
 // returns context and an app with updated mint keeper
-func createTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) {
+func createTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) { //nolint:unparam
 	app := setup(isCheckTx)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})

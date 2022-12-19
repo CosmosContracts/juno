@@ -68,15 +68,15 @@ func (n *NodeConfig) QueryParams(subspace, key string, result any) {
 	require.NoError(n.t, err)
 }
 
-func (n *NodeConfig) SubmitParamChangeProposal(proposalJson, from string) {
-	n.LogActionF("submitting param change proposal %s", proposalJson)
+func (n *NodeConfig) SubmitParamChangeProposal(proposalJSON, from string) {
+	n.LogActionF("submitting param change proposal %s", proposalJSON)
 	// ToDo: Is there a better way to do this?
 	wd, err := os.Getwd()
 	require.NoError(n.t, err)
 	localProposalFile := wd + "/scripts/param_change_proposal.json"
 	f, err := os.Create(localProposalFile)
 	require.NoError(n.t, err)
-	_, err = f.WriteString(proposalJson)
+	_, err = f.WriteString(proposalJSON)
 	require.NoError(n.t, err)
 	err = f.Close()
 	require.NoError(n.t, err)
