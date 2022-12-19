@@ -92,8 +92,8 @@ func (n *NodeConfig) QueryTotalSupply() (sdk.Coins, error) {
 	return supplyResp.GetSupply(), nil
 }
 
-func (n *NodeConfig) QueryContractsFromId(codeId int) ([]string, error) {
-	path := fmt.Sprintf("/cosmwasm/wasm/v1/code/%d/contracts", codeId)
+func (n *NodeConfig) QueryContractsFromID(codeID int) ([]string, error) {
+	path := fmt.Sprintf("/cosmwasm/wasm/v1/code/%d/contracts", codeID)
 	bz, err := n.QueryGRPCGateway(path)
 
 	require.NoError(n.t, err)

@@ -12,7 +12,7 @@ type internalChain struct {
 	nodes     []*internalNode
 }
 
-func new(id, dataDir string) (*internalChain, error) {
+func new(id, dataDir string) (*internalChain, error) { //nolint:unparam
 	chainMeta := ChainMeta{
 		Id:      id,
 		DataDir: dataDir,

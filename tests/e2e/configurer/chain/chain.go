@@ -28,7 +28,7 @@ type Config struct {
 	LatestLockNumber     int
 	NodeConfigs          []*NodeConfig
 
-	LatestCodeId int
+	LatestCodeID int
 
 	t                *testing.T
 	containerManager *containers.Manager
@@ -136,9 +136,8 @@ func (c *Config) SendIBC(dstChain *Config, recipient string, token sdk.Coin) {
 				resPre := token.Amount
 				resPost := tokenPost.Sub(tokenPre)
 				return resPost.Uint64() == resPre.Uint64()
-			} else {
-				return false
 			}
+			return false
 		},
 		5*time.Minute,
 		time.Second,
