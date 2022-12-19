@@ -5,9 +5,9 @@ go 1.19
 require (
 	github.com/CosmWasm/token-factory v0.0.0-20221024170206-1345f322c887
 	github.com/CosmWasm/wasmd v0.30.0
-	github.com/cosmos/cosmos-sdk v0.45.11
+	github.com/cosmos/cosmos-sdk v0.46.7
 	github.com/cosmos/gaia/v8 v8.0.0-20221214153136-e8833fa991a8
-	github.com/cosmos/ibc-go/v4 v4.2.0
+	github.com/cosmos/ibc-go/v6 v6.0.0
 	github.com/cosmos/interchain-accounts v0.2.5
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
@@ -158,6 +158,8 @@ require (
 )
 
 replace (
+	// wasmd v0.30.0 for sdk v0.46.x
+	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.30.0-sdk46.0.20221217182902-220d417de0b1
 	// dragonberry: https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.11
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	// use cosmos-flavored protocol buffers
