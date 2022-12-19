@@ -83,7 +83,6 @@ func (s *IntegrationTestSuite) TestFeeShares() {
 		s.Require().NoError(err)
 		s.Require().Equal(len(feeShares), int(resp.Pagination.Total))
 		s.Require().ElementsMatch(nullify.Fill(feeShares), nullify.Fill(resp.Feeshare))
-
 	})
 }
 
@@ -186,7 +185,6 @@ func (s *IntegrationTestSuite) TestDeployerFeeShares() {
 		s.Require().NoError(err)
 		s.Require().Equal(len(contractAddressList), int(resp.Pagination.Total))
 		s.Require().ElementsMatch(nullify.Fill(contractAddressList), nullify.Fill(resp.ContractAddresses))
-
 	})
 }
 
@@ -257,6 +255,5 @@ func (s *IntegrationTestSuite) TestWithdrawerFeeShares() {
 		s.Require().NoError(err)
 		s.Require().Equal(len(contractAddressList), int(resp.Pagination.Total))
 		s.Require().ElementsMatch(nullify.Fill(contractAddressList), nullify.Fill(resp.ContractAddresses))
-
 	})
 }
