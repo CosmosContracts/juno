@@ -20,8 +20,8 @@ type Config struct {
 
 	ValidatorInitConfigs []*initialization.NodeConfig
 	// voting period is number of blocks it takes to deposit, 1.2 seconds per validator to vote on the prop, and a buffer.
-	VotingPeriod          float32
-	ExpeditedVotingPeriod float32
+	VotingPeriod          uint64
+	ExpeditedVotingPeriod uint64
 	// upgrade proposal height for chain.
 	UpgradePropHeight    int64
 	LatestProposalNumber int
@@ -45,7 +45,7 @@ const (
 )
 
 func New(t *testing.T, containerManager *containers.Manager, id string, initValidatorConfigs []*initialization.NodeConfig) *Config {
-	numVal := float32(len(initValidatorConfigs))
+	numVal := uint64(len(initValidatorConfigs))
 	return &Config{
 		ChainMeta: initialization.ChainMeta{
 			Id: id,
@@ -62,7 +62,7 @@ func New(t *testing.T, containerManager *containers.Manager, id string, initVali
 func (c *Config) CreateNode(initNode *initialization.Node) *NodeConfig {
 	nodeConfig := &NodeConfig{
 		Node:             *initNode,
-		chainId:          c.Id,
+		chainID:          c.Id,
 		containerManager: c.containerManager,
 		t:                c.t,
 	}

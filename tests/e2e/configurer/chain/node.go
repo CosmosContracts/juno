@@ -21,7 +21,7 @@ type NodeConfig struct {
 
 	OperatorAddress  string
 	SnapshotInterval uint64
-	chainId          string //nolint:revive
+	chainID          string //nolint:revive
 	rpcClient        *rpchttp.HTTP
 	t                *testing.T
 	containerManager *containers.Manager
@@ -31,11 +31,11 @@ type NodeConfig struct {
 }
 
 // NewNodeConfig returens new initialized NodeConfig.
-func NewNodeConfig(t *testing.T, initNode *initialization.Node, initConfig *initialization.NodeConfig, chainId string, containerManager *containers.Manager) *NodeConfig {
+func NewNodeConfig(t *testing.T, initNode *initialization.Node, initConfig *initialization.NodeConfig, chainID string, containerManager *containers.Manager) *NodeConfig {
 	return &NodeConfig{
 		Node:             *initNode,
 		SnapshotInterval: initConfig.SnapshotInterval,
-		chainId:          chainId,
+		chainID:          chainID,
 		containerManager: containerManager,
 		t:                t,
 		setupTime:        time.Now(),
@@ -47,8 +47,8 @@ func NewNodeConfig(t *testing.T, initNode *initialization.Node, initConfig *init
 // method.
 func (n *NodeConfig) Run() error {
 	n.t.Logf("starting node container: %s", n.Name)
-	resource, err := n.containerManager.RunNodeResource(n.chainId, n.Name, n.ConfigDir)
-	n.t.Logf(n.chainId)
+	resource, err := n.containerManager.RunNodeResource(n.chainID, n.Name, n.ConfigDir)
+	n.t.Logf(n.chainID)
 	n.t.Logf(n.Name)
 	n.t.Logf(n.ConfigDir)
 	if err != nil {
@@ -70,7 +70,7 @@ func (n *NodeConfig) Run() error {
 
 			// debug
 			n.t.Logf("started query height")
-			n.t.Logf(n.chainId)
+			n.t.Logf(n.chainID)
 			_, err := n.QueryCurrentHeight()
 			if err != nil {
 				n.t.Logf(err.Error())
@@ -137,8 +137,8 @@ func (n *NodeConfig) extractOperatorAddressIfValidator() error {
 	return nil
 }
 
-func (n *NodeConfig) GetHostPort(portId string) (string, error) {
-	return n.containerManager.GetHostPort(n.Name, portId)
+func (n *NodeConfig) GetHostPort(portID string) (string, error) {
+	return n.containerManager.GetHostPort(n.Name, portID)
 }
 
 func (n *NodeConfig) WithSetupTime(t time.Time) *NodeConfig {
