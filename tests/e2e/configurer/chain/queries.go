@@ -47,7 +47,8 @@ func (n *NodeConfig) QueryGRPCGateway(path string, parameters ...string) ([]byte
 			req.URL.RawQuery = q.Encode()
 		}
 
-		resp, err = http.DefaultClient.Do(req)
+		resp, err = http.DefaultClient.Do(req) //nolint:bodyclose
+		req.Body.Close()
 		if err != nil {
 			n.t.Logf("error while executing HTTP request: %s", err.Error())
 			return false
