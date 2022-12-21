@@ -171,7 +171,6 @@ func simulationModules(
 		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		app.TransferModule,
-		app.ICAModule,
 		app.RouterModule,
 	}
 }
