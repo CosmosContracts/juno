@@ -141,7 +141,8 @@ func appModules(
 		intertx.NewAppModule(appCodec, app.InterTxKeeper),
 		app.TransferModule,
 		app.ICAModule,
-		app.RouterModule}
+		app.RouterModule,
+	}
 }
 
 // simulationModules returns modules for simulation manager
