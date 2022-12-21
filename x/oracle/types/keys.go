@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 )
@@ -31,8 +33,9 @@ var (
 
 // Store price history <Prefix> <baseDenom> <votePeriodCount> <PriceHistoryEntry>
 func GetPriceHistoryKey(symbolDenom string) (key []byte) {
+	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	key = append(key, KeyPrefixPriceHistory...)
-	key = append(key, []byte(symbolDenom)...)
+	key = append(key, []byte(upperSymbolDenom)...)
 	return key
 }
 

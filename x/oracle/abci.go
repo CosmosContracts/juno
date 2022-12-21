@@ -74,7 +74,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 			}
 
 			// set the price history
-			if err = k.SetDenomPriceHistory(ctx, ballotDenom.Denom, exchangeRate, ctx.BlockTime(), ctx.BlockHeight()); err != nil {
+			if err = k.SetDenomPriceHistory(ctx, ballotDenom.Denom, exchangeRate, ctx.BlockTime(), uint64(ctx.BlockHeight())); err != nil {
 				return err
 			}
 		}
