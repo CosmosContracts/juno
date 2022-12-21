@@ -33,10 +33,10 @@ fi
 APP_TOML_CONFIG="$HOME"/.juno/config/app.toml
 APP_TOML_CONFIG_NEW="$HOME"/.juno/config/app_new.toml
 CONFIG_TOML_CONFIG="$HOME"/.juno/config/config.toml
-if [ -n $UNSAFE_CORS ]; then
+if [ -n "$UNSAFE_CORS" ]; then
   echo "Unsafe CORS set... updating app.toml and config.toml"
   # sorry about this bit, but toml is rubbish for structural editing
-  sed -n '1h;1!H;${g;s/# Enable defines if the API server should be enabled.\nenable = false/enable = true/;p;}' "$APP_TOML_CONFIG" > "$APP_TOML_CONFIG_NEW"
+  sed -n '1h;1!H;${g;s/# Enable defines if the API server should be enabled.\nenable = false/enable = true/;p;}' "$APP_TOML_CONFIG" >"$APP_TOML_CONFIG_NEW"
   mv "$APP_TOML_CONFIG_NEW" "$APP_TOML_CONFIG"
   # ...and breathe
   sed -i "s/enabled-unsafe-cors = false/enabled-unsafe-cors = true/" "$APP_TOML_CONFIG"
@@ -44,21 +44,28 @@ if [ -n $UNSAFE_CORS ]; then
 fi
 
 # are we running for the first time?
-if ! junod keys show validator $KEYRING; then
-  (echo "$PASSWORD"; echo "$PASSWORD") | junod keys add validator $KEYRING
+if ! junod keys show validator "$KEYRING"; then
+  (
+    echo "$PASSWORD"
+    echo "$PASSWORD"
+  ) | junod keys add validator "$KEYRING"
 
   # hardcode the validator account for this instance
-  echo "$PASSWORD" | junod add-genesis-account validator "1000000000$STAKE,1000000000$FEE" $KEYRING
+  echo "$PASSWORD" | junod add-genesis-account validator "1000000000$STAKE,1000000000$FEE" "$KEYRING"
 
   # (optionally) add a few more genesis accounts
   for addr in "$@"; do
-    echo $addr
+    echo "$addr"
     junod add-genesis-account "$addr" "1000000000$STAKE,1000000000$FEE"
   done
 
   # submit a genesis validator tx
   ## Workraround for https://github.com/cosmos/cosmos-sdk/issues/8251
-  (echo "$PASSWORD"; echo "$PASSWORD"; echo "$PASSWORD") | junod gentx validator "250000000$STAKE" --chain-id="$CHAIN_ID" --amount="250000000$STAKE" $KEYRING
+  (
+    echo "$PASSWORD"
+    echo "$PASSWORD"
+    echo "$PASSWORD"
+  ) | junod gentx validator "250000000$STAKE" --chain-id="$CHAIN_ID" --amount="250000000$STAKE" "$KEYRING"
   ## should be:
   # (echo "$PASSWORD"; echo "$PASSWORD"; echo "$PASSWORD") | junod gentx validator "250000000$STAKE" --chain-id="$CHAIN_ID"
   junod collect-gentxs
