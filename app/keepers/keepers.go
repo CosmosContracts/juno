@@ -52,6 +52,8 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
 	"github.com/strangelove-ventures/packet-forward-middleware/v4/router"
+	routerkeeper "github.com/strangelove-ventures/packet-forward-middleware/v4/router/keeper"
+	routertypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -102,6 +104,7 @@ type AppKeepers struct {
 	AuthzKeeper      authzkeeper.Keeper
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	FeeShareKeeper   feesharekeeper.Keeper
+	RouterKeeper     routerkeeper.Keeper
 
 	RouterModule   router.AppModule
 	TransferModule transfer.AppModule
@@ -306,7 +309,18 @@ func NewAppKeepers(
 		scopedICAControllerKeeper, bApp.MsgServiceRouter(),
 	)
 
+	appKeepers.ICAModule = ica.NewAppModule(&appKeepers.ICAControllerKeeper, &appKeepers.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(appKeepers.ICAHostKeeper)
+
+	appKeepers.RouterKeeper = routerkeeper.NewKeeper(
+		appCodec, appKeepers.keys[routertypes.StoreKey],
+		appKeepers.GetSubspace(routertypes.ModuleName),
+		appKeepers.TransferKeeper,
+		appKeepers.DistrKeeper,
+	)
+
+	appKeepers.RouterModule = router.NewAppModule(appKeepers.RouterKeeper, appKeepers.TransferModule, 0,
+		routerkeeper.DefaultForwardTransferPacketTimeoutTimestamp, routerkeeper.DefaultRefundTransferPacketTimeoutTimestamp)
 
 	// initialize ICA module with mock module as the authentication module on the controller side
 	var icaControllerStack porttypes.IBCModule

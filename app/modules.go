@@ -139,8 +139,9 @@ func appModules(
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		intertx.NewAppModule(appCodec, app.InterTxKeeper),
-		app.RouterModule,
-	}
+		app.TransferModule,
+		app.ICAModule,
+		app.RouterModule}
 }
 
 // simulationModules returns modules for simulation manager
@@ -167,9 +168,11 @@ func simulationModules(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
-		transfer.NewAppModule(app.TransferKeeper),
 		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
+		app.TransferModule,
+		app.ICAModule,
+		app.RouterModule,
 	}
 }
 
