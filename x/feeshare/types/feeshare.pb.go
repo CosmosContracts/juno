@@ -5,7 +5,7 @@ package types
 
 import (
 	fmt "fmt"
-	proto "github.com/cosmos/gogoproto/proto"
+	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -25,7 +25,8 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // FeeShare defines an instance that organizes fee distribution conditions for
 // the owner of a given smart contract
 type FeeShare struct {
-	// contract_address is the bech32 address of a registered contract in string form
+	// contract_address is the bech32 address of a registered contract in string
+	// form
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// deployer_address is the bech32 address of message sender. It must be the
 	// same as the contracts admin address.
