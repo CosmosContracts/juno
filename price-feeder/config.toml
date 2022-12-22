@@ -46,7 +46,6 @@ base = "ATOM"
 providers = [
   "kraken",
   "osmosis",
-  "bitget"
 ]
 quote = "USD"
 
@@ -89,14 +88,14 @@ providers = [
 quote = "USDT"
 
 [account]
-address = "juno1pry5cux508t55pf00pryl6hp09cfahml5k6w8m"
+address = "juno1w20tfhnehc33rgtm9tg8gdtea0svn7twfnyqee"
 chain_id = "test-1"
-validator = "junovaloper1pry5cux508t55pf00pryl6hp09cfahmlttvpuz"
+validator = "junovaloper1w20tfhnehc33rgtm9tg8gdtea0svn7twkwj0zq"
 prefix = "juno"
 
 [keyring]
 backend = "test"
-dir = "/home/<user>/.juno"
+dir = "/Users/vuong/.juno"
 
 [rpc]
 grpc_endpoint = "localhost:9090"

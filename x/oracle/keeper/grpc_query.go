@@ -314,7 +314,7 @@ func (q querier) AllPriceHistory(
 	}
 
 	store := ctx.KVStore(q.storeKey)
-	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(req.Denom))
+	priceHistoryStore := prefix.NewStore(store, types.FormatHistoricalDenomIndexPrefix(req.Denom))
 
 	var priceHistoryEntrys []types.PriceHistoryEntry
 

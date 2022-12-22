@@ -47,7 +47,7 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 // getHistoryEntryAtOrAfterTime on a given input (denom, t)
 // returns the PriceHistoryEntry from state for (denom, t'),
 // where t' is such that:
-// * t' <= t
+// * t' => t
 // * there exists no `t” => t` in state, where `t' > t”`
 func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t time.Time) (types.PriceHistoryEntry, error) {
 	store := ctx.KVStore(k.storeKey)
@@ -66,10 +66,49 @@ func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t ti
 	return entry, nil
 }
 
+// getHistoryEntryBetweenTime on a given input (denom, t)
+// returns the PriceHistoryEntry from state for (denom, t'),
+func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (types.PriceHistoryEntry, error) {
+	store := ctx.KVStore(k.storeKey)
+
+	startKey := types.FormatHistoricalDenomIndexKey(start, denom)
+	endKey := types.FormatHistoricalDenomIndexKey(end, denom)
+
+	reverseIterate := true
+
+	entry, err := util.GetFirstValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
+
+	if err != nil {
+		return types.PriceHistoryEntry{}, err
+	}
+
+	return entry, nil
+}
+
 func (k Keeper) ParseTwapFromBz(bz []byte) (entry types.PriceHistoryEntry, err error) {
 	if len(bz) == 0 {
 		return types.PriceHistoryEntry{}, errors.New("history entry not found")
 	}
 	err = k.cdc.Unmarshal(bz, &entry)
 	return entry, err
+}
+
+func (k Keeper) RemoveHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) {
+	store := ctx.KVStore(k.storeKey)
+
+	startKey := types.FormatHistoricalDenomIndexPrefix(denom)
+	endKey := types.FormatHistoricalDenomIndexKey(t, denom)
+	reverseIterate := true
+
+	util.RemoveFirstValueInRange(store, startKey, endKey, reverseIterate)
+}
+
+func (k Keeper) SetPriceHistoryEntry(ctx sdk.Context, denom string, t time.Time, exchangeRate sdk.Dec, votingPeriodCount uint64) {
+	entry := types.PriceHistoryEntry{
+		Price:           exchangeRate,
+		VotePeriodCount: votingPeriodCount,
+		PriceUpdateTime: t,
+	}
+
+	k.storeHistoricalData(ctx, denom, entry)
 }

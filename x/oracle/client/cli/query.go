@@ -33,6 +33,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		GetCmdQueryFeederDelegation(),
 		GetCmdQueryMissCounter(),
 		GetCmdQuerySlashWindow(),
+		GetCmdQueryAllPriceHistory(),
 	)
 
 	return cmd
