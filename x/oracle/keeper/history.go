@@ -22,7 +22,7 @@ func (k Keeper) storeHistoricalData(ctx sdk.Context, denom string, entry types.P
 	store.Set(key, bz)
 }
 
-// getRecordAtOrBeforeTime on a given input (denom, t)
+// getHistoryEntryAtOrBeforeTime on a given input (denom, t)
 // returns the PriceHistoryEntry from state for (denom, t'),
 // where t' is such that:
 // * t' <= t
@@ -44,7 +44,7 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 	return entry, nil
 }
 
-// getRecordAtOrBeforeTime on a given input (denom, t)
+// getHistoryEntryAtOrAfterTime on a given input (denom, t)
 // returns the PriceHistoryEntry from state for (denom, t'),
 // where t' is such that:
 // * t' <= t
