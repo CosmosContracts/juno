@@ -1,7 +1,9 @@
 package types
 
 import (
+	"fmt"
 	"strings"
+	time "time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
@@ -68,4 +70,28 @@ func GetAggregateExchangeRatePrevoteKey(v sdk.ValAddress) (key []byte) {
 func GetAggregateExchangeRateVoteKey(v sdk.ValAddress) (key []byte) {
 	key = append(key, KeyPrefixAggregateExchangeRateVote...)
 	return append(key, address.MustLengthPrefix(v)...)
+}
+
+var (
+	// Contract: Coin denoms cannot contain this character
+	KeySeparator = "|"
+
+	historicalTimeIndexNoSeparator = "historical_time_index"
+
+	// format is pool id | denom1 | denom2 | time
+	// made for efficiently getting records given (pool id, denom1, denom2) and time bounds
+	HistoricalTWAPTimeIndexPrefix = historicalTimeIndexNoSeparator + KeySeparator
+)
+
+func FormatTimeString(t time.Time) string {
+	return t.UTC().Round(0).Format(sdk.SortableTimeFormat)
+}
+
+func FormatHistoricalDenomIndexKey(accumulatorWriteTime time.Time, denom string) []byte {
+	timeS := FormatTimeString(accumulatorWriteTime)
+	return []byte(fmt.Sprintf("%s%s%s%s", HistoricalTWAPTimeIndexPrefix, denom, KeySeparator, timeS))
+}
+
+func FormatHistoricalDenomIndexPrefix(denom string) []byte {
+	return []byte(fmt.Sprintf("%s%s%s", HistoricalTWAPTimeIndexPrefix, denom, KeySeparator))
 }
