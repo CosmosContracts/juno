@@ -61,14 +61,17 @@ func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(ctx sdk.Context, 
 				if err != nil {
 					return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
 				}
+
+				err = validMsg(innerMsg)
+				if err != nil {
+					return err
+				}
 			}
 		} else {
-			innerMsg = m
-		}
-
-		err := validMsg(innerMsg)
-		if err != nil {
-			return err
+			err := validMsg(m)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
