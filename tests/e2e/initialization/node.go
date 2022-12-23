@@ -48,7 +48,7 @@ type internalNode struct {
 func newNode(chain *internalChain, nodeConfig *NodeConfig) (*internalNode, error) {
 	node := &internalNode{
 		chain:       chain,
-		moniker:     fmt.Sprintf("%s-node-%s", chain.chainMeta.Id, nodeConfig.Name),
+		moniker:     fmt.Sprintf("%s-node-%s", chain.chainMeta.ID, nodeConfig.Name),
 		isValidator: nodeConfig.IsValidator,
 	}
 	// generate genesis files
@@ -209,7 +209,7 @@ func (n *internalNode) export() *Node {
 		Mnemonic:      n.mnemonic,
 		PublicAddress: n.keyInfo.GetAddress().String(),
 		PublicKey:     n.keyInfo.GetPubKey().Address().String(),
-		PeerId:        n.peerID,
+		PeerID:        n.peerID,
 		IsValidator:   n.isValidator,
 	}
 }
@@ -263,7 +263,7 @@ func (n *internalNode) init() error {
 		return fmt.Errorf("failed to JSON encode app genesis state: %w", err)
 	}
 
-	genDoc.ChainID = n.chain.chainMeta.Id
+	genDoc.ChainID = n.chain.chainMeta.ID
 	genDoc.Validators = nil
 	genDoc.AppState = appState
 
@@ -355,7 +355,7 @@ func (n *internalNode) signMsg(msgs ...sdk.Msg) (*sdktx.Tx, error) {
 
 	// TODO: Find a better way to sign this tx with less code.
 	signerData := authsigning.SignerData{
-		ChainID:       n.chain.chainMeta.Id,
+		ChainID:       n.chain.chainMeta.ID,
 		AccountNumber: 0,
 		Sequence:      0,
 	}

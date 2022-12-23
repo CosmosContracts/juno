@@ -61,7 +61,7 @@ func (bc *baseConfigurer) RunValidators() error {
 }
 
 func (bc *baseConfigurer) runValidators(chainConfig *chain.Config) error {
-	bc.t.Logf("starting %s validator containers...", chainConfig.Id)
+	bc.t.Logf("starting %s validator containers...", chainConfig.ID)
 	for _, node := range chainConfig.NodeConfigs {
 		if err := node.Run(); err != nil {
 			return err
@@ -108,10 +108,10 @@ func (bc *baseConfigurer) runIBCRelayer(chainConfigA *chain.Config, chainConfigB
 	relayerNodeB := chainConfigB.NodeConfigs[0]
 
 	hermesResource, err := bc.containerManager.RunHermesResource(
-		chainConfigA.Id,
+		chainConfigA.ID,
 		relayerNodeA.Name,
 		relayerNodeA.Mnemonic,
-		chainConfigB.Id,
+		chainConfigB.ID,
 		relayerNodeB.Name,
 		relayerNodeB.Mnemonic,
 		hermesCfgPath)
@@ -164,13 +164,13 @@ func (bc *baseConfigurer) runIBCRelayer(chainConfigA *chain.Config, chainConfigB
 }
 
 func (bc *baseConfigurer) connectIBCChains(chainA *chain.Config, chainB *chain.Config) error {
-	bc.t.Logf("connecting %s and %s chains via IBC", chainA.ChainMeta.Id, chainB.ChainMeta.Id)
-	cmd := []string{"hermes", "create", "channel", chainA.ChainMeta.Id, chainB.ChainMeta.Id, "--port-a=transfer", "--port-b=transfer"}
+	bc.t.Logf("connecting %s and %s chains via IBC", chainA.ChainMeta.ID, chainB.ChainMeta.ID)
+	cmd := []string{"hermes", "create", "channel", chainA.ChainMeta.ID, chainB.ChainMeta.ID, "--port-a=transfer", "--port-b=transfer"}
 	_, _, err := bc.containerManager.ExecHermesCmd(bc.t, cmd, "successfully opened init channel")
 	if err != nil {
 		return err
 	}
-	bc.t.Logf("connected %s and %s chains via IBC", chainA.ChainMeta.Id, chainB.ChainMeta.Id)
+	bc.t.Logf("connected %s and %s chains via IBC", chainA.ChainMeta.ID, chainB.ChainMeta.ID)
 	return nil
 }
 
@@ -179,7 +179,7 @@ func (bc *baseConfigurer) initializeChainConfigFromInitChain(initializedChain *i
 	chainConfig.NodeConfigs = make([]*chain.NodeConfig, 0, len(initializedChain.Nodes))
 	setupTime := time.Now()
 	for i, validator := range initializedChain.Nodes {
-		conf := chain.NewNodeConfig(bc.t, validator, chainConfig.ValidatorInitConfigs[i], chainConfig.Id, bc.containerManager).WithSetupTime(setupTime)
+		conf := chain.NewNodeConfig(bc.t, validator, chainConfig.ValidatorInitConfigs[i], chainConfig.ID, bc.containerManager).WithSetupTime(setupTime)
 		chainConfig.NodeConfigs = append(chainConfig.NodeConfigs, conf)
 	}
 }

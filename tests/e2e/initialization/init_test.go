@@ -55,7 +55,7 @@ func TestChainInit(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, chain.ChainMeta.DataDir, dataDir)
-	require.Equal(t, chain.ChainMeta.Id, id)
+	require.Equal(t, chain.ChainMeta.ID, id)
 
 	require.Equal(t, len(nodeConfigs), len(chain.Nodes))
 
@@ -112,17 +112,17 @@ func TestSingleNodeInit(t *testing.T) {
 	existingChain, err := initialization.InitChain(id, dataDir, existingChainNodeConfigs, time.Second*3, time.Second, forkHeight)
 	require.NoError(t, err)
 
-	actualNode, err := initialization.InitSingleNode(existingChain.ChainMeta.Id, dataDir, filepath.Join(existingChain.Nodes[0].ConfigDir, "config", "genesis.json"), expectedConfig, time.Second*3, 3, "testHash", []string{"some server"}, []string{"some server"})
+	actualNode, err := initialization.InitSingleNode(existingChain.ChainMeta.ID, dataDir, filepath.Join(existingChain.Nodes[0].ConfigDir, "config", "genesis.json"), expectedConfig, time.Second*3, 3, "testHash", []string{"some server"}, []string{"some server"})
 	require.NoError(t, err)
 
 	validateNode(t, id, dataDir, expectedConfig, actualNode)
 }
 
-func validateNode(t *testing.T, chainId string, dataDir string, expectedConfig *initialization.NodeConfig, actualNode *initialization.Node) {
-	require.Equal(t, fmt.Sprintf("%s-node-%s", chainId, expectedConfig.Name), actualNode.Name)
+func validateNode(t *testing.T, chainID string, dataDir string, expectedConfig *initialization.NodeConfig, actualNode *initialization.Node) {
+	require.Equal(t, fmt.Sprintf("%s-node-%s", chainID, expectedConfig.Name), actualNode.Name)
 	require.Equal(t, expectedConfig.IsValidator, actualNode.IsValidator)
 
-	expectedPath := fmt.Sprintf("%s/%s/%s-node-%s", dataDir, chainId, chainId, expectedConfig.Name)
+	expectedPath := fmt.Sprintf("%s/%s/%s-node-%s", dataDir, chainID, chainID, expectedConfig.Name)
 
 	require.Equal(t, expectedPath, actualNode.ConfigDir)
 
@@ -130,7 +130,7 @@ func validateNode(t *testing.T, chainId string, dataDir string, expectedConfig *
 	require.NotEmpty(t, actualNode.PublicAddress)
 
 	if expectedConfig.IsValidator {
-		require.NotEmpty(t, actualNode.PeerId)
+		require.NotEmpty(t, actualNode.PeerID)
 	}
 
 	for _, expectedFileName := range expectedConfigFiles {
