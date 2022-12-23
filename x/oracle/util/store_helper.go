@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 )
 
+// TODO: testing
 func GetFirstValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverseIterate bool, parseValue func([]byte) (T, error)) (T, error) {
 	iterator := makeIterator(storeObj, keyStart, keyEnd, reverseIterate)
 	defer iterator.Close()
@@ -18,7 +19,8 @@ func GetFirstValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd
 	return parseValue(iterator.Value())
 }
 
-func RemoveFirstValueInRange(storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverseIterate bool) error {
+// TODO: testing
+func RemoveValueInRange(storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverseIterate bool) error {
 	iterator := makeIterator(storeObj, keyStart, keyEnd, reverseIterate)
 	defer iterator.Close()
 
@@ -26,7 +28,10 @@ func RemoveFirstValueInRange(storeObj store.KVStore, keyStart []byte, keyEnd []b
 		return errors.New("no values in range")
 	}
 
-	storeObj.Delete(iterator.Key())
+	for ; iterator.Valid(); iterator.Next() {
+		storeObj.Delete(iterator.Key())
+	}
+
 	return nil
 }
 
