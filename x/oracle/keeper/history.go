@@ -10,6 +10,7 @@ import (
 )
 
 // storeHistorical data writes to the store, in all needed indexing.
+// TODO : testing
 func (k Keeper) storeHistoricalData(ctx sdk.Context, denom string, entry types.PriceHistoryEntry) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.FormatHistoricalDenomIndexKey(entry.PriceUpdateTime, denom)
@@ -27,6 +28,7 @@ func (k Keeper) storeHistoricalData(ctx sdk.Context, denom string, entry types.P
 // where t' is such that:
 // * t' <= t
 // * there exists no `t” <= t` in state, where `t' < t”`
+// TODO : testing
 func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) (types.PriceHistoryEntry, error) {
 	store := ctx.KVStore(k.storeKey)
 
@@ -49,6 +51,7 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 // where t' is such that:
 // * t' => t
 // * there exists no `t” => t` in state, where `t' > t”`
+// TODO : testing
 func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t time.Time) (types.PriceHistoryEntry, error) {
 	store := ctx.KVStore(k.storeKey)
 
@@ -68,6 +71,7 @@ func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t ti
 
 // getHistoryEntryBetweenTime on a given input (denom, t)
 // returns the PriceHistoryEntry from state for (denom, t'),
+// TODO : testing
 func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (types.PriceHistoryEntry, error) {
 	store := ctx.KVStore(k.storeKey)
 
@@ -93,7 +97,8 @@ func (k Keeper) ParseTwapFromBz(bz []byte) (entry types.PriceHistoryEntry, err e
 	return entry, err
 }
 
-func (k Keeper) RemoveHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) {
+// TODO : testing
+func (k Keeper) RemoveFirstHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) {
 	store := ctx.KVStore(k.storeKey)
 
 	startKey := types.FormatHistoricalDenomIndexPrefix(denom)
@@ -103,6 +108,7 @@ func (k Keeper) RemoveHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, 
 	util.RemoveFirstValueInRange(store, startKey, endKey, reverseIterate)
 }
 
+// TODO : testing
 func (k Keeper) SetPriceHistoryEntry(ctx sdk.Context, denom string, t time.Time, exchangeRate sdk.Dec, votingPeriodCount uint64) {
 	entry := types.PriceHistoryEntry{
 		Price:           exchangeRate,
