@@ -38,7 +38,7 @@ func GetPriceHistoryKey(symbolDenom string) (key []byte) {
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	key = append(key, KeyPrefixPriceHistory...)
 	key = append(key, []byte(upperSymbolDenom)...)
-	return key
+	return append(key, 0) // append 0 for null-termination
 }
 
 // GetExchangeRateKey - stored by *denom*

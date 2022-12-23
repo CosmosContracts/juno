@@ -29,6 +29,17 @@ func (k Keeper) storeHistoricalData(ctx sdk.Context, denom string, entry types.P
 // * there exists no `t” <= t` in state, where `t' < t”`
 func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) (types.PriceHistoryEntry, error) {
 	store := ctx.KVStore(k.storeKey)
+	// reverseIterator not catch end key => Need this scope to catch if the value is in end key
+	key := types.FormatHistoricalDenomIndexKey(t, denom)
+	bz := store.Get(key)
+	if bz != nil {
+		var entry types.PriceHistoryEntry
+		err := k.cdc.Unmarshal(bz, &entry)
+		if err != nil {
+			return types.PriceHistoryEntry{}, err
+		}
+		return entry, nil
+	}
 
 	startKey := types.FormatHistoricalDenomIndexPrefix(denom)
 	endKey := types.FormatHistoricalDenomIndexKey(t, denom)
@@ -38,7 +49,6 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 
 	if err != nil {
 		return types.PriceHistoryEntry{}, err
-
 	}
 
 	return entry, nil
@@ -53,14 +63,12 @@ func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t ti
 	store := ctx.KVStore(k.storeKey)
 
 	startKey := types.FormatHistoricalDenomIndexKey(t, denom)
-	endKey := types.FormatHistoricalDenomIndexPrefix(denom)
-	reverseIterate := true
+	reverseIterate := false
 
-	entry, err := util.GetFirstValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
+	entry, err := util.GetFirstValueInRange(store, startKey, nil, reverseIterate, k.ParseTwapFromBz)
 
 	if err != nil {
 		return types.PriceHistoryEntry{}, err
-
 	}
 
 	return entry, nil
