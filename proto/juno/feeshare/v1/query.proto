@@ -50,7 +50,8 @@ message QueryFeeSharesRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// QueryFeeSharesResponse is the response type for the Query/FeeShares RPC method.
+// QueryFeeSharesResponse is the response type for the Query/FeeShares RPC
+// method.
 message QueryFeeSharesResponse {
   // FeeShare is a slice of all stored Reveneue
   repeated FeeShare feeshare = 1 [ (gogoproto.nullable) = false ];

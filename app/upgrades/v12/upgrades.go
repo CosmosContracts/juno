@@ -77,8 +77,10 @@ func CreateV12UpgradeHandler(
 			HostEnabled: true,
 			AllowMessages: []string{
 				sdk.MsgTypeURL(&banktypes.MsgSend{}),
+				sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
 				sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
 				sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
+				sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
 				sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
 				sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
 				sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
@@ -86,10 +88,13 @@ func CreateV12UpgradeHandler(
 				sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
 				sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
 				sdk.MsgTypeURL(&govtypes.MsgVote{}),
+				sdk.MsgTypeURL(&govtypes.MsgVoteWeighted{}),
+				sdk.MsgTypeURL(&govtypes.MsgSubmitProposal{}),
+				sdk.MsgTypeURL(&govtypes.MsgDeposit{}),
 				sdk.MsgTypeURL(&authz.MsgExec{}),
 				sdk.MsgTypeURL(&authz.MsgGrant{}),
 				sdk.MsgTypeURL(&authz.MsgRevoke{}),
-				// wasm msgs here
+				// wasm
 				sdk.MsgTypeURL(&wasmtypes.MsgStoreCode{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgInstantiateContract{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgInstantiateContract2{}),
@@ -97,6 +102,19 @@ func CreateV12UpgradeHandler(
 				sdk.MsgTypeURL(&wasmtypes.MsgMigrateContract{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgUpdateAdmin{}),
 				sdk.MsgTypeURL(&wasmtypes.MsgClearAdmin{}),
+				sdk.MsgTypeURL(&wasmtypes.MsgIBCSend{}),
+				sdk.MsgTypeURL(&wasmtypes.MsgIBCCloseChannel{}),
+				// tokenfactory
+				sdk.MsgTypeURL(&tokenfactorytypes.MsgCreateDenom{}),
+				sdk.MsgTypeURL(&tokenfactorytypes.MsgMint{}),
+				sdk.MsgTypeURL(&tokenfactorytypes.MsgBurn{}),
+				sdk.MsgTypeURL(&tokenfactorytypes.MsgChangeAdmin{}),
+				sdk.MsgTypeURL(&tokenfactorytypes.MsgSetDenomMetadata{}),
+				// feeshare
+				sdk.MsgTypeURL(&feesharetypes.MsgRegisterFeeShare{}),
+				sdk.MsgTypeURL(&feesharetypes.MsgUpdateFeeShare{}),
+				sdk.MsgTypeURL(&feesharetypes.MsgUpdateFeeShare{}),
+				sdk.MsgTypeURL(&feesharetypes.MsgCancelFeeShare{}),
 			},
 		}
 
