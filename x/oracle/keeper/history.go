@@ -58,7 +58,6 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 
 // getHistoryEntryBetweenTime on a given input (denom, startTime, endTime)
 // returns the PriceHistoryEntry from state which in [startTime, endTime]
-[]
 // TODO : testing
 func (k Keeper) getHistoryEntryBetweenTime(
 	ctx sdk.Context,
