@@ -36,13 +36,13 @@ func Test_storeHistoricalData(t *testing.T) {
 		oracleKeeper.storeHistoricalData(ctx, "Denom", phEntry)
 	}
 
-	phStore, err := oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(-(time.Minute * 3)))
+	phStore, err := oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[0].PriceUpdateTime.Add(-time.Minute))
 	require.Error(t, err)
 	require.Equal(t, types.PriceHistoryEntry{}, phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(-(time.Minute * 2)))
+	phStore, err = oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[0].PriceUpdateTime)
 	require.NoError(t, err)
 	require.Equal(t, phEntrys[0], phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(-time.Minute))
+	phStore, err = oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[0].PriceUpdateTime.Add(time.Minute))
 	require.NoError(t, err)
 	require.Equal(t, phEntrys[0], phStore)
 	phStore, err = oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[1].PriceUpdateTime)
@@ -51,32 +51,22 @@ func Test_storeHistoricalData(t *testing.T) {
 	phStore, err = oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(time.Minute))
 	require.NoError(t, err)
 	require.Equal(t, phEntrys[1], phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(time.Minute*2))
-	require.NoError(t, err)
-	require.Equal(t, phEntrys[2], phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrBeforeTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(time.Minute*3))
-	require.NoError(t, err)
-	require.Equal(t, phEntrys[2], phStore)
 
-	phStore, err = oracleKeeper.getHistoryEntryAtOrAfterTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(-(time.Minute * 3)))
+	phStores, err := oracleKeeper.getHistoryEntryBetweenTime(
+		ctx,
+		"Denom",
+		phEntrys[0].PriceUpdateTime.Add(-time.Minute),
+		phEntrys[2].PriceUpdateTime.Add(time.Minute),
+	)
 	require.NoError(t, err)
-	require.Equal(t, phEntrys[0], phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrAfterTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(-(time.Minute * 2)))
+	require.Equal(t, phStores, phEntrys)
+
+	phStores, err = oracleKeeper.getHistoryEntryBetweenTime(
+		ctx,
+		"Denom",
+		phEntrys[0].PriceUpdateTime,
+		phEntrys[2].PriceUpdateTime,
+	)
 	require.NoError(t, err)
-	require.Equal(t, phEntrys[0], phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrAfterTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(-time.Minute))
-	require.NoError(t, err)
-	require.Equal(t, phEntrys[1], phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrAfterTime(ctx, "Denom", phEntrys[1].PriceUpdateTime)
-	require.NoError(t, err)
-	require.Equal(t, phEntrys[1], phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrAfterTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(time.Minute))
-	require.NoError(t, err)
-	require.Equal(t, phEntrys[2], phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrAfterTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(time.Minute*2))
-	require.NoError(t, err)
-	require.Equal(t, phEntrys[2], phStore)
-	phStore, err = oracleKeeper.getHistoryEntryAtOrAfterTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(time.Minute*3))
-	require.Error(t, err)
-	require.Equal(t, types.PriceHistoryEntry{}, phStore)
+	require.Equal(t, phStores, phEntrys)
 }

@@ -68,9 +68,19 @@ func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start 
 	reverseIterate := false
 
 	entries, err = util.GetValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
-
 	if err != nil {
 		return []types.PriceHistoryEntry{}, err
+	}
+
+	key := types.FormatHistoricalDenomIndexKey(end, denom)
+	bz := store.Get(key)
+	if bz != nil {
+		var entryAtEndTime types.PriceHistoryEntry
+		k.cdc.Unmarshal(bz, &entryAtEndTime)
+		if err != nil {
+			return entries, err
+		}
+		entries = append(entries, entryAtEndTime)
 	}
 
 	return entries, nil
