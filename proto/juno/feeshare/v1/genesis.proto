@@ -22,9 +22,9 @@ message Params {
   string developer_shares = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
-  ];  
-  // allowed_denoms defines the list of denoms that are allowed to be paid to the
-  // contract withdraw addresses. If said denom is not in the list, the fees
+  ];
+  // allowed_denoms defines the list of denoms that are allowed to be paid to
+  // the contract withdraw addresses. If said denom is not in the list, the fees
   // will ONLY be sent to the community pool.
   // If this list is empty, all denoms are allowed.
   repeated string allowed_denoms = 3;

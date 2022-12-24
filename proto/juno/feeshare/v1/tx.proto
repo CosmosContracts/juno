@@ -9,7 +9,8 @@ option go_package = "github.com/CosmosContracts/juno/x/feeshare/types";
 // Msg defines the fees Msg service.
 service Msg {
   // RegisterFeeShare registers a new contract for receiving transaction fees
-  rpc RegisterFeeShare(MsgRegisterFeeShare) returns (MsgRegisterFeeShareResponse) {
+  rpc RegisterFeeShare(MsgRegisterFeeShare)
+      returns (MsgRegisterFeeShareResponse) {
     option (google.api.http).post = "/juno/feeshare/v1/tx/register_FeeShare";
   };
   // UpdateFeeShare updates the withdrawer address of a FeeShare
