@@ -95,7 +95,7 @@ func (k Keeper) ParseTwapFromBz(bz []byte) (entry types.PriceHistoryEntry, err e
 }
 
 // TODO : testing
-func (k Keeper) RemoveHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) {
+func (k Keeper) RemoveHistoryEntryBeforeTime(ctx sdk.Context, denom string, t time.Time) {
 	store := ctx.KVStore(k.storeKey)
 
 	startKey := types.FormatHistoricalDenomIndexPrefix(denom)
