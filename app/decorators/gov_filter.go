@@ -40,8 +40,7 @@ func (gpsd GovPreventSpamDecorator) AnteHandle(
 
 func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(ctx sdk.Context, msgs []sdk.Msg) error {
 	validMsg := func(m sdk.Msg) error {
-		switch msg := m.(type) { //nolint:gocritic
-		case *govtypes.MsgSubmitProposal:
+		if msg, ok := m.(*govtypes.MsgSubmitProposal); ok {
 			// prevent spam gov msg
 			depositParams := gpsd.govKeeper.GetDepositParams(ctx)
 			miniumInitialDeposit := gpsd.calcMiniumInitialDeposit(depositParams.MinDeposit)
@@ -49,41 +48,33 @@ func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(ctx sdk.Context, 
 				return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "not enough initial deposit. required: %v", miniumInitialDeposit)
 			}
 		}
-
 		return nil
 	}
 
-	validAuthz := func(execMsg *authz.MsgExec) error {
-		for _, v := range execMsg.Msgs {
-			var innerMsg sdk.Msg
-			err := gpsd.cdc.UnpackAny(v, &innerMsg)
-			if err != nil {
-				return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
-			}
-
-			err = validMsg(innerMsg)
-			if err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}
-
+	// Check every msg in the tx, if it's a MsgExec, check the inner msgs.
+	// If it's a MsgSubmitProposal, check the initial deposit is enough.
 	for _, m := range msgs {
+		var innerMsg sdk.Msg
 		if msg, ok := m.(*authz.MsgExec); ok {
-			if err := validAuthz(msg); err != nil {
+			for _, v := range msg.Msgs {
+				err := gpsd.cdc.UnpackAny(v, &innerMsg)
+				if err != nil {
+					return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
+				}
+
+				err = validMsg(innerMsg)
+				if err != nil {
+					return err
+				}
+			}
+		} else {
+			err := validMsg(m)
+			if err != nil {
 				return err
 			}
-			continue
-		}
-
-		// validate normal msgs
-		err := validMsg(m)
-		if err != nil {
-			return err
 		}
 	}
+
 	return nil
 }
 

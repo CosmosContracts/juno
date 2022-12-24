@@ -146,7 +146,7 @@ func (s *IntegrationTestSuite) checkBalance(coins sdk.Coins, expected sdk.Coins)
 
 // 	// configure genesis and config files for the state-synchin node.
 // 	nodeInit, err := initialization.InitSingleNode(
-// 		chainA.Id,
+// 		chainA.ID,
 // 		tempDir,
 // 		filepath.Join(runningNode.ConfigDir, "config", "genesis.json"),
 // 		stateSynchingNodeConfig,
