@@ -58,6 +58,7 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 
 // getHistoryEntryBetweenTime on a given input (denom, startTime, endTime)
 // returns the PriceHistoryEntry from state which in [startTime, endTime]
+[]
 // TODO : testing
 func (k Keeper) getHistoryEntryBetweenTime(
 	ctx sdk.Context,
@@ -75,7 +76,7 @@ func (k Keeper) getHistoryEntryBetweenTime(
 		endTime = endEntry.PriceUpdateTime
 		updateEndTime = true
 		if endTime == startTime {
-			entries = append(entries, startEntry)
+			entries = append(entries, endEntry)
 			return entries, nil
 		}
 	}
@@ -141,7 +142,7 @@ func (k Keeper) GetArithmetricTWAP(
 		return sdk.Dec{}, err
 	}
 
-	twapPrice, err := k.calculateTWAP(entryList)
+	twapPrice, err := k.calculateTWAP(startTime, endTime, entryList)
 	if err != nil {
 		return sdk.Dec{}, err
 	}
@@ -150,6 +151,6 @@ func (k Keeper) GetArithmetricTWAP(
 }
 
 // TODO: complete this
-func (k Keeper) calculateTWAP(entries []types.PriceHistoryEntry) (sdk.Dec, error) {
+func (k Keeper) calculateTWAP(startTime time.Time, endTime time.Time, entries []types.PriceHistoryEntry) (sdk.Dec, error) {
 	return sdk.Dec{}, nil
 }
