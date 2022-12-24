@@ -48,7 +48,6 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 	reverseIterate := true
 
 	entry, err := util.GetFirstValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
-
 	if err != nil {
 		return types.PriceHistoryEntry{}, err
 	}
@@ -69,7 +68,6 @@ func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t ti
 	reverseIterate := false
 
 	entry, err := util.GetFirstValueInRange(store, startKey, nil, reverseIterate, k.ParseTwapFromBz)
-
 	if err != nil {
 		return types.PriceHistoryEntry{}, err
 	}
@@ -80,7 +78,7 @@ func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t ti
 // getHistoryEntryBetweenTime on a given input (denom, t)
 // returns the PriceHistoryEntry from state for (denom, t'),
 // TODO : testing
-func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (types.PriceHistoryEntry, error) {
+func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (types.PriceHistoryEntry, error) { //nolint:unused
 	store := ctx.KVStore(k.storeKey)
 
 	startKey := types.FormatHistoricalDenomIndexKey(start, denom)
@@ -89,7 +87,6 @@ func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start 
 	reverseIterate := true
 
 	entry, err := util.GetFirstValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
-
 	if err != nil {
 		return types.PriceHistoryEntry{}, err
 	}
@@ -113,7 +110,7 @@ func (k Keeper) RemoveHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, 
 	endKey := types.FormatHistoricalDenomIndexKey(t, denom)
 	reverseIterate := true
 
-	util.RemoveValueInRange(store, startKey, endKey, reverseIterate)
+	_ = util.RemoveValueInRange(store, startKey, endKey, reverseIterate)
 }
 
 // TODO : testing
