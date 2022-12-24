@@ -80,21 +80,21 @@ func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t ti
 // getHistoryEntryBetweenTime on a given input (denom, t)
 // returns the PriceHistoryEntry from state for (denom, t'),
 // TODO : testing
-func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (types.PriceHistoryEntry, error) {
+func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (entries []types.PriceHistoryEntry, err error) {
 	store := ctx.KVStore(k.storeKey)
 
 	startKey := types.FormatHistoricalDenomIndexKey(start, denom)
 	endKey := types.FormatHistoricalDenomIndexKey(end, denom)
 
-	reverseIterate := true
+	reverseIterate := false
 
-	entry, err := util.GetFirstValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
+	entries, err = util.GetValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
 
 	if err != nil {
-		return types.PriceHistoryEntry{}, err
+		return []types.PriceHistoryEntry{}, err
 	}
 
-	return entry, nil
+	return entries, nil
 }
 
 func (k Keeper) ParseTwapFromBz(bz []byte) (entry types.PriceHistoryEntry, err error) {
@@ -125,4 +125,46 @@ func (k Keeper) SetPriceHistoryEntry(ctx sdk.Context, denom string, t time.Time,
 	}
 
 	k.storeHistoricalData(ctx, denom, entry)
+}
+
+func (k Keeper) GetArithmetricTWAP(
+	ctx sdk.Context,
+	poolID uint64,
+	denom string,
+	startTime time.Time,
+	endTime time.Time,
+) (sdk.Dec, error) {
+	startEntry, err := k.getHistoryEntryAtOrBeforeTime(ctx, denom, startTime)
+	if err != nil {
+		return sdk.Dec{}, err
+	}
+	endEntry, err := k.getHistoryEntryAtOrBeforeTime(ctx, denom, endTime)
+	if err != nil {
+		return sdk.Dec{}, err
+	}
+
+	startEntry.PriceUpdateTime = startTime
+	endEntry.PriceUpdateTime = endTime
+
+	entryList, err := k.getHistoryEntryBetweenTime(ctx, denom, startTime, endTime)
+	if err != nil {
+		return sdk.Dec{}, err
+	}
+
+	twapPrice, err := k.calculateTWAP(startEntry, entryList, endEntry)
+	if err != nil {
+		return sdk.Dec{}, err
+	}
+
+	return twapPrice, nil
+}
+
+// TODO: complete this
+func (k Keeper) calculateTWAP(starEntry types.PriceHistoryEntry, entries []types.PriceHistoryEntry, endEntry types.PriceHistoryEntry) (sdk.Dec, error) {
+	var allEntries []types.PriceHistoryEntry
+	allEntries = append(allEntries, starEntry)
+	allEntries = append(allEntries, entries...)
+	allEntries = append(allEntries, endEntry)
+
+	return sdk.Dec{}, nil
 }
