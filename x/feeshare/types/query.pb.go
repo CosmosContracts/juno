@@ -76,8 +76,7 @@ func (m *QueryFeeSharesRequest) GetPagination() *query.PageRequest {
 	return nil
 }
 
-// QueryFeeSharesResponse is the response type for the Query/FeeShares RPC
-// method.
+// QueryFeeSharesResponse is the response type for the Query/FeeShares RPC method.
 type QueryFeeSharesResponse struct {
 	// FeeShare is a slice of all stored Reveneue
 	Feeshare []FeeShare `protobuf:"bytes,1,rep,name=feeshare,proto3" json:"feeshare"`
