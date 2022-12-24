@@ -29,6 +29,5 @@ buf generate
 cp -r ./github.com/CosmosContracts/juno/x/* x/
 rm -rf ./github.com
 
-go mod tidy -compat=1.19
+go mod tidy 
 
-# ./scripts/protocgen2.sh
