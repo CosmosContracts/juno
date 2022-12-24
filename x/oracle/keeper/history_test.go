@@ -69,6 +69,28 @@ func Test_storeHistoricalData(t *testing.T) {
 	)
 	require.NoError(t, err)
 	require.Equal(t, phStores, phEntrys)
+
+	phStores, err = oracleKeeper.getHistoryEntryBetweenTime(
+		ctx,
+		"Denom",
+		phEntrys[0].PriceUpdateTime.Add(-time.Minute),
+		phEntrys[1].PriceUpdateTime,
+	)
+	require.NoError(t, err)
+	require.Equal(t, 2, len(phStores))
+	require.Equal(t, phStores[0], phEntrys[0])
+	require.Equal(t, phStores[1], phEntrys[1])
+
+	phStores, err = oracleKeeper.getHistoryEntryBetweenTime(
+		ctx,
+		"Denom",
+		phEntrys[0].PriceUpdateTime,
+		phEntrys[2].PriceUpdateTime.Add(-time.Minute),
+	)
+	require.NoError(t, err)
+	require.Equal(t, 2, len(phStores))
+	require.Equal(t, phStores[0], phEntrys[0])
+	require.Equal(t, phStores[1], phEntrys[1])
 }
 
 func Test_RemoveHistoryEntryBeforeTime(t *testing.T) {
