@@ -37,15 +37,13 @@ func GetValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd []by
 }
 
 // TODO: testing
-func RemoveValueInRange(storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverseIterate bool) error {
+func RemoveValueInRange(storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverseIterate bool) {
 	iterator := makeIterator(storeObj, keyStart, keyEnd, reverseIterate)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
 		storeObj.Delete(iterator.Key())
 	}
-
-	return nil
 }
 
 func makeIterator(storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverse bool) store.Iterator {
