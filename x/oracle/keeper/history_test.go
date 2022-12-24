@@ -103,7 +103,7 @@ func Test_RemoveHistoryEntryBeforeTime(t *testing.T) {
 		ctx,
 		"Denom",
 		phEntrys[0].PriceUpdateTime,
-		phEntrys[2].PriceUpdateTime.Add(time.Minute),
+		phEntrys[2].PriceUpdateTime,
 	)
 	require.NoError(t, err)
 	require.Equal(t, 3, len(phStores))
@@ -114,7 +114,7 @@ func Test_RemoveHistoryEntryBeforeTime(t *testing.T) {
 		ctx,
 		"Denom",
 		phEntrys[0].PriceUpdateTime,
-		phEntrys[2].PriceUpdateTime.Add(time.Minute),
+		phEntrys[2].PriceUpdateTime,
 	)
 	require.NoError(t, err)
 	require.Equal(t, 2, len(phStores))
@@ -126,7 +126,7 @@ func Test_RemoveHistoryEntryBeforeTime(t *testing.T) {
 		ctx,
 		"Denom",
 		phEntrys[0].PriceUpdateTime,
-		phEntrys[2].PriceUpdateTime.Add(time.Minute),
+		phEntrys[2].PriceUpdateTime,
 	)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(phStores))
