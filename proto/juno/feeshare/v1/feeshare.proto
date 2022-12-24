@@ -6,7 +6,8 @@ option go_package = "github.com/CosmosContracts/juno/x/feeshare/types";
 // FeeShare defines an instance that organizes fee distribution conditions for
 // the owner of a given smart contract
 message FeeShare {
-  // contract_address is the bech32 address of a registered contract in string form
+  // contract_address is the bech32 address of a registered contract in string
+  // form
   string contract_address = 1;
   // deployer_address is the bech32 address of message sender. It must be the
   // same as the contracts admin address.
