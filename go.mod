@@ -158,6 +158,8 @@ require (
 )
 
 replace (
+	// token factory:
+	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20221224065248-beaf5696294d
 	// dragonberry: https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.11
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	// use cosmos-flavored protocol buffers
