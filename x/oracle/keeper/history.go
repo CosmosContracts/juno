@@ -56,27 +56,6 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 	return entry, nil
 }
 
-// getHistoryEntryAtOrAfterTime on a given input (denom, t)
-// returns the PriceHistoryEntry from state for (denom, t'),
-// where t' is such that:
-// * t' => t
-// * there exists no `t” => t` in state, where `t' > t”`
-// TODO : testing
-func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t time.Time) (types.PriceHistoryEntry, error) {
-	store := ctx.KVStore(k.storeKey)
-
-	startKey := types.FormatHistoricalDenomIndexKey(t, denom)
-	reverseIterate := false
-
-	entry, err := util.GetFirstValueInRange(store, startKey, nil, reverseIterate, k.ParseTwapFromBz)
-
-	if err != nil {
-		return types.PriceHistoryEntry{}, err
-	}
-
-	return entry, nil
-}
-
 // getHistoryEntryBetweenTime on a given input (denom, t)
 // returns the PriceHistoryEntry from state for (denom, t'),
 // TODO : testing
