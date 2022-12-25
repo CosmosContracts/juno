@@ -67,7 +67,9 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 
 			votingPeriodCount := (uint64(ctx.BlockHeight()) + 1) / params.VotePeriod
 			// set the price history
-			k.SetPriceHistoryEntry(ctx, ballotDenom.Denom, ctx.BlockTime(), exchangeRate, votingPeriodCount)
+			if _, found := k.IsInTrackingList(ctx, ballotDenom.Denom); found {
+				k.SetPriceHistoryEntry(ctx, ballotDenom.Denom, ctx.BlockTime(), exchangeRate, votingPeriodCount)
+			}
 		}
 
 		// update miss counting & slashing

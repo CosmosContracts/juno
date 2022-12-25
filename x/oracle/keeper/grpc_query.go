@@ -283,7 +283,7 @@ func (q querier) PriceHistoryAt(
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	found, denom := q.isInTrackingList(ctx, req.Denom)
+	denom, found := q.IsInTrackingList(ctx, req.Denom)
 	if !found {
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
@@ -308,7 +308,7 @@ func (q querier) AllPriceHistory(
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	found, denom := q.isInTrackingList(ctx, req.Denom)
+	denom, found := q.IsInTrackingList(ctx, req.Denom)
 	if !found {
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
@@ -346,7 +346,7 @@ func (q querier) CurrentVotePeriodCount(
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	found, _ := q.isInTrackingList(ctx, req.Denom)
+	_, found := q.IsInTrackingList(ctx, req.Denom)
 	if !found {
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
@@ -380,7 +380,7 @@ func (q querier) TwapPrice(
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	found, _ := q.isInTrackingList(ctx, req.Denom)
+	_, found := q.IsInTrackingList(ctx, req.Denom)
 	if !found {
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
