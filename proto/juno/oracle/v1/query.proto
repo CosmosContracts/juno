@@ -58,11 +58,7 @@ service Query {
   }
 
   // CurrentVotePeriodCount return denom twap price
-  rpc TwapPrice(QueryTwapBetween)
-      returns (QueryTwapBetweenRespone) {
-    option (google.api.http).get = 
-        "/juno/oracle/v1/price_history/twap-price/{denom}";
-  }
+  rpc TwapPrice(QueryTwapBetween) returns (QueryTwapBetweenRespone) {}
 
   // FeederDelegation returns feeder delegation of a validator
   rpc FeederDelegation(QueryFeederDelegation)

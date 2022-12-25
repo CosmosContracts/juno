@@ -386,7 +386,7 @@ func (q querier) TwapPrice(
 	}
 
 	if req.StartTime.After(req.EndTime) {
-		return nil, status.Errorf(codes.InvalidArgument, "StartTime %v after Endtime", req.StartTime, req.EndTime)
+		return nil, status.Errorf(codes.InvalidArgument, "StartTime %v after Endtime %v", req.StartTime, req.EndTime)
 	}
 
 	twapPrice, err := q.GetArithmetricTWAP(ctx, req.Denom, req.StartTime, req.EndTime)
