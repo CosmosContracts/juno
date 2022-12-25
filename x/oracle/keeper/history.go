@@ -153,9 +153,9 @@ func (k Keeper) GetArithmetricTWAP(
 }
 
 // TODO: complete this
-func (k Keeper) calculateTWAP(starEntry types.PriceHistoryEntry, entries []types.PriceHistoryEntry, endEntry types.PriceHistoryEntry) (sdk.Dec, error) {
+func (k Keeper) calculateTWAP(startEntry types.PriceHistoryEntry, entries []types.PriceHistoryEntry, endEntry types.PriceHistoryEntry) (sdk.Dec, error) {
 	var allEntries []types.PriceHistoryEntry
-	allEntries = append(allEntries, starEntry)
+	allEntries = append(allEntries, startEntry)
 	allEntries = append(allEntries, entries...)
 	allEntries = append(allEntries, endEntry)
 
@@ -170,7 +170,7 @@ func (k Keeper) calculateTWAP(starEntry types.PriceHistoryEntry, entries []types
 		total.Add(allEntries[i].Price.Mul(decTW))
 	}
 
-	fl64TotalTW := endEntry.PriceUpdateTime.Sub(starEntry.PriceUpdateTime).Seconds()
+	fl64TotalTW := endEntry.PriceUpdateTime.Sub(startEntry.PriceUpdateTime).Seconds()
 	decTotalTW, err := sdk.NewDecFromStr(fmt.Sprintf("%f", fl64TotalTW))
 	if err != nil {
 		return sdk.Dec{}, nil
