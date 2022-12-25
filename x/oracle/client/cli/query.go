@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -35,6 +34,9 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		GetCmdQueryMissCounter(),
 		GetCmdQuerySlashWindow(),
 		GetCmdQueryAllPriceHistory(),
+		GetCmdQueryPriceHistoryAt(),
+		GetCmdQueryPriceTrackingLists(),
+		GetCmdQueryTwapPrice(),
 	)
 
 	return cmd
@@ -306,7 +308,7 @@ func GetCmdQueryPriceTrackingLists() *cobra.Command {
 
 func GetCmdQueryPriceHistoryAt() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "price-history-at [symbolDenom] [blockHeight]",
+		Use:   "price-history-at [symbolDenom] [time_stamp]",
 		Short: "Query price history at specific block height",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -315,7 +317,7 @@ func GetCmdQueryPriceHistoryAt() *cobra.Command {
 				return err
 			}
 
-			blockHeight, err := strconv.ParseUint(args[1], 10, 64)
+			time, err := time.Parse(time.RFC3339, args[1])
 			if err != nil {
 				return err
 			}
@@ -323,8 +325,8 @@ func GetCmdQueryPriceHistoryAt() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			req := &types.QueryPriceHistoryAt{
-				Denom:       strings.ToUpper(args[0]),
-				BlockHeight: blockHeight,
+				Denom: strings.ToUpper(args[0]),
+				Time:  time,
 			}
 			res, err := queryClient.PriceHistoryAt(cmd.Context(), req)
 			return util.PrintOrErr(res, err, clientCtx)
@@ -393,11 +395,11 @@ func GetCmdQueryAllPriceHistory() *cobra.Command {
 func GetCmdQueryTwapPrice() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "twap [denom] [startTime] [endTime]",
-		Short: "Get twap between period time",
+		Short: "Query twap between period time",
 		Long: strings.TrimSpace(
 			`Query twap for pool. Start time must be unix time. End time can be unix time or duration.
 Example:
-$ junod q twap 1 JUNO 2022-12-25T19:42:07.100Z 2022-12-25T20:42:07.100Z
+$ junod q twap JUNO 2022-12-25T19:42:07.100Z 2022-12-25T20:42:07.100Z
 `),
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
