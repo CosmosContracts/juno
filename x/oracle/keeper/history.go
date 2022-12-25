@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/CosmosContracts/juno/v12/x/oracle/types"
@@ -51,49 +52,39 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 
 	if err != nil {
 		return types.PriceHistoryEntry{}, err
+
 	}
 
 	return entry, nil
 }
 
-// getHistoryEntryBetweenTime on a given input (denom, startTime, endTime)
-// returns the PriceHistoryEntry from state which in [startTime, endTime]
+// getHistoryEntryBetweenTime on a given input (denom, t)
+// returns the PriceHistoryEntry from state for (denom, t'),
 // TODO : testing
-func (k Keeper) getHistoryEntryBetweenTime(
-	ctx sdk.Context,
-	denom string,
-	startTime time.Time,
-	endTime time.Time,
-) (entries []types.PriceHistoryEntry, err error) {
-	var updateEndTime bool
-	startEntry, err := k.getHistoryEntryAtOrBeforeTime(ctx, denom, startTime)
-	if err == nil {
-		startTime = startEntry.PriceUpdateTime
-	}
-	endEntry, err := k.getHistoryEntryAtOrBeforeTime(ctx, denom, endTime)
-	if err == nil {
-		endTime = endEntry.PriceUpdateTime
-		updateEndTime = true
-		if endTime == startTime {
-			entries = append(entries, endEntry)
-			return entries, nil
-		}
-	}
-
+func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (entries []types.PriceHistoryEntry, err error) {
 	store := ctx.KVStore(k.storeKey)
 
-	startKey := types.FormatHistoricalDenomIndexKey(startTime, denom)
-	endKey := types.FormatHistoricalDenomIndexKey(endTime, denom)
+	startKey := types.FormatHistoricalDenomIndexKey(start, denom)
+	endKey := types.FormatHistoricalDenomIndexKey(end, denom)
 
 	reverseIterate := false
 
 	entries, err = util.GetValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
+
 	if err != nil {
 		return []types.PriceHistoryEntry{}, err
 	}
 
-	if updateEndTime {
-		entries = append(entries, endEntry)
+	// Check if the end have entry
+	key := types.FormatHistoricalDenomIndexKey(end, denom)
+	bz := store.Get(key)
+	if bz != nil {
+		var entry types.PriceHistoryEntry
+		err := k.cdc.Unmarshal(bz, &entry)
+		if err != nil {
+			return entries, err
+		}
+		entries = append(entries, entry)
 	}
 
 	return entries, nil
@@ -136,12 +127,24 @@ func (k Keeper) GetArithmetricTWAP(
 	startTime time.Time,
 	endTime time.Time,
 ) (sdk.Dec, error) {
+	startEntry, err := k.getHistoryEntryAtOrBeforeTime(ctx, denom, startTime)
+	if err != nil {
+		return sdk.Dec{}, err
+	}
+	endEntry, err := k.getHistoryEntryAtOrBeforeTime(ctx, denom, endTime)
+	if err != nil {
+		return sdk.Dec{}, err
+	}
+
+	startEntry.PriceUpdateTime = startTime
+	endEntry.PriceUpdateTime = endTime
+
 	entryList, err := k.getHistoryEntryBetweenTime(ctx, denom, startTime, endTime)
 	if err != nil {
 		return sdk.Dec{}, err
 	}
 
-	twapPrice, err := k.calculateTWAP(startTime, endTime, entryList)
+	twapPrice, err := k.calculateTWAP(startEntry, entryList, endEntry)
 	if err != nil {
 		return sdk.Dec{}, err
 	}
@@ -150,6 +153,22 @@ func (k Keeper) GetArithmetricTWAP(
 }
 
 // TODO: complete this
-func (k Keeper) calculateTWAP(startTime time.Time, endTime time.Time, entries []types.PriceHistoryEntry) (sdk.Dec, error) {
-	return sdk.Dec{}, nil
+func (k Keeper) calculateTWAP(starEntry types.PriceHistoryEntry, entries []types.PriceHistoryEntry, endEntry types.PriceHistoryEntry) (sdk.Dec, error) {
+	var allEntries []types.PriceHistoryEntry
+	allEntries = append(allEntries, starEntry)
+	allEntries = append(allEntries, entries...)
+	allEntries = append(allEntries, endEntry)
+
+	var total sdk.Dec
+	for i := 0; i < len(allEntries); i++ {
+		fl64TW := allEntries[i+1].PriceUpdateTime.Sub(allEntries[i].PriceUpdateTime).Seconds()
+		decTW, err := sdk.NewDecFromStr(fmt.Sprintf("%f", fl64TW))
+		if err != nil {
+			return sdk.Dec{}, nil
+		}
+
+		total.Add(allEntries[i].Price.Mul(decTW))
+	}
+
+	return total, nil
 }

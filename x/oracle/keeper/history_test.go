@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -153,4 +154,18 @@ func Test_RemoveHistoryEntryBeforeTime(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(phStores))
 	require.Equal(t, phStores[0], phEntrys[2])
+}
+
+func TestDec(t *testing.T) {
+	timeNow := time.Now().UTC()
+	timePlus := timeNow.Add(1213485612634156 * time.Microsecond)
+	duration := timePlus.Sub(timeNow).Seconds()
+	fmt.Printf("%f\n", duration)
+	s := fmt.Sprintf("%f", duration)
+	fmt.Printf("string: %s\n", s)
+
+	decTimeWeight, err := sdk.NewDecFromStr(s)
+	require.NoError(t, err)
+	fmt.Printf("%v\n", decTimeWeight)
+	require.True(t, false)
 }
