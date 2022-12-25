@@ -122,7 +122,6 @@ func (k Keeper) SetPriceHistoryEntry(ctx sdk.Context, denom string, t time.Time,
 
 func (k Keeper) GetArithmetricTWAP(
 	ctx sdk.Context,
-	poolID uint64,
 	denom string,
 	startTime time.Time,
 	endTime time.Time,

@@ -370,3 +370,31 @@ func (q querier) CurrentVotePeriodCount(
 		VotePeriodCount: currentVotePeriodCount,
 	}, nil
 }
+
+func (q querier) TwapPrice(
+	goCtx context.Context,
+	req *types.QueryTwapBetween,
+) (*types.QueryTwapBetweenRespone, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	found, _ := q.isInTrackingList(ctx, req.Denom)
+	if !found {
+		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
+	}
+
+	if req.StartTime.After(req.EndTime) {
+		return nil, status.Errorf(codes.InvalidArgument, "StartTime %v after Endtime", req.StartTime, req.EndTime)
+	}
+
+	twapPrice, err := q.GetArithmetricTWAP(ctx, req.Denom, req.StartTime, req.EndTime)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryTwapBetweenRespone{
+		TwapPrice: sdk.NewDecCoinFromDec(req.Denom, twapPrice),
+	}, nil
+}
