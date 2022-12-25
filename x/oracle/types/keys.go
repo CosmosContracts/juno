@@ -38,7 +38,7 @@ func GetPriceHistoryKey(symbolDenom string) (key []byte) {
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	key = append(key, KeyPrefixPriceHistory...)
 	key = append(key, []byte(upperSymbolDenom)...)
-	return key
+	return append(key, 0) // append 0 for null-termination
 }
 
 // GetExchangeRateKey - stored by *denom*
@@ -89,9 +89,11 @@ func FormatTimeString(t time.Time) string {
 
 func FormatHistoricalDenomIndexKey(accumulatorWriteTime time.Time, denom string) []byte {
 	timeS := FormatTimeString(accumulatorWriteTime)
-	return []byte(fmt.Sprintf("%s%s%s%s", HistoricalTWAPTimeIndexPrefix, denom, KeySeparator, timeS))
+	upperDenom := strings.ToUpper(denom)
+	return []byte(fmt.Sprintf("%s%s%s%s", HistoricalTWAPTimeIndexPrefix, upperDenom, KeySeparator, timeS))
 }
 
 func FormatHistoricalDenomIndexPrefix(denom string) []byte {
-	return []byte(fmt.Sprintf("%s%s%s", HistoricalTWAPTimeIndexPrefix, denom, KeySeparator))
+	upperDenom := strings.ToUpper(denom)
+	return []byte(fmt.Sprintf("%s%s%s", HistoricalTWAPTimeIndexPrefix, upperDenom, KeySeparator))
 }

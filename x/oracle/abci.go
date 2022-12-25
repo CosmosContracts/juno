@@ -25,7 +25,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 		// remove out of date history price
 		for _, denom := range params.PriceTrackingList {
 			removeTime := ctx.BlockTime().Add(-params.PriceTrackingDuration)
-			k.RemoveHistoryEntryAtOrBeforeTime(ctx, denom.BaseDenom, removeTime)
+			k.RemoveHistoryEntryBeforeTime(ctx, denom.BaseDenom, removeTime)
 		}
 
 		// Build claim map over all validators in active set
@@ -67,7 +67,9 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 
 			votingPeriodCount := (uint64(ctx.BlockHeight()) + 1) / params.VotePeriod
 			// set the price history
-			k.SetPriceHistoryEntry(ctx, ballotDenom.Denom, ctx.BlockTime(), exchangeRate, votingPeriodCount)
+			if _, found := k.IsInTrackingList(ctx, ballotDenom.Denom); found {
+				k.SetPriceHistoryEntry(ctx, ballotDenom.Denom, ctx.BlockTime(), exchangeRate, votingPeriodCount)
+			}
 		}
 
 		// update miss counting & slashing

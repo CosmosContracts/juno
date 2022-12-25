@@ -76,7 +76,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, symbolDenom string, exchangeRate sdk.Dec, time time.Time, blockHeight uint64) error {
 	// Check if not in tracking list
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
-	found, _ := k.isInTrackingList(ctx, upperSymbolDenom)
+	_, found := k.IsInTrackingList(ctx, upperSymbolDenom)
 	if !found {
 		// if not in tracking list, doing nothing => just return nil
 		return nil
@@ -113,7 +113,7 @@ func (k Keeper) GetDenomPriceHistoryWithBlockHeight(ctx sdk.Context, symbolDenom
 	var priceHistoryEntry types.PriceHistoryEntry
 	// Check if in tracking list
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
-	found, _ := k.isInTrackingList(ctx, upperSymbolDenom)
+	_, found := k.IsInTrackingList(ctx, upperSymbolDenom)
 	if !found {
 		return priceHistoryEntry, sdkerrors.Wrapf(types.ErrUnknownDenom, "denom %s not in tracking list", upperSymbolDenom)
 	}
@@ -514,16 +514,16 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	return nil
 }
 
-func (k Keeper) isInTrackingList(ctx sdk.Context, symbolDenom string) (bool, types.Denom) {
+func (k Keeper) IsInTrackingList(ctx sdk.Context, symbolDenom string) (types.Denom, bool) {
 	var denom types.Denom
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	params := k.GetParams(ctx)
 	for _, trackingDenom := range params.PriceTrackingList {
 		if trackingDenom.SymbolDenom == upperSymbolDenom {
 			denom = trackingDenom
-			return true, denom
+			return denom, true
 		}
 	}
 
-	return false, denom
+	return denom, false
 }

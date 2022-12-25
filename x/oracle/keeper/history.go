@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/CosmosContracts/juno/v12/x/oracle/types"
@@ -31,32 +32,20 @@ func (k Keeper) storeHistoricalData(ctx sdk.Context, denom string, entry types.P
 // TODO : testing
 func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) (types.PriceHistoryEntry, error) {
 	store := ctx.KVStore(k.storeKey)
+	// reverseIterator not catch end key => Need this scope to catch if the value is in end key
+	key := types.FormatHistoricalDenomIndexKey(t, denom)
+	bz := store.Get(key)
+	if bz != nil {
+		var entry types.PriceHistoryEntry
+		err := k.cdc.Unmarshal(bz, &entry)
+		if err != nil {
+			return types.PriceHistoryEntry{}, err
+		}
+		return entry, nil
+	}
 
 	startKey := types.FormatHistoricalDenomIndexPrefix(denom)
 	endKey := types.FormatHistoricalDenomIndexKey(t, denom)
-	reverseIterate := true
-
-	entry, err := util.GetFirstValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
-
-	if err != nil {
-		return types.PriceHistoryEntry{}, err
-
-	}
-
-	return entry, nil
-}
-
-// getHistoryEntryAtOrAfterTime on a given input (denom, t)
-// returns the PriceHistoryEntry from state for (denom, t'),
-// where t' is such that:
-// * t' => t
-// * there exists no `t” => t` in state, where `t' > t”`
-// TODO : testing
-func (k Keeper) getHistoryEntryAtOrAfterTime(ctx sdk.Context, denom string, t time.Time) (types.PriceHistoryEntry, error) {
-	store := ctx.KVStore(k.storeKey)
-
-	startKey := types.FormatHistoricalDenomIndexKey(t, denom)
-	endKey := types.FormatHistoricalDenomIndexPrefix(denom)
 	reverseIterate := true
 
 	entry, err := util.GetFirstValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
@@ -86,6 +75,18 @@ func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start 
 		return []types.PriceHistoryEntry{}, err
 	}
 
+	// Check if the end have entry
+	key := types.FormatHistoricalDenomIndexKey(end, denom)
+	bz := store.Get(key)
+	if bz != nil {
+		var entry types.PriceHistoryEntry
+		err := k.cdc.Unmarshal(bz, &entry)
+		if err != nil {
+			return entries, err
+		}
+		entries = append(entries, entry)
+	}
+
 	return entries, nil
 }
 
@@ -98,7 +99,7 @@ func (k Keeper) ParseTwapFromBz(bz []byte) (entry types.PriceHistoryEntry, err e
 }
 
 // TODO : testing
-func (k Keeper) RemoveHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) {
+func (k Keeper) RemoveHistoryEntryBeforeTime(ctx sdk.Context, denom string, t time.Time) {
 	store := ctx.KVStore(k.storeKey)
 
 	startKey := types.FormatHistoricalDenomIndexPrefix(denom)
@@ -121,7 +122,6 @@ func (k Keeper) SetPriceHistoryEntry(ctx sdk.Context, denom string, t time.Time,
 
 func (k Keeper) GetArithmetricTWAP(
 	ctx sdk.Context,
-	poolID uint64,
 	denom string,
 	startTime time.Time,
 	endTime time.Time,
@@ -152,11 +152,30 @@ func (k Keeper) GetArithmetricTWAP(
 }
 
 // TODO: complete this
-func (k Keeper) calculateTWAP(starEntry types.PriceHistoryEntry, entries []types.PriceHistoryEntry, endEntry types.PriceHistoryEntry) (sdk.Dec, error) {
+func (k Keeper) calculateTWAP(startEntry types.PriceHistoryEntry, entries []types.PriceHistoryEntry, endEntry types.PriceHistoryEntry) (sdk.Dec, error) {
 	var allEntries []types.PriceHistoryEntry
-	allEntries = append(allEntries, starEntry)
+	allEntries = append(allEntries, startEntry)
 	allEntries = append(allEntries, entries...)
 	allEntries = append(allEntries, endEntry)
 
-	return sdk.Dec{}, nil
+	var total sdk.Dec
+	for i := 0; i < len(allEntries)-1; i++ {
+		fl64TW := allEntries[i+1].PriceUpdateTime.Sub(allEntries[i].PriceUpdateTime).Seconds()
+		decTW, err := sdk.NewDecFromStr(fmt.Sprintf("%f", fl64TW))
+		if err != nil {
+			return sdk.Dec{}, nil
+		}
+
+		total.Add(allEntries[i].Price.Mul(decTW))
+	}
+
+	fl64TotalTW := endEntry.PriceUpdateTime.Sub(startEntry.PriceUpdateTime).Seconds()
+	decTotalTW, err := sdk.NewDecFromStr(fmt.Sprintf("%f", fl64TotalTW))
+	if err != nil {
+		return sdk.Dec{}, nil
+	}
+
+	twapPrice := total.Quo(decTotalTW)
+
+	return twapPrice, nil
 }
