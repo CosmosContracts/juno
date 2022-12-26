@@ -48,10 +48,8 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 	reverseIterate := true
 
 	entry, err := util.GetFirstValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
-
 	if err != nil {
 		return types.PriceHistoryEntry{}, err
-
 	}
 
 	return entry, nil
@@ -118,7 +116,7 @@ func (k Keeper) SetPriceHistoryEntry(ctx sdk.Context, denom string, t time.Time,
 	k.storeHistoricalData(ctx, denom, entry)
 }
 
-// GetArithmetricTWAP get the arithmetric TWAP
+// GetArithmetricTWAP get the arithmetic TWAP
 // of specific denom between startTime and endTime
 func (k Keeper) GetArithmetricTWAP(
 	ctx sdk.Context,
@@ -171,7 +169,7 @@ func (k Keeper) calculateTWAP(startEntry types.PriceHistoryEntry, entries []type
 	fl64TotalTW := endEntry.PriceUpdateTime.Sub(startEntry.PriceUpdateTime).Seconds()
 	decTotalTW, err := sdk.NewDecFromStr(fmt.Sprintf("%f", fl64TotalTW))
 	if err != nil {
-		return sdk.Dec{}, nil
+		return sdk.Dec{}, err
 	}
 
 	twapPrice := total.Quo(decTotalTW)

@@ -507,5 +507,4 @@ func (s *IntegrationTestSuite) TestTwapPrice() {
 			}
 		})
 	}
-
 }
