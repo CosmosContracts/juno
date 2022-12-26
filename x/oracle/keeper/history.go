@@ -29,7 +29,6 @@ func (k Keeper) storeHistoricalData(ctx sdk.Context, denom string, entry types.P
 // where t' is such that:
 // * t' <= t
 // * there exists no `t” <= t` in state, where `t' < t”`
-// TODO : testing
 func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) (types.PriceHistoryEntry, error) {
 	store := ctx.KVStore(k.storeKey)
 	// reverseIterator not catch end key => Need this scope to catch if the value is in end key
@@ -60,7 +59,6 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 
 // getHistoryEntryBetweenTime on a given input (denom, t)
 // returns the PriceHistoryEntry from state for (denom, t'),
-// TODO : testing
 func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (entries []types.PriceHistoryEntry, err error) {
 	store := ctx.KVStore(k.storeKey)
 
@@ -98,7 +96,8 @@ func (k Keeper) ParseTwapFromBz(bz []byte) (entry types.PriceHistoryEntry, err e
 	return entry, err
 }
 
-// TODO : testing
+// RemoveHistoryEntryBeforeTime remove all history entry
+// that had UpdatePriceTime before t
 func (k Keeper) RemoveHistoryEntryBeforeTime(ctx sdk.Context, denom string, t time.Time) {
 	store := ctx.KVStore(k.storeKey)
 
@@ -109,7 +108,6 @@ func (k Keeper) RemoveHistoryEntryBeforeTime(ctx sdk.Context, denom string, t ti
 	util.RemoveValueInRange(store, startKey, endKey, reverseIterate)
 }
 
-// TODO : testing
 func (k Keeper) SetPriceHistoryEntry(ctx sdk.Context, denom string, t time.Time, exchangeRate sdk.Dec, votingPeriodCount uint64) {
 	entry := types.PriceHistoryEntry{
 		Price:           exchangeRate,
@@ -120,6 +118,8 @@ func (k Keeper) SetPriceHistoryEntry(ctx sdk.Context, denom string, t time.Time,
 	k.storeHistoricalData(ctx, denom, entry)
 }
 
+// GetArithmetricTWAP get the arithmetric TWAP
+// of specific denom between startTime and endTime
 func (k Keeper) GetArithmetricTWAP(
 	ctx sdk.Context,
 	denom string,
@@ -151,22 +151,21 @@ func (k Keeper) GetArithmetricTWAP(
 	return twapPrice, nil
 }
 
-// TODO: complete this
+// calculateTWAP calculate TWAP between startEntry and endEntry
 func (k Keeper) calculateTWAP(startEntry types.PriceHistoryEntry, entries []types.PriceHistoryEntry, endEntry types.PriceHistoryEntry) (sdk.Dec, error) {
 	var allEntries []types.PriceHistoryEntry
 	allEntries = append(allEntries, startEntry)
 	allEntries = append(allEntries, entries...)
 	allEntries = append(allEntries, endEntry)
 
-	var total sdk.Dec
+	total := sdk.ZeroDec()
 	for i := 0; i < len(allEntries)-1; i++ {
 		fl64TW := allEntries[i+1].PriceUpdateTime.Sub(allEntries[i].PriceUpdateTime).Seconds()
 		decTW, err := sdk.NewDecFromStr(fmt.Sprintf("%f", fl64TW))
 		if err != nil {
 			return sdk.Dec{}, nil
 		}
-
-		total.Add(allEntries[i].Price.Mul(decTW))
+		total = total.Add(allEntries[i].Price.Mul(decTW))
 	}
 
 	fl64TotalTW := endEntry.PriceUpdateTime.Sub(startEntry.PriceUpdateTime).Seconds()

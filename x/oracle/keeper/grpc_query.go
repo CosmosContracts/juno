@@ -288,7 +288,7 @@ func (q querier) PriceHistoryAt(
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
 
-	priceHistoryEntry, err := q.GetDenomPriceHistoryWithBlockHeight(ctx, req.Denom, req.BlockHeight)
+	priceHistoryEntry, err := q.getHistoryEntryAtOrBeforeTime(ctx, req.Denom, req.Time)
 	if err != nil {
 		return nil, err
 	}
@@ -334,40 +334,6 @@ func (q querier) AllPriceHistory(
 		Denom:              denom,
 		PriceHistoryEntrys: priceHistoryEntrys,
 		Pagination:         pageRes,
-	}, nil
-}
-
-func (q querier) CurrentVotePeriodCount(
-	goCtx context.Context,
-	req *types.QueryCurrentVotePeriodCount,
-) (*types.QueryCurrentVotePeriodCountRespone, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	_, found := q.IsInTrackingList(ctx, req.Denom)
-	if !found {
-		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
-	}
-
-	store := ctx.KVStore(q.storeKey)
-	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(req.Denom))
-	iter := sdk.KVStoreReversePrefixIterator(priceHistoryStore, []byte{})
-
-	defer iter.Close()
-
-	var currentVotePeriodCount uint64
-	if iter.Valid() {
-		currentVotePeriodCount = sdk.BigEndianToUint64(iter.Key())
-	}
-
-	if currentVotePeriodCount == 0 {
-		return nil, status.Errorf(codes.Internal, "Denom %s not have price tracking data", req.Denom)
-	}
-
-	return &types.QueryCurrentVotePeriodCountRespone{
-		VotePeriodCount: currentVotePeriodCount,
 	}, nil
 }
 

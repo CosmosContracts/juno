@@ -2,11 +2,14 @@ package keeper_test
 
 import (
 	"math/rand"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 
 	appparams "github.com/CosmosContracts/juno/v12/app/params"
+	"github.com/CosmosContracts/juno/v12/testutil/nullify"
 	"github.com/CosmosContracts/juno/v12/x/oracle/keeper"
 	"github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
@@ -262,4 +265,247 @@ func (s *IntegrationTestSuite) TestInvalidBechAddress() {
 	resAggregateVote, err := q.AggregateVote(s.ctx.Context(), &types.QueryAggregateVote{})
 	s.Require().Nil(resAggregateVote)
 	s.Require().ErrorContains(err, invalidAddressMsg)
+}
+
+func (s *IntegrationTestSuite) TestQueryPriceTrackingLists() {
+	s.SetupTest()
+
+	res, err := s.queryClient.PriceTrackingLists(s.ctx.Context(), &types.QueryPriceTrackingLists{})
+	s.Require().NoError(err)
+	s.Require().NotNil(res)
+
+	result := []string{"JUNO", "ATOM"} // default params
+
+	s.Require().Equal(res.PriceTrakingLists, result)
+}
+
+func (s *IntegrationTestSuite) TestPriceHistoryAt() {
+	s.SetupTest()
+	timeNow := time.Now().UTC()
+
+	phEntry := types.PriceHistoryEntry{
+		Price:           sdk.OneDec(),
+		VotePeriodCount: 10,
+		PriceUpdateTime: timeNow,
+	}
+
+	s.app.OracleKeeper.SetPriceHistoryEntry(
+		s.ctx,
+		"JUNO",
+		phEntry.PriceUpdateTime,
+		phEntry.Price,
+		phEntry.VotePeriodCount,
+	)
+
+	req := &types.QueryPriceHistoryAt{
+		Denom: "JUNO",
+		Time:  timeNow,
+	}
+
+	res, err := s.queryClient.PriceHistoryAt(s.ctx.Context(), req)
+	s.Require().NoError(err)
+	s.Require().Equal(phEntry, res.PriceHistoryEntry)
+
+	req = &types.QueryPriceHistoryAt{
+		Denom: "JUNO",
+		Time:  timeNow.Add(time.Minute),
+	}
+
+	res, err = s.queryClient.PriceHistoryAt(s.ctx.Context(), req)
+	s.Require().NoError(err)
+	s.Require().Equal(phEntry, res.PriceHistoryEntry)
+}
+
+func (s *IntegrationTestSuite) TestAllPriceHistory() {
+	s.SetupTest()
+	timeNow := time.Now().UTC()
+
+	phEntrys := []types.PriceHistoryEntry{
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 1,
+			PriceUpdateTime: timeNow,
+		},
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 11,
+			PriceUpdateTime: timeNow.Add(time.Minute),
+		},
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 12,
+			PriceUpdateTime: timeNow.Add(2 * time.Minute),
+		},
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 13,
+			PriceUpdateTime: timeNow.Add(3 * time.Minute),
+		},
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 14,
+			PriceUpdateTime: timeNow.Add(4 * time.Minute),
+		},
+	}
+
+	// Set price history
+	for _, phEntry := range phEntrys {
+		s.app.OracleKeeper.SetPriceHistoryEntry(
+			s.ctx,
+			"JUNO",
+			phEntry.PriceUpdateTime,
+			phEntry.Price,
+			phEntry.VotePeriodCount,
+		)
+	}
+
+	// Get price history
+	request := func(next []byte, offset, limit uint64, total bool) *types.QueryAllPriceHistory {
+		return &types.QueryAllPriceHistory{
+			Denom: "JUNO",
+			Pagination: &query.PageRequest{
+				Key:        next,
+				Offset:     offset,
+				Limit:      limit,
+				CountTotal: total,
+			},
+		}
+	}
+
+	s.Run("ByOffset", func() {
+		step := 2
+		goCtx := sdk.WrapSDKContext(s.ctx)
+		for i := 0; i < len(phEntrys); i += step {
+			resp, err := s.queryClient.AllPriceHistory(goCtx, request(nil, uint64(i), uint64(step), false))
+			s.Require().NoError(err)
+			s.Require().LessOrEqual(len(resp.PriceHistoryEntrys), step)
+			s.Require().Subset(nullify.Fill(phEntrys), nullify.Fill(resp.PriceHistoryEntrys))
+		}
+	})
+	s.Run("ByKey", func() {
+		step := 2
+		var next []byte
+		goCtx := sdk.WrapSDKContext(s.ctx)
+		for i := 0; i < len(phEntrys); i += step {
+			resp, err := s.queryClient.AllPriceHistory(goCtx, request(next, 0, uint64(step), false))
+			s.Require().NoError(err)
+			s.Require().LessOrEqual(len(resp.PriceHistoryEntrys), step)
+			s.Require().Subset(nullify.Fill(phEntrys), nullify.Fill(resp.PriceHistoryEntrys))
+			next = resp.Pagination.NextKey
+		}
+	})
+	s.Run("Total", func() {
+		goCtx := sdk.WrapSDKContext(s.ctx)
+		resp, err := s.queryClient.AllPriceHistory(goCtx, request(nil, 0, 0, true))
+		s.Require().NoError(err)
+		s.Require().Equal(len(phEntrys), int(resp.Pagination.Total))
+		s.Require().ElementsMatch(nullify.Fill(phEntrys), nullify.Fill(resp.PriceHistoryEntrys))
+	})
+}
+
+func (s *IntegrationTestSuite) TestTwapPrice() {
+	s.SetupTest()
+	timeNow := time.Now().UTC()
+
+	phEntrys := []types.PriceHistoryEntry{
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 10,
+			PriceUpdateTime: timeNow,
+		},
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 11,
+			PriceUpdateTime: timeNow.Add(time.Minute),
+		},
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 12,
+			PriceUpdateTime: timeNow.Add(2 * time.Minute),
+		},
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 13,
+			PriceUpdateTime: timeNow.Add(3 * time.Minute),
+		},
+		{
+			Price:           sdk.OneDec(),
+			VotePeriodCount: 14,
+			PriceUpdateTime: timeNow.Add(4 * time.Minute),
+		},
+	}
+
+	// Set price history
+	for _, phEntry := range phEntrys {
+		s.app.OracleKeeper.SetPriceHistoryEntry(
+			s.ctx,
+			"JUNO",
+			phEntry.PriceUpdateTime,
+			phEntry.Price,
+			phEntry.VotePeriodCount,
+		)
+	}
+
+	for _, tc := range []struct {
+		desc      string
+		req       *types.QueryTwapBetween
+		res       *types.QueryTwapBetweenRespone
+		shouldErr bool
+	}{
+		{
+			desc: "Success",
+			req: &types.QueryTwapBetween{
+				Denom:     "JUNO",
+				StartTime: timeNow,
+				EndTime:   timeNow.Add(4 * time.Minute),
+			},
+			res: &types.QueryTwapBetweenRespone{
+				TwapPrice: sdk.NewDecCoinFromDec("JUNO", sdk.OneDec()),
+			},
+			shouldErr: false,
+		},
+		{
+			desc: "Success",
+			req: &types.QueryTwapBetween{
+				Denom:     "JUNO",
+				StartTime: timeNow.Add(30 * time.Second),
+				EndTime:   timeNow.Add(4 * time.Minute),
+			},
+			res: &types.QueryTwapBetweenRespone{
+				TwapPrice: sdk.NewDecCoinFromDec("JUNO", sdk.OneDec()),
+			},
+			shouldErr: false,
+		},
+		{
+			desc: "Error - Start time before first entry",
+			req: &types.QueryTwapBetween{
+				Denom:     "JUNO",
+				StartTime: timeNow.Add(-time.Minute),
+				EndTime:   timeNow.Add(4 * time.Minute),
+			},
+			shouldErr: true,
+		},
+		{
+			desc: "Error - End time before start time",
+			req: &types.QueryTwapBetween{
+				Denom:     "JUNO",
+				StartTime: timeNow.Add(3 * time.Minute),
+				EndTime:   timeNow.Add(2 * time.Minute),
+			},
+			shouldErr: true,
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			if !tc.shouldErr {
+				res, err := s.queryClient.TwapPrice(s.ctx.Context(), tc.req)
+				s.Require().NoError(err)
+				s.Require().Equal(tc.res, res)
+			} else {
+				_, err := s.queryClient.TwapPrice(s.ctx.Context(), tc.req)
+				s.Require().Error(err)
+			}
+		})
+	}
+
 }
