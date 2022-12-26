@@ -20,26 +20,18 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
 
 	params := k.GetParams(ctx)
-	// remove out of date history price
-	for _, denom := range params.PriceTrackingList {
-		var keys []uint64
-		k.IterateDenomPriceHistory(ctx, denom.SymbolDenom, func(key uint64, priceHistory types.PriceHistoryEntry) bool {
-			goneTime := ctx.BlockTime().Sub(priceHistory.PriceUpdateTime)
-			if goneTime > params.PriceTrackingDuration {
-				keys = append(keys, key)
-				return false
-			}
-			return true
-		})
-		for _, key := range keys {
-			k.DeleteDenomPriceHistory(ctx, denom.SymbolDenom, key)
-		}
-	}
 
 	if isPeriodLastBlock(ctx, params.VotePeriod) {
+		// remove out of date history price
+		for _, denom := range params.PriceTrackingList {
+			removeTime := ctx.BlockTime().Add(-params.PriceTrackingDuration)
+			k.RemoveHistoryEntryBeforeTime(ctx, denom.BaseDenom, removeTime)
+		}
+
 		// Build claim map over all validators in active set
 		validatorClaimMap := make(map[string]types.Claim)
 		powerReduction := k.StakingKeeper.PowerReduction(ctx)
+
 		for _, v := range k.StakingKeeper.GetBondedValidatorsByPower(ctx) {
 			addr := v.GetOperator()
 			validatorClaimMap[addr.String()] = types.NewClaim(v.GetConsensusPower(powerReduction), 0, 0, addr)
@@ -73,9 +65,10 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 				return err
 			}
 
+			votingPeriodCount := (uint64(ctx.BlockHeight()) + 1) / params.VotePeriod
 			// set the price history
-			if err = k.SetDenomPriceHistory(ctx, ballotDenom.Denom, exchangeRate, ctx.BlockTime(), uint64(ctx.BlockHeight())); err != nil {
-				return err
+			if _, found := k.IsInTrackingList(ctx, ballotDenom.Denom); found {
+				k.SetPriceHistoryEntry(ctx, ballotDenom.Denom, ctx.BlockTime(), exchangeRate, votingPeriodCount)
 			}
 		}
 
