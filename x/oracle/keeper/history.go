@@ -158,15 +158,14 @@ func (k Keeper) calculateTWAP(startEntry types.PriceHistoryEntry, entries []type
 	allEntries = append(allEntries, entries...)
 	allEntries = append(allEntries, endEntry)
 
-	var total sdk.Dec
+	total := sdk.ZeroDec()
 	for i := 0; i < len(allEntries)-1; i++ {
 		fl64TW := allEntries[i+1].PriceUpdateTime.Sub(allEntries[i].PriceUpdateTime).Seconds()
 		decTW, err := sdk.NewDecFromStr(fmt.Sprintf("%f", fl64TW))
 		if err != nil {
 			return sdk.Dec{}, nil
 		}
-
-		total.Add(allEntries[i].Price.Mul(decTW))
+		total = total.Add(allEntries[i].Price.Mul(decTW))
 	}
 
 	fl64TotalTW := endEntry.PriceUpdateTime.Sub(startEntry.PriceUpdateTime).Seconds()
