@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_storeHistoricalData(t *testing.T) {
+func Test_StoreAndGetHistoricalData(t *testing.T) {
 	timeNow := time.Now().UTC()
 	ctx, keepers := CreateTestInput(t, false)
 	oracleKeeper := keepers.OracleKeeper
@@ -93,7 +93,7 @@ func Test_storeHistoricalData(t *testing.T) {
 	require.Equal(t, phStores[1], phEntrys[1])
 }
 
-func Test_RemoveHistoryEntryBeforeTime(t *testing.T) {
+func TestRemoveHistoryEntryBeforeTime(t *testing.T) {
 	timeNow := time.Now().UTC()
 	ctx, keepers := CreateTestInput(t, false)
 	oracleKeeper := keepers.OracleKeeper

@@ -46,13 +46,6 @@ service Query {
         "/juno/oracle/v1/price_history/tracking_lists";
   }
 
-  // CurrentVotePeriodCount return the newest vote period count of specific denom
-  rpc CurrentVotePeriodCount(QueryCurrentVotePeriodCount)
-      returns (QueryCurrentVotePeriodCountRespone) {
-    option (google.api.http).get = 
-        "/juno/oracle/v1/price_history/vote_period_count/{denom}";
-  }
-
   // CurrentVotePeriodCount return denom twap price
   rpc TwapPrice(QueryTwapBetween) returns (QueryTwapBetweenRespone) {}
 
@@ -288,14 +281,6 @@ message QueryAllPriceHistoryRespone{
   Denom denom = 1 [(gogoproto.nullable) = false];
   repeated PriceHistoryEntry price_history_entrys = 2 [(gogoproto.nullable) = false];
   cosmos.base.query.v1beta1.PageResponse pagination = 3;
-}
-
-message QueryCurrentVotePeriodCount{
-  string denom = 1;
-}
-
-message QueryCurrentVotePeriodCountRespone{
-  uint64 vote_period_count = 1;
 }
 
 message QueryTwapBetween {

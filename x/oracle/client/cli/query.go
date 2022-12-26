@@ -337,31 +337,6 @@ func GetCmdQueryPriceHistoryAt() *cobra.Command {
 	return cmd
 }
 
-func GetCmdQueryCurrentVotePeriodCount() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "current-vote-period-count [denom]",
-		Short: "Query current vote period count",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			req := &types.QueryCurrentVotePeriodCount{
-				Denom: strings.ToUpper(args[0]),
-			}
-			res, err := queryClient.CurrentVotePeriodCount(cmd.Context(), req)
-			return util.PrintOrErr(res, err, clientCtx)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-	return cmd
-}
-
 func GetCmdQueryAllPriceHistory() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "all-price-history [denom]",

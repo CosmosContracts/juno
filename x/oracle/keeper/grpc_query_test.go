@@ -281,12 +281,12 @@ func (s *IntegrationTestSuite) TestQueryPriceTrackingLists() {
 
 func (s *IntegrationTestSuite) TestPriceHistoryAt() {
 	s.SetupTest()
-	time := time.Now().UTC()
+	timeNow := time.Now().UTC()
 
-	phEntry := &types.PriceHistoryEntry{
+	phEntry := types.PriceHistoryEntry{
 		Price:           sdk.OneDec(),
 		VotePeriodCount: 10,
-		PriceUpdateTime: time,
+		PriceUpdateTime: timeNow,
 	}
 
 	s.app.OracleKeeper.SetPriceHistoryEntry(
@@ -298,11 +298,22 @@ func (s *IntegrationTestSuite) TestPriceHistoryAt() {
 	)
 
 	req := &types.QueryPriceHistoryAt{
-		// "JUNO",
+		Denom: "JUNO",
+		Time:  timeNow,
 	}
 
-	_, _ = s.queryClient.PriceHistoryAt(s.ctx.Context(), req)
+	res, err := s.queryClient.PriceHistoryAt(s.ctx.Context(), req)
+	s.Require().NoError(err)
+	s.Require().Equal(phEntry, res.PriceHistoryEntry)
 
+	req = &types.QueryPriceHistoryAt{
+		Denom: "JUNO",
+		Time:  timeNow.Add(time.Minute),
+	}
+
+	res, err = s.queryClient.PriceHistoryAt(s.ctx.Context(), req)
+	s.Require().NoError(err)
+	s.Require().Equal(phEntry, res.PriceHistoryEntry)
 }
 
 func (s *IntegrationTestSuite) TestAllPriceHistory() {
