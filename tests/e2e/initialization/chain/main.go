@@ -14,7 +14,7 @@ func main() {
 	var (
 		valConfig             []*initialization.NodeConfig
 		dataDir               string
-		chainId               string
+		chainId               string //nolint:revive,stylecheck
 		config                string
 		votingPeriod          time.Duration
 		expeditedVotingPeriod time.Duration
@@ -50,7 +50,7 @@ func main() {
 
 	b, _ := json.Marshal(createdChain)
 	fileName := fmt.Sprintf("%v/%v-encode", dataDir, chainId)
-	if err = os.WriteFile(fileName, b, 0o777); err != nil {
+	if err = os.WriteFile(fileName, b, 0o777); err != nil { //nolint:gosec
 		panic(err)
 	}
 }

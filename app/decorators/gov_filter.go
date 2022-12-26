@@ -43,7 +43,7 @@ func (gpsd GovPreventSpamDecorator) AnteHandle(
 
 func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(ctx sdk.Context, msgs []sdk.Msg) error {
 	validMsg := func(m sdk.Msg) error {
-		switch msg := m.(type) {
+		switch msg := m.(type) { //nolint:gocritic
 		case *govtypes.MsgSubmitProposal:
 			// prevent spam gov msg
 			depositParams := gpsd.govKeeper.GetDepositParams(ctx)

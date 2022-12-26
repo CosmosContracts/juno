@@ -8,9 +8,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-var (
-	DefaultIsAppSimulation = false
-)
+var DefaultIsAppSimulation = false
 
 func UpdateSimsFlag(flag bool) {
 	DefaultIsAppSimulation = flag
