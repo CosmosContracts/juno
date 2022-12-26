@@ -29,8 +29,12 @@ service Query {
         "/juno/oracle/v1/denoms/active_exchange_rates";
   }
 
-  // PriceHistoryAt return price of denom at specific block height
-  rpc PriceHistoryAt(QueryPriceHistoryAt) returns (QueryPriceHistoryAtRespone) {}
+  // PriceHistoryAtTime return price of denom at specific time
+  rpc PriceHistoryAtTime(QueryPriceHistoryAtTime) 
+      returns (QueryPriceHistoryAtTimeRespone) {
+        option (google.api.http).get = 
+        "/juno/oracle/v1/price_history/PriceHistoryAtTime";
+      }
 
   // AllPriceHistory return all price history of denom
   rpc AllPriceHistory(QueryAllPriceHistory)
@@ -46,8 +50,12 @@ service Query {
         "/juno/oracle/v1/price_history/tracking_lists";
   }
 
-  // CurrentVotePeriodCount return denom twap price
-  rpc TwapPrice(QueryTwapBetween) returns (QueryTwapBetweenRespone) {}
+  // ArithmeticTwapPriceBetweenTime return denom twap price between startTime and endTime
+  rpc ArithmeticTwapPriceBetweenTime(QueryArithmeticTwapBetweenTime) 
+      returns (QueryArithmeticTwapBetweenTimeRespone) {
+        option (google.api.http).get = 
+        "/juno/oracle/v1/price_history/ArithmeticTwapBetweenTime";
+  }
 
   // FeederDelegation returns feeder delegation of a validator
   rpc FeederDelegation(QueryFeederDelegation)
@@ -258,7 +266,7 @@ message QueryPriceTrackingListsRespone {
   repeated string price_traking_lists = 1;
 }
 
-message QueryPriceHistoryAt{
+message QueryPriceHistoryAtTime{
   string denom = 1;
   google.protobuf.Timestamp time = 2 [
     (gogoproto.stdtime) = true,
@@ -267,7 +275,7 @@ message QueryPriceHistoryAt{
   ];
 }
 
-message QueryPriceHistoryAtRespone{
+message QueryPriceHistoryAtTimeRespone{
   Denom denom = 1 [(gogoproto.nullable) = false];
   PriceHistoryEntry price_history_entry = 2 [(gogoproto.nullable) = false];
 }
@@ -283,7 +291,7 @@ message QueryAllPriceHistoryRespone{
   cosmos.base.query.v1beta1.PageResponse pagination = 3;
 }
 
-message QueryTwapBetween {
+message QueryArithmeticTwapBetweenTime {
   string denom = 1;
   google.protobuf.Timestamp start_time = 2 [
     (gogoproto.stdtime) = true,
@@ -297,7 +305,7 @@ message QueryTwapBetween {
   ];
 }
 
-message QueryTwapBetweenRespone {
+message QueryArithmeticTwapBetweenTimeRespone {
   cosmos.base.v1beta1.DecCoin twap_price = 1 [
     (gogoproto.nullable)     = false,
     (gogoproto.moretags) = "yaml:\"twap_price\""

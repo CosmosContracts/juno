@@ -274,10 +274,11 @@ func (q querier) PriceTrackingLists(
 	}, nil
 }
 
-func (q querier) PriceHistoryAt(
+// PriceHistoryAtTime queries price history of req denom at specific time
+func (q querier) PriceHistoryAtTime(
 	goCtx context.Context,
-	req *types.QueryPriceHistoryAt,
-) (*types.QueryPriceHistoryAtRespone, error) {
+	req *types.QueryPriceHistoryAtTime,
+) (*types.QueryPriceHistoryAtTimeRespone, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -293,12 +294,13 @@ func (q querier) PriceHistoryAt(
 		return nil, err
 	}
 
-	return &types.QueryPriceHistoryAtRespone{
+	return &types.QueryPriceHistoryAtTimeRespone{
 		Denom:             denom,
 		PriceHistoryEntry: priceHistoryEntry,
 	}, nil
 }
 
+// AllPriceHistory queries all price history of denom in tracking time duration
 func (q querier) AllPriceHistory(
 	goCtx context.Context,
 	req *types.QueryAllPriceHistory,
@@ -337,10 +339,14 @@ func (q querier) AllPriceHistory(
 	}, nil
 }
 
-func (q querier) TwapPrice(
+// ArithmeticTwapPriceBetweenTime queries
+// the time weight average price of specific
+// denom between period of Time
+// Where the period is defined by user by define startTime and endTime
+func (q querier) ArithmeticTwapPriceBetweenTime(
 	goCtx context.Context,
-	req *types.QueryTwapBetween,
-) (*types.QueryTwapBetweenRespone, error) {
+	req *types.QueryArithmeticTwapBetweenTime,
+) (*types.QueryArithmeticTwapBetweenTimeRespone, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -360,7 +366,7 @@ func (q querier) TwapPrice(
 		return nil, err
 	}
 
-	return &types.QueryTwapBetweenRespone{
+	return &types.QueryArithmeticTwapBetweenTimeRespone{
 		TwapPrice: sdk.NewDecCoinFromDec(req.Denom, twapPrice),
 	}, nil
 }

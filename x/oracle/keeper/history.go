@@ -158,6 +158,7 @@ func (k Keeper) calculateTWAP(startEntry types.PriceHistoryEntry, entries []type
 	allEntries = append(allEntries, entries...)
 	allEntries = append(allEntries, endEntry)
 
+	// Calculate the total time weight multiple with price
 	total := sdk.ZeroDec()
 	for i := 0; i < len(allEntries)-1; i++ {
 		fl64TW := allEntries[i+1].PriceUpdateTime.Sub(allEntries[i].PriceUpdateTime).Seconds()
@@ -168,12 +169,12 @@ func (k Keeper) calculateTWAP(startEntry types.PriceHistoryEntry, entries []type
 		total = total.Add(allEntries[i].Price.Mul(decTW))
 	}
 
+	// Calculate the time weight average price
 	fl64TotalTW := endEntry.PriceUpdateTime.Sub(startEntry.PriceUpdateTime).Seconds()
 	decTotalTW, err := sdk.NewDecFromStr(fmt.Sprintf("%f", fl64TotalTW))
 	if err != nil {
 		return sdk.Dec{}, nil
 	}
-
 	twapPrice := total.Quo(decTotalTW)
 
 	return twapPrice, nil

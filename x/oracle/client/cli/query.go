@@ -324,11 +324,11 @@ func GetCmdQueryPriceHistoryAt() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			req := &types.QueryPriceHistoryAt{
+			req := &types.QueryPriceHistoryAtTime{
 				Denom: strings.ToUpper(args[0]),
 				Time:  time,
 			}
-			res, err := queryClient.PriceHistoryAt(cmd.Context(), req)
+			res, err := queryClient.PriceHistoryAtTime(cmd.Context(), req)
 			return util.PrintOrErr(res, err, clientCtx)
 		},
 	}
@@ -390,13 +390,13 @@ $ junod q twap JUNO 2022-12-25T19:42:07.100Z 2022-12-25T20:42:07.100Z
 				return err
 			}
 
-			req := &types.QueryTwapBetween{
+			req := &types.QueryArithmeticTwapBetweenTime{
 				Denom:     strings.ToUpper(args[0]),
 				StartTime: startTime,
 				EndTime:   endTime,
 			}
 
-			res, err := queryClient.TwapPrice(cmd.Context(), req)
+			res, err := queryClient.ArithmeticTwapPriceBetweenTime(cmd.Context(), req)
 			return util.PrintOrErr(res, err, clientCtx)
 		},
 	}
