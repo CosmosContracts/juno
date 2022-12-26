@@ -166,4 +166,4 @@ replace (
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
 
-replace github.com/tendermint/tendermint => github.com/skip-mev/mev-tendermint v0.34.24-0.20221216212242-89790ca280e5
+replace github.com/tendermint/tendermint => github.com/skip-mev/mev-tendermint v0.34.24-mev.13
