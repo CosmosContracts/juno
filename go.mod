@@ -14,6 +14,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/ignite-hq/cli v0.22.1
+	github.com/osmosis-labs/osmosis/x/ibc-hooks v0.0.0-20221226151918-85696a166350
 	github.com/prometheus/client_golang v1.14.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
@@ -25,8 +26,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 
 )
-
-require github.com/sirupsen/logrus v1.9.0 // indirect
 
 require (
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
@@ -113,6 +112,7 @@ require (
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	github.com/opencontainers/runc v1.1.3 // indirect
 	github.com/ory/dockertest/v3 v3.9.1
+	github.com/osmosis-labs/osmosis/osmoutils v0.0.0-20221226150300-4c6cf68a5930 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
@@ -127,6 +127,7 @@ require (
 	github.com/rs/cors v1.8.2 // indirect
 	github.com/rs/zerolog v1.27.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
