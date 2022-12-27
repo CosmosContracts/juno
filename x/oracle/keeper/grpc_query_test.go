@@ -279,7 +279,7 @@ func (s *IntegrationTestSuite) TestQueryPriceTrackingLists() {
 	s.Require().Equal(res.PriceTrakingLists, result)
 }
 
-func (s *IntegrationTestSuite) TestPriceHistoryAt() {
+func (s *IntegrationTestSuite) TestPriceHistoryAtTime() {
 	s.SetupTest()
 	timeNow := time.Now().UTC()
 
@@ -403,7 +403,7 @@ func (s *IntegrationTestSuite) TestAllPriceHistory() {
 	})
 }
 
-func (s *IntegrationTestSuite) TestTwapPrice() {
+func (s *IntegrationTestSuite) TestArithmeticTwapPriceBetweenTime() {
 	s.SetupTest()
 	timeNow := time.Now().UTC()
 
