@@ -120,7 +120,7 @@ func (k Keeper) GetDenomPriceHistoryWithBlockHeight(ctx sdk.Context, symbolDenom
 
 	// Calculate votingPeriodCount
 	params := k.GetParams(ctx)
-	votingPeriodCount := (uint64)(blockHeight) / params.VotePeriod
+	votingPeriodCount := blockHeight / params.VotePeriod
 	if votingPeriodCount == 0 {
 		return priceHistoryEntry, sdkerrors.Wrap(types.ErrInvalidVotePeriod, "Voting period must be positive")
 	}
@@ -177,6 +177,7 @@ func (k Keeper) appendPriceHistory(ctx sdk.Context, symbolDenom string, priceHis
 	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(upperSymbolDenom))
 
 	for _, priceHistoryEntry := range priceHistoryEntrys {
+		priceHistoryEntry := priceHistoryEntry
 		key := sdk.Uint64ToBigEndian(priceHistoryEntry.VotePeriodCount)
 		bz, err := k.cdc.Marshal(&priceHistoryEntry)
 		if err != nil {
@@ -245,7 +246,8 @@ func (k Keeper) SetExchangeRate(ctx sdk.Context, denom string, exchangeRate sdk.
 func (k Keeper) SetExchangeRateWithEvent(ctx sdk.Context, denom string, exchangeRate sdk.Dec) error {
 	k.SetExchangeRate(ctx, denom, exchangeRate)
 	return ctx.EventManager().EmitTypedEvent(&types.EventSetFxRate{
-		Denom: denom, Rate: exchangeRate})
+		Denom: denom, Rate: exchangeRate,
+	})
 }
 
 // IterateExchangeRates iterates over USD rates in the store.

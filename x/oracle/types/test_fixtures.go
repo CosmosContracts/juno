@@ -3,7 +3,7 @@ package types
 func AddTrackingPriceHistoryProposalFixture(
 	mutators ...func(p *AddTrackingPriceHistoryProposal),
 ) *AddTrackingPriceHistoryProposal {
-	var trackingList = DenomList{
+	trackingList := DenomList{
 		{
 			BaseDenom:   JunoDenom,
 			SymbolDenom: JunoSymbol,
@@ -32,7 +32,7 @@ func AddTrackingPriceHistoryProposalFixture(
 func AddTrackingPriceHistoryWithAcceptListProposalFixture(
 	mutators ...func(p *AddTrackingPriceHistoryWithAcceptListProposal),
 ) *AddTrackingPriceHistoryWithAcceptListProposal {
-	var trackingList = DenomList{
+	trackingList := DenomList{
 		{
 			BaseDenom:   JunoDenom,
 			SymbolDenom: JunoSymbol,
@@ -61,7 +61,7 @@ func AddTrackingPriceHistoryWithAcceptListProposalFixture(
 func RemoveTrackingPriceHistoryProposalFixture(
 	mutators ...func(p *RemoveTrackingPriceHistoryProposal),
 ) *RemoveTrackingPriceHistoryProposal {
-	var removeTrackingList = DenomList{
+	removeTrackingList := DenomList{
 		{
 			BaseDenom:   JunoDenom,
 			SymbolDenom: JunoSymbol,

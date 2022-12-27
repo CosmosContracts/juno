@@ -116,7 +116,7 @@ func ProposalRemoveTrackingPriceHistoryCmd() *cobra.Command {
 	return cmd
 }
 
-func getProposalInfo(cmd *cobra.Command) (client.Context, string, string, sdk.Coins, error) {
+func getProposalInfo(cmd *cobra.Command) (client.Context, string, string, sdk.Coins, error) { //nolint:unparam
 	clientCtx, err := client.GetClientTxContext(cmd)
 	if err != nil {
 		return client.Context{}, "", "", nil, err

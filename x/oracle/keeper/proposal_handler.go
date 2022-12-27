@@ -136,6 +136,7 @@ func isSubSet(super, sub types.DenomList) (unSubList types.DenomList, subList ty
 	for _, o := range sub {
 		var isEqual bool
 		for _, s := range super {
+			s := s
 			if o.Equal(&s) {
 				matches++
 				isEqual = true

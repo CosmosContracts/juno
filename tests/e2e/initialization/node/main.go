@@ -18,7 +18,7 @@ func main() {
 
 		existingGenesisDir string
 
-		chainId string
+		chainId string //nolint:revive,stylecheck
 
 		votingPeriod time.Duration
 

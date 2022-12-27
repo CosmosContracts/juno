@@ -75,7 +75,6 @@ func TestAddTrackingPriceHistoryWithAcceptListProposal(t *testing.T) {
 		p.TrackingList = trackingList
 	})
 
-	//submit proposal
 	submittedProposal, err := govKeeper.SubmitProposal(ctx, src)
 	require.NoError(t, err)
 
@@ -114,11 +113,8 @@ func TestRemoveTrackingPriceHistoryProposal(t *testing.T) {
 		p.RemoveTrackingList = types.DenomList{trackingList[0]}
 	})
 
-	//submit proposal
 	submittedProposal, err := govKeeper.SubmitProposal(ctx, src)
 	require.NoError(t, err)
-
-	//execute proposal
 	handler := govKeeper.Router().GetRoute(submittedProposal.ProposalRoute())
 	err = handler(ctx, submittedProposal.GetContent())
 	require.NoError(t, err)

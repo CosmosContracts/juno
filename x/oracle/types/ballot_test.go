@@ -164,7 +164,7 @@ func TestPBWeightedMedian(t *testing.T) {
 			}
 
 			vote := NewVoteForTally(
-				sdk.NewDec(int64(input)),
+				sdk.NewDec(input),
 				JunoDenom,
 				valAddr,
 				power,

@@ -122,7 +122,7 @@ func (MockStakingKeeper) TotalBondedTokens(_ sdk.Context) sdk.Int {
 	return sdk.ZeroInt()
 }
 
-func (k MockStakingKeeper) GetBondedValidatorsByPower(ctx sdk.Context) []stakingtypes.Validator {
+func (sk MockStakingKeeper) GetBondedValidatorsByPower(ctx sdk.Context) []stakingtypes.Validator {
 	return nil
 }
 

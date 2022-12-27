@@ -4,7 +4,7 @@ import "fmt"
 
 type ChainMeta struct {
 	DataDir string `json:"dataDir"`
-	Id      string `json:"id"`
+	Id      string `json:"id"` //nolint:revive,stylecheck
 }
 
 type Node struct {
@@ -13,7 +13,7 @@ type Node struct {
 	Mnemonic      string `json:"mnemonic"`
 	PublicAddress string `json:"publicAddress"`
 	PublicKey     string `json:"publicKey"`
-	PeerId        string `json:"peerId"`
+	PeerId        string `json:"peerId"` //nolint:revive,stylecheck
 	IsValidator   bool   `json:"isValidator"`
 }
 
