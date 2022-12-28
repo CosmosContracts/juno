@@ -279,7 +279,7 @@ func (s *IntegrationTestSuite) TestQueryPriceTrackingLists() {
 	s.Require().Equal(res.PriceTrakingLists, result)
 }
 
-func (s *IntegrationTestSuite) TestPriceHistoryAt() {
+func (s *IntegrationTestSuite) TestPriceHistoryAtTime() {
 	s.SetupTest()
 	timeNow := time.Now().UTC()
 
@@ -297,21 +297,21 @@ func (s *IntegrationTestSuite) TestPriceHistoryAt() {
 		phEntry.VotePeriodCount,
 	)
 
-	req := &types.QueryPriceHistoryAt{
+	req := &types.QueryPriceHistoryAtTime{
 		Denom: "JUNO",
 		Time:  timeNow,
 	}
 
-	res, err := s.queryClient.PriceHistoryAt(s.ctx.Context(), req)
+	res, err := s.queryClient.PriceHistoryAtTime(s.ctx.Context(), req)
 	s.Require().NoError(err)
 	s.Require().Equal(phEntry, res.PriceHistoryEntry)
 
-	req = &types.QueryPriceHistoryAt{
+	req = &types.QueryPriceHistoryAtTime{
 		Denom: "JUNO",
 		Time:  timeNow.Add(time.Minute),
 	}
 
-	res, err = s.queryClient.PriceHistoryAt(s.ctx.Context(), req)
+	res, err = s.queryClient.PriceHistoryAtTime(s.ctx.Context(), req)
 	s.Require().NoError(err)
 	s.Require().Equal(phEntry, res.PriceHistoryEntry)
 }
@@ -403,7 +403,7 @@ func (s *IntegrationTestSuite) TestAllPriceHistory() {
 	})
 }
 
-func (s *IntegrationTestSuite) TestTwapPrice() {
+func (s *IntegrationTestSuite) TestArithmeticTwapPriceBetweenTime() {
 	s.SetupTest()
 	timeNow := time.Now().UTC()
 
@@ -448,37 +448,37 @@ func (s *IntegrationTestSuite) TestTwapPrice() {
 
 	for _, tc := range []struct {
 		desc      string
-		req       *types.QueryTwapBetween
-		res       *types.QueryTwapBetweenRespone
+		req       *types.QueryArithmeticTwapBetweenTime
+		res       *types.QueryArithmeticTwapBetweenTimeRespone
 		shouldErr bool
 	}{
 		{
 			desc: "Success",
-			req: &types.QueryTwapBetween{
+			req: &types.QueryArithmeticTwapBetweenTime{
 				Denom:     "JUNO",
 				StartTime: timeNow,
 				EndTime:   timeNow.Add(4 * time.Minute),
 			},
-			res: &types.QueryTwapBetweenRespone{
+			res: &types.QueryArithmeticTwapBetweenTimeRespone{
 				TwapPrice: sdk.NewDecCoinFromDec("JUNO", sdk.OneDec()),
 			},
 			shouldErr: false,
 		},
 		{
 			desc: "Success",
-			req: &types.QueryTwapBetween{
+			req: &types.QueryArithmeticTwapBetweenTime{
 				Denom:     "JUNO",
 				StartTime: timeNow.Add(30 * time.Second),
 				EndTime:   timeNow.Add(4 * time.Minute),
 			},
-			res: &types.QueryTwapBetweenRespone{
+			res: &types.QueryArithmeticTwapBetweenTimeRespone{
 				TwapPrice: sdk.NewDecCoinFromDec("JUNO", sdk.OneDec()),
 			},
 			shouldErr: false,
 		},
 		{
 			desc: "Error - Start time before first entry",
-			req: &types.QueryTwapBetween{
+			req: &types.QueryArithmeticTwapBetweenTime{
 				Denom:     "JUNO",
 				StartTime: timeNow.Add(-time.Minute),
 				EndTime:   timeNow.Add(4 * time.Minute),
@@ -487,7 +487,7 @@ func (s *IntegrationTestSuite) TestTwapPrice() {
 		},
 		{
 			desc: "Error - End time before start time",
-			req: &types.QueryTwapBetween{
+			req: &types.QueryArithmeticTwapBetweenTime{
 				Denom:     "JUNO",
 				StartTime: timeNow.Add(3 * time.Minute),
 				EndTime:   timeNow.Add(2 * time.Minute),
@@ -498,11 +498,11 @@ func (s *IntegrationTestSuite) TestTwapPrice() {
 		tc := tc
 		s.Run(tc.desc, func() {
 			if !tc.shouldErr {
-				res, err := s.queryClient.TwapPrice(s.ctx.Context(), tc.req)
+				res, err := s.queryClient.ArithmeticTwapPriceBetweenTime(s.ctx.Context(), tc.req)
 				s.Require().NoError(err)
 				s.Require().Equal(tc.res, res)
 			} else {
-				_, err := s.queryClient.TwapPrice(s.ctx.Context(), tc.req)
+				_, err := s.queryClient.ArithmeticTwapPriceBetweenTime(s.ctx.Context(), tc.req)
 				s.Require().Error(err)
 			}
 		})
