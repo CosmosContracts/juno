@@ -351,7 +351,8 @@ func NewAppKeepers(
 
 	// Setup wasm bindings
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
-	wasmOpts = append(tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper), wasmOpts...)
+	// Move custom query of token factory to stargate
+	wasmOpts = append(wasmOpts, tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)[1])
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
@@ -362,6 +363,11 @@ func NewAppKeepers(
 		// oracle query
 		"/juno.oracle.v1.Query/ExchangeRates": &oracletypes.QueryExchangeRatesResponse{},
 		"/juno.oracle.v1.Query/Params":        &oracletypes.QueryParamsResponse{},
+
+		// token factory
+		"/osmosis.tokenfactory.v1beta1.Query/Params":                 &tokenfactorytypes.QueryParamsResponse{},
+		"/osmosis.tokenfactory.v1beta1.Query/DenomAuthorityMetadata": &tokenfactorytypes.QueryDenomAuthorityMetadataResponse{},
+		"/osmosis.tokenfactory.v1beta1.Query/DenomsFromCreator":      &tokenfactorytypes.QueryDenomsFromCreatorResponse{},
 	}
 	querierOpts := wasmkeeper.WithQueryPlugins(
 		&wasmkeeper.QueryPlugins{
