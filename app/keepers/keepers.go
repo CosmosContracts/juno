@@ -352,7 +352,8 @@ func NewAppKeepers(
 	// Setup wasm bindings
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
 	// Move custom query of token factory to stargate
-	wasmOpts = append(wasmOpts, tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)[1])
+	tfOpts := tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
+	wasmOpts = append(wasmOpts, tfOpts[1])
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
