@@ -10,10 +10,7 @@ import (
 )
 
 func InitChain(id, dataDir string, nodeConfigs []*NodeConfig, votingPeriod, expeditedVotingPeriod time.Duration, forkHeight int) (*Chain, error) {
-	chain, err := new(id, dataDir)
-	if err != nil {
-		return nil, err
-	}
+	chain := new(id, dataDir)
 
 	for _, nodeConfig := range nodeConfigs {
 		newNode, err := newNode(chain, nodeConfig)
@@ -23,14 +20,14 @@ func InitChain(id, dataDir string, nodeConfigs []*NodeConfig, votingPeriod, expe
 		chain.nodes = append(chain.nodes, newNode)
 	}
 
-	if err := initGenesis(chain, votingPeriod, expeditedVotingPeriod, forkHeight); err != nil {
+	if err := initGenesis(chain, votingPeriod, forkHeight); err != nil {
 		return nil, err
 	}
 
 	var peers []string
 	for _, peer := range chain.nodes {
 		peerID := fmt.Sprintf("%s@%s:26656", peer.getNodeKey().ID(), peer.moniker)
-		peer.peerId = peerID
+		peer.peerID = peerID
 		peers = append(peers, peerID)
 	}
 
@@ -44,15 +41,12 @@ func InitChain(id, dataDir string, nodeConfigs []*NodeConfig, votingPeriod, expe
 	return chain.export(), nil
 }
 
-func InitSingleNode(chainId, dataDir string, existingGenesisDir string, nodeConfig *NodeConfig, votingPeriod time.Duration, trustHeight int64, trustHash string, stateSyncRPCServers []string, persistentPeers []string) (*Node, error) {
+func InitSingleNode(chainID, dataDir string, existingGenesisDir string, nodeConfig *NodeConfig, votingPeriod time.Duration, trustHeight int64, trustHash string, stateSyncRPCServers []string, persistentPeers []string) (*Node, error) {
 	if nodeConfig.IsValidator {
 		return nil, errors.New("creating individual validator nodes after starting up chain is not currently supported")
 	}
 
-	chain, err := new(chainId, dataDir)
-	if err != nil {
-		return nil, err
-	}
+	chain := new(chainID, dataDir)
 
 	newNode, err := newNode(chain, nodeConfig)
 	if err != nil {
