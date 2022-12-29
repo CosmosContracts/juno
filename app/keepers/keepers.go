@@ -1,8 +1,11 @@
 package keepers
 
 import (
+	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 	"path/filepath"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	mintkeeper "github.com/CosmosContracts/juno/v12/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -52,10 +55,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 	ibchookskeeper "github.com/osmosis-labs/osmosis/x/ibc-hooks/keeper"
-	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
-
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	"github.com/CosmWasm/token-factory/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmWasm/token-factory/x/tokenfactory/keeper"
@@ -123,6 +122,7 @@ type AppKeepers struct {
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
 	// Middleware wrapper
+	Ics20WasmHooks   *ibchooks.WasmHooks
 	HooksICS4Wrapper ibchooks.ICS4Middleware
 }
 
@@ -244,11 +244,6 @@ func NewAppKeepers(
 		appKeepers.UpgradeKeeper,
 		scopedIBCKeeper,
 	)
-	// Configure the hooks keeper
-	hooksKeeper := ibchookskeeper.NewKeeper(
-		appKeepers.keys[ibchookstypes.StoreKey],
-	)
-	appKeepers.IBCHooksKeeper = &hooksKeeper
 
 	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		appCodec, appKeepers.keys[ibcfeetypes.StoreKey],
@@ -278,6 +273,21 @@ func NewAppKeepers(
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(appKeepers.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
+
+	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
+
+	// Configure the hooks keeper
+	hooksKeeper := ibchookskeeper.NewKeeper(
+		appKeepers.keys[ibchookstypes.StoreKey],
+	)
+	appKeepers.IBCHooksKeeper = &hooksKeeper
+
+	wasmHooks := ibchooks.NewWasmHooks(appKeepers.IBCHooksKeeper, nil) // The contract keeper needs to be set later
+	appKeepers.Ics20WasmHooks = &wasmHooks
+	appKeepers.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
+		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.Ics20WasmHooks,
+	)
 
 	// Create Transfer Keepers
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
@@ -384,6 +394,9 @@ func NewAppKeepers(
 		wasmOpts...,
 	)
 
+	// set the contract keeper for the Ics20WasmHooks
+	appKeepers.Ics20WasmHooks.ContractKeeper = appKeepers.ContractKeeper
+
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
 		appKeepers.keys[feesharetypes.StoreKey],
 		appCodec,
@@ -398,13 +411,6 @@ func NewAppKeepers(
 	if len(enabledProposals) != 0 {
 		govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(appKeepers.WasmKeeper, enabledProposals))
 	}
-
-	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
-	wasmHooks := ibchooks.NewWasmHooks(appKeepers.IBCHooksKeeper, appKeepers.ContractKeeper)
-	appKeepers.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
-		appKeepers.IBCKeeper.ChannelKeeper,
-		wasmHooks,
-	)
 
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule
