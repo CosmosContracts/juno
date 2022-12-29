@@ -23,6 +23,7 @@ import (
 
 	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
+	routertypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 )
 
 // Returns "ujuno" if the chainID starts with "juno-" (ex: juno-1 or juno-t1 for local)
@@ -122,6 +123,9 @@ func CreateV12UpgradeHandler(
 
 		// IBCFee
 		vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
+
+		// Router module, set default param
+		keepers.RouterKeeper.SetParams(ctx, routertypes.DefaultParams())
 
 		return mm.RunMigrations(ctx, cfg, vm)
 	}
