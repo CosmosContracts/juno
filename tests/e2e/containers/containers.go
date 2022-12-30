@@ -205,7 +205,7 @@ func (m *Manager) RunHermesResource(chainAID, junoARelayerNodeName, junoAValMnem
 }
 
 // RunPriceFeederResource runs a Price-Feedee container. Returns the container resource and error if any.
-func (m *Manager) RunPriceFeederResource(pricefeederPass, pricefeederCfgPath string) (*dockertest.Resource, error) {
+func (m *Manager) RunPriceFeederResource(pricefeederPass, pricefeederCfgPath string, valCondifDir string) (*dockertest.Resource, error) {
 	pricefeederResource, err := m.pool.RunWithOptions(
 		&dockertest.RunOptions{
 			Name:       pricefeederContainerName,
@@ -213,11 +213,12 @@ func (m *Manager) RunPriceFeederResource(pricefeederPass, pricefeederCfgPath str
 			Tag:        m.PriceFeederTag,
 			NetworkID:  m.network.Network.ID,
 			Cmd: []string{
-				"price-feeder/config.toml",
+				"price-feeder", "/root/price-feeder/config.toml",
 			},
 			User: "root:root",
 			Mounts: []string{
-				fmt.Sprintf("%s:/price-feeder", pricefeederCfgPath),
+				fmt.Sprintf("%s:/root/price-feeder", pricefeederCfgPath),
+				fmt.Sprintf("%s:/.juno", valCondifDir),
 			},
 			ExposedPorts: []string{
 				"7171",

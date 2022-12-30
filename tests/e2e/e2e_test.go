@@ -4,12 +4,11 @@
 package e2e
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
-
+	// "fmt"
+	// "strconv"
+	// "strings"
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	// sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
@@ -31,83 +30,101 @@ func (s *IntegrationTestSuite) TestIBCTokenTransfer() {
 
 }
 
+// func (s *IntegrationTestSuite) TestOracle() {
+// 	chainA := s.configurer.GetChainConfig(0)
+// 	chainANode, err := chainA.GetDefaultNode()
+// 	gotPrices := s.currentPrices()
+// }
+// func (s *IntegrationTestSuite) currentPrices() map[string]sdk.Dec {
+// 	rawRates, err := oracletypes.NewQueryClient(s.network.Validators[0].ClientCtx).ExchangeRates(context.Background(), &oracletypes.QueryExchangeRatesRequest{})
+// 	require.NoError(s.T(), err)
+
+// 	prices := make(map[string]sdk.Dec)
+
+// 	for _, p := range rawRates.ExchangeRates {
+// 		prices[p.Pair] = p.ExchangeRate
+// 	}
+
+// 	return prices
+// }
+
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
 // docker network prune && make test-e2e-skip
-func (s *IntegrationTestSuite) TestTokenFactoryBindings() {
-	chainA := s.configurer.GetChainConfig(0)
-	node := chainA.NodeConfigs[0]
-	wallet := initialization.ValidatorWalletName
+// func (s *IntegrationTestSuite) TestTokenFactoryBindings() {
+// 	chainA := s.configurer.GetChainConfig(0)
+// 	node := chainA.NodeConfigs[0]
+// 	wallet := initialization.ValidatorWalletName
 
-	params, err := node.QueryTokenFactoryParams()
-	s.Require().NoError(err)
-	mintCost := params.Params.DenomCreationFee[0]
+// 	params, err := node.QueryTokenFactoryParams()
+// 	s.Require().NoError(err)
+// 	mintCost := params.Params.DenomCreationFee[0]
 
-	mintCostStr := fmt.Sprintf("%s%s", mintCost.Amount.String(), mintCost.Denom)
+// 	mintCostStr := fmt.Sprintf("%s%s", mintCost.Amount.String(), mintCost.Denom)
 
-	// Store Contract
-	node.StoreWasmCode("/juno/tokenfactory.wasm", wallet)
-	chainA.LatestCodeId = 1
+// 	// Store Contract
+// 	node.StoreWasmCode("/juno/tokenfactory.wasm", wallet)
+// 	chainA.LatestCodeId = 1
 
-	// Instantiate to codeId 1
-	node.InstantiateWasmContract(
-		strconv.Itoa(chainA.LatestCodeId),
-		"{}",
-		"tokenfactorylabel",
-		wallet,
-		"", // no admin
-	)
+// 	// Instantiate to codeId 1
+// 	node.InstantiateWasmContract(
+// 		strconv.Itoa(chainA.LatestCodeId),
+// 		"{}",
+// 		"tokenfactorylabel",
+// 		wallet,
+// 		"", // no admin
+// 	)
 
-	// Get codeId 1 contracts
-	contracts, err := node.QueryContractsFromId(chainA.LatestCodeId)
-	s.NoError(err)
-	s.Require().Len(contracts, 1, "Wrong number of contracts for the tokenfactory.wasm initialization")
+// 	// Get codeId 1 contracts
+// 	contracts, err := node.QueryContractsFromId(chainA.LatestCodeId)
+// 	s.NoError(err)
+// 	s.Require().Len(contracts, 1, "Wrong number of contracts for the tokenfactory.wasm initialization")
 
-	contractAddr := contracts[0]
+// 	contractAddr := contracts[0]
 
-	// Successfully create a denom for the wasm contract
-	node.WasmExecute(contractAddr, `{"create_denom":{"subdenom":"test"}}`, wallet, mintCostStr, tfSuccessCode)
-	// failing to create a denom
-	node.WasmExecute(contractAddr, fmt.Sprintf(`{"create_denom":{"subdenom":"%s"}}`, strings.Repeat("a", 61)), wallet, mintCostStr, "subdenom too long")
+// 	// Successfully create a denom for the wasm contract
+// 	node.WasmExecute(contractAddr, `{"create_denom":{"subdenom":"test"}}`, wallet, mintCostStr, tfSuccessCode)
+// 	// failing to create a denom
+// 	node.WasmExecute(contractAddr, fmt.Sprintf(`{"create_denom":{"subdenom":"%s"}}`, strings.Repeat("a", 61)), wallet, mintCostStr, "subdenom too long")
 
-	ourDenom := fmt.Sprintf("factory/%s/test", contractAddr) // factory/juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8/test
+// 	ourDenom := fmt.Sprintf("factory/%s/test", contractAddr) // factory/juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8/test
 
-	denoms, err := node.QueryDenomsFromCreator(contractAddr)
-	s.NoError(err)
-	s.Require().Len(denoms, 1, "Wrong number of denoms for the token factory")
+// 	denoms, err := node.QueryDenomsFromCreator(contractAddr)
+// 	s.NoError(err)
+// 	s.Require().Len(denoms, 1, "Wrong number of denoms for the token factory")
 
-	// Mint some tokens to an account (our contract in this case) via bank module
-	amt := 100
-	msg := fmt.Sprintf(`{"mint_tokens":{"amount":"%d","denom":"%s","mint_to_address":"%s"}}`, amt, ourDenom, contractAddr)
-	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
+// 	// Mint some tokens to an account (our contract in this case) via bank module
+// 	amt := 100
+// 	msg := fmt.Sprintf(`{"mint_tokens":{"amount":"%d","denom":"%s","mint_to_address":"%s"}}`, amt, ourDenom, contractAddr)
+// 	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
 
-	// Mint Balance Check
-	balance, err := node.QueryBalances(contractAddr)
-	s.Require().NoError(err)
-	s.checkBalance(balance, sdk.NewCoins(sdk.NewCoin(ourDenom, sdk.NewInt(int64(amt)))))
+// 	// Mint Balance Check
+// 	balance, err := node.QueryBalances(contractAddr)
+// 	s.Require().NoError(err)
+// 	s.checkBalance(balance, sdk.NewCoins(sdk.NewCoin(ourDenom, sdk.NewInt(int64(amt)))))
 
-	// Burn some of the tokens (can only be done for the contract which owns them = blank)
-	msg = fmt.Sprintf(`{"burn_tokens":{"amount":"5","denom":"%s","burn_from_address":""}}`, ourDenom)
-	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
+// 	// Burn some of the tokens (can only be done for the contract which owns them = blank)
+// 	msg = fmt.Sprintf(`{"burn_tokens":{"amount":"5","denom":"%s","burn_from_address":""}}`, ourDenom)
+// 	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
 
-	// Balance Check after burn -5
-	balance, err = node.QueryBalances(contractAddr)
-	s.Require().NoError(err)
-	s.checkBalance(balance, sdk.NewCoins(sdk.NewCoin(ourDenom, sdk.NewInt(int64(amt-5)))))
+// 	// Balance Check after burn -5
+// 	balance, err = node.QueryBalances(contractAddr)
+// 	s.Require().NoError(err)
+// 	s.checkBalance(balance, sdk.NewCoins(sdk.NewCoin(ourDenom, sdk.NewInt(int64(amt-5)))))
 
-	// Transfer admin to another account
-	msg = fmt.Sprintf(`{"change_admin":{"denom":"%s","new_admin_address":"%s"}}`, ourDenom, "juno1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaavju90c")
-	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
-}
+// 	// Transfer admin to another account
+// 	msg = fmt.Sprintf(`{"change_admin":{"denom":"%s","new_admin_address":"%s"}}`, ourDenom, "juno1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaavju90c")
+// 	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
+// }
 
-func (s *IntegrationTestSuite) checkBalance(coins sdk.Coins, expected sdk.Coins) {
-	for _, coin := range coins {
-		for _, expectedCoin := range expected {
-			if coin.Denom == expectedCoin.Denom {
-				s.Require().Equal(expectedCoin.Amount, coin.Amount)
-			}
-		}
-	}
-}
+// func (s *IntegrationTestSuite) checkBalance(coins sdk.Coins, expected sdk.Coins) {
+// 	for _, coin := range coins {
+// 		for _, expectedCoin := range expected {
+// 			if coin.Denom == expectedCoin.Denom {
+// 				s.Require().Equal(expectedCoin.Amount, coin.Amount)
+// 			}
+// 		}
+// 	}
+// }
 
 // TestOracle tests that the Oracle module and Price-feeder work as expected.
 // func (s *IntegrationTestSuite) TestOracle() {

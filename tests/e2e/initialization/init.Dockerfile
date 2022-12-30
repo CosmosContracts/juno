@@ -50,7 +50,8 @@ EXPOSE 1317
 EXPOSE 26656
 # tendermint rpc
 EXPOSE 26657
-
+#grpc
+EXPOSE 9090
 # Docker ARGs are not expanded in ENTRYPOINT in the exec mode. At the same time,
 # it is impossible to add CMD arguments when running a container in the shell mode.
 # As a workaround, we create the entrypoint.sh script to bypass these issues.

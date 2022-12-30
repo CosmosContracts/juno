@@ -87,27 +87,21 @@ providers = [
 ]
 quote = "USDT"
 
-[account]
-address = "juno1pry5cux508t55pf00pryl6hp09cfahml5k6w8m"
-chain_id = "test-1"
-validator = "junovaloper1pry5cux508t55pf00pryl6hp09cfahmlttvpuz"
-prefix = "juno"
-
 [keyring]
 backend = "test"
-dir = "/home/<user>/.juno"
+dir = "/.juno"
 
 [rpc]
-grpc_endpoint = "localhost:9090"
+grpc_endpoint = "juno-test-a-node-prune-default-snapshot-state-sync-from:9090"
 rpc_timeout = "100ms"
-tmrpc_endpoint = "http://localhost:26657"
+tmrpc_endpoint = "http://juno-test-a-node-prune-default-snapshot-state-sync-from:26657"
 
 [telemetry]
 enable-hostname = true
 enable-hostname-label = true
 enable-service-label = true
 enabled = true
-global-labels = [["chain_id", "test-1"]]
+global-labels = [["chain_id", "juno-test-a"]]
 service-name = "price-feeder"
 prometheus-retention-time = 100
 
@@ -115,3 +109,9 @@ prometheus-retention-time = 100
 name = "binance"
 rest = "https://api1.binance.com"
 websocket = "stream.binance.com:9443"
+
+[account]
+address = "juno1kwztealj0u0qgej5dyc37700ruysy3hh7h530h"
+chain_id = "juno-test-a"
+validator = "junovaloper1kwztealj0u0qgej5dyc37700ruysy3hhp2z75w"
+prefix = "juno"

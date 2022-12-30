@@ -168,6 +168,10 @@ e2e-check-image-sha:
 e2e-remove-resources:
 	tests/e2e/scripts/run/remove_stale_resources.sh
 
+e2e-clean:
+	sudo rm -rf /tmp/juno-e2e-testnet
+	sudo rm -rf /tmp/price-feeder
+
 .PHONY: test-mutation
 
 ###############################################################################

@@ -169,29 +169,27 @@ func (bc *baseConfigurer) runIBCRelayer(chainConfigA *chain.Config, chainConfigB
 }
 func (bc *baseConfigurer) runPriceFeeder() error {
 	bc.t.Log("starting Price-Feeder container...")
-
-	tmpDir, err := os.MkdirTemp("", "e2e-testnet-price-feeder-")
-	if err != nil {
+	pricefeederCfgPath := "/tmp/price-feeder/"
+	valCondifDir := "/tmp/juno-e2e-testnet/juno-test-a/juno-test-a-node-prune-default-snapshot-state-sync-from/"
+	if err := os.MkdirAll(pricefeederCfgPath, 0777); err != nil {
 		return err
 	}
 
-	pricefeederCfgPath := path.Join(tmpDir, "price-feeder")
-
-	if err := os.MkdirAll(pricefeederCfgPath, 0o755); err != nil {
-		return err
-	}
-
-	_, err = util.CopyFile(
+	_, err := util.CopyFile(
 		filepath.Join("./scripts/", "config.toml"),
 		filepath.Join(pricefeederCfgPath, "config.toml"),
 	)
 	if err != nil {
 		return err
 	}
+	if err := os.Chmod("/tmp/price-feeder/config.toml", 0777); err != nil {
+		return err
+	}
 	pricefeederPass := "test"
 	pricefeederResource, err := bc.containerManager.RunPriceFeederResource(
 		pricefeederPass,
 		pricefeederCfgPath,
+		valCondifDir,
 	)
 	if err != nil {
 		return err

@@ -13,6 +13,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v12/tests/e2e/containers"
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
+	// oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 type Config struct {
@@ -111,6 +112,17 @@ func (c *Config) WaitForNumHeights(heightsToWait int64) {
 	c.WaitUntilHeight(currentHeight + heightsToWait)
 }
 
+// func (c *Config) CurrentPrices() map[string]sdk.Dec {
+// 	rawRates, err := oracletypes.NewQueryClient(s.network.Validators[0].ClientCtx).ExchangeRates(context.Background(), &oracletypes.QueryExchangeRatesRequest{})
+// 	require.NoError(s.T(), err)
+// 	prices := make(map[string]sdk.Dec)
+
+// 	for _, p := range rawRates.ExchangeRates {
+// 		prices[p.Pair] = p.ExchangeRate
+// 	}
+
+//		return prices
+//	}
 func (c *Config) SendIBC(dstChain *Config, recipient string, token sdk.Coin) {
 	c.t.Logf("IBC sending %s from %s to %s (%s)", token, c.Id, dstChain.Id, recipient)
 
