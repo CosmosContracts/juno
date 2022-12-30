@@ -285,9 +285,6 @@ func Test_getHistoryEntryBetweenTime(t *testing.T) {
 
 func TestRemoveHistoryEntryBeforeTime(t *testing.T) {
 	timeNow := time.Now().UTC()
-	ctx, keepers := CreateTestInput(t, false)
-	oracleKeeper := keepers.OracleKeeper
-
 	phEntrys := []types.PriceHistoryEntry{
 		{
 			Price:           sdk.OneDec(),
@@ -306,41 +303,50 @@ func TestRemoveHistoryEntryBeforeTime(t *testing.T) {
 		},
 	}
 
-	for _, phEntry := range phEntrys {
-		oracleKeeper.storeHistoricalData(ctx, "Denom", phEntry)
+	for _, tc := range []struct {
+		desc           string
+		deleteTime     time.Time
+		phEntryStorage []types.PriceHistoryEntry
+	}{
+		{
+			desc:           "deleteTime before entryTime",
+			deleteTime:     timeNow.Add(-time.Minute),
+			phEntryStorage: phEntrys,
+		},
+		{
+			desc:           "deleteTime equal entryTime",
+			deleteTime:     timeNow,
+			phEntryStorage: phEntrys,
+		},
+		{
+			desc:       "deleteTime after entryTime (1 element - delete phEntrys[0])",
+			deleteTime: timeNow.Add(time.Minute),
+			phEntryStorage: []types.PriceHistoryEntry{
+				phEntrys[1],
+				phEntrys[2],
+			},
+		},
+		{
+			desc:           "deleteTime after entryTime (all)",
+			deleteTime:     timeNow.Add(time.Minute * 5),
+			phEntryStorage: []types.PriceHistoryEntry{},
+		},
+	} {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			ctx, keepers := CreateTestInput(t, false)
+			oracleKeeper := keepers.OracleKeeper
+			for _, phEntry := range phEntrys {
+				oracleKeeper.storeHistoricalData(ctx, "Denom", phEntry)
+			}
+			oracleKeeper.RemoveHistoryEntryBeforeTime(ctx, "Denom", tc.deleteTime)
+			phStores, _ := oracleKeeper.getHistoryEntryBetweenTime(
+				ctx,
+				"Denom",
+				phEntrys[0].PriceUpdateTime,
+				phEntrys[2].PriceUpdateTime,
+			)
+			require.Equal(t, tc.phEntryStorage, phStores)
+		})
 	}
-
-	oracleKeeper.RemoveHistoryEntryBeforeTime(ctx, "Denom", phEntrys[0].PriceUpdateTime)
-	phStores, err := oracleKeeper.getHistoryEntryBetweenTime(
-		ctx,
-		"Denom",
-		phEntrys[0].PriceUpdateTime,
-		phEntrys[2].PriceUpdateTime,
-	)
-	require.NoError(t, err)
-	require.Equal(t, 3, len(phStores))
-	require.Equal(t, phStores, phEntrys)
-
-	oracleKeeper.RemoveHistoryEntryBeforeTime(ctx, "Denom", phEntrys[1].PriceUpdateTime)
-	phStores, err = oracleKeeper.getHistoryEntryBetweenTime(
-		ctx,
-		"Denom",
-		phEntrys[0].PriceUpdateTime,
-		phEntrys[2].PriceUpdateTime,
-	)
-	require.NoError(t, err)
-	require.Equal(t, 2, len(phStores))
-	require.Equal(t, phStores[0], phEntrys[1])
-	require.Equal(t, phStores[1], phEntrys[2])
-
-	oracleKeeper.RemoveHistoryEntryBeforeTime(ctx, "Denom", phEntrys[1].PriceUpdateTime.Add(time.Minute))
-	phStores, err = oracleKeeper.getHistoryEntryBetweenTime(
-		ctx,
-		"Denom",
-		phEntrys[0].PriceUpdateTime,
-		phEntrys[2].PriceUpdateTime,
-	)
-	require.NoError(t, err)
-	require.Equal(t, 1, len(phStores))
-	require.Equal(t, phStores[0], phEntrys[2])
 }
