@@ -31,17 +31,6 @@ func (k Keeper) storeHistoricalData(ctx sdk.Context, denom string, entry types.P
 // * there exists no `t” <= t` in state, where `t' < t”`
 func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t time.Time) (types.PriceHistoryEntry, error) {
 	store := ctx.KVStore(k.storeKey)
-	// reverseIterator not catch end key => Need this scope to catch if the value is in end key
-	key := types.FormatHistoricalDenomIndexKey(t, denom)
-	bz := store.Get(key)
-	if bz != nil {
-		var entry types.PriceHistoryEntry
-		err := k.cdc.Unmarshal(bz, &entry)
-		if err != nil {
-			return types.PriceHistoryEntry{}, err
-		}
-		return entry, nil
-	}
 
 	startKey := types.FormatHistoricalDenomIndexPrefix(denom)
 	endKey := types.FormatHistoricalDenomIndexKey(t, denom)
@@ -58,6 +47,9 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 // getHistoryEntryBetweenTime on a given input (denom, t)
 // returns the PriceHistoryEntry from state for (denom, t'),
 func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (entries []types.PriceHistoryEntry, err error) {
+	if start.After(end) {
+		return []types.PriceHistoryEntry{}, errors.New("start time after end time")
+	}
 	store := ctx.KVStore(k.storeKey)
 
 	startKey := types.FormatHistoricalDenomIndexKey(start, denom)
@@ -69,18 +61,6 @@ func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start 
 
 	if err != nil {
 		return []types.PriceHistoryEntry{}, err
-	}
-
-	// Check if the end have entry
-	key := types.FormatHistoricalDenomIndexKey(end, denom)
-	bz := store.Get(key)
-	if bz != nil {
-		var entry types.PriceHistoryEntry
-		err := k.cdc.Unmarshal(bz, &entry)
-		if err != nil {
-			return entries, err
-		}
-		entries = append(entries, entry)
 	}
 
 	return entries, nil
