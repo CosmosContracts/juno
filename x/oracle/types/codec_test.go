@@ -10,5 +10,5 @@ import (
 func TestRegisterInterfaces(t *testing.T) {
 	registry := types.NewInterfaceRegistry()
 	RegisterInterfaces(registry)
-	require.Equal(t, registry.ListAllInterfaces(), []string([]string{}))
+	require.Equal(t, registry.ListAllInterfaces(), []string{})
 }

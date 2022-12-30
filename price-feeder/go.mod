@@ -65,7 +65,7 @@ require (
 	github.com/confio/ics23/go v0.7.0 // indirect
 	github.com/cosmos/btcutil v1.0.4 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-alpha8 // indirect
-	github.com/cosmos/gaia/v8 v8.0.0-20221214153136-e8833fa991a8 // indirect
+	github.com/cosmos/gaia/v8 v8.0.0-20221222131145-0e77d69f55a0 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.3 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect

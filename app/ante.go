@@ -16,7 +16,6 @@ import (
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
 
-	anteInterface "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
 	feeshareante "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
 	gaiafeeante "github.com/cosmos/gaia/v8/x/globalfee/ante"
@@ -36,7 +35,7 @@ type HandlerOptions struct {
 	GovKeeper            govkeeper.Keeper
 	IBCKeeper            *ibckeeper.Keeper
 	FeeShareKeeper       feesharekeeper.Keeper
-	BankKeeperFork       anteInterface.BankKeeper
+	BankKeeperFork       feeshareante.BankKeeper
 	TxCounterStoreKey    sdk.StoreKey
 	WasmConfig           wasmTypes.WasmConfig
 	Cdc                  codec.BinaryCodec

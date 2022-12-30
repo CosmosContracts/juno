@@ -164,7 +164,7 @@ func updateModuleGenesis[V proto.Message](appGenState map[string]json.RawMessage
 	return nil
 }
 
-func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.Duration, forkHeight int) error {
+func initGenesis(chain *internalChain, votingPeriod time.Duration, forkHeight int) error {
 	// initialize a genesis file
 	configDir := chain.nodes[0].configDir()
 	for _, val := range chain.nodes {
@@ -217,7 +217,7 @@ func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.
 		return err
 	}
 
-	err = updateModuleGenesis(appGenState, govtypes.ModuleName, &govtypes.GenesisState{}, updateGovGenesis(votingPeriod, expeditedVotingPeriod))
+	err = updateModuleGenesis(appGenState, govtypes.ModuleName, &govtypes.GenesisState{}, updateGovGenesis(votingPeriod))
 	if err != nil {
 		return err
 	}
@@ -240,14 +240,14 @@ func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.
 
 	genDoc.AppState = bz
 
-	genesisJson, err := tmjson.MarshalIndent(genDoc, "", "  ")
+	genesisJSON, err := tmjson.MarshalIndent(genDoc, "", "  ")
 	if err != nil {
 		return err
 	}
 
 	// write the updated genesis file to each validator
 	for _, val := range chain.nodes {
-		if err := util.WriteFile(filepath.Join(val.configDir(), "config", "genesis.json"), genesisJson); err != nil {
+		if err := util.WriteFile(filepath.Join(val.configDir(), "config", "genesis.json"), genesisJSON); err != nil {
 			return err
 		}
 	}
@@ -284,7 +284,7 @@ func updateCrisisGenesis(crisisGenState *crisistypes.GenesisState) {
 	crisisGenState.ConstantFee.Denom = BaseDenom
 }
 
-func updateGovGenesis(votingPeriod, expeditedVotingPeriod time.Duration) func(*govtypes.GenesisState) {
+func updateGovGenesis(votingPeriod time.Duration) func(*govtypes.GenesisState) {
 	return func(govGenState *govtypes.GenesisState) {
 		govGenState.VotingParams.VotingPeriod = votingPeriod
 		govGenState.DepositParams.MinDeposit = tenM

@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "juno/oracle/v1/oracle.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/timestamp.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/oracle/types";
@@ -28,12 +29,12 @@ service Query {
         "/juno/oracle/v1/denoms/active_exchange_rates";
   }
 
-  // PriceHistoryAt return price of denom at specific block height
-  rpc PriceHistoryAt(QueryPriceHistoryAt)
-      returns (QueryPriceHistoryAtRespone) {
-    option (google.api.http).get = 
-        "/juno/oracle/v1/price_history/{denom}/{block_height}";
-  }
+  // PriceHistoryAtTime return price of denom at specific time
+  rpc PriceHistoryAtTime(QueryPriceHistoryAtTime) 
+      returns (QueryPriceHistoryAtTimeRespone) {
+        option (google.api.http).get = 
+        "/juno/oracle/v1/price_history/PriceHistoryAtTime";
+      }
 
   // AllPriceHistory return all price history of denom
   rpc AllPriceHistory(QueryAllPriceHistory)
@@ -49,11 +50,11 @@ service Query {
         "/juno/oracle/v1/price_history/tracking_lists";
   }
 
-  // CurrentVotePeriodCount return the newest vote period count of specific denom
-  rpc CurrentVotePeriodCount(QueryCurrentVotePeriodCount)
-      returns (QueryCurrentVotePeriodCountRespone) {
-    option (google.api.http).get = 
-        "/juno/oracle/v1/price_history/vote_period_count/{denom}";
+  // ArithmeticTwapPriceBetweenTime return denom twap price between startTime and endTime
+  rpc ArithmeticTwapPriceBetweenTime(QueryArithmeticTwapBetweenTime) 
+      returns (QueryArithmeticTwapBetweenTimeRespone) {
+        option (google.api.http).get = 
+        "/juno/oracle/v1/price_history/ArithmeticTwapBetweenTime";
   }
 
   // FeederDelegation returns feeder delegation of a validator
@@ -265,12 +266,16 @@ message QueryPriceTrackingListsRespone {
   repeated string price_traking_lists = 1;
 }
 
-message QueryPriceHistoryAt{
+message QueryPriceHistoryAtTime{
   string denom = 1;
-  uint64 block_height = 2;
+  google.protobuf.Timestamp time = 2 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"time\""
+  ];
 }
 
-message QueryPriceHistoryAtRespone{
+message QueryPriceHistoryAtTimeRespone{
   Denom denom = 1 [(gogoproto.nullable) = false];
   PriceHistoryEntry price_history_entry = 2 [(gogoproto.nullable) = false];
 }
@@ -286,10 +291,23 @@ message QueryAllPriceHistoryRespone{
   cosmos.base.query.v1beta1.PageResponse pagination = 3;
 }
 
-message QueryCurrentVotePeriodCount{
+message QueryArithmeticTwapBetweenTime {
   string denom = 1;
+  google.protobuf.Timestamp start_time = 2 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"start_time\""
+  ];
+  google.protobuf.Timestamp end_time = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"end_time\""
+  ];
 }
 
-message QueryCurrentVotePeriodCountRespone{
-  uint64 vote_period_count = 1;
-}
+message QueryArithmeticTwapBetweenTimeRespone {
+  cosmos.base.v1beta1.DecCoin twap_price = 1 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.moretags) = "yaml:\"twap_price\""
+  ];
+} 

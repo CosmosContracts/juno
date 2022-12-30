@@ -7,7 +7,7 @@ require (
 	github.com/CosmWasm/wasmd v0.30.0
 	github.com/CosmWasm/wasmvm v1.1.1
 	github.com/cosmos/cosmos-sdk v0.45.11
-	github.com/cosmos/gaia/v8 v8.0.0-20221214153136-e8833fa991a8
+	github.com/cosmos/gaia/v8 v8.0.0-20221222131145-0e77d69f55a0
 	github.com/cosmos/ibc-go/v4 v4.2.0
 	github.com/cosmos/interchain-accounts v0.2.5
 	github.com/gogo/protobuf v1.3.3
@@ -157,6 +157,8 @@ require (
 )
 
 replace (
+	// token factory:
+	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20221224074329-bc7f9501149c
 	// dragonberry: https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.11
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	// use cosmos-flavored protocol buffers

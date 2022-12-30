@@ -113,7 +113,7 @@ func New(t *testing.T, isOracleEnable, isIBCEnabled, isDebugLogEnabled bool, upg
 		return nil, err
 	}
 
-	if isIBCEnabled && upgradeSettings.IsEnabled {
+	if isIBCEnabled && upgradeSettings.IsEnabled { //nolint:gocritic
 		// skip none - configure two chains via Docker
 		// to utilize the older version of to upgrade from
 		return NewUpgradeConfigurer(t,

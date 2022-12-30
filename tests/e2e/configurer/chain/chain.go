@@ -21,15 +21,15 @@ type Config struct {
 
 	ValidatorInitConfigs []*initialization.NodeConfig
 	// voting period is number of blocks it takes to deposit, 1.2 seconds per validator to vote on the prop, and a buffer.
-	VotingPeriod          float32
-	ExpeditedVotingPeriod float32
+	VotingPeriod          uint64
+	ExpeditedVotingPeriod uint64
 	// upgrade proposal height for chain.
 	UpgradePropHeight    int64
 	LatestProposalNumber int
 	LatestLockNumber     int
 	NodeConfigs          []*NodeConfig
 
-	LatestCodeId int
+	LatestCodeID int
 
 	t                *testing.T
 	containerManager *containers.Manager
@@ -46,7 +46,7 @@ const (
 )
 
 func New(t *testing.T, containerManager *containers.Manager, id string, initValidatorConfigs []*initialization.NodeConfig) *Config {
-	numVal := float32(len(initValidatorConfigs))
+	numVal := uint64(len(initValidatorConfigs))
 	return &Config{
 		ChainMeta: initialization.ChainMeta{
 			Id: id,
@@ -63,7 +63,7 @@ func New(t *testing.T, containerManager *containers.Manager, id string, initVali
 func (c *Config) CreateNode(initNode *initialization.Node) *NodeConfig {
 	nodeConfig := &NodeConfig{
 		Node:             *initNode,
-		chainId:          c.Id,
+		chainID:          c.Id,
 		containerManager: c.containerManager,
 		t:                c.t,
 	}
@@ -148,9 +148,8 @@ func (c *Config) SendIBC(dstChain *Config, recipient string, token sdk.Coin) {
 				resPre := token.Amount
 				resPost := tokenPost.Sub(tokenPre)
 				return resPost.Uint64() == resPre.Uint64()
-			} else {
-				return false
 			}
+			return false
 		},
 		5*time.Minute,
 		time.Second,

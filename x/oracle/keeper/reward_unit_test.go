@@ -21,5 +21,4 @@ func TestPrependJunoIfUnique(t *testing.T) {
 	for i, tc := range tcs {
 		require.Equal(tc.out, prependJunoIfUnique(tc.in), i)
 	}
-
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 	apphelpers "github.com/CosmosContracts/juno/v12/app/helpers"
-	"github.com/CosmosContracts/juno/v12/app/params"
 	appparams "github.com/CosmosContracts/juno/v12/app/params"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -188,7 +187,7 @@ func genesisStateWithValSet(t *testing.T,
 		defaultStParams.MaxValidators,
 		defaultStParams.MaxEntries,
 		defaultStParams.HistoricalEntries,
-		params.BondDenom,
+		appparams.BondDenom,
 	)
 
 	// set validators and delegations

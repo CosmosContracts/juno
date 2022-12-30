@@ -20,7 +20,7 @@ func TestAggregateVoteHash(t *testing.T) {
 	aggregateVoteHashRes, err := AggregateVoteHashFromHexString(hexStr)
 	require.NoError(t, err)
 	require.Equal(t, aggregateVoteHash, aggregateVoteHashRes)
-	require.True(t, aggregateVoteHash.Equal(aggregateVoteHash))
+	require.True(t, aggregateVoteHash.Equal(aggregateVoteHash)) //nolint:gocritic // used for a test
 	require.True(t, AggregateVoteHash([]byte{}).Empty())
 
 	got, _ := yaml.Marshal(&aggregateVoteHash)

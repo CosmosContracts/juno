@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine3.15 AS go-builder
+FROM golang:1.19-alpine AS go-builder
 
 ARG E2E_SCRIPT_NAME
 # this comes from standard alpine nightly file

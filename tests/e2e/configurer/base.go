@@ -127,7 +127,7 @@ func (bc *baseConfigurer) runIBCRelayer(chainConfigA *chain.Config, chainConfigB
 	endpoint := fmt.Sprintf("http://%s/state", hermesResource.GetHostPort("3031/tcp"))
 
 	require.Eventually(bc.t, func() bool {
-		resp, err := http.Get(endpoint)
+		resp, err := http.Get(endpoint) //nolint:gosec
 		if err != nil {
 			return false
 		}

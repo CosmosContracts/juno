@@ -37,7 +37,8 @@ func (s *IntegrationTestSuite) TestBallot_OrganizeBallotByDenom() {
 	require.Equal([]types.BallotDenom{
 		{
 			Ballot: types.ExchangeRateBallot{types.NewVoteForTally(sdk.OneDec(), "ujuno", valAddr, 1)},
-			Denom:  "ujuno"},
+			Denom:  "ujuno",
+		},
 	}, res)
 }
 

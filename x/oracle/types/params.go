@@ -48,7 +48,7 @@ var (
 	}
 	DefaultSlashFraction         = sdk.NewDecWithPrec(1, 4) // 0.01%
 	DefaultMinValidPerWindow     = sdk.NewDecWithPrec(5, 2) // 5%
-	DefaultPriceTrackingDuration = time.Hour * 24 * 30      // 30 days
+	DefaultPriceTrackingDuration = time.Hour * 24 * 7       // 7 days
 )
 
 var _ paramstypes.ParamSet = &Params{}

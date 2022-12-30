@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/CosmosContracts/juno/v12/x/oracle/types"
-	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -33,7 +32,7 @@ func (s *IntegrationTestSuite) TestMsgServer_AggregateExchangeRatePrevote() {
 	exchangeRatesStr := "123.2:ujuno"
 	salt, err := GenerateSalt(32)
 	s.Require().NoError(err)
-	hash := oracletypes.GetAggregateVoteHash(salt, exchangeRatesStr, valAddr)
+	hash := types.GetAggregateVoteHash(salt, exchangeRatesStr, valAddr)
 
 	invalidHash := &types.MsgAggregateExchangeRatePrevote{
 		Hash:      "invalid_hash",
@@ -73,8 +72,8 @@ func (s *IntegrationTestSuite) TestMsgServer_AggregateExchangeRateVote() {
 	ratesStrInvalidCoin := "ujuno:123.2,badcoin:234.5"
 	salt, err := GenerateSalt(32)
 	s.Require().NoError(err)
-	hash := oracletypes.GetAggregateVoteHash(salt, ratesStr, valAddr)
-	hashInvalidRate := oracletypes.GetAggregateVoteHash(salt, ratesStrInvalidCoin, valAddr)
+	hash := types.GetAggregateVoteHash(salt, ratesStr, valAddr)
+	hashInvalidRate := types.GetAggregateVoteHash(salt, ratesStrInvalidCoin, valAddr)
 
 	prevoteMsg := &types.MsgAggregateExchangeRatePrevote{
 		Hash:      hash.String(),

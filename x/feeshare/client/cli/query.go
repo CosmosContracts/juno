@@ -168,7 +168,6 @@ func GetCmdQueryDeployerFeeShares() *cobra.Command {
 
 			// Query store
 			res, err := queryClient.DeployerFeeShares(context.Background(), deployerFeeShareReq)
-
 			if err != nil {
 				return err
 			}

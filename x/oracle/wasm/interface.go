@@ -25,7 +25,6 @@ type ExchangeRateQueryResponse struct {
 
 // QueryCustom implements custom query interface
 func Handle(keeper keeper.Keeper, ctx sdk.Context, q *OracleQuery) (any, error) {
-
 	if q.ExchangeRate != nil {
 		rate, err := keeper.GetExchangeRate(ctx, q.ExchangeRate.Denom)
 		if err != nil {

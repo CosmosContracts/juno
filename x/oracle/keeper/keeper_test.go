@@ -21,7 +21,6 @@ import (
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/CosmosContracts/juno/v12/app"
 	junoApp "github.com/CosmosContracts/juno/v12/app"
 	appparams "github.com/CosmosContracts/juno/v12/app/params"
 	"github.com/CosmosContracts/juno/v12/x/oracle/keeper"
@@ -49,7 +48,7 @@ const (
 func (s *IntegrationTestSuite) SetupTest() {
 	require := s.Require()
 	isCheckTx := false
-	junoApp := app.Setup(s.T(), isCheckTx, 1)
+	junoApp := junoApp.Setup(s.T(), isCheckTx, 1)
 
 	/*  `Height:  9` because this check :
 	if (uint64(ctx.BlockHeight())/params.VotePeriod)-(aggregatePrevote.SubmitBlock/params.VotePeriod) != 1 {
@@ -286,7 +285,6 @@ func (s *IntegrationTestSuite) TestClearExchangeRate() {
 }
 
 func (s *IntegrationTestSuite) TestSetDenomPriceHistory() {
-
 	exchangeRate := sdk.NewDec(1000)
 
 	for _, tc := range []struct {

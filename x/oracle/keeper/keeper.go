@@ -76,7 +76,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) SetDenomPriceHistory(ctx sdk.Context, symbolDenom string, exchangeRate sdk.Dec, time time.Time, blockHeight uint64) error {
 	// Check if not in tracking list
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
-	found, _ := k.isInTrackingList(ctx, upperSymbolDenom)
+	_, found := k.IsInTrackingList(ctx, upperSymbolDenom)
 	if !found {
 		// if not in tracking list, doing nothing => just return nil
 		return nil
@@ -113,14 +113,14 @@ func (k Keeper) GetDenomPriceHistoryWithBlockHeight(ctx sdk.Context, symbolDenom
 	var priceHistoryEntry types.PriceHistoryEntry
 	// Check if in tracking list
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
-	found, _ := k.isInTrackingList(ctx, upperSymbolDenom)
+	_, found := k.IsInTrackingList(ctx, upperSymbolDenom)
 	if !found {
 		return priceHistoryEntry, sdkerrors.Wrapf(types.ErrUnknownDenom, "denom %s not in tracking list", upperSymbolDenom)
 	}
 
 	// Calculate votingPeriodCount
 	params := k.GetParams(ctx)
-	votingPeriodCount := (uint64)(blockHeight) / params.VotePeriod
+	votingPeriodCount := blockHeight / params.VotePeriod
 	if votingPeriodCount == 0 {
 		return priceHistoryEntry, sdkerrors.Wrap(types.ErrInvalidVotePeriod, "Voting period must be positive")
 	}
@@ -177,6 +177,7 @@ func (k Keeper) appendPriceHistory(ctx sdk.Context, symbolDenom string, priceHis
 	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(upperSymbolDenom))
 
 	for _, priceHistoryEntry := range priceHistoryEntrys {
+		priceHistoryEntry := priceHistoryEntry
 		key := sdk.Uint64ToBigEndian(priceHistoryEntry.VotePeriodCount)
 		bz, err := k.cdc.Marshal(&priceHistoryEntry)
 		if err != nil {
@@ -245,7 +246,8 @@ func (k Keeper) SetExchangeRate(ctx sdk.Context, denom string, exchangeRate sdk.
 func (k Keeper) SetExchangeRateWithEvent(ctx sdk.Context, denom string, exchangeRate sdk.Dec) error {
 	k.SetExchangeRate(ctx, denom, exchangeRate)
 	return ctx.EventManager().EmitTypedEvent(&types.EventSetFxRate{
-		Denom: denom, Rate: exchangeRate})
+		Denom: denom, Rate: exchangeRate,
+	})
 }
 
 // IterateExchangeRates iterates over USD rates in the store.
@@ -514,16 +516,16 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	return nil
 }
 
-func (k Keeper) isInTrackingList(ctx sdk.Context, symbolDenom string) (bool, types.Denom) {
+func (k Keeper) IsInTrackingList(ctx sdk.Context, symbolDenom string) (types.Denom, bool) {
 	var denom types.Denom
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	params := k.GetParams(ctx)
 	for _, trackingDenom := range params.PriceTrackingList {
 		if trackingDenom.SymbolDenom == upperSymbolDenom {
 			denom = trackingDenom
-			return true, denom
+			return denom, true
 		}
 	}
 
-	return false, denom
+	return denom, false
 }

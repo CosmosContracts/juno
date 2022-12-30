@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -33,6 +33,10 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		GetCmdQueryFeederDelegation(),
 		GetCmdQueryMissCounter(),
 		GetCmdQuerySlashWindow(),
+		GetCmdQueryAllPriceHistory(),
+		GetCmdQueryPriceHistoryAt(),
+		GetCmdQueryPriceTrackingLists(),
+		GetCmdQueryTwapPrice(),
 	)
 
 	return cmd
@@ -304,7 +308,7 @@ func GetCmdQueryPriceTrackingLists() *cobra.Command {
 
 func GetCmdQueryPriceHistoryAt() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "price-history-at [symbolDenom] [blockHeight]",
+		Use:   "price-history-at [symbolDenom] [time_stamp]",
 		Short: "Query price history at specific block height",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -313,43 +317,18 @@ func GetCmdQueryPriceHistoryAt() *cobra.Command {
 				return err
 			}
 
-			blockHeight, err := strconv.ParseUint(args[1], 10, 64)
+			time, err := time.Parse(time.RFC3339, args[1])
 			if err != nil {
 				return err
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			req := &types.QueryPriceHistoryAt{
-				Denom:       strings.ToUpper(args[0]),
-				BlockHeight: blockHeight,
-			}
-			res, err := queryClient.PriceHistoryAt(cmd.Context(), req)
-			return util.PrintOrErr(res, err, clientCtx)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-	return cmd
-}
-
-func GetCmdQueryCurrentVotePeriodCount() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "current-vote-period-count [denom]",
-		Short: "Query current vote period count",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			req := &types.QueryCurrentVotePeriodCount{
+			req := &types.QueryPriceHistoryAtTime{
 				Denom: strings.ToUpper(args[0]),
+				Time:  time,
 			}
-			res, err := queryClient.CurrentVotePeriodCount(cmd.Context(), req)
+			res, err := queryClient.PriceHistoryAtTime(cmd.Context(), req)
 			return util.PrintOrErr(res, err, clientCtx)
 		},
 	}
@@ -384,6 +363,44 @@ func GetCmdQueryAllPriceHistory() *cobra.Command {
 	}
 
 	flags.AddPaginationFlagsToCmd(cmd, cmd.Use)
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdQueryTwapPrice() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "twap [denom] [startTime] [endTime]",
+		Short: "Query twap between period time",
+		Long: strings.TrimSpace(
+			`Query twap for pool. Start time must be unix time. End time can be unix time or duration.
+Example:
+$ junod q twap JUNO 2022-12-25T19:42:07.100Z 2022-12-25T20:42:07.100Z
+`),
+		Args: cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			startTime, err := time.Parse(time.RFC3339, args[1])
+			if err != nil {
+				return err
+			}
+			endTime, err := time.Parse(time.RFC3339, args[2])
+			if err != nil {
+				return err
+			}
+
+			req := &types.QueryArithmeticTwapBetweenTime{
+				Denom:     strings.ToUpper(args[0]),
+				StartTime: startTime,
+				EndTime:   endTime,
+			}
+
+			res, err := queryClient.ArithmeticTwapPriceBetweenTime(cmd.Context(), req)
+			return util.PrintOrErr(res, err, clientCtx)
+		},
+	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }

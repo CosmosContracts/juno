@@ -274,31 +274,33 @@ func (q querier) PriceTrackingLists(
 	}, nil
 }
 
-func (q querier) PriceHistoryAt(
+// PriceHistoryAtTime queries price history of req denom at specific time
+func (q querier) PriceHistoryAtTime(
 	goCtx context.Context,
-	req *types.QueryPriceHistoryAt,
-) (*types.QueryPriceHistoryAtRespone, error) {
+	req *types.QueryPriceHistoryAtTime,
+) (*types.QueryPriceHistoryAtTimeRespone, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	found, denom := q.isInTrackingList(ctx, req.Denom)
+	denom, found := q.IsInTrackingList(ctx, req.Denom)
 	if !found {
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
 
-	priceHistoryEntry, err := q.GetDenomPriceHistoryWithBlockHeight(ctx, req.Denom, req.BlockHeight)
+	priceHistoryEntry, err := q.getHistoryEntryAtOrBeforeTime(ctx, req.Denom, req.Time)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.QueryPriceHistoryAtRespone{
+	return &types.QueryPriceHistoryAtTimeRespone{
 		Denom:             denom,
 		PriceHistoryEntry: priceHistoryEntry,
 	}, nil
 }
 
+// AllPriceHistory queries all price history of denom in tracking time duration
 func (q querier) AllPriceHistory(
 	goCtx context.Context,
 	req *types.QueryAllPriceHistory,
@@ -308,13 +310,13 @@ func (q querier) AllPriceHistory(
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	found, denom := q.isInTrackingList(ctx, req.Denom)
+	denom, found := q.IsInTrackingList(ctx, req.Denom)
 	if !found {
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
 
 	store := ctx.KVStore(q.storeKey)
-	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(req.Denom))
+	priceHistoryStore := prefix.NewStore(store, types.FormatHistoricalDenomIndexPrefix(req.Denom))
 
 	var priceHistoryEntrys []types.PriceHistoryEntry
 
@@ -337,36 +339,34 @@ func (q querier) AllPriceHistory(
 	}, nil
 }
 
-func (q querier) CurrentVotePeriodCount(
+// ArithmeticTwapPriceBetweenTime queries
+// the time weight average price of specific
+// denom between period of Time
+// Where the period is defined by user by define startTime and endTime
+func (q querier) ArithmeticTwapPriceBetweenTime(
 	goCtx context.Context,
-	req *types.QueryCurrentVotePeriodCount,
-) (*types.QueryCurrentVotePeriodCountRespone, error) {
+	req *types.QueryArithmeticTwapBetweenTime,
+) (*types.QueryArithmeticTwapBetweenTimeRespone, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	found, _ := q.isInTrackingList(ctx, req.Denom)
+	_, found := q.IsInTrackingList(ctx, req.Denom)
 	if !found {
 		return nil, status.Errorf(codes.InvalidArgument, "Denom %s not in tracking list", req.Denom)
 	}
 
-	store := ctx.KVStore(q.storeKey)
-	priceHistoryStore := prefix.NewStore(store, types.GetPriceHistoryKey(req.Denom))
-	iter := sdk.KVStoreReversePrefixIterator(priceHistoryStore, []byte{})
-
-	defer iter.Close()
-
-	var currentVotePeriodCount uint64
-	if iter.Valid() {
-		currentVotePeriodCount = sdk.BigEndianToUint64(iter.Key())
+	if req.StartTime.After(req.EndTime) {
+		return nil, status.Errorf(codes.InvalidArgument, "StartTime %v after Endtime %v", req.StartTime, req.EndTime)
 	}
 
-	if currentVotePeriodCount == 0 {
-		return nil, status.Errorf(codes.Internal, "Denom %s not have price tracking data", req.Denom)
+	twapPrice, err := q.GetArithmetricTWAP(ctx, req.Denom, req.StartTime, req.EndTime)
+	if err != nil {
+		return nil, err
 	}
 
-	return &types.QueryCurrentVotePeriodCountRespone{
-		VotePeriodCount: currentVotePeriodCount,
+	return &types.QueryArithmeticTwapBetweenTimeRespone{
+		TwapPrice: sdk.NewDecCoinFromDec(req.Denom, twapPrice),
 	}, nil
 }
