@@ -8,6 +8,7 @@ import (
 
 // TODO: testing
 func GetFirstValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverseIterate bool, parseValue func([]byte) (T, error)) (T, error) {
+	// Get the last value if it exist because iterator not catch the end key
 	bz := storeObj.Get(keyEnd)
 	if bz != nil {
 		return parseValue(bz)
@@ -39,6 +40,7 @@ func GetValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd []by
 		entryList = append(entryList, entry)
 	}
 
+	// Get the last value if it exist because iterator not catch the end key
 	bz := storeObj.Get(keyEnd)
 	if bz != nil {
 		entry, err := parseValue(bz)
@@ -48,6 +50,7 @@ func GetValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd []by
 		entryList = append(entryList, entry)
 	}
 
+	// return err if not have any value in range
 	if len(entryList) == 0 {
 		return entryList, errors.New("no values in range")
 	}
