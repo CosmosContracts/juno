@@ -48,7 +48,6 @@ func (n *NodeConfig) QueryGRPCGateway(path string, parameters ...string) ([]byte
 		}
 
 		resp, err = http.DefaultClient.Do(req) //nolint:bodyclose
-		req.Body.Close()
 		if err != nil {
 			n.t.Logf("error while executing HTTP request: %s", err.Error())
 			return false
