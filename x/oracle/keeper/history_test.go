@@ -151,7 +151,6 @@ func Test_getHistoryEntryAtOrBeforeTime(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func Test_getHistoryEntryBetweenTime(t *testing.T) {
