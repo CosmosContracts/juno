@@ -12,7 +12,7 @@ import (
 var _ types.MsgServer = &Keeper{}
 
 // GetContractAdminOrCreatorAddress ensures the deployer is the contract's admin OR creator if no admin is set for all msg_server feeshare functions.
-func (k Keeper) GetContractAdminOrCreatorAddress(ctx sdk.Context, contract sdk.AccAddress, deployer string) (feeShareAccessAddr sdk.AccAddress, errr error) {
+func (k Keeper) GetContractAdminOrCreatorAddress(ctx sdk.Context, contract sdk.AccAddress, deployer string) (sdk.AccAddress, error) {
 	var controllingAccount sdk.AccAddress
 
 	// Ensures deployer String is valid
@@ -120,7 +120,6 @@ func (k Keeper) UpdateFeeShare(
 	msg *types.MsgUpdateFeeShare,
 ) (*types.MsgUpdateFeeShareResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	params := k.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil, types.ErrFeeShareDisabled
@@ -160,16 +159,16 @@ func (k Keeper) UpdateFeeShare(
 			"invalid withdrawer address (%s)", err,
 		)
 	}
+	newWithdrawAddr, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid WithdrawerAddress %s", msg.WithdrawerAddress)
+	}
 
 	k.DeleteWithdrawerMap(ctx, withdrawAddr, contract)
-	k.SetWithdrawerMap(
-		ctx,
-		withdrawAddr,
-		contract,
-	)
+	k.SetWithdrawerMap(ctx, newWithdrawAddr, contract)
 
 	// update feeshare
-	feeshare.WithdrawerAddress = withdrawAddr.String()
+	feeshare.WithdrawerAddress = newWithdrawAddr.String()
 	k.SetFeeShare(ctx, feeshare)
 
 	ctx.EventManager().EmitEvents(

@@ -3,8 +3,10 @@ package keeper_test
 import (
 	"fmt"
 	"math/rand"
+	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -281,6 +283,121 @@ func (s *IntegrationTestSuite) TestClearExchangeRate() {
 	app.OracleKeeper.ClearExchangeRates(ctx)
 	_, err := app.OracleKeeper.GetExchangeRate(ctx, displayDenom)
 	s.Require().Error(err)
+}
+
+func (s *IntegrationTestSuite) TestSetDenomPriceHistory() {
+
+	exchangeRate := sdk.NewDec(1000)
+
+	for _, tc := range []struct {
+		desc         string
+		symbolDenom  string
+		exchangeRate sdk.Dec
+		blockHeight  uint64
+		shouldErr    bool
+	}{
+		{
+			desc:         "Success case",
+			symbolDenom:  types.JunoSymbol,
+			exchangeRate: exchangeRate,
+			blockHeight:  10,
+			shouldErr:    false,
+		},
+		{
+			desc:         "Invalid block height",
+			symbolDenom:  types.JunoSymbol,
+			exchangeRate: exchangeRate,
+			blockHeight:  0,
+			shouldErr:    true,
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			if !tc.shouldErr {
+				err := s.app.OracleKeeper.SetDenomPriceHistory(s.ctx, tc.symbolDenom, tc.exchangeRate, time.Now().UTC(), tc.blockHeight)
+				s.Require().NoError(err)
+			} else {
+				err := s.app.OracleKeeper.SetDenomPriceHistory(s.ctx, tc.symbolDenom, tc.exchangeRate, time.Now().UTC(), tc.blockHeight)
+				s.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestGetDenomPriceHistoryWithBlockHeight() {
+	params := s.app.OracleKeeper.GetParams(s.ctx)
+
+	var blockHeight uint64 = 10
+	votePeriodCount := blockHeight / params.VotePeriod
+	symbolDenom := types.JunoSymbol
+	time := time.Now().UTC()
+	err := s.app.OracleKeeper.SetDenomPriceHistory(s.ctx, symbolDenom, sdk.OneDec(), time, blockHeight)
+	s.Require().NoError(err)
+	price, err := s.app.OracleKeeper.GetDenomPriceHistoryWithBlockHeight(s.ctx, symbolDenom, 11)
+	s.Require().NoError(err)
+	s.Require().Equal(price.Price, sdk.OneDec())
+	s.Require().Equal(price.PriceUpdateTime, time)
+	s.Require().Equal(price.VotePeriodCount, votePeriodCount)
+}
+
+func (s *IntegrationTestSuite) TestIterateDenomPriceHistory() {
+	params := s.app.OracleKeeper.GetParams(s.ctx)
+	source := rand.NewSource(10)
+	r := rand.New(source)
+	symbolDenom := types.JunoSymbol
+	blockHeights := randUInt64Array(10, r)
+
+	var votePeriodCounts []uint64
+	for _, blockHeight := range blockHeights {
+		err := s.app.OracleKeeper.SetDenomPriceHistory(s.ctx, symbolDenom, sdk.OneDec(), time.Now().Add(time.Second*time.Duration(blockHeight)), blockHeight)
+		s.Require().NoError(err)
+		votePeriod := blockHeight / params.VotePeriod
+		votePeriodCounts = append(votePeriodCounts, votePeriod)
+	}
+
+	var keys []uint64
+	s.app.OracleKeeper.IterateDenomPriceHistory(s.ctx, symbolDenom, func(key uint64, priceHistoryEntry types.PriceHistoryEntry) bool {
+		keys = append(keys, key)
+		s.Require().Equal(priceHistoryEntry.Price, sdk.OneDec())
+		return false
+	})
+
+	s.Require().Equal(len(votePeriodCounts), len(keys))
+	for i, key := range keys {
+		s.Require().Equal(key, votePeriodCounts[i])
+	}
+}
+
+func (s *IntegrationTestSuite) TestDeleteDenomPriceHistory() {
+	params := s.app.OracleKeeper.GetParams(s.ctx)
+
+	var blockHeight uint64 = 10
+	votePeriodCount := blockHeight / params.VotePeriod
+	symbolDenom := types.JunoSymbol
+	time := time.Now().UTC()
+	err := s.app.OracleKeeper.SetDenomPriceHistory(s.ctx, symbolDenom, sdk.OneDec(), time, blockHeight)
+	s.Require().NoError(err)
+	price, err := s.app.OracleKeeper.GetDenomPriceHistoryWithBlockHeight(s.ctx, symbolDenom, 11)
+	s.Require().NoError(err)
+	s.Require().Equal(price.Price, sdk.OneDec())
+	s.Require().Equal(price.PriceUpdateTime, time)
+	s.Require().Equal(price.VotePeriodCount, votePeriodCount)
+
+	s.app.OracleKeeper.DeleteDenomPriceHistory(s.ctx, symbolDenom, votePeriodCount)
+	price, err = s.app.OracleKeeper.GetDenomPriceHistoryWithBlockHeight(s.ctx, symbolDenom, 11)
+	s.Require().Error(err)
+}
+
+func randUInt64Array(number uint64, r *rand.Rand) []uint64 {
+	var result []uint64
+	for number > 0 {
+		temp := r.Uint64()
+		result = append(result, temp)
+		number--
+	}
+
+	sort.Slice(result, func(i, j int) bool { return result[i] < result[j] })
+	return result
 }
 
 func TestKeeperTestSuite(t *testing.T) {
