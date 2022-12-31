@@ -184,12 +184,10 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 	if err := os.MkdirAll(pricefeederCfgPath, 0777); err != nil {
 		return err
 	}
-
 	_, err := util.CopyFile(
 		filepath.Join("./", "config.toml"),
 		filepath.Join(pricefeederCfgPath, "config.toml"),
 	)
-
 	if err != nil {
 		return err
 	}
@@ -204,11 +202,9 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 		pricefeederCfgPath,
 		valCondifDir,
 	)
-
 	if err != nil {
 		return err
 	}
-
 	bc.t.Logf("started Price-feeder container: %s", pricefeederResource.Container.ID)
 	return nil
 }
