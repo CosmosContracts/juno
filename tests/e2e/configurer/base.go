@@ -61,12 +61,14 @@ func (bc *baseConfigurer) RunValidators() error {
 	}
 	return nil
 }
+
 func (bc *baseConfigurer) RunPriceFeeder() error {
 	if err := bc.runPriceFeeder(); err != nil {
 		return err
 	}
 	return nil
 }
+
 func (bc *baseConfigurer) runValidators(chainConfig *chain.Config) error {
 	bc.t.Logf("starting %s validator containers...", chainConfig.Id)
 	for _, node := range chainConfig.NodeConfigs {
@@ -169,6 +171,7 @@ func (bc *baseConfigurer) runIBCRelayer(chainConfigA *chain.Config, chainConfigB
 	// create the client, connection and channel between the two chains
 	return bc.connectIBCChains(chainConfigA, chainConfigB)
 }
+
 func (bc *baseConfigurer) runPriceFeeder() error {
 	bc.t.Log("starting Price-Feeder container...")
 	er := exec.Command("./scripts/init_config.sh").Run()
@@ -204,6 +207,7 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 	bc.t.Logf("started Price-feeder container: %s", pricefeederResource.Container.ID)
 	return nil
 }
+
 func (bc *baseConfigurer) connectIBCChains(chainA *chain.Config, chainB *chain.Config) error {
 	bc.t.Logf("connecting %s and %s chains via IBC", chainA.ChainMeta.Id, chainB.ChainMeta.Id)
 	cmd := []string{"hermes", "create", "channel", chainA.ChainMeta.Id, chainB.ChainMeta.Id, "--port-a=transfer", "--port-b=transfer"}

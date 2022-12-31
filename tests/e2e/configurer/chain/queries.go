@@ -30,6 +30,7 @@ func (n *NodeConfig) QueryExchangeRates() (string, error) {
 	output := out.String()
 	return output, err
 }
+
 func (n *NodeConfig) QueryGRPCGateway(path string, parameters ...string) ([]byte, error) {
 	if len(parameters)%2 != 0 {
 		return nil, fmt.Errorf("invalid number of parameters, must follow the format of key + value")
