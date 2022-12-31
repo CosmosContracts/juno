@@ -143,7 +143,6 @@ func (r *passReader) Read(p []byte) (n int, err error) {
 func (oc OracleClient) BroadcastTx(nextBlockHeight, timeoutHeight int64, msgs ...sdk.Msg) error {
 	maxBlockHeight := nextBlockHeight + timeoutHeight
 	lastCheckHeight := nextBlockHeight - 1
-	fmt.Errorf(lastCheckHeight)
 	clientCtx, err := oc.CreateClientContext()
 	if err != nil {
 		return err
@@ -160,7 +159,6 @@ func (oc OracleClient) BroadcastTx(nextBlockHeight, timeoutHeight int64, msgs ..
 		if err != nil {
 			return err
 		}
-		fmt.Errorf(latestBlockHeight)
 		if latestBlockHeight <= lastCheckHeight {
 			continue
 		}

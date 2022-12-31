@@ -21,6 +21,15 @@ import (
 	"github.com/CosmosContracts/juno/v12/tests/e2e/util"
 )
 
+func (n *NodeConfig) QueryExchangeRates() (string, error) {
+	cmd := []string{"junod", "q", "oracle", "exchange-rates"}
+	out, _, err := n.containerManager.ExecCmd(n.t, n.Name, cmd, "")
+	if err != nil {
+		return "", err
+	}
+	output := out.String()
+	return output, err
+}
 func (n *NodeConfig) QueryGRPCGateway(path string, parameters ...string) ([]byte, error) {
 	if len(parameters)%2 != 0 {
 		return nil, fmt.Errorf("invalid number of parameters, must follow the format of key + value")

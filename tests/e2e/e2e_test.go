@@ -8,6 +8,7 @@ import (
 	// "strconv"
 	// "strings"
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
+	"time"
 	// sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -30,23 +31,27 @@ func (s *IntegrationTestSuite) TestIBCTokenTransfer() {
 
 }
 
-// func (s *IntegrationTestSuite) TestOracle() {
-// 	chainA := s.configurer.GetChainConfig(0)
-// 	chainANode, err := chainA.GetDefaultNode()
-// 	gotPrices := s.currentPrices()
-// }
-// func (s *IntegrationTestSuite) currentPrices() map[string]sdk.Dec {
-// 	rawRates, err := oracletypes.NewQueryClient(s.network.Validators[0].ClientCtx).ExchangeRates(context.Background(), &oracletypes.QueryExchangeRatesRequest{})
-// 	require.NoError(s.T(), err)
-
-// 	prices := make(map[string]sdk.Dec)
-
-// 	for _, p := range rawRates.ExchangeRates {
-// 		prices[p.Pair] = p.ExchangeRate
-// 	}
-
-// 	return prices
-// }
+func (s *IntegrationTestSuite) TestOracle() {
+	chainA := s.configurer.GetChainConfig(0)
+	chainANode, err := chainA.GetDefaultNode()
+	s.Require().NoError(err)
+	for i := 1; i < 10; i++ {
+		exchangerates, err := chainANode.QueryExchangeRates()
+		s.Require().NoError(err)
+		if exchangerates != "" {
+			break
+		}
+		time.Sleep(60 * time.Second)
+	}
+	s.Require().Eventually(func() bool {
+		exchangerates, err := chainANode.QueryExchangeRates()
+		s.Require().NoError(err)
+		return exchangerates != ""
+	},
+		3*time.Minute,
+		500*time.Millisecond,
+	)
+}
 
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
 // docker network prune && make test-e2e-skip

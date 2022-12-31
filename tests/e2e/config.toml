@@ -1,6 +1,6 @@
 gas_adjustment = 1.5
 provider_min_override = true
-gas_price = "0.0001stake"
+gas_price = "0.0001ujuno"
 fee_grant_address = ""
 
 [server]
@@ -111,7 +111,7 @@ rest = "https://api1.binance.com"
 websocket = "stream.binance.com:9443"
 
 [account]
-address = "juno1kwztealj0u0qgej5dyc37700ruysy3hh7h530h"
+address = "juno1vqqru7wu5espq6yad3v3y2gmvxzz2xcaqu57kh"
 chain_id = "juno-test-a"
-validator = "junovaloper1kwztealj0u0qgej5dyc37700ruysy3hhp2z75w"
+validator = "junovaloper1vqqru7wu5espq6yad3v3y2gmvxzz2xcalpz3dw"
 prefix = "juno"

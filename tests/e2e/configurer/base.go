@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"testing"
@@ -169,6 +171,10 @@ func (bc *baseConfigurer) runIBCRelayer(chainConfigA *chain.Config, chainConfigB
 }
 func (bc *baseConfigurer) runPriceFeeder() error {
 	bc.t.Log("starting Price-Feeder container...")
+	er := exec.Command("./scripts/init_config.sh").Run()
+	if er != nil {
+		log.Fatal(er)
+	}
 	pricefeederCfgPath := "/tmp/price-feeder/"
 	valCondifDir := "/tmp/juno-e2e-testnet/juno-test-a/juno-test-a-node-prune-default-snapshot-state-sync-from/"
 	if err := os.MkdirAll(pricefeederCfgPath, 0777); err != nil {
@@ -176,7 +182,7 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 	}
 
 	_, err := util.CopyFile(
-		filepath.Join("./scripts/", "config.toml"),
+		filepath.Join("./", "config.toml"),
 		filepath.Join(pricefeederCfgPath, "config.toml"),
 	)
 	if err != nil {
@@ -194,40 +200,6 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 	if err != nil {
 		return err
 	}
-
-	endpoint := fmt.Sprintf("http://%s/state", pricefeederResource.GetHostPort("7171/tcp"))
-
-	require.Eventually(bc.t, func() bool {
-		resp, err := http.Get(endpoint)
-		if err != nil {
-			return false
-		}
-
-		defer resp.Body.Close()
-
-		bz, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return false
-		}
-
-		var respBody map[string]interface{}
-		if err := json.Unmarshal(bz, &respBody); err != nil {
-			return false
-		}
-
-		status, ok := respBody["status"].(string)
-		require.True(bc.t, ok)
-		result, ok := respBody["result"].(map[string]interface{})
-		require.True(bc.t, ok)
-
-		chains, ok := result["chains"].([]interface{})
-		require.True(bc.t, ok)
-
-		return status == "success" && len(chains) == 2
-	},
-		5*time.Minute,
-		time.Second,
-		"price-feeder not healthy")
 
 	bc.t.Logf("started Price-feeder container: %s", pricefeederResource.Container.ID)
 	return nil
