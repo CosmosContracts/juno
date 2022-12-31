@@ -184,6 +184,7 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 	if err := os.MkdirAll(pricefeederCfgPath, 0777); err != nil {
 		return err
 	}
+
 	_, err := util.CopyFile(
 		filepath.Join("./", "config.toml"),
 		filepath.Join(pricefeederCfgPath, "config.toml"),
@@ -191,11 +192,9 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 	if err != nil {
 		return err
 	}
-
 	if err := os.Chmod("/tmp/price-feeder/config.toml", 0777); err != nil {
 		return err
 	}
-
 	pricefeederPass := "test"
 	pricefeederResource, err := bc.containerManager.RunPriceFeederResource(
 		pricefeederPass,
