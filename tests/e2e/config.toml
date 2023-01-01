@@ -111,7 +111,7 @@ rest = "https://api1.binance.com"
 websocket = "stream.binance.com:9443"
 
 [account]
-address = "juno1vqqru7wu5espq6yad3v3y2gmvxzz2xcaqu57kh"
+address = "juno1agk4y97wdg2knvxv57jm7zl7dfc227anqpjs6s"
 chain_id = "juno-test-a"
-validator = "junovaloper1vqqru7wu5espq6yad3v3y2gmvxzz2xcalpz3dw"
+validator = "junovaloper1agk4y97wdg2knvxv57jm7zl7dfc227anluylpf"
 prefix = "juno"
