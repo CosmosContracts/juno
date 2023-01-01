@@ -11,6 +11,9 @@ type ImageConfig struct {
 
 	RelayerRepository string
 	RelayerTag        string
+
+	PriceFeederRepository string
+	PriceFeederTag        string
 }
 
 //nolint:deadcode
@@ -31,6 +34,9 @@ const (
 	// Hermes repo/version for relayer
 	relayerRepository = "ghcr.io/cosmoscontracts/hermes"
 	relayerTag        = "0.13.0"
+	// Price-Feeder tool repo/tag for Oracle
+	pricefeederRepository = "ghcr.io/cosmoscontracts/price-feeder"
+	pricefeederTag        = "0.0.1"
 )
 
 // Returns ImageConfig needed for running e2e test.
@@ -38,8 +44,10 @@ const (
 // If isFork is true, utilizes provided fork height to initiate fork logic
 func NewImageConfig(isUpgrade, isFork bool) ImageConfig {
 	config := ImageConfig{
-		RelayerRepository: relayerRepository,
-		RelayerTag:        relayerTag,
+		RelayerRepository:     relayerRepository,
+		RelayerTag:            relayerTag,
+		PriceFeederRepository: pricefeederRepository,
+		PriceFeederTag:        pricefeederTag,
 	}
 
 	if !isUpgrade {
