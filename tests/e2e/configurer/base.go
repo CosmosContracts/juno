@@ -181,7 +181,7 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 	pricefeederCfgPath := "/tmp/price-feeder/"
 	valCondifDir := "/tmp/juno-e2e-testnet/juno-test-a/juno-test-a-node-prune-default-snapshot-state-sync-from/"
 
-	if err := os.MkdirAll(pricefeederCfgPath, 0777); err != nil {
+	if err := os.MkdirAll(pricefeederCfgPath, 0o777); err != nil {
 		return err
 	}
 
@@ -192,7 +192,7 @@ func (bc *baseConfigurer) runPriceFeeder() error {
 	if err != nil {
 		return err
 	}
-	if err := os.Chmod("/tmp/price-feeder/config.toml", 0777); err != nil {
+	if err := os.Chmod("/tmp/price-feeder/config.toml", 0o777); err != nil {
 		return err
 	}
 	pricefeederPass := "test"

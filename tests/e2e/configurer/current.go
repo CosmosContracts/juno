@@ -40,7 +40,7 @@ func (cb *CurrentBranchConfigurer) ConfigureChains() error {
 func (cb *CurrentBranchConfigurer) ConfigureChain(chainConfig *chain.Config) error {
 	cb.t.Logf("starting e2e infrastructure from current branch for chain-id: %s", chainConfig.Id)
 
-	err := os.MkdirAll("juno-e2e-testnet", 0755)
+	err := os.MkdirAll("juno-e2e-testnet", 0o755)
 	if err != nil {
 		return err
 	}
