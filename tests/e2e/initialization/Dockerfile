@@ -49,5 +49,7 @@ EXPOSE 1317
 EXPOSE 26656
 # tendermint rpc
 EXPOSE 26657
+#grpc
+EXPOSE 9090
 
 ENTRYPOINT ["junod"]
