@@ -27,15 +27,21 @@ ldflags = -X github.com/CosmosContracts/juno/price-feeder/cmd.Version=$(VERSION)
 		  -X github.com/CosmosContracts/juno/price-feeder/cmd.Commit=$(COMMIT) \
 		  -X github.com/CosmosContracts/juno/price-feeder/cmd.SDKVersion=$(SDK_VERSION)
 
-BUILD_FLAGS := -ldflags '$(ldflags)'
+ifeq ($(LINK_STATICALLY),true)
+	ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
+endif
+
+build_tags += $(BUILD_TAGS)
+
+BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 
 build: go.sum
 	@echo "--> Building..."
-	CGO_ENABLED=1 go build -mod=readonly -o $(BUILD_DIR)/ $(BUILD_FLAGS) ./...
+	go build -mod=readonly -o $(BUILD_DIR)/ $(BUILD_FLAGS) ./...
 
 install: go.sum
 	@echo "--> Installing..."
-	CGO_ENABLED=1 go install -mod=readonly $(BUILD_FLAGS) ./...
+	go install -mod=readonly $(BUILD_FLAGS) ./...
 
 .PHONY: build install
 

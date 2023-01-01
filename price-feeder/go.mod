@@ -1,6 +1,6 @@
 module github.com/CosmosContracts/juno/price-feeder
 
-go 1.18
+go 1.19
 
 require (
 	github.com/CosmosContracts/juno/v12 v12.0.0
