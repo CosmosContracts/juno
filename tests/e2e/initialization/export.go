@@ -4,7 +4,7 @@ import "fmt"
 
 type ChainMeta struct {
 	DataDir string `json:"dataDir"`
-	Id      string `json:"id"`
+	ID      string `json:"id"`
 }
 
 type Node struct {
@@ -13,7 +13,7 @@ type Node struct {
 	Mnemonic      string `json:"mnemonic"`
 	PublicAddress string `json:"publicAddress"`
 	PublicKey     string `json:"publicKey"`
-	PeerId        string `json:"peerId"`
+	PeerID        string `json:"peerId"`
 	IsValidator   bool   `json:"isValidator"`
 }
 
@@ -23,5 +23,5 @@ type Chain struct {
 }
 
 func (c *ChainMeta) configDir() string {
-	return fmt.Sprintf("%s/%s", c.DataDir, c.Id)
+	return fmt.Sprintf("%s/%s", c.DataDir, c.ID)
 }

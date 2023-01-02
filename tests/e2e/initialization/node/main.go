@@ -18,7 +18,7 @@ func main() {
 
 		existingGenesisDir string
 
-		chainId string
+		chainID string
 
 		votingPeriod time.Duration
 
@@ -33,7 +33,7 @@ func main() {
 
 	flag.StringVar(&dataDir, "data-dir", "", "chain data directory")
 	flag.StringVar(&existingGenesisDir, "genesis-dir", "", "pre-existing genesis location")
-	flag.StringVar(&chainId, "chain-id", "", "chain ID")
+	flag.StringVar(&chainID, "chain-id", "", "chain ID")
 	flag.StringVar(&nodeConfigStr, "node-config", "", "serialized node config")
 	flag.DurationVar(&votingPeriod, "voting-period", 30000000000, "voting period")
 	flag.StringVar(&stateSyncRPCServersStr, "rpc-servers", "", "state sync RPC servers")
@@ -67,7 +67,7 @@ func main() {
 		panic(err)
 	}
 
-	_, err = initialization.InitSingleNode(chainId, dataDir, existingGenesisDir, &nodeConfig, votingPeriod, trustHeight, trustHash, stateSyncRPCServers, persistenrPeers)
+	_, err = initialization.InitSingleNode(chainID, dataDir, existingGenesisDir, &nodeConfig, votingPeriod, trustHeight, trustHash, stateSyncRPCServers, persistenrPeers)
 	if err != nil {
 		panic(err)
 	}

@@ -46,11 +46,11 @@ func (s *IntegrationTestSuite) TestTokenFactoryBindings() {
 
 	// Store Contract
 	node.StoreWasmCode("/juno/tokenfactory.wasm", wallet)
-	chainA.LatestCodeId = 1
+	chainA.LatestCodeID = 1
 
 	// Instantiate to codeId 1
 	node.InstantiateWasmContract(
-		strconv.Itoa(chainA.LatestCodeId),
+		strconv.Itoa(chainA.LatestCodeID),
 		"{}",
 		"tokenfactorylabel",
 		wallet,
@@ -58,7 +58,7 @@ func (s *IntegrationTestSuite) TestTokenFactoryBindings() {
 	)
 
 	// Get codeId 1 contracts
-	contracts, err := node.QueryContractsFromId(chainA.LatestCodeId)
+	contracts, err := node.QueryContractsFromID(chainA.LatestCodeID)
 	s.NoError(err)
 	s.Require().Len(contracts, 1, "Wrong number of contracts for the tokenfactory.wasm initialization")
 
@@ -146,7 +146,7 @@ func (s *IntegrationTestSuite) checkBalance(coins sdk.Coins, expected sdk.Coins)
 
 // 	// configure genesis and config files for the state-synchin node.
 // 	nodeInit, err := initialization.InitSingleNode(
-// 		chainA.Id,
+// 		chainA.ID,
 // 		tempDir,
 // 		filepath.Join(runningNode.ConfigDir, "config", "genesis.json"),
 // 		stateSynchingNodeConfig,
