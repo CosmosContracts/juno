@@ -13,7 +13,7 @@ func AddGenesisWasmMsgCmd(defaultNodeHome string) *cobra.Command {
 		Short:                      "Wasm genesis subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
-		RunE: client.ValidateCmd,
+		RunE:                       client.ValidateCmd,
 	}
 	genesisIO := wasmcli.NewDefaultGenesisIO()
 	txCmd.AddCommand(
