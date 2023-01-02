@@ -1,0 +1,61 @@
+{
+    "body": {
+        "messages": [
+            {
+                "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
+                "description": {
+                    "moniker": "BasBlock",
+                    "identity": "",
+                    "website": "",
+                    "security_contact": "",
+                    "details": ""
+                },
+                "commission": {
+                    "rate": "0.100000000000000000",
+                    "max_rate": "0.200000000000000000",
+                    "max_change_rate": "0.010000000000000000"
+                },
+                "min_self_delegation": "1",
+                "delegator_address": "juno142vtwu440zchsws4llnq5rknmslvw2fxtfjl4l",
+                "validator_address": "junovaloper142vtwu440zchsws4llnq5rknmslvw2fx55yswx",
+                "pubkey": {
+                    "@type": "/cosmos.crypto.ed25519.PubKey",
+                    "key": "l/mEvWvEg2zCK8+tAH846nWuPsbTsfGwEMBrxgJrU9w="
+                },
+                "value": {
+                    "denom": "ujuno",
+                    "amount": "320000000"
+                }
+            }
+        ],
+        "memo": "bcdfcfb7f41be1eb05665a40c4fb69c39e0266f0@172.31.4.68:26656",
+        "timeout_height": "0",
+        "extension_options": [],
+        "non_critical_extension_options": []
+    },
+    "auth_info": {
+        "signer_infos": [
+            {
+                "public_key": {
+                    "@type": "/cosmos.crypto.secp256k1.PubKey",
+                    "key": "AyNH8pr1Ox8SIGiCXF5dc1DHf3jBUb30VXuKwDA4r4hN"
+                },
+                "mode_info": {
+                    "single": {
+                        "mode": "SIGN_MODE_DIRECT"
+                    }
+                },
+                "sequence": "0"
+            }
+        ],
+        "fee": {
+            "amount": [],
+            "gas_limit": "200000",
+            "payer": "",
+            "granter": ""
+        }
+    },
+    "signatures": [
+        "xJZwNY/BchrMYZdBozfqza39kMY+nEpXA3ypkzDe6P5gEpLzSEDXS+kf3WMKVNIDdMA5Ie6DtYJzy857mUKVPQ=="
+    ]
+}
