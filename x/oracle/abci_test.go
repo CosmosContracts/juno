@@ -81,13 +81,17 @@ var historacleTestCases = []struct {
 	expectedHistoricTWAP sdk.Dec
 }{
 	{
-		[]string{"1.0", "1.2", "1.1", "1.4", "1.1", "1.15",
-			"1.2", "1.3", "1.2", "1.12", "1.2", "1.15"},
+		[]string{
+			"1.0", "1.2", "1.1", "1.4", "1.1", "1.15",
+			"1.2", "1.3", "1.2", "1.12", "1.2", "1.15",
+		},
 		sdk.MustNewDecFromStr("1.175"), // TWAP[0, 11]
 	},
 	{
-		[]string{"2.3", "2.12", "2.14", "2.24", "2.18", "2.15",
-			"2.51", "2.59", "2.67", "2.76", "2.89", "2.85"},
+		[]string{
+			"2.3", "2.12", "2.14", "2.24", "2.18", "2.15",
+			"2.51", "2.59", "2.67", "2.76", "2.89", "2.85",
+		},
 		sdk.MustNewDecFromStr("2.405"), // TWAP[0, 11]
 	},
 }
@@ -121,7 +125,8 @@ func (s *IntegrationTestSuite) TestEndblockerHistoracle() {
 				SubmitBlock: uint64(ctx.BlockHeight()),
 			}
 			app.OracleKeeper.SetAggregateExchangeRatePrevote(ctx, valAddr, prevote)
-			oracle.EndBlocker(ctx, app.OracleKeeper)
+			err := oracle.EndBlocker(ctx, app.OracleKeeper)
+			s.Require().NoError(err)
 
 			ctx = ctx.WithBlockHeight(ctx.BlockHeight() + int64(app.OracleKeeper.VotePeriod(ctx)))
 			ctx = ctx.WithBlockTime(time.Now().UTC())
@@ -132,7 +137,8 @@ func (s *IntegrationTestSuite) TestEndblockerHistoracle() {
 			}
 			app.OracleKeeper.SetAggregateExchangeRateVote(ctx, valAddr, vote)
 
-			oracle.EndBlocker(ctx, app.OracleKeeper)
+			err = oracle.EndBlocker(ctx, app.OracleKeeper)
+			s.Require().NoError(err)
 
 			for _, denom := range app.OracleKeeper.AcceptList(ctx) {
 				readExchangeRate, err := app.OracleKeeper.GetExchangeRate(ctx, denom.SymbolDenom)
