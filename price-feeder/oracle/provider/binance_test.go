@@ -20,8 +20,8 @@ func TestBinanceProvider_GetTickerPrices(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("valid_request_single_ticker", func(t *testing.T) {
-		lastPrice := "34.69000000"
-		volume := "2396974.02000000"
+		lastPrice := "34.69000000"   //nolint:goconst
+		volume := "2396974.02000000" //nolint:goconst
 
 		tickerMap := map[string]BinanceTicker{}
 		tickerMap["ATOMUSDT"] = BinanceTicker{

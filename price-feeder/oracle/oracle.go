@@ -290,7 +290,6 @@ func (o *Oracle) GetComputedPrices(
 	providerPairs map[provider.Name][]types.CurrencyPair,
 	deviations map[string]sdk.Dec,
 ) (prices map[string]sdk.Dec, err error) {
-
 	// convert any non-USD denominated candles into USD
 	convertedCandles, err := convertCandlesToUSD(
 		o.logger,

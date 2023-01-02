@@ -265,7 +265,6 @@ func CheckProviderMins(ctx context.Context, logger zerolog.Logger, cfg Config) e
 			pairs[cp.Base] = make(map[provider.Name]struct{})
 		}
 		for _, provider := range cp.Providers {
-
 			pairs[cp.Base][provider] = struct{}{}
 		}
 	}

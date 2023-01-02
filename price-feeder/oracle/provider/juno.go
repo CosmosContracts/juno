@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	_ "io"
-	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
@@ -43,7 +41,7 @@ type (
 	// JunoTokenVolumnResponse defines the response structure of volume for an Juno token
 	// request.
 	JunoTokenVolumnResponse struct {
-		Volumne float64 `json:"volumes"`
+		Volume float64 `json:"volumes"`
 	}
 
 	// JunoTokenInfo defines the response structure of information of an Juno token
@@ -75,7 +73,6 @@ func NewJunoProvider(endpoint Endpoint) *JunoProvider {
 }
 
 func (p JunoProvider) GetTickerPrices(pairs ...types.CurrencyPair) (map[string]types.TickerPrice, error) {
-
 	var junoTokenInfo []JunoTokenInfo
 	// Get price and symbol of tokens
 	pathPriceToken := fmt.Sprintf("%s%s/current", p.baseURL, junoPriceTokenEndpoint)
@@ -132,7 +129,7 @@ func (p JunoProvider) GetTickerPrices(pairs ...types.CurrencyPair) (map[string]t
 		if err := json.Unmarshal(bz, &tokensResp); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal Juno response body: %w", err)
 		}
-		junoTokenInfo[id].Volume = tokensResp.Volumne
+		junoTokenInfo[id].Volume = tokensResp.Volume
 	}
 
 	baseDenomIdx := make(map[string]types.CurrencyPair)
@@ -173,7 +170,6 @@ func (p JunoProvider) GetTickerPrices(pairs ...types.CurrencyPair) (map[string]t
 	}
 
 	return tickerPrices, nil
-
 }
 
 func (p JunoProvider) GetCandlePrices(pairs ...types.CurrencyPair) (map[string][]types.CandlePrice, error) {
@@ -193,7 +189,7 @@ func (p JunoProvider) GetAvailablePairs() (map[string]struct{}, error) {
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 
 	var pairsSummary []JunoPairData
 	if err := json.Unmarshal(body, &pairsSummary); err != nil {
@@ -219,7 +215,6 @@ func (p JunoProvider) SubscribeCurrencyPairs(pairs ...types.CurrencyPair) error 
 
 // Get symbol and price of token
 func getSymbolAndPriceToken(symbol reflect.Value, tokensResps map[string]interface{}) (tokenInfo JunoTokenInfo, err error) {
-
 	var tokenPrice JunoTokenPriceResponse
 	tokenInfo.Symbol = symbol.String()
 	dataOfToken := tokensResps[tokenInfo.Symbol]

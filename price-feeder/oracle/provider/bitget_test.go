@@ -22,17 +22,17 @@ func TestBitgetProvider_GetTickerPrices(t *testing.T) {
 	t.Run("valid_request_single_ticker", func(t *testing.T) {
 		lastPrice := "34.69000000"
 		volume := "2396974.02000000"
-		instId := "ATOMUSDT"
+		instID := "ATOMUSDT"
 
 		tickerMap := map[string]BitgetTicker{}
-		tickerMap[instId] = BitgetTicker{
+		tickerMap[instID] = BitgetTicker{
 			Arg: BitgetSubscriptionArg{
 				Channel: "tickers",
-				InstID:  instId,
+				InstID:  instID,
 			},
 			Data: []BitgetTickerData{
 				{
-					InstID: instId,
+					InstID: instID,
 					Price:  lastPrice,
 					Volume: volume,
 				},

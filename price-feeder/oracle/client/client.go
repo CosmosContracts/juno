@@ -70,7 +70,6 @@ func NewOracleClient(
 	gasPrice string,
 	feeGrantAddress string,
 ) (OracleClient, error) {
-
 	oracleAddr, err := sdk.AccAddressFromBech32(oracleAddrString)
 	if err != nil {
 		return OracleClient{}, err
@@ -95,7 +94,6 @@ func NewOracleClient(
 	}
 
 	clientCtx, err := oracleClient.CreateClientContext()
-
 	if err != nil {
 		return OracleClient{}, err
 	}

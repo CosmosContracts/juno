@@ -16,7 +16,7 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 	t.Run("valid_request_single_ticker", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			var resp string
-			if req.URL.String() == "/prices/tokens/current" {
+			if req.URL.String() == "/prices/tokens/current" { //nolint:goconst,gocritic
 				resp = `{
 					"JUNO": {
 					"date": "2022-11-02 18:57:36",
@@ -35,21 +35,21 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 					}
 				}
 			`
-			} else if req.URL.String() == "/volumes/tokens/JUNO/current" {
+			} else if req.URL.String() == "/volumes/tokens/JUNO/current" { //nolint:goconst
 				resp = `
 				{
 					"date": "2022-11-07",
 					"volumes": 51
 				}
 				`
-			} else if req.URL.String() == "/volumes/tokens/AKT/current" {
+			} else if req.URL.String() == "/volumes/tokens/AKT/current" { //nolint:goconst
 				resp = `
 				{
 					"date": "2022-11-07",
 					"volumes": 500
 				}
 				`
-			} else if req.URL.String() == "/volumes/tokens/ARTO/current" {
+			} else if req.URL.String() == "/volumes/tokens/ARTO/current" { //nolint:goconst
 				resp = `
 				{
 					"date": "2022-11-07",
@@ -57,7 +57,7 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 				}
 				`
 			}
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -73,10 +73,9 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 
 	t.Run("valid_request_multi_ticker", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			//require.Equal(t, "/prices/tokens/current", req.URL.String())
 			println("check req: ", req.URL.String())
 			var resp string
-			if req.URL.String() == "/prices/tokens/current" {
+			if req.URL.String() == "/prices/tokens/current" { //nolint:gocritic
 				resp = `{
 					"JUNO": {
 					"date": "2022-11-02 18:57:36",
@@ -117,7 +116,7 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 				}
 				`
 			}
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -138,7 +137,7 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 
 	t.Run("invalid_request_bad_response", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			rw.Write([]byte(`FOO`))
+			rw.Write([]byte(`FOO`)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -152,10 +151,9 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 
 	t.Run("invalid_request_invalid_ticker", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			//require.Equal(t, "/prices/tokens/current", req.URL.String())
 			println("check req: ", req.URL.String())
 			var resp string
-			if req.URL.String() == "/prices/tokens/current" {
+			if req.URL.String() == "/prices/tokens/current" { //nolint:gocritic
 				resp = `{
 					"JUNO": {
 					"date": "2022-11-02 18:57:36",
@@ -211,7 +209,8 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 
 func TestJunoProvider_GetAvailablePairs(t *testing.T) {
 	p := NewJunoProvider(Endpoint{})
-	p.GetAvailablePairs()
+	_, err := p.GetAvailablePairs()
+	require.Error(t, err)
 
 	t.Run("valid_available_pair", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {

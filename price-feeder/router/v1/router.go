@@ -112,7 +112,6 @@ func (r *Router) pricesHandler() http.HandlerFunc {
 
 func (r *Router) candlePricesHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-
 		resp := PricesPerProviderResponse{
 			Prices: r.oracle.GetTvwapPrices(),
 		}

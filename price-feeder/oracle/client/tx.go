@@ -32,6 +32,9 @@ func BroadcastTx(clientCtx client.Context, txf tx.Factory, gasPrice string, msgs
 	}
 
 	feeAmount, err := calculateFeeAmount(gasPrice, adjusted)
+	if err != nil {
+		return nil, err
+	}
 	unsignedTx.SetFeeAmount(feeAmount)
 	unsignedTx.SetFeeGranter(clientCtx.GetFeeGranterAddress())
 

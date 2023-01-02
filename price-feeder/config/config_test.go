@@ -2,7 +2,6 @@ package config_test
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -134,7 +133,7 @@ func TestValidate(t *testing.T) {
 }
 
 func TestParseConfig_Valid(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "price-feeder*.toml")
+	tmpFile, err := os.CreateTemp("", "price-feeder*.toml")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
@@ -217,7 +216,7 @@ global-labels = [["chain-id", "juno-local-testnet"]]
 }
 
 func TestParseConfig_Valid_NoTelemetry(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "price-feeder*.toml")
+	tmpFile, err := os.CreateTemp("", "price-feeder*.toml")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
@@ -295,7 +294,7 @@ enabled = false
 }
 
 func TestParseConfig_InvalidProvider(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "price-feeder*.toml")
+	tmpFile, err := os.CreateTemp("", "price-feeder*.toml")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
@@ -326,7 +325,7 @@ providers = [
 }
 
 func TestParseConfig_NonUSDQuote(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "price-feeder*.toml")
+	tmpFile, err := os.CreateTemp("", "price-feeder*.toml")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
@@ -357,7 +356,7 @@ providers = [
 }
 
 func TestParseConfig_Valid_Deviations(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "price-feeder*.toml")
+	tmpFile, err := os.CreateTemp("", "price-feeder*.toml")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
@@ -452,7 +451,7 @@ global-labels = [["chain-id", "JUNO-local-testnet"]]
 }
 
 func TestParseConfig_Invalid_Deviations(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "price-feeder*.toml")
+	tmpFile, err := os.CreateTemp("", "price-feeder*.toml")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
@@ -532,7 +531,7 @@ global-labels = [["chain-id", "JUNO-local-testnet"]]
 }
 
 func TestParseConfig_Env_Vars(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "price-feeder*.toml")
+	tmpFile, err := os.CreateTemp("", "price-feeder*.toml")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
@@ -621,7 +620,7 @@ global-labels = [["chain-id", "JUNO-local-testnet"]]
 }
 
 func TestCheckProviderMins_Valid(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "price-feeder*.toml")
+	tmpFile, err := os.CreateTemp("", "price-feeder*.toml")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
@@ -691,7 +690,7 @@ enabled = false
 }
 
 func TestCheckProviderMins_Invalid(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "price-feeder*.toml")
+	tmpFile, err := os.CreateTemp("", "price-feeder*.toml")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 

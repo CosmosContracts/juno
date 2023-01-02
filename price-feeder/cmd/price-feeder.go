@@ -25,6 +25,7 @@ import (
 	"github.com/CosmosContracts/juno/price-feeder/oracle/client"
 	"github.com/CosmosContracts/juno/price-feeder/oracle/provider"
 	v1 "github.com/CosmosContracts/juno/price-feeder/router/v1"
+	"github.com/CosmosContracts/juno/v12/app"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -102,6 +103,8 @@ func priceFeederCmdHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	app.SetAddressPrefixes()
 
 	err = config.CheckProviderMins(cmd.Context(), logger, cfg)
 	if err != nil {
