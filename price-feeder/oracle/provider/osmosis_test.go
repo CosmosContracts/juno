@@ -16,6 +16,7 @@ func TestOsmosisProvider_GetTickerPrices(t *testing.T) {
 	t.Run("valid_request_single_ticker", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			require.Equal(t, "/tokens/v2/all", req.URL.String())
+			//nolint:goconst
 			resp := `[
 				{
 					"price": 100.22,
@@ -35,7 +36,7 @@ func TestOsmosisProvider_GetTickerPrices(t *testing.T) {
 				}
 			]
 			`
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -71,7 +72,7 @@ func TestOsmosisProvider_GetTickerPrices(t *testing.T) {
 				}
 			]
 			`
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -93,7 +94,7 @@ func TestOsmosisProvider_GetTickerPrices(t *testing.T) {
 	t.Run("invalid_request_bad_response", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			require.Equal(t, "/tokens/v2/all", req.URL.String())
-			rw.Write([]byte(`FOO`))
+			rw.Write([]byte(`FOO`)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -127,7 +128,7 @@ func TestOsmosisProvider_GetTickerPrices(t *testing.T) {
 				}
 			]
 			`
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -157,7 +158,8 @@ func TestOsmosisProvider_GetTickerPrices(t *testing.T) {
 
 func TestOsmosisProvider_GetAvailablePairs(t *testing.T) {
 	p := NewOsmosisProvider(Endpoint{})
-	p.GetAvailablePairs()
+	_, err := p.GetAvailablePairs()
+	require.NoError(t, err)
 
 	t.Run("valid_available_pair", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
@@ -174,7 +176,7 @@ func TestOsmosisProvider_GetAvailablePairs(t *testing.T) {
 					}
 				]
 			}`
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 

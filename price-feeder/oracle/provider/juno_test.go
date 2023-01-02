@@ -17,6 +17,7 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			var resp string
 			if req.URL.String() == "/prices/tokens/current" { //nolint:goconst,gocritic
+				//nolint:goconst
 				resp = `{
 					"JUNO": {
 					"date": "2022-11-02 18:57:36",
@@ -95,6 +96,7 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 				}
 			`
 			} else if req.URL.String() == "/volumes/tokens/JUNO/current" {
+				//nolint:goconst
 				resp = `
 				{
 					"date": "2022-11-07",
@@ -102,14 +104,15 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 				}
 				`
 			} else if req.URL.String() == "/volumes/tokens/AKT/current" {
+				//nolint:goconst
 				resp = `
 				{
 					"date": "2022-11-07",
 					"volumes": 5
 				}
 				`
-			} else if req.URL.String() == "/volumes/tokens/ARTO/current" {
-				resp = `
+			} else if req.URL.String() == "/volumes/tokens/ARTO/current" { //nolint:goconst
+				resp = ` 
 				{
 					"date": "2022-11-07",
 					"volumes": 0
@@ -194,7 +197,7 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 				}
 				`
 			}
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -225,7 +228,7 @@ func TestJunoProvider_GetAvailablePairs(t *testing.T) {
 						"target": "ATOM"
 					}
 				]`
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 

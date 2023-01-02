@@ -716,7 +716,7 @@ func (ots *OracleTestSuite) TestGetComputedPricesEmptyTvwap() {
 		pairETHtoUSDT,
 		pairETHtoDAI,
 	}
-	krakenPairsETH := append(basePairsETH, pairETHtoUSD)
+	krakenPairsETH := append(basePairsETH, pairETHtoUSD) //nolint:gocritic
 
 	pairUSDTtoUSD := types.CurrencyPair{
 		Base:  symbolUSDT,
@@ -731,7 +731,7 @@ func (ots *OracleTestSuite) TestGetComputedPricesEmptyTvwap() {
 		pairDAItoUSD,
 	}
 
-	krakenPairs := append(krakenPairsETH, stablecoinPairs...)
+	krakenPairs := append(krakenPairsETH, stablecoinPairs...) //nolint:gocritic
 
 	volume := sdk.MustNewDecFromStr("881272.00")
 	ethUsdPrice := sdk.MustNewDecFromStr("9989.02")

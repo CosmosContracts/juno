@@ -41,7 +41,7 @@ func TestBinanceProvider_GetTickerPrices(t *testing.T) {
 
 	t.Run("valid_request_multi_ticker", func(t *testing.T) {
 		lastPriceAtom := "34.69000000"
-		lastPriceLuna := "41.35000000"
+		lastPriceLuna := "41.35000000" //nolint:goconst
 		volume := "2396974.02000000"
 
 		tickerMap := map[string]BinanceTicker{}

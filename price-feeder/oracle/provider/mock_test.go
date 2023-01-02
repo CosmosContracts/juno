@@ -20,7 +20,7 @@ func TestMockProvider_GetTickerPrices(t *testing.T) {
 UMEE,USDT,3.04,1827884.77
 ATOM,USDC,21.84,1827884.77
 `
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -41,7 +41,7 @@ ATOM,USDC,21.84,1827884.77
 UMEE,USDT,3.04,1827884.77
 ATOM,USDC,21.84,1827884.77
 `
-			rw.Write([]byte(resp))
+			rw.Write([]byte(resp)) //nolint:errcheck
 		}))
 		defer server.Close()
 
@@ -63,7 +63,7 @@ ATOM,USDC,21.84,1827884.77
 	t.Run("invalid_request_bad_response", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			require.Equal(t, "/", req.URL.String())
-			rw.Write([]byte(`FOO`))
+			rw.Write([]byte(`FOO`)) //nolint:errcheck
 		}))
 		defer server.Close()
 
