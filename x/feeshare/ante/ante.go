@@ -55,7 +55,6 @@ func FeePayLogic(fees sdk.Coins, govPercent sdk.Dec, numPairs int) sdk.Coins {
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
 func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, revKeeper FeeShareKeeper, msgs []sdk.Msg) error {
-
 	params := revKeeper.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil

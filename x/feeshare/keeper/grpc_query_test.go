@@ -16,7 +16,7 @@ func (s *IntegrationTestSuite) TestFeeShares() {
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
 	var contractAddressList []string
-	var index uint64 = 0
+	var index uint64
 	for index < 5 {
 		contractAddress := s.InstantiateContract(sender.String(), "")
 		contractAddressList = append(contractAddressList, contractAddress)
@@ -126,7 +126,7 @@ func (s *IntegrationTestSuite) TestDeployerFeeShares() {
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
 	var contractAddressList []string
-	var index uint64 = 0
+	var index uint64
 	for index < 5 {
 		contractAddress := s.InstantiateContract(sender.String(), "")
 		contractAddressList = append(contractAddressList, contractAddress)
@@ -196,7 +196,7 @@ func (s *IntegrationTestSuite) TestWithdrawerFeeShares() {
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
 	var contractAddressList []string
-	var index uint64 = 0
+	var index uint64
 	for index < 5 {
 		contractAddress := s.InstantiateContract(sender.String(), "")
 		contractAddressList = append(contractAddressList, contractAddress)

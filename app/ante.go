@@ -16,7 +16,6 @@ import (
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
 
-	anteInterface "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
 	feeshareante "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
 	gaiafeeante "github.com/cosmos/gaia/v8/x/globalfee/ante"
@@ -29,17 +28,16 @@ const maxBypassMinFeeMsgGasUsage = 1_000_000
 type HandlerOptions struct {
 	ante.HandlerOptions
 
-	GovKeeper         govkeeper.Keeper
-	IBCKeeper         *ibckeeper.Keeper
-	FeeShareKeeper    feesharekeeper.Keeper
-	BankKeeperFork    anteInterface.BankKeeper
-	TxCounterStoreKey sdk.StoreKey
-	WasmConfig        wasmTypes.WasmConfig
-	Cdc               codec.BinaryCodec
-  BypassMinFeeMsgTypes []string
+	GovKeeper            govkeeper.Keeper
+	IBCKeeper            *ibckeeper.Keeper
+	FeeShareKeeper       feesharekeeper.Keeper
+	BankKeeperFork       feeshareante.BankKeeper
+	TxCounterStoreKey    sdk.StoreKey
+	WasmConfig           wasmTypes.WasmConfig
+	Cdc                  codec.BinaryCodec
+	BypassMinFeeMsgTypes []string
 	GlobalFeeSubspace    paramtypes.Subspace
 	StakingSubspace      paramtypes.Subspace
-
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
