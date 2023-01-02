@@ -25,8 +25,7 @@ func (mfd MsgFilterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 
 func hasInvalidMsgs(msgs []sdk.Msg) bool {
 	for _, msg := range msgs {
-		switch msg.(type) { //nolint:gocritic
-		case *ibcchanneltypes.MsgTimeoutOnClose:
+		if _, ok := msg.(*ibcchanneltypes.MsgTimeoutOnClose); ok {
 			return true
 		}
 	}

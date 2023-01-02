@@ -20,8 +20,8 @@ type Config struct {
 
 	ValidatorInitConfigs []*initialization.NodeConfig
 	// voting period is number of blocks it takes to deposit, 1.2 seconds per validator to vote on the prop, and a buffer.
-	VotingPeriod          uint64
-	ExpeditedVotingPeriod uint64
+	VotingPeriod          float32
+	ExpeditedVotingPeriod float32
 	// upgrade proposal height for chain.
 	UpgradePropHeight    int64
 	LatestProposalNumber int
@@ -45,10 +45,10 @@ const (
 )
 
 func New(t *testing.T, containerManager *containers.Manager, id string, initValidatorConfigs []*initialization.NodeConfig) *Config {
-	numVal := uint64(len(initValidatorConfigs))
+	numVal := float32(len(initValidatorConfigs))
 	return &Config{
 		ChainMeta: initialization.ChainMeta{
-			Id: id,
+			ID: id,
 		},
 		ValidatorInitConfigs:  initValidatorConfigs,
 		VotingPeriod:          config.PropDepositBlocks + numVal*config.PropVoteBlocks + config.PropBufferBlocks,
@@ -62,7 +62,7 @@ func New(t *testing.T, containerManager *containers.Manager, id string, initVali
 func (c *Config) CreateNode(initNode *initialization.Node) *NodeConfig {
 	nodeConfig := &NodeConfig{
 		Node:             *initNode,
-		chainID:          c.Id,
+		chainID:          c.ID,
 		containerManager: c.containerManager,
 		t:                c.t,
 	}
@@ -112,7 +112,7 @@ func (c *Config) WaitForNumHeights(heightsToWait int64) {
 }
 
 func (c *Config) SendIBC(dstChain *Config, recipient string, token sdk.Coin) {
-	c.t.Logf("IBC sending %s from %s to %s (%s)", token, c.Id, dstChain.Id, recipient)
+	c.t.Logf("IBC sending %s from %s to %s (%s)", token, c.ID, dstChain.ID, recipient)
 
 	dstNode, err := dstChain.GetDefaultNode()
 	require.NoError(c.t, err)
@@ -120,7 +120,7 @@ func (c *Config) SendIBC(dstChain *Config, recipient string, token sdk.Coin) {
 	balancesDstPre, err := dstNode.QueryBalances(recipient)
 	require.NoError(c.t, err)
 
-	cmd := []string{"hermes", "tx", "raw", "ft-transfer", dstChain.Id, c.Id, "transfer", "channel-0", token.Amount.String(), fmt.Sprintf("--denom=%s", token.Denom), fmt.Sprintf("--receiver=%s", recipient), "--timeout-height-offset=1000"}
+	cmd := []string{"hermes", "tx", "raw", "ft-transfer", dstChain.ID, c.ID, "transfer", "channel-0", token.Amount.String(), fmt.Sprintf("--denom=%s", token.Denom), fmt.Sprintf("--receiver=%s", recipient), "--timeout-height-offset=1000"}
 	_, _, err = c.containerManager.ExecHermesCmd(c.t, cmd, "Success")
 	require.NoError(c.t, err)
 
@@ -159,7 +159,7 @@ func (c *Config) GetDefaultNode() (*NodeConfig, error) {
 func (c *Config) GetPersistentPeers() []string {
 	peers := make([]string, len(c.NodeConfigs))
 	for i, node := range c.NodeConfigs {
-		peers[i] = node.PeerId
+		peers[i] = node.PeerID
 	}
 	return peers
 }

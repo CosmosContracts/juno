@@ -171,7 +171,7 @@ func (s *IntegrationTestSuite) TestOracle() {
 
 // 	// configure genesis and config files for the state-synchin node.
 // 	nodeInit, err := initialization.InitSingleNode(
-// 		chainA.Id,
+// 		chainA.ID,
 // 		tempDir,
 // 		filepath.Join(runningNode.ConfigDir, "config", "genesis.json"),
 // 		stateSynchingNodeConfig,
