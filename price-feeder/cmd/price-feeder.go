@@ -14,7 +14,6 @@ import (
 
 	input "github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/mitchellh/mapstructure"
-	"github.com/tendermint/spm/cosmoscmd"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog"
@@ -103,8 +102,6 @@ func priceFeederCmdHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	cosmoscmd.SetPrefixes("juno")
 
 	err = config.CheckProviderMins(cmd.Context(), logger, cfg)
 	if err != nil {
