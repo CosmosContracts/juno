@@ -52,6 +52,7 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 	intertx "github.com/cosmos/interchain-accounts/x/inter-tx"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
+	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 )
 
 // module account permissions
@@ -136,6 +137,7 @@ func appModules(
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		intertx.NewAppModule(appCodec, app.InterTxKeeper),
+		ibchooks.NewAppModule(app.AccountKeeper),
 	}
 }
 

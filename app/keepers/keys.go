@@ -25,6 +25,7 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
+	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -36,7 +37,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 
 		authzkeeper.StoreKey, feegrant.StoreKey, icahosttypes.StoreKey, ibcfeetypes.StoreKey,
 		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, wasm.StoreKey, intertxtypes.StoreKey,
-		icacontrollertypes.StoreKey,
+		icacontrollertypes.StoreKey, ibchookstypes.StoreKey,
 	)
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	appKeepers.memKeys = sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
