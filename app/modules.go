@@ -53,6 +53,7 @@ import (
 	intertx "github.com/cosmos/interchain-accounts/x/inter-tx"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
+	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 )
 
 // module account permissions
@@ -201,6 +202,7 @@ func orderBeginBlockers() []string {
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
+		ibchookstypes.ModuleName,
 	}
 }
 
@@ -232,6 +234,7 @@ func orderEndBlockers() []string {
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
+		ibchookstypes.ModuleName,
 	}
 }
 
@@ -263,5 +266,6 @@ func orderInitBlockers() []string {
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
+		ibchookstypes.ModuleName,
 	}
 }
