@@ -282,7 +282,8 @@ func NewAppKeepers(
 	)
 	appKeepers.IBCHooksKeeper = &hooksKeeper
 
-	wasmHooks := ibchooks.NewWasmHooks(appKeepers.IBCHooksKeeper, nil) // The contract keeper needs to be set later
+	junoPrefix := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	wasmHooks := ibchooks.NewWasmHooks(appKeepers.IBCHooksKeeper, nil, junoPrefix) // The contract keeper needs to be set later
 	appKeepers.Ics20WasmHooks = &wasmHooks
 	appKeepers.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
 		appKeepers.IBCKeeper.ChannelKeeper,

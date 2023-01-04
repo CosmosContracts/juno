@@ -100,6 +100,7 @@ var ModuleBasics = module.NewBasicManager(
 	tokenfactory.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
+	ibchooks.AppModuleBasic{},
 )
 
 func appModules(
