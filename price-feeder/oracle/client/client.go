@@ -26,7 +26,7 @@ import (
 )
 
 type (
-	// OracleClient defines a structure that interfaces with the Umee node.
+	// OracleClient defines a structure that interfaces with the Juno node.
 	OracleClient struct {
 		Logger              zerolog.Logger
 		ChainID             string

@@ -10,7 +10,7 @@ const (
 	JunoDenom       string = appparams.BondDenom
 	JunoSymbol      string = "JUNO"
 	JunoExponent           = uint32(6)
-	AtomDenom       string = "ibc/6842C591DC4588411A565C9FF650FB15A17DFE3F0A43201E8141E4D14B8D171A"
+	AtomDenom       string = "ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9"
 	AtomSymbol      string = "ATOM"
 	AtomExponent           = uint32(6)
 	USDDenom        string = "USD"

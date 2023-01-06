@@ -31,7 +31,7 @@ const (
 
 var (
 	acceptList = []string{types.JunoSymbol, types.USDDenom}
-	umeePrice  = sdk.MustNewDecFromStr("25.71")
+	junoPrice  = sdk.MustNewDecFromStr("25.71")
 )
 
 // GenerateExchangeRatesString generates a canonical string representation of
@@ -126,7 +126,7 @@ func SimulateMsgAggregateExchangeRatePrevote(
 
 		prices := make(map[string]sdk.Dec, len(acceptList))
 		for _, denom := range acceptList {
-			prices[denom] = umeePrice.Add(simtypes.RandomDecAmount(r, sdk.NewDec(1)))
+			prices[denom] = junoPrice.Add(simtypes.RandomDecAmount(r, sdk.NewDec(1)))
 		}
 
 		exchangeRatesStr := GenerateExchangeRatesString(prices)
