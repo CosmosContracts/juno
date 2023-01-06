@@ -16,8 +16,7 @@ option (gogoproto.goproto_getters_all) = false;
 service Query {
   // ExchangeRates returns exchange rates of all denoms,
   // or, if specified, returns a single denom
-  rpc ExchangeRates(QueryExchangeRates)
-      returns (QueryExchangeRatesResponse) {
+  rpc ExchangeRates(QueryExchangeRates) returns (QueryExchangeRatesResponse) {
     option (google.api.http).get =
         "/juno/oracle/v1/denoms/exchange_rates/{denom}";
   }
@@ -30,30 +29,30 @@ service Query {
   }
 
   // PriceHistoryAtTime return price of denom at specific time
-  rpc PriceHistoryAtTime(QueryPriceHistoryAtTime) 
-      returns (QueryPriceHistoryAtTimeRespone) {
-        option (google.api.http).get = 
+  rpc PriceHistoryAtTime(QueryPriceHistoryAtTime)
+      returns (QueryPriceHistoryAtTimeResponse) {
+    option (google.api.http).get =
         "/juno/oracle/v1/price_history/PriceHistoryAtTime";
-      }
+  }
 
   // AllPriceHistory return all price history of denom
   rpc AllPriceHistory(QueryAllPriceHistory)
-      returns (QueryAllPriceHistoryRespone) {
-    option (google.api.http).get = 
-        "/juno/oracle/v1/price_history/{denom}";
+      returns (QueryAllPriceHistoryResponse) {
+    option (google.api.http).get = "/juno/oracle/v1/price_history/{denom}";
   }
 
   // PriceTrackingLists return all price tracking denom
   rpc PriceTrackingLists(QueryPriceTrackingLists)
-      returns (QueryPriceTrackingListsRespone) {
-    option (google.api.http).get = 
+      returns (QueryPriceTrackingListsResponse) {
+    option (google.api.http).get =
         "/juno/oracle/v1/price_history/tracking_lists";
   }
 
-  // ArithmeticTwapPriceBetweenTime return denom twap price between startTime and endTime
-  rpc ArithmeticTwapPriceBetweenTime(QueryArithmeticTwapBetweenTime) 
-      returns (QueryArithmeticTwapBetweenTimeRespone) {
-        option (google.api.http).get = 
+  // ArithmeticTwapPriceBetweenTime return denom twap price between startTime
+  // and endTime
+  rpc ArithmeticTwapPriceBetweenTime(QueryArithmeticTwapBetweenTime)
+      returns (QueryArithmeticTwapBetweenTimeResponse) {
+    option (google.api.http).get =
         "/juno/oracle/v1/price_history/ArithmeticTwapBetweenTime";
   }
 
@@ -72,8 +71,7 @@ service Query {
 
   // SlashWindow returns slash window information
   rpc SlashWindow(QuerySlashWindow) returns (QuerySlashWindowResponse) {
-    option (google.api.http).get =
-        "/juno/oracle/v1/slash_window";
+    option (google.api.http).get = "/juno/oracle/v1/slash_window";
   }
 
   // AggregatePrevote returns an aggregate prevote of a validator
@@ -91,8 +89,7 @@ service Query {
   }
 
   // AggregateVote returns an aggregate vote of a validator
-  rpc AggregateVote(QueryAggregateVote)
-      returns (QueryAggregateVoteResponse) {
+  rpc AggregateVote(QueryAggregateVote) returns (QueryAggregateVoteResponse) {
     option (google.api.http).get =
         "/juno/oracle/v1/valdiators/{validator_addr}/aggregate_vote";
   }
@@ -112,7 +109,7 @@ service Query {
 // QueryExchangeRates is the request type for the Query/ExchangeRate RPC
 // method.
 message QueryExchangeRates {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // denom defines the denomination to query for.
@@ -126,7 +123,7 @@ message QueryExchangeRatesResponse {
   // denoms.
   repeated cosmos.base.v1beta1.DecCoin exchange_rates = 1 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
-    (gogoproto.nullable)     = false
+    (gogoproto.nullable) = false
   ];
 }
 
@@ -145,7 +142,7 @@ message QueryActiveExchangeRatesResponse {
 // QueryFeederDelegation is the request type for the
 // Query/FeederDelegation RPC method.
 message QueryFeederDelegation {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // validator defines the validator address to query for.
@@ -162,7 +159,7 @@ message QueryFeederDelegationResponse {
 // QueryMissCounter is the request type for the Query/MissCounter RPC
 // method.
 message QueryMissCounter {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // validator defines the validator address to query for.
@@ -191,7 +188,7 @@ message QuerySlashWindowResponse {
 // QueryAggregatePrevote is the request type for the
 // Query/AggregatePrevote RPC method.
 message QueryAggregatePrevote {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // validator defines the validator address to query for.
@@ -204,7 +201,7 @@ message QueryAggregatePrevoteResponse {
   // aggregate_prevote defines oracle aggregate prevote submitted by a validator
   // in the current vote period
   AggregateExchangeRatePrevote aggregate_prevote = 1
-      [(gogoproto.nullable) = false];
+      [ (gogoproto.nullable) = false ];
 }
 
 // QueryAggregatePrevotes is the request type for the
@@ -217,13 +214,13 @@ message QueryAggregatePrevotesResponse {
   // aggregate_prevotes defines all oracle aggregate prevotes submitted in the
   // current vote period
   repeated AggregateExchangeRatePrevote aggregate_prevotes = 1
-      [(gogoproto.nullable) = false];
+      [ (gogoproto.nullable) = false ];
 }
 
 // QueryAggregateVote is the request type for the Query/AggregateVote RPC
 // method.
 message QueryAggregateVote {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // validator defines the validator address to query for.
@@ -235,7 +232,7 @@ message QueryAggregateVote {
 message QueryAggregateVoteResponse {
   // aggregate_vote defines oracle aggregate vote submitted by a validator in
   // the current vote period
-  AggregateExchangeRateVote aggregate_vote = 1 [(gogoproto.nullable) = false];
+  AggregateExchangeRateVote aggregate_vote = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryAggregateVotes is the request type for the Query/AggregateVotes
@@ -248,7 +245,7 @@ message QueryAggregateVotesResponse {
   // aggregate_votes defines all oracle aggregate votes submitted in the current
   // vote period
   repeated AggregateExchangeRateVote aggregate_votes = 1
-      [(gogoproto.nullable) = false];
+      [ (gogoproto.nullable) = false ];
 }
 
 // QueryParams is the request type for the Query/Params RPC method.
@@ -257,16 +254,16 @@ message QueryParams {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params defines the parameters of the module.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-message QueryPriceTrackingLists{}
+message QueryPriceTrackingLists {}
 
-message QueryPriceTrackingListsRespone {
+message QueryPriceTrackingListsResponse {
   repeated string price_traking_lists = 1;
 }
 
-message QueryPriceHistoryAtTime{
+message QueryPriceHistoryAtTime {
   string denom = 1;
   google.protobuf.Timestamp time = 2 [
     (gogoproto.stdtime) = true,
@@ -275,19 +272,20 @@ message QueryPriceHistoryAtTime{
   ];
 }
 
-message QueryPriceHistoryAtTimeRespone{
-  Denom denom = 1 [(gogoproto.nullable) = false];
-  PriceHistoryEntry price_history_entry = 2 [(gogoproto.nullable) = false];
+message QueryPriceHistoryAtTimeResponse {
+  Denom denom = 1 [ (gogoproto.nullable) = false ];
+  PriceHistoryEntry price_history_entry = 2 [ (gogoproto.nullable) = false ];
 }
 
-message QueryAllPriceHistory{
+message QueryAllPriceHistory {
   string denom = 1;
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-message QueryAllPriceHistoryRespone{
-  Denom denom = 1 [(gogoproto.nullable) = false];
-  repeated PriceHistoryEntry price_history_entrys = 2 [(gogoproto.nullable) = false];
+message QueryAllPriceHistoryResponse {
+  Denom denom = 1 [ (gogoproto.nullable) = false ];
+  repeated PriceHistoryEntry price_history_entrys = 2
+      [ (gogoproto.nullable) = false ];
   cosmos.base.query.v1beta1.PageResponse pagination = 3;
 }
 
@@ -305,9 +303,9 @@ message QueryArithmeticTwapBetweenTime {
   ];
 }
 
-message QueryArithmeticTwapBetweenTimeRespone {
+message QueryArithmeticTwapBetweenTimeResponse {
   cosmos.base.v1beta1.DecCoin twap_price = 1 [
-    (gogoproto.nullable)     = false,
+    (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"twap_price\""
   ];
-} 
+}

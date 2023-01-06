@@ -256,7 +256,7 @@ func (q querier) AggregateVotes(
 func (q querier) PriceTrackingLists(
 	goCtx context.Context,
 	req *types.QueryPriceTrackingLists,
-) (*types.QueryPriceTrackingListsRespone, error) {
+) (*types.QueryPriceTrackingListsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -269,7 +269,7 @@ func (q querier) PriceTrackingLists(
 		result = append(result, trackingDenom.SymbolDenom)
 	}
 
-	return &types.QueryPriceTrackingListsRespone{
+	return &types.QueryPriceTrackingListsResponse{
 		PriceTrakingLists: result,
 	}, nil
 }
@@ -278,7 +278,7 @@ func (q querier) PriceTrackingLists(
 func (q querier) PriceHistoryAtTime(
 	goCtx context.Context,
 	req *types.QueryPriceHistoryAtTime,
-) (*types.QueryPriceHistoryAtTimeRespone, error) {
+) (*types.QueryPriceHistoryAtTimeResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -294,7 +294,7 @@ func (q querier) PriceHistoryAtTime(
 		return nil, err
 	}
 
-	return &types.QueryPriceHistoryAtTimeRespone{
+	return &types.QueryPriceHistoryAtTimeResponse{
 		Denom:             denom,
 		PriceHistoryEntry: priceHistoryEntry,
 	}, nil
@@ -304,7 +304,7 @@ func (q querier) PriceHistoryAtTime(
 func (q querier) AllPriceHistory(
 	goCtx context.Context,
 	req *types.QueryAllPriceHistory,
-) (*types.QueryAllPriceHistoryRespone, error) {
+) (*types.QueryAllPriceHistoryResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -332,7 +332,7 @@ func (q querier) AllPriceHistory(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryAllPriceHistoryRespone{
+	return &types.QueryAllPriceHistoryResponse{
 		Denom:              denom,
 		PriceHistoryEntrys: priceHistoryEntrys,
 		Pagination:         pageRes,
@@ -346,7 +346,7 @@ func (q querier) AllPriceHistory(
 func (q querier) ArithmeticTwapPriceBetweenTime(
 	goCtx context.Context,
 	req *types.QueryArithmeticTwapBetweenTime,
-) (*types.QueryArithmeticTwapBetweenTimeRespone, error) {
+) (*types.QueryArithmeticTwapBetweenTimeResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -366,7 +366,7 @@ func (q querier) ArithmeticTwapPriceBetweenTime(
 		return nil, err
 	}
 
-	return &types.QueryArithmeticTwapBetweenTimeRespone{
+	return &types.QueryArithmeticTwapBetweenTimeResponse{
 		TwapPrice: sdk.NewDecCoinFromDec(req.Denom, twapPrice),
 	}, nil
 }

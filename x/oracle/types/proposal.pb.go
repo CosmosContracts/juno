@@ -23,7 +23,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// AddTrackingPriceHistoryProposal add denom to tracking price history list (in this situation, denom must already in AcceptList)
+// AddTrackingPriceHistoryProposal add denom to tracking price history list (in
+// this situation, denom must already in AcceptList)
 type AddTrackingPriceHistoryProposal struct {
 	// Title is a short summary
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -65,7 +66,9 @@ func (m *AddTrackingPriceHistoryProposal) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_AddTrackingPriceHistoryProposal proto.InternalMessageInfo
 
-// AddTrackingPriceHistoryWithAcceptListProposal add denom to tracking price history list and accept list (in this situation, denom don't have to in AcceptList)
+// AddTrackingPriceHistoryWithAcceptListProposal add denom to tracking price
+// history list and accept list (in this situation, denom don't have to in
+// AcceptList)
 type AddTrackingPriceHistoryWithAcceptListProposal struct {
 	// Title is a short summary
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -109,7 +112,8 @@ func (m *AddTrackingPriceHistoryWithAcceptListProposal) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_AddTrackingPriceHistoryWithAcceptListProposal proto.InternalMessageInfo
 
-// RemoveTrackingPriceHistoryProposal remove denom from tracking price history list (in this situation, denom don't have to in AcceptList)
+// RemoveTrackingPriceHistoryProposal remove denom from tracking price history
+// list (in this situation, denom don't have to in AcceptList)
 type RemoveTrackingPriceHistoryProposal struct {
 	// Title is a short summary
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`

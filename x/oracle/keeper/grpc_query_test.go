@@ -449,7 +449,7 @@ func (s *IntegrationTestSuite) TestArithmeticTwapPriceBetweenTime() {
 	for _, tc := range []struct {
 		desc      string
 		req       *types.QueryArithmeticTwapBetweenTime
-		res       *types.QueryArithmeticTwapBetweenTimeRespone
+		res       *types.QueryArithmeticTwapBetweenTimeResponse
 		shouldErr bool
 	}{
 		{
@@ -459,7 +459,7 @@ func (s *IntegrationTestSuite) TestArithmeticTwapPriceBetweenTime() {
 				StartTime: timeNow,
 				EndTime:   timeNow.Add(4 * time.Minute),
 			},
-			res: &types.QueryArithmeticTwapBetweenTimeRespone{
+			res: &types.QueryArithmeticTwapBetweenTimeResponse{
 				TwapPrice: sdk.NewDecCoinFromDec("JUNO", sdk.OneDec()),
 			},
 			shouldErr: false,
@@ -471,7 +471,7 @@ func (s *IntegrationTestSuite) TestArithmeticTwapPriceBetweenTime() {
 				StartTime: timeNow.Add(30 * time.Second),
 				EndTime:   timeNow.Add(4 * time.Minute),
 			},
-			res: &types.QueryArithmeticTwapBetweenTimeRespone{
+			res: &types.QueryArithmeticTwapBetweenTimeResponse{
 				TwapPrice: sdk.NewDecCoinFromDec("JUNO", sdk.OneDec()),
 			},
 			shouldErr: false,

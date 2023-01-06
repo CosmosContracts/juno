@@ -27,13 +27,13 @@ service Msg {
 // MsgAggregateExchangeRatePrevote represents a message to submit an aggregate
 // exchange rate prevote.
 message MsgAggregateExchangeRatePrevote {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
-  string hash = 1 [(gogoproto.moretags) = "yaml:\"hash\""];
+  string hash = 1 [ (gogoproto.moretags) = "yaml:\"hash\"" ];
   // Feeder is the author and the signer of the message.
-  string feeder    = 2 [(gogoproto.moretags) = "yaml:\"feeder\""];
-  string validator = 3 [(gogoproto.moretags) = "yaml:\"validator\""];
+  string feeder = 2 [ (gogoproto.moretags) = "yaml:\"feeder\"" ];
+  string validator = 3 [ (gogoproto.moretags) = "yaml:\"validator\"" ];
 }
 
 // MsgAggregateExchangeRatePrevoteResponse defines the
@@ -43,14 +43,15 @@ message MsgAggregateExchangeRatePrevoteResponse {}
 // MsgAggregateExchangeRateVote represents a message to submit anaggregate
 // exchange rate vote.
 message MsgAggregateExchangeRateVote {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
-  string salt           = 1 [(gogoproto.moretags) = "yaml:\"salt\""];
-  string exchange_rates = 2 [(gogoproto.moretags) = "yaml:\"exchange_rates\""];
+  string salt = 1 [ (gogoproto.moretags) = "yaml:\"salt\"" ];
+  string exchange_rates = 2
+      [ (gogoproto.moretags) = "yaml:\"exchange_rates\"" ];
   // Feeder is the author and the signer of the message.
-  string feeder    = 3 [(gogoproto.moretags) = "yaml:\"feeder\""];
-  string validator = 4 [(gogoproto.moretags) = "yaml:\"validator\""];
+  string feeder = 3 [ (gogoproto.moretags) = "yaml:\"feeder\"" ];
+  string validator = 4 [ (gogoproto.moretags) = "yaml:\"validator\"" ];
 }
 
 // MsgAggregateExchangeRateVoteResponse defines the
@@ -60,12 +61,12 @@ message MsgAggregateExchangeRateVoteResponse {}
 // MsgDelegateFeedConsent represents a message to delegate oracle voting rights
 // to another address.
 message MsgDelegateFeedConsent {
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // Operator is the author and the signer of the message.
-  string operator = 1 [(gogoproto.moretags) = "yaml:\"operator\""];
-  string delegate = 2 [(gogoproto.moretags) = "yaml:\"delegate\""];
+  string operator = 1 [ (gogoproto.moretags) = "yaml:\"operator\"" ];
+  string delegate = 2 [ (gogoproto.moretags) = "yaml:\"delegate\"" ];
 }
 
 // MsgDelegateFeedConsentResponse defines the Msg/DelegateFeedConsent response

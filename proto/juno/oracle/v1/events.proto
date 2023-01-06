@@ -11,9 +11,9 @@ option (gogoproto.goproto_getters_all) = false;
 // EventDelegateFeedConsent is emitted on Msg/DelegateFeedConsent
 message EventDelegateFeedConsent {
   // Operator bech32 address who delegates his feed consent
-  string operator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string operator = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
   // Delegate bech32 address
-  string delegate = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string delegate = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 }
 
 // EventSetFxRate is emitted on exchange rate update
@@ -22,8 +22,8 @@ message EventSetFxRate {
   string denom = 1;
   // Exchange rate (based to USD)
   string rate = 2 [
-    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable)   = false
+    (gogoproto.nullable) = false
   ];
 }
