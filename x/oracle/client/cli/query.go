@@ -285,7 +285,7 @@ func GetCmdQuerySlashWindow() *cobra.Command {
 
 func GetCmdQueryPriceTrackingLists() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "price-tracking-lists",
+		Use:   "price-tracking-list",
 		Short: "Query current price tracking list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
