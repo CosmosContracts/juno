@@ -95,7 +95,7 @@ prefix = "juno"
 
 [keyring]
 backend = "test"
-dir = "/Users/vuong/.juno"
+dir = "~/.juno"
 
 [rpc]
 grpc_endpoint = "localhost:9090"
@@ -114,4 +114,4 @@ prometheus-retention-time = 100
 [[provider_endpoints]]
 name = "binance"
 rest = "https://api1.binance.com"
-websocket = "stream.binance.com:9443"
+websocket = "fstream.binance.com:443"
