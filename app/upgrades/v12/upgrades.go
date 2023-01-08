@@ -1,6 +1,7 @@
 package v12
 
 import (
+	"fmt"
 	"strings"
 
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
@@ -20,6 +21,8 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	globalfeetypes "github.com/cosmos/gaia/v8/x/globalfee/types"
 
 	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
@@ -41,15 +44,19 @@ func CreateV12UpgradeHandler(
 	keepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		nativeDenom := GetChainsDenomToken(ctx.ChainID())
 		// transfer module consensus version has been bumped to 2
 		// the above is https://github.com/cosmos/ibc-go/blob/v5.1.0/docs/migrations/v3-to-v4.md
+		logger := ctx.Logger().With("upgrade", UpgradeName)
+
+		nativeDenom := GetChainsDenomToken(ctx.ChainID())
+		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
 
 		// TokenFactory
 		newTokenFactoryParams := tokenfactorytypes.Params{
 			DenomCreationFee: sdk.NewCoins(sdk.NewCoin(nativeDenom, sdk.NewInt(1000000))),
 		}
 		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
+		logger.Info("set tokenfactory params")
 
 		// FeeShare
 		newFeeShareParams := feesharetypes.Params{
@@ -58,9 +65,11 @@ func CreateV12UpgradeHandler(
 			AllowedDenoms:   []string{nativeDenom},
 		}
 		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
+		logger.Info("set feeshare params")
 
 		// ICA - https://github.com/CosmosContracts/juno/blob/integrate_ica_changes/app/app.go#L846-L885
 		vm[icatypes.ModuleName] = mm.Modules[icatypes.ModuleName].ConsensusVersion()
+		logger.Info("upgraded icatypes version")
 
 		// create ICS27 Controller submodule params, controller module not enabled.
 		controllerParams := icacontrollertypes.Params{
@@ -119,10 +128,29 @@ func CreateV12UpgradeHandler(
 			panic("mm.Modules[icatypes.ModuleName] is not of type ica.AppModule")
 		}
 		icamodule.InitModule(ctx, controllerParams, hostParams)
+		logger.Info("upgraded ica module")
 
 		// IBCFee
 		vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
+		logger.Info(fmt.Sprintf("ibcfee module version %s set", fmt.Sprint(vm[ibcfeetypes.ModuleName])))
 
-		return mm.RunMigrations(ctx, cfg, vm)
+		// Run migrations
+		versionMap, err := mm.RunMigrations(ctx, cfg, vm)
+
+		// GlobalFee - This must run AFTER migrations to update the default param space.
+		minGasPrices := sdk.DecCoins{
+			// 0.0025ujuno
+			sdk.NewDecCoinFromDec(nativeDenom, sdk.NewDecWithPrec(25, 4)),
+			// 0.001 ATOM CHANNEL-1 -> `junod q ibc-transfer denom-trace ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9`
+			sdk.NewDecCoinFromDec("ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9", sdk.NewDecWithPrec(1, 4)),
+		}
+		s, ok := keepers.ParamsKeeper.GetSubspace(globalfeetypes.ModuleName)
+		if !ok {
+			panic("global fee params subspace not found")
+		}
+		s.Set(ctx, globalfeetypes.ParamStoreKeyMinGasPrices, minGasPrices)
+		logger.Info(fmt.Sprintf("upgraded global fee params to %s", minGasPrices))
+
+		return versionMap, err
 	}
 }
