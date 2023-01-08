@@ -45,7 +45,6 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	gaiaappparams "github.com/cosmos/gaia/v8/app/params"
 	"github.com/cosmos/gaia/v8/x/globalfee"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -292,11 +291,6 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	bypassMinFeeMsgTypes := cast.ToStringSlice(appOpts.Get(gaiaappparams.BypassMinFeeMsgTypesKey))
-	if bypassMinFeeMsgTypes == nil {
-		bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
-	}
-
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -314,7 +308,7 @@ func New(
 			TxCounterStoreKey:    app.GetKey(wasm.StoreKey),
 			WasmConfig:           wasmConfig,
 			Cdc:                  appCodec,
-			BypassMinFeeMsgTypes: bypassMinFeeMsgTypes,
+			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
 			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
 			StakingSubspace:      app.GetSubspace(stakingtypes.ModuleName),
 		},

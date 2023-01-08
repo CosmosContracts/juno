@@ -120,7 +120,7 @@ func (c *Config) SendIBC(dstChain *Config, recipient string, token sdk.Coin) {
 	balancesDstPre, err := dstNode.QueryBalances(recipient)
 	require.NoError(c.t, err)
 
-	cmd := []string{"hermes", "tx", "raw", "ft-transfer", dstChain.ID, c.ID, "transfer", "channel-0", token.Amount.String(), fmt.Sprintf("--denom=%s", token.Denom), fmt.Sprintf("--receiver=%s", recipient), "--timeout-height-offset=1000"}
+	cmd := []string{"hermes", "tx", "raw", "ft-transfer", dstChain.ID, c.ID, "transfer", "channel-0", token.Amount.String(), fmt.Sprintf("--denom=%s", token.Denom), fmt.Sprintf("--receiver=%s", recipient), "--timeout-height-offset=1000", "-- --gas-prices=0.1ujuno"}
 	_, _, err = c.containerManager.ExecHermesCmd(c.t, cmd, "Success")
 	require.NoError(c.t, err)
 
