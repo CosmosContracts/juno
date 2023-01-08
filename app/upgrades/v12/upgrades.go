@@ -23,6 +23,8 @@ import (
 
 	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
+
+	globalfeetypes "github.com/cosmos/gaia/v8/x/globalfee/types"
 )
 
 // Returns "ujuno" if the chainID starts with "juno-" (ex: juno-1 or juno-t1 for local)
@@ -66,6 +68,20 @@ func CreateV12UpgradeHandler(
 		controllerParams := icacontrollertypes.Params{
 			ControllerEnabled: true,
 		}
+
+		// GlobalFee
+		defaultFee := sdk.DecCoins{
+			// 0.025ujuno
+			sdk.NewDecCoinFromDec(nativeDenom, sdk.NewDecWithPrec(25, 3)),
+		}
+
+		globalfeeState := globalfeetypes.GenesisState{
+			Params: globalfeetypes.Params{
+				MinimumGasPrices: defaultFee,
+			},
+		}
+
+		keepers.ParamsKeeper.Subspace(globalfeetypes.ModuleName).Set(ctx, globalfeetypes.ParamStoreKeyMinGasPrices, globalfeeState.Params)
 
 		// create ICS27 Host submodule params
 		hostParams := icahosttypes.Params{
