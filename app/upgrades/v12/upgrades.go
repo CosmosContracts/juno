@@ -56,8 +56,8 @@ func CreateV12UpgradeHandler(
 
 		upgradeTokenFactory(ctx, logger, nativeDenom, keepers)
 		upgradeFeeShare(ctx, logger, nativeDenom, keepers)
-		upgradeICAModule(ctx, logger, nativeDenom, keepers, vm, mm)
-		upgradeIBCFee(ctx, logger, nativeDenom, keepers, vm, mm)
+		upgradeICAModule(ctx, logger, vm, mm)
+		upgradeIBCFee(logger, vm, mm)
 
 		// Run migrations
 		versionMap, err := mm.RunMigrations(ctx, cfg, vm)
@@ -69,7 +69,7 @@ func CreateV12UpgradeHandler(
 	}
 }
 
-func upgradeIBCFee(ctx sdk.Context, logger tmlog.Logger, nativeDenom string, keepers *keepers.AppKeepers, vm module.VersionMap, mm *module.Manager) {
+func upgradeIBCFee(logger tmlog.Logger, vm module.VersionMap, mm *module.Manager) {
 	// IBCFee
 	vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
 	logger.Info(fmt.Sprintf("ibcfee module version %s set", fmt.Sprint(vm[ibcfeetypes.ModuleName])))
@@ -109,7 +109,7 @@ func upgradeGlobalFee(ctx sdk.Context, logger tmlog.Logger, nativeDenom string, 
 	logger.Info(fmt.Sprintf("upgraded global fee params to %s", minGasPrices))
 }
 
-func upgradeICAModule(ctx sdk.Context, logger tmlog.Logger, nativeDenom string, keepers *keepers.AppKeepers, vm module.VersionMap, mm *module.Manager) {
+func upgradeICAModule(ctx sdk.Context, logger tmlog.Logger, vm module.VersionMap, mm *module.Manager) {
 	// ICA - https://github.com/CosmosContracts/juno/blob/integrate_ica_changes/app/app.go#L846-L885
 	vm[icatypes.ModuleName] = mm.Modules[icatypes.ModuleName].ConsensusVersion()
 	logger.Info(fmt.Sprintf("upgraded ICA module version %s", fmt.Sprint(vm[icatypes.ModuleName])))
@@ -171,5 +171,5 @@ func upgradeICAModule(ctx sdk.Context, logger tmlog.Logger, nativeDenom string, 
 		panic("mm.Modules[icatypes.ModuleName] is not of type ica.AppModule")
 	}
 	icamodule.InitModule(ctx, controllerParams, hostParams)
-	logger.Info(fmt.Sprintf("icamodule initialized"))
+	logger.Info("icamodule initialized")
 }
