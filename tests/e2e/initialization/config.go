@@ -39,7 +39,6 @@ type NodeConfig struct {
 const (
 	// common
 	BaseDenom           = "ujuno"
-	IonDenom            = "uion"
 	StakeDenom          = "stake"
 	MinGasPrice         = "0.000"
 	IbcSendAmount       = 3300000000
@@ -47,13 +46,11 @@ const (
 	// chainA
 	ChainAID      = "juno-test-a"
 	JunoBalanceA  = 200000000000
-	IonBalanceA   = 100000000000
 	StakeBalanceA = 110000000000
 	StakeAmountA  = 100000000000
 	// chainB
 	ChainBID      = "juno-test-b"
 	JunoBalanceB  = 500000000000
-	IonBalanceB   = 100000000000
 	StakeBalanceB = 440000000000
 	StakeAmountB  = 400000000000
 
@@ -67,8 +64,8 @@ var (
 	StakeAmountIntB  = sdk.NewInt(StakeAmountB)
 	StakeAmountCoinB = sdk.NewCoin(BaseDenom, StakeAmountIntB)
 
-	InitBalanceStrA = fmt.Sprintf("%d%s,%d%s,%d%s", JunoBalanceA, BaseDenom, StakeBalanceA, StakeDenom, IonBalanceA, IonDenom)
-	InitBalanceStrB = fmt.Sprintf("%d%s,%d%s,%d%s", JunoBalanceB, BaseDenom, StakeBalanceB, StakeDenom, IonBalanceB, IonDenom)
+	InitBalanceStrA = fmt.Sprintf("%d%s,%d%s", JunoBalanceA, BaseDenom, StakeBalanceA, StakeDenom)
+	InitBalanceStrB = fmt.Sprintf("%d%s,%d%s", JunoBalanceB, BaseDenom, StakeBalanceB, StakeDenom)
 	JunoToken       = sdk.NewInt64Coin(BaseDenom, IbcSendAmount)  // 3,300ujuno
 	StakeToken      = sdk.NewInt64Coin(StakeDenom, IbcSendAmount) // 3,300ustake
 	tenM            = sdk.Coins{sdk.NewInt64Coin(BaseDenom, 10_000_000)}
@@ -164,15 +161,15 @@ func updateModuleGenesis[V proto.Message](appGenState map[string]json.RawMessage
 	return nil
 }
 
-func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.Duration, forkHeight int) error {
+func initGenesis(chain *internalChain, votingPeriod time.Duration, forkHeight int) error {
 	// initialize a genesis file
 	configDir := chain.nodes[0].configDir()
 	for _, val := range chain.nodes {
-		if chain.chainMeta.Id == ChainAID {
+		if chain.chainMeta.ID == ChainAID {
 			if err := addAccount(configDir, "", InitBalanceStrA, val.keyInfo.GetAddress(), forkHeight); err != nil {
 				return err
 			}
-		} else if chain.chainMeta.Id == ChainBID {
+		} else if chain.chainMeta.ID == ChainBID {
 			if err := addAccount(configDir, "", InitBalanceStrB, val.keyInfo.GetAddress(), forkHeight); err != nil {
 				return err
 			}
@@ -217,7 +214,7 @@ func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.
 		return err
 	}
 
-	err = updateModuleGenesis(appGenState, govtypes.ModuleName, &govtypes.GenesisState{}, updateGovGenesis(votingPeriod, expeditedVotingPeriod))
+	err = updateModuleGenesis(appGenState, govtypes.ModuleName, &govtypes.GenesisState{}, updateGovGenesis(votingPeriod))
 	if err != nil {
 		return err
 	}
@@ -240,14 +237,14 @@ func initGenesis(chain *internalChain, votingPeriod, expeditedVotingPeriod time.
 
 	genDoc.AppState = bz
 
-	genesisJson, err := tmjson.MarshalIndent(genDoc, "", "  ")
+	genesisJSON, err := tmjson.MarshalIndent(genDoc, "", "  ")
 	if err != nil {
 		return err
 	}
 
 	// write the updated genesis file to each validator
 	for _, val := range chain.nodes {
-		if err := util.WriteFile(filepath.Join(val.configDir(), "config", "genesis.json"), genesisJson); err != nil {
+		if err := util.WriteFile(filepath.Join(val.configDir(), "config", "genesis.json"), genesisJSON); err != nil {
 			return err
 		}
 	}
@@ -284,7 +281,7 @@ func updateCrisisGenesis(crisisGenState *crisistypes.GenesisState) {
 	crisisGenState.ConstantFee.Denom = BaseDenom
 }
 
-func updateGovGenesis(votingPeriod, expeditedVotingPeriod time.Duration) func(*govtypes.GenesisState) {
+func updateGovGenesis(votingPeriod time.Duration) func(*govtypes.GenesisState) {
 	return func(govGenState *govtypes.GenesisState) {
 		govGenState.VotingParams.VotingPeriod = votingPeriod
 		govGenState.DepositParams.MinDeposit = tenM
@@ -307,7 +304,7 @@ func updateGenUtilGenesis(c *internalChain) func(*genutiltypes.GenesisState) {
 			}
 
 			stakeAmountCoin := StakeAmountCoinA
-			if c.chainMeta.Id != ChainAID {
+			if c.chainMeta.ID != ChainAID {
 				stakeAmountCoin = StakeAmountCoinB
 			}
 			createValmsg, err := node.buildCreateValidatorMsg(stakeAmountCoin)
