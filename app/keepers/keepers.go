@@ -1,8 +1,9 @@
 package keepers
 
 import (
-	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 	"path/filepath"
+
+	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"

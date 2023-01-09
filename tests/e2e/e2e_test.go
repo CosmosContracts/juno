@@ -28,7 +28,6 @@ func (s *IntegrationTestSuite) TestIBCTokenTransfer() {
 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.JunoToken)
 	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.StakeToken)
 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.StakeToken)
-
 }
 
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
@@ -109,7 +108,7 @@ func (s *IntegrationTestSuite) checkBalance(coins sdk.Coins, expected sdk.Coins)
 	}
 }
 
-//TODO
+// TODO
 
 // func (s *IntegrationTestSuite) TestStateSync() {
 // 	if s.skipStateSync {
