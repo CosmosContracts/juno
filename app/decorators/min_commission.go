@@ -10,10 +10,6 @@ import (
 
 var DefaultIsAppSimulation = false
 
-func UpdateSimsFlag(flag bool) {
-	DefaultIsAppSimulation = flag
-}
-
 type MinCommissionDecorator struct {
 	cdc codec.BinaryCodec
 }

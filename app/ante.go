@@ -22,7 +22,7 @@ import (
 )
 
 func updateAppSimulationFlag(flag bool) {
-	decorators.UpdateSimsFlag(flag)
+	decorators.DefaultIsAppSimulation = flag
 }
 
 const maxBypassMinFeeMsgGasUsage = 1_000_000

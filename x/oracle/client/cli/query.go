@@ -308,7 +308,7 @@ func GetCmdQueryPriceTrackingLists() *cobra.Command {
 
 func GetCmdQueryPriceHistoryAt() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "price-history-at [symbolDenom] [time_stamp]",
+		Use:   "price-history-at [denom] [time_stamp]",
 		Short: "Query price history at specific block height",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -369,7 +369,7 @@ func GetCmdQueryAllPriceHistory() *cobra.Command {
 
 func GetCmdQueryTwapPrice() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "twap [denom] [startTime] [endTime]",
+		Use:   "twap [denom] [start_time] [end_time]",
 		Short: "Query twap between period time",
 		Long: strings.TrimSpace(
 			`Query twap for pool. Start time must be unix time. End time can be unix time or duration.
