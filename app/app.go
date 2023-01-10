@@ -378,7 +378,6 @@ func GetDefaultBypassFeeMessages() []string {
 		sdk.MsgTypeURL(&oracletypes.MsgAggregateExchangeRateVote{}),
 
 		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
-
 	}
 }
 
