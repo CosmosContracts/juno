@@ -14,7 +14,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/ignite-hq/cli v0.22.1
-	github.com/osmosis-labs/osmosis/x/ibc-hooks v0.0.0-20230109093430-9105a0c826f9
+	github.com/osmosis-labs/osmosis/x/ibc-hooks v0.0.5-rc0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
@@ -165,8 +165,6 @@ replace (
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	// use cosmos-flavored protocol buffers
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	// Using a version of osmoutils that doesn't depend on the osmosis sdk fork
-	github.com/osmosis-labs/osmosis/osmoutils => github.com/osmosis-labs/osmosis/osmoutils v0.0.0-20221227131914-158c2931ec0a
 	// use grpc version that's compatible with cosmos-flavored protocol buffers
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 
