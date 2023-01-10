@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -35,11 +36,17 @@ func GetTxCmd() *cobra.Command {
 // broadcast a transaction with a MsgDelegateFeedConsent message.
 func GetCmdDelegateFeedConsent() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delegate-feed-consent [operator] [feeder]",
-		Args:  cobra.ExactArgs(2),
-		Short: "Delegate oracle feed consent from an operator to another feeder address",
+		Use:   "set-feeder [feeder] --from [validator_key]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Delegate the permission to vote for the oracle to an address",
+		Long: strings.TrimSpace(`
+Delegate the permission to submit exchange rate votes for the oracle to an address.
+Delegation can keep your validator operator key offline and use a separate replaceable key online.
+$ junod tx oracle set-feeder juno1... --from validator_key
+where "juno1..." is the address you want to delegate your voting rights to.
+`),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := cmd.Flags().Set(flags.FlagFrom, args[0]); err != nil {
+			if _, err := cmd.Flags().GetString(flags.FlagFrom); err != nil {
 				return err
 			}
 
@@ -48,7 +55,7 @@ func GetCmdDelegateFeedConsent() *cobra.Command {
 				return err
 			}
 
-			feederAddr, err := sdk.AccAddressFromBech32(args[1])
+			feederAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}

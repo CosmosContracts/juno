@@ -211,9 +211,9 @@ $ junod query oracle exchange-rate ATOM
 // GetCmdQueryFeederDelegation implements the query feeder delegation command.
 func GetCmdQueryFeederDelegation() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "feeder-delegation [validator]",
+		Use:   "feeder-address [validator_operator]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Query the current delegate for a given validator address",
+		Short: "Query the current delegated address for a given validator operator address",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
