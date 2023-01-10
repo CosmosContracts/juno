@@ -275,8 +275,6 @@ func NewAppKeepers(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
 
-	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
-
 	// Configure the hooks keeper
 	hooksKeeper := ibchookskeeper.NewKeeper(
 		appKeepers.keys[ibchookstypes.StoreKey],
@@ -396,9 +394,6 @@ func NewAppKeepers(
 		wasmOpts...,
 	)
 
-	// set the contract keeper for the Ics20WasmHooks
-	appKeepers.Ics20WasmHooks.ContractKeeper = appKeepers.ContractKeeper
-
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
 		appKeepers.keys[feesharetypes.StoreKey],
 		appCodec,
@@ -449,6 +444,10 @@ func NewAppKeepers(
 	appKeepers.ScopedICAHostKeeper = scopedICAHostKeeper
 	appKeepers.ScopedICAControllerKeeper = scopedICAControllerKeeper
 	appKeepers.ScopedInterTxKeeper = scopedInterTxKeeper
+
+	// set the contract keeper for the Ics20WasmHooks
+	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
+	appKeepers.Ics20WasmHooks.ContractKeeper = appKeepers.ContractKeeper
 
 	return appKeepers
 }
