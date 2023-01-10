@@ -372,9 +372,9 @@ func GetCmdQueryTwapPrice() *cobra.Command {
 		Use:   "twap [denom] [start_time] [end_time]",
 		Short: "Query twap between period time",
 		Long: strings.TrimSpace(
-			`Query twap for pool. Start time must be unix time. End time can be unix time or duration.
+			`Query twap for pool. Start and end time must be in RFC3339 format.
 Example:
-$ junod q twap JUNO 2022-12-25T19:42:07.100Z 2022-12-25T20:42:07.100Z
+$ junod q oracle twap JUNO 2022-12-25T19:42:07.100Z 2022-12-25T20:42:07.100Z
 `),
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
