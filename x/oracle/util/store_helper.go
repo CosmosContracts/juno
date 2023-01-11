@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 )
 
-// TODO: testing
 func GetFirstValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverseIterate bool, parseValue func([]byte) (T, error)) (T, error) {
 	// Get the last value if it exist because iterator not catch the end key
 	bz := storeObj.Get(keyEnd)
@@ -25,7 +24,6 @@ func GetFirstValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd
 	return parseValue(iterator.Value())
 }
 
-// TODO: testing
 func GetValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverseIterate bool, parseValue func([]byte) (T, error)) ([]T, error) {
 	var entryList []T
 
@@ -58,7 +56,6 @@ func GetValueInRange[T any](storeObj store.KVStore, keyStart []byte, keyEnd []by
 	return entryList, nil
 }
 
-// TODO: testing
 func RemoveValueInRange(storeObj store.KVStore, keyStart []byte, keyEnd []byte, reverseIterate bool) {
 	iterator := makeIterator(storeObj, keyStart, keyEnd, reverseIterate)
 	defer iterator.Close()
