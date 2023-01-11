@@ -11,7 +11,6 @@ import (
 )
 
 // storeHistorical data writes to the store, in all needed indexing.
-// TODO : testing
 func (k Keeper) storeHistoricalData(ctx sdk.Context, denom string, entry types.PriceHistoryEntry) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.FormatHistoricalDenomIndexKey(entry.PriceUpdateTime, denom)
