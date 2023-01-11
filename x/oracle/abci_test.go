@@ -112,7 +112,7 @@ func (s *IntegrationTestSuite) TestEndblockerHistoracle() {
 		// check if last price is updated after each vote period
 		for _, exchangeRate := range tc.exchangeRates {
 			var tuples types.ExchangeRateTuples
-			for _, denom := range app.OracleKeeper.AcceptList(ctx) {
+			for _, denom := range app.OracleKeeper.PriceTrackingList(ctx) {
 				tuples = append(tuples, types.ExchangeRateTuple{
 					Denom:        denom.SymbolDenom,
 					ExchangeRate: sdk.MustNewDecFromStr(exchangeRate),
@@ -140,7 +140,7 @@ func (s *IntegrationTestSuite) TestEndblockerHistoracle() {
 			err = oracle.EndBlocker(ctx, app.OracleKeeper)
 			s.Require().NoError(err)
 
-			for _, denom := range app.OracleKeeper.AcceptList(ctx) {
+			for _, denom := range app.OracleKeeper.PriceTrackingList(ctx) {
 				readExchangeRate, err := app.OracleKeeper.GetExchangeRate(ctx, denom.SymbolDenom)
 				s.Require().NoError(err)
 				s.Require().Equal(sdk.MustNewDecFromStr(exchangeRate), readExchangeRate)

@@ -117,12 +117,9 @@ func RandomizedGenState(simState *module.SimulationState) {
 			VoteThreshold:            voteThreshold,
 			RewardBand:               rewardBand,
 			RewardDistributionWindow: rewardDistributionWindow,
-			AcceptList: types.DenomList{
-				{SymbolDenom: types.JunoSymbol, BaseDenom: types.JunoDenom},
-			},
-			SlashFraction:     slashFraction,
-			SlashWindow:       slashWindow,
-			MinValidPerWindow: minValidPerWindow,
+			SlashFraction:            slashFraction,
+			SlashWindow:              slashWindow,
+			MinValidPerWindow:        minValidPerWindow,
 			PriceTrackingList: types.DenomList{
 				{SymbolDenom: types.JunoSymbol, BaseDenom: types.JunoDenom},
 			},

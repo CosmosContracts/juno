@@ -94,7 +94,7 @@ func (s *IntegrationTestSuite) TestMsgServer_AggregateExchangeRateVote() {
 	}
 
 	// Flattened acceptList symbols to make checks easier
-	acceptList := s.app.OracleKeeper.GetParams(ctx).AcceptList
+	acceptList := s.app.OracleKeeper.GetParams(ctx).PriceTrackingList
 	var acceptListFlat []string
 	for _, v := range acceptList {
 		acceptListFlat = append(acceptListFlat, v.SymbolDenom)

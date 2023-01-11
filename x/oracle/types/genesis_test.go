@@ -63,7 +63,7 @@ func TestGenesisValidation(t *testing.T) {
 
 	// Invalid AcceptList
 	genState = DefaultGenesisState()
-	genState.Params.AcceptList = DenomList{Denom{}}
+	genState.Params.PriceTrackingList = DenomList{Denom{}}
 	require.Error(t, ValidateGenesis(genState))
 }
 

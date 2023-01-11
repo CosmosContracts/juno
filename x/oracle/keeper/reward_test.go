@@ -23,7 +23,7 @@ func (s *IntegrationTestSuite) TestRewardBallotWinners() {
 
 	var voteTargets []string
 	params := s.app.OracleKeeper.GetParams(s.ctx)
-	for _, v := range params.AcceptList {
+	for _, v := range params.PriceTrackingList {
 		voteTargets = append(voteTargets, v.SymbolDenom)
 	}
 

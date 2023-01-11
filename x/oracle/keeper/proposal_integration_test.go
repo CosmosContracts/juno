@@ -50,12 +50,10 @@ func TestAddTrackingPriceHistoryWithAcceptListProposal(t *testing.T) {
 
 	var emptyDenomList types.DenomList
 	params := types.DefaultParams()
-	params.AcceptList = emptyDenomList
 	params.PriceTrackingList = emptyDenomList
 	oracleKeeper.SetParams(ctx, params)
 
 	params = oracleKeeper.GetParams(ctx)
-	require.Equal(t, 0, len(params.AcceptList))
 	require.Equal(t, 0, len(params.PriceTrackingList))
 
 	trackingList := types.DenomList{
@@ -84,7 +82,6 @@ func TestAddTrackingPriceHistoryWithAcceptListProposal(t *testing.T) {
 	require.NoError(t, err)
 
 	params = oracleKeeper.GetParams(ctx)
-	require.Equal(t, params.AcceptList, trackingList)
 	require.Equal(t, params.PriceTrackingList, trackingList)
 }
 
@@ -93,7 +90,6 @@ func TestRemoveTrackingPriceHistoryProposal(t *testing.T) {
 	govKeeper, oracleKeeper := keepers.GovKeeper, keepers.OracleKeeper
 
 	params := oracleKeeper.GetParams(ctx)
-	require.Equal(t, 2, len(params.AcceptList))
 	require.Equal(t, 2, len(params.PriceTrackingList))
 
 	trackingList := types.DenomList{
@@ -120,6 +116,5 @@ func TestRemoveTrackingPriceHistoryProposal(t *testing.T) {
 	require.NoError(t, err)
 
 	params = oracleKeeper.GetParams(ctx)
-	require.Equal(t, params.AcceptList, trackingList)
 	require.Equal(t, params.PriceTrackingList, types.DenomList{trackingList[1]})
 }

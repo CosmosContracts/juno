@@ -42,7 +42,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 			voteTargets      []string
 			voteTargetDenoms []string
 		)
-		for _, v := range params.AcceptList {
+		for _, v := range params.PriceTrackingList {
 			voteTargets = append(voteTargets, v.SymbolDenom)
 			voteTargetDenoms = append(voteTargetDenoms, v.BaseDenom)
 		}

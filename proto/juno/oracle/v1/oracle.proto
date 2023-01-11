@@ -27,28 +27,23 @@ message Params {
   ];
   uint64 reward_distribution_window = 4
       [ (gogoproto.moretags) = "yaml:\"reward_distribution_window\"" ];
-  repeated Denom accept_list = 5 [
-    (gogoproto.moretags) = "yaml:\"accept_list\"",
-    (gogoproto.castrepeated) = "DenomList",
-    (gogoproto.nullable) = false
-  ];
-  string slash_fraction = 6 [
+  string slash_fraction = 5 [
     (gogoproto.moretags) = "yaml:\"slash_fraction\"",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  uint64 slash_window = 7 [ (gogoproto.moretags) = "yaml:\"slash_window\"" ];
-  string min_valid_per_window = 8 [
+  uint64 slash_window = 6 [ (gogoproto.moretags) = "yaml:\"slash_window\"" ];
+  string min_valid_per_window = 7 [
     (gogoproto.moretags) = "yaml:\"min_valid_per_window\"",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  repeated Denom price_tracking_list = 9 [
+  repeated Denom price_tracking_list = 8 [
     (gogoproto.moretags) = "yaml:\"price_tracking_list\"",
     (gogoproto.castrepeated) = "DenomList",
     (gogoproto.nullable) = false
   ];
-  google.protobuf.Duration price_tracking_duration = 10 [
+  google.protobuf.Duration price_tracking_duration = 9 [
     (gogoproto.nullable) = false,
     (gogoproto.stdduration) = true,
     (gogoproto.jsontag) = "price_tracking_duration,omitempty",

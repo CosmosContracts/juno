@@ -15,7 +15,6 @@ var (
 	KeyVoteThreshold            = []byte("VoteThreshold")
 	KeyRewardBand               = []byte("RewardBand")
 	KeyRewardDistributionWindow = []byte("RewardDistributionWindow")
-	KeyAcceptList               = []byte("AcceptList")
 	KeySlashFraction            = []byte("SlashFraction")
 	KeySlashWindow              = []byte("SlashWindow")
 	KeyMinValidPerWindow        = []byte("MinValidPerWindow")
@@ -32,9 +31,9 @@ const (
 
 // Default parameter values
 var (
-	DefaultVoteThreshold = sdk.NewDecWithPrec(50, 2) // 50%
-	DefaultRewardBand    = sdk.NewDecWithPrec(2, 2)  // 2% (-1, 1)
-	DefaultAcceptList    = DenomList{
+	DefaultVoteThreshold     = sdk.NewDecWithPrec(50, 2) // 50%
+	DefaultRewardBand        = sdk.NewDecWithPrec(2, 2)  // 2% (-1, 1)
+	DefaultPriceTrackingList = DenomList{
 		{
 			BaseDenom:   JunoDenom,
 			SymbolDenom: JunoSymbol,
@@ -60,11 +59,10 @@ func DefaultParams() Params {
 		VoteThreshold:            DefaultVoteThreshold,
 		RewardBand:               DefaultRewardBand,
 		RewardDistributionWindow: DefaultRewardDistributionWindow,
-		AcceptList:               DefaultAcceptList,
 		SlashFraction:            DefaultSlashFraction,
 		SlashWindow:              DefaultSlashWindow,
 		MinValidPerWindow:        DefaultMinValidPerWindow,
-		PriceTrackingList:        DefaultAcceptList,
+		PriceTrackingList:        DefaultPriceTrackingList,
 		PriceTrackingDuration:    DefaultPriceTrackingDuration,
 	}
 }
@@ -97,11 +95,6 @@ func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 			KeyRewardDistributionWindow,
 			&p.RewardDistributionWindow,
 			validateRewardDistributionWindow,
-		),
-		paramstypes.NewParamSetPair(
-			KeyAcceptList,
-			&p.AcceptList,
-			validateAcceptList,
 		),
 		paramstypes.NewParamSetPair(
 			KeySlashFraction,
@@ -166,12 +159,12 @@ func (p Params) Validate() error {
 		return fmt.Errorf("oracle parameter MinValidPerWindow must be between [0, 1]")
 	}
 
-	for _, denom := range p.AcceptList {
+	for _, denom := range p.PriceTrackingList {
 		if len(denom.BaseDenom) == 0 {
-			return fmt.Errorf("oracle parameter AcceptList Denom must have BaseDenom")
+			return fmt.Errorf("oracle parameter PriceTrackingList Denom must have BaseDenom")
 		}
 		if len(denom.SymbolDenom) == 0 {
-			return fmt.Errorf("oracle parameter AcceptList Denom must have SymbolDenom")
+			return fmt.Errorf("oracle parameter PriceTrackingList Denom must have SymbolDenom")
 		}
 	}
 	return nil
@@ -185,10 +178,10 @@ func validateTrackingList(i interface{}) error {
 
 	for _, d := range v {
 		if len(d.BaseDenom) == 0 {
-			return fmt.Errorf("oracle parameter AcceptList Denom must have BaseDenom")
+			return fmt.Errorf("oracle parameter PriceTrackingList Denom must have BaseDenom")
 		}
 		if len(d.SymbolDenom) == 0 {
-			return fmt.Errorf("oracle parameter AcceptList Denom must have SymbolDenom")
+			return fmt.Errorf("oracle parameter PriceTrackingList Denom must have SymbolDenom")
 		}
 	}
 
@@ -268,7 +261,7 @@ func validateRewardDistributionWindow(i interface{}) error {
 	return nil
 }
 
-func validateAcceptList(i interface{}) error {
+func validatePriceTrackingList(i interface{}) error {
 	v, ok := i.(DenomList)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -276,10 +269,10 @@ func validateAcceptList(i interface{}) error {
 
 	for _, d := range v {
 		if len(d.BaseDenom) == 0 {
-			return fmt.Errorf("oracle parameter AcceptList Denom must have BaseDenom")
+			return fmt.Errorf("oracle parameter PriceTrackingList Denom must have BaseDenom")
 		}
 		if len(d.SymbolDenom) == 0 {
-			return fmt.Errorf("oracle parameter AcceptList Denom must have SymbolDenom")
+			return fmt.Errorf("oracle parameter PriceTrackingList Denom must have SymbolDenom")
 		}
 	}
 

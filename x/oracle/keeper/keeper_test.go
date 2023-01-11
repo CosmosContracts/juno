@@ -256,7 +256,7 @@ func (s *IntegrationTestSuite) TestGetExchangeRateBase() {
 	oracleParams := s.app.OracleKeeper.GetParams(s.ctx)
 
 	var exponent uint64
-	for _, denom := range oracleParams.AcceptList {
+	for _, denom := range oracleParams.PriceTrackingList {
 		if denom.BaseDenom == bondDenom {
 			exponent = uint64(denom.Exponent)
 		}

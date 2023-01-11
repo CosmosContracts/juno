@@ -39,12 +39,7 @@ func handleAddTrackingPriceHistoryProposal(ctx sdk.Context, k Keeper, p types.Ad
 	}
 	// Get params
 	params := k.GetParams(ctx)
-	// Check if not in accept list
-	currentAcceptList := params.AcceptList
-	_, _, isSubset := isSubSet(currentAcceptList, p.TrackingList)
-	if !isSubset {
-		return sdkerrors.Wrap(types.ErrUnknownDenom, "Denom not in accept list")
-	}
+
 	// Check if not in tracking list then add to tracking list
 	currentTrackingList := params.PriceTrackingList
 	unSubList, _, isSubset := isSubSet(currentTrackingList, p.TrackingList)
@@ -70,21 +65,15 @@ func handleAddTrackingPriceHistoryWithAcceptListProposal(ctx sdk.Context, k Keep
 	}
 	// Get params
 	params := k.GetParams(ctx)
-	// Check if not in accept list then add to accept list
-	currentAcceptList := params.AcceptList
-	unSubList, _, isSubset := isSubSet(currentAcceptList, p.TrackingList)
-	if !isSubset {
-		currentAcceptList = append(currentAcceptList, unSubList...)
-	}
+
 	// Check if not in tracking list then add to tracking list
 	currentTrackingList := params.PriceTrackingList
-	unSubList, _, isSubset = isSubSet(currentTrackingList, p.TrackingList)
+	unSubList, _, isSubset := isSubSet(currentTrackingList, p.TrackingList)
 	if !isSubset {
 		currentTrackingList = append(currentTrackingList, unSubList...)
 	}
 
 	// Set params
-	params.AcceptList = currentAcceptList
 	params.PriceTrackingList = currentTrackingList
 	k.SetParams(ctx, params)
 

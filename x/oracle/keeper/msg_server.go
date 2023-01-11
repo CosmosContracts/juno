@@ -97,7 +97,7 @@ func (ms msgServer) AggregateExchangeRateVote(
 	// Filter out rates which aren't included in the AcceptList
 	filteredTuples := types.ExchangeRateTuples{}
 	for _, tuple := range exchangeRateTuples {
-		if params.AcceptList.Contains(tuple.Denom) {
+		if params.PriceTrackingList.Contains(tuple.Denom) {
 			filteredTuples = append(filteredTuples, tuple)
 		}
 	}
