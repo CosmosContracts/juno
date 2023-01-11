@@ -62,7 +62,8 @@ func CreateV12UpgradeHandler(
 			Exponent:    uint32(6),
 		}
 
-		allDenoms := append(oracletypes.DefaultAcceptList, osmosisDenom)
+		allDenoms := oracletypes.DefaultAcceptList
+		allDenoms = append(allDenoms, osmosisDenom)
 
 		newOracleParams.AcceptList = allDenoms
 		newOracleParams.PriceTrackingList = allDenoms
