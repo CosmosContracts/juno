@@ -61,8 +61,11 @@ func CreateV12UpgradeHandler(
 			SymbolDenom: "OSMO",
 			Exponent:    uint32(6),
 		}
-		newOracleParams.AcceptList = append(oracletypes.DefaultAcceptList, osmosisDenom)
-		newOracleParams.PriceTrackingList = append(oracletypes.DefaultAcceptList, osmosisDenom)
+
+		allDenoms := append(oracletypes.DefaultAcceptList, osmosisDenom)
+
+		newOracleParams.AcceptList = allDenoms
+		newOracleParams.PriceTrackingList = allDenoms
 		logger.Info(fmt.Sprintf("Oracle params set: %s", newOracleParams.String()))
 
 		keepers.OracleKeeper.SetParams(ctx, newOracleParams)
