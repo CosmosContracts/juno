@@ -4,7 +4,7 @@ This document contains the roadmap for the Juno project. It is a living document
 
 ---
 
-## V13 - Late 2022 / TBD
+## V13 - Q3 or Q4 2023 / TBD
 <!-- - [Medium Blog](https://medium.com/@reecepbcups/juno-v12-update-4bab64640a62) -->
 
 - [Notion Plan Page](https://fluffy-conifer-309.notion.site/123261ebfe2040d9ac559f7e7d3c5cd2?v=6d59a04765f543738676f8db21ae8525)
@@ -25,7 +25,7 @@ This update will focus more on upgrading the base layer of the Juno stack, bring
 
 ---
 
-## V12 - Jan 2022
+## V12 - Q1 2023
 
 Links:
 
@@ -34,7 +34,6 @@ Links:
 - [Notion Plan Page](https://fluffy-conifer-309.notion.site/123261ebfe2040d9ac559f7e7d3c5cd2?v=6d59a04765f543738676f8db21ae8525)
 
 - [V12 Tracking Issue](https://github.com/CosmosContracts/juno/issues/268)
-
 
 The V12 update is Juno's largest update, bringing many new features for developers, users, and relayers.
 
