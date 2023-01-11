@@ -19,7 +19,7 @@ func TestParamChangest(t *testing.T) {
 		simValue    string
 		subspace    string
 	}{
-		{"mint/BlocksPerYear", "BlocksPerYear", "\"6311520.000000000000000000\"", "mint"},
+		{"mint/BlocksPerYear", "BlocksPerYear", "\"6311520\"", "mint"},
 	}
 
 	paramChanges := simulation.ParamChanges(r)

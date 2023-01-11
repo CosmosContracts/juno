@@ -7,6 +7,7 @@ import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmosContracts/juno/v12/app/keepers"
 	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -50,6 +51,10 @@ func CreateV12UpgradeHandler(
 
 		nativeDenom := GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
+
+		// Oracle
+		newOracleParams := oracletypes.DefaultParams()
+		keepers.OracleKeeper.SetParams(ctx, newOracleParams)
 
 		// TokenFactory
 		newTokenFactoryParams := tokenfactorytypes.Params{

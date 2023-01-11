@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"testing"
@@ -56,6 +58,13 @@ func (bc *baseConfigurer) RunValidators() error {
 		if err := bc.runValidators(chainConfig); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (bc *baseConfigurer) RunPriceFeeder() error {
+	if err := bc.runPriceFeeder(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -161,6 +170,42 @@ func (bc *baseConfigurer) runIBCRelayer(chainConfigA *chain.Config, chainConfigB
 
 	// create the client, connection and channel between the two chains
 	return bc.connectIBCChains(chainConfigA, chainConfigB)
+}
+
+func (bc *baseConfigurer) runPriceFeeder() error {
+	bc.t.Log("starting Price-Feeder container...")
+	er := exec.Command("./scripts/init_config.sh").Run()
+	if er != nil {
+		log.Fatal(er)
+	}
+	pricefeederCfgPath := "/tmp/price-feeder/"
+	valCondifDir := "/tmp/juno-e2e-testnet/juno-test-a/juno-test-a-node-prune-default-snapshot-state-sync-from/"
+
+	if err := os.MkdirAll(pricefeederCfgPath, 0o777); err != nil {
+		return err
+	}
+
+	_, err := util.CopyFile(
+		filepath.Join("./", "config.toml"),
+		filepath.Join(pricefeederCfgPath, "config.toml"),
+	)
+	if err != nil {
+		return err
+	}
+	if err := os.Chmod("/tmp/price-feeder/config.toml", 0o777); err != nil {
+		return err
+	}
+	pricefeederPass := "test"
+	pricefeederResource, err := bc.containerManager.RunPriceFeederResource(
+		pricefeederPass,
+		pricefeederCfgPath,
+		valCondifDir,
+	)
+	if err != nil {
+		return err
+	}
+	bc.t.Logf("started Price-feeder container: %s", pricefeederResource.Container.ID)
+	return nil
 }
 
 func (bc *baseConfigurer) connectIBCChains(chainA *chain.Config, chainB *chain.Config) error {

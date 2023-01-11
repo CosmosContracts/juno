@@ -27,6 +27,9 @@ func (gpsd GovPreventSpamDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx,
 	simulate bool, next sdk.AnteHandler,
 ) (newCtx sdk.Context, err error) {
+	if DefaultIsAppSimulation {
+		return next(ctx, tx, simulate)
+	}
 	msgs := tx.GetMsgs()
 
 	err = gpsd.checkSpamSubmitProposalMsg(ctx, msgs)
