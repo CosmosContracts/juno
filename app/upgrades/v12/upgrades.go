@@ -54,6 +54,17 @@ func CreateV12UpgradeHandler(
 
 		// Oracle
 		newOracleParams := oracletypes.DefaultParams()
+
+		// add osmosis to the oracle params
+		osmosisDenom := oracletypes.Denom{
+			BaseDenom:   "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518",
+			SymbolDenom: "OSMO",
+			Exponent:    uint32(6),
+		}
+		newOracleParams.AcceptList = append(oracletypes.DefaultAcceptList, osmosisDenom)
+		newOracleParams.PriceTrackingList = append(oracletypes.DefaultAcceptList, osmosisDenom)
+		logger.Info(fmt.Sprintf("Oracle params set: %s", newOracleParams.String()))
+
 		keepers.OracleKeeper.SetParams(ctx, newOracleParams)
 
 		// TokenFactory
