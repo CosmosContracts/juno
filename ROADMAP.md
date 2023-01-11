@@ -62,4 +62,4 @@ Governance can now also deny and allow IBC-based denominations (tokens) via **Gl
 
 Speaking of relayers, **IBCFees** now helps to fund those who relayer your packets! In the above paragraph, we mention how IBC transfers are feeless for relayers. Fees can still be sent with these packets and bring some income for relayers, thus maintaining public goods infrastructure. The relayers still have to pay the fee on the other chain's token, but this is a positive step in the right direction for variables we can control.
 
-Juno is now an interchain host via **inter-tx**, allowing it to be controlled from a controller chain (such as osmosis). By adding this, users can now control an account on juno chain to perform actions (such as claiming stake rewards), from the osmosis chain. You can find all allowed messages [HERE](https://github.com/CosmosContracts/juno/pull/436/files).
+Juno is now a controller chain via **inter-tx**, which will allow it to control accounts on other chains. [HERE](https://github.com/CosmosContracts/juno/pull/436/files).
