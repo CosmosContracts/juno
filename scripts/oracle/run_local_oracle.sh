@@ -9,7 +9,7 @@ make install
 
 price-feeder version
 
-cp config.toml $HOME/.juno/$ORACLE_FILENAME.toml
+cp config.example.toml $HOME/.juno/$ORACLE_FILENAME.toml
 
 # replace gas_price
 sed -i 's/0.0001stake/0.025ujuno/g' ~/.juno/$ORACLE_FILENAME.toml
