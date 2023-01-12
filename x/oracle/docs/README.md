@@ -1,28 +1,31 @@
 # Oracle Setup Documentation
 
-## PreReqs
-
-### Install Dependencies
+## Install Base Dependencies
 
 ```sh
+# Ubuntu
 sudo apt update && sudo apt upgrade -y
 sudo apt-get install make gcc jq git
 ```
 
-### Install Go
+### Install Go 1.19
 
 ```sh
 curl -fsSL https://golang.org/dl/go1.19.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
+
+# `go version` should output "go version go1.19.3 linux/amd64"
 ```
 
 ### Prepare Go Paths
 
 ```sh
+# Only run this if your go path is not yet setup.
+# Check this with `echo $PATH`
+
 echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bashrc
 
-source ~/.bashrc
-
-go version  # should output "go version go1.19.3 linux/amd64"
+# Reload the bashrc file to the current terminal
+source $HOME/.bashrc
 ```
 
 ### Build Price Feeder
@@ -30,82 +33,17 @@ go version  # should output "go version go1.19.3 linux/amd64"
 ```sh
 cd ~
 git clone https://github.com/CosmosContracts/juno.git
-cd juno/pricefeeder
+cd ./juno/price-feeder
 make install
 
 # Copy config to your location for future use & editing
-cp config.toml $HOME/.juno/oracle-config.toml
+cp config.example.toml $HOME/.juno/oracle-config.toml
+
+# If you get `cp: cannot create regular file '$HOME/.juno/oracle-config.toml': No such file or directory`, 
+# run: `junod init [moniker]`. Then run the cp command again
 
 price-feeder version # sdk: v0.45.11 and go1.19.*
-```
-
----
-
-## Auto-Generate script
-
-Edit variables `in the script` & run the script for the sections you need
-
-```sh
-#!/bin/sh
-
-VALOPER_ADDR=""
-FEEDER_ADDR=""
-CHAIN_ID="" # juno-1 or uni-5
-KEYRING_PASS=""
-
-sudo apt update && sudo apt upgrade -y
-sudo apt-get install make gcc jq 
-
-# Install GO
-GO_VER="1.19.2"
-cd $HOME
-wget "https://golang.org/dl/go$GO_VER.linux-amd64.tar.gz"
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf "go$GO_VER.linux-amd64.tar.gz"
-rm "go$GO_VER.linux-amd64.tar.gz"
-echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.profile
-source $HOME/.profile
-
-# Install price feeder
-cd pricefeeder
-make install
-
-# Setup price feeder config
-cp config.toml $HOME/.juno/oracle-config.toml
-sed -i \
-'s/0.0001stake/0.025ujuno/g;
- s/address = "juno1w20tfhnehc33rgtm9tg8gdtea0svn7twfnyqee"/address = "'"$FEEDER_ADDR"'"/g;
- s/validator = "junovaloper1w20tfhnehc33rgtm9tg8gdtea0svn7twkwj0zq"/validator = "'"$VALOPER_ADDR"'"/g;
- s/chain_id = "test-1"/chain_id = "'"$CHAIN_ID"'"/g;
- s/"chain_id", "test-1"/"chain_id", "'"$CHAIN_ID"'"/g; \
-$HOME/.juno/oracle-config.toml
-
-
-# Setup systemd service
-
-echo "[Unit]
-Description=juno-price-feeder
-After=network.target
-
-[Service]
-Type=simple
-User=$USER
-ExecStart=$HOME/go/bin/price-feeder $HOME/.juno/oracle-config.toml --log-level debug
-Restart=on-abort
-LimitNOFILE=65535
-Environment=\"PRICE_FEEDER_PASS=$KEYRING_PASS\"
-
-[Install]
-WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/oracle.Service
-"
-
-sudo systemctl daemon-reload
-sudo systemctl enable oracle
-sudo systemctl start oracle
-```
-
-```sh
-sudo journalctl -fu oracle
+# If it is not found, your go path is not set
 ```
 
 ---
@@ -114,20 +52,19 @@ sudo journalctl -fu oracle
 
 ```sh
 sudo apt update && sudo apt upgrade -y
-sudo apt-get screen
+sudo apt-get install screen
 ```
 
 ## Set Variables
 
 ```sh
-FEEDER_ADDR=juno_address # edit to your value
-```
+# junod keys list --keyring-backend <backend>
 
-```sh
-VALOPER_ADDR=junovaloper_address # edit to your value
-```
+# edit to your values
+FEEDER_ADDR=juno_address
 
-```sh
+# mintscan or `VALOPER_ADDR=$(junod debug bech32-convert $FEEDER_ADDR --prefix junovaloper)`
+VALOPER_ADDR=junovaloper_address
 CHAIN_ID=juno-1 # edit to correct chain
 ```
 
@@ -152,11 +89,16 @@ screen -S price-feeder
 
 ```sh
 price-feeder ~/.juno/oracle-config.toml --log-level debug
+
+# If you have keyring sent to test, it will still prompt for a password
+# just press enter.
+
+# Wait until you see a `broadcasting vote`, in which case it is successful.
 ```
 
 ### Detach from the price-feeder screen
 
-```sh
+```text
 ctrl-a + d: Detach a screen session without stopping it.
 screen -r price-feeder: Reattach a detached screen session.
 ```
@@ -173,27 +115,90 @@ sudo apt install git -y
 ## Edit Variables
 
 ```sh
-sudo nano juno/oracle/scripts/systemd.sh
+nano $HOME/juno/scripts/oracle/systemd.sh
 ```
 
 ```sh
-VALOPER_ADDR="junovaloper_address_here" #valoper address here
-FEEDER_ADDR="junofeeder_address_here" #feeder wallet address here
-CHAIN_ID="juno-1" #chain_id here
-KEYRING_PASS="mykeyringpass" #keyring password here, anything if using test keyring
+#!/bin/sh
+
+VALOPER_ADDR="junovaloper1..."
+FEEDER_ADDR="juno1..."
+CHAIN_ID="juno-1"
+# anything if you use the test keyring in your oracle-config.toml
+KEYRING_PASS="mykeyringpass"
+
+sudo apt update && sudo apt upgrade -y
+sudo apt-get install make gcc jq 
+
+# Install GO
+GO_VER="1.19.2"
+cd $HOME
+wget "https://golang.org/dl/go$GO_VER.linux-amd64.tar.gz"
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf "go$GO_VER.linux-amd64.tar.gz"
+rm "go$GO_VER.linux-amd64.tar.gz"
+echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.profile
+source $HOME/.profile
+
+# Install price feeder
+cd pricefeeder
+make install
+
+# Setup price feeder config
+cp $HOME/juno/price-feeder/config.example.toml $HOME/.juno/oracle-config.toml
+
+sed -i \
+'s/0.0001stake/0.025ujuno/g;
+ s/address = "juno1w20tfhnehc33rgtm9tg8gdtea0svn7twfnyqee"/address = "'"$FEEDER_ADDR"'"/g;
+ s/validator = "junovaloper1w20tfhnehc33rgtm9tg8gdtea0svn7twkwj0zq"/validator = "'"$VALOPER_ADDR"'"/g;
+ s/chain_id = "test-1"/chain_id = "'"$CHAIN_ID"'"/g;
+ s/"chain_id", "test-1"/"chain_id", "'"$CHAIN_ID"'"/g' \
+$HOME/.juno/oracle-config.toml
+
+
+# Setup systemd service
+echo "[Unit]
+Description=juno-price-feeder
+After=network.target
+
+[Service]
+Type=simple
+User=$USER
+ExecStart=$HOME/go/bin/price-feeder $HOME/.juno/oracle-config.toml --log-level debug
+Restart=on-abort
+LimitNOFILE=65535
+Environment=\"PRICE_FEEDER_PASS=$KEYRING_PASS\"
+
+[Install]
+WantedBy=multi-user.target" | sudo tee /etc/systemd/system/oracle.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable oracle
+sudo systemctl start oracle
 ```
 
-### Run Systemd Script
+### Run System Script
 
 ```sh
-cd ~
-./juno/oracle/scripts/systemd.sh
+sh $HOME/juno/scripts/oracle/systemd.sh
+```
+
+### Check the values are correct
+
+```sh
+cat /etc/systemd/system/oracle.service
 ```
 
 ### Check Status
 
 ```sh
-sudo journalctl -fu oracle
+sudo journalctl -fu oracle --output cat
+```
+
+### Stop the Systemd service
+
+```sh
+sudo systemctl stop oracle
 ```
 
 ---
@@ -202,26 +207,36 @@ sudo journalctl -fu oracle
 
 ```sh
 sudo apt update -y && apt upgrade -y && apt autoremove -y
-sudo apt install docker.io docker-compose -y
+sudo apt install containerd docker.io docker-compose -y
+
+sudo systemctl start docker 
 ```
 
 ### Clone Respository
 
 ```sh
 git clone https://github.com/CosmosContracts/juno
-cd juno/price-feeder
+cd $HOME/juno
 ```
 
 ### Build Image
 
 ```sh
-docker build -t price-feeder .
+docker build -f ./price-feeder/price-feeder.Dockerfile -t price-feeder .
 ```
 
 ### Run Container
 
 ```sh
-docker run -d --name price-feeder price-feeder
+# This requires use of the test keyring as we mount to the keyring-test volume.
+# We also mount as read only to the oracle config from above to /oracle-config.toml in the container
+# network host allows us to query the host machine RPC (https://localhost:26657)
+docker run -d --name price-feeder \
+    -e PRICE_FEEDER_PASS="mypass" \
+    -v /root/.juno/keyring-test:/root/.juno/keyring-test:ro \
+    --mount type=bind,source=/root/.juno/oracle-config.toml,target=/oracle-config.toml,readonly \
+    --network="host" \
+    price-feeder /oracle-config.toml
 ```
 
 ### Check Logs
