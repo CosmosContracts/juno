@@ -140,8 +140,10 @@ test-e2e-short: e2e-setup
 	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_STATE_SYNC=True JUNO_E2E_SKIP_CLEANUP=True go test -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
 
 test-e2e-oracle:
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
+	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_PRICE_HISTORY=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
 
+test-e2e-price-history:
+	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_ORACLE=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_UNIT)
 

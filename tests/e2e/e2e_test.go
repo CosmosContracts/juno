@@ -7,7 +7,7 @@ import (
 	// "fmt"
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
 	// sdk "github.com/cosmos/cosmos-sdk/types"
-	// "strconv"
+	"strconv"
 	// "strings"
 	"time"
 )
@@ -53,6 +53,26 @@ func (s *IntegrationTestSuite) TestOracle() {
 	},
 		3*time.Minute,
 		500*time.Millisecond,
+	)
+}
+
+func (s *IntegrationTestSuite) TestExchangeRate() {
+	if s.skipPriceHistory {
+		s.T().Skip()
+	}
+	chainA := s.configurer.GetChainConfig(0)
+	node := chainA.NodeConfigs[0]
+	wallet := initialization.ValidatorWalletName
+
+	// Store Contract
+	node.StoreWasmCode("stargate_exchange_rate_query.wasm", wallet)
+	chainA.LatestCodeID = 1
+	node.InstantiateWasmContract(
+		strconv.Itoa(chainA.LatestCodeID),
+		"{}",
+		"exchange_rate",
+		wallet,
+		"",
 	)
 }
 
