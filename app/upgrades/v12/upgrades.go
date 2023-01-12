@@ -29,13 +29,12 @@ import (
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 )
 
-// Returns "ujuno" if the chainID starts with "juno-" (ex: juno-1 or juno-t1 for local)
-// else its the uni testnet
+// Returns "ujunox" if the chain is uni, else returns the standard ujuno token denom.
 func GetChainsDenomToken(chainID string) string {
-	if strings.HasPrefix(chainID, "juno-") {
-		return "ujuno"
+	if strings.HasPrefix(chainID, "uni-") {
+		return "ujunox"
 	}
-	return "ujunox"
+	return "ujuno"
 }
 
 // CreateV12UpgradeHandler makes an upgrade handler for v12 of Juno
