@@ -37,7 +37,6 @@ quote = "USD"
 base = "ATOM"
 providers = [
   "okx",
-  "binance"
 ]
 quote = "USDT"
 
@@ -77,6 +76,19 @@ providers = [
 ]
 quote = "USDT"
 
+[[currency_pairs]]
+base = "OSMO"
+providers = [
+  "osmosis",
+]
+quote = "USD"
+
+[[currency_pairs]]
+base = "OSMO"
+providers = [
+  "bitget",
+]
+quote = "USDT"
 
 [[currency_pairs]]
 base = "USDC"
