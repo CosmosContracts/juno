@@ -360,8 +360,10 @@ func NewAppKeepers(
 		"/ibc.core.connection.v1.Query/Connection": &ibcconnectiontypes.QueryConnectionResponse{},
 
 		// oracle query
-		"/juno.oracle.v1.Query/ExchangeRates": &oracletypes.QueryExchangeRatesResponse{},
-		"/juno.oracle.v1.Query/Params":        &oracletypes.QueryParamsResponse{},
+		"/juno.oracle.v1.Query/ExchangeRates":                  &oracletypes.QueryExchangeRatesResponse{},
+		"/juno.oracle.v1.Query/Params":                         &oracletypes.QueryParamsResponse{},
+		"/juno.oracle.v1.Query/ArithmeticTwapPriceBetweenTime": &oracletypes.QueryArithmeticTwapBetweenTimeResponse{},
+		"/juno.oracle.v1.Query/PriceHistoryAtTime":             &oracletypes.QueryPriceHistoryAtTimeResponse{},
 	}
 	querierOpts := wasmkeeper.WithQueryPlugins(
 		&wasmkeeper.QueryPlugins{
