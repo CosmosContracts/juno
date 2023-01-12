@@ -21,6 +21,8 @@ type Configurer interface {
 	RunValidators() error
 
 	RunIBC() error
+
+	RunPriceFeeder() error
 }
 
 var (
@@ -105,7 +107,7 @@ var (
 // at the previous version.
 // - If !isIBCEnabled and !isUpgradeEnabled, we only need one chain at the current
 // Git branch version of the code.
-func New(t *testing.T, isIBCEnabled, isDebugLogEnabled bool, upgradeSettings UpgradeSettings) (Configurer, error) {
+func New(t *testing.T, isOracleEnable, isIBCEnabled, isDebugLogEnabled bool, upgradeSettings UpgradeSettings) (Configurer, error) {
 	containerManager, err := containers.NewManager(upgradeSettings.IsEnabled, upgradeSettings.ForkHeight > 0, isDebugLogEnabled)
 	if err != nil {
 		return nil, err
@@ -132,6 +134,14 @@ func New(t *testing.T, isIBCEnabled, isDebugLogEnabled bool, upgradeSettings Upg
 				chain.New(t, containerManager, initialization.ChainBID, validatorConfigsChainB),
 			},
 			withIBC(baseSetup), // base set up with IBC
+			containerManager,
+		), nil
+	} else if isOracleEnable {
+		return NewCurrentBranchConfigurer(t,
+			[]*chain.Config{
+				chain.New(t, containerManager, initialization.ChainAID, validatorConfigsChainA),
+			},
+			withPriceFeeder(baseSetup),
 			containerManager,
 		), nil
 	} else if upgradeSettings.IsEnabled {

@@ -9,6 +9,8 @@ import (
 	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v12/x/mint"
 	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
+	"github.com/CosmosContracts/juno/v12/x/oracle"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -66,6 +68,7 @@ var maccPerms = map[string][]string{
 	icatypes.ModuleName:            nil,
 	ibcfeetypes.ModuleName:         nil,
 	wasm.ModuleName:                {authtypes.Burner},
+	oracletypes.ModuleName:         nil,
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 }
 
@@ -92,6 +95,8 @@ var ModuleBasics = module.NewBasicManager(
 	transfer.AppModuleBasic{},
 	vesting.AppModuleBasic{},
 	authzmodule.AppModuleBasic{},
+	oracle.AppModuleBasic{},
+	tokenfactory.AppModuleBasic{},
 	wasm.AppModuleBasic{},
 	ica.AppModuleBasic{},
 	intertx.AppModuleBasic{},
@@ -136,6 +141,7 @@ func appModules(
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		intertx.NewAppModule(appCodec, app.InterTxKeeper),
+		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 	}
 }
 
@@ -161,6 +167,7 @@ func simulationModules(
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
+		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transfer.NewAppModule(app.TransferKeeper),
@@ -195,6 +202,7 @@ func orderBeginBlockers() []string {
 		icatypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
@@ -226,6 +234,7 @@ func orderEndBlockers() []string {
 		icatypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
@@ -255,6 +264,7 @@ func orderInitBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		oracletypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,

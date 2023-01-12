@@ -73,6 +73,9 @@ import (
 	"github.com/cosmos/gaia/v8/x/globalfee"
 	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
+
+	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 type AppKeepers struct {
@@ -101,6 +104,7 @@ type AppKeepers struct {
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	FeeShareKeeper   feesharekeeper.Keeper
 
+	OracleKeeper        oraclekeeper.Keeper
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
 	InterTxKeeper       intertxkeeper.Keeper
@@ -228,6 +232,17 @@ func NewAppKeepers(
 
 	// ... other modules keepers
 
+	appKeepers.OracleKeeper = oraclekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[oracletypes.ModuleName],
+		appKeepers.GetSubspace(oracletypes.ModuleName),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.DistrKeeper,
+		appKeepers.StakingKeeper,
+		distrtypes.ModuleName,
+	)
+
 	// Create IBC Keeper
 	appKeepers.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, appKeepers.keys[ibchost.StoreKey],
@@ -261,6 +276,7 @@ func NewAppKeepers(
 	// register the proposal types
 	govRouter := govtypes.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govtypes.ProposalHandler).
+		AddRoute(oracletypes.RouterKey, oraclekeeper.NewOracleProposalHandler(appKeepers.OracleKeeper)).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(appKeepers.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
@@ -333,12 +349,11 @@ func NewAppKeepers(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	// The last arguments can contain custom message handlers, and custom query handlers,
-	// if we want to allow any custom callbacks
+	// Setup wasm bindings
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
 	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
-	wasmOpts = append(wasmOpts, tfOpts[1])
+	wasmOpts = append(wasmOpts, tfOpts...)
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
@@ -350,6 +365,10 @@ func NewAppKeepers(
 		"/osmosis.tokenfactory.v1beta1.Query/Params":                 &tokenfactorytypes.QueryParamsResponse{},
 		"/osmosis.tokenfactory.v1beta1.Query/DenomAuthorityMetadata": &tokenfactorytypes.QueryDenomAuthorityMetadataResponse{},
 		"/osmosis.tokenfactory.v1beta1.Query/DenomsFromCreator":      &tokenfactorytypes.QueryDenomsFromCreatorResponse{},
+
+		// oracle query
+		"/juno.oracle.v1.Query/ExchangeRates": &oracletypes.QueryExchangeRatesResponse{},
+		"/juno.oracle.v1.Query/Params":        &oracletypes.QueryParamsResponse{},
 	}
 	querierOpts := wasmkeeper.WithQueryPlugins(
 		&wasmkeeper.QueryPlugins{
@@ -447,6 +466,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
+	paramsKeeper.Subspace(oracletypes.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(globalfee.ModuleName)

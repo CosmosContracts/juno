@@ -59,6 +59,8 @@ import (
 	v10 "github.com/CosmosContracts/juno/v12/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v12/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v12/app/upgrades/v12"
+	oracleclient "github.com/CosmosContracts/juno/v12/x/oracle/client"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 const (
@@ -173,6 +175,9 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		upgradeclient.CancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
+		oracleclient.ProposalHandlerAddTrackingPriceHistory,
+		oracleclient.ProposalHandlerAddTrackingPriceHistoryWithAcceptList,
+		oracleclient.ProposalRemoveTrackingPriceHistory,
 	)
 
 	return govProposalHandlers
@@ -363,9 +368,15 @@ func New(
 
 func GetDefaultBypassFeeMessages() []string {
 	return []string{
+		// IBC
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
 		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+
+		// Oracle
+		sdk.MsgTypeURL(&oracletypes.MsgAggregateExchangeRatePrevote{}),
+		sdk.MsgTypeURL(&oracletypes.MsgAggregateExchangeRateVote{}),
+
 		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
 	}
 }
