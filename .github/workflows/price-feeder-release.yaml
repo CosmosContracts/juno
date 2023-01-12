@@ -33,7 +33,7 @@ jobs:
           git tag -d ${{ env.RELEASE_VERSION }} || echo "No such a tag exists before"
           git tag ${{ env.RELEASE_VERSION }} HEAD
       - name: Release
-        uses: goreleaser/goreleaser-action@v3
+        uses: goreleaser/goreleaser-action@v4
         with:
           # Note, we have to pin to v0.179.0 due to newer releases enforcing
           # correct semantic versioning even when '--skip-validate' is provided.
