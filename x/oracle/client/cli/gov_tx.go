@@ -48,7 +48,7 @@ func ProposalAddTrackingPriceHistoryCmd() *cobra.Command {
 	return cmd
 }
 
-func ProposalAddTrackingPriceHistoryWithAcceptListCmd() *cobra.Command {
+func ProposalAddTrackingPriceHistoryWithWhitelistCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-tracking-price-history-with-accept-list [json-proposal]",
 		Short: "Add tracking price history list with accept list",
@@ -59,7 +59,7 @@ func ProposalAddTrackingPriceHistoryWithAcceptListCmd() *cobra.Command {
 				return err
 			}
 
-			proposal, err := AddTrackingPriceHistoryWithAcceptListProposal(clientCtx.Codec, args[0])
+			proposal, err := AddTrackingPriceHistoryWithWhitelistProposal(clientCtx.Codec, args[0])
 			if err != nil {
 				return err
 			}
@@ -161,8 +161,8 @@ func ParseAddTrackingPriceHistoryProposal(cdc codec.JSONCodec, proposalFile stri
 	return proposal, nil
 }
 
-func AddTrackingPriceHistoryWithAcceptListProposal(cdc codec.JSONCodec, proposalFile string) (types.AddTrackingPriceHistoryWithAcceptListProposal, error) {
-	var proposal types.AddTrackingPriceHistoryWithAcceptListProposal
+func AddTrackingPriceHistoryWithWhitelistProposal(cdc codec.JSONCodec, proposalFile string) (types.AddTrackingPriceHistoryWithWhitelistProposal, error) {
+	var proposal types.AddTrackingPriceHistoryWithWhitelistProposal
 
 	contents, err := os.ReadFile(proposalFile)
 	if err != nil {

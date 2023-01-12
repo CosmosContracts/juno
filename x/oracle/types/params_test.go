@@ -62,21 +62,21 @@ func TestValidateRewardDistributionWindow(t *testing.T) {
 	require.Nil(t, err)
 }
 
-func TestValidateAcceptList(t *testing.T) {
-	err := validateAcceptList("invalidUint64")
+func TestValidateWhitelist(t *testing.T) {
+	err := validateWhitelist("invalidUint64")
 	require.ErrorContains(t, err, "invalid parameter type: string")
 
-	err = validateAcceptList(DenomList{
+	err = validateWhitelist(DenomList{
 		{BaseDenom: ""},
 	})
-	require.ErrorContains(t, err, "oracle parameter AcceptList Denom must have BaseDenom")
+	require.ErrorContains(t, err, "oracle parameter Whitelist Denom must have BaseDenom")
 
-	err = validateAcceptList(DenomList{
+	err = validateWhitelist(DenomList{
 		{BaseDenom: DenomJuno.BaseDenom, SymbolDenom: ""},
 	})
-	require.ErrorContains(t, err, "oracle parameter AcceptList Denom must have SymbolDenom")
+	require.ErrorContains(t, err, "oracle parameter Whitelist Denom must have SymbolDenom")
 
-	err = validateAcceptList(DenomList{
+	err = validateWhitelist(DenomList{
 		{BaseDenom: DenomJuno.BaseDenom, SymbolDenom: DenomJuno.SymbolDenom},
 	})
 	require.Nil(t, err)
@@ -169,15 +169,15 @@ func TestParamsEqual(t *testing.T) {
 
 	// empty name
 	p9 := DefaultParams()
-	p9.AcceptList[0].BaseDenom = ""
-	p9.AcceptList[0].SymbolDenom = "ATOM"
+	p9.Whitelist[0].BaseDenom = ""
+	p9.Whitelist[0].SymbolDenom = "ATOM"
 	err = p9.Validate()
 	require.Error(t, err)
 
 	// empty
 	p10 := DefaultParams()
-	p10.AcceptList[0].BaseDenom = "uatom"
-	p10.AcceptList[0].SymbolDenom = ""
+	p10.Whitelist[0].BaseDenom = "uatom"
+	p10.Whitelist[0].SymbolDenom = ""
 	err = p10.Validate()
 	require.Error(t, err)
 

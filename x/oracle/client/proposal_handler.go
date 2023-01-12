@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ProposalHandlerAddTrackingPriceHistory               = govclient.NewProposalHandler(cli.ProposalAddTrackingPriceHistoryCmd, rest.EmptyRestHandler)
-	ProposalHandlerAddTrackingPriceHistoryWithAcceptList = govclient.NewProposalHandler(cli.ProposalAddTrackingPriceHistoryWithAcceptListCmd, rest.EmptyRestHandler)
-	ProposalRemoveTrackingPriceHistory                   = govclient.NewProposalHandler(cli.ProposalRemoveTrackingPriceHistoryCmd, rest.EmptyRestHandler)
+	ProposalHandlerAddTrackingPriceHistory              = govclient.NewProposalHandler(cli.ProposalAddTrackingPriceHistoryCmd, rest.EmptyRestHandler)
+	ProposalHandlerAddTrackingPriceHistoryWithWhitelist = govclient.NewProposalHandler(cli.ProposalAddTrackingPriceHistoryWithWhitelistCmd, rest.EmptyRestHandler)
+	ProposalRemoveTrackingPriceHistory                  = govclient.NewProposalHandler(cli.ProposalRemoveTrackingPriceHistoryCmd, rest.EmptyRestHandler)
 )

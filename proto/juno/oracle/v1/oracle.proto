@@ -27,8 +27,8 @@ message Params {
   ];
   uint64 reward_distribution_window = 4
       [ (gogoproto.moretags) = "yaml:\"reward_distribution_window\"" ];
-  repeated Denom accept_list = 5 [
-    (gogoproto.moretags) = "yaml:\"accept_list\"",
+  repeated Denom whitelist = 5 [
+    (gogoproto.moretags) = "yaml:\"whitelist\"",
     (gogoproto.castrepeated) = "DenomList",
     (gogoproto.nullable) = false
   ];
@@ -43,16 +43,16 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
-  repeated Denom price_tracking_list = 9 [
-    (gogoproto.moretags) = "yaml:\"price_tracking_list\"",
+  repeated Denom twap_tracking_list = 9 [
+    (gogoproto.moretags) = "yaml:\"twap_tracking_list\"",
     (gogoproto.castrepeated) = "DenomList",
     (gogoproto.nullable) = false
   ];
-  google.protobuf.Duration price_tracking_duration = 10 [
+  google.protobuf.Duration twap_duration = 10 [
     (gogoproto.nullable) = false,
     (gogoproto.stdduration) = true,
-    (gogoproto.jsontag) = "price_tracking_duration,omitempty",
-    (gogoproto.moretags) = "yaml:\"price_tracking_duration\""
+    (gogoproto.jsontag) = "twap_duration,omitempty",
+    (gogoproto.moretags) = "yaml:\"twap_duration\""
   ];
 }
 

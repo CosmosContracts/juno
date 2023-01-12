@@ -30,8 +30,8 @@ const (
 )
 
 var (
-	acceptList = []string{types.JunoSymbol, types.USDDenom}
-	junoPrice  = sdk.MustNewDecFromStr("25.71")
+	Whitelist = []string{types.JunoSymbol, types.USDDenom}
+	junoPrice = sdk.MustNewDecFromStr("25.71")
 )
 
 // GenerateExchangeRatesString generates a canonical string representation of
@@ -124,8 +124,8 @@ func SimulateMsgAggregateExchangeRatePrevote(
 			return noop("prevote already exists for this validator"), nil, nil
 		}
 
-		prices := make(map[string]sdk.Dec, len(acceptList))
-		for _, denom := range acceptList {
+		prices := make(map[string]sdk.Dec, len(Whitelist))
+		for _, denom := range Whitelist {
 			prices[denom] = junoPrice.Add(simtypes.RandomDecAmount(r, sdk.NewDec(1)))
 		}
 
