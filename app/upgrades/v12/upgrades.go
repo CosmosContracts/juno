@@ -160,7 +160,6 @@ func CreateV12UpgradeHandler(
 		// Router module, set default param
 		keepers.RouterKeeper.SetParams(ctx, routertypes.DefaultParams())
 
-
 		return versionMap, err
 	}
 }
