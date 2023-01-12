@@ -28,7 +28,6 @@ func (s *IntegrationTestSuite) TestIBCTokenTransfer() {
 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.JunoToken)
 	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.StakeToken)
 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.StakeToken)
-
 }
 
 func (s *IntegrationTestSuite) TestOracle() {
@@ -134,7 +133,7 @@ func (s *IntegrationTestSuite) TestOracle() {
 // 	}
 // }
 
-//TODO
+// TODO
 
 // func (s *IntegrationTestSuite) TestStateSync() {
 // 	if s.skipStateSync {
