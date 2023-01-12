@@ -158,7 +158,8 @@ require (
 )
 
 replace (
-
+	// cosmos keyring
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// token factory:
 	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20221224074329-bc7f9501149c
 	// dragonberry: https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.11
