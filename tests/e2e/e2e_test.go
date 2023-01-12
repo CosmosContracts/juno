@@ -74,6 +74,9 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 		wallet,
 		"",
 	)
+	contracts, err := node.QueryContractsFromID(chainA.LatestCodeID)
+	s.NoError(err)
+	s.Require().Len(contracts, 1, "Wrong number of contracts for the stargate_exchange_rate")
 }
 
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
