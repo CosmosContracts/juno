@@ -2,11 +2,11 @@
 # Run this script to quickly install, setup, and run the current version of juno without docker.
 #
 # Example:
-# CHAIN_ID="juno-t1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="5s" CLEAN=true sh scripts/test_node.sh
-# CHAIN_ID="juno-t2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="5s" sh scripts/test_node.sh
+# CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
+# CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
 
 export KEY="juno1"
-export CHAIN_ID=${CHAIN_ID:-"juno-t1"}
+export CHAIN_ID=${CHAIN_ID:-"local-1"}
 export MONIKER="localjuno"
 export KEYALGO="secp256k1"
 export KEYRING=${KEYRING:-"test"}
