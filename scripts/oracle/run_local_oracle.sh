@@ -18,8 +18,8 @@ sed -i 's/0.0001stake/0.025ujuno/g' ~/.juno/$ORACLE_FILENAME.toml
 sed -i 's/address = "juno1w20tfhnehc33rgtm9tg8gdtea0svn7twfnyqee"/address = "juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl"/g' ~/.juno/$ORACLE_FILENAME.toml
 
 # change chain_id
-sed -i 's/chain_id = "test-1"/chain_id = "juno-t1"/g' ~/.juno/$ORACLE_FILENAME.toml
-sed -i 's/"chain_id", "test-1"/"chain_id", "juno-t1"/g' ~/.juno/$ORACLE_FILENAME.toml
+sed -i 's/chain_id = "test-1"/chain_id = "local-1"/g' ~/.juno/$ORACLE_FILENAME.toml
+sed -i 's/"chain_id", "test-1"/"chain_id", "local-t1"/g' ~/.juno/$ORACLE_FILENAME.toml
 
 VALOPER_ADDR=$(junod q staking validators --node http://localhost:26657 --output json | jq -r '.validators[0].operator_address')
 
