@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	hermesContainerName = "hermes-relayer"
+	hermesContainerName      = "hermes-relayer"
+	pricefeederContainerName = "price-feeder"
 	// The maximum number of times debug logs are printed to console
 	// per CLI command.
 	maxDebugLogsPerCommand = 3
@@ -62,7 +63,7 @@ func (m *Manager) ExecTxCmd(t *testing.T, chainID string, containerName string, 
 // namely adding flags `--chain-id={chain-id} -b=block --yes --keyring-backend=test "--log_format=json"`,
 // and searching for `successStr`
 func (m *Manager) ExecTxCmdWithSuccessString(t *testing.T, chainID string, containerName string, command []string, successStr string) (bytes.Buffer, bytes.Buffer, error) {
-	allTxArgs := []string{fmt.Sprintf("--chain-id=%s", chainID), "-b=block", "--yes", "--keyring-backend=test", "--output=json", "--log_format=json"}
+	allTxArgs := []string{fmt.Sprintf("--chain-id=%s", chainID), "-b=block", "--yes", "--keyring-backend=test", "--output=json", "--log_format=json", "--gas-prices=0.1ujuno", "--gas-adjustment=1.5"}
 	txCommand := append(command, allTxArgs...) //nolint:gocritic
 	return m.ExecCmd(t, containerName, txCommand, successStr)
 }
@@ -70,6 +71,11 @@ func (m *Manager) ExecTxCmdWithSuccessString(t *testing.T, chainID string, conta
 // ExecHermesCmd executes command on the hermes relaer container.
 func (m *Manager) ExecHermesCmd(t *testing.T, command []string, success string) (bytes.Buffer, bytes.Buffer, error) {
 	return m.ExecCmd(t, hermesContainerName, command, success)
+}
+
+// ExecPriceFeederCmd executes command on the price-feeder container.
+func (m *Manager) ExecPriceFeederCmd(t *testing.T, command []string, success string) (bytes.Buffer, bytes.Buffer, error) {
+	return m.ExecCmd(t, pricefeederContainerName, command, success)
 }
 
 // ExecCmd executes command by running it on the node container (specified by containerName)
@@ -196,6 +202,41 @@ func (m *Manager) RunHermesResource(chainAID, junoARelayerNodeName, junoAValMnem
 	}
 	m.resources[hermesContainerName] = hermesResource
 	return hermesResource, nil
+}
+
+// RunPriceFeederResource runs a Price-Feedee container. Returns the container resource and error if any.
+func (m *Manager) RunPriceFeederResource(pricefeederPass, pricefeederCfgPath string, valCondifDir string) (*dockertest.Resource, error) {
+	pricefeederResource, err := m.pool.RunWithOptions(
+		&dockertest.RunOptions{
+			Name:       pricefeederContainerName,
+			Repository: m.PriceFeederRepository,
+			Tag:        m.PriceFeederTag,
+			NetworkID:  m.network.Network.ID,
+			Cmd: []string{
+				"/root/price-feeder/config.toml",
+			},
+			User: "root:root",
+			Mounts: []string{
+				fmt.Sprintf("%s:/root/price-feeder", pricefeederCfgPath),
+				fmt.Sprintf("%s:/.juno", valCondifDir),
+			},
+			ExposedPorts: []string{
+				"7171",
+			},
+			PortBindings: map[docker.Port][]docker.PortBinding{
+				"7171/tcp": {{HostIP: "", HostPort: "7171"}},
+			},
+			Env: []string{
+				fmt.Sprintf("PRICE_FEEDER_PASS=%s", pricefeederPass),
+			},
+		},
+		noRestart,
+	)
+	if err != nil {
+		return nil, err
+	}
+	m.resources[pricefeederContainerName] = pricefeederResource
+	return pricefeederResource, nil
 }
 
 // RunNodeResource runs a node container. Assings containerName to the container.

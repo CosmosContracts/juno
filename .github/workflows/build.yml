@@ -1,6 +1,6 @@
 ---
 on: [push, pull_request]
-name: every commit
+name: build
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,8 +26,17 @@ jobs:
       - name: Test
         run: go test ./...
 
-  # Use --check or --exit-code when available (Go 1.18?)
-  # https://github.com/golang/go/issues/27005
+  price-feeder-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Test price-feeder
+      - run: cd price-feeder && make test-unit   
+
+
   tidy:
     runs-on: ubuntu-latest
     name: tidy

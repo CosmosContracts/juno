@@ -34,6 +34,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
 	ibcclientclient "github.com/cosmos/ibc-go/v4/modules/core/02-client/client"
 	ibcclienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
@@ -45,7 +46,6 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	gaiaappparams "github.com/cosmos/gaia/v8/app/params"
 	"github.com/cosmos/gaia/v8/x/globalfee"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -59,6 +59,8 @@ import (
 	v10 "github.com/CosmosContracts/juno/v12/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v12/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v12/app/upgrades/v12"
+	oracleclient "github.com/CosmosContracts/juno/v12/x/oracle/client"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 const (
@@ -173,6 +175,9 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		upgradeclient.CancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
+		oracleclient.ProposalHandlerAddTrackingPriceHistory,
+		oracleclient.ProposalHandlerAddTrackingPriceHistoryWithAcceptList,
+		oracleclient.ProposalRemoveTrackingPriceHistory,
 	)
 
 	return govProposalHandlers
@@ -292,11 +297,6 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	bypassMinFeeMsgTypes := cast.ToStringSlice(appOpts.Get(gaiaappparams.BypassMinFeeMsgTypesKey))
-	if bypassMinFeeMsgTypes == nil {
-		bypassMinFeeMsgTypes = GetDefaultBypassFeeMessages()
-	}
-
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -314,7 +314,7 @@ func New(
 			TxCounterStoreKey:    app.GetKey(wasm.StoreKey),
 			WasmConfig:           wasmConfig,
 			Cdc:                  appCodec,
-			BypassMinFeeMsgTypes: bypassMinFeeMsgTypes,
+			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
 			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
 			StakingSubspace:      app.GetSubspace(stakingtypes.ModuleName),
 		},
@@ -368,9 +368,16 @@ func New(
 
 func GetDefaultBypassFeeMessages() []string {
 	return []string{
+		// IBC
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
 		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+
+		// Oracle
+		sdk.MsgTypeURL(&oracletypes.MsgAggregateExchangeRatePrevote{}),
+		sdk.MsgTypeURL(&oracletypes.MsgAggregateExchangeRateVote{}),
+
+		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
 	}
 }
 

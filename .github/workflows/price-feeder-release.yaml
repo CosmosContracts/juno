@@ -1,0 +1,47 @@
+# This workflow helps with creating docker images.
+# This job will only be triggered when a tag [price-feeder/(vX.X.x) is pushed
+name: Release price-feeder
+
+on:
+  push:
+    tags:
+      - "price-feeder/v*.*.*"
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+          cache: true
+          cache-dependency-path: price-feeder/go.sum
+      # Parse 'v*.*.*' semantic version from 'price-feeder/v*.*.*' and save to
+      # the $GITHUB_ENV environment variable.
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/price-feeder/}" >> $GITHUB_ENV
+      # Remove the possible pre-existing same tag for juno related tags instead
+      # of price-feeder tags, since goreleaser enforces semantic versioning and
+      # will error on non compliant tags.
+      #
+      # Ref: https://goreleaser.com/limitations/semver
+      - name: Tag without prefix locally to avoid error in goreleaser
+        run: |-
+          git tag -d ${{ env.RELEASE_VERSION }} || echo "No such a tag exists before"
+          git tag ${{ env.RELEASE_VERSION }} HEAD
+      - name: Release
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          # Note, we have to pin to v0.179.0 due to newer releases enforcing
+          # correct semantic versioning even when '--skip-validate' is provided.
+          #
+          # Ref: https://github.com/goreleaser/goreleaser/pull/2503
+          version: v0.179.0
+          args: release --rm-dist --skip-validate
+          workdir: price-feeder
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: price-feeder/${{ env.RELEASE_VERSION }}
