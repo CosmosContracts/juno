@@ -166,7 +166,7 @@ replace (
 	// use cosmos-flavored protocol buffers
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// packet forward middleware compatible with ibc v4
-	github.com/strangelove-ventures/packet-forward-middleware/v4 => github.com/notional-labs/packet-forward-middleware/v4 v4.0.0-20221218190023-d9c0ee1cebc6
+	github.com/strangelove-ventures/packet-forward-middleware/v4 => github.com/notional-labs/packet-forward-middleware/v4 v4.0.0-20230112183118-5d2f33e81247
 	// use grpc version that's compatible with cosmos-flavored protocol buffers
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 
