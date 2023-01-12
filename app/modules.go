@@ -54,6 +54,8 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 	intertx "github.com/cosmos/interchain-accounts/x/inter-tx"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
+	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
+	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 	"github.com/strangelove-ventures/packet-forward-middleware/v4/router"
 	routertypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 )
@@ -106,6 +108,7 @@ var ModuleBasics = module.NewBasicManager(
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
 	router.AppModuleBasic{},
+	ibchooks.AppModuleBasic{},
 )
 
 func appModules(
@@ -148,6 +151,7 @@ func appModules(
 		app.ICAModule,
 		app.RouterModule,
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
+		ibchooks.NewAppModule(app.AccountKeeper),
 	}
 }
 
@@ -215,6 +219,7 @@ func orderBeginBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		routertypes.ModuleName,
+		ibchookstypes.ModuleName,
 	}
 }
 
@@ -248,6 +253,7 @@ func orderEndBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		routertypes.ModuleName,
+		ibchookstypes.ModuleName,
 	}
 }
 
@@ -281,5 +287,6 @@ func orderInitBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		routertypes.ModuleName,
+		ibchookstypes.ModuleName,
 	}
 }

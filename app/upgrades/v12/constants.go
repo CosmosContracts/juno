@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/gaia/v8/x/globalfee"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
+	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 	routertypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 )
 
@@ -19,6 +20,6 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateV12UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
-		Added: []string{tokenfactorytypes.ModuleName, oracletypes.ModuleName, feesharetypes.ModuleName, globalfee.ModuleName, ibcfeetypes.ModuleName, intertxtypes.ModuleName, routertypes.ModuleName},
+		Added: []string{tokenfactorytypes.ModuleName, oracletypes.ModuleName, feesharetypes.ModuleName, globalfee.ModuleName, ibcfeetypes.ModuleName, intertxtypes.ModuleName, ibchookstypes.StoreKey, routertypes.ModuleName},
 	},
 }
