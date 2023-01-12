@@ -22,7 +22,7 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{
 		simulation.NewSimParamChange(types.ModuleName, keyBlocksPerYear,
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("\"%s\"", GenBlocksPerYear(r))
+				return fmt.Sprintf("\"%d\"", GenBlocksPerYear(r))
 			},
 		),
 	}
