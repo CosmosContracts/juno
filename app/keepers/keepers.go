@@ -57,7 +57,7 @@ import (
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 	ibchookskeeper "github.com/osmosis-labs/osmosis/x/ibc-hooks/keeper"
 
-	tfbindings "github.com/CosmWasm/token-factory/x/tokenfactory/bindings"
+	"github.com/CosmWasm/token-factory/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmWasm/token-factory/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 
@@ -375,13 +375,20 @@ func NewAppKeepers(
 
 	// Setup wasm bindings
 	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
-	wasmOpts = append(tfbindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper), wasmOpts...)
+	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
+	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
+	wasmOpts = append(wasmOpts, tfOpts...)
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
 		"/ibc.core.client.v1.Query/ClientState":    &ibcclienttypes.QueryClientStateResponse{},
 		"/ibc.core.client.v1.Query/ConsensusState": &ibcclienttypes.QueryConsensusStateResponse{},
 		"/ibc.core.connection.v1.Query/Connection": &ibcconnectiontypes.QueryConnectionResponse{},
+
+		// token factory
+		"/osmosis.tokenfactory.v1beta1.Query/Params":                 &tokenfactorytypes.QueryParamsResponse{},
+		"/osmosis.tokenfactory.v1beta1.Query/DenomAuthorityMetadata": &tokenfactorytypes.QueryDenomAuthorityMetadataResponse{},
+		"/osmosis.tokenfactory.v1beta1.Query/DenomsFromCreator":      &tokenfactorytypes.QueryDenomsFromCreatorResponse{},
 
 		// oracle query
 		"/juno.oracle.v1.Query/ExchangeRates":                  &oracletypes.QueryExchangeRatesResponse{},
