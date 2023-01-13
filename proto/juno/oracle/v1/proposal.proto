@@ -10,7 +10,7 @@ option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.equal_all) = true;
 
 // AddTrackingPriceHistoryProposal add denom to tracking price history list (in
-// this situation, denom must already in AcceptList)
+// this situation, denom must already in Whitelist)
 message AddTrackingPriceHistoryProposal {
   // Title is a short summary
   string title = 1;
@@ -24,10 +24,10 @@ message AddTrackingPriceHistoryProposal {
   ];
 }
 
-// AddTrackingPriceHistoryWithAcceptListProposal add denom to tracking price
-// history list and accept list (in this situation, denom don't have to in
-// AcceptList)
-message AddTrackingPriceHistoryWithAcceptListProposal {
+// AddTrackingPriceHistoryWithWhitelistProposal add denom to tracking price
+// history list and whitelist (in this situation, denom don't have to in
+// Whitelist)
+message AddTrackingPriceHistoryWithWhitelistProposal {
   // Title is a short summary
   string title = 1;
   // Description is a human readable text
@@ -41,14 +41,14 @@ message AddTrackingPriceHistoryWithAcceptListProposal {
 }
 
 // RemoveTrackingPriceHistoryProposal remove denom from tracking price history
-// list (in this situation, denom don't have to in AcceptList)
+// list (in this situation, denom don't have to in Whitelist)
 message RemoveTrackingPriceHistoryProposal {
   // Title is a short summary
   string title = 1;
   // Description is a human readable text
   string description = 2;
   // Denom
-  repeated Denom remove_tracking_list = 3 [
+  repeated Denom remove_twap_list = 3 [
     (gogoproto.moretags) = "yaml:\"remove_tracking_list\"",
     (gogoproto.castrepeated) = "DenomList",
     (gogoproto.nullable) = false

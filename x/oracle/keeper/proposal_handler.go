@@ -18,8 +18,8 @@ func NewOracleProposalHandler(k Keeper) govtypes.Handler {
 		switch c := content.(type) {
 		case *types.AddTrackingPriceHistoryProposal:
 			return handleAddTrackingPriceHistoryProposal(ctx, k, *c)
-		case *types.AddTrackingPriceHistoryWithAcceptListProposal:
-			return handleAddTrackingPriceHistoryWithAcceptListProposal(ctx, k, *c)
+		case *types.AddTrackingPriceHistoryWithWhitelistProposal:
+			return handleAddTrackingPriceHistoryWithWhitelistProposal(ctx, k, *c)
 		case *types.RemoveTrackingPriceHistoryProposal:
 			return handleRemoveTrackingPriceHistoryProposal(ctx, k, *c)
 		default:
@@ -40,26 +40,26 @@ func handleAddTrackingPriceHistoryProposal(ctx sdk.Context, k Keeper, p types.Ad
 	// Get params
 	params := k.GetParams(ctx)
 	// Check if not in accept list
-	currentAcceptList := params.AcceptList
-	_, _, isSubset := isSubSet(currentAcceptList, p.TrackingList)
+	currentWhitelist := params.Whitelist
+	_, _, isSubset := isSubSet(currentWhitelist, p.TrackingList)
 	if !isSubset {
 		return sdkerrors.Wrap(types.ErrUnknownDenom, "Denom not in accept list")
 	}
 	// Check if not in tracking list then add to tracking list
-	currentTrackingList := params.PriceTrackingList
+	currentTrackingList := params.TwapTrackingList
 	unSubList, _, isSubset := isSubSet(currentTrackingList, p.TrackingList)
 	if !isSubset {
 		currentTrackingList = append(currentTrackingList, unSubList...)
 	}
 
 	// Set params
-	params.PriceTrackingList = currentTrackingList
+	params.TwapTrackingList = currentTrackingList
 	k.SetParams(ctx, params)
 
 	return nil
 }
 
-func handleAddTrackingPriceHistoryWithAcceptListProposal(ctx sdk.Context, k Keeper, p types.AddTrackingPriceHistoryWithAcceptListProposal) error {
+func handleAddTrackingPriceHistoryWithWhitelistProposal(ctx sdk.Context, k Keeper, p types.AddTrackingPriceHistoryWithWhitelistProposal) error {
 	// Validate
 	if err := p.ValidateBasic(); err != nil {
 		return err
@@ -71,21 +71,21 @@ func handleAddTrackingPriceHistoryWithAcceptListProposal(ctx sdk.Context, k Keep
 	// Get params
 	params := k.GetParams(ctx)
 	// Check if not in accept list then add to accept list
-	currentAcceptList := params.AcceptList
-	unSubList, _, isSubset := isSubSet(currentAcceptList, p.TrackingList)
+	currentWhitelist := params.Whitelist
+	unSubList, _, isSubset := isSubSet(currentWhitelist, p.TrackingList)
 	if !isSubset {
-		currentAcceptList = append(currentAcceptList, unSubList...)
+		currentWhitelist = append(currentWhitelist, unSubList...)
 	}
 	// Check if not in tracking list then add to tracking list
-	currentTrackingList := params.PriceTrackingList
+	currentTrackingList := params.TwapTrackingList
 	unSubList, _, isSubset = isSubSet(currentTrackingList, p.TrackingList)
 	if !isSubset {
 		currentTrackingList = append(currentTrackingList, unSubList...)
 	}
 
 	// Set params
-	params.AcceptList = currentAcceptList
-	params.PriceTrackingList = currentTrackingList
+	params.Whitelist = currentWhitelist
+	params.TwapTrackingList = currentTrackingList
 	k.SetParams(ctx, params)
 
 	return nil
@@ -96,14 +96,14 @@ func handleRemoveTrackingPriceHistoryProposal(ctx sdk.Context, k Keeper, p types
 	if err := p.ValidateBasic(); err != nil {
 		return err
 	}
-	for i := range p.RemoveTrackingList {
-		p.RemoveTrackingList[i].SymbolDenom = strings.ToUpper(p.RemoveTrackingList[i].SymbolDenom)
+	for i := range p.RemoveTwapList {
+		p.RemoveTwapList[i].SymbolDenom = strings.ToUpper(p.RemoveTwapList[i].SymbolDenom)
 	}
 	// Get params
 	params := k.GetParams(ctx)
 	// Check if denom in tracking list then remove from tracking list
-	currentTrackingList := params.PriceTrackingList
-	_, subList, _ := isSubSet(currentTrackingList, p.RemoveTrackingList)
+	currentTrackingList := params.TwapTrackingList
+	_, subList, _ := isSubSet(currentTrackingList, p.RemoveTwapList)
 	if len(subList) > 0 {
 		// remove from tracking list and price tracking store
 		for _, denom := range subList {
@@ -121,7 +121,7 @@ func handleRemoveTrackingPriceHistoryProposal(ctx sdk.Context, k Keeper, p types
 		}
 	}
 	// Set params
-	params.PriceTrackingList = currentTrackingList
+	params.TwapTrackingList = currentTrackingList
 	k.SetParams(ctx, params)
 
 	return nil

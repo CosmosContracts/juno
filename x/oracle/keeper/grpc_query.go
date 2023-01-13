@@ -252,11 +252,11 @@ func (q querier) AggregateVotes(
 	}, nil
 }
 
-// PriceTrackingLists queries all price tracking lists
-func (q querier) PriceTrackingLists(
+// TwapTrackingLists queries all price tracking lists
+func (q querier) TwapTrackingLists(
 	goCtx context.Context,
-	req *types.QueryPriceTrackingLists,
-) (*types.QueryPriceTrackingListsResponse, error) {
+	req *types.QueryTwapTrackingLists,
+) (*types.QueryTwapTrackingListsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -265,12 +265,12 @@ func (q querier) PriceTrackingLists(
 	params := q.GetParams(ctx)
 
 	var result []string
-	for _, trackingDenom := range params.PriceTrackingList {
+	for _, trackingDenom := range params.TwapTrackingList {
 		result = append(result, trackingDenom.SymbolDenom)
 	}
 
-	return &types.QueryPriceTrackingListsResponse{
-		PriceTrakingLists: result,
+	return &types.QueryTwapTrackingListsResponse{
+		TwapTrackingLists: result,
 	}, nil
 }
 
@@ -345,8 +345,8 @@ func (q querier) AllPriceHistory(
 // Where the period is defined by user by define startTime and endTime
 func (q querier) ArithmeticTwapPriceBetweenTime(
 	goCtx context.Context,
-	req *types.QueryArithmeticTwapBetweenTime,
-) (*types.QueryArithmeticTwapBetweenTimeResponse, error) {
+	req *types.QueryArithmeticTwapPriceBetweenTime,
+) (*types.QueryArithmeticTwapPriceBetweenTimeResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -366,7 +366,7 @@ func (q querier) ArithmeticTwapPriceBetweenTime(
 		return nil, err
 	}
 
-	return &types.QueryArithmeticTwapBetweenTimeResponse{
+	return &types.QueryArithmeticTwapPriceBetweenTimeResponse{
 		TwapPrice: sdk.NewDecCoinFromDec(req.Denom, twapPrice),
 	}, nil
 }

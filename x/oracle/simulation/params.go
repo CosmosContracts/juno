@@ -43,9 +43,9 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 				return fmt.Sprintf("\"%d\"", GenSlashWindow(r))
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeyPriceTrackingDuration),
+		simulation.NewSimParamChange(types.ModuleName, string(types.KeyTwapDuration),
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("\"%d\"", GenPriceTrackingDuration(r))
+				return fmt.Sprintf("\"%d\"", GenTwapTrackingDuration(r))
 			},
 		),
 	}

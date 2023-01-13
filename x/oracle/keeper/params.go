@@ -33,16 +33,16 @@ func (k Keeper) RewardDistributionWindow(ctx sdk.Context) (res uint64) {
 	return
 }
 
-// AcceptList returns the denom list that can be activated
-func (k Keeper) AcceptList(ctx sdk.Context) (res types.DenomList) {
-	k.paramSpace.Get(ctx, types.KeyAcceptList, &res)
+// Whitelist returns the denom list that can be activated
+func (k Keeper) Whitelist(ctx sdk.Context) (res types.DenomList) {
+	k.paramSpace.Get(ctx, types.KeyWhitelist, &res)
 	return
 }
 
-// SetAcceptList updates the accepted list of assets supported by the x/oracle
+// SetWhitelist updates the accepted list of assets supported by the x/oracle
 // module.
-func (k Keeper) SetAcceptList(ctx sdk.Context, acceptList types.DenomList) {
-	k.paramSpace.Set(ctx, types.KeyAcceptList, acceptList)
+func (k Keeper) SetWhitelist(ctx sdk.Context, whitelist types.DenomList) {
+	k.paramSpace.Set(ctx, types.KeyWhitelist, whitelist)
 }
 
 // SlashFraction returns oracle voting penalty rate

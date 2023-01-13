@@ -35,7 +35,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgDelegateFeedConsent{}, "juno/oracle/MsgDelegateFeedConsent", nil)
 
 	cdc.RegisterConcrete(&AddTrackingPriceHistoryProposal{}, "juno/oracle/AddTrackingPriceHistoryProposal", nil)
-	cdc.RegisterConcrete(&AddTrackingPriceHistoryWithAcceptListProposal{}, "juno/oracle/AddTrackingPriceHistoryWithAcceptListProposal", nil)
+	cdc.RegisterConcrete(&AddTrackingPriceHistoryWithWhitelistProposal{}, "juno/oracle/AddTrackingPriceHistoryWithWhitelistProposal", nil)
 	cdc.RegisterConcrete(&RemoveTrackingPriceHistoryProposal{}, "juno/oracle/RemoveTrackingPriceHistoryProposal", nil)
 }
 
@@ -51,7 +51,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*govtypes.Content)(nil),
 		&AddTrackingPriceHistoryProposal{},
-		&AddTrackingPriceHistoryWithAcceptListProposal{},
+		&AddTrackingPriceHistoryWithWhitelistProposal{},
 		&RemoveTrackingPriceHistoryProposal{},
 	)
 
