@@ -122,7 +122,7 @@ func priceFeederCmdHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Gather pass via env variable || std input
-	keyringPass, err := getKeyringPassword()
+	keyringPass, err := getKeyringPassword(cfg.Keyring.Backend)
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,11 @@ func priceFeederCmdHandler(cmd *cobra.Command, args []string) error {
 	return g.Wait()
 }
 
-func getKeyringPassword() (string, error) {
+func getKeyringPassword(keyringBackend string) (string, error) {
+	if keyringBackend == "test" {
+		return "", nil
+	}
+
 	pass := os.Getenv(envVariablePass)
 	if pass == "" {
 		fmt.Print("Enter keyring password: ")

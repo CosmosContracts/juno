@@ -15,6 +15,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/ignite-hq/cli v0.22.1
+	github.com/osmosis-labs/osmosis/x/ibc-hooks v0.0.0-20230110104305-322e8478dbe8
 	github.com/prometheus/client_golang v1.14.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
@@ -112,6 +113,7 @@ require (
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	github.com/opencontainers/runc v1.1.3 // indirect
 	github.com/ory/dockertest/v3 v3.9.1
+	github.com/osmosis-labs/osmosis/osmoutils v0.0.3-rc0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
@@ -156,10 +158,18 @@ require (
 )
 
 replace (
+	// cosmos keyring
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// token factory:
 	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20221224074329-bc7f9501149c
 	// dragonberry: https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.11
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
+	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
+	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
+	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
+	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
+	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
+	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
 	// use cosmos-flavored protocol buffers
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// use grpc version that's compatible with cosmos-flavored protocol buffers
