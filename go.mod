@@ -158,10 +158,15 @@ require (
 )
 
 replace (
+	// cosmos keyring
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// token factory:
 	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20221224074329-bc7f9501149c
 	// dragonberry: https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.11
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
+	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
+	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
+	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
