@@ -93,11 +93,11 @@ func (s *IntegrationTestSuite) TestMsgServer_AggregateExchangeRateVote() {
 		ExchangeRates: ratesStrInvalidCoin,
 	}
 
-	// Flattened acceptList symbols to make checks easier
-	acceptList := s.app.OracleKeeper.GetParams(ctx).AcceptList
-	var acceptListFlat []string
-	for _, v := range acceptList {
-		acceptListFlat = append(acceptListFlat, v.SymbolDenom)
+	// Flattened Whitelist symbols to make checks easier
+	Whitelist := s.app.OracleKeeper.GetParams(ctx).Whitelist
+	var WhitelistFlat []string
+	for _, v := range Whitelist {
+		WhitelistFlat = append(WhitelistFlat, v.SymbolDenom)
 	}
 
 	// No existing prevote
@@ -121,10 +121,10 @@ func (s *IntegrationTestSuite) TestMsgServer_AggregateExchangeRateVote() {
 	vote, err := s.app.OracleKeeper.GetAggregateExchangeRateVote(ctx, valAddr)
 	s.Require().Nil(err)
 	for _, v := range vote.ExchangeRateTuples {
-		s.Require().Contains(acceptListFlat, strings.ToLower(v.Denom))
+		s.Require().Contains(WhitelistFlat, strings.ToLower(v.Denom))
 	}
 
-	// Valid, but with an exchange rate which isn't in AcceptList
+	// Valid, but with an exchange rate which isn't in Whitelist
 	s.app.OracleKeeper.SetAggregateExchangeRatePrevote(
 		ctx,
 		valAddr,
@@ -136,7 +136,7 @@ func (s *IntegrationTestSuite) TestMsgServer_AggregateExchangeRateVote() {
 	vote, err = s.app.OracleKeeper.GetAggregateExchangeRateVote(ctx, valAddr)
 	s.Require().NoError(err)
 	for _, v := range vote.ExchangeRateTuples {
-		s.Require().Contains(acceptListFlat, strings.ToLower(v.Denom))
+		s.Require().Contains(WhitelistFlat, strings.ToLower(v.Denom))
 	}
 }
 

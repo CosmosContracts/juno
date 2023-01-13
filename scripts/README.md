@@ -47,12 +47,9 @@ CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true sh scr
 # Start the oracle price-feeder in a new tab or terminal window. 
 sh ./scripts/oracle/run_local_oracle.sh
 
-# Once you see the text appear, enter your keyring password (it will be hidden).
-# If you are using a test keyring, just press enter.
-
 # After seeing the following:
 # broadcasting vote exchange_rates=ATOM:11.865868265838063334,JUNO:1.179000000000003409,...
-# The query will then be avaliable
+# The query will then be available
 
 # you will be able to query the price from the CLI like so:
 junod q oracle exchange-rate atom --node http://localhost:26657

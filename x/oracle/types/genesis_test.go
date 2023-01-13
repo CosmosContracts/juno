@@ -61,9 +61,9 @@ func TestGenesisValidation(t *testing.T) {
 	genState.Params.MinValidPerWindow = sdk.NewDec(-1)
 	require.Error(t, ValidateGenesis(genState))
 
-	// Invalid AcceptList
+	// Invalid Whitelist
 	genState = DefaultGenesisState()
-	genState.Params.AcceptList = DenomList{Denom{}}
+	genState.Params.Whitelist = DenomList{Denom{}}
 	require.Error(t, ValidateGenesis(genState))
 }
 

@@ -11,16 +11,16 @@ import (
 type ProposalType string
 
 const (
-	ProposalTypeAddTrackingPriceHistory               ProposalType = "AddTrackingPriceHistory"
-	ProposalTypeAddTrackingPriceHistoryWithAcceptList ProposalType = "AddTrackingPriceHistoryWithAcceptList"
-	ProposalTypeRemoveTrackingPriceHistoryProposal    ProposalType = "RemoveTrackingPriceHistoryProposal"
+	ProposalTypeAddTrackingPriceHistory              ProposalType = "AddTrackingPriceHistory"
+	ProposalTypeAddTrackingPriceHistoryWithWhitelist ProposalType = "AddTrackingPriceHistoryWithWhitelist"
+	ProposalTypeRemoveTrackingPriceHistoryProposal   ProposalType = "RemoveTrackingPriceHistoryProposal"
 )
 
 func init() {
 	govtypes.RegisterProposalType(string(ProposalTypeAddTrackingPriceHistory))
-	govtypes.RegisterProposalType(string(ProposalTypeAddTrackingPriceHistoryWithAcceptList))
+	govtypes.RegisterProposalType(string(ProposalTypeAddTrackingPriceHistoryWithWhitelist))
 	govtypes.RegisterProposalTypeCodec(&AddTrackingPriceHistoryProposal{}, "juno/oracle/AddTrackingPriceHistoryProposal")
-	govtypes.RegisterProposalTypeCodec(&AddTrackingPriceHistoryWithAcceptListProposal{}, "juno/oracle/AddTrackingPriceHistoryWithAcceptListProposal")
+	govtypes.RegisterProposalTypeCodec(&AddTrackingPriceHistoryWithWhitelistProposal{}, "juno/oracle/AddTrackingPriceHistoryWithWhitelistProposal")
 	govtypes.RegisterProposalTypeCodec(&RemoveTrackingPriceHistoryProposal{}, "juno/oracle/RemoveTrackingPriceHistoryProposal")
 }
 
@@ -66,30 +66,30 @@ func (p AddTrackingPriceHistoryProposal) String() string {
 	`, p.Title, p.Description, p.TrackingList)
 }
 
-func NewAddTrackingPriceHistoryWithAcceptListProposal(
+func NewAddTrackingPriceHistoryWithWhitelistProposal(
 	title string,
 	description string,
 	list DenomList,
-) *AddTrackingPriceHistoryWithAcceptListProposal {
-	return &AddTrackingPriceHistoryWithAcceptListProposal{title, description, list}
+) *AddTrackingPriceHistoryWithWhitelistProposal {
+	return &AddTrackingPriceHistoryWithWhitelistProposal{title, description, list}
 }
 
 // ProposalRoute returns the routing key of a parameter change proposal.
-func (p AddTrackingPriceHistoryWithAcceptListProposal) ProposalRoute() string { return RouterKey }
+func (p AddTrackingPriceHistoryWithWhitelistProposal) ProposalRoute() string { return RouterKey }
 
 // GetTitle returns the title of the proposal
-func (p *AddTrackingPriceHistoryWithAcceptListProposal) GetTitle() string { return p.Title }
+func (p *AddTrackingPriceHistoryWithWhitelistProposal) GetTitle() string { return p.Title }
 
 // GetDescription returns the human readable description of the proposal
-func (p AddTrackingPriceHistoryWithAcceptListProposal) GetDescription() string { return p.Description }
+func (p AddTrackingPriceHistoryWithWhitelistProposal) GetDescription() string { return p.Description }
 
 // ProposalType returns the type
-func (p AddTrackingPriceHistoryWithAcceptListProposal) ProposalType() string {
-	return string(ProposalTypeAddTrackingPriceHistoryWithAcceptList)
+func (p AddTrackingPriceHistoryWithWhitelistProposal) ProposalType() string {
+	return string(ProposalTypeAddTrackingPriceHistoryWithWhitelist)
 }
 
 // ValidateBasic validates the proposal
-func (p AddTrackingPriceHistoryWithAcceptListProposal) ValidateBasic() error {
+func (p AddTrackingPriceHistoryWithWhitelistProposal) ValidateBasic() error {
 	if err := validateProposalCommons(p.Title, p.Description); err != nil {
 		return err
 	}
@@ -100,8 +100,8 @@ func (p AddTrackingPriceHistoryWithAcceptListProposal) ValidateBasic() error {
 }
 
 // String implements the Stringer interface.
-func (p AddTrackingPriceHistoryWithAcceptListProposal) String() string {
-	return fmt.Sprintf(`AddTrackingPriceHistoryWithAcceptListProposal:
+func (p AddTrackingPriceHistoryWithWhitelistProposal) String() string {
+	return fmt.Sprintf(`AddTrackingPriceHistoryWithWhitelistProposal:
 	Title: 			%s
 	Description : 	%s
 	TrackingList: 	%v
@@ -135,7 +135,7 @@ func (p RemoveTrackingPriceHistoryProposal) ValidateBasic() error {
 	if err := validateProposalCommons(p.Title, p.Description); err != nil {
 		return err
 	}
-	if len(p.RemoveTrackingList) == 0 {
+	if len(p.RemoveTwapList) == 0 {
 		return sdkerrors.Wrap(ErrEmpty, "code updates")
 	}
 	return nil
@@ -147,7 +147,7 @@ func (p RemoveTrackingPriceHistoryProposal) String() string {
 	Title: 					%s
 	Description : 			%s
 	RemoveTrackingList: 	%v
-	`, p.Title, p.Description, p.RemoveTrackingList)
+	`, p.Title, p.Description, p.RemoveTwapList)
 }
 
 func validateProposalCommons(title, description string) error {
