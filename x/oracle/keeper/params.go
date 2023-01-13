@@ -41,8 +41,8 @@ func (k Keeper) Whitelist(ctx sdk.Context) (res types.DenomList) {
 
 // SetWhitelist updates the accepted list of assets supported by the x/oracle
 // module.
-func (k Keeper) SetWhitelist(ctx sdk.Context, Whitelist types.DenomList) {
-	k.paramSpace.Set(ctx, types.KeyWhitelist, Whitelist)
+func (k Keeper) SetWhitelist(ctx sdk.Context, whitelist types.DenomList) {
+	k.paramSpace.Set(ctx, types.KeyWhitelist, whitelist)
 }
 
 // SlashFraction returns oracle voting penalty rate
