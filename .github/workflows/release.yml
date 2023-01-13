@@ -13,7 +13,9 @@ jobs:
       - name: Docker compose
         run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Copy binary
-        run: docker cp juno_node_1:/usr/bin/junod ./junod
+        run: docker cp juno-node-1:/usr/bin/junod ./junod
+      - name: Save sha256 sum
+        run: sha256sum ./junod > ./junod_sha256.txt
       - name: Get release
         id: get_release
         uses: bruceadams/get-release@v1.3.2
@@ -27,6 +29,15 @@ jobs:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: ./junod
           asset_name: junod
+          asset_content_type: application/octet-stream
+      - name: Upload release sha sum
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./junod_sha256.txt
+          asset_name: junod_sha256
           asset_content_type: application/octet-stream
       - name: Dump docker logs on failure
         if: failure()
