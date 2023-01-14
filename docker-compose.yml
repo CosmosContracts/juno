@@ -14,3 +14,4 @@ services:
     environment:
       - GAS_LIMIT=${GAS_LIMIT:-10000000}
       - STAKE_TOKEN=${STAKE_TOKEN:-ujunox}
+      - TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-5s}
