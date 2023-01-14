@@ -1,11 +1,6 @@
 ---
 on: [push, pull_request]
 name: build
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
