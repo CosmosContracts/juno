@@ -102,7 +102,7 @@ Example:
 			}
 			snapshotOutput := args[1]
 
-			// Produce the map of address to total atom balance, both staked and UnbondingStake
+			// Produce the map of address to total juno balance, both staked and UnbondingStake
 			snapshotAccs := make(map[string]DerivedAccount)
 
 			bankGenesis := banktypes.GenesisState{}
