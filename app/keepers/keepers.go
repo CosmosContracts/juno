@@ -263,8 +263,8 @@ func NewAppKeepers(
 
 	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		appCodec, appKeepers.keys[ibcfeetypes.StoreKey],
-		appKeepers.GetSubspace(ibcfeetypes.ModuleName), // this isn't even used in the keeper but is required?
-		appKeepers.IBCKeeper.ChannelKeeper,             // may be replaced with IBC middleware
+		appKeepers.GetSubspace(ibcfeetypes.ModuleName),
+		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,

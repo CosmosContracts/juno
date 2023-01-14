@@ -24,13 +24,15 @@ func DebugCmd() *cobra.Command {
 		RunE:  client.ValidateCmd,
 	}
 
-	cmd.AddCommand(PubkeyCmd())
-	cmd.AddCommand(AddrCmd())
-	cmd.AddCommand(RawBytesCmd())
-	cmd.AddCommand(ConvertBech32Cmd())
-	cmd.AddCommand(ExportDeriveBalancesCmd())
-	cmd.AddCommand(StakedToCSVCmd())
-	cmd.AddCommand(forceprune())
+	cmd.AddCommand(
+		PubkeyCmd(),
+		AddrCmd(),
+		RawBytesCmd(),
+		ConvertBech32Cmd(),
+		ExportDeriveBalancesCmd(),
+		StakedToCSVCmd(),
+		forceprune(),
+	)
 
 	return cmd
 }
