@@ -16,8 +16,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-          cache: true
-          cache-dependency-path: go.sum
       - run: go build ./...
 
   test:
@@ -28,8 +26,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-          cache: true
-          cache-dependency-path: price-feeder/go.sum
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Test
