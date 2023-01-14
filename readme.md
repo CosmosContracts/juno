@@ -26,9 +26,8 @@ STAKE_TOKEN=ujunox UNSAFE_CORS=true TIMEOUT_COMMIT=1s docker-compose up
 
 ## Learn more
 
-- [Juno](https://junochain.com)
-- [Starport](https://github.com/tendermint/starport)
+- [Juno](https://junonetwork.io)
+- [Discord](https://discord.gg/QcWPfK4gJ2)
+- [Telegram](https://t.me/JunoNetwork)
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
-- [Telegram](https://t.me/JunoNetwork)
-- [Discord](https://discord.gg/QcWPfK4gJ2)
