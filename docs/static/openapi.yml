@@ -1,4 +1,4 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
   title: Juno Network
   description: A REST interface for queries and transactions

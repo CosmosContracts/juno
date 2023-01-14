@@ -194,7 +194,7 @@
       }
     },
     {
-      "url": "./swagger.yaml",
+      "url": "./swagger_legacy.yaml",
       "dereference": {
         "circular": "ignore"
       }

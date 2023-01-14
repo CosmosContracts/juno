@@ -41,23 +41,6 @@ jq 'del(.definitions["cosmos.tx.v1beta1.ModeInfo.Multi"].properties.mode_infos.i
 # Tag everything as "gRPC Gateway API"
 perl -i -pe 's/"(Query|Service)"/"gRPC Gateway API"/' $(find ./tmp-swagger-gen -name '*.swagger.json' -print0 | xargs -0)
 
-# (
-#   cd ./client/docs
-
-#   # Generate config.json
-#   # There's some operationIds naming collision, for sake of automation we're
-#   # giving all of them a unique name
-#   find ../../tmp-swagger-gen -name 'query.swagger.json' -o -name 'fixed-service.swagger.json' | 
-#     sort |
-#     awk '{print "{\"url\":\""$1"\",\"operationIds\":{\"rename\":{\"Params\":\""$1"Params\",\"Pool\":\""$1"Pool\",\"DelegatorValidators\":\""$1"DelegatorValidators\",\"UpgradedConsensusState\":\""$1"UpgradedConsensusState\"}}}"}' |
-#     jq -s '{swagger:"2.0","info":{"title":"Juno Network","description":"A REST interface for queries and transactions","version":"'"${CHAIN_VERSION}"'"},apis:.} | .apis += [{"url":"./swagger_legacy.yaml","dereference":{"circular":"ignore"}}]' > ./config.json
-
-#   # Derive openapi & swagger from config.json
-#   swagger-combine ./config.json -o static/swagger/swagger.yaml -f yaml --continueOnConflictingPaths --includeDefinitions
-#   mkdir -p static/openapi && swagger2openapi --patch static/swagger/swagger.yaml --outfile static/openapi/openapi.yaml --yaml
-#   redoc-cli build static/openapi/openapi.yaml --output ./static/openapi/index.html
-# )
-
 (
   cd ./docs
 
@@ -67,12 +50,11 @@ perl -i -pe 's/"(Query|Service)"/"gRPC Gateway API"/' $(find ./tmp-swagger-gen -
   find ../tmp-swagger-gen -name 'query.swagger.json' -o -name 'fixed-service.swagger.json' | 
     sort |
     awk '{print "{\"url\":\""$1"\",\"operationIds\":{\"rename\":{\"Params\":\""$1"Params\",\"Pool\":\""$1"Pool\",\"DelegatorValidators\":\""$1"DelegatorValidators\",\"UpgradedConsensusState\":\""$1"UpgradedConsensusState\"}}}"}' |
-    jq -s '{swagger:"2.0","info":{"title":"Juno Network","description":"A REST interface for queries and transactions","version":"'"${CHAIN_VERSION}"'"},apis:.} | .apis += [{"url":"./swagger.yaml","dereference":{"circular":"ignore"}}]' > ./config.json
+    jq -s '{swagger:"2.0","info":{"title":"Juno Network","description":"A REST interface for queries and transactions","version":"'"${CHAIN_VERSION}"'"},apis:.} | .apis += [{"url":"./swagger_legacy.yaml","dereference":{"circular":"ignore"}}]' > ./config.json
 
   # Derive openapi & swagger from config.json
-  swagger-combine ./config.json -o swagger.yaml -f yaml --continueOnConflictingPaths --includeDefinitions
-  swagger2openapi --patch swagger.yaml --outfile static/openapi.yml --yaml
-  # redoc-cli build static/openapi.yaml --output ./static/openapi/index.html
+  swagger-combine ./config.json -o swagger_legacy.yaml -f yaml --continueOnConflictingPaths --includeDefinitions
+  swagger2openapi --patch swagger_legacy.yaml --outfile static/openapi.yml --yaml  
 )
 
 # clean swagger tmp files
