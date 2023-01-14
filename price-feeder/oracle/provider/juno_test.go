@@ -213,7 +213,7 @@ func TestJunoProvider_GetTickerPrices(t *testing.T) {
 func TestJunoProvider_GetAvailablePairs(t *testing.T) {
 	p := NewJunoProvider(Endpoint{})
 	_, err := p.GetAvailablePairs()
-	require.Error(t, err)
+	require.NoError(t, err)
 
 	t.Run("valid_available_pair", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
@@ -221,7 +221,7 @@ func TestJunoProvider_GetAvailablePairs(t *testing.T) {
 			resp := `[
 					{
 						"base": "JUNO",
-						"target": "RAW"
+						"target": "USDC"
 					},
 					{
 						"base": "JUNO",
@@ -238,7 +238,7 @@ func TestJunoProvider_GetAvailablePairs(t *testing.T) {
 		availablePairs, err := p.GetAvailablePairs()
 		require.Nil(t, err)
 
-		_, exist := availablePairs["JUNORAW"]
+		_, exist := availablePairs["JUNOUSDC"]
 		require.True(t, exist)
 
 		_, exist = availablePairs["JUNOATOM"]
