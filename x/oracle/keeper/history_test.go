@@ -574,6 +574,6 @@ func TestStoreAndGetNullHistoricalData(t *testing.T) {
 		phEntrys[0].PriceUpdateTime.Add(-time.Minute),
 		phEntrys[2].PriceUpdateTime.Add(time.Minute),
 	)
-	require.NoError(t, err) // To discuss: should this throw error?
-	require.Equal(t, []types.PriceHistoryEntry(nil), phStores)
+	require.Error(t, err)
+	require.Equal(t, []types.PriceHistoryEntry{}, phStores)
 }
