@@ -105,7 +105,7 @@ build:
 
 test-sim-multi-seed-short: runsim
 	@echo "Running short multi-seed application simulation. This may take awhile!"
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(APP) -ExitOnFail 50 10 TestFullAppSimulation
+	@$(BINDIR)/runsim -Jobs=16 -SimAppPkg=$(APP) -ExitOnFail 50 10 TestFullAppSimulation
 
 ###############################################################################
 ###                                  Tests e2e                              ###
