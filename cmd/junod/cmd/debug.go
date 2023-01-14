@@ -28,6 +28,9 @@ func DebugCmd() *cobra.Command {
 	cmd.AddCommand(AddrCmd())
 	cmd.AddCommand(RawBytesCmd())
 	cmd.AddCommand(ConvertBech32Cmd())
+	cmd.AddCommand(ExportDeriveBalancesCmd())
+	cmd.AddCommand(StakedToCSVCmd())
+	cmd.AddCommand(forceprune())
 
 	return cmd
 }
