@@ -40,6 +40,22 @@ for file in os.listdir(all_dir):
         output["definitions"][key] = data["definitions"][key]
 
 
+import random
+import string
+
+# loop through all paths, then alter any keys which are "operationId" to be a random string of 20 characters
+# this is done to avoid duplicate keys in the final output (which opens 2 tabs in swagger-ui)
+# current-random
+for path in output["paths"]:
+    for method in output["paths"][path]:
+        if "operationId" in output["paths"][path][method]:
+            output["paths"][path][method][
+                "operationId"
+            ] = f'{output["paths"][path][method]["operationId"]}_' + "".join(
+                random.choices(string.ascii_uppercase + string.digits, k=5)
+            )
+
+
 # save output into 1 big json file
 with open(
     os.path.join(project_root, "tmp-swagger-gen", "_all", "FINAL.json"), "w"
