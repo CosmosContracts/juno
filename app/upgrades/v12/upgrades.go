@@ -29,13 +29,12 @@ import (
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 )
 
-// Returns "ujuno" if the chainID starts with "juno-" (ex: juno-1 or juno-t1 for local)
-// else its the uni testnet
+// Returns "ujunox" if the chain is uni, else returns the standard ujuno token denom.
 func GetChainsDenomToken(chainID string) string {
-	if strings.HasPrefix(chainID, "juno-") {
-		return "ujuno"
+	if strings.HasPrefix(chainID, "uni-") {
+		return "ujunox"
 	}
-	return "ujunox"
+	return "ujuno"
 }
 
 // CreateV12UpgradeHandler makes an upgrade handler for v12 of Juno
@@ -51,26 +50,6 @@ func CreateV12UpgradeHandler(
 
 		nativeDenom := GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
-
-		// Oracle
-		newOracleParams := oracletypes.DefaultParams()
-		keepers.OracleKeeper.SetParams(ctx, newOracleParams)
-
-		// TokenFactory
-		newTokenFactoryParams := tokenfactorytypes.Params{
-			DenomCreationFee: sdk.NewCoins(sdk.NewCoin(nativeDenom, sdk.NewInt(1000000))),
-		}
-		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
-		logger.Info("set tokenfactory params")
-
-		// FeeShare
-		newFeeShareParams := feesharetypes.Params{
-			EnableFeeShare:  true,
-			DeveloperShares: sdk.NewDecWithPrec(50, 2), // = 50%
-			AllowedDenoms:   []string{nativeDenom},
-		}
-		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
-		logger.Info("set feeshare params")
 
 		// ICA - https://github.com/CosmosContracts/juno/blob/integrate_ica_changes/app/app.go#L846-L885
 		vm[icatypes.ModuleName] = mm.Modules[icatypes.ModuleName].ConsensusVersion()
@@ -127,6 +106,15 @@ func CreateV12UpgradeHandler(
 			},
 		}
 
+		// IBCFee
+		vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
+		logger.Info(fmt.Sprintf("ibcfee module version %s set", fmt.Sprint(vm[ibcfeetypes.ModuleName])))
+
+		// Run migrations
+		versionMap, err := mm.RunMigrations(ctx, cfg, vm)
+
+		// New modules run AFTER the migrations, so to set the correct params after the default.
+
 		// initialize ICS27 module
 		icamodule, correctTypecast := mm.Modules[icatypes.ModuleName].(ica.AppModule)
 		if !correctTypecast {
@@ -135,14 +123,7 @@ func CreateV12UpgradeHandler(
 		icamodule.InitModule(ctx, controllerParams, hostParams)
 		logger.Info("upgraded ica module")
 
-		// IBCFee
-		vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
-		logger.Info(fmt.Sprintf("ibcfee module version %s set", fmt.Sprint(vm[ibcfeetypes.ModuleName])))
-
-		// Run migrations
-		versionMap, err := mm.RunMigrations(ctx, cfg, vm)
-
-		// GlobalFee - This must run AFTER migrations to update the default param space.
+		// GlobalFee
 		minGasPrices := sdk.DecCoins{
 			// 0.0025ujuno
 			sdk.NewDecCoinFromDec(nativeDenom, sdk.NewDecWithPrec(25, 4)),
@@ -155,6 +136,41 @@ func CreateV12UpgradeHandler(
 		}
 		s.Set(ctx, globalfeetypes.ParamStoreKeyMinGasPrices, minGasPrices)
 		logger.Info(fmt.Sprintf("upgraded global fee params to %s", minGasPrices))
+
+		// Oracle
+		newOracleParams := oracletypes.DefaultParams()
+
+		// add osmosis to the oracle params
+		osmosisDenom := oracletypes.Denom{
+			BaseDenom:   "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518",
+			SymbolDenom: "OSMO",
+			Exponent:    uint32(6),
+		}
+
+		allDenoms := oracletypes.DefaultWhitelist
+		allDenoms = append(allDenoms, osmosisDenom)
+
+		newOracleParams.Whitelist = allDenoms
+		newOracleParams.TwapTrackingList = allDenoms
+		logger.Info(fmt.Sprintf("Oracle params set: %s", newOracleParams.String()))
+
+		keepers.OracleKeeper.SetParams(ctx, newOracleParams)
+
+		// TokenFactory
+		newTokenFactoryParams := tokenfactorytypes.Params{
+			DenomCreationFee: sdk.NewCoins(sdk.NewCoin(nativeDenom, sdk.NewInt(1000000))),
+		}
+		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
+		logger.Info("set tokenfactory params")
+
+		// FeeShare
+		newFeeShareParams := feesharetypes.Params{
+			EnableFeeShare:  true,
+			DeveloperShares: sdk.NewDecWithPrec(50, 2), // = 50%
+			AllowedDenoms:   []string{nativeDenom},
+		}
+		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
+		logger.Info("set feeshare params")
 
 		return versionMap, err
 	}

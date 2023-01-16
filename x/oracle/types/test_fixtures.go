@@ -29,9 +29,9 @@ func AddTrackingPriceHistoryProposalFixture(
 	return p
 }
 
-func AddTrackingPriceHistoryWithAcceptListProposalFixture(
-	mutators ...func(p *AddTrackingPriceHistoryWithAcceptListProposal),
-) *AddTrackingPriceHistoryWithAcceptListProposal {
+func AddTrackingPriceHistoryWithWhitelistProposalFixture(
+	mutators ...func(p *AddTrackingPriceHistoryWithWhitelistProposal),
+) *AddTrackingPriceHistoryWithWhitelistProposal {
 	trackingList := DenomList{
 		{
 			BaseDenom:   JunoDenom,
@@ -45,7 +45,7 @@ func AddTrackingPriceHistoryWithAcceptListProposalFixture(
 		},
 	}
 
-	p := &AddTrackingPriceHistoryWithAcceptListProposal{
+	p := &AddTrackingPriceHistoryWithWhitelistProposal{
 		Title:        "Foo",
 		Description:  "Bar",
 		TrackingList: trackingList,
@@ -61,7 +61,7 @@ func AddTrackingPriceHistoryWithAcceptListProposalFixture(
 func RemoveTrackingPriceHistoryProposalFixture(
 	mutators ...func(p *RemoveTrackingPriceHistoryProposal),
 ) *RemoveTrackingPriceHistoryProposal {
-	removeTrackingList := DenomList{
+	removeTwapList := DenomList{
 		{
 			BaseDenom:   JunoDenom,
 			SymbolDenom: JunoSymbol,
@@ -75,9 +75,9 @@ func RemoveTrackingPriceHistoryProposalFixture(
 	}
 
 	p := &RemoveTrackingPriceHistoryProposal{
-		Title:              "Foo",
-		Description:        "Bar",
-		RemoveTrackingList: removeTrackingList,
+		Title:          "Foo",
+		Description:    "Bar",
+		RemoveTwapList: removeTwapList,
 	}
 
 	for _, m := range mutators {

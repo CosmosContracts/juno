@@ -94,10 +94,10 @@ func (ms msgServer) AggregateExchangeRateVote(
 		return nil, sdkerrors.Wrapf(types.ErrVerificationFailed, "must be given %s not %s", aggregatePrevote.Hash, hash)
 	}
 
-	// Filter out rates which aren't included in the AcceptList
+	// Filter out rates which aren't included in the Whitelist
 	filteredTuples := types.ExchangeRateTuples{}
 	for _, tuple := range exchangeRateTuples {
-		if params.AcceptList.Contains(tuple.Denom) {
+		if params.Whitelist.Contains(tuple.Denom) {
 			filteredTuples = append(filteredTuples, tuple)
 		}
 	}

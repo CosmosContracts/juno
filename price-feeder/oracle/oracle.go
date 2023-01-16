@@ -395,7 +395,7 @@ func (o *Oracle) GetParamCache(ctx context.Context, currentBlockHeigh int64) (or
 		return oracletypes.Params{}, err
 	}
 
-	o.checkAcceptList(params)
+	o.checkWhitelist(params)
 	o.paramCache.Update(currentBlockHeigh, params)
 	return params, nil
 }
@@ -500,8 +500,8 @@ func NewProvider(
 	return nil, fmt.Errorf("provider %s not found", providerName)
 }
 
-func (o *Oracle) checkAcceptList(params oracletypes.Params) {
-	for _, denom := range params.AcceptList {
+func (o *Oracle) checkWhitelist(params oracletypes.Params) {
+	for _, denom := range params.Whitelist {
 		symbol := strings.ToUpper(denom.SymbolDenom)
 		if _, ok := o.prices[symbol]; !ok {
 			o.logger.Warn().Str("denom", symbol).Msg("price missing for required denom")

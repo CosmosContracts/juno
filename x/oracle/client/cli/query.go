@@ -35,7 +35,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		GetCmdQuerySlashWindow(),
 		GetCmdQueryAllPriceHistory(),
 		GetCmdQueryPriceHistoryAt(),
-		GetCmdQueryPriceTrackingLists(),
+		GetCmdQueryTwapTrackingLists(),
 		GetCmdQueryTwapPrice(),
 	)
 
@@ -283,7 +283,7 @@ func GetCmdQuerySlashWindow() *cobra.Command {
 	return cmd
 }
 
-func GetCmdQueryPriceTrackingLists() *cobra.Command {
+func GetCmdQueryTwapTrackingLists() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price-tracking-list",
 		Short: "Query current price tracking list",
@@ -295,7 +295,7 @@ func GetCmdQueryPriceTrackingLists() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.PriceTrackingLists(cmd.Context(), &types.QueryPriceTrackingLists{})
+			res, err := queryClient.TwapTrackingLists(cmd.Context(), &types.QueryTwapTrackingLists{})
 			if err != nil {
 				return err
 			}
@@ -390,7 +390,7 @@ $ junod q oracle twap JUNO 2022-12-25T19:42:07.100Z 2022-12-25T20:42:07.100Z
 				return err
 			}
 
-			req := &types.QueryArithmeticTwapBetweenTime{
+			req := &types.QueryArithmeticTwapPriceBetweenTime{
 				Denom:     strings.ToUpper(args[0]),
 				StartTime: startTime,
 				EndTime:   endTime,

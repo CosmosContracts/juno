@@ -23,8 +23,8 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 
 	if isPeriodLastBlock(ctx, params.VotePeriod) {
 		// remove out of date history price
-		for _, denom := range params.PriceTrackingList {
-			removeTime := ctx.BlockTime().Add(-params.PriceTrackingDuration)
+		for _, denom := range params.TwapTrackingList {
+			removeTime := ctx.BlockTime().Add(-params.TwapDuration)
 			k.RemoveHistoryEntryBeforeTime(ctx, denom.BaseDenom, removeTime)
 		}
 
@@ -42,7 +42,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 			voteTargets      []string
 			voteTargetDenoms []string
 		)
-		for _, v := range params.AcceptList {
+		for _, v := range params.Whitelist {
 			voteTargets = append(voteTargets, v.SymbolDenom)
 			voteTargetDenoms = append(voteTargetDenoms, v.BaseDenom)
 		}

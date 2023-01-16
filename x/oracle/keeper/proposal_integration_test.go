@@ -11,20 +11,20 @@ func TestAddTrackingPriceHistoryProposal(t *testing.T) {
 	ctx, keepers := CreateTestInput(t, false)
 	govKeeper, oracleKeeper := keepers.GovKeeper, keepers.OracleKeeper
 
-	var priceTrackingList types.DenomList
+	var TwapTrackingList types.DenomList
 	params := types.DefaultParams()
-	params.PriceTrackingList = priceTrackingList
+	params.TwapTrackingList = TwapTrackingList
 	oracleKeeper.SetParams(ctx, params)
 
 	params = oracleKeeper.GetParams(ctx)
-	require.Equal(t, 0, len(params.PriceTrackingList))
+	require.Equal(t, 0, len(params.TwapTrackingList))
 
 	trackingList := types.DenomList{
 		{
 			BaseDenom:   types.JunoDenom,
 			SymbolDenom: types.JunoSymbol,
 			Exponent:    types.JunoExponent,
-		}, // Already in AcceptList (Default params)
+		}, // Already in Whitelist (Default params)
 	}
 
 	src := types.AddTrackingPriceHistoryProposalFixture(func(p *types.AddTrackingPriceHistoryProposal) {
@@ -40,23 +40,23 @@ func TestAddTrackingPriceHistoryProposal(t *testing.T) {
 	require.NoError(t, err)
 
 	params = oracleKeeper.GetParams(ctx)
-	require.Equal(t, 1, len(params.PriceTrackingList))
-	require.Equal(t, params.PriceTrackingList, trackingList)
+	require.Equal(t, 1, len(params.TwapTrackingList))
+	require.Equal(t, params.TwapTrackingList, trackingList)
 }
 
-func TestAddTrackingPriceHistoryWithAcceptListProposal(t *testing.T) {
+func TestAddTrackingPriceHistoryWithWhitelistProposal(t *testing.T) {
 	ctx, keepers := CreateTestInput(t, false)
 	govKeeper, oracleKeeper := keepers.GovKeeper, keepers.OracleKeeper
 
 	var emptyDenomList types.DenomList
 	params := types.DefaultParams()
-	params.AcceptList = emptyDenomList
-	params.PriceTrackingList = emptyDenomList
+	params.Whitelist = emptyDenomList
+	params.TwapTrackingList = emptyDenomList
 	oracleKeeper.SetParams(ctx, params)
 
 	params = oracleKeeper.GetParams(ctx)
-	require.Equal(t, 0, len(params.AcceptList))
-	require.Equal(t, 0, len(params.PriceTrackingList))
+	require.Equal(t, 0, len(params.Whitelist))
+	require.Equal(t, 0, len(params.TwapTrackingList))
 
 	trackingList := types.DenomList{
 		{
@@ -71,7 +71,7 @@ func TestAddTrackingPriceHistoryWithAcceptListProposal(t *testing.T) {
 		},
 	}
 
-	src := types.AddTrackingPriceHistoryWithAcceptListProposalFixture(func(p *types.AddTrackingPriceHistoryWithAcceptListProposal) {
+	src := types.AddTrackingPriceHistoryWithWhitelistProposalFixture(func(p *types.AddTrackingPriceHistoryWithWhitelistProposal) {
 		p.TrackingList = trackingList
 	})
 
@@ -84,8 +84,8 @@ func TestAddTrackingPriceHistoryWithAcceptListProposal(t *testing.T) {
 	require.NoError(t, err)
 
 	params = oracleKeeper.GetParams(ctx)
-	require.Equal(t, params.AcceptList, trackingList)
-	require.Equal(t, params.PriceTrackingList, trackingList)
+	require.Equal(t, params.Whitelist, trackingList)
+	require.Equal(t, params.TwapTrackingList, trackingList)
 }
 
 func TestRemoveTrackingPriceHistoryProposal(t *testing.T) {
@@ -93,8 +93,8 @@ func TestRemoveTrackingPriceHistoryProposal(t *testing.T) {
 	govKeeper, oracleKeeper := keepers.GovKeeper, keepers.OracleKeeper
 
 	params := oracleKeeper.GetParams(ctx)
-	require.Equal(t, 2, len(params.AcceptList))
-	require.Equal(t, 2, len(params.PriceTrackingList))
+	require.Equal(t, 2, len(params.Whitelist))
+	require.Equal(t, 2, len(params.TwapTrackingList))
 
 	trackingList := types.DenomList{
 		{
@@ -110,7 +110,7 @@ func TestRemoveTrackingPriceHistoryProposal(t *testing.T) {
 	}
 
 	src := types.RemoveTrackingPriceHistoryProposalFixture(func(p *types.RemoveTrackingPriceHistoryProposal) {
-		p.RemoveTrackingList = types.DenomList{trackingList[0]}
+		p.RemoveTwapList = types.DenomList{trackingList[0]}
 	})
 
 	submittedProposal, err := govKeeper.SubmitProposal(ctx, src)
@@ -120,6 +120,6 @@ func TestRemoveTrackingPriceHistoryProposal(t *testing.T) {
 	require.NoError(t, err)
 
 	params = oracleKeeper.GetParams(ctx)
-	require.Equal(t, params.AcceptList, trackingList)
-	require.Equal(t, params.PriceTrackingList, types.DenomList{trackingList[1]})
+	require.Equal(t, params.Whitelist, trackingList)
+	require.Equal(t, params.TwapTrackingList, types.DenomList{trackingList[1]})
 }

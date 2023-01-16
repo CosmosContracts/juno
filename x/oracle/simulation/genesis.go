@@ -19,7 +19,7 @@ const (
 	slashFractionKey            = "slash_fraction"
 	slashWindowKey              = "slash_window"
 	minValidPerWindowKey        = "min_valid_per_window"
-	priceTrackingDurationKey    = "price_tracking_duration"
+	TwapTrackingDurationKey     = "twap_tracking_duration"
 )
 
 // GenVotePeriod produces a randomized VotePeriod in the range of [5, 100]
@@ -57,7 +57,7 @@ func GenMinValidPerWindow(r *rand.Rand) sdk.Dec {
 	return sdk.ZeroDec().Add(sdk.NewDecWithPrec(int64(r.Intn(500)), 3))
 }
 
-func GenPriceTrackingDuration(r *rand.Rand) time.Duration {
+func GenTwapTrackingDuration(r *rand.Rand) time.Duration {
 	return time.Second * time.Duration((100 + r.Int63n(1_000_000)))
 }
 
@@ -105,10 +105,10 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { minValidPerWindow = GenMinValidPerWindow(r) },
 	)
 
-	var priceTrackingDuration time.Duration
+	var TwapTrackingDuration time.Duration
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, priceTrackingDurationKey, &priceTrackingDuration, simState.Rand,
-		func(r *rand.Rand) { priceTrackingDuration = GenPriceTrackingDuration(r) },
+		simState.Cdc, TwapTrackingDurationKey, &TwapTrackingDuration, simState.Rand,
+		func(r *rand.Rand) { TwapTrackingDuration = GenTwapTrackingDuration(r) },
 	)
 
 	oracleGenesis := types.NewGenesisState(
@@ -117,16 +117,16 @@ func RandomizedGenState(simState *module.SimulationState) {
 			VoteThreshold:            voteThreshold,
 			RewardBand:               rewardBand,
 			RewardDistributionWindow: rewardDistributionWindow,
-			AcceptList: types.DenomList{
+			Whitelist: types.DenomList{
 				{SymbolDenom: types.JunoSymbol, BaseDenom: types.JunoDenom},
 			},
 			SlashFraction:     slashFraction,
 			SlashWindow:       slashWindow,
 			MinValidPerWindow: minValidPerWindow,
-			PriceTrackingList: types.DenomList{
+			TwapTrackingList: types.DenomList{
 				{SymbolDenom: types.JunoSymbol, BaseDenom: types.JunoDenom},
 			},
-			PriceTrackingDuration: priceTrackingDuration,
+			TwapDuration: TwapTrackingDuration,
 		},
 		[]types.ExchangeRateTuple{},
 		[]types.FeederDelegation{},
