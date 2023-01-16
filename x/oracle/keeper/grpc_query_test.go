@@ -477,13 +477,16 @@ func (s *IntegrationTestSuite) TestArithmeticTwapPriceBetweenTime() {
 			shouldErr: false,
 		},
 		{
-			desc: "Error - Start time before first entry",
+			desc: "Success - Start time before first entry",
 			req: &types.QueryArithmeticTwapPriceBetweenTime{
 				Denom:     "JUNO",
 				StartTime: timeNow.Add(-time.Minute),
 				EndTime:   timeNow.Add(4 * time.Minute),
 			},
-			shouldErr: true,
+			res: &types.QueryArithmeticTwapPriceBetweenTimeResponse{
+				TwapPrice: sdk.NewDecCoinFromDec("JUNO", sdk.OneDec()),
+			},
+			shouldErr: false,
 		},
 		{
 			desc: "Error - End time before start time",
