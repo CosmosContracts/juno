@@ -3,6 +3,7 @@ package keeper
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/CosmosContracts/juno/v12/x/oracle/types"
@@ -43,8 +44,32 @@ func (k Keeper) getHistoryEntryAtOrBeforeTime(ctx sdk.Context, denom string, t t
 	return entry, nil
 }
 
-// getHistoryEntryBetweenTime on a given input (denom, t)
-// returns the PriceHistoryEntry from state for (denom, t'),
+// getFirstEntryBetweenTime on a given input (denom, start, end)
+// returns the first PriceHistoryEntry from state for (denom, t'),
+// where start <= t' and t' <= end
+func (k Keeper) getFirstEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (entry types.PriceHistoryEntry, err error) {
+	if start.After(end) {
+		return types.PriceHistoryEntry{}, errors.New("start time after end time")
+	}
+	store := ctx.KVStore(k.storeKey)
+
+	startKey := types.FormatHistoricalDenomIndexKey(start, denom)
+	endKey := types.FormatHistoricalDenomIndexKey(end, denom)
+
+	reverseIterate := false
+
+	entry, err = util.GetFirstValueInRange(store, startKey, endKey, reverseIterate, k.ParseTwapFromBz)
+
+	if err != nil {
+		return types.PriceHistoryEntry{}, err
+	}
+
+	return entry, nil
+}
+
+// getHistoryEntryBetweenTime on a given input (denom, start, end)
+// returns all PriceHistoryEntry values from state for (denom, t'),
+// where start <= t' and t' <= end
 func (k Keeper) getHistoryEntryBetweenTime(ctx sdk.Context, denom string, start time.Time, end time.Time) (entries []types.PriceHistoryEntry, err error) {
 	if start.After(end) {
 		return []types.PriceHistoryEntry{}, errors.New("start time after end time")
@@ -105,7 +130,16 @@ func (k Keeper) GetArithmetricTWAP(
 ) (sdk.Dec, error) {
 	startEntry, err := k.getHistoryEntryAtOrBeforeTime(ctx, denom, startTime)
 	if err != nil {
-		return sdk.Dec{}, err
+		if strings.Contains(err.Error(), "no values in range") {
+			// pick value right after startTime if no value before startTime
+			startEntryAfter, error := k.getFirstEntryBetweenTime(ctx, denom, startTime, endTime)
+			if error != nil {
+				return sdk.Dec{}, error
+			}
+			startEntry = startEntryAfter
+		} else {
+			return sdk.Dec{}, err
+		}
 	}
 	endEntry, err := k.getHistoryEntryAtOrBeforeTime(ctx, denom, endTime)
 	if err != nil {
