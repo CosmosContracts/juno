@@ -43,8 +43,16 @@ export HERMES="hermes --config $FOLDER/$config"
 $HERMES keys add --chain $CHAIN_A --key-name default --mnemonic-file $FOLDER/relayer-mnemonic || true
 $HERMES keys add --chain $CHAIN_B --key-name default --mnemonic-file $FOLDER/relayer-mnemonic || true
 
+# Connections both ways on startup
 $HERMES create connection --a-chain $CHAIN_A --b-chain $CHAIN_B;
+$HERMES create connection --a-chain $CHAIN_B --b-chain $CHAIN_A;
 
 $HERMES create channel --a-chain $CHAIN_A --a-port $A_PORT --b-chain $CHAIN_B --b-port $B_PORT --new-client-connection --channel-version $CHANNEL_VERSION
+# channels both ways if both are transfer
+if [ "$A_PORT" = "transfer" ] && [ "$B_PORT" = "transfer" ]; then
+    $HERMES create channel --a-chain $CHAIN_B --a-port $B_PORT --b-chain $CHAIN_A --b-port $A_PORT --new-client-connection --channel-version $CHANNEL_VERSION
+fi
+
+
 
 $HERMES start

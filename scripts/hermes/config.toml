@@ -104,25 +104,25 @@ trusting_period = '1days'
 trust_threshold = { numerator = '1', denominator = '3' }
 memo_prefix = ''
 
-
-[[chains]]
-id = 'juno-1'
-rpc_addr = 'https://juno-rpc.reece.sh:443'
-grpc_addr = 'http://15.204.143.232:9090'
-websocket_addr = 'ws://15.204.143.232:26657/websocket'
-rpc_timeout = '1s'
-account_prefix = 'juno'
-key_name = 'default'
-address_type = { derivation = 'cosmos' }
-store_prefix = 'ibc'
-default_gas = 500000
-max_gas = 4000000
-gas_price = { price = 0.003, denom = 'ujuno' }
-gas_multiplier = 1.1
-max_msg_num = 30
-max_tx_size = 2097152
-clock_drift = '120s'
-max_block_time = '7s'
-trusting_period = '1days'
-trust_threshold = { numerator = '1', denominator = '3' }
-memo_prefix = ''
+# Mainnet
+# [[chains]]
+# id = 'juno-1'
+# rpc_addr = 'https://juno-rpc.reece.sh:443'
+# grpc_addr = 'http://15.204.143.232:9090'
+# websocket_addr = 'ws://15.204.143.232:26657/websocket'
+# rpc_timeout = '1s'
+# account_prefix = 'juno'
+# key_name = 'default'
+# address_type = { derivation = 'cosmos' }
+# store_prefix = 'ibc'
+# default_gas = 500000
+# max_gas = 4000000
+# gas_price = { price = 0.003, denom = 'ujuno' }
+# gas_multiplier = 1.1
+# max_msg_num = 30
+# max_tx_size = 2097152
+# clock_drift = '120s'
+# max_block_time = '7s'
+# trusting_period = '1days'
+# trust_threshold = { numerator = '1', denominator = '3' }
+# memo_prefix = ''
