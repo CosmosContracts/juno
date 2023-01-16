@@ -332,7 +332,7 @@ func NewAppKeepers(
 	)
 
 	appKeepers.TransferModule = transfer.NewAppModule(appKeepers.TransferKeeper)
-	transferIBCModule := transfer.NewIBCModule(appKeepers.TransferKeeper)
+	// transferIBCModule := transfer.NewIBCModule(appKeepers.TransferKeeper)
 
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
 		appCodec,
@@ -357,13 +357,18 @@ func NewAppKeepers(
 	icaHostIBCModule := icahost.NewIBCModule(appKeepers.ICAHostKeeper)
 
 	appKeepers.RouterKeeper = routerkeeper.NewKeeper(
-		appCodec, appKeepers.keys[routertypes.StoreKey],
+		appCodec,
+		appKeepers.keys[routertypes.StoreKey],
 		appKeepers.GetSubspace(routertypes.ModuleName),
 		appKeepers.TransferKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.DistrKeeper,
+		appKeepers.BankKeeper,
+		&appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.HooksICS4Wrapper,
 	)
 
-	appKeepers.RouterModule = router.NewAppModule(appKeepers.RouterKeeper, transferIBCModule)
+	appKeepers.RouterModule = router.NewAppModule(appKeepers.RouterKeeper)
 
 	// initialize ICA module with mock module as the authentication module on the controller side
 	var icaControllerStack porttypes.IBCModule
