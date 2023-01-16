@@ -304,7 +304,7 @@ func NewAppKeepers(
 	appKeepers.PacketForwardKeeper = packetforwardkeeper.NewKeeper(
 		appCodec, appKeepers.keys[packetforwardtypes.StoreKey],
 		appKeepers.GetSubspace(packetforwardtypes.ModuleName),
-		appKeepers.TransferKeeper, // will be zero-vaue here. reference set later on with SetTransferKeeper.
+		appKeepers.TransferKeeper, // Will be zero-value here. Reference is set later on with SetTransferKeeper.
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
