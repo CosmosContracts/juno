@@ -4,7 +4,7 @@
 package e2e
 
 import (
-	// "fmt"
+	"fmt"
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
 	// sdk "github.com/cosmos/cosmos-sdk/types"
 	"strconv"
@@ -62,6 +62,11 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 	chainA := s.configurer.GetChainConfig(0)
 	node := chainA.NodeConfigs[0]
 	wallet := initialization.ValidatorWalletName
+	params, err := node.QueryTokenFactoryParams()
+	s.Require().NoError(err)
+	mintCost := params.Params.DenomCreationFee[0]
+
+	mintCostStr := fmt.Sprintf("%s%s", mintCost.Amount.String(), mintCost.Denom)
 
 	// Store Contract
 	node.StoreWasmCode("stargate_exchange_rate_query.wasm", wallet)
@@ -76,6 +81,10 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 	contracts, err := node.QueryContractsFromID(chainA.LatestCodeID)
 	s.NoError(err)
 	s.Require().Len(contracts, 1, "Wrong number of contracts for the stargate_exchange_rate")
+	contractAddr := contracts[0]
+
+	// Successfully create a denom for the wasm contract
+	node.WasmExecute(contractAddr, `{"denom":"test"}`, wallet, mintCostStr, tfSuccessCode)
 }
 
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
