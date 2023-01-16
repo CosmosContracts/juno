@@ -24,7 +24,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // AddTrackingPriceHistoryProposal add denom to tracking price history list (in
-// this situation, denom must already in AcceptList)
+// this situation, denom must already in Whitelist)
 type AddTrackingPriceHistoryProposal struct {
 	// Title is a short summary
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -66,10 +66,10 @@ func (m *AddTrackingPriceHistoryProposal) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_AddTrackingPriceHistoryProposal proto.InternalMessageInfo
 
-// AddTrackingPriceHistoryWithAcceptListProposal add denom to tracking price
-// history list and accept list (in this situation, denom don't have to in
-// AcceptList)
-type AddTrackingPriceHistoryWithAcceptListProposal struct {
+// AddTrackingPriceHistoryWithWhitelistProposal add denom to tracking price
+// history list and whitelist (in this situation, denom don't have to in
+// Whitelist)
+type AddTrackingPriceHistoryWithWhitelistProposal struct {
 	// Title is a short summary
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	// Description is a human readable text
@@ -78,19 +78,19 @@ type AddTrackingPriceHistoryWithAcceptListProposal struct {
 	TrackingList DenomList `protobuf:"bytes,3,rep,name=tracking_list,json=trackingList,proto3,castrepeated=DenomList" json:"tracking_list" yaml:"tracking_list"`
 }
 
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) Reset() {
-	*m = AddTrackingPriceHistoryWithAcceptListProposal{}
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) Reset() {
+	*m = AddTrackingPriceHistoryWithWhitelistProposal{}
 }
-func (*AddTrackingPriceHistoryWithAcceptListProposal) ProtoMessage() {}
-func (*AddTrackingPriceHistoryWithAcceptListProposal) Descriptor() ([]byte, []int) {
+func (*AddTrackingPriceHistoryWithWhitelistProposal) ProtoMessage() {}
+func (*AddTrackingPriceHistoryWithWhitelistProposal) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ad1480a45a4af575, []int{1}
 }
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) XXX_Unmarshal(b []byte) error {
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_AddTrackingPriceHistoryWithAcceptListProposal.Marshal(b, m, deterministic)
+		return xxx_messageInfo_AddTrackingPriceHistoryWithWhitelistProposal.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -100,27 +100,27 @@ func (m *AddTrackingPriceHistoryWithAcceptListProposal) XXX_Marshal(b []byte, de
 		return b[:n], nil
 	}
 }
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddTrackingPriceHistoryWithAcceptListProposal.Merge(m, src)
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddTrackingPriceHistoryWithWhitelistProposal.Merge(m, src)
 }
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) XXX_Size() int {
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) XXX_Size() int {
 	return m.Size()
 }
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddTrackingPriceHistoryWithAcceptListProposal.DiscardUnknown(m)
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddTrackingPriceHistoryWithWhitelistProposal.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AddTrackingPriceHistoryWithAcceptListProposal proto.InternalMessageInfo
+var xxx_messageInfo_AddTrackingPriceHistoryWithWhitelistProposal proto.InternalMessageInfo
 
 // RemoveTrackingPriceHistoryProposal remove denom from tracking price history
-// list (in this situation, denom don't have to in AcceptList)
+// list (in this situation, denom don't have to in Whitelist)
 type RemoveTrackingPriceHistoryProposal struct {
 	// Title is a short summary
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	// Description is a human readable text
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	// Denom
-	RemoveTrackingList DenomList `protobuf:"bytes,3,rep,name=remove_tracking_list,json=removeTrackingList,proto3,castrepeated=DenomList" json:"remove_tracking_list" yaml:"remove_tracking_list"`
+	RemoveTwapList DenomList `protobuf:"bytes,3,rep,name=remove_twap_list,json=removeTwapList,proto3,castrepeated=DenomList" json:"remove_twap_list" yaml:"remove_tracking_list"`
 }
 
 func (m *RemoveTrackingPriceHistoryProposal) Reset()      { *m = RemoveTrackingPriceHistoryProposal{} }
@@ -157,14 +157,14 @@ var xxx_messageInfo_RemoveTrackingPriceHistoryProposal proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*AddTrackingPriceHistoryProposal)(nil), "juno.oracle.v1.AddTrackingPriceHistoryProposal")
-	proto.RegisterType((*AddTrackingPriceHistoryWithAcceptListProposal)(nil), "juno.oracle.v1.AddTrackingPriceHistoryWithAcceptListProposal")
+	proto.RegisterType((*AddTrackingPriceHistoryWithWhitelistProposal)(nil), "juno.oracle.v1.AddTrackingPriceHistoryWithWhitelistProposal")
 	proto.RegisterType((*RemoveTrackingPriceHistoryProposal)(nil), "juno.oracle.v1.RemoveTrackingPriceHistoryProposal")
 }
 
 func init() { proto.RegisterFile("juno/oracle/v1/proposal.proto", fileDescriptor_ad1480a45a4af575) }
 
 var fileDescriptor_ad1480a45a4af575 = []byte{
-	// 367 bytes of a gzipped FileDescriptorProto
+	// 373 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0xcd, 0x2a, 0xcd, 0xcb,
 	0xd7, 0xcf, 0x2f, 0x4a, 0x4c, 0xce, 0x49, 0xd5, 0x2f, 0x33, 0xd4, 0x2f, 0x28, 0xca, 0x2f, 0xc8,
 	0x2f, 0x4e, 0xcc, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x03, 0x49, 0xeb, 0x41, 0xa4,
@@ -178,16 +178,17 @@ var fileDescriptor_ad1480a45a4af575 = []byte{
 	0x23, 0x51, 0x3d, 0x54, 0x67, 0xeb, 0xb9, 0xa4, 0xe6, 0xe5, 0xe7, 0x3a, 0x69, 0x9e, 0xb8, 0x27,
 	0xcf, 0xf0, 0xe9, 0x9e, 0xbc, 0x48, 0x65, 0x62, 0x6e, 0x8e, 0x95, 0x12, 0x8a, 0x4e, 0xa5, 0x55,
 	0xf7, 0xe5, 0x39, 0xc1, 0xca, 0x7c, 0x32, 0x8b, 0x4b, 0x82, 0x78, 0x60, 0x92, 0x20, 0x9e, 0xd2,
-	0x39, 0x46, 0x2e, 0x5d, 0x1c, 0x5e, 0x08, 0xcf, 0x2c, 0xc9, 0x70, 0x4c, 0x4e, 0x4e, 0x2d, 0x28,
-	0x01, 0xa9, 0x1c, 0x2a, 0x1e, 0xba, 0xce, 0xc8, 0xa5, 0x14, 0x94, 0x9a, 0x9b, 0x5f, 0x96, 0x4a,
-	0x93, 0x68, 0xa9, 0xe4, 0x12, 0x29, 0x02, 0x9b, 0x1e, 0x4f, 0x82, 0x67, 0x0c, 0xa0, 0x9e, 0x91,
-	0x86, 0x78, 0x06, 0x9b, 0x01, 0x68, 0x7e, 0x12, 0x2a, 0x42, 0xf1, 0x02, 0x48, 0xcc, 0x29, 0xe4,
-	0xc4, 0x43, 0x39, 0x86, 0x1b, 0x0f, 0xe5, 0x18, 0x56, 0x3c, 0x92, 0x63, 0x3c, 0xf1, 0x48, 0x8e,
-	0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18, 0x27, 0x3c, 0x96, 0x63, 0xb8, 0xf0, 0x58,
-	0x8e, 0xe1, 0xc6, 0x63, 0x39, 0x86, 0x28, 0xbd, 0xf4, 0xcc, 0x92, 0x8c, 0xd2, 0x24, 0xbd, 0xe4,
-	0xfc, 0x5c, 0x7d, 0xe7, 0xfc, 0xe2, 0xdc, 0xfc, 0x62, 0xe7, 0xfc, 0x3c, 0x90, 0x55, 0x25, 0xc5,
-	0xfa, 0xe0, 0xb4, 0x5c, 0x01, 0x4b, 0xcd, 0x25, 0x95, 0x05, 0xa9, 0xc5, 0x49, 0x6c, 0xe0, 0xa4,
-	0x6c, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x87, 0x85, 0x6f, 0x5d, 0x2e, 0x03, 0x00, 0x00,
+	0x59, 0x46, 0x2e, 0x1d, 0x1c, 0x5e, 0x08, 0xcf, 0x2c, 0xc9, 0x08, 0xcf, 0xc8, 0x2c, 0x49, 0x05,
+	0x19, 0x32, 0x54, 0xfc, 0x73, 0x9e, 0x91, 0x4b, 0x29, 0x28, 0x35, 0x37, 0xbf, 0x2c, 0x95, 0x26,
+	0xb1, 0x52, 0xc8, 0x25, 0x50, 0x04, 0x36, 0x3d, 0xbe, 0xa4, 0x3c, 0xb1, 0x80, 0x08, 0x8f, 0x18,
+	0x40, 0x3d, 0x22, 0x0d, 0xf1, 0x08, 0x4c, 0x33, 0x1e, 0xff, 0xf0, 0x41, 0xd4, 0x84, 0x94, 0x27,
+	0x16, 0x80, 0xf8, 0x4e, 0x21, 0x27, 0x1e, 0xca, 0x31, 0xdc, 0x78, 0x28, 0xc7, 0xb0, 0xe2, 0x91,
+	0x1c, 0xe3, 0x89, 0x47, 0x72, 0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e, 0x78, 0x24, 0xc7, 0x38, 0xe1,
+	0xb1, 0x1c, 0xc3, 0x85, 0xc7, 0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31, 0x44, 0xe9, 0xa5, 0x67, 0x96,
+	0x64, 0x94, 0x26, 0xe9, 0x25, 0xe7, 0xe7, 0xea, 0x3b, 0xe7, 0x17, 0xe7, 0xe6, 0x17, 0x3b, 0xe7,
+	0xe7, 0x81, 0xac, 0x29, 0x29, 0xd6, 0x07, 0x27, 0xe1, 0x0a, 0x58, 0x22, 0x2e, 0xa9, 0x2c, 0x48,
+	0x2d, 0x4e, 0x62, 0x03, 0xa7, 0x60, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0x62, 0x22, 0x7e,
+	0x96, 0x25, 0x03, 0x00, 0x00,
 }
 
 func (this *AddTrackingPriceHistoryProposal) Equal(that interface{}) bool {
@@ -225,14 +226,14 @@ func (this *AddTrackingPriceHistoryProposal) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *AddTrackingPriceHistoryWithAcceptListProposal) Equal(that interface{}) bool {
+func (this *AddTrackingPriceHistoryWithWhitelistProposal) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*AddTrackingPriceHistoryWithAcceptListProposal)
+	that1, ok := that.(*AddTrackingPriceHistoryWithWhitelistProposal)
 	if !ok {
-		that2, ok := that.(AddTrackingPriceHistoryWithAcceptListProposal)
+		that2, ok := that.(AddTrackingPriceHistoryWithWhitelistProposal)
 		if ok {
 			that1 = &that2
 		} else {
@@ -285,11 +286,11 @@ func (this *RemoveTrackingPriceHistoryProposal) Equal(that interface{}) bool {
 	if this.Description != that1.Description {
 		return false
 	}
-	if len(this.RemoveTrackingList) != len(that1.RemoveTrackingList) {
+	if len(this.RemoveTwapList) != len(that1.RemoveTwapList) {
 		return false
 	}
-	for i := range this.RemoveTrackingList {
-		if !this.RemoveTrackingList[i].Equal(&that1.RemoveTrackingList[i]) {
+	for i := range this.RemoveTwapList {
+		if !this.RemoveTwapList[i].Equal(&that1.RemoveTwapList[i]) {
 			return false
 		}
 	}
@@ -346,7 +347,7 @@ func (m *AddTrackingPriceHistoryProposal) MarshalToSizedBuffer(dAtA []byte) (int
 	return len(dAtA) - i, nil
 }
 
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) Marshal() (dAtA []byte, err error) {
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -356,12 +357,12 @@ func (m *AddTrackingPriceHistoryWithAcceptListProposal) Marshal() (dAtA []byte, 
 	return dAtA[:n], nil
 }
 
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) MarshalTo(dAtA []byte) (int, error) {
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -417,10 +418,10 @@ func (m *RemoveTrackingPriceHistoryProposal) MarshalToSizedBuffer(dAtA []byte) (
 	_ = i
 	var l int
 	_ = l
-	if len(m.RemoveTrackingList) > 0 {
-		for iNdEx := len(m.RemoveTrackingList) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.RemoveTwapList) > 0 {
+		for iNdEx := len(m.RemoveTwapList) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.RemoveTrackingList[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.RemoveTwapList[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -482,7 +483,7 @@ func (m *AddTrackingPriceHistoryProposal) Size() (n int) {
 	return n
 }
 
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) Size() (n int) {
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -519,8 +520,8 @@ func (m *RemoveTrackingPriceHistoryProposal) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovProposal(uint64(l))
 	}
-	if len(m.RemoveTrackingList) > 0 {
-		for _, e := range m.RemoveTrackingList {
+	if len(m.RemoveTwapList) > 0 {
+		for _, e := range m.RemoveTwapList {
 			l = e.Size()
 			n += 1 + l + sovProposal(uint64(l))
 		}
@@ -682,7 +683,7 @@ func (m *AddTrackingPriceHistoryProposal) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *AddTrackingPriceHistoryWithAcceptListProposal) Unmarshal(dAtA []byte) error {
+func (m *AddTrackingPriceHistoryWithWhitelistProposal) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -705,10 +706,10 @@ func (m *AddTrackingPriceHistoryWithAcceptListProposal) Unmarshal(dAtA []byte) e
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: AddTrackingPriceHistoryWithAcceptListProposal: wiretype end group for non-group")
+			return fmt.Errorf("proto: AddTrackingPriceHistoryWithWhitelistProposal: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AddTrackingPriceHistoryWithAcceptListProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: AddTrackingPriceHistoryWithWhitelistProposal: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -925,7 +926,7 @@ func (m *RemoveTrackingPriceHistoryProposal) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RemoveTrackingList", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RemoveTwapList", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -952,8 +953,8 @@ func (m *RemoveTrackingPriceHistoryProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RemoveTrackingList = append(m.RemoveTrackingList, Denom{})
-			if err := m.RemoveTrackingList[len(m.RemoveTrackingList)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.RemoveTwapList = append(m.RemoveTwapList, Denom{})
+			if err := m.RemoveTwapList[len(m.RemoveTwapList)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

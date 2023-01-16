@@ -176,7 +176,7 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
 		oracleclient.ProposalHandlerAddTrackingPriceHistory,
-		oracleclient.ProposalHandlerAddTrackingPriceHistoryWithAcceptList,
+		oracleclient.ProposalHandlerAddTrackingPriceHistoryWithWhitelist,
 		oracleclient.ProposalRemoveTrackingPriceHistory,
 	)
 

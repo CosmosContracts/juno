@@ -41,19 +41,19 @@ service Query {
     option (google.api.http).get = "/juno/oracle/v1/price_history/{denom}";
   }
 
-  // PriceTrackingLists return all price tracking denom
-  rpc PriceTrackingLists(QueryPriceTrackingLists)
-      returns (QueryPriceTrackingListsResponse) {
+  // TwapTrackingLists return all price tracking denom
+  rpc TwapTrackingLists(QueryTwapTrackingLists)
+      returns (QueryTwapTrackingListsResponse) {
     option (google.api.http).get =
         "/juno/oracle/v1/price_history/tracking_lists";
   }
 
   // ArithmeticTwapPriceBetweenTime return denom twap price between startTime
   // and endTime
-  rpc ArithmeticTwapPriceBetweenTime(QueryArithmeticTwapBetweenTime)
-      returns (QueryArithmeticTwapBetweenTimeResponse) {
+  rpc ArithmeticTwapPriceBetweenTime(QueryArithmeticTwapPriceBetweenTime)
+      returns (QueryArithmeticTwapPriceBetweenTimeResponse) {
     option (google.api.http).get =
-        "/juno/oracle/v1/price_history/ArithmeticTwapBetweenTime";
+        "/juno/oracle/v1/price_history/ArithmeticTwapPriceBetweenTime";
   }
 
   // FeederDelegation returns feeder delegation of a validator
@@ -257,10 +257,10 @@ message QueryParamsResponse {
   Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-message QueryPriceTrackingLists {}
+message QueryTwapTrackingLists {}
 
-message QueryPriceTrackingListsResponse {
-  repeated string price_traking_lists = 1;
+message QueryTwapTrackingListsResponse {
+  repeated string twap_tracking_lists = 1;
 }
 
 message QueryPriceHistoryAtTime {
@@ -289,7 +289,7 @@ message QueryAllPriceHistoryResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 3;
 }
 
-message QueryArithmeticTwapBetweenTime {
+message QueryArithmeticTwapPriceBetweenTime {
   string denom = 1;
   google.protobuf.Timestamp start_time = 2 [
     (gogoproto.stdtime) = true,
@@ -303,7 +303,7 @@ message QueryArithmeticTwapBetweenTime {
   ];
 }
 
-message QueryArithmeticTwapBetweenTimeResponse {
+message QueryArithmeticTwapPriceBetweenTimeResponse {
   cosmos.base.v1beta1.DecCoin twap_price = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"twap_price\""

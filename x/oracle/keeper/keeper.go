@@ -212,7 +212,7 @@ func (k Keeper) GetExchangeRateBase(ctx sdk.Context, denom string) (sdk.Dec, err
 	var exponent uint64
 	// Translate the base denom -> symbol
 	params := k.GetParams(ctx)
-	for _, listDenom := range params.AcceptList {
+	for _, listDenom := range params.Whitelist {
 		if listDenom.BaseDenom == denom {
 			symbol = listDenom.SymbolDenom
 			exponent = uint64(listDenom.Exponent)
@@ -520,7 +520,7 @@ func (k Keeper) IsInTrackingList(ctx sdk.Context, symbolDenom string) (types.Den
 	var denom types.Denom
 	upperSymbolDenom := strings.ToUpper(symbolDenom)
 	params := k.GetParams(ctx)
-	for _, trackingDenom := range params.PriceTrackingList {
+	for _, trackingDenom := range params.TwapTrackingList {
 		if trackingDenom.SymbolDenom == upperSymbolDenom {
 			denom = trackingDenom
 			return denom, true
