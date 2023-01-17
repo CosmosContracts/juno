@@ -27,6 +27,7 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -37,7 +38,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		authzkeeper.StoreKey, feegrant.StoreKey, icahosttypes.StoreKey, ibcfeetypes.StoreKey,
 		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, wasm.StoreKey, intertxtypes.StoreKey,
-		icacontrollertypes.StoreKey, oracletypes.StoreKey, ibchookstypes.StoreKey,
+		icacontrollertypes.StoreKey, oracletypes.StoreKey, ibchookstypes.StoreKey, packetforwardtypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
