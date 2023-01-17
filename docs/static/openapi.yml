@@ -6,7 +6,7 @@ paths:
   /cosmos/tx/v1beta1/simulate:
     post:
       summary: Simulate simulates executing a transaction for estimating gas usage.
-      operationId: Simulate_9UGZU
+      operationId: Simulate_JSOX9
       responses:
         "200":
           description: A successful response.
@@ -1132,7 +1132,7 @@ paths:
   /cosmos/tx/v1beta1/txs:
     get:
       summary: GetTxsEvent fetches txs by event.
-      operationId: GetTxsEvent_SNFVH
+      operationId: GetTxsEvent_5OHW2
       responses:
         "200":
           description: A successful response.
@@ -2576,7 +2576,7 @@ paths:
         - gRPC Gateway API
     post:
       summary: BroadcastTx broadcast transaction.
-      operationId: BroadcastTx_Q3ERM
+      operationId: BroadcastTx_SE86N
       responses:
         "200":
           description: A successful response.
@@ -3085,7 +3085,7 @@ paths:
     get:
       summary: GetBlockWithTxs fetches a block with decoded txs.
       description: "Since: cosmos-sdk 0.45.2"
-      operationId: GetBlockWithTxs_9W4F6
+      operationId: GetBlockWithTxs_BZAA6
       responses:
         "200":
           description: A successful response.
@@ -4749,7 +4749,7 @@ paths:
   "/cosmos/tx/v1beta1/txs/{hash}":
     get:
       summary: GetTx fetches a tx by hash.
-      operationId: GetTx_N7X9K
+      operationId: GetTx_E0V14
       responses:
         "200":
           description: A successful response.
@@ -6091,7 +6091,7 @@ paths:
       summary: |-
         Params queries a specific parameter of a module, given its subspace and
         key.
-      operationId: Params_RD1VY
+      operationId: Params_WDHOG
       responses:
         "200":
           description: A successful response.
@@ -6297,7 +6297,7 @@ paths:
   "/cosmos/bank/v1beta1/balances/{address}":
     get:
       summary: AllBalances queries the balance of all coins for a single account.
-      operationId: AllBalances_OLTK4
+      operationId: AllBalances_182YL
       responses:
         "200":
           description: A successful response.
@@ -6583,7 +6583,7 @@ paths:
   "/cosmos/bank/v1beta1/balances/{address}/by_denom":
     get:
       summary: Balance queries the balance of a single coin for a single account.
-      operationId: Balance_T9MLF
+      operationId: Balance_J9WSZ
       responses:
         "200":
           description: A successful response.
@@ -6794,7 +6794,7 @@ paths:
     get:
       summary: DenomsMetadata queries the client metadata for all registered coin
         denominations.
-      operationId: DenomsMetadata_OYS2E
+      operationId: DenomsMetadata_YBZ4O
       responses:
         "200":
           description: A successful response.
@@ -7126,7 +7126,7 @@ paths:
   "/cosmos/bank/v1beta1/denoms_metadata/{denom}":
     get:
       summary: DenomsMetadata queries the client metadata of a given coin denomination.
-      operationId: DenomMetadata_EA05Y
+      operationId: DenomMetadata_OAW6M
       responses:
         "200":
           description: A successful response.
@@ -7382,7 +7382,7 @@ paths:
   /cosmos/bank/v1beta1/params:
     get:
       summary: Params queries the parameters of x/bank module.
-      operationId: Params_MRC9X
+      operationId: Params_ZVWJ2
       responses:
         "200":
           description: A successful response.
@@ -7587,7 +7587,7 @@ paths:
       summary: |-
         SpendableBalances queries the spenable balance of all coins for a single
         account.
-      operationId: SpendableBalances_VCMEX
+      operationId: SpendableBalances_64SGJ
       responses:
         "200":
           description: A successful response.
@@ -7873,7 +7873,7 @@ paths:
   /cosmos/bank/v1beta1/supply:
     get:
       summary: TotalSupply queries the total supply of all coins.
-      operationId: TotalSupply_WM0WY
+      operationId: TotalSupply_SEPVE
       responses:
         "200":
           description: A successful response.
@@ -8156,7 +8156,7 @@ paths:
   "/cosmos/bank/v1beta1/supply/{denom}":
     get:
       summary: SupplyOf queries the supply of a single coin.
-      operationId: SupplyOf_R2GR6
+      operationId: SupplyOf_EEH1G
       responses:
         "200":
           description: A successful response.
@@ -8360,7 +8360,7 @@ paths:
   /cosmwasm/wasm/v1/code:
     get:
       summary: Codes gets the metadata for all stored wasm codes
-      operationId: Codes_N5R45
+      operationId: Codes_DA6SJ
       responses:
         "200":
           description: A successful response.
@@ -8664,7 +8664,7 @@ paths:
   "/cosmwasm/wasm/v1/code/{code_id}":
     get:
       summary: Code gets the binary code and metadata for a singe wasm code
-      operationId: Code_RG4ML
+      operationId: Code_POJZ6
       responses:
         "200":
           description: A successful response.
@@ -8899,7 +8899,7 @@ paths:
   "/cosmwasm/wasm/v1/code/{code_id}/contracts":
     get:
       summary: ContractsByCode lists all smart contracts for a code id
-      operationId: ContractsByCode_6CTL8
+      operationId: ContractsByCode_3KLLQ
       responses:
         "200":
           description: A successful response.
@@ -9171,7 +9171,7 @@ paths:
   /cosmwasm/wasm/v1/codes/params:
     get:
       summary: Params gets the module params
-      operationId: Params_P27P5
+      operationId: Params_CWNN2
       responses:
         "200":
           description: A successful response.
@@ -9407,7 +9407,7 @@ paths:
   /cosmwasm/wasm/v1/codes/pinned:
     get:
       summary: PinnedCodes gets the pinned code ids
-      operationId: PinnedCodes_R9QO7
+      operationId: PinnedCodes_UZQW3
       responses:
         "200":
           description: A successful response.
@@ -9673,7 +9673,7 @@ paths:
   "/cosmwasm/wasm/v1/contract/{address}":
     get:
       summary: ContractInfo gets the contract meta data
-      operationId: ContractInfo_W02A9
+      operationId: ContractInfo_XG9R4
       responses:
         "200":
           description: A successful response.
@@ -10055,7 +10055,7 @@ paths:
   "/cosmwasm/wasm/v1/contract/{address}/history":
     get:
       summary: ContractHistory gets the contract code history
-      operationId: ContractHistory_9QUHI
+      operationId: ContractHistory_Q0996
       responses:
         "200":
           description: A successful response.
@@ -10367,7 +10367,7 @@ paths:
   "/cosmwasm/wasm/v1/contract/{address}/raw/{query_data}":
     get:
       summary: RawContractState gets single key from the raw store data of a contract
-      operationId: RawContractState_R4DB7
+      operationId: RawContractState_B9G57
       responses:
         "200":
           description: A successful response.
@@ -10568,7 +10568,7 @@ paths:
   "/cosmwasm/wasm/v1/contract/{address}/smart/{query_data}":
     get:
       summary: SmartContractState get smart query result from the contract
-      operationId: SmartContractState_X2RAC
+      operationId: SmartContractState_33SP9
       responses:
         "200":
           description: A successful response.
@@ -10770,7 +10770,7 @@ paths:
   "/cosmwasm/wasm/v1/contract/{address}/state":
     get:
       summary: AllContractState gets all raw store data for a single contract
-      operationId: AllContractState_WQHK3
+      operationId: AllContractState_TH99I
       responses:
         "200":
           description: A successful response.
@@ -11051,7 +11051,7 @@ paths:
   "/cosmwasm/wasm/v1/contracts/creator/{creator_address}":
     get:
       summary: ContractsByCreator gets the contracts by creator
-      operationId: ContractsByCreator_ZE9VG
+      operationId: ContractsByCreator_X9LRK
       responses:
         "200":
           description: A successful response.
@@ -11323,7 +11323,7 @@ paths:
   "/cosmos/upgrade/v1beta1/applied_plan/{name}":
     get:
       summary: AppliedPlan queries a previously applied upgrade plan by its name.
-      operationId: AppliedPlan_IJQ7T
+      operationId: AppliedPlan_AW0GF
       responses:
         "200":
           description: A successful response.
@@ -11520,7 +11520,7 @@ paths:
   /cosmos/upgrade/v1beta1/current_plan:
     get:
       summary: CurrentPlan queries the current upgrade plan.
-      operationId: CurrentPlan_GKNP7
+      operationId: CurrentPlan_3G4T6
       responses:
         "200":
           description: A successful response.
@@ -11902,7 +11902,7 @@ paths:
     get:
       summary: ModuleVersions queries the list of module versions from state.
       description: "Since: cosmos-sdk 0.43"
-      operationId: ModuleVersions_TQKND
+      operationId: ModuleVersions_EYN51
       responses:
         "200":
           description: A successful response.
@@ -12132,7 +12132,7 @@ paths:
         This rpc is deprecated now that IBC has its own replacement
 
         (https://github.com/cosmos/ibc-go/blob/2c880a22e9f9cc75f62b527ca94aa75ce1106001/proto/ibc/core/client/v1/query.proto#L54)
-      operationId: UpgradedConsensusState_EDB2B
+      operationId: UpgradedConsensusState_FPJ9U
       responses:
         "200":
           description: A successful response.
@@ -12332,7 +12332,7 @@ paths:
   /cosmos/base/tendermint/v1beta1/blocks/latest:
     get:
       summary: GetLatestBlock returns the latest block.
-      operationId: GetLatestBlock_S37V8
+      operationId: GetLatestBlock_JAOXS
       responses:
         "200":
           description: A successful response.
@@ -13041,7 +13041,7 @@ paths:
   "/cosmos/base/tendermint/v1beta1/blocks/{height}":
     get:
       summary: GetBlockByHeight queries block for given height.
-      operationId: GetBlockByHeight_NOB1H
+      operationId: GetBlockByHeight_GDX60
       responses:
         "200":
           description: A successful response.
@@ -13757,7 +13757,7 @@ paths:
   /cosmos/base/tendermint/v1beta1/node_info:
     get:
       summary: GetNodeInfo queries the current node info.
-      operationId: GetNodeInfo_WNXXW
+      operationId: GetNodeInfo_LUJ44
       responses:
         "200":
           description: A successful response.
@@ -14009,7 +14009,7 @@ paths:
   /cosmos/base/tendermint/v1beta1/syncing:
     get:
       summary: GetSyncing queries node syncing.
-      operationId: GetSyncing_IXTTQ
+      operationId: GetSyncing_K12CC
       responses:
         "200":
           description: A successful response.
@@ -14194,7 +14194,7 @@ paths:
   /cosmos/base/tendermint/v1beta1/validatorsets/latest:
     get:
       summary: GetLatestValidatorSet queries latest validator-set.
-      operationId: GetLatestValidatorSet_9TMUV
+      operationId: GetLatestValidatorSet_M0ARX
       responses:
         "200":
           description: A successful response.
@@ -14622,7 +14622,7 @@ paths:
   "/cosmos/base/tendermint/v1beta1/validatorsets/{height}":
     get:
       summary: GetValidatorSetByHeight queries validator-set at a given height.
-      operationId: GetValidatorSetByHeight_90RIO
+      operationId: GetValidatorSetByHeight_VOUAV
       responses:
         "200":
           description: A successful response.
@@ -15057,7 +15057,7 @@ paths:
     get:
       summary: Accounts returns all the existing accounts
       description: "Since: cosmos-sdk 0.43"
-      operationId: Accounts_TLMXD
+      operationId: Accounts_5L8AC
       responses:
         "200":
           description: A successful response.
@@ -15475,7 +15475,7 @@ paths:
   "/cosmos/auth/v1beta1/accounts/{address}":
     get:
       summary: Account returns account details based on address.
-      operationId: Account_4FKLX
+      operationId: Account_EG82T
       responses:
         "200":
           description: A successful response.
@@ -15816,7 +15816,7 @@ paths:
   "/cosmos/auth/v1beta1/module_accounts/{name}":
     get:
       summary: ModuleAccountByName returns the module account info by module name
-      operationId: ModuleAccountByName_XNU9Q
+      operationId: ModuleAccountByName_41YT2
       responses:
         "200":
           description: A successful response.
@@ -16156,7 +16156,7 @@ paths:
   /cosmos/auth/v1beta1/params:
     get:
       summary: Params queries all parameters.
-      operationId: Params_0ZXR3
+      operationId: Params_1LZ7S
       responses:
         "200":
           description: A successful response.
@@ -16359,7 +16359,7 @@ paths:
     get:
       summary: DelegatorDelegations queries all delegations of a given delegator
         address.
-      operationId: DelegatorDelegations_C48HE
+      operationId: DelegatorDelegations_ZRRYN
       responses:
         "200":
           description: A successful response.
@@ -16672,7 +16672,7 @@ paths:
   "/cosmos/staking/v1beta1/delegators/{delegator_addr}/redelegations":
     get:
       summary: Redelegations queries redelegations of given address.
-      operationId: Redelegations_G7ZCK
+      operationId: Redelegations_MZ51Y
       responses:
         "200":
           description: A successful response.
@@ -17049,7 +17049,7 @@ paths:
         given
 
         delegator address.
-      operationId: DelegatorUnbondingDelegations_XCNH6
+      operationId: DelegatorUnbondingDelegations_4TWWG
       responses:
         "200":
           description: A successful response.
@@ -17359,7 +17359,7 @@ paths:
       summary: |-
         DelegatorValidators queries all validators info for given delegator
         address.
-      operationId: DelegatorValidators_OM0LY
+      operationId: DelegatorValidators_G2QPS
       responses:
         "200":
           description: A successful response.
@@ -17884,7 +17884,7 @@ paths:
       summary: |-
         DelegatorValidator queries validator info for given delegator validator
         pair.
-      operationId: DelegatorValidator_CA0VN
+      operationId: DelegatorValidator_V6NEA
       responses:
         "200":
           description: A successful response.
@@ -18334,7 +18334,7 @@ paths:
   "/cosmos/staking/v1beta1/historical_info/{height}":
     get:
       summary: HistoricalInfo queries the historical info for given height.
-      operationId: HistoricalInfo_FUTZR
+      operationId: HistoricalInfo_73LK0
       responses:
         "200":
           description: A successful response.
@@ -18863,7 +18863,7 @@ paths:
   /cosmos/staking/v1beta1/params:
     get:
       summary: Parameters queries the staking parameters.
-      operationId: Params_SE6XR
+      operationId: Params_03U7V
       responses:
         "200":
           description: A successful response.
@@ -19069,7 +19069,7 @@ paths:
   /cosmos/staking/v1beta1/pool:
     get:
       summary: Pool queries the pool info.
-      operationId: Pool_1VOXO
+      operationId: Pool_EKEJM
       responses:
         "200":
           description: A successful response.
@@ -19259,7 +19259,7 @@ paths:
   /cosmos/staking/v1beta1/validators:
     get:
       summary: Validators queries all validators that match the given status.
-      operationId: Validators_ZL0PY
+      operationId: Validators_PZ9O6
       responses:
         "200":
           description: A successful response.
@@ -19781,7 +19781,7 @@ paths:
   "/cosmos/staking/v1beta1/validators/{validator_addr}":
     get:
       summary: Validator queries validator info for given validator address.
-      operationId: Validator_2JL5V
+      operationId: Validator_S24T2
       responses:
         "200":
           description: A successful response.
@@ -20224,7 +20224,7 @@ paths:
   "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations":
     get:
       summary: ValidatorDelegations queries delegate info for given validator.
-      operationId: ValidatorDelegations_BWII0
+      operationId: ValidatorDelegations_NIZHE
       responses:
         "200":
           description: A successful response.
@@ -20535,7 +20535,7 @@ paths:
   "/cosmos/staking/v1beta1/validators/{validator_addr}/delegations/{delegator_addr}":
     get:
       summary: Delegation queries delegate info for given validator delegator pair.
-      operationId: Delegation_R5SYX
+      operationId: Delegation_QTO6U
       responses:
         "200":
           description: A successful response.
@@ -20775,7 +20775,7 @@ paths:
       summary: |-
         UnbondingDelegation queries unbonding info for given validator delegator
         pair.
-      operationId: UnbondingDelegation_U1SA8
+      operationId: UnbondingDelegation_PDF91
       responses:
         "200":
           description: A successful response.
@@ -21012,7 +21012,7 @@ paths:
     get:
       summary: ValidatorUnbondingDelegations queries unbonding delegations of a
         validator.
-      operationId: ValidatorUnbondingDelegations_QD7BY
+      operationId: ValidatorUnbondingDelegations_OXQ5O
       responses:
         "200":
           description: A successful response.
@@ -21317,10 +21317,10 @@ paths:
             type: boolean
       tags:
         - gRPC Gateway API
-  /juno/feeshare/v1/FeeShares:
+  /juno/feeshare/v1/fee_shares:
     get:
       summary: FeeShares retrieves all registered FeeShares
-      operationId: FeeShares_4TNZF
+      operationId: FeeShares_PNZSS
       responses:
         "200":
           description: A successful response.
@@ -21612,10 +21612,10 @@ paths:
             type: boolean
       tags:
         - gRPC Gateway API
-  "/juno/feeshare/v1/FeeShares/{contract_address}":
+  "/juno/feeshare/v1/fee_shares/{contract_address}":
     get:
       summary: FeeShare retrieves a registered FeeShare for a given contract address
-      operationId: FeeShare_XF0BX
+      operationId: FeeShare_4V51J
       responses:
         "200":
           description: A successful response.
@@ -21831,12 +21831,12 @@ paths:
             type: string
       tags:
         - gRPC Gateway API
-  "/juno/feeshare/v1/FeeShares/{deployer_address}":
+  "/juno/feeshare/v1/fee_shares/{deployer_address}":
     get:
       summary: |-
         DeployerFeeShares retrieves all FeeShares that a given deployer has
         registered
-      operationId: DeployerFeeShares_AY3MO
+      operationId: DeployerFeeShares_PD8UJ
       responses:
         "200":
           description: A successful response.
@@ -22109,12 +22109,12 @@ paths:
             type: boolean
       tags:
         - gRPC Gateway API
-  "/juno/feeshare/v1/FeeShares/{withdrawer_address}":
+  "/juno/feeshare/v1/fee_shares/{withdrawer_address}":
     get:
       summary: |-
         WithdrawerFeeShares retrieves all FeeShares with a given withdrawer
         address
-      operationId: WithdrawerFeeShares_2MDAG
+      operationId: WithdrawerFeeShares_F7VDD
       responses:
         "200":
           description: A successful response.
@@ -22390,7 +22390,7 @@ paths:
   /juno/feeshare/v1/params:
     get:
       summary: Params retrieves the FeeShare module params
-      operationId: Params_VZXUK
+      operationId: Params_CRVW9
       responses:
         "200":
           description: A successful response.
@@ -22600,7 +22600,7 @@ paths:
   /juno/oracle/v1/denoms/active_exchange_rates:
     get:
       summary: ActiveExchangeRates returns all active denoms
-      operationId: ActiveExchangeRates_7DZV4
+      operationId: ActiveExchangeRates_Q1I14
       responses:
         "200":
           description: A successful response.
@@ -22795,7 +22795,7 @@ paths:
       summary: |-
         ExchangeRates returns exchange rates of all denoms,
         or, if specified, returns a single denom
-      operationId: ExchangeRates_E5WKN
+      operationId: ExchangeRates_DPNQQ
       responses:
         "200":
           description: A successful response.
@@ -23008,7 +23008,7 @@ paths:
   /juno/oracle/v1/params:
     get:
       summary: Params queries all parameters.
-      operationId: Params_RPLXB
+      operationId: Params_GSQZ7
       responses:
         "200":
           description: A successful response.
@@ -23242,7 +23242,7 @@ paths:
       summary: |-
         ArithmeticTwapPriceBetweenTime return denom twap price between startTime
         and endTime
-      operationId: ArithmeticTwapPriceBetweenTime_U1GS6
+      operationId: ArithmeticTwapPriceBetweenTime_WBM67
       responses:
         "200":
           description: A successful response.
@@ -23456,7 +23456,7 @@ paths:
   /juno/oracle/v1/price_history/PriceHistoryAtTime:
     get:
       summary: PriceHistoryAtTime return price of denom at specific time
-      operationId: PriceHistoryAtTime_QNCKJ
+      operationId: PriceHistoryAtTime_GUWM2
       responses:
         "200":
           description: A successful response.
@@ -23671,7 +23671,7 @@ paths:
   /juno/oracle/v1/price_history/tracking_lists:
     get:
       summary: TwapTrackingLists return all price tracking denom
-      operationId: TwapTrackingLists_0X27N
+      operationId: TwapTrackingLists_15CGY
       responses:
         "200":
           description: A successful response.
@@ -23856,7 +23856,7 @@ paths:
   "/juno/oracle/v1/price_history/{denom}":
     get:
       summary: AllPriceHistory return all price history of denom
-      operationId: AllPriceHistory_LHPVM
+      operationId: AllPriceHistory_YRMRA
       responses:
         "200":
           description: A successful response.
@@ -24152,7 +24152,7 @@ paths:
   /juno/oracle/v1/slash_window:
     get:
       summary: SlashWindow returns slash window information
-      operationId: SlashWindow_2TK6S
+      operationId: SlashWindow_GI98O
       responses:
         "200":
           description: A successful response.
@@ -24342,7 +24342,7 @@ paths:
   "/juno/oracle/v1/valdiators/{validator_addr}/aggregate_vote":
     get:
       summary: AggregateVote returns an aggregate vote of a validator
-      operationId: AggregateVote_STRFF
+      operationId: AggregateVote_O1TQ2
       responses:
         "200":
           description: A successful response.
@@ -24557,7 +24557,7 @@ paths:
   /juno/oracle/v1/validators/aggregate_prevotes:
     get:
       summary: AggregatePrevotes returns aggregate prevotes of all validators
-      operationId: AggregatePrevotes_TDPDF
+      operationId: AggregatePrevotes_61J5I
       responses:
         "200":
           description: A successful response.
@@ -24768,7 +24768,7 @@ paths:
   /juno/oracle/v1/validators/aggregate_votes:
     get:
       summary: AggregateVotes returns aggregate votes of all validators
-      operationId: AggregateVotes_DYE6Z
+      operationId: AggregateVotes_8WOBG
       responses:
         "200":
           description: A successful response.
@@ -24978,7 +24978,7 @@ paths:
   "/juno/oracle/v1/validators/{validator_addr}/aggregate_prevote":
     get:
       summary: AggregatePrevote returns an aggregate prevote of a validator
-      operationId: AggregatePrevote_NVNDB
+      operationId: AggregatePrevote_OEKN5
       responses:
         "200":
           description: A successful response.
@@ -25189,7 +25189,7 @@ paths:
   "/juno/oracle/v1/validators/{validator_addr}/feeder":
     get:
       summary: FeederDelegation returns feeder delegation of a validator
-      operationId: FeederDelegation_Y10A2
+      operationId: FeederDelegation_TOTMU
       responses:
         "200":
           description: A successful response.
@@ -25383,7 +25383,7 @@ paths:
   "/juno/oracle/v1/validators/{validator_addr}/miss":
     get:
       summary: MissCounter returns oracle miss counter of a validator
-      operationId: MissCounter_HTL9N
+      operationId: MissCounter_KMSKB
       responses:
         "200":
           description: A successful response.
@@ -25579,7 +25579,7 @@ paths:
     get:
       summary: QueryInterchainAccount returns the interchain account for given owner
         address on a given connection pair
-      operationId: InterchainAccount_DQH8L
+      operationId: InterchainAccount_QJJY1
       responses:
         "200":
           description: A successful response.
@@ -25775,7 +25775,7 @@ paths:
   /cosmos/base/node/v1beta1/config:
     get:
       summary: Config queries for the operator configuration.
-      operationId: Config_AZI5J
+      operationId: Config_372RC
       responses:
         "200":
           description: A successful response.
@@ -25960,7 +25960,7 @@ paths:
   /cosmos/evidence/v1beta1/evidence:
     get:
       summary: AllEvidence queries all evidence.
-      operationId: AllEvidence_PRYPD
+      operationId: AllEvidence_B39ND
       responses:
         "200":
           description: A successful response.
@@ -26386,7 +26386,7 @@ paths:
   "/cosmos/evidence/v1beta1/evidence/{evidence_hash}":
     get:
       summary: Evidence queries evidence based on evidence hash.
-      operationId: Evidence_2C7MG
+      operationId: Evidence_85SLI
       responses:
         "200":
           description: A successful response.
@@ -26728,7 +26728,7 @@ paths:
   /cosmos/mint/v1beta1/annual_provisions:
     get:
       summary: AnnualProvisions current minting annual provisions value.
-      operationId: AnnualProvisions_TCK4A
+      operationId: AnnualProvisions_KBQRU
       responses:
         "200":
           description: A successful response.
@@ -26916,7 +26916,7 @@ paths:
   /cosmos/mint/v1beta1/inflation:
     get:
       summary: Inflation returns the current minting inflation value.
-      operationId: Inflation_MSB0C
+      operationId: Inflation_NUM5N
       responses:
         "200":
           description: A successful response.
@@ -27106,7 +27106,7 @@ paths:
   /cosmos/mint/v1beta1/params:
     get:
       summary: Params returns the total set of minting parameters.
-      operationId: Params_QJ63R
+      operationId: Params_PNPPK
       responses:
         "200":
           description: A successful response.
@@ -27300,7 +27300,7 @@ paths:
   "/cosmos/feegrant/v1beta1/allowance/{granter}/{grantee}":
     get:
       summary: Allowance returns fee granted to the grantee by the granter.
-      operationId: Allowance_F9GTT
+      operationId: Allowance_9R0CC
       responses:
         "200":
           description: A successful response.
@@ -27662,7 +27662,7 @@ paths:
   "/cosmos/feegrant/v1beta1/allowances/{grantee}":
     get:
       summary: Allowances returns all the grants for address.
-      operationId: Allowances_XWRFU
+      operationId: Allowances_4SEAZ
       responses:
         "200":
           description: A successful response.
@@ -28104,7 +28104,7 @@ paths:
       summary: |-
         AllowancesByGranter returns all the grants given by an address
         Since v0.46
-      operationId: AllowancesByGranter_DBQR7
+      operationId: AllowancesByGranter_MNXRS
       responses:
         "200":
           description: A successful response.
@@ -28544,7 +28544,7 @@ paths:
   "/cosmos/gov/v1beta1/params/{params_type}":
     get:
       summary: Params queries all parameters of the gov module.
-      operationId: Params_SBUQQ
+      operationId: Params_JYG65
       responses:
         "200":
           description: A successful response.
@@ -28796,7 +28796,7 @@ paths:
   /cosmos/gov/v1beta1/proposals:
     get:
       summary: Proposals queries all proposals based on given status.
-      operationId: Proposals_XYYSL
+      operationId: Proposals_CR6TN
       responses:
         "200":
           description: A successful response.
@@ -29333,7 +29333,7 @@ paths:
   "/cosmos/gov/v1beta1/proposals/{proposal_id}":
     get:
       summary: Proposal queries proposal details based on ProposalID.
-      operationId: Proposal_7O39I
+      operationId: Proposal_PR67O
       responses:
         "200":
           description: A successful response.
@@ -29748,7 +29748,7 @@ paths:
   "/cosmos/gov/v1beta1/proposals/{proposal_id}/deposits":
     get:
       summary: Deposits queries all deposits of a single proposal.
-      operationId: Deposits_AJXVN
+      operationId: Deposits_7TSUP
       responses:
         "200":
           description: A successful response.
@@ -30056,7 +30056,7 @@ paths:
   "/cosmos/gov/v1beta1/proposals/{proposal_id}/deposits/{depositor}":
     get:
       summary: Deposit queries single deposit information based proposalID, depositAddr.
-      operationId: Deposit_TI3F7
+      operationId: Deposit_M3Q3U
       responses:
         "200":
           description: A successful response.
@@ -30283,7 +30283,7 @@ paths:
   "/cosmos/gov/v1beta1/proposals/{proposal_id}/tally":
     get:
       summary: TallyResult queries the tally of a proposal vote.
-      operationId: TallyResult_4HGP1
+      operationId: TallyResult_OM4W0
       responses:
         "200":
           description: A successful response.
@@ -30486,7 +30486,7 @@ paths:
   "/cosmos/gov/v1beta1/proposals/{proposal_id}/votes":
     get:
       summary: Votes queries votes of a given proposal.
-      operationId: Votes_NWEXN
+      operationId: Votes_LUDR4
       responses:
         "200":
           description: A successful response.
@@ -30825,7 +30825,7 @@ paths:
   "/cosmos/gov/v1beta1/proposals/{proposal_id}/votes/{voter}":
     get:
       summary: Vote queries voted information based on proposalID, voterAddr.
-      operationId: Vote_J3JDS
+      operationId: Vote_LNL7O
       responses:
         "200":
           description: A successful response.
@@ -31081,7 +31081,7 @@ paths:
         - gRPC Gateway API
   /gaia/globalfee/v1beta1/minimum_gas_prices:
     get:
-      operationId: MinimumGasPrices_AODA4
+      operationId: MinimumGasPrices_2XGO1
       responses:
         "200":
           description: A successful response.
@@ -31282,7 +31282,7 @@ paths:
   /cosmos/distribution/v1beta1/community_pool:
     get:
       summary: CommunityPool queries the community pool coins.
-      operationId: CommunityPool_P4UT2
+      operationId: CommunityPool_DQPVQ
       responses:
         "200":
           description: A successful response.
@@ -31488,7 +31488,7 @@ paths:
       summary: |-
         DelegationTotalRewards queries the total rewards accrued by a each
         validator.
-      operationId: DelegationTotalRewards_1G6EL
+      operationId: DelegationTotalRewards_UT690
       responses:
         "200":
           description: A successful response.
@@ -31727,7 +31727,7 @@ paths:
   "/cosmos/distribution/v1beta1/delegators/{delegator_address}/rewards/{validator_address}":
     get:
       summary: DelegationRewards queries the total rewards accrued by a delegation.
-      operationId: DelegationRewards_2T81T
+      operationId: DelegationRewards_Q3LK6
       responses:
         "200":
           description: A successful response.
@@ -31942,7 +31942,7 @@ paths:
   "/cosmos/distribution/v1beta1/delegators/{delegator_address}/validators":
     get:
       summary: DelegatorValidators queries the validators of a delegator.
-      operationId: DelegatorValidators_PZRRD
+      operationId: DelegatorValidators_YBX8N
       responses:
         "200":
           description: A successful response.
@@ -32138,7 +32138,7 @@ paths:
   "/cosmos/distribution/v1beta1/delegators/{delegator_address}/withdraw_address":
     get:
       summary: DelegatorWithdrawAddress queries withdraw address of a delegator.
-      operationId: DelegatorWithdrawAddress_9O18C
+      operationId: DelegatorWithdrawAddress_3CNHG
       responses:
         "200":
           description: A successful response.
@@ -32334,7 +32334,7 @@ paths:
   /cosmos/distribution/v1beta1/params:
     get:
       summary: Params queries params of the distribution module.
-      operationId: Params_MS7IA
+      operationId: Params_JYHQ7
       responses:
         "200":
           description: A successful response.
@@ -32529,7 +32529,7 @@ paths:
   "/cosmos/distribution/v1beta1/validators/{validator_address}/commission":
     get:
       summary: ValidatorCommission queries accumulated commission for a validator.
-      operationId: ValidatorCommission_3XQK4
+      operationId: ValidatorCommission_L0UD4
       responses:
         "200":
           description: A successful response.
@@ -32741,7 +32741,7 @@ paths:
   "/cosmos/distribution/v1beta1/validators/{validator_address}/outstanding_rewards":
     get:
       summary: ValidatorOutstandingRewards queries rewards of a validator address.
-      operationId: ValidatorOutstandingRewards_7RBVY
+      operationId: ValidatorOutstandingRewards_EYH99
       responses:
         "200":
           description: A successful response.
@@ -32959,7 +32959,7 @@ paths:
   "/cosmos/distribution/v1beta1/validators/{validator_address}/slashes":
     get:
       summary: ValidatorSlashes queries slash events of a validator.
-      operationId: ValidatorSlashes_Q6OCU
+      operationId: ValidatorSlashes_7BMPF
       responses:
         "200":
           description: A successful response.
@@ -33270,7 +33270,7 @@ paths:
   /cosmos/slashing/v1beta1/params:
     get:
       summary: Params queries the parameters of slashing module
-      operationId: Params_KJVJV
+      operationId: Params_K2B6M
       responses:
         "200":
           description: A successful response.
@@ -33470,7 +33470,7 @@ paths:
   /cosmos/slashing/v1beta1/signing_infos:
     get:
       summary: SigningInfos queries signing info of all validators
-      operationId: SigningInfos_TGOJO
+      operationId: SigningInfos_8XZTJ
       responses:
         "200":
           description: A successful response.
@@ -33788,7 +33788,7 @@ paths:
   "/cosmos/slashing/v1beta1/signing_infos/{cons_address}":
     get:
       summary: SigningInfo queries the signing info of given cons address
-      operationId: SigningInfo_A4R7I
+      operationId: SigningInfo_YKV2X
       responses:
         "200":
           description: A successful response.
@@ -34027,7 +34027,7 @@ paths:
       summary: |-
         DenomAuthorityMetadata defines a gRPC query method for fetching
         DenomAuthorityMetadata for a particular denom.
-      operationId: DenomAuthorityMetadata_PRTVN
+      operationId: DenomAuthorityMetadata_8KAEA
       responses:
         "200":
           description: A successful response.
@@ -34234,7 +34234,7 @@ paths:
       summary: |-
         DenomsFromCreator defines a gRPC query method for fetching all
         denominations created by a specific admin/creator.
-      operationId: DenomsFromCreator_TK7DI
+      operationId: DenomsFromCreator_7DSED
       responses:
         "200":
           description: A successful response.
@@ -34434,7 +34434,7 @@ paths:
         module's
 
         parameters.
-      operationId: Params_8E7QD
+      operationId: Params_JJSTB
       responses:
         "200":
           description: A successful response.
@@ -34638,7 +34638,7 @@ paths:
   /cosmos/authz/v1beta1/grants:
     get:
       summary: Returns list of `Authorization`, granted to the grantee by the granter.
-      operationId: Grants_HRXUH
+      operationId: Grants_T7GUJ
       responses:
         "200":
           description: A successful response.
@@ -35088,7 +35088,7 @@ paths:
     get:
       summary: GranteeGrants returns a list of `GrantAuthorization` by grantee.
       description: "Since: cosmos-sdk 0.45.2"
-      operationId: GranteeGrants_MR4BP
+      operationId: GranteeGrants_PO58T
       responses:
         "200":
           description: A successful response.
@@ -35533,7 +35533,7 @@ paths:
     get:
       summary: GranterGrants returns list of `GrantAuthorization`, granted by granter.
       description: "Since: cosmos-sdk 0.45.2"
-      operationId: GranterGrants_3JD0J
+      operationId: GranterGrants_REXEA
       responses:
         "200":
           description: A successful response.
