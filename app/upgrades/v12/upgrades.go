@@ -28,6 +28,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	globalfeetypes "github.com/cosmos/gaia/v8/x/globalfee/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
+
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 )
 
 // Returns "ujunox" if the chain is uni, else returns the standard ujuno token denom.
@@ -177,6 +179,9 @@ func CreateV12UpgradeHandler(
 		}
 		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
 		logger.Info("set feeshare params")
+
+		// Packet Forward middleware initial params
+		keepers.PacketForwardKeeper.SetParams(ctx, packetforwardtypes.DefaultParams())
 
 		return versionMap, err
 	}

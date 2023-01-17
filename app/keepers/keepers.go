@@ -57,6 +57,10 @@ import (
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 	ibchookskeeper "github.com/osmosis-labs/osmosis/x/ibc-hooks/keeper"
 
+	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v4/router"
+	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v4/router/keeper"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
+
 	"github.com/CosmWasm/token-factory/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmWasm/token-factory/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
@@ -88,26 +92,27 @@ type AppKeepers struct {
 	memKeys map[string]*sdk.MemoryStoreKey
 
 	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.BaseKeeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    stakingkeeper.Keeper
-	SlashingKeeper   slashingkeeper.Keeper
-	MintKeeper       mintkeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        govkeeper.Keeper
-	CrisisKeeper     crisiskeeper.Keeper
-	UpgradeKeeper    upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	IBCFeeKeeper     ibcfeekeeper.Keeper
-	IBCHooksKeeper   *ibchookskeeper.Keeper
-	EvidenceKeeper   evidencekeeper.Keeper
-	TransferKeeper   ibctransferkeeper.Keeper
-	AuthzKeeper      authzkeeper.Keeper
-	FeeGrantKeeper   feegrantkeeper.Keeper
-	FeeShareKeeper   feesharekeeper.Keeper
-	ContractKeeper   *wasmkeeper.PermissionedKeeper
+	AccountKeeper       authkeeper.AccountKeeper
+	BankKeeper          bankkeeper.BaseKeeper
+	CapabilityKeeper    *capabilitykeeper.Keeper
+	StakingKeeper       stakingkeeper.Keeper
+	SlashingKeeper      slashingkeeper.Keeper
+	MintKeeper          mintkeeper.Keeper
+	DistrKeeper         distrkeeper.Keeper
+	GovKeeper           govkeeper.Keeper
+	CrisisKeeper        crisiskeeper.Keeper
+	UpgradeKeeper       upgradekeeper.Keeper
+	ParamsKeeper        paramskeeper.Keeper
+	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	IBCFeeKeeper        ibcfeekeeper.Keeper
+	IBCHooksKeeper      *ibchookskeeper.Keeper
+	PacketForwardKeeper *packetforwardkeeper.Keeper
+	EvidenceKeeper      evidencekeeper.Keeper
+	TransferKeeper      ibctransferkeeper.Keeper
+	AuthzKeeper         authzkeeper.Keeper
+	FeeGrantKeeper      feegrantkeeper.Keeper
+	FeeShareKeeper      feesharekeeper.Keeper
+	ContractKeeper      *wasmkeeper.PermissionedKeeper
 
 	OracleKeeper        oraclekeeper.Keeper
 	ICAControllerKeeper icacontrollerkeeper.Keeper
@@ -261,16 +266,6 @@ func NewAppKeepers(
 		scopedIBCKeeper,
 	)
 
-	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
-		appCodec, appKeepers.keys[ibcfeetypes.StoreKey],
-		appKeepers.GetSubspace(ibcfeetypes.ModuleName),
-		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
-		&appKeepers.IBCKeeper.PortKeeper,
-		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
-	)
-
 	appKeepers.FeeGrantKeeper = feegrantkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[feegrant.StoreKey],
@@ -305,19 +300,44 @@ func NewAppKeepers(
 		appKeepers.Ics20WasmHooks,
 	)
 
+	// Initialize packet forward middleware router
+	appKeepers.PacketForwardKeeper = packetforwardkeeper.NewKeeper(
+		appCodec, appKeepers.keys[packetforwardtypes.StoreKey],
+		appKeepers.GetSubspace(packetforwardtypes.ModuleName),
+		appKeepers.TransferKeeper, // Will be zero-value here. Reference is set later on with SetTransferKeeper.
+		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.DistrKeeper,
+		appKeepers.BankKeeper,
+		&appKeepers.IBCKeeper.PortKeeper,
+		// The ICS4Wrapper is replaced by the HooksICS4Wrapper instead of the channel so that sending can be overridden by the middleware
+		&appKeepers.HooksICS4Wrapper,
+	)
+
+	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
+		appCodec, appKeepers.keys[ibcfeetypes.StoreKey],
+		appKeepers.GetSubspace(ibcfeetypes.ModuleName), // this isn't even used in the keeper but is required?
+		appKeepers.PacketForwardKeeper,                 // replaced with IBC middleware
+		appKeepers.IBCKeeper.ChannelKeeper,
+		&appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+	)
+
 	// Create Transfer Keepers
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[ibctransfertypes.StoreKey],
 		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
-		// The ICS4Wrapper is replaced by the HooksICS4Wrapper instead of the channel so that sending can be overridden by the middleware
-		appKeepers.HooksICS4Wrapper,
+		// The ICS4Wrapper is replaced by the PacketForwardKeeper instead of the channel so that sending can be overridden by the middleware
+		appKeepers.PacketForwardKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		scopedTransferKeeper,
 	)
+
+	appKeepers.PacketForwardKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
 		appCodec,
@@ -440,8 +460,16 @@ func NewAppKeepers(
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule
 	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper)
+	transferStack = packetforward.NewIBCMiddleware(
+		transferStack,
+		appKeepers.PacketForwardKeeper,
+		0,
+		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
+		packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+	)
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
 	transferStack = ibchooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
+
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is:
 	// channel.RecvPacket -> fee.OnRecvPacket -> icaHost.OnRecvPacket
 	icaHostStack := ibcfee.NewIBCMiddleware(icaHostIBCModule, appKeepers.IBCFeeKeeper)
@@ -493,6 +521,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypes.ParamKeyTable())
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
+	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
