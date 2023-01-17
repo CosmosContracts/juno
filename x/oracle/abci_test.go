@@ -76,7 +76,7 @@ var (
 	initCoins  = sdk.NewCoins(sdk.NewCoin(bondDenom, initTokens))
 )
 
-var historacleTestCases = []struct {
+var OracleHistoryTestCases = []struct {
 	exchangeRates           []string
 	expectedHistoricTWAPMax sdk.Dec
 	expectedHistoricTWAPMin sdk.Dec
@@ -99,10 +99,10 @@ var historacleTestCases = []struct {
 	},
 }
 
-func (s *IntegrationTestSuite) TestEndblockerHistoracle() {
+func (s *IntegrationTestSuite) TestOracleHistoryEndBlocker() {
 	app, ctx := s.app, s.ctx
 
-	for _, tc := range historacleTestCases {
+	for _, tc := range OracleHistoryTestCases {
 		startTimeStamp := time.Now().UTC() // store timestamp before insertions
 
 		ctx = ctx.WithBlockHeight(ctx.BlockHeight() + int64(app.OracleKeeper.GetParams(ctx).VotePeriod-1))

@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	binanceWSHost   = "stream.binance.com:9443"
+	binanceWSHost   = "fstream.binance.com:443"
 	binanceWSPath   = "/ws/umeestream"
 	binanceRestHost = "https://api1.binance.com"
 	binanceRestPath = "/api/v3/ticker/price"

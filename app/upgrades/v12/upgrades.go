@@ -4,28 +4,29 @@ import (
 	"fmt"
 	"strings"
 
-	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmosContracts/juno/v12/app/keepers"
-	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
-	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	// ICA
+	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 
+	// types
+	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	globalfeetypes "github.com/cosmos/gaia/v8/x/globalfee/types"
-
-	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
@@ -66,21 +67,26 @@ func CreateV12UpgradeHandler(
 		hostParams := icahosttypes.Params{
 			HostEnabled: true,
 			AllowMessages: []string{
+				// bank
 				sdk.MsgTypeURL(&banktypes.MsgSend{}),
 				sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
+				// staking
 				sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
 				sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
 				sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
 				sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
 				sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
+				// distribution
 				sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
 				sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
 				sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
 				sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
+				// gov
 				sdk.MsgTypeURL(&govtypes.MsgVote{}),
 				sdk.MsgTypeURL(&govtypes.MsgVoteWeighted{}),
 				sdk.MsgTypeURL(&govtypes.MsgSubmitProposal{}),
 				sdk.MsgTypeURL(&govtypes.MsgDeposit{}),
+				// authz
 				sdk.MsgTypeURL(&authz.MsgExec{}),
 				sdk.MsgTypeURL(&authz.MsgGrant{}),
 				sdk.MsgTypeURL(&authz.MsgRevoke{}),

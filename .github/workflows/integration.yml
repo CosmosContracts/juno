@@ -8,13 +8,17 @@ on:
     branches:
       - 'main'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Docker compose
-        run: STAKE_TOKEN="ujunox" docker-compose up -d
+        run: STAKE_TOKEN="ujunox" TIMEOUT_COMMIT=500ms docker-compose up -d
       - name: Checkout
         uses: actions/checkout@v3
         with:
