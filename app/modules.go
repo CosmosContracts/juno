@@ -56,6 +56,8 @@ import (
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
+	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v4/router"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 )
 
 // module account permissions
@@ -106,6 +108,7 @@ var ModuleBasics = module.NewBasicManager(
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
+	packetforward.AppModuleBasic{},
 )
 
 func appModules(
@@ -146,6 +149,7 @@ func appModules(
 		intertx.NewAppModule(appCodec, app.InterTxKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		ibchooks.NewAppModule(app.AccountKeeper),
+		packetforward.NewAppModule(app.PacketForwardKeeper),
 	}
 }
 
@@ -204,6 +208,7 @@ func orderBeginBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		packetforwardtypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		oracletypes.ModuleName,
@@ -237,6 +242,7 @@ func orderEndBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		packetforwardtypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		oracletypes.ModuleName,
@@ -270,6 +276,7 @@ func orderInitBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		packetforwardtypes.ModuleName,
 		oracletypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
