@@ -33,7 +33,6 @@ const (
 	defaultMinHeight  = "1000"
 )
 
-// forceprune gets cmd to convert any bech32 address to an osmo prefix.
 func forceprune() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "forceprune",
