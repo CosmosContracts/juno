@@ -2,11 +2,13 @@
 
 # Call this from the ./scripts/protoc_swagger_openapi_gen.sh script
 
-# merged protoc definitions together into 1 JSOB file without duplicate keys
+# merged protoc definitions together into 1 JSON file without duplicate keys
 # this is done AFTER swagger-merger has been run, merging the multiple name-#.json files into 1.
 
 import json
 import os
+import random
+import string
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 project_root = os.path.dirname(current_dir)
@@ -14,6 +16,7 @@ project_root = os.path.dirname(current_dir)
 all_dir = os.path.join(project_root, "tmp-swagger-gen", "_all")
 
 # What we will save when all combined
+output: dict
 output = {
     "swagger": "2.0",
     "info": {"title": "Juno network", "version": "v12"},
@@ -23,8 +26,7 @@ output = {
     "definitions": {},
 }
 
-# combine all individual files calls into 1 massive file.
-# Duplicate key references are removed.
+# Combine all individual files calls into 1 massive file.
 for file in os.listdir(all_dir):
     if not file.endswith(".json"):
         continue
@@ -39,9 +41,6 @@ for file in os.listdir(all_dir):
     for key in data["definitions"]:
         output["definitions"][key] = data["definitions"][key]
 
-
-import random
-import string
 
 # loop through all paths, then alter any keys which are "operationId" to be a random string of 20 characters
 # this is done to avoid duplicate keys in the final output (which opens 2 tabs in swagger-ui)
