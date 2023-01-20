@@ -13,7 +13,7 @@ export HOME_DIR=$(eval echo "${HOME_DIR:-"~/.juno/"}")
 export HOME_DIRB=$(eval echo "${HOME_DIRB:-"~/.juno-2/"}")
 
 export BINARY=${BINARY:-junodv11}
-export NEW_BINARY=${BINARY:-junod}
+export NEW_BINARY=${NEW_BINARY:-junod}
 export CLEAN=${CLEAN:-"false"}
 
 export TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-"5s"}
@@ -180,7 +180,7 @@ sleep 10
 
 # submit prop tio vote and halt eventually
 echo -e "\n\n\n\nSUBMIT PROPOSAL"
-$BINARY tx gov submit-proposal software-upgrade v12 --title "v12 upgrade test" --description "test upgrade" --deposit 1000000ujuno --upgrade-height 6 --from $KEY --keyring-backend test --home $HOME_DIR --chain-id $CHAIN_ID --yes --broadcast-mode block
+$BINARY tx gov submit-proposal software-upgrade v12 --title "v12 upgrade test" --description "test upgrade" --deposit 1000000ujuno --upgrade-height 7 --from $KEY --keyring-backend test --home $HOME_DIR --chain-id $CHAIN_ID --yes --broadcast-mode block
 echo -e "\n\n\nVOTE"
 ID="1" && $BINARY tx gov vote $ID yes --from $KEY --keyring-backend $KEYRING --chain-id $CHAIN_ID --broadcast-mode block --yes
 $BINARY q gov proposal $ID
@@ -189,11 +189,9 @@ sleep 30
 # better way?
 echo -e "\n\n\nKILL ALL JUNOD"
 killall -9 junod & killall -9 junodv11
-sleep 5
+sleep 2
 
-exit 1
-
-echo -e "\n\n\nSTART"
+echo -e "\n\n\nSTART NEW"
 # start both again in the background
 $NEW_BINARY start --pruning=nothing  --minimum-gas-prices=0ujuno --rpc.laddr="tcp://0.0.0.0:$RPC" --p2p.persistent_peers="$BINARY_2_PEER"@127.0.0.1:$P2PB &
 
