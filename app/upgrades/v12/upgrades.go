@@ -11,8 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	// ICA
-	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
-	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
+
 	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 
@@ -58,12 +57,7 @@ func CreateV12UpgradeHandler(
 		vm[icatypes.ModuleName] = mm.Modules[icatypes.ModuleName].ConsensusVersion()
 		logger.Info("upgraded icatypes version")
 
-		// create ICS27 Controller submodule params, controller module not enabled.
-		controllerParams := icacontrollertypes.Params{
-			ControllerEnabled: true,
-		}
-
-		// create ICS27 Host submodule params
+		// Update ICS27 Host submodule params
 		hostParams := icahosttypes.Params{
 			HostEnabled: true,
 			AllowMessages: []string{
@@ -123,13 +117,9 @@ func CreateV12UpgradeHandler(
 
 		// New modules run AFTER the migrations, so to set the correct params after the default.
 
-		// initialize ICS27 module
-		icamodule, correctTypecast := mm.Modules[icatypes.ModuleName].(ica.AppModule)
-		if !correctTypecast {
-			panic("mm.Modules[icatypes.ModuleName] is not of type ica.AppModule")
-		}
-		icamodule.InitModule(ctx, controllerParams, hostParams)
-		logger.Info("upgraded ica module")
+		// Set new Host keeper params (messages, controller already enabled from v11)
+		keepers.ICAHostKeeper.SetParams(ctx, hostParams)
+		logger.Info("upgraded ICAHostKeeper params")
 
 		// GlobalFee
 		minGasPrices := sdk.DecCoins{
