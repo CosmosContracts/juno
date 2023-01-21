@@ -222,12 +222,12 @@ $BINARY tx gov submit-proposal software-upgrade v12 --title "v12 upgrade test" -
 echo -e "\n\n\nVOTE"
 ID="1" && $BINARY tx gov vote $ID yes --from $KEY --keyring-backend $KEYRING --chain-id $CHAIN_ID --broadcast-mode block --home $HOME_DIR --yes
 $BINARY q gov proposal $ID
-sleep 30
+sleep 25
 
 # better way?
 echo -e "\n\n\nKILL ALL JUNODv11"
 killall -KILL junodv11
-sleep 10
+sleep 3
 
 echo -e "\n\n\nSTART NEW"
 
