@@ -3,13 +3,16 @@
 #
 # MULTIPLE VALIDATOR SETUP
 # BINARY=junodv11 NEW_BINARY=junod TIMEOUT_COMMIT="5000ms" CLEAN=true sh ./scripts/test_upgrade.sh
+#
+# VALOPER_ADDR=junovaloper1efd63aw40lxf3n4mhf7dzhjkr453axurnh5ze0 FEEDER_ADDRESS=juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk JUNO_DIR="~/.juno1/" sh ./scripts/oracle/run_local_oracle.sh
+# VALOPER_ADDR=junovaloper1hj5fveer5cjtn4wd6wstzugjfdxzl0xp0r8xsx FEEDER_ADDRESS=juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl LISTEN_ADDR="0.0.0.0:7172" JUNO_DIR="~/.juno-2/" sh ./scripts/oracle/run_local_oracle.sh
 
 export KEY="juno1"
-export CHAIN_ID=${CHAIN_ID:-"local-3"}
+export CHAIN_ID=${CHAIN_ID:-"local-1"}
 export MONIKER="localjuno"
 export KEYALGO="secp256k1"
 export KEYRING=${KEYRING:-"test"}
-export HOME_DIR=$(eval echo "${HOME_DIR:-"~/.juno/"}")
+export HOME_DIR=$(eval echo "${HOME_DIR:-"~/.juno1/"}")
 export HOME_DIRB=$(eval echo "${HOME_DIRB:-"~/.juno-2/"}")
 
 export BINARY=${BINARY:-junodv11}
@@ -35,7 +38,8 @@ export GRPC_WEBB=${GRPC_WEBB:-"8091"}
 export ROSETTAB=${ROSETTAB:-"8081"}
 
 # Kill all instances before starting back up
-killall -KILL $BINARY
+killall $BINARY
+killall $NEW_BINARY
 
 junod config keyring-backend $KEYRING
 junod config chain-id $CHAIN_ID
@@ -92,6 +96,9 @@ from_scratch () {
   $BINARY --home=$HOME_DIR add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
   $BINARY --home=$HOME_DIR add-genesis-account juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk 10000000ujuno,1000utest --keyring-backend $KEYRING
   $BINARY --home=$HOME_DIRB add-genesis-account feeacc 10000000ujuno,1000utest --keyring-backend $KEYRING  
+
+  # some random account
+  $BINARY --home=$HOME_DIRB add-genesis-account juno12smx2wdlyttvyzvzg54y2vnqwq2qjatezqwqxu 10000000ujuno,1000utest --keyring-backend $KEYRING  
 
   # since we copy anyways
   # /home/reece/.juno/config/gentx/gentx-5eb04a48391716aee064ed4d1245b14ddd7997ad.json
@@ -173,10 +180,7 @@ $BINARY start --home $HOME_DIR --pruning=nothing  --minimum-gas-prices=0ujuno --
 # start with peer of the other
 $BINARY start --home $HOME_DIRB --pruning=nothing  --minimum-gas-prices=0ujuno --rpc.laddr="tcp://0.0.0.0:$RPCB" --p2p.persistent_peers "$BINARY_1_PEER"@127.0.0.1:$P2P --p2p.laddr="tcp://0.0.0.0:$P2PB" --grpc-web.enable=false --grpc.address="0.0.0.0:$GRPCB" &
 
-
-# killall junod && killall junodv11
-
-sleep 10
+sleep 15
 
 # submit prop tio vote and halt eventually
 echo -e "\n\n\n\nSUBMIT PROPOSAL"
@@ -184,34 +188,33 @@ $BINARY tx gov submit-proposal software-upgrade v12 --title "v12 upgrade test" -
 echo -e "\n\n\nVOTE"
 ID="1" && $BINARY tx gov vote $ID yes --from $KEY --keyring-backend $KEYRING --chain-id $CHAIN_ID --broadcast-mode block --yes
 $BINARY q gov proposal $ID
-sleep 30
+sleep 25
 
 # better way?
-echo -e "\n\n\nKILL ALL JUNOD"
-killall -9 junod & killall -9 junodv11
-sleep 2
+echo -e "\n\n\nKILL ALL JUNODv11"
+killall -KILL junodv11
+sleep 10
 
 echo -e "\n\n\nSTART NEW"
-# start both again in the background
-$NEW_BINARY start --pruning=nothing  --minimum-gas-prices=0ujuno --rpc.laddr="tcp://0.0.0.0:$RPC" --p2p.persistent_peers="$BINARY_2_PEER"@127.0.0.1:$P2PB &
 
-# start with peer of the other
+# # Start the nodes again
+$NEW_BINARY start --home $HOME_DIR --pruning=nothing  --minimum-gas-prices=0ujuno --rpc.laddr="tcp://0.0.0.0:$RPC" --p2p.persistent_peers "$BINARY_2_PEER"@127.0.0.1:$P2PB &
 $NEW_BINARY start --home $HOME_DIRB --pruning=nothing  --minimum-gas-prices=0ujuno --rpc.laddr="tcp://0.0.0.0:$RPCB" --p2p.persistent_peers "$BINARY_1_PEER"@127.0.0.1:$P2P --p2p.laddr="tcp://0.0.0.0:$P2PB" --grpc-web.enable=false --grpc.address="0.0.0.0:$GRPCB" &
 
+# start the price feeder with this info?
 
+# doUpgrade() {
+#   # Run this block manually in your terminal
 
-doUpgrade() {
-  # Run this block manually in your terminal
-
-  # Waitm then we will run these after it halts at height  
+#   # Waitm then we will run these after it halts at height  
 
   
-  # junod q globalfee minimum-gas-prices --node http://localhost:26657
+#   # junod q globalfee minimum-gas-prices --node http://localhost:26657
 
-  $NEWBINARY tx gov submit-proposal param-change ~/Desktop/Work/paramChange.json --from $KEY --keyring-backend $KEYRING --chain-id $CHAINID --yes --broadcast-mode block --node http://localhost:26657 --fees 600ujuno
-  ID="1"
-  $NEWBINARY tx gov vote $ID yes --from $KEY --keyring-backend $KEYRING --chain-id $CHAINID --yes --broadcast-mode block
-  $NEWBINARY q gov proposal $ID
+#   $NEWBINARY tx gov submit-proposal param-change ~/Desktop/Work/paramChange.json --from $KEY --keyring-backend $KEYRING --chain-id $CHAINID --yes --broadcast-mode block --node http://localhost:26657 --fees 600ujuno
+#   ID="1"
+#   $NEWBINARY tx gov vote $ID yes --from $KEY --keyring-backend $KEYRING --chain-id $CHAINID --yes --broadcast-mode block
+#   $NEWBINARY q gov proposal $ID
 
-  junod tx bank send $KEY juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk 1ujuno --keyring-backend $KEYRING --chain-id $CHAINID --yes --broadcast-mode block --fees 500ujuno --gas 150000
-}
+#   junod tx bank send $KEY juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk 1ujuno --keyring-backend $KEYRING --chain-id $CHAINID --yes --broadcast-mode block --fees 500ujuno --gas 150000
+# }
