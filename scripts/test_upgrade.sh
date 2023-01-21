@@ -66,7 +66,7 @@ add_keys () {
   # add to all home dirs
   echo "$WORDS" | $BINARY --home=$HOME_DIR keys add $NAME --keyring-backend $KEYRING --algo $KEYALGO --recover
   echo "$WORDS" | $BINARY --home=$HOME_DIRB keys add $NAME --keyring-backend $KEYRING --algo $KEYALGO --recover
-  # echo "$WORDS" | $BINARY --home=$HOME_DIRC keys add $NAME --keyring-backend $KEYRING --algo $KEYALGO --recover
+  echo "$WORDS" | $BINARY --home=$HOME_DIRC keys add $NAME --keyring-backend $KEYRING --algo $KEYALGO --recover
 }
 
 add_balances () {
@@ -74,7 +74,7 @@ add_balances () {
 
   $BINARY --home=$HOME_DIR add-genesis-account $ADDRESS 10000000ujuno,1000utest --keyring-backend $KEYRING
   $BINARY --home=$HOME_DIRB add-genesis-account $ADDRESS 10000000ujuno,1000utest --keyring-backend $KEYRING
-  # $BINARY --home=$HOME_DIRC add-genesis-account $ADDRESS 10000000ujuno,1000utest --keyring-backend $KEYRING
+  $BINARY --home=$HOME_DIRC add-genesis-account $ADDRESS 10000000ujuno,1000utest --keyring-backend $KEYRING
 }
 
 from_scratch () {
@@ -84,14 +84,14 @@ from_scratch () {
   # remove existing daemon.
   rm -rf $HOME_DIR && echo "Removed $HOME_DIR"  
   rm -rf $HOME_DIRB && echo "Removed $HOME_DIRB"  
-  # rm -rf $HOME_DIRC && echo "Removed $HOME_DIRC"    
+  rm -rf $HOME_DIRC && echo "Removed $HOME_DIRC"    
 
   $BINARY --home=$HOME_DIR init "ahh" --chain-id $CHAIN_ID
   $BINARY --home=$HOME_DIRB init "bee" --chain-id $CHAIN_ID
-  # $BINARY --home=$HOME_DIRC init "cee" --chain-id $CHAIN_ID
+  $BINARY --home=$HOME_DIRC init "cee" --chain-id $CHAIN_ID
 
   # juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk  
-  add_keys "juno1" "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry"
+  add_keys $KEY "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry"
 
   # juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl  
   add_keys "feeacc" "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise"
@@ -124,20 +124,23 @@ from_scratch () {
   # Allocate genesis accounts
   add_balances juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
   add_balances juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl
-  add_balances juno1g20vre3x9l35rwterkrfw47kyhgypzm5ezewjd    
+  add_balances juno1g20vre3x9l35rwterkrfw47kyhgypzm5ezewjd
+
     
+
   # Gentxs
-  $BINARY --home=$HOME_DIR gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID --home $HOME_DIR --ip 127.0.0.1
-  BINARY_1_PEER=$($BINARY tendermint show-node-id --home $HOME_DIR) && echo "$BINARY_1_PEER"  
+  GENTX_DEFAULT="1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID"
+  $BINARY gentx $KEY $GENTX_DEFAULT --home $HOME_DIR
+  BINARY_1_PEER=$($BINARY tendermint show-node-id --home $HOME_DIR)
 
   # 2.
-  $BINARY gentx feeacc 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID --home $HOME_DIRB --ip 127.0.0.1
-  BINARY_2_PEER=$($BINARY tendermint show-node-id --home $HOME_DIRB) && echo "$BINARY_2_PEER"
+  $BINARY gentx feeacc $GENTX_DEFAULT --home $HOME_DIRB
+  BINARY_2_PEER=$($BINARY tendermint show-node-id --home $HOME_DIRB)
   cp $HOME_DIRB/config/gentx/*.json $HOME_DIR/config/gentx/gentx-other.json  
 
   # 3.
-  # $BINARY gentx val3 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID --home $HOME_DIRC --ip 127.0.0.1
-  # BINARY_3_PEER=$($BINARY tendermint show-node-id --home $HOME_DIRC) && echo "$BINARY_3_PEER"
+  # $BINARY gentx val3 $GENTX_DEFAULT --ip 127.0.0.1 --home $HOME_DIRC 
+  # BINARY_3_PEER=$($BINARY tendermint show-node-id --home $HOME_DIRC)
   # cp $HOME_DIRC/config/gentx/*.json $HOME_DIR/config/gentx/gentx-other_2.json  
 
   # Collect genesis tx
@@ -148,7 +151,7 @@ from_scratch () {
 
   # copy it from the first node to the second & 3rd  
   cp $HOME_DIR/config/genesis.json $HOME_DIRB/config/genesis.json
-  # cp $HOME_DIR/config/genesis.json $HOME_DIRC/config/genesis.json
+  cp $HOME_DIR/config/genesis.json $HOME_DIRC/config/genesis.json
 }
 
 # check if CLEAN is not set to false
@@ -156,8 +159,6 @@ if [ "$CLEAN" != "false" ]; then
   echo "Starting from a clean state"
   from_scratch
 fi
-
-
 
 
 update_config () {
@@ -201,22 +202,27 @@ update_config () {
 # update all configs to their respective ports
 update_config "$HOME_DIR" "$RPC" "$REST" "$PROFF_LADDER" "$P2P" "$GRPC" "$GRPC_WEB" "$ROSETTA"
 update_config "$HOME_DIRB" "$RPCB" "$RESTB" "$PROFF_LADDERB" "$P2PB" "$GRPCB" "$GRPC_WEBB" "$ROSETTAB"
-# update_config "$HOME_DIRC" "$RPCC" "$RESTC" "$PROFF_LADDERC" "$P2PC" "$GRPCC" "$GRPC_WEBC" "$ROSETTAC"
+update_config "$HOME_DIRC" "$RPCC" "$RESTC" "$PROFF_LADDERC" "$P2PC" "$GRPCC" "$GRPC_WEBC" "$ROSETTAC"
 
 # Start Nodes
 DEFAULT_START_FLAGS="--grpc-web.enable=false --pruning=default --minimum-gas-prices=0ujuno"
-$BINARY start --home $HOME_DIR $DEFAULT_START_FLAGS --rpc.laddr="tcp://0.0.0.0:$RPC" --p2p.persistent_peers "$BINARY_2_PEER"@127.0.0.1:$P2PB &
-$BINARY start --home $HOME_DIRB $DEFAULT_START_FLAGS --rpc.laddr="tcp://0.0.0.0:$RPCB" --p2p.persistent_peers "$BINARY_1_PEER"@127.0.0.1:$P2P --p2p.laddr="tcp://0.0.0.0:$P2PB" --grpc.address="0.0.0.0:$GRPCB" &
-# $BINARY start --home $HOME_DIRC --pruning=default --minimum-gas-prices=0ujuno --rpc.laddr="tcp://0.0.0.0:$RPCC" --p2p.persistent_peers "$BINARY_2_PEER"@127.0.0.1:$P2PB --p2p.laddr="tcp://0.0.0.0:$P2PC" --grpc-web.enable=false --grpc.address="0.0.0.0:$GRPCC" &
+
+PEER_A="$BINARY_1_PEER"@127.0.0.1:$P2P
+PEER_B="$BINARY_2_PEER"@127.0.0.1:$P2PB
+# PEER_C="$BINARY_3_PEER"@127.0.0.1:$P2PC
+
+$BINARY start --home $HOME_DIR $DEFAULT_START_FLAGS --rpc.laddr="tcp://0.0.0.0:$RPC" --p2p.persistent_peers "$PEER_B" &
+$BINARY start --home $HOME_DIRB $DEFAULT_START_FLAGS --rpc.laddr="tcp://0.0.0.0:$RPCB" --p2p.persistent_peers "$PEER_A" --p2p.laddr="tcp://0.0.0.0:$P2PB" --grpc.address="0.0.0.0:$GRPCB" &
+# $BINARY start --home $HOME_DIRC $DEFAULT_START_FLAGS --rpc.laddr="tcp://0.0.0.0:$RPCC" --p2p.persistent_peers "$PEER_A" --p2p.laddr="tcp://0.0.0.0:$P2PC" --grpc.address="0.0.0.0:$GRPCC" &
 
 sleep 15
 
 echo -e "\n\n\n\nSUBMIT PROPOSAL"
 $BINARY tx gov submit-proposal software-upgrade v12 --title "v12 upgrade test" --description "test upgrade" --deposit 1000000ujuno --upgrade-height 7 --from $KEY --keyring-backend test --home $HOME_DIR --chain-id $CHAIN_ID --yes --broadcast-mode block
 echo -e "\n\n\nVOTE"
-ID="1" && $BINARY tx gov vote $ID yes --from $KEY --keyring-backend $KEYRING --chain-id $CHAIN_ID --broadcast-mode block --yes
+ID="1" && $BINARY tx gov vote $ID yes --from $KEY --keyring-backend $KEYRING --chain-id $CHAIN_ID --broadcast-mode block --home $HOME_DIR --yes
 $BINARY q gov proposal $ID
-sleep 25
+sleep 30
 
 # better way?
 echo -e "\n\n\nKILL ALL JUNODv11"
@@ -225,6 +231,7 @@ sleep 10
 
 echo -e "\n\n\nSTART NEW"
 
-# # Start the nodes again
-$NEW_BINARY start --home $HOME_DIR --pruning=nothing  --minimum-gas-prices=0ujuno --rpc.laddr="tcp://0.0.0.0:$RPC" --p2p.persistent_peers "$BINARY_2_PEER"@127.0.0.1:$P2PB &
-$NEW_BINARY start --home $HOME_DIRB --pruning=nothing  --minimum-gas-prices=0ujuno --rpc.laddr="tcp://0.0.0.0:$RPCB" --p2p.persistent_peers "$BINARY_1_PEER"@127.0.0.1:$P2P --p2p.laddr="tcp://0.0.0.0:$P2PB" --grpc-web.enable=false --grpc.address="0.0.0.0:$GRPCB" &
+# start the nodes again as NEW_BINARY
+DEFAULT_START_FLAGS="--grpc-web.enable=false --pruning=default --minimum-gas-prices=0ujuno"
+$NEW_BINARY start --home $HOME_DIR $DEFAULT_START_FLAGS --rpc.laddr="tcp://0.0.0.0:$RPC" --p2p.persistent_peers "$PEER_B" &
+$NEW_BINARY start --home $HOME_DIRB $DEFAULT_START_FLAGS --rpc.laddr="tcp://0.0.0.0:$RPCB" --p2p.persistent_peers "$PEER_A" --p2p.laddr="tcp://0.0.0.0:$P2PB" --grpc.address="0.0.0.0:$GRPCB" &
