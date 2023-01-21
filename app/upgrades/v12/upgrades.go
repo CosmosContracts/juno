@@ -12,6 +12,7 @@ import (
 
 	// ICA
 
+	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 
@@ -119,6 +120,7 @@ func CreateV12UpgradeHandler(
 
 		// Set new Host keeper params (messages, controller already enabled from v11)
 		keepers.ICAHostKeeper.SetParams(ctx, hostParams)
+		keepers.ICAControllerKeeper.SetParams(ctx, icacontrollertypes.Params{ControllerEnabled: true})
 		logger.Info("upgraded ICAHostKeeper params")
 
 		// GlobalFee
