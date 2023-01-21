@@ -118,7 +118,7 @@ func CreateV12UpgradeHandler(
 
 		// New modules run AFTER the migrations, so to set the correct params after the default.
 
-		// Set new Host keeper params (messages, controller already enabled from v11)
+		// Set ICA Params
 		keepers.ICAHostKeeper.SetParams(ctx, hostParams)
 		keepers.ICAControllerKeeper.SetParams(ctx, icacontrollertypes.Params{ControllerEnabled: true})
 		logger.Info("upgraded ICAHostKeeper params")
