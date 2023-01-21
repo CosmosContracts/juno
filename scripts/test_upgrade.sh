@@ -126,7 +126,8 @@ from_scratch () {
   add_balances juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl
   add_balances juno1g20vre3x9l35rwterkrfw47kyhgypzm5ezewjd
 
-    
+  # set the genesis ica config from the old binary and default params
+  $BINARY add-ica-config --home=$HOME_DIR
 
   # Gentxs
   GENTX_DEFAULT="1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID"
