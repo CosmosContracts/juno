@@ -3,9 +3,9 @@
 # Run after test_node and run_local_oracle.
 # bash ./scripts/oracle/test_oracle_contracts.sh
 
-export CHAIN_ID="${CHAIN_ID:-juno-t1}"
+export CHAIN_ID="${CHAIN_ID:-local-1}"
 export NODE="${NODE:-http://localhost:26657}"
-export TX_FLAGS="--from juno1 --keyring-backend test --chain-id $CHAIN_ID --gas 10000000 --fees 20000ujuno --broadcast-mode block --node $NODE --output json --yes"
+export TX_FLAGS="--from juno1 --keyring-backend test --chain-id $CHAIN_ID --gas 10000000 --fees 25000ujuno --broadcast-mode block --node $NODE --output json --yes --home $HOME/.juno1/"
 
 # upload the contract & get code id
 echo "Uploading contract..."

@@ -17,7 +17,7 @@ price-feeder version
 cp config.example.toml $JUNO_DIR/$ORACLE_FILENAME.toml
 
 # replace gas_price
-sed -i 's/0.0001stake/0.025ujuno/g' $JUNO_DIR/$ORACLE_FILENAME.toml
+sed -i 's/0.0001stake/0ujuno/g' $JUNO_DIR/$ORACLE_FILENAME.toml
 
 # replace feeder address
 # sed -i 's/address = "juno1w20tfhnehc33rgtm9tg8gdtea0svn7twfnyqee"/address = "juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl"/g' $JUNO_DIR/$ORACLE_FILENAME.toml
