@@ -43,7 +43,7 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 // tested in ante_test.go
 func FeePayLogic(fees sdk.Coins, govPercent sdk.Dec, numPairs int) sdk.Coins {
 	var splitFees sdk.Coins
-	for _, c := range fees {
+	for _, c := range fees.Sort() {
 		rewardAmount := govPercent.MulInt(c.Amount).QuoInt64(int64(numPairs)).RoundInt()
 		if !rewardAmount.IsZero() {
 			splitFees = splitFees.Add(sdk.NewCoin(c.Denom, rewardAmount))
@@ -60,22 +60,6 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 		return nil
 	}
 
-	// Get only allowed governance fees to be paid (helps for taxes)
-	// Juno v13 will have a globalFee for setting more allowed denoms later.
-	var fees sdk.Coins
-	if len(params.AllowedDenoms) == 0 {
-		// If empty, we allow all denoms to be used as payment
-		fees = totalFees
-	} else {
-		for _, fee := range totalFees {
-			for _, allowed := range params.AllowedDenoms {
-				if fee.Denom == allowed {
-					fees = fees.Add(fee)
-				}
-			}
-		}
-	}
-
 	// Get valid withdraw addresses from contracts
 	toPay := make([]sdk.AccAddress, 0)
 	for _, msg := range msgs {
@@ -90,6 +74,26 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 			withdrawAddr := shareData.GetWithdrawerAddr()
 			if withdrawAddr != nil && !withdrawAddr.Empty() {
 				toPay = append(toPay, withdrawAddr)
+			}
+		}
+	}
+
+	// Do nothing if no one needs payment
+	if len(toPay) == 0 {
+		return nil
+	}
+
+	// Get only allowed governance fees to be paid (helps for taxes)
+	var fees sdk.Coins
+	if len(params.AllowedDenoms) == 0 {
+		// If empty, we allow all denoms to be used as payment
+		fees = totalFees
+	} else {
+		for _, fee := range totalFees.Sort() {
+			for _, allowed := range params.AllowedDenoms {
+				if fee.Denom == allowed {
+					fees = fees.Add(fee)
+				}
 			}
 		}
 	}
