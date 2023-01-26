@@ -26,7 +26,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	globalfeetypes "github.com/cosmos/gaia/v8/x/globalfee/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
@@ -122,20 +121,6 @@ func CreateV12UpgradeHandler(
 		keepers.ICAHostKeeper.SetParams(ctx, hostParams)
 		keepers.ICAControllerKeeper.SetParams(ctx, icacontrollertypes.Params{ControllerEnabled: true})
 		logger.Info("upgraded ICAHostKeeper params")
-
-		// GlobalFee
-		minGasPrices := sdk.DecCoins{
-			// 0.0025ujuno
-			sdk.NewDecCoinFromDec(nativeDenom, sdk.NewDecWithPrec(25, 4)),
-			// 0.001 ATOM CHANNEL-1 -> `junod q ibc-transfer denom-trace ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9`
-			sdk.NewDecCoinFromDec("ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9", sdk.NewDecWithPrec(1, 3)),
-		}
-		s, ok := keepers.ParamsKeeper.GetSubspace(globalfeetypes.ModuleName)
-		if !ok {
-			panic("global fee params subspace not found")
-		}
-		s.Set(ctx, globalfeetypes.ParamStoreKeyMinGasPrices, minGasPrices)
-		logger.Info(fmt.Sprintf("upgraded global fee params to %s", minGasPrices))
 
 		// Oracle
 		newOracleParams := oracletypes.DefaultParams()
