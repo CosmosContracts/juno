@@ -24,8 +24,6 @@ func updateAppSimulationFlag(flag bool) {
 	decorators.DefaultIsAppSimulation = flag
 }
 
-const maxBypassMinFeeMsgGasUsage = 1_000_000
-
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
 // channel keeper and a BankKeeper with an added method for fee sharing.
 type HandlerOptions struct {
