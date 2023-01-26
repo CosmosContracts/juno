@@ -1,6 +1,6 @@
 
-
 # Oracle Price Feeder
+
 This is Juno's version of [Umee's price feeder](https://github.com/umee-network/umee/tree/main/price-feeder), intended to work with SDK 0.45.11.
 
 The `price-feeder` tool is an extension of Juno's `x/oracle` module, both of
@@ -51,7 +51,7 @@ More information on the keyring can be found [here](#keyring)
 Please see the [example configuration](price-feeder.example.toml) for more details.
 
 ```shell
-$ price-feeder /path/to/price_feeder_config.toml
+price-feeder /path/to/price_feeder_config.toml
 ```
 
 ## Configuration
