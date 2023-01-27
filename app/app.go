@@ -34,10 +34,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
 	ibcclientclient "github.com/cosmos/ibc-go/v4/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
 	"github.com/ignite-hq/cli/ignite/pkg/openapiconsole"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -45,8 +42,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
-
-	"github.com/cosmos/gaia/v8/x/globalfee"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
@@ -60,7 +55,6 @@ import (
 	v11 "github.com/CosmosContracts/juno/v12/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v12/app/upgrades/v12"
 	oracleclient "github.com/CosmosContracts/juno/v12/x/oracle/client"
-	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
 )
 
 const (
@@ -307,16 +301,14 @@ func New(
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
 
-			GovKeeper:            app.GovKeeper,
-			IBCKeeper:            app.IBCKeeper,
-			FeeShareKeeper:       app.FeeShareKeeper,
-			BankKeeperFork:       app.BankKeeper, // since we need extra methods
-			TxCounterStoreKey:    app.GetKey(wasm.StoreKey),
-			WasmConfig:           wasmConfig,
-			Cdc:                  appCodec,
-			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
-			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
-			StakingSubspace:      app.GetSubspace(stakingtypes.ModuleName),
+			GovKeeper:         app.GovKeeper,
+			IBCKeeper:         app.IBCKeeper,
+			FeeShareKeeper:    app.FeeShareKeeper,
+			BankKeeperFork:    app.BankKeeper, // since we need extra methods
+			TxCounterStoreKey: app.GetKey(wasm.StoreKey),
+			WasmConfig:        wasmConfig,
+			Cdc:               appCodec,
+			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName),
 		},
 	)
 	if err != nil {
@@ -364,20 +356,6 @@ func New(
 	app.sm.RegisterStoreDecoders()
 
 	return app
-}
-
-func GetDefaultBypassFeeMessages() []string {
-	return []string{
-		// IBC
-		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
-		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
-		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
-		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
-
-		// Oracle
-		sdk.MsgTypeURL(&oracletypes.MsgAggregateExchangeRatePrevote{}),
-		sdk.MsgTypeURL(&oracletypes.MsgAggregateExchangeRateVote{}),
-	}
 }
 
 // Name returns the name of the App
