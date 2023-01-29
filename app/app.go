@@ -35,7 +35,7 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibcclientclient "github.com/cosmos/ibc-go/v4/modules/core/02-client/client"
-	"github.com/ignite-hq/cli/ignite/pkg/openapiconsole"
+	"github.com/CosmosContracts/juno/v12/app/openapiconsole"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
