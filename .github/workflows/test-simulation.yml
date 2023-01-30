@@ -1,8 +1,12 @@
 ---
 on:  pull_request
 name: Test Simulation 
-jobs:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
   test:
     runs-on: ubuntu-latest
     name: test

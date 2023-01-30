@@ -1,4 +1,5 @@
 # End-to-end Tests
+
 ## Structure
 
 ### `e2e` Package
@@ -16,7 +17,7 @@ an upgrade height, ensures the upgrade happens at the desired height, and
 then checks that operations that worked before still work as intended. If
 testing a fork, the test suite instead starts the chain a few blocks before
 the set fork height and ensures the chain continues after the fork triggers
-the upgrade. Note that a regular upgrade and a fork upgrade are mutually exclusive. 
+the upgrade. Note that a regular upgrade and a fork upgrade are mutually exclusive.
 
 The file e2e\_setup\_test.go defines the testing suite and contains the
 core bootstrapping logic that creates a testing environment via Docker
@@ -72,9 +73,9 @@ Conceptually, we can split the e2e setup into 2 parts:
     details of the configurer. More on this can be found
     [here](https://www.tutorialspoint.com/design_pattern/factory_pattern.htm)
 
-    The rules for deciding on the configurer type 
+    The rules for deciding on the configurer type
     are as follows:
-    
+
     - If only `isIBCEnabled`, we want to have 2 chains initialized at the
     current branch version of Juno codebase
 

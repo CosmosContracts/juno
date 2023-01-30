@@ -12,6 +12,7 @@ export KEYALGO="secp256k1"
 export KEYRING=${KEYRING:-"test"}
 export HOME_DIR=$(eval echo "${HOME_DIR:-"~/.juno/"}")
 
+export BINARY=${BINARY:-junod}
 export CLEAN=${CLEAN:-"false"}
 
 export RPC=${RPC:-"26657"}
@@ -26,7 +27,7 @@ export TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-"5s"}
 junod config keyring-backend $KEYRING
 junod config chain-id $CHAIN_ID
 
-alias BINARY="junod --home=$HOME_DIR"
+alias BINARY="$BINARY --home=$HOME_DIR"
 
 # Debugging
 echo "CHAIN_ID=$CHAIN_ID, HOME_DIR=$HOME_DIR, CLEAN=$CLEAN, RPC=$RPC, REST=$REST, PROFF=$PROFF, P2P=$P2P, GRPC=$GRPC, GRPC_WEB=$GRPC_WEB, ROSETTA=$ROSETTA, TIMEOUT_COMMIT=$TIMEOUT_COMMIT"
@@ -35,7 +36,7 @@ command -v junod > /dev/null 2>&1 || { echo >&2 "junod command not found. Ensure
 command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
 
 from_scratch () {
-
+  # Fresh install on current branch
   make install
 
   # remove existing daemon.
@@ -115,5 +116,5 @@ sed -i 's/address = ":8080"/address = "0.0.0.0:'$ROSETTA'"/g' $HOME_DIR/config/a
 # faster blocks
 sed -i 's/timeout_commit = "5s"/timeout_commit = "'$TIMEOUT_COMMIT'"/g' $HOME_DIR/config/config.toml
 
-
+# Start the node with 0 gas fees
 BINARY start --pruning=nothing  --minimum-gas-prices=0ujuno --rpc.laddr="tcp://0.0.0.0:$RPC"

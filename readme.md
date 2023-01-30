@@ -21,14 +21,13 @@ Juno originates from a **community-driven initiative**, prompted by developers, 
 If you have [Docker](https://www.docker.com/) installed, then you can run a local node with a single command.
 
 ```bash
-STAKE_TOKEN=ujunox UNSAFE_CORS=true docker-compose up
+STAKE_TOKEN=ujunox UNSAFE_CORS=true TIMEOUT_COMMIT=1s docker-compose up
 ```
 
 ## Learn more
 
-- [Juno](https://junochain.com)
-- [Starport](https://github.com/tendermint/starport)
+- [Juno](https://junonetwork.io)
+- [Discord](https://discord.gg/QcWPfK4gJ2)
+- [Telegram](https://t.me/JunoNetwork)
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
-- [Telegram](https://t.me/JunoNetwork)
-- [Discord](https://discord.gg/QcWPfK4gJ2)

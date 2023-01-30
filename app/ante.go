@@ -18,30 +18,25 @@ import (
 
 	feeshareante "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
-	gaiafeeante "github.com/cosmos/gaia/v8/x/globalfee/ante"
 )
 
 func updateAppSimulationFlag(flag bool) {
 	decorators.DefaultIsAppSimulation = flag
 }
 
-const maxBypassMinFeeMsgGasUsage = 1_000_000
-
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
 // channel keeper and a BankKeeper with an added method for fee sharing.
 type HandlerOptions struct {
 	ante.HandlerOptions
 
-	GovKeeper            govkeeper.Keeper
-	IBCKeeper            *ibckeeper.Keeper
-	FeeShareKeeper       feesharekeeper.Keeper
-	BankKeeperFork       feeshareante.BankKeeper
-	TxCounterStoreKey    sdk.StoreKey
-	WasmConfig           wasmTypes.WasmConfig
-	Cdc                  codec.BinaryCodec
-	BypassMinFeeMsgTypes []string
-	GlobalFeeSubspace    paramtypes.Subspace
-	StakingSubspace      paramtypes.Subspace
+	GovKeeper         govkeeper.Keeper
+	IBCKeeper         *ibckeeper.Keeper
+	FeeShareKeeper    feesharekeeper.Keeper
+	BankKeeperFork    feeshareante.BankKeeper
+	TxCounterStoreKey sdk.StoreKey
+	WasmConfig        wasmTypes.WasmConfig
+	Cdc               codec.BinaryCodec
+	StakingSubspace   paramtypes.Subspace
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -78,7 +73,6 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace, maxBypassMinFeeMsgGasUsage),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
