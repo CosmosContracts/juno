@@ -62,11 +62,11 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 	chainA := s.configurer.GetChainConfig(0)
 	node := chainA.NodeConfigs[0]
 	wallet := initialization.ValidatorWalletName
-	params, err := node.QueryTokenFactoryParams()
-	s.Require().NoError(err)
-	mintCost := params.Params.DenomCreationFee[0]
+	// params, err := node.QueryTokenFactoryParams()
+	// s.Require().NoError(err)
+	// mintCost := params.Params.DenomCreationFee[0]
 
-	mintCostStr := fmt.Sprintf("%s%s", mintCost.Amount.String(), mintCost.Denom)
+	// mintCostStr := fmt.Sprintf("%s%s", mintCost.Amount.String(), mintCost.Denom)
 
 	// Store Contract
 	node.StoreWasmCode("stargate_exchange_rate_query.wasm", wallet)
