@@ -384,7 +384,6 @@ $ junod q oracle twap JUNO 1675053795 1675093795
 			queryClient := types.NewQueryClient(clientCtx)
 			var startTime, endTime time.Time
 			startTime, endTime, err := twapQueryUnixParseArgs(args)
-
 			if err != nil {
 				startTime, endTime, err = twapQueryRFCParseArgs(args)
 				if err != nil {
