@@ -4,7 +4,7 @@
 package e2e
 
 import (
-	"fmt"
+	// "fmt"
 	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
 	// sdk "github.com/cosmos/cosmos-sdk/types"
 	"strconv"
