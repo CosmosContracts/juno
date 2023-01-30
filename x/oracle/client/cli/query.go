@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -372,22 +373,23 @@ func GetCmdQueryTwapPrice() *cobra.Command {
 		Use:   "twap [denom] [start_time] [end_time]",
 		Short: "Query twap between period time",
 		Long: strings.TrimSpace(
-			`Query twap for pool. Start and end time must be in RFC3339 format.
+			`Query twap for pool. Start and end time must be in RFC3339 format or UNIX format.
 Example:
 $ junod q oracle twap JUNO 2022-12-25T19:42:07.100Z 2022-12-25T20:42:07.100Z
+$ junod q oracle twap JUNO 1675053795 1675093795
 `),
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
+			var startTime, endTime time.Time
+			startTime, endTime, err := twapQueryUnixParseArgs(args)
 
-			startTime, err := time.Parse(time.RFC3339, args[1])
 			if err != nil {
-				return err
-			}
-			endTime, err := time.Parse(time.RFC3339, args[2])
-			if err != nil {
-				return err
+				startTime, endTime, err = twapQueryRFCParseArgs(args)
+				if err != nil {
+					return err
+				}
 			}
 
 			req := &types.QueryArithmeticTwapPriceBetweenTime{
@@ -403,4 +405,46 @@ $ junod q oracle twap JUNO 2022-12-25T19:42:07.100Z 2022-12-25T20:42:07.100Z
 
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
+}
+
+func twapQueryRFCParseArgs(args []string) (startTime time.Time, endTime time.Time, err error) {
+	// RFC3339 TIME PARSE
+	startTime, err = time.Parse(time.RFC3339, args[1])
+	if err != nil {
+		return
+	}
+	endTime, err = time.Parse(time.RFC3339, args[2])
+	if err != nil {
+		return
+	}
+
+	return startTime, endTime, nil
+}
+
+func twapQueryUnixParseArgs(args []string) (startTime time.Time, endTime time.Time, err error) {
+	startTime, err = ParseUnixTime(args[1], "start time")
+	if err != nil {
+		return
+	}
+
+	// try parsing in unix time, if failed try parsing in duration
+	endTime, err = ParseUnixTime(args[2], "end time")
+	if err != nil {
+		duration, err2 := time.ParseDuration(args[2])
+		if err2 != nil {
+			err = err2
+			return
+		}
+		endTime = startTime.Add(duration)
+	}
+	return startTime, endTime, nil
+}
+
+func ParseUnixTime(arg string, fieldName string) (time.Time, error) {
+	timeUnix, err := strconv.ParseInt(arg, 10, 64)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("could not parse %s as unix time for field %s: %w", arg, fieldName, err)
+	}
+	startTime := time.Unix(timeUnix, 0)
+	return startTime, nil
 }
