@@ -4,10 +4,10 @@ go 1.19
 
 require (
 	github.com/CosmWasm/token-factory v0.0.0-20221024170206-1345f322c887
-	github.com/CosmWasm/wasmd v0.30.0
-	github.com/CosmWasm/wasmvm v1.1.1
-	github.com/cosmos/cosmos-sdk v0.45.11
-	github.com/cosmos/ibc-go/v4 v4.2.0
+	github.com/CosmWasm/wasmd v0.31.0-rc0
+	github.com/CosmWasm/wasmvm v1.2.0
+	github.com/cosmos/cosmos-sdk v0.45.12
+	github.com/cosmos/ibc-go/v4 v4.3.0
 	github.com/cosmos/interchain-accounts v0.2.5
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
@@ -28,10 +28,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require (
-	github.com/tendermint/btcd v0.1.1 // indirect
-	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 // indirect
-)
+require github.com/tidwall/btree v1.5.0 // indirect
 
 require (
 	filippo.io/edwards25519 v1.0.0-rc.1 // indirect
