@@ -98,3 +98,9 @@ func CreateV11UpgradeHandler(mm *module.Manager, cfg module.Configurator, icahos
 
 	}
 }
+
+func CreateV12UpgradeHandler(mm *module.Manager, cfg module.Configurator) upgradetypes.UpgradeHandler {
+	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return mm.RunMigrations(ctx, cfg, vm)
+	}
+}
