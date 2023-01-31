@@ -17,11 +17,11 @@ func AddGenesisWasmMsgCmd(defaultNodeHome string) *cobra.Command {
 	}
 	genesisIO := wasmcli.NewDefaultGenesisIO()
 	txCmd.AddCommand(
-		wasmcli.GenesisStoreCodeCmd(defaultNodeHome, genesisIO),
-		wasmcli.GenesisInstantiateContractCmd(defaultNodeHome, genesisIO),
-		wasmcli.GenesisExecuteContractCmd(defaultNodeHome, genesisIO),
+		wasmcli.StoreCodeCmd(defaultNodeHome, genesisIO),
+		wasmcli.InstantiateContractCmd(defaultNodeHome, genesisIO),
+		wasmcli.ExecuteContractCmd(defaultNodeHome, genesisIO),
 		wasmcli.GenesisListContractsCmd(defaultNodeHome, genesisIO),
-		wasmcli.GenesisListCodesCmd(defaultNodeHome, genesisIO),
+		wasmcli.ListCodesCmd(defaultNodeHome, genesisIO),
 	)
 	return txCmd
 }
