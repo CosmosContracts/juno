@@ -1,7 +1,7 @@
 package v2
 
 import (
-	"github.com/CosmosContracts/juno/v11/x/mint/types"
+	"github.com/CosmosContracts/juno/v12/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
