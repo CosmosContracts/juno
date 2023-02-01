@@ -18,8 +18,6 @@ const (
 	skipUpgradeEnv = "JUNO_E2E_SKIP_UPGRADE"
 	// Environment variable name to skip the oracle tests
 	skipOracleEnv = "JUNO_E2E_SKIP_ORACLE"
-	// Environment variable name to skip the Price History tests
-	skipPriceHistoryEnv = "JUNO_E2E_SKIP_PRICE_HISTORY"
 	// Environment variable name to skip the IBC tests
 	skipIBCEnv = "JUNO_E2E_SKIP_IBC"
 	// Environment variable name to skip state sync testing
@@ -35,13 +33,12 @@ const (
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	configurer       configurer.Configurer
-	skipUpgrade      bool
-	skipIBC          bool
-	skipStateSync    bool
-	forkHeight       int
-	skipOracle       bool
-	skipPriceHistory bool
+	configurer    configurer.Configurer
+	skipUpgrade   bool
+	skipIBC       bool
+	skipStateSync bool
+	forkHeight    int
+	skipOracle    bool
 }
 
 func TestIntegrationTestSuite(t *testing.T) {
@@ -92,13 +89,6 @@ func (s *IntegrationTestSuite) SetupSuite() {
 			s.T().Logf("%s was true, skipping oracle tests", skipOracleEnv)
 		}
 	}
-	if str := os.Getenv(skipPriceHistoryEnv); len(str) > 0 {
-		s.skipPriceHistory, err = strconv.ParseBool(str)
-		s.Require().NoError(err)
-		if s.skipPriceHistory {
-			s.T().Logf("%s was true, skipping price-history tests", skipPriceHistoryEnv)
-		}
-	}
 	if str := os.Getenv("JUNO_E2E_SKIP_STATE_SYNC"); len(str) > 0 {
 		s.skipStateSync, err = strconv.ParseBool(str)
 		s.Require().NoError(err)
@@ -121,7 +111,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 		s.T().Logf("upgrade version set to %s", upgradeSettings.Version)
 	}
 
-	s.configurer, err = configurer.New(s.T(), !s.skipOracle, !s.skipPriceHistory, !s.skipIBC, isDebugLogEnabled, upgradeSettings)
+	s.configurer, err = configurer.New(s.T(), !s.skipOracle, !s.skipIBC, isDebugLogEnabled, upgradeSettings)
 	s.Require().NoError(err)
 
 	err = s.configurer.ConfigureChains()

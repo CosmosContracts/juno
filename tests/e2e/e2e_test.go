@@ -36,6 +36,7 @@ func (s *IntegrationTestSuite) TestOracle() {
 	}
 	chainA := s.configurer.GetChainConfig(0)
 	chainANode, err := chainA.GetDefaultNode()
+	wallet := initialization.ValidatorWalletName
 	s.Require().NoError(err)
 	for i := 1; i < 10; i++ {
 		exchangerates, err := chainANode.QueryExchangeRates()
@@ -45,25 +46,6 @@ func (s *IntegrationTestSuite) TestOracle() {
 		}
 		time.Sleep(60 * time.Second)
 	}
-	s.Require().Eventually(func() bool {
-		exchangerates, err := chainANode.QueryExchangeRates()
-		s.Require().NoError(err)
-		return exchangerates != ""
-	},
-		3*time.Minute,
-		500*time.Millisecond,
-	)
-}
-
-func (s *IntegrationTestSuite) TestExchangeRate() {
-	if s.skipPriceHistory {
-		s.T().Skip()
-	}
-	chainA := s.configurer.GetChainConfig(0)
-	node := chainA.NodeConfigs[0]
-	wallet := initialization.ValidatorWalletName
-
-	// Store Contract
 	node.StoreWasmCode("stargate_exchange_rate_query.wasm", wallet)
 	chainA.LatestCodeID = int(node.QueryLatestWasmCodeID())
 	node.InstantiateWasmContract(
@@ -79,7 +61,15 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 	contractAddr := contracts[0]
 
 	// Successfully create a denom for the wasm contract
-	node.QueryContractState(contractAddr, '{"query_stargate_exchange_rates":{"denom":"test"}}')
+	node.QueryContractState(contractAddr, `{"query_stargate_exchange_rates":{"denom":"ujuno"}}`)
+	s.Require().Eventually(func() bool {
+		exchangerates, err := chainANode.QueryExchangeRates()
+		s.Require().NoError(err)
+		return exchangerates != ""
+	},
+		3*time.Minute,
+		500*time.Millisecond,
+	)
 }
 
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
