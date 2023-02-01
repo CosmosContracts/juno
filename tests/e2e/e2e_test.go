@@ -62,19 +62,14 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 	chainA := s.configurer.GetChainConfig(0)
 	node := chainA.NodeConfigs[0]
 	wallet := initialization.ValidatorWalletName
-	params, err := node.QueryTokenFactoryParams()
-	s.Require().NoError(err)
-	mintCost := params.Params.DenomCreationFee[0]
-
-	mintCostStr := fmt.Sprintf("%s%s", mintCost.Amount.String(), mintCost.Denom)
 
 	// Store Contract
 	node.StoreWasmCode("stargate_exchange_rate_query.wasm", wallet)
-	chainA.LatestCodeID = 1
+	chainA.LatestCodeID = int(node.QueryLatestWasmCodeID())
 	node.InstantiateWasmContract(
 		strconv.Itoa(chainA.LatestCodeID),
 		"{}",
-		"exchange_rate",
+		"{}",
 		wallet,
 		"",
 	)
@@ -84,7 +79,7 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 	contractAddr := contracts[0]
 
 	// Successfully create a denom for the wasm contract
-	node.WasmExecute(contractAddr, `{"denom":"test"}`, wallet, mintCostStr, tfSuccessCode)
+	node.WasmExecute(contractAddr, `{"denom":"test"}`, wallet)
 }
 
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
@@ -121,9 +116,9 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 // 	contractAddr := contracts[0]
 
 // 	// Successfully create a denom for the wasm contract
-// 	node.WasmExecute(contractAddr, `{"create_denom":{"subdenom":"test"}}`, wallet, mintCostStr, tfSuccessCode)
+// 	node.WasmExecuteWithSuccessString(contractAddr, `{"create_denom":{"subdenom":"test"}}`, wallet, mintCostStr, tfSuccessCode)
 // 	// failing to create a denom
-// 	node.WasmExecute(contractAddr, fmt.Sprintf(`{"create_denom":{"subdenom":"%s"}}`, strings.Repeat("a", 61)), wallet, mintCostStr, "subdenom too long")
+// 	node.WasmExecuteWithSuccessString(contractAddr, fmt.Sprintf(`{"create_denom":{"subdenom":"%s"}}`, strings.Repeat("a", 61)), wallet, mintCostStr, "subdenom too long")
 
 // 	ourDenom := fmt.Sprintf("factory/%s/test", contractAddr) // factory/juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8/test
 
@@ -134,7 +129,7 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 // 	// Mint some tokens to an account (our contract in this case) via bank module
 // 	amt := 100
 // 	msg := fmt.Sprintf(`{"mint_tokens":{"amount":"%d","denom":"%s","mint_to_address":"%s"}}`, amt, ourDenom, contractAddr)
-// 	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
+// 	node.WasmExecuteWithSuccessString(contractAddr, msg, wallet, "", tfSuccessCode)
 
 // 	// Mint Balance Check
 // 	balance, err := node.QueryBalances(contractAddr)
@@ -143,7 +138,7 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 
 // 	// Burn some of the tokens (can only be done for the contract which owns them = blank)
 // 	msg = fmt.Sprintf(`{"burn_tokens":{"amount":"5","denom":"%s","burn_from_address":""}}`, ourDenom)
-// 	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
+// 	node.WasmExecuteWithSuccessString(contractAddr, msg, wallet, "", tfSuccessCode)
 
 // 	// Balance Check after burn -5
 // 	balance, err = node.QueryBalances(contractAddr)
@@ -152,7 +147,7 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 
 // 	// Transfer admin to another account
 // 	msg = fmt.Sprintf(`{"change_admin":{"denom":"%s","new_admin_address":"%s"}}`, ourDenom, "juno1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaavju90c")
-// 	node.WasmExecute(contractAddr, msg, wallet, "", tfSuccessCode)
+// 	node.WasmExecuteWithSuccessString(contractAddr, msg, wallet, "", tfSuccessCode)
 // }
 
 // func (s *IntegrationTestSuite) checkBalance(coins sdk.Coins, expected sdk.Coins) {

@@ -116,6 +116,21 @@ func (n *NodeConfig) QueryContractsFromID(codeID int) ([]string, error) {
 	return contractsResponse.Contracts, nil
 }
 
+func (n *NodeConfig) QueryLatestWasmCodeID() uint64 {
+	path := "/cosmwasm/wasm/v1/code"
+
+	bz, err := n.QueryGRPCGateway(path)
+	require.NoError(n.t, err)
+
+	var response wasmtypes.QueryCodesResponse
+	err = util.Cdc.UnmarshalJSON(bz, &response)
+	require.NoError(n.t, err)
+	if len(response.CodeInfos) == 0 {
+		return 0
+	}
+	return response.CodeInfos[len(response.CodeInfos)-1].CodeID
+}
+
 func (n *NodeConfig) QueryTokenFactoryParams() (tokenfactorytypes.QueryParamsResponse, error) {
 	path := "/osmosis/tokenfactory/v1beta1/params"
 	bz, err := n.QueryGRPCGateway(path)

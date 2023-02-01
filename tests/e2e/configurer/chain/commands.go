@@ -43,7 +43,7 @@ func (n *NodeConfig) InstantiateWasmContract(codeID, initMsg, label, from, admin
 	n.LogActionF("successfully initialized")
 }
 
-func (n *NodeConfig) WasmExecute(contract, execMsg, from, amounts string, successString string) {
+func (n *NodeConfig) WasmExecuteWithSuccessString(contract, execMsg, from, amounts string, successString string) {
 	n.LogActionF("executing %s on wasm contract %s from %s", execMsg, contract, from)
 	cmd := []string{"junod", "tx", "wasm", "execute", contract, execMsg, fmt.Sprintf("--from=%s", from)}
 	if len(amounts) > 0 {
@@ -52,6 +52,15 @@ func (n *NodeConfig) WasmExecute(contract, execMsg, from, amounts string, succes
 
 	n.LogActionF(strings.Join(cmd, " "))
 	_, _, err := n.containerManager.ExecTxCmdWithSuccessString(n.t, n.chainID, n.Name, cmd, successString)
+	require.NoError(n.t, err)
+	n.LogActionF("successfully executed")
+}
+
+func (n *NodeConfig) WasmExecute(contract, execMsg, from string) {
+	n.LogActionF("executing %s on wasm contract %s from %s", execMsg, contract, from)
+	cmd := []string{"junod", "tx", "wasm", "execute", contract, execMsg, fmt.Sprintf("--from=%s", from)}
+	n.LogActionF(strings.Join(cmd, " "))
+	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainID, n.Name, cmd)
 	require.NoError(n.t, err)
 	n.LogActionF("successfully executed")
 }
