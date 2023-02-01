@@ -46,22 +46,22 @@ func (s *IntegrationTestSuite) TestOracle() {
 		}
 		time.Sleep(60 * time.Second)
 	}
-	node.StoreWasmCode("stargate_exchange_rate_query.wasm", wallet)
-	chainA.LatestCodeID = int(node.QueryLatestWasmCodeID())
-	node.InstantiateWasmContract(
+	chainANode.StoreWasmCode("stargate_exchange_rate_query.wasm", wallet)
+	chainA.LatestCodeID = int(chainANode.QueryLatestWasmCodeID())
+	chainANode.InstantiateWasmContract(
 		strconv.Itoa(chainA.LatestCodeID),
 		"{}",
 		"{}",
 		wallet,
 		"",
 	)
-	contracts, err := node.QueryContractsFromID(chainA.LatestCodeID)
+	contracts, err := chainANode.QueryContractsFromID(chainA.LatestCodeID)
 	s.NoError(err)
 	s.Require().Len(contracts, 1, "Wrong number of contracts for the stargate_exchange_rate")
 	contractAddr := contracts[0]
 
 	// Successfully create a denom for the wasm contract
-	node.QueryContractState(contractAddr, `{"query_stargate_exchange_rates":{"denom":"ujuno"}}`)
+	chainANode.QueryContractState(contractAddr, `{"query_stargate_exchange_rates":{"denom":"ujuno"}}`)
 	s.Require().Eventually(func() bool {
 		exchangerates, err := chainANode.QueryExchangeRates()
 		s.Require().NoError(err)
