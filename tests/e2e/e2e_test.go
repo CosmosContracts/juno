@@ -79,7 +79,7 @@ func (s *IntegrationTestSuite) TestExchangeRate() {
 	contractAddr := contracts[0]
 
 	// Successfully create a denom for the wasm contract
-	node.WasmExecute(contractAddr, `{"denom":"test"}`, wallet)
+	node.WasmExecute(contractAddr, `{"query_stargate_exchange_rates":{"denom":"test"}}`, wallet)
 }
 
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
