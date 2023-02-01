@@ -77,6 +77,13 @@ func (n *NodeConfig) QueryParams(subspace, key string, result any) {
 	require.NoError(n.t, err)
 }
 
+func (n *NodeConfig) QueryContractState(contractaddr, key string) {
+	cmd := []string{"junod", "query", "wasm", "contract-state", "smart", contractaddr, key, "--output=json"}
+
+	_, _, err := n.containerManager.ExecCmd(n.t, n.Name, cmd, "")
+	require.NoError(n.t, err)
+}
+
 func (n *NodeConfig) SubmitParamChangeProposal(proposalJSON, from string) {
 	n.LogActionF("submitting param change proposal %s", proposalJSON)
 	// ToDo: Is there a better way to do this?
