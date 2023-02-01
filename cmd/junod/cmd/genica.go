@@ -21,7 +21,7 @@ import (
 
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -53,7 +53,7 @@ func AddGenesisIcaCmd(defaultNodeHome string) *cobra.Command {
 			controllerGenesisState.Params = icacontrollertypes.Params{}
 
 			hostGenesisState := icatypes.DefaultHostGenesis()
-			// add the messages we want (from v12 upgrade handler)
+			// add the messages we want (from old upgrade handler)
 			hostGenesisState.Params = icahosttypes.Params{
 				HostEnabled: true,
 				AllowMessages: []string{

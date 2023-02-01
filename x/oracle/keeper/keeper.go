@@ -15,7 +15,7 @@ import (
 	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	"github.com/CosmosContracts/juno/v13/x/oracle/types"
 )
 
 var ten = sdk.MustNewDecFromStr("10")

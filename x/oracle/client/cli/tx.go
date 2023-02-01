@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	"github.com/CosmosContracts/juno/v13/x/oracle/types"
 )
 
 // GetTxCmd returns the CLI transaction commands for the x/oracle module.

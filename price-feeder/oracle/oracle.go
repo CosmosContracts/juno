@@ -22,7 +22,7 @@ import (
 	"github.com/CosmosContracts/juno/price-feeder/oracle/provider"
 	"github.com/CosmosContracts/juno/price-feeder/oracle/types"
 	pfsync "github.com/CosmosContracts/juno/price-feeder/pkg/sync"
-	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
+	oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 )
 

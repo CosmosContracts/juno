@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v12/app"
-	"github.com/CosmosContracts/juno/v12/x/feeshare"
-	"github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v13/app"
+	"github.com/CosmosContracts/juno/v13/x/feeshare"
+	"github.com/CosmosContracts/juno/v13/x/feeshare/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 

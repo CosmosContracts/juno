@@ -3,7 +3,7 @@ module github.com/CosmosContracts/juno/price-feeder
 go 1.19
 
 require (
-	github.com/CosmosContracts/juno/v12 v12.0.0
+	github.com/CosmosContracts/juno/v13 v13.0.0
 	github.com/armon/go-metrics v0.4.1
 	github.com/cosmos/cosmos-sdk v0.45.11
 	github.com/go-playground/validator/v10 v10.11.1
@@ -150,7 +150,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/ignite-hq/cli v0.22.1 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jgautheron/goconst v1.5.1 // indirect
@@ -285,6 +284,6 @@ require (
 )
 
 replace (
-	github.com/CosmosContracts/juno/v12 => ../
+	github.com/CosmosContracts/juno/v13 => ../
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 )
