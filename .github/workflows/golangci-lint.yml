@@ -12,6 +12,11 @@ permissions:
   contents: read
   # Optional: allow read access to pull request. Use with `only-new-issues` option.
   # pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   golangci:
     name: lint
@@ -21,9 +26,16 @@ jobs:
         with:
           go-version: 1.19
       - uses: actions/checkout@v3
-      - name: golangci-lint
+
+      - name: golangci-lint-junod
         uses: golangci/golangci-lint-action@v3
         with:
-          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
           version: latest
+          args: --timeout 10m
+
+      - name: golangci-lint-price_feeder
+        uses: golangci/golangci-lint-action@v3
+        with:          
+          version: latest
+          working-directory: price-feeder
           args: --timeout 10m

@@ -43,7 +43,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/cosmos/gaia/v8/x/globalfee"
 	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 	ibcfee "github.com/cosmos/ibc-go/v4/modules/apps/29-fee"
@@ -56,6 +55,8 @@ import (
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
+	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v4/router"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 )
 
 // module account permissions
@@ -104,8 +105,8 @@ var ModuleBasics = module.NewBasicManager(
 	intertx.AppModuleBasic{},
 	tokenfactory.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
-	globalfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
+	packetforward.AppModuleBasic{},
 )
 
 func appModules(
@@ -139,13 +140,13 @@ func appModules(
 		transfer.NewAppModule(app.TransferKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
-		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		intertx.NewAppModule(appCodec, app.InterTxKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		ibchooks.NewAppModule(app.AccountKeeper),
+		packetforward.NewAppModule(app.PacketForwardKeeper),
 	}
 }
 
@@ -204,12 +205,12 @@ func orderBeginBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		packetforwardtypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
 	}
@@ -237,12 +238,12 @@ func orderEndBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		packetforwardtypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
 	}
@@ -270,12 +271,12 @@ func orderInitBlockers() []string {
 		ibchost.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
+		packetforwardtypes.ModuleName,
 		oracletypes.ModuleName,
 		intertxtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
 	}

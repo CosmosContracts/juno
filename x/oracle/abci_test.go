@@ -76,35 +76,34 @@ var (
 	initCoins  = sdk.NewCoins(sdk.NewCoin(bondDenom, initTokens))
 )
 
-var historacleTestCases = []struct {
-	exchangeRates        []string
-	expectedHistoricTWAP sdk.Dec
+var OracleHistoryTestCases = []struct {
+	exchangeRates           []string
+	expectedHistoricTWAPMax sdk.Dec
+	expectedHistoricTWAPMin sdk.Dec
 }{
 	{
 		[]string{
 			"1.0", "1.2", "1.1", "1.4", "1.1", "1.15",
 			"1.2", "1.3", "1.2", "1.12", "1.2", "1.15",
 		},
-		sdk.MustNewDecFromStr("1.175"), // TWAP[0, 11]
+		sdk.MustNewDecFromStr("1.18"), // upper bound for TWAP[0, 11]
+		sdk.MustNewDecFromStr("1.16"), // lower bound for TWAP[0, 11]
 	},
 	{
 		[]string{
 			"2.3", "2.12", "2.14", "2.24", "2.18", "2.15",
 			"2.51", "2.59", "2.67", "2.76", "2.89", "2.85",
 		},
-		sdk.MustNewDecFromStr("2.405"), // TWAP[0, 11]
+		sdk.MustNewDecFromStr("2.5"), // upper bound for TWAP[0, 11]
+		sdk.MustNewDecFromStr("2.3"), // lower bound for TWAP[0, 11]
 	},
 }
 
-func (s *IntegrationTestSuite) TestEndblockerHistoracle() {
+func (s *IntegrationTestSuite) TestOracleHistoryEndBlocker() {
 	app, ctx := s.app, s.ctx
 
-	// update historacle params
-	// newOracleParams := types.DefaultParams()
-	// app.OracleKeeper.SetParams(ctx, newOracleParams)
-
-	for _, tc := range historacleTestCases {
-		// startTimeStamp := time.Now().UTC() // store timestamp before insertions
+	for _, tc := range OracleHistoryTestCases {
+		startTimeStamp := time.Now().UTC() // store timestamp before insertions
 
 		ctx = ctx.WithBlockHeight(ctx.BlockHeight() + int64(app.OracleKeeper.GetParams(ctx).VotePeriod-1))
 		ctx = ctx.WithBlockTime(time.Now().UTC())
@@ -140,6 +139,7 @@ func (s *IntegrationTestSuite) TestEndblockerHistoracle() {
 			err = oracle.EndBlocker(ctx, app.OracleKeeper)
 			s.Require().NoError(err)
 
+			// historical prices query
 			for _, denom := range app.OracleKeeper.Whitelist(ctx) {
 				readExchangeRate, err := app.OracleKeeper.GetExchangeRate(ctx, denom.SymbolDenom)
 				s.Require().NoError(err)
@@ -147,19 +147,14 @@ func (s *IntegrationTestSuite) TestEndblockerHistoracle() {
 			}
 		}
 
-		// TODO: test below is throwing "no values in range"
-		// because there is no exchangeRate entry before startTimeStamp
-		// which is a case that can happen and should be fixed in history.go
-
-		// // historical TWAP
-		// for _, denom := range app.OracleKeeper.Whitelist(ctx) {
-		// 	// query for TWAP of all entered exchangeRates
-		// 	twap, err := app.OracleKeeper.GetArithmetricTWAP(ctx, denom.SymbolDenom, startTimeStamp, time.Now().UTC())
-		// 	s.Require().NoError(err)
-		// 	s.Require().Equal(tc.expectedHistoricTWAP, twap)
-		// }
-
-		// historical prices query
+		// historical TWAP
+		for _, denom := range app.OracleKeeper.Whitelist(ctx) {
+			// query for TWAP of all entered exchangeRates
+			twap, err := app.OracleKeeper.GetArithmetricTWAP(ctx, denom.SymbolDenom, startTimeStamp, time.Now().UTC())
+			s.Require().NoError(err)
+			s.Require().True(tc.expectedHistoricTWAPMax.GTE(twap))
+			s.Require().True(tc.expectedHistoricTWAPMin.LTE(twap))
+		}
 
 		ctx = ctx.WithBlockHeight(0)
 		ctx = ctx.WithBlockTime(time.Now().UTC())

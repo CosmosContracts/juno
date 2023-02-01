@@ -12,13 +12,13 @@ Juno version: `Junod version`
 OS & Version: Windows/Linux/OSX
 Commit hash: 
 
-#### Expected behaviour
+#### Expected behavior
 
 
-#### Actual behaviour
+#### Actual behavior
 
 
-#### Steps to reproduce the behaviour
+#### Steps to reproduce the behavior
 
 
 #### Backtrace

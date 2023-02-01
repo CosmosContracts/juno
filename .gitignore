@@ -7,6 +7,7 @@ juno_out.json
 bin
 .vscode
 .ash_history
+tmp-swagger-gen
 
 # emacs editor config
 \#*\#
