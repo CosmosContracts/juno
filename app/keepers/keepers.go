@@ -307,14 +307,14 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
-		// The ICS4Wrapper is replaced by the HooksICS4Wrapper instead of the channel so that sending can be overridden by the middleware
-		&appKeepers.HooksICS4Wrapper,
+		// The ICS4Wrapper is replaced by the IBCFeeKeeper instead of the channel so that sending can be overridden by the middleware
+		&appKeepers.IBCFeeKeeper,
 	)
 
 	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		appCodec, appKeepers.keys[ibcfeetypes.StoreKey],
 		appKeepers.GetSubspace(ibcfeetypes.ModuleName), // this isn't even used in the keeper but is required?
-		appKeepers.PacketForwardKeeper,                 // replaced with IBC middleware
+		appKeepers.HooksICS4Wrapper,                    // replaced with IBC middleware
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
