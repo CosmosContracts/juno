@@ -58,8 +58,8 @@ github.com/CosmWasm/wasmd v0.30.0 h1:oUVz3TgO/+24JZQdoTOlOv+IK7N9hEa/s3M4eR9i4FQ
 github.com/CosmWasm/wasmd v0.30.0/go.mod h1:umLGeYyowAMMEdOYfDOf8jsDrQ75Qkm1+ogBXT/w01c=
 github.com/CosmWasm/wasmvm v1.1.1 h1:0xtdrmmsP9fibe+x42WcMkp5aQ738BICgcH3FNVLzm4=
 github.com/CosmWasm/wasmvm v1.1.1/go.mod h1:ei0xpvomwSdONsxDuONzV7bL1jSET1M8brEx0FCXc+A=
-github.com/CosmosContracts/token-factory v0.0.0-20221224074329-bc7f9501149c h1:wOhMg3+H3PlviDdxqLEF19SXrBHByp86uOon4Vg8jqE=
-github.com/CosmosContracts/token-factory v0.0.0-20221224074329-bc7f9501149c/go.mod h1:fsn73+eDyw1hvDutpDLWbyZzR3dr5yoiaYrg4NODLEE=
+github.com/CosmosContracts/token-factory v0.0.0-20230206185803-325635b64f24 h1:WDDfYY2ixHSTSaoEIPVwXpQ7dHqOXGVObqgJBav2WOo=
+github.com/CosmosContracts/token-factory v0.0.0-20230206185803-325635b64f24/go.mod h1:L6zK+SmhkNRwLqoJlT+29St9ikgof2OLQUEqY8mZDwI=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/zstd v1.5.0/go.mod h1:g4AWEaM3yOg3HYfnJ3YIawPnVdXJh9QME85blwSAmyw=
