@@ -1,6 +1,6 @@
 module github.com/CosmosContracts/juno/v13
 
-go 1.19
+go 1.20
 
 require (
 	github.com/CosmWasm/token-factory v0.0.0-20221024170206-1345f322c887
