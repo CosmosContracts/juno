@@ -18,17 +18,17 @@ const (
 )
 
 // TestIBCTokenTransfer tests that IBC token transfers work as expected.
-// func (s *IntegrationTestSuite) TestIBCTokenTransfer() {
-// 	if s.skipIBC {
-// 		s.T().Skip("Skipping IBC tests")
-// 	}
-// 	chainA := s.configurer.GetChainConfig(0)
-// 	chainB := s.configurer.GetChainConfig(1)
-// 	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.JunoToken)
-// 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.JunoToken)
-// 	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.StakeToken)
-// 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.StakeToken)
-// }
+func (s *IntegrationTestSuite) TestIBCTokenTransfer() {
+	if s.skipIBC {
+		s.T().Skip("Skipping IBC tests")
+	}
+	chainA := s.configurer.GetChainConfig(0)
+	chainB := s.configurer.GetChainConfig(1)
+	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.JunoToken)
+	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.JunoToken)
+	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.StakeToken)
+	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.StakeToken)
+}
 
 func (s *IntegrationTestSuite) TestOracle() {
 	if s.skipOracle {
