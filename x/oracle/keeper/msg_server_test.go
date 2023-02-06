@@ -1,9 +1,9 @@
 package keeper_test
 
 import (
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"math/rand"
 	"strings"
 
 	"github.com/CosmosContracts/juno/v13/x/oracle/types"
