@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/CosmosContracts/juno/v13 v13.0.0
 	github.com/armon/go-metrics v0.4.1
-	github.com/cosmos/cosmos-sdk v0.45.11
+	github.com/cosmos/cosmos-sdk v0.45.12
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golangci/golangci-lint v1.50.1
 	github.com/gorilla/mux v1.8.0
@@ -71,7 +71,7 @@ require (
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.4 // indirect
 	github.com/cosmos/ibc-go/v3 v3.4.0 // indirect
-	github.com/cosmos/ibc-go/v4 v4.2.0 // indirect
+	github.com/cosmos/ibc-go/v4 v4.3.0 // indirect
 	github.com/cosmos/interchain-accounts v0.2.5 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.2 // indirect
 	github.com/creachadair/taskgroup v0.3.2 // indirect
@@ -241,11 +241,10 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7 // indirect
 	github.com/tdakkota/asciicheck v0.1.1 // indirect
-	github.com/tendermint/btcd v0.1.1 // indirect
-	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
 	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b // indirect
 	github.com/tetafro/godot v1.4.11 // indirect
+	github.com/tidwall/btree v1.5.0 // indirect
 	github.com/timakin/bodyclose v0.0.0-20210704033933-f49887972144 // indirect
 	github.com/timonwong/loggercheck v0.9.3 // indirect
 	github.com/tomarrell/wrapcheck/v2 v2.7.0 // indirect
