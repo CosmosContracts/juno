@@ -92,6 +92,14 @@ endif
 include contrib/devtools/Makefile
 
 all: install
+	@echo "--> project root: go mod tidy"	
+	@go mod tidy
+	@echo "--> price-feeder: go mod tidy "	
+	@make -C price-feeder tidy
+	@echo "--> price-feeder: linting --fix"	
+	@make -C price-feeder lint
+	@echo "--> project root: linting --fix"	
+	@GOGC=1 golangci-lint run --fix --timeout=8m
 
 install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/junod
