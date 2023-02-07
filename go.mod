@@ -1,9 +1,6 @@
 module github.com/CosmosContracts/juno/v13
 
-go 1.20
-
-// TODO: REMOVE THIS
-replace github.com/cosmos/cosmos-sdk => github.com/Reecepbcups/cosmos-sdk v0.45.13-alpha
+go 1.19
 
 require (
 	github.com/CosmWasm/token-factory v0.0.0-00010101000000-000000000000
