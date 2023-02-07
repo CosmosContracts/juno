@@ -103,7 +103,6 @@ var ModuleBasics = module.NewBasicManager(
 	wasm.AppModuleBasic{},
 	ica.AppModuleBasic{},
 	intertx.AppModuleBasic{},
-	tokenfactory.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
