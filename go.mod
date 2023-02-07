@@ -2,7 +2,7 @@ module github.com/CosmosContracts/juno/v13
 
 go 1.20
 
-# TODO: REMOVE THIS
+// TODO: REMOVE THIS
 replace github.com/cosmos/cosmos-sdk => github.com/Reecepbcups/cosmos-sdk v0.45.13-alpha
 
 require (
