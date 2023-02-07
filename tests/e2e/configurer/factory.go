@@ -33,7 +33,7 @@ var (
 			// this is a node that is used to state-sync from so its snapshot-interval
 			// is frequent.
 			Name:               "prune-default-snapshot-state-sync-from",
-			Pruning:            "nothing",
+			Pruning:            "default",
 			PruningKeepRecent:  "0",
 			PruningInterval:    "0",
 			SnapshotInterval:   1500,
@@ -60,7 +60,7 @@ var (
 		},
 		{
 			Name:               "prune-everything-no-snapshot",
-			Pruning:            "nothing",
+			Pruning:            "everything",
 			PruningKeepRecent:  "0",
 			PruningInterval:    "0",
 			SnapshotInterval:   0,
@@ -71,7 +71,7 @@ var (
 	validatorConfigsChainB = []*initialization.NodeConfig{
 		{
 			Name:               "prune-default-snapshot",
-			Pruning:            "nothing",
+			Pruning:            "default",
 			PruningKeepRecent:  "0",
 			PruningInterval:    "0",
 			SnapshotInterval:   1500,
