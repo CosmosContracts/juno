@@ -19,24 +19,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      -
-        name: Setup Go
+      - name: Setup Go
         uses: actions/setup-go@v2.2.0
         with:
-          go-version: 1.19
-      -
-        name: Check out repository code
+          go-version: 1.20.0
+      - name: Check out repository code
         uses: actions/checkout@v2
-      -
-        name: Get git diff
+      - name: Get git diff
         uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
             **/**.go
             go.mod
             go.sum
-      -
-        name: Get data from build cache
+      - name: Get data from build cache
         uses: actions/cache@v3
         with:
           # In order:
@@ -52,15 +48,11 @@ jobs:
           key: ${{ runner.os }}-go-docker-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-docker-${{ matrix.go-version }}-
-      -
-        name: Set up QEMU
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      -
-        name: Build e2e image
+      - name: Build e2e image
         run: make docker-build-debug
-      -
-        name: Test e2e oracle
+      - name: Test e2e oracle
         run: make test-e2e-oracle

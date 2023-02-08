@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v12/x/oracle/keeper"
-	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	"github.com/CosmosContracts/juno/v13/x/oracle/keeper"
+	"github.com/CosmosContracts/juno/v13/x/oracle/types"
 )
 
 // isPeriodLastBlock returns true if we are at the last block of the period

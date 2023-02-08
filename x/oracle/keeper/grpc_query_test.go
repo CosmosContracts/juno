@@ -8,10 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 
-	appparams "github.com/CosmosContracts/juno/v12/app/params"
-	"github.com/CosmosContracts/juno/v12/testutil/nullify"
-	"github.com/CosmosContracts/juno/v12/x/oracle/keeper"
-	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	appparams "github.com/CosmosContracts/juno/v13/app/params"
+	"github.com/CosmosContracts/juno/v13/testutil/nullify"
+	"github.com/CosmosContracts/juno/v13/x/oracle/keeper"
+	"github.com/CosmosContracts/juno/v13/x/oracle/types"
 )
 
 func (s *IntegrationTestSuite) TestQuerier_ActiveExchangeRates() {

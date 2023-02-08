@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	appparams "github.com/CosmosContracts/juno/v12/app/params"
+	appparams "github.com/CosmosContracts/juno/v13/app/params"
 )
 
 const (

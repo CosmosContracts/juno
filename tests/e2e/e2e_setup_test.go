@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	configurer "github.com/CosmosContracts/juno/v12/tests/e2e/configurer"
+	configurer "github.com/CosmosContracts/juno/v13/tests/e2e/configurer"
 )
 
 const (

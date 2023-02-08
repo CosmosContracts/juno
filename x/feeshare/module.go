@@ -18,9 +18,9 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/CosmosContracts/juno/v12/x/feeshare/client/cli"
-	"github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v13/x/feeshare/client/cli"
+	"github.com/CosmosContracts/juno/v13/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v13/x/feeshare/types"
 )
 
 // type check to ensure the interface is properly implemented

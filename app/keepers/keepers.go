@@ -7,8 +7,8 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	mintkeeper "github.com/CosmosContracts/juno/v12/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
+	mintkeeper "github.com/CosmosContracts/juno/v13/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v13/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -69,8 +69,8 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
 
-	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v13/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
 
 	// ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller"
@@ -80,8 +80,8 @@ import (
 	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 
-	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
-	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
+	oraclekeeper "github.com/CosmosContracts/juno/v13/x/oracle/keeper"
+	oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
 )
 
 type AppKeepers struct {
