@@ -18,7 +18,8 @@ import (
 	// types
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
-	oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
+
+	// oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 
@@ -71,24 +72,23 @@ func CreateV13UpgradeHandler(
 		keepers.ICAControllerKeeper.SetParams(ctx, icacontrollertypes.Params{ControllerEnabled: true})
 		logger.Info("upgraded ICAHostKeeper params")
 
-		// Oracle
-		newOracleParams := oracletypes.DefaultParams()
+		// // Oracle
+		// newOracleParams := oracletypes.DefaultParams()
 
-		// add osmosis to the oracle params
-		osmosisDenom := oracletypes.Denom{
-			BaseDenom:   "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518",
-			SymbolDenom: "OSMO",
-			Exponent:    uint32(6),
-		}
+		// // add osmosis to the oracle params
+		// osmosisDenom := oracletypes.Denom{
+		// 	BaseDenom:   "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518",
+		// 	SymbolDenom: "OSMO",
+		// 	Exponent:    uint32(6),
+		// }
 
-		allDenoms := oracletypes.DefaultWhitelist
-		allDenoms = append(allDenoms, osmosisDenom)
+		// allDenoms := oracletypes.DefaultWhitelist
+		// allDenoms = append(allDenoms, osmosisDenom)
 
-		newOracleParams.Whitelist = allDenoms
-		newOracleParams.TwapTrackingList = allDenoms
-		logger.Info(fmt.Sprintf("Oracle params set: %s", newOracleParams.String()))
-
-		keepers.OracleKeeper.SetParams(ctx, newOracleParams)
+		// newOracleParams.Whitelist = allDenoms
+		// newOracleParams.TwapTrackingList = allDenoms
+		// logger.Info(fmt.Sprintf("Oracle params set: %s", newOracleParams.String()))
+		// keepers.OracleKeeper.SetParams(ctx, newOracleParams)
 
 		// TokenFactory
 		newTokenFactoryParams := tokenfactorytypes.Params{

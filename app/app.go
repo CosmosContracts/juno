@@ -54,7 +54,7 @@ import (
 	v10 "github.com/CosmosContracts/juno/v13/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v13/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v13/app/upgrades/v12"
-	v13 "github.com/CosmosContracts/juno/v13/app/upgrades/v13"
+	v13p1 "github.com/CosmosContracts/juno/v13/app/upgrades/v13part1"
 	oracleclient "github.com/CosmosContracts/juno/v13/x/oracle/client"
 )
 
@@ -76,7 +76,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade}
+	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13p1.Upgrade}
 )
 
 // These constants are derived from the above variables.
