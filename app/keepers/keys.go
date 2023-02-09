@@ -24,7 +24,8 @@ import (
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
-	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
+
+	// ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 	// intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 	// oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
@@ -45,8 +46,8 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		icacontrollertypes.StoreKey,
 		feesharetypes.StoreKey,
 		packetforwardtypes.StoreKey,
-		ibchookstypes.StoreKey,
 		ibcfeetypes.StoreKey,
+		// ibchookstypes.StoreKey,
 		// intertxtypes.StoreKey,
 		// oracletypes.StoreKey,
 	)

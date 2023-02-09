@@ -8,9 +8,8 @@ import (
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
-
-	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
+	// ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 	// intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 	// oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
 )
@@ -26,10 +25,10 @@ var Upgrade = upgrades.Upgrade{
 			packetforwardtypes.StoreKey,
 			feesharetypes.ModuleName,
 			tokenfactorytypes.ModuleName,
-			ibchookstypes.StoreKey,
-
 			icacontrollertypes.StoreKey,
 			ibcfeetypes.ModuleName,
+
+			// ibchookstypes.StoreKey,
 			// oracletypes.ModuleName,
 			// intertxtypes.ModuleName,
 		},
