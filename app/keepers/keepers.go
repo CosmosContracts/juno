@@ -330,8 +330,8 @@ func NewAppKeepers(
 		appKeepers.keys[ibctransfertypes.StoreKey],
 		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
 		// The ICS4Wrapper is replaced by the PacketForwardKeeper instead of the channel so that sending can be overridden by the middleware
-		// appKeepers.PacketForwardKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper, // TODO: replace this with the above line for v13-part2
+		appKeepers.PacketForwardKeeper,
+		// appKeepers.IBCKeeper.ChannelKeeper, // TODO: replace this with the above line for v13-part2
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
