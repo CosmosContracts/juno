@@ -1,12 +1,12 @@
 module github.com/CosmosContracts/juno/v13
 
-go 1.19
+go 1.20
 
 require (
 	github.com/CosmWasm/token-factory v0.0.0-20221024170206-1345f322c887
 	github.com/CosmWasm/wasmd v0.30.0
 	github.com/CosmWasm/wasmvm v1.1.1
-	github.com/cosmos/cosmos-sdk v0.45.12
+	github.com/cosmos/cosmos-sdk v0.45.13
 	github.com/cosmos/ibc-go/v4 v4.3.0
 	github.com/cosmos/interchain-accounts v0.2.5
 	github.com/gogo/protobuf v1.3.3
@@ -21,8 +21,8 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/tendermint/tendermint v0.34.26
 	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
-	google.golang.org/genproto v0.0.0-20221227171554-f9683d7f8bef
-	google.golang.org/grpc v1.52.3
+	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f
+	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -52,7 +52,7 @@ require (
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
@@ -61,7 +61,7 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.4
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
-	github.com/cosmos/iavl v0.19.4 // indirect
+	github.com/cosmos/iavl v0.19.5 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.2 // indirect
 	github.com/creachadair/taskgroup v0.3.2 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
