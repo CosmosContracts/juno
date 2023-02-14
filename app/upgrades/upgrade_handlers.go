@@ -1,6 +1,8 @@
 package upgrades
 
 import (
+	"strings"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -13,8 +15,17 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 
+	mintkeeper "github.com/CosmosContracts/juno/v12/x/mint/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 )
+
+func GetChainsDenomToken(chainID string) string {
+	if strings.HasPrefix(chainID, "uni-") || strings.HasPrefix(chainID, "ares-") {
+		return "ujunox"
+	}
+	return "ujuno"
+}
 
 // CreateV10UpgradeHandler makes an upgrade handler for v11 of Juno
 func CreateV10UpgradeHandler(mm *module.Manager, cfg module.Configurator, icahostkeeper *icahostkeeper.Keeper) upgradetypes.UpgradeHandler {
@@ -99,8 +110,16 @@ func CreateV11UpgradeHandler(mm *module.Manager, cfg module.Configurator, icahos
 	}
 }
 
-func CreateV12UpgradeHandler(mm *module.Manager, cfg module.Configurator) upgradetypes.UpgradeHandler {
+func CreateV12UpgradeHandler(mm *module.Manager, cfg module.Configurator, mk mintkeeper.Keeper, bk bankkeeper.Keeper) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		nativeDenom := GetChainsDenomToken(ctx.ChainID())
+
+		// Mint 100JUNO (100mil ujuno) to the distribution module
+		// FIX: for Grow Juno SubDAO proposal 49
+		amt := sdk.NewCoins(sdk.NewCoin(nativeDenom, sdk.NewInt(100_000_000)))
+		mk.MintCoins(ctx, amt)
+		bk.SendCoinsFromModuleToModule(ctx, "mint", "distribution", amt)
+
 		return mm.RunMigrations(ctx, cfg, vm)
 	}
 }
