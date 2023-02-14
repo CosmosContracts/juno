@@ -22,6 +22,9 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
+// patches invariance exploit
+replace github.com/CosmWasm/wasmd => github.com/Reecepbcups/wasmd v0.0.0-20230214203234-ac5bc8d33f08
+
 require (
 	filippo.io/edwards25519 v1.0.0-beta.2 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
