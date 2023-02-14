@@ -21,7 +21,7 @@ TM_VERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
 BUILDDIR ?= $(CURDIR)/build
-E2E_UPGRADE_VERSION := "v12"
+E2E_UPGRADE_VERSION := "v13"
 export GO111MODULE = on
 
 # process build tags
@@ -92,6 +92,14 @@ endif
 include contrib/devtools/Makefile
 
 all: install
+	@echo "--> project root: go mod tidy"	
+	@go mod tidy
+	@echo "--> price-feeder: go mod tidy "	
+	@make -C price-feeder tidy
+	@echo "--> price-feeder: linting --fix"	
+	@make -C price-feeder lint
+	@echo "--> project root: linting --fix"	
+	@GOGC=1 golangci-lint run --fix --timeout=8m
 
 install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/junod

@@ -14,10 +14,10 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	decorators "github.com/CosmosContracts/juno/v12/app/decorators"
+	decorators "github.com/CosmosContracts/juno/v13/app/decorators"
 
-	feeshareante "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
+	feeshareante "github.com/CosmosContracts/juno/v13/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v13/x/feeshare/keeper"
 )
 
 func updateAppSimulationFlag(flag bool) {

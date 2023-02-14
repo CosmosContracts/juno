@@ -19,7 +19,7 @@ all_dir = os.path.join(project_root, "tmp-swagger-gen", "_all")
 output: dict
 output = {
     "swagger": "2.0",
-    "info": {"title": "Juno network", "version": "v12"},
+    "info": {"title": "Juno network", "version": "v13"},
     "consumes": ["application/json"],
     "produces": ["application/json"],
     "paths": {},
