@@ -17,6 +17,7 @@ import (
 
 	mintkeeper "github.com/CosmosContracts/juno/v12/x/mint/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
 )
 
@@ -110,7 +111,7 @@ func CreateV11UpgradeHandler(mm *module.Manager, cfg module.Configurator, icahos
 	}
 }
 
-func CreateV12UpgradeHandler(mm *module.Manager, cfg module.Configurator, mk mintkeeper.Keeper, bk bankkeeper.Keeper) upgradetypes.UpgradeHandler {
+func CreateV12UpgradeHandler(mm *module.Manager, cfg module.Configurator, mk mintkeeper.Keeper, bk bankkeeper.Keeper, ck crisiskeeper.Keeper) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		nativeDenom := GetChainsDenomToken(ctx.ChainID())
 
@@ -120,6 +121,10 @@ func CreateV12UpgradeHandler(mm *module.Manager, cfg module.Configurator, mk min
 		amt := sdk.NewCoins(sdk.NewCoin(nativeDenom, sdk.NewInt(100_000_000)))
 		mk.MintCoins(ctx, amt)
 		bk.SendCoinsFromModuleToModule(ctx, "mint", "distribution", amt)
+
+		// Increases crisis fee to 1000 JUNO (1000 000 000ujuno) to prevent DDoS attacks
+		crisisAmt := sdk.NewCoin(nativeDenom, sdk.NewInt(1000_000_000))
+		ck.SetConstantFee(ctx, crisisAmt)
 
 		return mm.RunMigrations(ctx, cfg, vm)
 	}

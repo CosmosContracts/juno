@@ -843,7 +843,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 func (app *App) RegisterUpgradeHandlers(cfg module.Configurator) {
 	// app.UpgradeKeeper.SetUpgradeHandler("v11", upgrades.CreateV11UpgradeHandler(app.mm, cfg, &app.ICAHostKeeper))
-	app.UpgradeKeeper.SetUpgradeHandler("v12", upgrades.CreateV12UpgradeHandler(app.mm, cfg, app.MintKeeper, app.BankKeeper))
+	app.UpgradeKeeper.SetUpgradeHandler("v12", upgrades.CreateV12UpgradeHandler(app.mm, cfg, app.MintKeeper, app.BankKeeper, app.CrisisKeeper))
 }
 
 // GetMaccPerms returns a copy of the module account permissions
