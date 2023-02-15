@@ -22,7 +22,9 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-// patches invariance exploit
+// patches invariance exploit with wasmd governance
+// https://github.com/reecepbcups/wasmd/tree/chocolate
+// go get github.com/reecepbcups/wasmd@chocolate
 replace github.com/CosmWasm/wasmd => github.com/Reecepbcups/wasmd v0.0.0-20230214203234-ac5bc8d33f08
 
 require (

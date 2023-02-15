@@ -115,7 +115,8 @@ func CreateV12UpgradeHandler(mm *module.Manager, cfg module.Configurator, mk min
 		nativeDenom := GetChainsDenomToken(ctx.ChainID())
 
 		// Mint 100JUNO (100mil ujuno) to the distribution module
-		// FIX: for Grow Juno SubDAO proposal 49
+		// PATCH go.mod: https://github.com/reecepbcups/wasmd/tree/chocolate
+		// fixes invariance bug in wasm (unexpected chain halt) from governance
 		amt := sdk.NewCoins(sdk.NewCoin(nativeDenom, sdk.NewInt(100_000_000)))
 		mk.MintCoins(ctx, amt)
 		bk.SendCoinsFromModuleToModule(ctx, "mint", "distribution", amt)
