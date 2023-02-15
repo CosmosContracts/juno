@@ -122,8 +122,8 @@ func CreateV12UpgradeHandler(mm *module.Manager, cfg module.Configurator, mk min
 		mk.MintCoins(ctx, amt)
 		bk.SendCoinsFromModuleToModule(ctx, "mint", "distribution", amt)
 
-		// Increases crisis fee to 1000 JUNO (1000 000 000ujuno) to prevent DDoS attacks
-		crisisAmt := sdk.NewCoin(nativeDenom, sdk.NewInt(1000_000_000))
+		// Increases crisis fee to 15000 JUNO (15000 000 000ujuno) to prevent DDoS attacks
+		crisisAmt := sdk.NewCoin(nativeDenom, sdk.NewInt(15000_000_000))
 		ck.SetConstantFee(ctx, crisisAmt)
 
 		return mm.RunMigrations(ctx, cfg, vm)
