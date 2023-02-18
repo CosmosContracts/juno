@@ -2,7 +2,7 @@
 # Run this script to quickly install, setup, and run the current version of juno without docker.
 #
 # Example:
-# CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
+# CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true VOTE_PERIOD=60s sh scripts/test_node.sh
 # CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
 
 export KEY="juno1"
@@ -23,6 +23,8 @@ export GRPC=${GRPC:-"9090"}
 export GRPC_WEB=${GRPC_WEB:-"9091"}
 export ROSETTA=${ROSETTA:-"8080"}
 export TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-"5s"}
+
+export VOTE_PERIOD=${VOTE_PERIOD:-"15s"}
 
 junod config keyring-backend $KEYRING
 junod config chain-id $CHAIN_ID
@@ -57,7 +59,8 @@ from_scratch () {
 
   # Set gas limit in genesis
   update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
-  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="15s"'
+  # update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="15s"'  
+  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="'"$VOTE_PERIOD"'"'
 
   update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="ujuno"'  
   update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ujuno","enabled": true}]'

@@ -82,6 +82,8 @@ import (
 
 	oraclekeeper "github.com/CosmosContracts/juno/v13/x/oracle/keeper"
 	oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
+
+	junoWasm "github.com/CosmosContracts/juno/v13/wasmbinding"
 )
 
 type AppKeepers struct {
@@ -396,6 +398,8 @@ func NewAppKeepers(
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
 	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
+
+	wasmOpts = append(wasmOpts, junoWasm.BuildWasmOptions(&appKeepers.GovKeeper)...)
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
