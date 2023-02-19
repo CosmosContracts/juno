@@ -61,6 +61,8 @@ github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d h1:nalkkPQ
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d/go.mod h1:URdX5+vg25ts3aCh8H5IFZybJYKWhJHYMTnf+ULtoC4=
 github.com/CosmWasm/wasmvm v1.1.1 h1:0xtdrmmsP9fibe+x42WcMkp5aQ738BICgcH3FNVLzm4=
 github.com/CosmWasm/wasmvm v1.1.1/go.mod h1:ei0xpvomwSdONsxDuONzV7bL1jSET1M8brEx0FCXc+A=
+github.com/CosmosContracts/wasmd v0.29.2-patch.1 h1:YNZuaRfzXlZ3c0S7OskIJxdaNuqM1ozSakYVPx8VEog=
+github.com/CosmosContracts/wasmd v0.29.2-patch.1/go.mod h1:agYHzj3R0O+UExLHlXLuEfLqhIrCC+pF5ouAmbe9/68=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/zstd v1.4.1/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
 github.com/DataDog/zstd v1.4.5/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
@@ -69,8 +71,6 @@ github.com/Microsoft/go-winio v0.6.0 h1:slsWYD/zyx7lCXoZVlvQrj0hPTM1HI4+v1sIda2y
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
-github.com/Reecepbcups/wasmd v0.0.0-20230214203234-ac5bc8d33f08 h1:gBnC0ae186AzfbkWi1YitaxMbdwh12djm7qjaauYWhM=
-github.com/Reecepbcups/wasmd v0.0.0-20230214203234-ac5bc8d33f08/go.mod h1:agYHzj3R0O+UExLHlXLuEfLqhIrCC+pF5ouAmbe9/68=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
