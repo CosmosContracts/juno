@@ -22,6 +22,10 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
+// Patches invariance exploit with wasmd governance
+// https://github.com/CosmosContracts/wasmd/tree/bv0.29.2-patch
+replace github.com/CosmWasm/wasmd => github.com/CosmosContracts/wasmd v0.29.2-patch.1
+
 require (
 	filippo.io/edwards25519 v1.0.0-beta.2 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
