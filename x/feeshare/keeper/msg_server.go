@@ -13,12 +13,26 @@ import (
 var _ types.MsgServer = &Keeper{}
 
 func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, contract sdk.AccAddress, info *wasmTypes.ContractInfo) bool {
-	// Check if the admin or creator of a contract is a contract itself
-	// If so, this is a factory contract. So we will allow ANYONE to register FeeShare funds to it itself ONLY
-	admin, _ := sdk.AccAddressFromBech32(info.Admin)
-	creator, _ := sdk.AccAddressFromBech32(info.Creator)
+	// This will allow ANYONE to register FeeShare funds to its own contract if it was created from a factory contract
+	// Note: if there is no admin but a creator made it, then the creator can register it how they wish
 
-	return k.wasmKeeper.HasContractInfo(ctx, admin) || k.wasmKeeper.HasContractInfo(ctx, creator)
+	creator, err := sdk.AccAddressFromBech32(info.Creator)
+	if err != nil {
+		return false
+	}
+
+	// No admin and the instantiation was a contract, its a factory contract
+	if len(info.Admin) == 0 && k.wasmKeeper.HasContractInfo(ctx, creator) {
+		return true
+	}
+
+	// if there is an admin and its a contract, its a factory contract
+	admin, err := sdk.AccAddressFromBech32(info.Admin)
+	if err != nil {
+		return false
+	}
+
+	return k.wasmKeeper.HasContractInfo(ctx, admin)
 }
 
 // GetContractAdminOrCreatorAddress ensures the deployer is the contract's admin OR creator if no admin is set for all msg_server feeshare functions.
