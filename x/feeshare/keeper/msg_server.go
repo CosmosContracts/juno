@@ -6,10 +6,20 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/CosmosContracts/juno/v13/x/feeshare/types"
 )
 
 var _ types.MsgServer = &Keeper{}
+
+func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, contract sdk.AccAddress, info *wasmTypes.ContractInfo) bool {
+	// Check if the admin or creator of a contract is a contract itself
+	// If so, this is a factory contract. So we will allow ANYONE to register FeeShare funds to it itself ONLY
+	admin, _ := sdk.AccAddressFromBech32(info.Admin)
+	creator, _ := sdk.AccAddressFromBech32(info.Creator)
+
+	return k.wasmKeeper.HasContractInfo(ctx, admin) || k.wasmKeeper.HasContractInfo(ctx, creator)
+}
 
 // GetContractAdminOrCreatorAddress ensures the deployer is the contract's admin OR creator if no admin is set for all msg_server feeshare functions.
 func (k Keeper) GetContractAdminOrCreatorAddress(ctx sdk.Context, contract sdk.AccAddress, deployer string) (sdk.AccAddress, error) {
@@ -73,16 +83,32 @@ func (k Keeper) RegisterFeeShare(
 		return nil, sdkerrors.Wrapf(types.ErrFeeShareAlreadyRegistered, "contract is already registered %s", contract)
 	}
 
-	// Check that the person who signed the message is the wasm contract admin, if so return the deployer address
-	deployer, err := k.GetContractAdminOrCreatorAddress(ctx, contract, msg.DeployerAddress)
-	if err != nil {
-		return nil, err
-	}
-
 	// Get the withdraw address of the contract
 	withdrawer, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid withdrawer address %s", msg.WithdrawerAddress)
+	}
+
+	var deployer sdk.AccAddress
+
+	if k.GetIfContractWasCreatedFromFactory(ctx, contract, k.wasmKeeper.GetContractInfo(ctx, contract)) {
+		// Anyone is allowed to register a contract to itself if it was created from a factory contract
+		if msg.WithdrawerAddress != msg.ContractAddress {
+			return nil, sdkerrors.Wrapf(types.ErrFeeShareInvalidWithdrawer, "withdrawer address must be the same as the contract address if it is from a factory contract withdraw:%s contract:%s", msg.WithdrawerAddress, msg.ContractAddress)
+		}
+
+		// set the deployer address to the contract address so it can self register
+		msg.DeployerAddress = msg.ContractAddress
+		deployer, err = sdk.AccAddressFromBech32(msg.DeployerAddress)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Check that the person who signed the message is the wasm contract admin or creator (if no admin)
+		deployer, err = k.GetContractAdminOrCreatorAddress(ctx, contract, msg.DeployerAddress)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// prevent storing the same address for deployer and withdrawer
