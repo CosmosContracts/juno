@@ -11,4 +11,5 @@ var (
 	ErrFeeShareNoContractDeployed    = sdkerrrors.Register(ModuleName, 3, "no contract deployed")
 	ErrFeeShareContractNotRegistered = sdkerrrors.Register(ModuleName, 4, "no feeshare registered for contract")
 	ErrFeeSharePayment               = sdkerrrors.Register(ModuleName, 5, "feeshare payment error")
+	ErrFeeShareInvalidWithdrawer     = sdkerrrors.Register(ModuleName, 6, "invalid withdrawer address")
 )
