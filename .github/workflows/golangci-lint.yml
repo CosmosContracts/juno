@@ -33,9 +33,3 @@ jobs:
           version: latest
           args: --timeout 10m
 
-      - name: golangci-lint-price_feeder
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: latest
-          working-directory: price-feeder
-          args: --timeout 10m
