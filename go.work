@@ -4,5 +4,3 @@ use (
 	.
 	./price-feeder
 )
-
-replace github.com/btcsuite/btcd v0.22.2 => github.com/btcsuite/btcd v0.23.0
