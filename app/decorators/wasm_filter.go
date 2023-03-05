@@ -40,30 +40,22 @@ func (pwasmd PreventWasmDecorator) AnteHandle(
 		}
 
 		gasUsed := feeTx.GetGas()
-
 		if gasUsed > pwasmd.contractGasLimit {
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "gas limit of %d exceeded with a wasm execute. You used: %d", pwasmd.contractGasLimit, gasUsed)
 		}
-	}
-
-	if err != nil {
-		return ctx, err
 	}
 
 	return next(ctx, tx, simulate)
 }
 
 func (pwasmd PreventWasmDecorator) hasAnyWasmMessages(ctx sdk.Context, msgs []sdk.Msg) bool {
-
-	// could return a uint64, where its the sum of all gas uses by each message?
-	// this way we can limit instantiate and migration as well
 	isWasmMessage := func(m sdk.Msg) bool {
 		switch m.(type) {
-		// case *wasmtype.MsgInstantiateContract, *wasmtype.MsgInstantiateContract2:
-		// 	return true
-		// case *wasmtype.MsgMigrateContract:
-		// 	return true
+		case *wasmtype.MsgInstantiateContract, *wasmtype.MsgInstantiateContract2:
+			return true
 		case *wasmtype.MsgExecuteContract:
+			return true
+		case *wasmtype.MsgMigrateContract:
 			return true
 		default:
 			return false
@@ -72,8 +64,7 @@ func (pwasmd PreventWasmDecorator) hasAnyWasmMessages(ctx sdk.Context, msgs []sd
 
 	// Check every msg in the tx, if it's a MsgExec, check the inner msgs.
 	for _, m := range msgs {
-		res := isWasmMessage(m)
-		if res {
+		if isWasmMessage(m) {
 			return true
 		}
 
@@ -85,8 +76,7 @@ func (pwasmd PreventWasmDecorator) hasAnyWasmMessages(ctx sdk.Context, msgs []sd
 					return false
 				}
 
-				res = isWasmMessage(innerMsg)
-				if res {
+				if isWasmMessage(innerMsg) {
 					return true
 				}
 			}

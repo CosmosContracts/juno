@@ -39,8 +39,8 @@ type HandlerOptions struct {
 	StakingSubspace   paramtypes.Subspace
 }
 
-// Max gas a single wasm Tx can use
-const wasmExecuteGasLimit = 10_000_000
+// Max gas a single wasm Tx can use (initialize, execute, migrate, etc.)
+const wasmGasLimit = 20_000_000
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, and deducts fees from the first
@@ -71,7 +71,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewRejectExtensionOptionsDecorator(),
 		decorators.MsgFilterDecorator{},
 		decorators.NewGovPreventSpamDecorator(options.Cdc, options.GovKeeper),
-		decorators.NewPreventWasmHighGasUsageDecorator(options.Cdc, wasmExecuteGasLimit),
+		decorators.NewPreventWasmHighGasUsageDecorator(options.Cdc, wasmGasLimit),
 		ante.NewMempoolFeeDecorator(),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
