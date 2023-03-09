@@ -27,8 +27,6 @@ import (
 
 	// ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
-	// intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
-	// oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -48,8 +46,6 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		packetforwardtypes.StoreKey,
 		ibcfeetypes.StoreKey,
 		// ibchookstypes.StoreKey,
-		// intertxtypes.StoreKey,
-		// oracletypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)

@@ -51,10 +51,6 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v4/router"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
-	// intertx "github.com/cosmos/interchain-accounts/x/inter-tx"
-	// intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
-	// "github.com/CosmosContracts/juno/v13/x/oracle"
-	// oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
 	// ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 	// ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 )
@@ -72,7 +68,6 @@ var maccPerms = map[string][]string{
 	ibcfeetypes.ModuleName:         nil,
 	wasm.ModuleName:                {authtypes.Burner},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
-	// oracletypes.ModuleName:         nil,
 }
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -104,8 +99,6 @@ var ModuleBasics = module.NewBasicManager(
 	feeshare.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
 	// ibchooks.AppModuleBasic{},
-	// oracle.AppModuleBasic{},
-	// intertx.AppModuleBasic{},
 )
 
 func appModules(
@@ -142,8 +135,6 @@ func appModules(
 		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
-		// intertx.NewAppModule(appCodec, app.InterTxKeeper),
-		// oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		// ibchooks.NewAppModule(app.AccountKeeper),
 		packetforward.NewAppModule(app.PacketForwardKeeper),
 	}
@@ -171,7 +162,6 @@ func simulationModules(
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
-		// oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transfer.NewAppModule(app.TransferKeeper),
@@ -209,8 +199,6 @@ func orderBeginBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		wasm.ModuleName,
-		// intertxtypes.ModuleName,
-		// oracletypes.ModuleName,
 		// ibchookstypes.ModuleName,
 	}
 }
@@ -242,8 +230,6 @@ func orderEndBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		wasm.ModuleName,
-		// intertxtypes.ModuleName,
-		// oracletypes.ModuleName,
 		// ibchookstypes.ModuleName,
 	}
 }
@@ -275,8 +261,6 @@ func orderInitBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		wasm.ModuleName,
-		// oracletypes.ModuleName,
-		// intertxtypes.ModuleName,
 		// ibchookstypes.ModuleName,
 	}
 }
