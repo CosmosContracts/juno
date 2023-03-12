@@ -18,8 +18,8 @@ require (
 	github.com/prometheus/client_golang v1.14.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
-	github.com/strangelove-ventures/packet-forward-middleware/v4 v4.0.4
-	github.com/stretchr/testify v1.8.1
+	github.com/strangelove-ventures/packet-forward-middleware/v4 v4.0.5
+	github.com/stretchr/testify v1.8.2
 	github.com/tendermint/tendermint v0.34.27
 	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
 	google.golang.org/genproto v0.0.0-20230125152338-dcaf20b6aeaa
@@ -183,7 +183,9 @@ replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// token factory:
-	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230206185803-325635b64f24
+	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
+	// governance patch
+	github.com/CosmWasm/wasmd => github.com/CosmosContracts/wasmd v0.30.0-patch.1
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
