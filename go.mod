@@ -185,8 +185,6 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// token factory:
 	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
-	// governance patch
-	github.com/CosmWasm/wasmd => github.com/CosmosContracts/wasmd v0.30.0-patch.1
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
