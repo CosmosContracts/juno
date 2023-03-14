@@ -52,6 +52,7 @@ upload_cw20_ics20 # $ICS20_CONTRACT
 echo -e "\n\n"
 echo "CW20_CONTRACT=$CW20_CONTRACT"
 echo "ICS20_CONTRACT=$ICS20_CONTRACT"
+echo -e "\n"
 
 read -p "Press enter to continue after you start the relayer with the above contract address..."
 
