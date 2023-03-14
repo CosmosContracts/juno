@@ -4,12 +4,7 @@
 package e2e
 
 import (
-	// "fmt"
 	"github.com/CosmosContracts/juno/v13/tests/e2e/initialization"
-	// sdk "github.com/cosmos/cosmos-sdk/types"
-	// "strconv"
-	// "strings"
-	"time"
 )
 
 const (
