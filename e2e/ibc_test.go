@@ -1,4 +1,4 @@
-package ibctest
+package e2e
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
-// go test -timeout 99099s -run ^TestLearn$ github.com/CosmosContracts/juno/v13/ibctest -v
-func TestLearn(t *testing.T) {
+// go test -timeout 99999s -run ^TestLearn$ github.com/CosmosContracts/juno/v13/ibctest -v
+func TestRun(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
