@@ -22,7 +22,7 @@ import (
 	"github.com/CosmosContracts/juno/price-feeder/oracle/provider"
 	"github.com/CosmosContracts/juno/price-feeder/oracle/types"
 	pfsync "github.com/CosmosContracts/juno/price-feeder/pkg/sync"
-	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
+	oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 )
 
@@ -231,7 +231,7 @@ func (o *Oracle) SetPrices(ctx context.Context) error {
 				return err
 			case <-time.After(o.providerTimeout):
 				telemetry.IncrCounter(1, "failure", "provider", "type", "timeout")
-				return fmt.Errorf("provider timed out")
+				return fmt.Errorf("provider %v timed out", priceProvider)
 			}
 
 			// flatten and collect prices based on the base currency per provider
@@ -468,9 +468,6 @@ func NewProvider(
 
 	case provider.ProviderOsmosis:
 		return provider.NewOsmosisProvider(endpoint), nil
-
-	case provider.ProviderJuno:
-		return provider.NewJunoProvider(endpoint), nil
 
 	case provider.ProviderHuobi:
 		return provider.NewHuobiProvider(ctx, logger, endpoint, providerPairs...)

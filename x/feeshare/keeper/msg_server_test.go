@@ -5,7 +5,7 @@ import (
 	_ "embed"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v13/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -111,6 +111,7 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
 	contractAddress := s.InstantiateContract(sender.String(), "")
+	contractAddress2 := s.InstantiateContract(contractAddress, contractAddress)
 
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
@@ -156,6 +157,26 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 				ContractAddress:   contractAddress,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: withdrawer.String(),
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: false,
+		},
+		{
+			desc: "Invalid withdraw address for factory contract",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   contractAddress2,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: sender.String(),
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: true,
+		},
+		{
+			desc: "Success register factory contract to itself",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   contractAddress2,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: contractAddress2,
 			},
 			resp:      &types.MsgRegisterFeeShareResponse{},
 			shouldErr: false,

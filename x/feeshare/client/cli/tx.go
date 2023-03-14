@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v13/x/feeshare/types"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules/FeeShare
@@ -108,7 +108,7 @@ func NewCancelFeeShare() *cobra.Command {
 // address of a contract for fee distribution
 func NewUpdateFeeShare() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update [contract_bech32] [",
+		Use:   "update [contract_bech32] [new_withdraw_bech32]",
 		Short: "Update withdrawer address for a contract registered for feeshare distribution.",
 		Long:  "Update withdrawer address for a contract registered for feeshare distribution. \nOnly the contract admin can update the withdrawer address.",
 		Args:  cobra.ExactArgs(2),

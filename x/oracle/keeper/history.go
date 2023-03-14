@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CosmosContracts/juno/v12/x/oracle/types"
-	"github.com/CosmosContracts/juno/v12/x/oracle/util"
+	"github.com/CosmosContracts/juno/v13/x/oracle/types"
+	"github.com/CosmosContracts/juno/v13/x/oracle/util"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

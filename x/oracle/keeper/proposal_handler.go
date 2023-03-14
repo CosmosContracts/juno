@@ -3,7 +3,7 @@ package keeper
 import (
 	"strings"
 
-	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	"github.com/CosmosContracts/juno/v13/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"

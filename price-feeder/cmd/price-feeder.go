@@ -24,7 +24,7 @@ import (
 	"github.com/CosmosContracts/juno/price-feeder/oracle/client"
 	"github.com/CosmosContracts/juno/price-feeder/oracle/provider"
 	v1 "github.com/CosmosContracts/juno/price-feeder/router/v1"
-	"github.com/CosmosContracts/juno/v12/app"
+	"github.com/CosmosContracts/juno/v13/app"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -207,7 +207,7 @@ func getKeyringPassword(keyringBackend string) (string, error) {
 	pass := os.Getenv(envVariablePass)
 	if pass == "" {
 		fmt.Print("Enter keyring password: ")
-		bytePassword, err := term.ReadPassword(int(syscall.Stdin))
+		bytePassword, err := term.ReadPassword(syscall.Stdin)
 		if err != nil {
 			return "", err
 		}

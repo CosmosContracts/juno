@@ -58,13 +58,6 @@ quote = "USD"
 [[currency_pairs]]
 base = "JUNO"
 providers = [
-  "juno",
-]
-quote = "USD"
-
-[[currency_pairs]]
-base = "JUNO"
-providers = [
   "bitget",
 ]
 quote = "USDT"

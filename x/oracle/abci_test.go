@@ -15,10 +15,10 @@ import (
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	app "github.com/CosmosContracts/juno/v12/app"
-	appparams "github.com/CosmosContracts/juno/v12/app/params"
-	"github.com/CosmosContracts/juno/v12/x/oracle"
-	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	app "github.com/CosmosContracts/juno/v13/app"
+	appparams "github.com/CosmosContracts/juno/v13/app/params"
+	"github.com/CosmosContracts/juno/v13/x/oracle"
+	"github.com/CosmosContracts/juno/v13/x/oracle/types"
 )
 
 const (
@@ -76,12 +76,14 @@ var (
 	initCoins  = sdk.NewCoins(sdk.NewCoin(bondDenom, initTokens))
 )
 
-var historacleTestCases = []struct {
+var OracleHistoryTestCases = []struct {
+	name                    string
 	exchangeRates           []string
 	expectedHistoricTWAPMax sdk.Dec
 	expectedHistoricTWAPMin sdk.Dec
 }{
 	{
+		"test1",
 		[]string{
 			"1.0", "1.2", "1.1", "1.4", "1.1", "1.15",
 			"1.2", "1.3", "1.2", "1.12", "1.2", "1.15",
@@ -90,6 +92,7 @@ var historacleTestCases = []struct {
 		sdk.MustNewDecFromStr("1.16"), // lower bound for TWAP[0, 11]
 	},
 	{
+		"test2",
 		[]string{
 			"2.3", "2.12", "2.14", "2.24", "2.18", "2.15",
 			"2.51", "2.59", "2.67", "2.76", "2.89", "2.85",
@@ -99,65 +102,64 @@ var historacleTestCases = []struct {
 	},
 }
 
-func (s *IntegrationTestSuite) TestEndblockerHistoracle() {
-	app, ctx := s.app, s.ctx
+func (s *IntegrationTestSuite) TestOracleHistoryEndBlocker() {
 
-	for _, tc := range historacleTestCases {
-		startTimeStamp := time.Now().UTC() // store timestamp before insertions
+	for _, tc := range OracleHistoryTestCases {
+		s.Run(tc.name, func() {
+			app, ctx := s.app, s.ctx
+			startTimeStamp := time.Now().UTC() // store timestamp before insertions
 
-		ctx = ctx.WithBlockHeight(ctx.BlockHeight() + int64(app.OracleKeeper.GetParams(ctx).VotePeriod-1))
-		ctx = ctx.WithBlockTime(time.Now().UTC())
-
-		// check if last price is updated after each vote period
-		for _, exchangeRate := range tc.exchangeRates {
-			var tuples types.ExchangeRateTuples
-			for _, denom := range app.OracleKeeper.Whitelist(ctx) {
-				tuples = append(tuples, types.ExchangeRateTuple{
-					Denom:        denom.SymbolDenom,
-					ExchangeRate: sdk.MustNewDecFromStr(exchangeRate),
-				})
-			}
-
-			prevote := types.AggregateExchangeRatePrevote{
-				Hash:        "hash",
-				Voter:       valAddr.String(),
-				SubmitBlock: uint64(ctx.BlockHeight()),
-			}
-			app.OracleKeeper.SetAggregateExchangeRatePrevote(ctx, valAddr, prevote)
-			err := oracle.EndBlocker(ctx, app.OracleKeeper)
-			s.Require().NoError(err)
-
-			ctx = ctx.WithBlockHeight(ctx.BlockHeight() + int64(app.OracleKeeper.VotePeriod(ctx)))
+			ctx = ctx.WithBlockHeight(ctx.BlockHeight() + int64(app.OracleKeeper.GetParams(ctx).VotePeriod-1))
 			ctx = ctx.WithBlockTime(time.Now().UTC())
 
-			vote := types.AggregateExchangeRateVote{
-				ExchangeRateTuples: tuples,
-				Voter:              valAddr.String(),
-			}
-			app.OracleKeeper.SetAggregateExchangeRateVote(ctx, valAddr, vote)
+			// check if last price is updated after each vote period
+			for _, exchangeRate := range tc.exchangeRates {
+				var tuples types.ExchangeRateTuples
+				for _, denom := range app.OracleKeeper.Whitelist(ctx) {
+					tuples = append(tuples, types.ExchangeRateTuple{
+						Denom:        denom.SymbolDenom,
+						ExchangeRate: sdk.MustNewDecFromStr(exchangeRate),
+					})
+				}
 
-			err = oracle.EndBlocker(ctx, app.OracleKeeper)
-			s.Require().NoError(err)
-
-			// historical prices query
-			for _, denom := range app.OracleKeeper.Whitelist(ctx) {
-				readExchangeRate, err := app.OracleKeeper.GetExchangeRate(ctx, denom.SymbolDenom)
+				prevote := types.AggregateExchangeRatePrevote{
+					Hash:        "hash",
+					Voter:       valAddr.String(),
+					SubmitBlock: uint64(ctx.BlockHeight()),
+				}
+				app.OracleKeeper.SetAggregateExchangeRatePrevote(ctx, valAddr, prevote)
+				err := oracle.EndBlocker(ctx, app.OracleKeeper)
 				s.Require().NoError(err)
-				s.Require().Equal(sdk.MustNewDecFromStr(exchangeRate), readExchangeRate)
+
+				ctx = ctx.WithBlockHeight(ctx.BlockHeight() + int64(app.OracleKeeper.VotePeriod(ctx)))
+				ctx = ctx.WithBlockTime(time.Now().UTC())
+
+				vote := types.AggregateExchangeRateVote{
+					ExchangeRateTuples: tuples,
+					Voter:              valAddr.String(),
+				}
+				app.OracleKeeper.SetAggregateExchangeRateVote(ctx, valAddr, vote)
+
+				err = oracle.EndBlocker(ctx, app.OracleKeeper)
+				s.Require().NoError(err)
+
+				// historical prices query
+				for _, denom := range app.OracleKeeper.Whitelist(ctx) {
+					readExchangeRate, err := app.OracleKeeper.GetExchangeRate(ctx, denom.SymbolDenom)
+					s.Require().NoError(err)
+					s.Require().Equal(sdk.MustNewDecFromStr(exchangeRate), readExchangeRate)
+				}
 			}
-		}
 
-		// historical TWAP
-		for _, denom := range app.OracleKeeper.Whitelist(ctx) {
-			// query for TWAP of all entered exchangeRates
-			twap, err := app.OracleKeeper.GetArithmetricTWAP(ctx, denom.SymbolDenom, startTimeStamp, time.Now().UTC())
-			s.Require().NoError(err)
-			s.Require().True(tc.expectedHistoricTWAPMax.GTE(twap))
-			s.Require().True(tc.expectedHistoricTWAPMin.LTE(twap))
-		}
-
-		ctx = ctx.WithBlockHeight(0)
-		ctx = ctx.WithBlockTime(time.Now().UTC())
+			// historical TWAP
+			for _, denom := range app.OracleKeeper.Whitelist(ctx) {
+				// query for TWAP of all entered exchangeRates
+				twap, err := app.OracleKeeper.GetArithmetricTWAP(ctx, denom.SymbolDenom, startTimeStamp, ctx.BlockTime())
+				s.Require().NoError(err)
+				s.Require().True(tc.expectedHistoricTWAPMax.GTE(twap))
+				s.Require().True(tc.expectedHistoricTWAPMin.LTE(twap))
+			}
+		})
 	}
 }
 

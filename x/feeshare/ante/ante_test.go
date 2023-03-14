@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	ante "github.com/CosmosContracts/juno/v12/x/feeshare/ante"
+	ante "github.com/CosmosContracts/juno/v13/x/feeshare/ante"
 )
 
 type AnteTestSuite struct {

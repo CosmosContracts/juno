@@ -63,10 +63,10 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	"github.com/CosmosContracts/juno/v13/x/oracle/types"
 	dbm "github.com/tendermint/tm-db"
 
-	appparams "github.com/CosmosContracts/juno/v12/app/params"
+	appparams "github.com/CosmosContracts/juno/v13/app/params"
 )
 
 var moduleBasics = module.NewBasicManager(

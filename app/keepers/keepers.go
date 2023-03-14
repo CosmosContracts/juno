@@ -7,8 +7,8 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	mintkeeper "github.com/CosmosContracts/juno/v12/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
+	mintkeeper "github.com/CosmosContracts/juno/v13/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v13/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -69,20 +69,19 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
 
-	feesharekeeper "github.com/CosmosContracts/juno/v12/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v13/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
 
 	// ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
 
-	"github.com/cosmos/gaia/v8/x/globalfee"
 	intertxkeeper "github.com/cosmos/interchain-accounts/x/inter-tx/keeper"
 	intertxtypes "github.com/cosmos/interchain-accounts/x/inter-tx/types"
 
-	oraclekeeper "github.com/CosmosContracts/juno/v12/x/oracle/keeper"
-	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
+	oraclekeeper "github.com/CosmosContracts/juno/v13/x/oracle/keeper"
+	oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
 )
 
 type AppKeepers struct {
@@ -308,15 +307,14 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
-		&appKeepers.IBCKeeper.PortKeeper,
-		// The ICS4Wrapper is replaced by the HooksICS4Wrapper instead of the channel so that sending can be overridden by the middleware
-		&appKeepers.HooksICS4Wrapper,
+		// The ICS4Wrapper is replaced by the IBCFeeKeeper instead of the channel so that sending can be overridden by the middleware
+		&appKeepers.IBCFeeKeeper,
 	)
 
 	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		appCodec, appKeepers.keys[ibcfeetypes.StoreKey],
 		appKeepers.GetSubspace(ibcfeetypes.ModuleName), // this isn't even used in the keeper but is required?
-		appKeepers.PacketForwardKeeper,                 // replaced with IBC middleware
+		appKeepers.HooksICS4Wrapper,                    // replaced with IBC middleware
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
@@ -401,9 +399,19 @@ func NewAppKeepers(
 
 	// Stargate Queries
 	accepted := wasmkeeper.AcceptedStargateQueries{
+		// ibc
 		"/ibc.core.client.v1.Query/ClientState":    &ibcclienttypes.QueryClientStateResponse{},
 		"/ibc.core.client.v1.Query/ConsensusState": &ibcclienttypes.QueryConsensusStateResponse{},
 		"/ibc.core.connection.v1.Query/Connection": &ibcconnectiontypes.QueryConnectionResponse{},
+
+		// governance
+		"/cosmos.gov.v1beta1.Query/Vote": &govtypes.QueryVoteResponse{},
+
+		// staking
+		"/cosmos.staking.v1beta1.Query/Delegation":          &stakingtypes.QueryDelegationResponse{},
+		"/cosmos.staking.v1beta1.Query/Redelegations":       &stakingtypes.QueryRedelegationsResponse{},
+		"/cosmos.staking.v1beta1.Query/UnbondingDelegation": &stakingtypes.QueryUnbondingDelegationResponse{},
+		"/cosmos.staking.v1beta1.Query/Validator":           &stakingtypes.QueryValidatorResponse{},
 
 		// token factory
 		"/osmosis.tokenfactory.v1beta1.Query/Params":                 &tokenfactorytypes.QueryParamsResponse{},
@@ -528,7 +536,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
-	paramsKeeper.Subspace(globalfee.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)
 
 	return paramsKeeper

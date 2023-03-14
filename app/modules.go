@@ -4,13 +4,13 @@ import (
 	"github.com/CosmWasm/token-factory/x/tokenfactory"
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmWasm/wasmd/x/wasm"
-	encparams "github.com/CosmosContracts/juno/v12/app/params"
-	feeshare "github.com/CosmosContracts/juno/v12/x/feeshare"
-	feesharetypes "github.com/CosmosContracts/juno/v12/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v12/x/mint"
-	minttypes "github.com/CosmosContracts/juno/v12/x/mint/types"
-	"github.com/CosmosContracts/juno/v12/x/oracle"
-	oracletypes "github.com/CosmosContracts/juno/v12/x/oracle/types"
+	encparams "github.com/CosmosContracts/juno/v13/app/params"
+	feeshare "github.com/CosmosContracts/juno/v13/x/feeshare"
+	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v13/x/mint"
+	minttypes "github.com/CosmosContracts/juno/v13/x/mint/types"
+	"github.com/CosmosContracts/juno/v13/x/oracle"
+	oracletypes "github.com/CosmosContracts/juno/v13/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -43,7 +43,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/cosmos/gaia/v8/x/globalfee"
 	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 	ibcfee "github.com/cosmos/ibc-go/v4/modules/apps/29-fee"
@@ -104,9 +103,7 @@ var ModuleBasics = module.NewBasicManager(
 	wasm.AppModuleBasic{},
 	ica.AppModuleBasic{},
 	intertx.AppModuleBasic{},
-	tokenfactory.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
-	globalfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
 )
@@ -142,7 +139,6 @@ func appModules(
 		transfer.NewAppModule(app.TransferKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
-		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 		feeshare.NewAppModule(app.FeeShareKeeper, app.AccountKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
@@ -214,7 +210,6 @@ func orderBeginBlockers() []string {
 		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
 	}
@@ -248,7 +243,6 @@ func orderEndBlockers() []string {
 		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
 	}
@@ -282,7 +276,6 @@ func orderInitBlockers() []string {
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
 	}

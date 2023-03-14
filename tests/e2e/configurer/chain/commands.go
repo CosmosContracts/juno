@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	appparams "github.com/CosmosContracts/juno/v12/app/params"
-	"github.com/CosmosContracts/juno/v12/tests/e2e/configurer/config"
+	appparams "github.com/CosmosContracts/juno/v13/app/params"
+	"github.com/CosmosContracts/juno/v13/tests/e2e/configurer/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -113,7 +113,7 @@ func (n *NodeConfig) SubmitTextProposal(text string, initialDeposit sdk.Coin) {
 
 func (n *NodeConfig) DepositProposal(proposalNumber int, isExpedited bool) {
 	n.LogActionF("depositing on proposal: %d", proposalNumber)
-	deposit := sdk.NewCoin(appparams.BaseCoinUnit, sdk.NewInt(config.MinDepositValue)).String()
+	deposit := sdk.NewCoin(appparams.BondDenom, sdk.NewInt(config.MinDepositValue)).String()
 
 	cmd := []string{"junod", "tx", "gov", "deposit", fmt.Sprintf("%d", proposalNumber), deposit, "--from=val"}
 	_, _, err := n.containerManager.ExecTxCmd(n.t, n.chainID, n.Name, cmd)

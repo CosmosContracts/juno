@@ -43,6 +43,9 @@ install: go.sum
 	@echo "--> Installing..."
 	go install -mod=readonly $(BUILD_FLAGS) ./...
 
+tidy:	
+	go mod tidy
+
 .PHONY: build install
 
 ###############################################################################

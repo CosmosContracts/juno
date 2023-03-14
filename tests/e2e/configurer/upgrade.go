@@ -9,11 +9,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	appparams "github.com/CosmosContracts/juno/v12/app/params"
-	"github.com/CosmosContracts/juno/v12/tests/e2e/configurer/chain"
-	"github.com/CosmosContracts/juno/v12/tests/e2e/configurer/config"
-	"github.com/CosmosContracts/juno/v12/tests/e2e/containers"
-	"github.com/CosmosContracts/juno/v12/tests/e2e/initialization"
+	appparams "github.com/CosmosContracts/juno/v13/app/params"
+	"github.com/CosmosContracts/juno/v13/tests/e2e/configurer/chain"
+	"github.com/CosmosContracts/juno/v13/tests/e2e/configurer/config"
+	"github.com/CosmosContracts/juno/v13/tests/e2e/containers"
+	"github.com/CosmosContracts/juno/v13/tests/e2e/initialization"
 )
 
 type UpgradeSettings struct {
@@ -132,7 +132,7 @@ func (uc *UpgradeConfigurer) runProposalUpgrade() error {
 					return err
 				}
 				chainConfig.UpgradePropHeight = currentHeight + int64(chainConfig.VotingPeriod) + int64(config.PropSubmitBlocks) + int64(config.PropBufferBlocks)
-				node.SubmitUpgradeProposal(uc.upgradeVersion, chainConfig.UpgradePropHeight, sdk.NewCoin(appparams.BaseCoinUnit, sdk.NewInt(config.InitialMinDeposit)))
+				node.SubmitUpgradeProposal(uc.upgradeVersion, chainConfig.UpgradePropHeight, sdk.NewCoin(appparams.BondDenom, sdk.NewInt(config.InitialMinDeposit)))
 				chainConfig.LatestProposalNumber++
 				node.DepositProposal(chainConfig.LatestProposalNumber, false)
 			}

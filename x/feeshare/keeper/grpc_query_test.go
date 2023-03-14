@@ -1,8 +1,8 @@
 package keeper_test
 
 import (
-	"github.com/CosmosContracts/juno/v12/testutil/nullify"
-	"github.com/CosmosContracts/juno/v12/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v13/testutil/nullify"
+	"github.com/CosmosContracts/juno/v13/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"

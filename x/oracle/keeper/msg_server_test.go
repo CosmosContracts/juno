@@ -1,12 +1,12 @@
 package keeper_test
 
 import (
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"math/rand"
 	"strings"
 
-	"github.com/CosmosContracts/juno/v12/x/oracle/types"
+	"github.com/CosmosContracts/juno/v13/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
