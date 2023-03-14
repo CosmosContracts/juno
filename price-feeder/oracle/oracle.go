@@ -14,7 +14,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/rs/zerolog"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"	
+	"google.golang.org/grpc"
 
 	"github.com/CosmosContracts/juno/price-feeder/config"
 	"github.com/CosmosContracts/juno/price-feeder/oracle/client"
@@ -404,7 +404,7 @@ func (o *Oracle) GetParams(ctx context.Context) (oracletypes.Params, error) {
 	grpcConn, err := grpc.Dial(
 		o.oracleClient.GRPCEndpoint,
 		// the Cosmos SDK doesn't support any transport security mechanism
-		grpc.WithInsecure()),
+		grpc.WithInsecure(),
 		grpc.WithContextDialer(dialerFunc),
 	)
 	if err != nil {
