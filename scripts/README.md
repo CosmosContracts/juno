@@ -36,29 +36,6 @@ CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=606
 
 It does not require Docker. If you wish to run only 1 instance, the top line is the default for standard port mappings. Using the variable CLEAN fresh installs the tip of the branch and also resets the database and all config files for the home directory.
 
-## Local Oracle
-
-If you wish to get a price feed of data into your testing, you can run an oracle locally!
-
-```bash
-# Start a single chain if not already
-CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
-
-# Start the oracle price-feeder in a new tab or terminal window. 
-sh ./scripts/oracle/run_local_oracle.sh
-
-# After seeing the following:
-# broadcasting vote exchange_rates=ATOM:11.865868265838063334,JUNO:1.179000000000003409,...
-# The query will then be available
-
-# you will be able to query the price from the CLI like so:
-junod q oracle exchange-rate atom --node http://localhost:26657
-
-# exchange_rates:
-# - amount: "11.832224166167193107"
-#   denom: atom
-```
-
 ## Local Relaying
 
 We provide a simple relaying script to transfer packets between 2 local chains. This will auto setup, connect, and create the channel from local-1 to local-2 test nodes.

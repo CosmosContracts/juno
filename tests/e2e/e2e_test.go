@@ -4,12 +4,7 @@
 package e2e
 
 import (
-	// "fmt"
 	"github.com/CosmosContracts/juno/v13/tests/e2e/initialization"
-	// sdk "github.com/cosmos/cosmos-sdk/types"
-	// "strconv"
-	// "strings"
-	"time"
 )
 
 const (
@@ -28,31 +23,6 @@ func (s *IntegrationTestSuite) TestIBCTokenTransfer() {
 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.JunoToken)
 	chainA.SendIBC(chainB, chainB.NodeConfigs[0].PublicAddress, initialization.StakeToken)
 	chainB.SendIBC(chainA, chainA.NodeConfigs[0].PublicAddress, initialization.StakeToken)
-}
-
-func (s *IntegrationTestSuite) TestOracle() {
-	if s.skipOracle {
-		s.T().Skip()
-	}
-	chainA := s.configurer.GetChainConfig(0)
-	chainANode, err := chainA.GetDefaultNode()
-	s.Require().NoError(err)
-	for i := 1; i < 10; i++ {
-		exchangerates, err := chainANode.QueryExchangeRates()
-		s.Require().NoError(err)
-		if exchangerates != "" {
-			break
-		}
-		time.Sleep(60 * time.Second)
-	}
-	s.Require().Eventually(func() bool {
-		exchangerates, err := chainANode.QueryExchangeRates()
-		s.Require().NoError(err)
-		return exchangerates != ""
-	},
-		3*time.Minute,
-		500*time.Millisecond,
-	)
 }
 
 // TestTokenFactoryBindings tests that the TokenFactory module and its bindings work as expected.
