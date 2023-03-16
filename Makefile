@@ -172,7 +172,32 @@ e2e-check-image-sha:
 e2e-remove-resources:
 	tests/e2e/scripts/run/remove_stale_resources.sh
 
-.PHONY: test-mutation
+# Executes basic chain tests via interchaintest
+ictest-basic:
+	cd tests/interchaintest && go test -race -v -run TestJunoStart .
+
+# Executes IBC tests via interchaintest
+ictest-ibc:
+	cd tests/interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
+
+.PHONY: test-mutation ictest-basic ictest-ibc
+
+###############################################################################
+###                                  heighliner                             ###
+###############################################################################
+
+get-heighliner:
+	git clone https://github.com/strangelove-ventures/heighliner.git
+	cd heighliner && go install
+
+local-image:
+ifeq (,$(shell which heighliner))
+	echo 'heighliner' binary not found. Consider running `make get-heighliner`
+else
+	heighliner build -c juno --local -f ./chains.yaml
+endif
+
+.PHONY: get-heighliner local-image
 
 ###############################################################################
 ###                                  Proto                                  ###
