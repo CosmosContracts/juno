@@ -208,10 +208,8 @@ func (m *Manager) RunHermesResource(chainAID, junoARelayerNodeName, junoAValMnem
 func (m *Manager) RunPriceFeederResource(pricefeederPass, pricefeederCfgPath string, valCondifDir string) (*dockertest.Resource, error) {
 	pricefeederResource, err := m.pool.RunWithOptions(
 		&dockertest.RunOptions{
-			Name:       pricefeederContainerName,
-			Repository: m.PriceFeederRepository,
-			Tag:        m.PriceFeederTag,
-			NetworkID:  m.network.Network.ID,
+			Name:      pricefeederContainerName,
+			NetworkID: m.network.Network.ID,
 			Cmd: []string{
 				"/root/price-feeder/config.toml",
 			},

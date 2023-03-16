@@ -27,20 +27,6 @@ func withIBC(setupHandler setupFn) setupFn {
 	}
 }
 
-func withPriceFeeder(setupHandler setupFn) setupFn {
-	return func(configurer Configurer) error {
-		if err := setupHandler(configurer); err != nil {
-			return err
-		}
-
-		if err := configurer.RunPriceFeeder(); err != nil {
-			return err
-		}
-
-		return nil
-	}
-}
-
 func withUpgrade(setupHandler setupFn) setupFn {
 	return func(configurer Configurer) error {
 		if err := setupHandler(configurer); err != nil {

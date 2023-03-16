@@ -93,11 +93,7 @@ include contrib/devtools/Makefile
 
 all: install
 	@echo "--> project root: go mod tidy"	
-	@go mod tidy
-	@echo "--> price-feeder: go mod tidy "	
-	@make -C price-feeder tidy
-	@echo "--> price-feeder: linting --fix"	
-	@make -C price-feeder lint
+	@go mod tidy			
 	@echo "--> project root: linting --fix"	
 	@GOGC=1 golangci-lint run --fix --timeout=8m
 
@@ -147,9 +143,6 @@ test-e2e-debug: e2e-setup
 test-e2e-short: e2e-setup
 	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_STATE_SYNC=True JUNO_E2E_SKIP_CLEANUP=True go test -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
 
-test-e2e-oracle:
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
-
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_UNIT)
 
@@ -168,8 +161,7 @@ docker-build-e2e-init-node:
 	@DOCKER_BUILDKIT=1 docker build -t juno-e2e-init-node:debug --build-arg E2E_SCRIPT_NAME=node -f tests/e2e/initialization/init.Dockerfile .
 
 e2e-clean:
-	sudo rm -rf /tmp/juno-e2e-testnet
-	sudo rm -rf /tmp/price-feeder
+	sudo rm -rf /tmp/juno-e2e-testnet	
 
 e2e-setup: e2e-check-image-sha e2e-remove-resources
 	@echo Finished e2e environment setup, ready to start the test
