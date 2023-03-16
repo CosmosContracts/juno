@@ -18,7 +18,11 @@ import (
 
 	feeshareante "github.com/CosmosContracts/juno/v13/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v13/x/feeshare/keeper"
+
+	gaiafeeante "github.com/cosmos/gaia/v9/x/globalfee/ante"
 )
+
+const maxBypassMinFeeMsgGasUsage = 1_000_000
 
 func updateAppSimulationFlag(flag bool) {
 	decorators.DefaultIsAppSimulation = flag
@@ -37,6 +41,10 @@ type HandlerOptions struct {
 	WasmConfig        wasmTypes.WasmConfig
 	Cdc               codec.BinaryCodec
 	StakingSubspace   paramtypes.Subspace
+
+	// GlobalFee
+	BypassMinFeeMsgTypes []string
+	GlobalFeeSubspace    paramtypes.Subspace
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -73,6 +81,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace, maxBypassMinFeeMsgGasUsage),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators

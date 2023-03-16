@@ -35,7 +35,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
 	ibcclientclient "github.com/cosmos/ibc-go/v4/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -48,6 +51,8 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/prometheus/client_golang/prometheus"
 
+	"github.com/cosmos/gaia/v9/x/globalfee"
+
 	"github.com/CosmosContracts/juno/v13/app/keepers"
 	encparams "github.com/CosmosContracts/juno/v13/app/params"
 	upgrades "github.com/CosmosContracts/juno/v13/app/upgrades"
@@ -55,6 +60,7 @@ import (
 	v11 "github.com/CosmosContracts/juno/v13/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v13/app/upgrades/v12"
 	v13 "github.com/CosmosContracts/juno/v13/app/upgrades/v13"
+	v14 "github.com/CosmosContracts/juno/v13/app/upgrades/v14"
 )
 
 const (
@@ -75,7 +81,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade}
+	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade}
 )
 
 // These constants are derived from the above variables.
@@ -306,6 +312,9 @@ func New(
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
 			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName),
+
+			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
+			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
 		},
 	)
 	if err != nil {
@@ -353,6 +362,16 @@ func New(
 	app.sm.RegisterStoreDecoders()
 
 	return app
+}
+
+func GetDefaultBypassFeeMessages() []string {
+	return []string{
+		// IBC
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
+	}
 }
 
 // Name returns the name of the App

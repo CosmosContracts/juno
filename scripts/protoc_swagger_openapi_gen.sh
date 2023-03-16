@@ -14,10 +14,11 @@ mkdir -p ./tmp-swagger-gen
 cosmos_sdk_dir=$(go list -f '{{ .Dir }}' -m github.com/cosmos/cosmos-sdk)
 wasmd=$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/wasmd)
 token_factory=$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/token-factory)
+gaia=$(go list -f '{{ .Dir }}' -m github.com/cosmos/gaia/v9)
 ica=$(go list -f '{{ .Dir }}' -m github.com/cosmos/interchain-accounts)
 pfm=$(go list -f '{{ .Dir }}' -m github.com/strangelove-ventures/packet-forward-middleware/v4)
 
-proto_dirs=$(find ./proto "$cosmos_sdk_dir"/proto "$wasmd"/proto "$token_factory"/proto "$ica"/proto "$pfm"/proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+proto_dirs=$(find ./proto "$cosmos_sdk_dir"/proto "$wasmd"/proto "$token_factory"/proto "$gaia"/proto "$ica"/proto "$pfm"/proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
 for dir in $proto_dirs; do
 
   # generate swagger files (filter query files)
@@ -30,6 +31,7 @@ for dir in $proto_dirs; do
     -I "$cosmos_sdk_dir/proto" \
     -I "$wasmd/proto" \
     -I "$token_factory/proto" \
+    -I "$gaia/proto" \
     -I "$ica/proto" \
     -I "$pfm/proto" \
      "$query_file" \
@@ -57,9 +59,9 @@ for f in $files; do
   echo "[+] $f"
 
   # check gaia first before cosmos
-  # if [[ "$f" =~ "gaia" ]]; then
-  #   cp $f ./tmp-swagger-gen/_all/gaia-$counter.json
-  if [[ "$f" =~ "router" ]]; then
+  if [[ "$f" =~ "gaia" ]]; then
+    cp $f ./tmp-swagger-gen/_all/gaia-$counter.json
+  elif [[ "$f" =~ "router" ]]; then
     cp $f ./tmp-swagger-gen/_all/pfm-$counter.json
   elif [[ "$f" =~ "cosmwasm" ]]; then
     cp $f ./tmp-swagger-gen/_all/cosmwasm-$counter.json

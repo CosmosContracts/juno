@@ -6,6 +6,7 @@ require (
 	github.com/CosmWasm/token-factory v0.0.0-00010101000000-000000000000
 	github.com/CosmWasm/wasmd v0.30.0
 	github.com/cosmos/cosmos-sdk v0.45.14
+	github.com/cosmos/gaia/v9 v9.0.1
 	github.com/cosmos/ibc-go/v4 v4.3.0
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
@@ -42,7 +43,7 @@ require (
 	github.com/armon/go-metrics v0.4.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
-	github.com/btcsuite/btcd v0.22.2 // indirect
+	github.com/btcsuite/btcd v0.23.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
@@ -178,6 +179,8 @@ replace (
 	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
 	// governance patch
 	github.com/CosmWasm/wasmd => github.com/CosmosContracts/wasmd v0.30.0-patch.1
+	// TODO: Simapp dependency, review removing when updating to SDK with backported update https://github.com/cosmos/cosmos-sdk/issues/13423
+	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 // indirect
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
@@ -190,5 +193,4 @@ replace (
 	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.26
 	// use grpc version that's compatible with cosmos-flavored protocol buffers
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
-
 )
