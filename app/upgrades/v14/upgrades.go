@@ -33,8 +33,12 @@ func CreateV14UpgradeHandler(
 		nativeDenom := GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
 
+		logger.Info(fmt.Sprintf("pre migrate version map: %v", vm))
+
 		// Run migrations
 		versionMap, err := mm.RunMigrations(ctx, cfg, vm)
+
+		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
 		// GlobalFee
 		minGasPrices := sdk.DecCoins{
