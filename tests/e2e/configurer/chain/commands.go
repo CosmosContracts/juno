@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	appparams "github.com/CosmosContracts/juno/v13/app/params"
-	"github.com/CosmosContracts/juno/v13/tests/e2e/configurer/config"
+	appparams "github.com/CosmosContracts/juno/v14/app/params"
+	"github.com/CosmosContracts/juno/v14/tests/e2e/configurer/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )

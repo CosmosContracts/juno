@@ -12,8 +12,8 @@ import (
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 
-	"github.com/CosmosContracts/juno/v13/tests/e2e/containers"
-	"github.com/CosmosContracts/juno/v13/tests/e2e/initialization"
+	"github.com/CosmosContracts/juno/v14/tests/e2e/containers"
+	"github.com/CosmosContracts/juno/v14/tests/e2e/initialization"
 )
 
 type NodeConfig struct {

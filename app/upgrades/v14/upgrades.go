@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/CosmosContracts/juno/v13/app/keepers"
+	"github.com/CosmosContracts/juno/v14/app/keepers"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"

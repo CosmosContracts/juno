@@ -15,10 +15,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v13/tests/e2e/configurer/chain"
-	"github.com/CosmosContracts/juno/v13/tests/e2e/containers"
-	"github.com/CosmosContracts/juno/v13/tests/e2e/initialization"
-	"github.com/CosmosContracts/juno/v13/tests/e2e/util"
+	"github.com/CosmosContracts/juno/v14/tests/e2e/configurer/chain"
+	"github.com/CosmosContracts/juno/v14/tests/e2e/containers"
+	"github.com/CosmosContracts/juno/v14/tests/e2e/initialization"
+	"github.com/CosmosContracts/juno/v14/tests/e2e/util"
 )
 
 // baseConfigurer is the base implementation for the

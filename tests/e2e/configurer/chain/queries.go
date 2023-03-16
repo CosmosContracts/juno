@@ -18,7 +18,7 @@ import (
 
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 
-	"github.com/CosmosContracts/juno/v13/tests/e2e/util"
+	"github.com/CosmosContracts/juno/v14/tests/e2e/util"
 )
 
 func (n *NodeConfig) QueryGRPCGateway(path string, parameters ...string) ([]byte, error) {

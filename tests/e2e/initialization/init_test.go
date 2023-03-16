@@ -13,7 +13,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v13/tests/e2e/initialization"
+	"github.com/CosmosContracts/juno/v14/tests/e2e/initialization"
 )
 
 const forkHeight = 10
