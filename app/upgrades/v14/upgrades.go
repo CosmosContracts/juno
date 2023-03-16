@@ -1,4 +1,4 @@
-package v13
+package v14
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func GetChainsDenomToken(chainID string) string {
 	return "ujuno"
 }
 
-func CreateV13UpgradeHandler(
+func CreateV14UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	keepers *keepers.AppKeepers,

@@ -1,4 +1,4 @@
-package v13
+package v14
 
 import (
 	"github.com/CosmosContracts/juno/v14/app/upgrades"
@@ -11,7 +11,7 @@ const UpgradeName = "v14"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: CreateV13UpgradeHandler,
+	CreateUpgradeHandler: CreateV14UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
 			globalfee.ModuleName,

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Juno network
-  version: v13
+  version: v14
 paths:
   /cosmos/tx/v1beta1/simulate:
     post:
