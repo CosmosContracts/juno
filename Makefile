@@ -174,7 +174,7 @@ e2e-remove-resources:
 
 # Executes basic chain tests via interchaintest
 ictest-basic:
-	cd tests/interchaintest && go test -race -v -run TestJunoStart .
+	cd tests/interchaintest && go test -race -v -run TestBasic .
 
 # Executes IBC tests via interchaintest
 ictest-ibc:

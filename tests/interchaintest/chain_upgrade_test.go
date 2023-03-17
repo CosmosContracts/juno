@@ -22,7 +22,7 @@ const (
 	maxDepositPeriod   = "10s"
 )
 
-func TestJunoUpgrade(t *testing.T) {
+func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
 	CosmosChainUpgradeTest(t, "juno", "v13.0.0", version, repo, "v13")
 }

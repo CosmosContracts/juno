@@ -11,8 +11,8 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
-// TestJunoStart is a basic test to assert that spinning up a Juno network with one validator works properly.
-func TestJunoStart(t *testing.T) {
+// TestBasicJunoStart is a basic test to assert that spinning up a Juno network with one validator works properly.
+func TestBasicJunoStart(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
