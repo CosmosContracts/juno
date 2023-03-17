@@ -78,7 +78,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 		SkipPathCreation: false,
 
 		// This can be used to write to the block database which will index all block data e.g. txs, msgs, events, etc.
-		//BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
+		// BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
 	})
 	require.NoError(t, err)
 
@@ -92,7 +92,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 		func() {
 			err := r.StopRelayer(ctx, eRep)
 			if err != nil {
-				panic(fmt.Errorf("an error occured while stopping the relayer: %s", err))
+				panic(fmt.Errorf("an error occurred while stopping the relayer: %s", err))
 			}
 		},
 	)

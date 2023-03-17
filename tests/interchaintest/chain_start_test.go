@@ -54,7 +54,7 @@ func TestBasicJunoStart(t *testing.T) {
 		SkipPathCreation: true,
 
 		// This can be used to write to the block database which will index all block data e.g. txs, msgs, events, etc.
-		//BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
+		// BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
 	})
 	require.NoError(t, err)
 
