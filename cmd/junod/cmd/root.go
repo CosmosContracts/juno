@@ -62,7 +62,8 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithHomeDir(app.DefaultNodeHome).
 		WithViper("")
 
-	// Allows you to add extra params to your client.toml for gas
+	// Allows you to add extra params to your client.toml
+	// gas, gas-price, gas-adjustment, fees, note, etc.
 	SetCustomEnvVariablesFromClientToml(initClientCtx)
 
 	rootCmd := &cobra.Command{
@@ -99,38 +100,35 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 // Reads the custom extra values in the config.toml file if set.
 // If they are, then use them.
 func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
-	configPath := filepath.Join(ctx.HomeDir, "config")
-	configFilePath := filepath.Join(configPath, "client.toml")
+	configFilePath := filepath.Join(ctx.HomeDir, "config", "client.toml")
 
-	// check if configFilePath exists, if not, we return the default values
 	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
 		return
 	}
 
-	// read actual values from here and parse
 	viper := ctx.Viper
-	viper.SetConfigName("client")
-	viper.AddConfigPath(configPath)
-	viper.SetConfigType("toml")
+	viper.SetConfigFile(configFilePath)
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
 	}
 
-	gas := viper.GetString("gas")
-	if gas != "" {
-		os.Setenv("JUNOD_GAS", gas)
+	setEnvFromConfig := func(key string, envVar string) {
+		val := viper.GetString(key)
+		if val != "" {
+			os.Setenv(envVar, val)
+		}
 	}
+	// gas
+	setEnvFromConfig("gas", "JUNOD_GAS")
+	setEnvFromConfig("gas-price", "JUNOD_GAS_PRICES")
+	setEnvFromConfig("gas-adjustment", "JUNOD_GAS_ADJUSTMENT")
+	// fees
+	setEnvFromConfig("fees", "JUNOD_FEES")
+	setEnvFromConfig("fee-account", "JUNOD_FEE_ACCOUNT")
+	// memo
+	setEnvFromConfig("note", "JUNOD_NOTE")
 
-	gasPrices := viper.GetString("gas-prices")
-	if gasPrices != "" {
-		os.Setenv("JUNOD_GAS_PRICES", gasPrices)
-	}
-
-	gasAdjustment := viper.GetString("gas-adjustment")
-	if gasAdjustment != "" {
-		os.Setenv("JUNOD_GAS_ADJUSTMENT", gasAdjustment)
-	}
 }
 
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
@@ -148,8 +146,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		AddGenesisWasmMsgCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		DebugCmd(),
-		config.Cmd(),
-		// ConfigCmd(),
+		ConfigCmd(),
 		pruning.PruningCmd(ac.newApp),
 	)
 

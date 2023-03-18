@@ -6,22 +6,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	scconfig "github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-
-	"text/template"
-
-	sdkconfig "github.com/cosmos/cosmos-sdk/client/config"
 	viper "github.com/spf13/viper"
 )
 
-// Cmd returns a CLI command to interactively create an application CLI
-// config file. This is from cosmos-sdk/client/config/config.go
+// ConfigCmd returns a CLI command to interactively create an application CLI
+// config file.
 func ConfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config <key> [value]",
@@ -32,67 +30,17 @@ func ConfigCmd() *cobra.Command {
 	return cmd
 }
 
-// cosmos-sdk/client/config/toml.go
-const defaultConfigTemplate = `# This is a TOML config file.
-# For more information, see https://github.com/toml-lang/toml
-
-###############################################################################
-###                           Client Configuration                            ###
-###############################################################################
-
-# The network chain ID
-chain-id = "{{ .ChainID }}"
-# The keyring's backend, where the keys are stored (os|file|kwallet|pass|test|memory)
-keyring-backend = "{{ .KeyringBackend }}"
-# CLI output format (text|json)
-output = "{{ .Output }}"
-# <host>:<port> to Tendermint RPC interface for this chain
-node = "{{ .Node }}"
-# Transaction broadcasting mode (sync|async|block)
-broadcast-mode = "{{ .BroadcastMode }}"
-`
-
-// add more types to the config (optional)
-type CustomClientConfig struct {
+// CosmeticCustomClient is only used for `junod config` output.
+type CosmeticCustomClient struct {
+	scconfig.ClientConfig
 	Gas           string `mapstructure:"gas" json:"gas"`
+	GasPrice      string `mapstructure:"gas-price" json:"gas-price"`
 	GasAdjustment string `mapstructure:"gas-adjustment" json:"gas-adjustment"`
-	GasPrices     string `mapstructure:"gas-prices" json:"gas-prices"`
-}
 
-// getClientConfig reads values from client.toml file and unmarshalls them into ClientConfig
-func getClientConfig(configPath string, v *viper.Viper) (*sdkconfig.ClientConfig, error) {
-	v.AddConfigPath(configPath)
-	v.SetConfigName("client")
-	v.SetConfigType("toml")
+	Fees       string `mapstructure:"fees" json:"fees"`
+	FeeAccount string `mapstructure:"fee-account" json:"fee-account"`
 
-	if err := v.ReadInConfig(); err != nil {
-		return nil, err
-	}
-
-	conf := new(sdkconfig.ClientConfig)
-	if err := v.Unmarshal(conf); err != nil {
-		return nil, err
-	}
-
-	return conf, nil
-}
-
-// writeConfigToFile parses defaultConfigTemplate, renders config using the template and writes it to
-// configFilePath.
-func writeConfigToFile(configFilePath string, config *sdkconfig.ClientConfig) error {
-	var buffer bytes.Buffer
-
-	tmpl := template.New("clientConfigFileTemplate")
-	configTemplate, err := tmpl.Parse(defaultConfigTemplate)
-	if err != nil {
-		return err
-	}
-
-	if err := configTemplate.Execute(&buffer, config); err != nil {
-		return err
-	}
-
-	return os.WriteFile(configFilePath, buffer.Bytes(), 0o600)
+	Note string `mapstructure:"note" json:"note"`
 }
 
 func runConfigCmd(cmd *cobra.Command, args []string) error {
@@ -104,13 +52,25 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("couldn't get client config: %v", err)
 	}
 
+	ccc := CosmeticCustomClient{
+		*conf,
+		os.Getenv("JUNOD_GAS"),
+		os.Getenv("JUNOD_GAS_PRICES"),
+		os.Getenv("JUNOD_GAS_ADJUSTMENT"),
+
+		os.Getenv("JUNOD_FEES"),
+		os.Getenv("JUNOD_FEE_ACCOUNT"),
+
+		os.Getenv("JUNOD_NOTE"),
+	}
+
 	switch len(args) {
 	case 0:
-		// print all client config fields to stdout
-		s, err := json.MarshalIndent(conf, "", "\t")
+		s, err := json.MarshalIndent(ccc, "", "\t")
 		if err != nil {
 			return err
 		}
+
 		cmd.Println(string(s))
 
 	case 1:
@@ -128,13 +88,20 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 			cmd.Println(conf.Node)
 		case flags.FlagBroadcastMode:
 			cmd.Println(conf.BroadcastMode)
-		// Added
-		// case flags.FlagGas:
-		// 	cmd.Println(conf.Gas)
-		// case flags.FlagGasPrices:
-		// 	cmd.Println(conf.GasPrices)
-		// case flags.FlagGasAdjustment:
-		// 	cmd.Println(conf.GasAdjustment)
+
+		// Custom flags
+		case flags.FlagGas:
+			cmd.Println(ccc.Gas)
+		case flags.FlagGasPrices:
+			cmd.Println(ccc.GasPrice)
+		case flags.FlagGasAdjustment:
+			cmd.Println(ccc.GasAdjustment)
+		case flags.FlagFees:
+			cmd.Println(ccc.Fees)
+		case flags.FlagFeeAccount:
+			cmd.Println(ccc.FeeAccount)
+		case flags.FlagNote:
+			cmd.Println(ccc.Note)
 		default:
 			err := errUnknownConfigKey(key)
 			return fmt.Errorf("couldn't get the value for the key: %v, error:  %v", key, err)
@@ -155,7 +122,6 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 			conf.SetNode(value)
 		case flags.FlagBroadcastMode:
 			conf.SetBroadcastMode(value)
-		// TODO: add types
 		default:
 			return errUnknownConfigKey(key)
 		}
@@ -170,6 +136,61 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+const defaultConfigTemplate = `# This is a TOML config file.
+# For more information, see https://github.com/toml-lang/toml
+
+###############################################################################
+###                           Client Configuration                            ###
+###############################################################################
+
+# The network chain ID
+chain-id = "{{ .ChainID }}"
+# The keyring's backend, where the keys are stored (os|file|kwallet|pass|test|memory)
+keyring-backend = "{{ .KeyringBackend }}"
+# CLI output format (text|json)
+output = "{{ .Output }}"
+# <host>:<port> to Tendermint RPC interface for this chain
+node = "{{ .Node }}"
+# Transaction broadcasting mode (sync|async|block)
+broadcast-mode = "{{ .BroadcastMode }}"
+`
+
+// writeConfigToFile parses defaultConfigTemplate, renders config using the template and writes it to
+// configFilePath.
+func writeConfigToFile(configFilePath string, config *scconfig.ClientConfig) error {
+	var buffer bytes.Buffer
+
+	tmpl := template.New("clientConfigFileTemplate")
+	configTemplate, err := tmpl.Parse(defaultConfigTemplate)
+	if err != nil {
+		return err
+	}
+
+	if err := configTemplate.Execute(&buffer, config); err != nil {
+		return err
+	}
+
+	return os.WriteFile(configFilePath, buffer.Bytes(), 0o600)
+}
+
+// getClientConfig reads values from client.toml file and unmarshalls them into ClientConfig
+func getClientConfig(configPath string, v *viper.Viper) (*scconfig.ClientConfig, error) {
+	v.AddConfigPath(configPath)
+	v.SetConfigName("client")
+	v.SetConfigType("toml")
+
+	if err := v.ReadInConfig(); err != nil {
+		return nil, err
+	}
+
+	conf := new(scconfig.ClientConfig)
+	if err := v.Unmarshal(conf); err != nil {
+		return nil, err
+	}
+
+	return conf, nil
 }
 
 func errUnknownConfigKey(key string) error {
