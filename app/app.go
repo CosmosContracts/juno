@@ -252,7 +252,7 @@ func New(
 
 	if maxSize := os.Getenv("MAX_WASM_SIZE"); maxSize != "" {
 		// https://github.com/CosmWasm/wasmd#compile-time-parameters
-		val, _ := strconv.ParseInt(maxSize, 10, 64)
+		val, _ := strconv.ParseInt(maxSize, 10, 32)
 		wasmtypes.MaxWasmSize = int(val)
 	}
 
