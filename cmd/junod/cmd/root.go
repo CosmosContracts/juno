@@ -8,6 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
@@ -61,6 +62,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithHomeDir(app.DefaultNodeHome).
 		WithViper("")
 
+	// Allows you to add extra params to your client.toml for gas
+	customClientSettings := ReadCustomClientConfig(initClientCtx)
+
 	rootCmd := &cobra.Command{
 		Use:   version.AppName,
 		Short: "Juno Smart Contract Zone",
@@ -87,12 +91,62 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		},
 	}
 
-	initRootCmd(rootCmd, encodingConfig)
+	initRootCmd(rootCmd, encodingConfig, customClientSettings)
 
 	return rootCmd, encodingConfig
 }
 
-func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
+type CustomClientSettings struct {
+	GasPrices     string `mapstructure:"gas-prices"`
+	Gas           string `mapstructure:"gas"`
+	GasAdjustment string `mapstructure:"gas-adjustment"`
+}
+
+func ReadCustomClientConfig(ctx client.Context) CustomClientSettings {
+	configPath := filepath.Join(ctx.HomeDir, "config")
+	configFilePath := filepath.Join(configPath, "client.toml")
+
+	ccs := CustomClientSettings{}
+
+	// check if configFilePath exists, if not, we return the default values
+	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
+		return ccs
+	}
+
+	// read actual values from here and parse
+	viper := ctx.Viper
+	viper.SetConfigName("client")
+	viper.AddConfigPath(configPath)
+	viper.SetConfigType("toml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	// read value gas from the config file
+	gas := viper.GetString("gas")
+	if gas != "0" {
+		ccs.Gas = gas
+	} else {
+		ccs.Gas = "auto"
+	}
+
+	// read value gas-prices from the config file
+	gasPrices := viper.GetString("gas-prices")
+	if gasPrices != "" {
+		ccs.GasPrices = gasPrices
+	}
+
+	// read value gas-adjustment from the config file
+	gasAdjustment := viper.GetString("gas-adjustment")
+	if gasAdjustment != "" {
+		ccs.GasAdjustment = gasAdjustment
+	}
+
+	return ccs
+}
+
+func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig, customSettings CustomClientSettings) {
 	ac := appCreator{
 		encCfg: encodingConfig,
 	}
@@ -107,7 +161,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		AddGenesisWasmMsgCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		DebugCmd(),
-		config.Cmd(),
+		ConfigCmd(),
 		pruning.PruningCmd(ac.newApp),
 	)
 
@@ -117,7 +171,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
 		queryCommand(),
-		txCommand(),
+		txCommand(customSettings),
 		keys.Commands(app.DefaultNodeHome),
 		ResetCmd(),
 	)
@@ -152,7 +206,7 @@ func queryCommand() *cobra.Command {
 	return cmd
 }
 
-func txCommand() *cobra.Command {
+func txCommand(customSettings CustomClientSettings) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
 		Short:                      "Transactions subcommands",
@@ -176,7 +230,34 @@ func txCommand() *cobra.Command {
 	app.ModuleBasics.AddTxCommands(cmd)
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
+	// Sets ENV variables for custom defined settings in client.toml
+	// os.Setenv("JUNOD_GAS", customSettings.Gas)
+	// os.Setenv("JUNOD_GAS_ADJUSTMENT", customSettings.GasAdjustment)
+	// os.Setenv("JUNOD_GAS_PRICES", customSettings.GasPrices)
+
 	return cmd
+}
+
+// type Value interface {
+// 	String() string
+// 	Set(string) error
+// 	Type() string
+// }
+
+// make customSettings follow Value
+type CustomSettings struct {
+	Gas string
+}
+
+func (c *CustomSettings) String() string {
+	return c.Gas
+}
+func (c *CustomSettings) Set(s string) error {
+	c.Gas = s
+	return nil
+}
+func (c *CustomSettings) Type() string {
+	return "string"
 }
 
 type appCreator struct {
