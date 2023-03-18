@@ -8,8 +8,8 @@ on:
       - '**'
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: ghcr.io  
+  IMAGE_NAME: ${{ github.repository }}-e2e
 
 jobs:
   build-and-push-image:
