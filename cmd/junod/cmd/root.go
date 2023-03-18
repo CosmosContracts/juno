@@ -8,6 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
@@ -61,6 +62,10 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithHomeDir(app.DefaultNodeHome).
 		WithViper("")
 
+	// Allows you to add extra params to your client.toml
+	// gas, gas-price, gas-adjustment, fees, note, etc.
+	SetCustomEnvVariablesFromClientToml(initClientCtx)
+
 	rootCmd := &cobra.Command{
 		Use:   version.AppName,
 		Short: "Juno Smart Contract Zone",
@@ -92,6 +97,47 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	return rootCmd, encodingConfig
 }
 
+// Reads the custom extra values in the config.toml file if set.
+// If they are, then use them.
+func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
+	configFilePath := filepath.Join(ctx.HomeDir, "config", "client.toml")
+
+	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
+		return
+	}
+
+	viper := ctx.Viper
+	viper.SetConfigFile(configFilePath)
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	setEnvFromConfig := func(key string, envVar string) {
+		// if the user sets the env key manually, then we don't want to override it
+		if os.Getenv(envVar) != "" {
+			return
+		}
+
+		// reads from the config file
+		val := viper.GetString(key)
+		if val != "" {
+			// Sets the env for this instance of the app only.
+			os.Setenv(envVar, val)
+		}
+	}
+
+	// gas
+	setEnvFromConfig("gas", "JUNOD_GAS")
+	setEnvFromConfig("gas-prices", "JUNOD_GAS_PRICES")
+	setEnvFromConfig("gas-adjustment", "JUNOD_GAS_ADJUSTMENT")
+	// fees
+	setEnvFromConfig("fees", "JUNOD_FEES")
+	setEnvFromConfig("fee-account", "JUNOD_FEE_ACCOUNT")
+	// memo
+	setEnvFromConfig("note", "JUNOD_NOTE")
+}
+
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	ac := appCreator{
 		encCfg: encodingConfig,
@@ -107,7 +153,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		AddGenesisWasmMsgCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		DebugCmd(),
-		config.Cmd(),
+		ConfigCmd(),
 		pruning.PruningCmd(ac.newApp),
 	)
 
