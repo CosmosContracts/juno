@@ -71,8 +71,8 @@ for f in $files; do
     cp $f ./tmp-swagger-gen/_all/cosmos-$counter.json
   elif [[ "$f" =~ "tokenfactory" ]]; then
     cp $f ./tmp-swagger-gen/_all/tokenfactory-$counter.json
-  elif [[ "$f" =~ "intertx" ]]; then
-    cp $f ./tmp-swagger-gen/_all/intertx-$counter.json
+  # elif [[ "$f" =~ "intertx" ]]; then
+  #   cp $f ./tmp-swagger-gen/_all/intertx-$counter.json
   else
     cp $f ./tmp-swagger-gen/_all/other-$counter.json
   fi
