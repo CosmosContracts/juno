@@ -113,7 +113,14 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVers
 
 	// upgrade version amd repo on all nodes
 	for _, node := range chain.Nodes() {
-		node.Image.Repository = upgradeRepo
+		nodeImageRepository := upgradeRepo
+
+		// when no BRANCH_CI is set, its local & we need to pull from normally
+		if upgradeVersion != "local" {
+			nodeImageRepository = upgradeRepo + "-e2e"
+		}
+
+		node.Image.Repository = nodeImageRepository
 	}
 
 	chain.UpgradeVersion(ctx, client, upgradeVersion)
