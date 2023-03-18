@@ -23,7 +23,7 @@ func GenInflation(r *rand.Rand) sdk.Dec {
 }
 
 // GenBlocksPerYear randomized BlocksPerYear
-func GenBlocksPerYear(r *rand.Rand) uint64 {
+func GenBlocksPerYear(_ *rand.Rand) uint64 {
 	return uint64(60 * 60 * 8766 / 5)
 }
 

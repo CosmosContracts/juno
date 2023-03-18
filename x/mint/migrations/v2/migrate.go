@@ -13,7 +13,7 @@ const (
 // Migrate migrates the x/mint module state from the consensus version 1 to
 // version 2. Specifically, it take calculate target supply for the current phase
 func Migrate(
-	ctx sdk.Context,
+	_ sdk.Context,
 	store sdk.KVStore,
 	cdc codec.BinaryCodec,
 ) error {
