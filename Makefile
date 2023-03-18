@@ -160,19 +160,40 @@ docker-build-e2e-init-chain:
 docker-build-e2e-init-node:
 	@DOCKER_BUILDKIT=1 docker build -t juno-e2e-init-node:debug --build-arg E2E_SCRIPT_NAME=node -f tests/e2e/initialization/init.Dockerfile .
 
-e2e-clean:
-	sudo rm -rf /tmp/juno-e2e-testnet	
+###############################################################################
+###                                e2e interchain test                             ###
+###############################################################################
 
-e2e-setup: e2e-check-image-sha e2e-remove-resources
-	@echo Finished e2e environment setup, ready to start the test
+# Executes basic chain tests via interchaintest
+ictest-basic:
+	cd tests/interchaintest && go test -race -v -run TestBasic .
 
-e2e-check-image-sha:
-	tests/e2e/scripts/run/check_image_sha.sh
+# Executes a basic chain upgrade test via interchaintest
+ictest-upgrade:
+	cd tests/interchaintest && go test -race -v -run TestBasicJunoUpgrade .
 
-e2e-remove-resources:
-	tests/e2e/scripts/run/remove_stale_resources.sh
+# Executes IBC tests via interchaintest
+ictest-ibc:
+	cd tests/interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
 
-.PHONY: test-mutation
+.PHONY: test-mutation ictest-basic ictest-ibc
+
+###############################################################################
+###                                  heighliner                             ###
+###############################################################################
+
+get-heighliner:
+	git clone https://github.com/strangelove-ventures/heighliner.git
+	cd heighliner && go install
+
+local-image:
+ifeq (,$(shell which heighliner))
+	echo 'heighliner' binary not found. Consider running `make get-heighliner`
+else
+	heighliner build -c juno --local -f ./chains.yaml
+endif
+
+.PHONY: get-heighliner local-image
 
 ###############################################################################
 ###                                  Proto                                  ###
