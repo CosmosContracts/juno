@@ -34,7 +34,7 @@ func ConfigCmd() *cobra.Command {
 type CosmeticCustomClient struct {
 	scconfig.ClientConfig
 	Gas           string `mapstructure:"gas" json:"gas"`
-	GasPrice      string `mapstructure:"gas-price" json:"gas-price"`
+	GasPrices     string `mapstructure:"gas-prices" json:"gas-prices"`
 	GasAdjustment string `mapstructure:"gas-adjustment" json:"gas-adjustment"`
 
 	Fees       string `mapstructure:"fees" json:"fees"`
@@ -93,7 +93,7 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 		case flags.FlagGas:
 			cmd.Println(ccc.Gas)
 		case flags.FlagGasPrices:
-			cmd.Println(ccc.GasPrice)
+			cmd.Println(ccc.GasPrices)
 		case flags.FlagGasAdjustment:
 			cmd.Println(ccc.GasAdjustment)
 		case flags.FlagFees:
@@ -113,21 +113,35 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 
 		switch key {
 		case flags.FlagChainID:
-			conf.SetChainID(value)
+			ccc.ChainID = value
 		case flags.FlagKeyringBackend:
-			conf.SetKeyringBackend(value)
+			ccc.KeyringBackend = value
 		case tmcli.OutputFlag:
-			conf.SetOutput(value)
+			ccc.Output = value
 		case flags.FlagNode:
-			conf.SetNode(value)
+			ccc.Node = value
 		case flags.FlagBroadcastMode:
-			conf.SetBroadcastMode(value)
+			ccc.BroadcastMode = value
+		case flags.FlagGas:
+			ccc.Gas = value
+		case flags.FlagGasPrices:
+			ccc.GasPrices = value
+			ccc.Fees = "" // resets since we can only use 1 at a time
+		case flags.FlagGasAdjustment:
+			ccc.GasAdjustment = value
+		case flags.FlagFees:
+			ccc.Fees = value
+			ccc.GasPrices = "" // resets since we can only use 1 at a time
+		case flags.FlagFeeAccount:
+			ccc.FeeAccount = value
+		case flags.FlagNote:
+			ccc.Note = value
 		default:
 			return errUnknownConfigKey(key)
 		}
 
 		confFile := filepath.Join(configPath, "client.toml")
-		if err := writeConfigToFile(confFile, conf); err != nil {
+		if err := writeConfigToFile(confFile, &ccc); err != nil {
 			return fmt.Errorf("could not write client config to the file: %v", err)
 		}
 
@@ -142,7 +156,7 @@ const defaultConfigTemplate = `# This is a TOML config file.
 # For more information, see https://github.com/toml-lang/toml
 
 ###############################################################################
-###                           Client Configuration                            ###
+###                           Client Configuration                          ###
 ###############################################################################
 
 # The network chain ID
@@ -155,11 +169,28 @@ output = "{{ .Output }}"
 node = "{{ .Node }}"
 # Transaction broadcasting mode (sync|async|block)
 broadcast-mode = "{{ .BroadcastMode }}"
+
+###############################################################################
+###                          Juno Tx Configuration                          ###
+###############################################################################
+
+# Amount of gas per transaction
+gas = "{{ .Gas }}"
+# Price per unit of gas (ex: 0.005ujuno)
+gas-prices = "{{ .GasPrices }}"
+gas-adjustment = "{{ .GasAdjustment }}"
+
+# Fees to use instead of set gas prices
+fees = "{{ .Fees }}"
+fee-account = "{{ .FeeAccount }}"
+
+# Memo to include in your Transactions
+note = "{{ .Note }}"
 `
 
 // writeConfigToFile parses defaultConfigTemplate, renders config using the template and writes it to
 // configFilePath.
-func writeConfigToFile(configFilePath string, config *scconfig.ClientConfig) error {
+func writeConfigToFile(configFilePath string, config *CosmeticCustomClient) error {
 	var buffer bytes.Buffer
 
 	tmpl := template.New("clientConfigFileTemplate")
