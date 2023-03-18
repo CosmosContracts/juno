@@ -18,6 +18,18 @@ import (
 	viper "github.com/spf13/viper"
 )
 
+type JunoCustomClient struct {
+	scconfig.ClientConfig
+	Gas           string `mapstructure:"gas" json:"gas"`
+	GasPrices     string `mapstructure:"gas-prices" json:"gas-prices"`
+	GasAdjustment string `mapstructure:"gas-adjustment" json:"gas-adjustment"`
+
+	Fees       string `mapstructure:"fees" json:"fees"`
+	FeeAccount string `mapstructure:"fee-account" json:"fee-account"`
+
+	Note string `mapstructure:"note" json:"note"`
+}
+
 // ConfigCmd returns a CLI command to interactively create an application CLI
 // config file.
 func ConfigCmd() *cobra.Command {
@@ -30,19 +42,6 @@ func ConfigCmd() *cobra.Command {
 	return cmd
 }
 
-// CosmeticCustomClient is only used for `junod config` output.
-type CosmeticCustomClient struct {
-	scconfig.ClientConfig
-	Gas           string `mapstructure:"gas" json:"gas"`
-	GasPrices     string `mapstructure:"gas-prices" json:"gas-prices"`
-	GasAdjustment string `mapstructure:"gas-adjustment" json:"gas-adjustment"`
-
-	Fees       string `mapstructure:"fees" json:"fees"`
-	FeeAccount string `mapstructure:"fee-account" json:"fee-account"`
-
-	Note string `mapstructure:"note" json:"note"`
-}
-
 func runConfigCmd(cmd *cobra.Command, args []string) error {
 	clientCtx := client.GetClientContextFromCmd(cmd)
 	configPath := filepath.Join(clientCtx.HomeDir, "config")
@@ -52,7 +51,7 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("couldn't get client config: %v", err)
 	}
 
-	ccc := CosmeticCustomClient{
+	jcc := JunoCustomClient{
 		*conf,
 		os.Getenv("JUNOD_GAS"),
 		os.Getenv("JUNOD_GAS_PRICES"),
@@ -66,7 +65,7 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 
 	switch len(args) {
 	case 0:
-		s, err := json.MarshalIndent(ccc, "", "\t")
+		s, err := json.MarshalIndent(jcc, "", "\t")
 		if err != nil {
 			return err
 		}
@@ -91,17 +90,17 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 
 		// Custom flags
 		case flags.FlagGas:
-			cmd.Println(ccc.Gas)
+			cmd.Println(jcc.Gas)
 		case flags.FlagGasPrices:
-			cmd.Println(ccc.GasPrices)
+			cmd.Println(jcc.GasPrices)
 		case flags.FlagGasAdjustment:
-			cmd.Println(ccc.GasAdjustment)
+			cmd.Println(jcc.GasAdjustment)
 		case flags.FlagFees:
-			cmd.Println(ccc.Fees)
+			cmd.Println(jcc.Fees)
 		case flags.FlagFeeAccount:
-			cmd.Println(ccc.FeeAccount)
+			cmd.Println(jcc.FeeAccount)
 		case flags.FlagNote:
-			cmd.Println(ccc.Note)
+			cmd.Println(jcc.Note)
 		default:
 			err := errUnknownConfigKey(key)
 			return fmt.Errorf("couldn't get the value for the key: %v, error:  %v", key, err)
@@ -113,35 +112,35 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 
 		switch key {
 		case flags.FlagChainID:
-			ccc.ChainID = value
+			jcc.ChainID = value
 		case flags.FlagKeyringBackend:
-			ccc.KeyringBackend = value
+			jcc.KeyringBackend = value
 		case tmcli.OutputFlag:
-			ccc.Output = value
+			jcc.Output = value
 		case flags.FlagNode:
-			ccc.Node = value
+			jcc.Node = value
 		case flags.FlagBroadcastMode:
-			ccc.BroadcastMode = value
+			jcc.BroadcastMode = value
 		case flags.FlagGas:
-			ccc.Gas = value
+			jcc.Gas = value
 		case flags.FlagGasPrices:
-			ccc.GasPrices = value
-			ccc.Fees = "" // resets since we can only use 1 at a time
+			jcc.GasPrices = value
+			jcc.Fees = "" // resets since we can only use 1 at a time
 		case flags.FlagGasAdjustment:
-			ccc.GasAdjustment = value
+			jcc.GasAdjustment = value
 		case flags.FlagFees:
-			ccc.Fees = value
-			ccc.GasPrices = "" // resets since we can only use 1 at a time
+			jcc.Fees = value
+			jcc.GasPrices = "" // resets since we can only use 1 at a time
 		case flags.FlagFeeAccount:
-			ccc.FeeAccount = value
+			jcc.FeeAccount = value
 		case flags.FlagNote:
-			ccc.Note = value
+			jcc.Note = value
 		default:
 			return errUnknownConfigKey(key)
 		}
 
 		confFile := filepath.Join(configPath, "client.toml")
-		if err := writeConfigToFile(confFile, &ccc); err != nil {
+		if err := writeConfigToFile(confFile, &jcc); err != nil {
 			return fmt.Errorf("could not write client config to the file: %v", err)
 		}
 
@@ -190,7 +189,7 @@ note = "{{ .Note }}"
 
 // writeConfigToFile parses defaultConfigTemplate, renders config using the template and writes it to
 // configFilePath.
-func writeConfigToFile(configFilePath string, config *CosmeticCustomClient) error {
+func writeConfigToFile(configFilePath string, config *JunoCustomClient) error {
 	var buffer bytes.Buffer
 
 	tmpl := template.New("clientConfigFileTemplate")

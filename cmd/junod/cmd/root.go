@@ -126,6 +126,7 @@ func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
 			os.Setenv(envVar, val)
 		}
 	}
+
 	// gas
 	setEnvFromConfig("gas", "JUNOD_GAS")
 	setEnvFromConfig("gas-prices", "JUNOD_GAS_PRICES")
