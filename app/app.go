@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -255,7 +254,6 @@ func New(
 		// https://github.com/CosmWasm/wasmd#compile-time-parameters
 		val, _ := strconv.ParseInt(maxSize, 10, 64)
 		wasmtypes.MaxWasmSize = int(val)
-		panic(fmt.Sprintf("MaxWasmSize set to %d", wasmtypes.MaxWasmSize))
 	}
 
 	// upgrade handlers
