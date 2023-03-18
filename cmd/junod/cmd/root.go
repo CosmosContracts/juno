@@ -128,7 +128,6 @@ func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
 	setEnvFromConfig("fee-account", "JUNOD_FEE_ACCOUNT")
 	// memo
 	setEnvFromConfig("note", "JUNOD_NOTE")
-
 }
 
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
