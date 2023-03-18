@@ -114,8 +114,15 @@ func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
 	}
 
 	setEnvFromConfig := func(key string, envVar string) {
+		// if the user sets the env key manually, then we don't want to override it
+		if os.Getenv(envVar) != "" {
+			return
+		}
+
+		// reads from the config file
 		val := viper.GetString(key)
 		if val != "" {
+			// Sets the env for this instance of the app only.
 			os.Setenv(envVar, val)
 		}
 	}
