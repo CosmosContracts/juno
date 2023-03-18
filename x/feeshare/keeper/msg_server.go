@@ -12,7 +12,7 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, contract sdk.AccAddress, info *wasmTypes.ContractInfo) bool {
+func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, _ sdk.AccAddress, info *wasmTypes.ContractInfo) bool {
 	// This will allow ANYONE to register FeeShare funds to its own contract if it was created from a factory contract
 	// Note: if there is no admin but a creator made it, then the creator can register it how they wish
 
