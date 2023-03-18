@@ -50,21 +50,17 @@ output = "{{ .Output }}"
 node = "{{ .Node }}"
 # Transaction broadcasting mode (sync|async|block)
 broadcast-mode = "{{ .BroadcastMode }}"
-# Specific gas to use
-gas = "0"
 `
 
-// add more types to the sdkconfig.ClientConfig
-type ClientConfig struct {
-	sdkconfig.ClientConfig
-
+// add more types to the config (optional)
+type CustomClientConfig struct {
 	Gas           string `mapstructure:"gas" json:"gas"`
 	GasAdjustment string `mapstructure:"gas-adjustment" json:"gas-adjustment"`
 	GasPrices     string `mapstructure:"gas-prices" json:"gas-prices"`
 }
 
 // getClientConfig reads values from client.toml file and unmarshalls them into ClientConfig
-func getClientConfig(configPath string, v *viper.Viper) (*ClientConfig, error) {
+func getClientConfig(configPath string, v *viper.Viper) (*sdkconfig.ClientConfig, error) {
 	v.AddConfigPath(configPath)
 	v.SetConfigName("client")
 	v.SetConfigType("toml")
@@ -73,7 +69,7 @@ func getClientConfig(configPath string, v *viper.Viper) (*ClientConfig, error) {
 		return nil, err
 	}
 
-	conf := new(ClientConfig)
+	conf := new(sdkconfig.ClientConfig)
 	if err := v.Unmarshal(conf); err != nil {
 		return nil, err
 	}
@@ -83,7 +79,7 @@ func getClientConfig(configPath string, v *viper.Viper) (*ClientConfig, error) {
 
 // writeConfigToFile parses defaultConfigTemplate, renders config using the template and writes it to
 // configFilePath.
-func writeConfigToFile(configFilePath string, config *ClientConfig) error {
+func writeConfigToFile(configFilePath string, config *sdkconfig.ClientConfig) error {
 	var buffer bytes.Buffer
 
 	tmpl := template.New("clientConfigFileTemplate")
@@ -133,12 +129,12 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 		case flags.FlagBroadcastMode:
 			cmd.Println(conf.BroadcastMode)
 		// Added
-		case flags.FlagGas:
-			cmd.Println(conf.Gas)
-		case flags.FlagGasPrices:
-			cmd.Println(conf.GasPrices)
-		case flags.FlagGasAdjustment:
-			cmd.Println(conf.GasAdjustment)
+		// case flags.FlagGas:
+		// 	cmd.Println(conf.Gas)
+		// case flags.FlagGasPrices:
+		// 	cmd.Println(conf.GasPrices)
+		// case flags.FlagGasAdjustment:
+		// 	cmd.Println(conf.GasAdjustment)
 		default:
 			err := errUnknownConfigKey(key)
 			return fmt.Errorf("couldn't get the value for the key: %v, error:  %v", key, err)

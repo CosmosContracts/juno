@@ -63,7 +63,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithViper("")
 
 	// Allows you to add extra params to your client.toml for gas
-	customClientSettings := ReadCustomClientConfig(initClientCtx)
+	SetCustomEnvVariablesFromClientToml(initClientCtx)
 
 	rootCmd := &cobra.Command{
 		Use:   version.AppName,
@@ -91,26 +91,20 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		},
 	}
 
-	initRootCmd(rootCmd, encodingConfig, customClientSettings)
+	initRootCmd(rootCmd, encodingConfig)
 
 	return rootCmd, encodingConfig
 }
 
-type CustomClientSettings struct {
-	GasPrices     string `mapstructure:"gas-prices"`
-	Gas           string `mapstructure:"gas"`
-	GasAdjustment string `mapstructure:"gas-adjustment"`
-}
-
-func ReadCustomClientConfig(ctx client.Context) CustomClientSettings {
+// Reads the custom extra values in the config.toml file if set.
+// If they are, then use them.
+func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
 	configPath := filepath.Join(ctx.HomeDir, "config")
 	configFilePath := filepath.Join(configPath, "client.toml")
 
-	ccs := CustomClientSettings{}
-
 	// check if configFilePath exists, if not, we return the default values
 	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
-		return ccs
+		return
 	}
 
 	// read actual values from here and parse
@@ -123,30 +117,23 @@ func ReadCustomClientConfig(ctx client.Context) CustomClientSettings {
 		panic(err)
 	}
 
-	// read value gas from the config file
 	gas := viper.GetString("gas")
-	if gas != "0" {
-		ccs.Gas = gas
-	} else {
-		ccs.Gas = "auto"
+	if gas != "" {
+		os.Setenv("JUNOD_GAS", gas)
 	}
 
-	// read value gas-prices from the config file
 	gasPrices := viper.GetString("gas-prices")
 	if gasPrices != "" {
-		ccs.GasPrices = gasPrices
+		os.Setenv("JUNOD_GAS_PRICES", gasPrices)
 	}
 
-	// read value gas-adjustment from the config file
 	gasAdjustment := viper.GetString("gas-adjustment")
 	if gasAdjustment != "" {
-		ccs.GasAdjustment = gasAdjustment
+		os.Setenv("JUNOD_GAS_ADJUSTMENT", gasAdjustment)
 	}
-
-	return ccs
 }
 
-func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig, customSettings CustomClientSettings) {
+func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	ac := appCreator{
 		encCfg: encodingConfig,
 	}
@@ -161,7 +148,8 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig, c
 		AddGenesisWasmMsgCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		DebugCmd(),
-		ConfigCmd(),
+		config.Cmd(),
+		// ConfigCmd(),
 		pruning.PruningCmd(ac.newApp),
 	)
 
@@ -171,7 +159,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig, c
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
 		queryCommand(),
-		txCommand(customSettings),
+		txCommand(),
 		keys.Commands(app.DefaultNodeHome),
 		ResetCmd(),
 	)
@@ -206,7 +194,7 @@ func queryCommand() *cobra.Command {
 	return cmd
 }
 
-func txCommand(customSettings CustomClientSettings) *cobra.Command {
+func txCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
 		Short:                      "Transactions subcommands",
@@ -230,34 +218,7 @@ func txCommand(customSettings CustomClientSettings) *cobra.Command {
 	app.ModuleBasics.AddTxCommands(cmd)
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
-	// Sets ENV variables for custom defined settings in client.toml
-	// os.Setenv("JUNOD_GAS", customSettings.Gas)
-	// os.Setenv("JUNOD_GAS_ADJUSTMENT", customSettings.GasAdjustment)
-	// os.Setenv("JUNOD_GAS_PRICES", customSettings.GasPrices)
-
 	return cmd
-}
-
-// type Value interface {
-// 	String() string
-// 	Set(string) error
-// 	Type() string
-// }
-
-// make customSettings follow Value
-type CustomSettings struct {
-	Gas string
-}
-
-func (c *CustomSettings) String() string {
-	return c.Gas
-}
-func (c *CustomSettings) Set(s string) error {
-	c.Gas = s
-	return nil
-}
-func (c *CustomSettings) Type() string {
-	return "string"
 }
 
 type appCreator struct {
