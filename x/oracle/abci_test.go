@@ -103,7 +103,6 @@ var OracleHistoryTestCases = []struct {
 }
 
 func (s *IntegrationTestSuite) TestOracleHistoryEndBlocker() {
-
 	for _, tc := range OracleHistoryTestCases {
 		s.Run(tc.name, func() {
 			app, ctx := s.app, s.ctx
