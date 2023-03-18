@@ -106,8 +106,6 @@ func (p Params) Validate() error {
 	if err := validateShares(p.DeveloperShares); err != nil {
 		return err
 	}
-	if err := validateArray(p.AllowedDenoms); err != nil {
-		return err
-	}
-	return nil
+	err := validateArray(p.AllowedDenoms)
+	return err
 }
