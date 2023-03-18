@@ -93,11 +93,7 @@ include contrib/devtools/Makefile
 
 all: install
 	@echo "--> project root: go mod tidy"	
-	@go mod tidy
-	@echo "--> price-feeder: go mod tidy "	
-	@make -C price-feeder tidy
-	@echo "--> price-feeder: linting --fix"	
-	@make -C price-feeder lint
+	@go mod tidy			
 	@echo "--> project root: linting --fix"	
 	@GOGC=1 golangci-lint run --fix --timeout=8m
 
@@ -123,33 +119,6 @@ PACKAGES_UNIT=$(shell go list ./... | grep -E -v 'tests/e2e')
 PACKAGES_E2E=$(shell go list -tags e2e ./... | grep '/e2e')
 TEST_PACKAGES=./...
 
-# test-e2e runs a full e2e test suite
-# deletes any pre-existing Juno containers before running.
-#
-# Attempts to delete Docker resources at the end.
-# May fail to do so if stopped mid way.
-# In that case, run `make e2e-remove-resources`
-# manually.
-# Utilizes Go cache.
-test-e2e: e2e-setup test-e2e-ci
-
-# test-e2e-ci runs a full e2e test suite
-# does not do any validation about the state of the Docker environment
-# As a result, avoid using this locally.
-test-e2e-ci:
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_ORACLE=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
-
-# test-e2e-debug runs a full e2e test suite but does
-# not attempt to delete Docker resources at the end.
-test-e2e-debug: e2e-setup
-	@VERSION=$(VERSION) JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_CLEANUP=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
-
-test-e2e-short: e2e-setup
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_STATE_SYNC=True JUNO_E2E_SKIP_CLEANUP=True go test -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
-
-test-e2e-oracle:
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
-
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_UNIT)
 
@@ -167,20 +136,40 @@ docker-build-e2e-init-chain:
 docker-build-e2e-init-node:
 	@DOCKER_BUILDKIT=1 docker build -t juno-e2e-init-node:debug --build-arg E2E_SCRIPT_NAME=node -f tests/e2e/initialization/init.Dockerfile .
 
-e2e-clean:
-	sudo rm -rf /tmp/juno-e2e-testnet
-	sudo rm -rf /tmp/price-feeder
+###############################################################################
+###                                e2e interchain test                             ###
+###############################################################################
 
-e2e-setup: e2e-check-image-sha e2e-remove-resources
-	@echo Finished e2e environment setup, ready to start the test
+# Executes basic chain tests via interchaintest
+ictest-basic:
+	cd tests/interchaintest && go test -race -v -run TestBasic .
 
-e2e-check-image-sha:
-	tests/e2e/scripts/run/check_image_sha.sh
+# Executes a basic chain upgrade test via interchaintest
+ictest-upgrade:
+	cd tests/interchaintest && go test -race -v -run TestBasicJunoUpgrade .
 
-e2e-remove-resources:
-	tests/e2e/scripts/run/remove_stale_resources.sh
+# Executes IBC tests via interchaintest
+ictest-ibc:
+	cd tests/interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
 
-.PHONY: test-mutation
+.PHONY: test-mutation ictest-basic ictest-ibc
+
+###############################################################################
+###                                  heighliner                             ###
+###############################################################################
+
+get-heighliner:
+	git clone https://github.com/strangelove-ventures/heighliner.git
+	cd heighliner && go install
+
+local-image:
+ifeq (,$(shell which heighliner))
+	echo 'heighliner' binary not found. Consider running `make get-heighliner`
+else
+	heighliner build -c juno --local -f ./chains.yaml
+endif
+
+.PHONY: get-heighliner local-image
 
 ###############################################################################
 ###                                  Proto                                  ###
