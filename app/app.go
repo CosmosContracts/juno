@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/CosmosContracts/juno/v13/app/openapiconsole"
@@ -46,6 +47,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/CosmosContracts/juno/v13/app/keepers"
@@ -243,6 +245,12 @@ func New(
 		appOpts,
 		wasmOpts,
 	)
+
+	if maxSize := os.Getenv("MAX_WASM_SIZE"); maxSize != "" {
+		// https://github.com/CosmWasm/wasmd#compile-time-parameters
+		val, _ := strconv.ParseInt(maxSize, 10, 32)
+		wasmtypes.MaxWasmSize = int(val)
+	}
 
 	// upgrade handlers
 	cfg := module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())

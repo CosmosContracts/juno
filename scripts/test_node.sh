@@ -4,6 +4,9 @@
 # Example:
 # CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
 # CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
+#
+# To use unoptomized wasm files up to ~5mb, add: MAX_WASM_SIZE=5000000
+
 
 export KEY="juno1"
 export CHAIN_ID=${CHAIN_ID:-"local-1"}
