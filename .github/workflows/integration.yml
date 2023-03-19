@@ -4,9 +4,8 @@ name: Contract CI
 on:
   pull_request:
   push:
-    tags:
     branches:
-      - 'main'
+      - "main"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,17 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Docker compose
-        run: STAKE_TOKEN="ujunox" TIMEOUT_COMMIT=500ms docker-compose up -d
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          repository: 'envoylabs/whoami'
-          ref: 'v0.7.1-alpha'
+        run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Run deploy script
         run: |
-          chmod a+x ./scripts/deploy_ci.sh
-          ./scripts/deploy_ci.sh
+          chmod a+x ./scripts/whoami/deploy_ci.sh
+          ./scripts/whoami/deploy_ci.sh
       - name: Dump docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@v2
-

@@ -4,9 +4,8 @@ name: Gov Contract CI - Deploy
 on:
   pull_request:
   push:
-    tags:
     branches:
-      - 'main'
+      - "main"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,17 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Docker compose
-        run: STAKE_TOKEN="ujunox" TIMEOUT_COMMIT=500ms docker-compose up -d
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          repository: 'CosmosContracts/cw-unity-prop'
-          ref: 'v0.3.4-alpha'
+        run: STAKE_TOKEN="ujunox" docker-compose up -d
       - name: Test gov deploy
         run: |
-          chmod a+x ./scripts/deploy_ci.sh
-          ./scripts/deploy_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
+          chmod a+x ./scripts/cw_unity_prop/deploy_ci.sh
+          ./scripts/cw_unity_prop/deploy_ci.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y
       - name: Dump docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@v2
-
