@@ -2,8 +2,8 @@ package v13
 
 import (
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
-	"github.com/CosmosContracts/juno/v13/app/upgrades"
-	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v14/app/upgrades"
+	feesharetypes "github.com/CosmosContracts/juno/v14/x/feeshare/types"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"

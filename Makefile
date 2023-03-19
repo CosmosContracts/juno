@@ -21,7 +21,7 @@ TM_VERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
 BUILDDIR ?= $(CURDIR)/build
-E2E_UPGRADE_VERSION := "v13"
+E2E_UPGRADE_VERSION := "v14"
 export GO111MODULE = on
 
 # process build tags
@@ -118,6 +118,30 @@ test-sim-multi-seed-short: runsim
 PACKAGES_UNIT=$(shell go list ./... | grep -E -v 'tests/e2e')
 PACKAGES_E2E=$(shell go list -tags e2e ./... | grep '/e2e')
 TEST_PACKAGES=./...
+
+# test-e2e runs a full e2e test suite
+# deletes any pre-existing Juno containers before running.
+#
+# Attempts to delete Docker resources at the end.
+# May fail to do so if stopped mid way.
+# In that case, run `make e2e-remove-resources`
+# manually.
+# Utilizes Go cache.
+test-e2e: e2e-setup test-e2e-ci
+
+# test-e2e-ci runs a full e2e test suite
+# does not do any validation about the state of the Docker environment
+# As a result, avoid using this locally.
+test-e2e-ci:
+	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_ORACLE=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
+
+# test-e2e-debug runs a full e2e test suite but does
+# not attempt to delete Docker resources at the end.
+test-e2e-debug: e2e-setup
+	@VERSION=$(VERSION) JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_CLEANUP=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
+
+test-e2e-short: e2e-setup
+	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_STATE_SYNC=True JUNO_E2E_SKIP_CLEANUP=True go test -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
 
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_UNIT)

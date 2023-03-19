@@ -7,8 +7,8 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	mintkeeper "github.com/CosmosContracts/juno/v13/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v13/x/mint/types"
+	mintkeeper "github.com/CosmosContracts/juno/v14/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v14/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -69,13 +69,15 @@ import (
 	icahostkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
 
-	feesharekeeper "github.com/CosmosContracts/juno/v13/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v14/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v14/x/feeshare/types"
 
 	// ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
+
+	"github.com/cosmos/gaia/v9/x/globalfee"
 )
 
 type AppKeepers struct {
@@ -501,6 +503,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)
+	paramsKeeper.Subspace(globalfee.ModuleName)
 
 	return paramsKeeper
 }
