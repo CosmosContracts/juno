@@ -179,7 +179,10 @@ ictest-upgrade-local: local-image ictest-upgrade
 ictest-ibc:
 	cd tests/interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
 
-.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc
+# Executes all tests via interchaintest after compling a local image as juno:local
+ictest-all: local-image ictest-basic ictest-upgrade ictest-ibc
+
+.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-all
 
 ###############################################################################
 ###                                  heighliner                             ###
