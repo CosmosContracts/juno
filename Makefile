@@ -111,57 +111,11 @@ test-sim-multi-seed-short: runsim
 	@echo "Running short multi-seed application simulation. This may take awhile!"
 	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(APP) -ExitOnFail 50 10 TestFullAppSimulation
 
-###############################################################################
-###                                  Tests e2e                              ###
-###############################################################################
-
-PACKAGES_UNIT=$(shell go list ./... | grep -E -v 'tests/e2e')
-PACKAGES_E2E=$(shell go list -tags e2e ./... | grep '/e2e')
-TEST_PACKAGES=./...
-
-# test-e2e runs a full e2e test suite
-# deletes any pre-existing Juno containers before running.
-#
-# Attempts to delete Docker resources at the end.
-# May fail to do so if stopped mid way.
-# In that case, run `make e2e-remove-resources`
-# manually.
-# Utilizes Go cache.
-test-e2e: e2e-setup test-e2e-ci
-
-# test-e2e-ci runs a full e2e test suite
-# does not do any validation about the state of the Docker environment
-# As a result, avoid using this locally.
-test-e2e-ci:
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_ORACLE=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -tags e2e
-
-# test-e2e-debug runs a full e2e test suite but does
-# not attempt to delete Docker resources at the end.
-test-e2e-debug: e2e-setup
-	@VERSION=$(VERSION) JUNO_E2E_UPGRADE_VERSION=$(E2E_UPGRADE_VERSION) JUNO_E2E_SKIP_CLEANUP=True go test -tags e2e -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
-
-test-e2e-short: e2e-setup
-	@VERSION=$(VERSION) JUNO_E2E_DEBUG_LOG=True JUNO_E2E_SKIP_UPGRADE=True JUNO_E2E_SKIP_IBC=True JUNO_E2E_SKIP_STATE_SYNC=True JUNO_E2E_SKIP_CLEANUP=True go test -mod=readonly -timeout=25m -v $(PACKAGES_E2E) -count=1 -tags e2e
-
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_UNIT)
 
-build-e2e-script:
-	mkdir -p $(BUILDDIR)
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/ ./tests/e2e/initialization/$(E2E_SCRIPT_NAME)
-
-docker-build-debug:
-	@DOCKER_BUILDKIT=1 docker build -t juno:${COMMIT} --build-arg BASE_IMG_TAG=debug -f tests/e2e/initialization/Dockerfile .
-	@DOCKER_BUILDKIT=1 docker tag juno:${COMMIT} juno:debug
-
-docker-build-e2e-init-chain:
-	@DOCKER_BUILDKIT=1 docker build -t juno-e2e-init-chain:debug --build-arg E2E_SCRIPT_NAME=chain -f tests/e2e/initialization/init.Dockerfile .
-
-docker-build-e2e-init-node:
-	@DOCKER_BUILDKIT=1 docker build -t juno-e2e-init-node:debug --build-arg E2E_SCRIPT_NAME=node -f tests/e2e/initialization/init.Dockerfile .
-
 ###############################################################################
-###                                e2e interchain test                             ###
+###                             e2e interchain test                         ###
 ###############################################################################
 
 # Executes basic chain tests via interchaintest
