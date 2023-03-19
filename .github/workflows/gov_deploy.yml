@@ -4,7 +4,6 @@ name: Gov Contract CI - Deploy
 on:
   pull_request:
   push:
-    tags:
     branches:
       - "main"
 
