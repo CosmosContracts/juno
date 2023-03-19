@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	haltHeightDelta    = uint64(7) // will propose upgrade this many blocks in the future
+	haltHeightDelta    = uint64(10) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = uint64(10)
 	votingPeriod       = "10s"
 	maxDepositPeriod   = "10s"
@@ -55,12 +55,14 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVers
 	ctx := context.Background()
 	client, network := interchaintest.DockerSetup(t)
 
-	require.NoError(t, ic.Build(ctx, nil, interchaintest.InterchainBuildOptions{
+	err = ic.Build(ctx, nil, interchaintest.InterchainBuildOptions{
 		TestName:         t.Name(),
 		Client:           client,
 		NetworkID:        network,
 		SkipPathCreation: true,
-	}))
+	})
+	require.NoError(t, err)
+
 	t.Cleanup(func() {
 		_ = ic.Close()
 	})
