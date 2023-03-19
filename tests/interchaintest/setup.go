@@ -10,7 +10,7 @@ import (
 var (
 	junoRepo, junoVersion = GetDockerImageInfo()
 
-	junoImage = ibc.DockerImage{
+	JunoImage = ibc.DockerImage{
 		Repository: junoRepo,
 		Version:    junoVersion,
 		UidGid:     "1025:1025",
@@ -20,7 +20,7 @@ var (
 		Type:                "cosmos",
 		Name:                "juno",
 		ChainID:             "juno-2",
-		Images:              []ibc.DockerImage{junoImage},
+		Images:              []ibc.DockerImage{JunoImage},
 		Bin:                 "junod",
 		Bech32Prefix:        "juno",
 		Denom:               "ujuno",

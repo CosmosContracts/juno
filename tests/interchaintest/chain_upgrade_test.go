@@ -2,12 +2,9 @@ package interchaintest
 
 import (
 	"context"
-	"io"
 	"testing"
 	"time"
 
-	dockertypes "github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/strangelove-ventures/interchaintest/v4"
 	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v4/ibc"
@@ -26,7 +23,9 @@ const (
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
 	upgradeName := "v14"
-	CosmosChainUpgradeTest(t, "juno", "v13.0.0", version, repo, upgradeName)
+	// NOTE: In the future, this should be v13.0.0 instead of just 13.0.0 - something off with our CI on push
+	// not having the v prefix
+	CosmosChainUpgradeTest(t, "juno", "13.0.0", version, repo, upgradeName)
 }
 
 func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
@@ -43,6 +42,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 			Version:   initialVersion,
 			ChainConfig: ibc.ChainConfig{
 				ModifyGenesis: cosmos.ModifyGenesisProposalTime(votingPeriod, maxDepositPeriod),
+				Images:        []ibc.DockerImage{JunoImage},
 			},
 		},
 	})
@@ -121,11 +121,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 		node.Image.Version = upgradeBranchVersion
 	}
 
-	// chain.UpgradeVersion(ctx, client, upgradeVersion)
-
-	// upgrades to the upgradeRepo & branch version for this CI test.
-	// UpgradeVersion does not use our repo for some reason even after setting
-	pullImages(ctx, client, upgradeRepo, upgradeBranchVersion)
+	chain.UpgradeVersion(ctx, client, upgradeBranchVersion)
 
 	// start all nodes back up.
 	// validators reach consensus on first block after upgrade height
@@ -143,24 +139,4 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.NoError(t, err, "error fetching height after upgrade")
 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
-}
-
-// For some reason node.Image.Repository is not actually updating this. So doing it manually to pass upgrade test rn.
-func pullImages(ctx context.Context, cli *client.Client, ghcrRepo string, upgradeVersion string) {
-	image := ghcrRepo + ":" + upgradeVersion
-	rc, err := cli.ImagePull(
-		ctx,
-		image,
-		dockertypes.ImagePullOptions{},
-	)
-	if err != nil {
-		// c.log.Error("Failed to pull image",
-		// 	zap.Error(err),
-		// 	zap.String("repository", image.Repository),
-		// 	zap.String("tag", image.Version),
-		// )
-	} else {
-		_, _ = io.Copy(io.Discard, rc)
-		_ = rc.Close()
-	}
 }
