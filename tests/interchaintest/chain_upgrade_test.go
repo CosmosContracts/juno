@@ -1,7 +1,5 @@
 package interchaintest
 
-// upgrade from v13.0.0 to this branch
-
 import (
 	"context"
 	"testing"
@@ -115,10 +113,6 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVers
 	// upgrade version amd repo on all nodes
 	for _, node := range chain.Nodes() {
 		node.Image.Repository = upgradeRepo
-
-		if upgradeVersion != "local" {
-			node.Image.Repository = upgradeRepo + "-e2e"
-		}
 	}
 
 	chain.UpgradeVersion(ctx, client, upgradeVersion)
