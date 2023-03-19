@@ -25,7 +25,7 @@ var (
 		Bech32Prefix:        "juno",
 		Denom:               "ujuno",
 		CoinType:            "118",
-		GasPrices:           "0.003ujuno",
+		GasPrices:           "0.0ujuno",
 		GasAdjustment:       1.1,
 		TrustingPeriod:      "112h",
 		NoHostMount:         false,

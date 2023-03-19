@@ -114,7 +114,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVers
 
 	// upgrade version amd repo on all nodes
 	for _, node := range chain.Nodes() {
-		node.Image.Repository = "ghcr.io/cosmoscontracts/juno-e2e"
+		node.Image.Repository = upgradeRepo
 		node.Image.Version = upgradeVersion
 	}
 
