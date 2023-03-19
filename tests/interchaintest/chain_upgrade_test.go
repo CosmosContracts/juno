@@ -30,7 +30,7 @@ func TestBasicJunoUpgrade(t *testing.T) {
 	CosmosChainUpgradeTest(t, "juno", "v13.0.0", version, repo, upgradeName)
 }
 
-func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVersion, upgradeRepo, upgradeName string) {
+func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}
@@ -118,13 +118,15 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVers
 
 	// upgrade version amd repo on all nodes
 	for _, node := range chain.Nodes() {
-		// node.Image.Repository = upgradeRepo
+		node.Image.Repository = upgradeRepo
+		node.Image.Version = upgradeBranchVersion
 		// Pulled out due to it trying to use heighliner over our own repo
-		// node.Image.Version = upgradeVersion
-		pullImages(ctx, client, upgradeRepo, node.Chain.Config().Clone().Images)
 	}
-
 	// chain.UpgradeVersion(ctx, client, upgradeVersion)
+
+	// upgrades to the upgradeRepo & branch version for this CI test.
+	// UpgradeVersion does not use our repo for some reason even after setting
+	pullImages(ctx, client, upgradeRepo, upgradeBranchVersion)
 
 	// start all nodes back up.
 	// validators reach consensus on first block after upgrade height
@@ -145,23 +147,22 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVers
 }
 
 // For some reason node.Image.Repository is not actually updating this. So doing it manually to pass upgrade test rn.
-func pullImages(ctx context.Context, cli *client.Client, ghcrRepo string, di []ibc.DockerImage) {
-	for _, image := range di {
-		fmt.Printf("Pulling image %s:%s\n", ghcrRepo, image.Version)
-		rc, err := cli.ImagePull(
-			ctx,
-			ghcrRepo+":"+image.Version,
-			dockertypes.ImagePullOptions{},
-		)
-		if err != nil {
-			// c.log.Error("Failed to pull image",
-			// 	zap.Error(err),
-			// 	zap.String("repository", image.Repository),
-			// 	zap.String("tag", image.Version),
-			// )
-		} else {
-			_, _ = io.Copy(io.Discard, rc)
-			_ = rc.Close()
-		}
+func pullImages(ctx context.Context, cli *client.Client, ghcrRepo string, upgradeVersion string) {
+	image := ghcrRepo + ":" + upgradeVersion
+	fmt.Printf("Pulling image %s\n", image)
+	rc, err := cli.ImagePull(
+		ctx,
+		image,
+		dockertypes.ImagePullOptions{},
+	)
+	if err != nil {
+		// c.log.Error("Failed to pull image",
+		// 	zap.Error(err),
+		// 	zap.String("repository", image.Repository),
+		// 	zap.String("tag", image.Version),
+		// )
+	} else {
+		_, _ = io.Copy(io.Discard, rc)
+		_ = rc.Close()
 	}
 }
