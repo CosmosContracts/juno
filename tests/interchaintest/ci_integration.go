@@ -2,6 +2,7 @@ package interchaintest
 
 import (
 	"os"
+	"strings"
 )
 
 // GetDockerImageInfo returns the appropriate repo and branch version string for integration with the CI pipeline.
@@ -14,5 +15,6 @@ func GetDockerImageInfo() (repo, version string) {
 		repo = "juno"
 		branchVersion = "local"
 	}
+	branchVersion = strings.ReplaceAll(branchVersion, "/", "-")
 	return repo, branchVersion
 }
