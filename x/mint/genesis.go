@@ -1,21 +1,21 @@
 package mint
 
 import (
-	"github.com/CosmosContracts/juno/v13/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v13/x/mint/types"
+	mintkeeper "github.com/CosmosContracts/juno/v13/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v13/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // InitGenesis new mint genesis
-func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, ak types.AccountKeeper, data *types.GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper mintkeeper.Keeper, ak minttypes.AccountKeeper, data *minttypes.GenesisState) {
 	keeper.SetMinter(ctx, data.Minter)
 	keeper.SetParams(ctx, data.Params)
-	ak.GetModuleAccount(ctx, types.ModuleName)
+	ak.GetModuleAccount(ctx, minttypes.ModuleName)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) *types.GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper mintkeeper.Keeper) *minttypes.GenesisState {
 	minter := keeper.GetMinter(ctx)
 	params := keeper.GetParams(ctx)
-	return types.NewGenesisState(minter, params)
+	return minttypes.NewGenesisState(minter, params)
 }
