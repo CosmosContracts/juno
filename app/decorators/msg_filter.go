@@ -14,7 +14,7 @@ type MsgFilterDecorator struct{}
 // AnteHandle performs an AnteHandler check that returns an error if the tx contains a message
 // that is blocked.
 // Right now, we block MsgTimeoutOnClose due to incorrect behavior that could occur if a packet is re-enabled.
-func (mfd MsgFilterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (MsgFilterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	if hasInvalidMsgs(tx.GetMsgs()) {
 		currHeight := ctx.BlockHeight()
 		return ctx, fmt.Errorf("tx contains unsupported message types at height %d", currHeight)

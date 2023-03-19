@@ -35,7 +35,7 @@ const (
 type EmptyBaseAppOptions struct{}
 
 // Get implements AppOptions
-func (ao EmptyBaseAppOptions) Get(_ string) interface{} {
+func (EmptyBaseAppOptions) Get(_ string) interface{} {
 	return nil
 }
 

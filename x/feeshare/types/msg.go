@@ -36,10 +36,10 @@ func NewMsgRegisterFeeShare(
 }
 
 // Route returns the name of the module
-func (msg MsgRegisterFeeShare) Route() string { return RouterKey }
+func (MsgRegisterFeeShare) Route() string { return RouterKey }
 
 // Type returns the the action
-func (msg MsgRegisterFeeShare) Type() string { return TypeMsgRegisterFeeShare }
+func (MsgRegisterFeeShare) Type() string { return TypeMsgRegisterFeeShare }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgRegisterFeeShare) ValidateBasic() error {
@@ -83,10 +83,10 @@ func NewMsgCancelFeeShare(
 }
 
 // Route returns the message route for a MsgCancelFeeShare.
-func (msg MsgCancelFeeShare) Route() string { return RouterKey }
+func (MsgCancelFeeShare) Route() string { return RouterKey }
 
 // Type returns the message type for a MsgCancelFeeShare.
-func (msg MsgCancelFeeShare) Type() string { return TypeMsgCancelFeeShare }
+func (MsgCancelFeeShare) Type() string { return TypeMsgCancelFeeShare }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCancelFeeShare) ValidateBasic() error {
@@ -126,10 +126,10 @@ func NewMsgUpdateFeeShare(
 }
 
 // Route returns the name of the module
-func (msg MsgUpdateFeeShare) Route() string { return RouterKey }
+func (MsgUpdateFeeShare) Route() string { return RouterKey }
 
 // Type returns the the action
-func (msg MsgUpdateFeeShare) Type() string { return TypeMsgUpdateFeeShare }
+func (MsgUpdateFeeShare) Type() string { return TypeMsgUpdateFeeShare }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUpdateFeeShare) ValidateBasic() error {

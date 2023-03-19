@@ -33,6 +33,7 @@ const (
 	defaultMinHeight  = "1000"
 )
 
+// forcepruneCmd represents the forceprune command
 func forceprune() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "forceprune",

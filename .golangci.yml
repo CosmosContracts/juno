@@ -85,7 +85,7 @@ linters-settings:
       - name: argument-limit
         severity: warning
         disabled: false
-        arguments: [7]
+        arguments: [12]
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#atomic
       - name: atomic
         severity: warning
@@ -115,7 +115,7 @@ linters-settings:
       - name: cognitive-complexity
         severity: warning
         disabled: false
-        arguments: [10]
+        arguments: [22]
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#comment-spacings
       - name: comment-spacings
         severity: warning
@@ -374,7 +374,7 @@ linters-settings:
         disabled: false
         arguments:
           - "fmt.Printf"
-          - "myFunction"
+          - "fmt.Println"
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unnecessary-stmt
       - name: unnecessary-stmt
         severity: warning

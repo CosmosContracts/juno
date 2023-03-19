@@ -41,6 +41,7 @@ func (gpsd GovPreventSpamDecorator) AnteHandle(
 	return next(ctx, tx, simulate)
 }
 
+// checkSpamSubmitProposalMsg checks the spam submit proposal msg
 func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(ctx sdk.Context, msgs []sdk.Msg) error {
 	validMsg := func(m sdk.Msg) error {
 		if msg, ok := m.(*govtypes.MsgSubmitProposal); ok {
@@ -81,11 +82,12 @@ func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(ctx sdk.Context, 
 	return nil
 }
 
-func (gpsd GovPreventSpamDecorator) calcMiniumInitialDeposit(minDeposit sdk.Coins) (miniumInitialDeposit sdk.Coins) {
+// calcMiniumInitialDeposit calculates the minium initial deposit
+func (GovPreventSpamDecorator) calcMiniumInitialDeposit(minDeposit sdk.Coins) (miniumInitialDeposit sdk.Coins) {
 	for _, coin := range minDeposit {
 		miniumInitialCoin := MiniumInitialDepositRate.MulInt(coin.Amount).RoundInt()
 		miniumInitialDeposit = miniumInitialDeposit.Add(sdk.NewCoin(coin.Denom, miniumInitialCoin))
 	}
 
-	return
+	return miniumInitialDeposit
 }
