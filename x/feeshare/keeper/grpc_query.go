@@ -21,6 +21,7 @@ type Querier struct {
 	Keeper
 }
 
+// NewQuerier returns a new Querier instance.
 func NewQuerier(k Keeper) Querier {
 	return Querier{Keeper: k}
 }
@@ -77,6 +78,7 @@ func (q Querier) FeeShare(
 		)
 	}
 
+	// check if the contract has been registered for fee distribution
 	feeshare, found := q.GetFeeShare(ctx, contract)
 	if !found {
 		return nil, status.Errorf(
@@ -101,7 +103,7 @@ func (q Querier) Params(
 
 // DeployerFeeShares returns all contracts that have been registered for fee
 // distribution by a given deployer
-func (q Querier) DeployerFeeShares( //nolint: dupl
+func (q Querier) DeployerFeeShares(
 	c context.Context,
 	req *types.QueryDeployerFeeSharesRequest,
 ) (*types.QueryDeployerFeeSharesResponse, error) {
@@ -140,7 +142,7 @@ func (q Querier) DeployerFeeShares( //nolint: dupl
 }
 
 // WithdrawerFeeShares returns all fees for a given withdraw address
-func (q Querier) WithdrawerFeeShares( //nolint: dupl
+func (q Querier) WithdrawerFeeShares(
 	c context.Context,
 	req *types.QueryWithdrawerFeeSharesRequest,
 ) (*types.QueryWithdrawerFeeSharesResponse, error) {

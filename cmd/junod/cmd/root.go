@@ -123,7 +123,10 @@ func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
 		val := viper.GetString(key)
 		if val != "" {
 			// Sets the env for this instance of the app only.
-			os.Setenv(envVar, val)
+			err := os.Setenv(envVar, val)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 

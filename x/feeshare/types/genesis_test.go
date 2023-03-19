@@ -19,12 +19,12 @@ func TestGenesisTestSuite(t *testing.T) {
 	suite.Run(t, new(GenesisTestSuite))
 }
 
-func (suite *GenesisTestSuite) SetupTest() {
-	suite.address1 = sdk.AccAddress([]byte("cosmos1")).String()
-	suite.address2 = sdk.AccAddress([]byte("cosmos2")).String()
+func (testsuite *GenesisTestSuite) SetupTest() {
+	testsuite.address1 = sdk.AccAddress([]byte("cosmos1")).String()
+	testsuite.address2 = sdk.AccAddress([]byte("cosmos2")).String()
 
-	suite.contractA = "cosmos15u3dt79t6sxxa3x3kpkhzsy56edaa5a66wvt3kxmukqjz2sx0hesh45zsv"
-	suite.contractB = "cosmos168ctmpyppk90d34p3jjy658zf5a5l3w8wk35wht6ccqj4mr0yv8skhnwe8"
+	testsuite.contractA = "cosmos15u3dt79t6sxxa3x3kpkhzsy56edaa5a66wvt3kxmukqjz2sx0hesh45zsv"
+	testsuite.contractB = "cosmos168ctmpyppk90d34p3jjy658zf5a5l3w8wk35wht6ccqj4mr0yv8skhnwe8"
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {

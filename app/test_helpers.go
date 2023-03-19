@@ -35,7 +35,7 @@ const (
 type EmptyBaseAppOptions struct{}
 
 // Get implements AppOptions
-func (EmptyBaseAppOptions) Get(_ string) interface{} {
+func (EmptyBaseAppOptions) Get(_ string) any {
 	return nil
 }
 
@@ -60,7 +60,7 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 
 type EmptyAppOptions struct{}
 
-func (EmptyAppOptions) Get(_ string) interface{} { return nil }
+func (EmptyAppOptions) Get(_ string) any { return nil }
 
 func Setup(t *testing.T, _ bool, _ uint) *App {
 	t.Helper()

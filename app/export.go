@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"log"
 
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
@@ -21,8 +20,7 @@ func (app *App) ExportAppStateAndValidators(
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 
-	// We export at last height + 1, because that's the height at which
-	// Tendermint will start InitChain.
+	// iterate through validators
 	height := app.LastBlockHeight() + 1
 	if forZeroHeight {
 		height = 0
@@ -47,10 +45,7 @@ func (app *App) ExportAppStateAndValidators(
 	}, nil
 }
 
-// prepare for fresh start at zero height
-// NOTE zero height genesis is a temporary feature which will be deprecated
-//
-//	in favour of export at a block height
+// prepForZeroHeightGenesis exports state so that the resulting output can be used for a new genesis.
 func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 	applyAllowedAddrs := false
 
@@ -64,7 +59,7 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	for _, addr := range jailAllowedAddrs {
 		_, err := sdk.ValAddressFromBech32(addr)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 		allowedAddrsMap[addr] = true
 	}
@@ -140,6 +135,15 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 			ubd.Entries[i].CreationHeight = 0
 		}
 		app.StakingKeeper.SetUnbondingDelegation(ctx, ubd)
+		return false
+	})
+
+	// iterate through redelegations, reset creation height
+	app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) (stop bool) {
+		for i := range red.Entries {
+			red.Entries[i].CreationHeight = 0
+		}
+		app.StakingKeeper.SetRedelegation(ctx, red)
 		return false
 	})
 

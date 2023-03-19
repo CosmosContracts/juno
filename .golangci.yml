@@ -75,11 +75,11 @@ linters-settings:
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#add-constant
       - name: add-constant
         severity: warning
-        disabled: false
+        disabled: true
         arguments:
-          - maxLitCount: "3"
+          - maxLitCount: "4"
             allowStrs: '""'
-            allowInts: "0,1,2"
+            allowInts: "0,1,2,3"
             allowFloats: "0.0,0.,1.0,1.,2.0,2."
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#argument-limit
       - name: argument-limit

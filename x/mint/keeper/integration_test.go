@@ -15,8 +15,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// returns context and an app with updated mint keeper
-func createTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) { //nolint:unparam
+// createTestApp returns context and an app with updated mint keeper
+func createTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) {
 	app := setup(isCheckTx)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
@@ -26,6 +26,7 @@ func createTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) { //nolint:unpara
 	return app, ctx
 }
 
+// setup initializes a new app. A Nop logger is set in simapp.
 func setup(isCheckTx bool) *junoapp.App {
 	app, genesisState := genApp(!isCheckTx, 5)
 	if !isCheckTx {
@@ -48,6 +49,7 @@ func setup(isCheckTx bool) *junoapp.App {
 	return app
 }
 
+// genApp creates a new app with the given parameters
 func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.GenesisState) {
 	db := dbm.NewMemDB()
 	encCdc := junoapp.MakeEncodingConfig()

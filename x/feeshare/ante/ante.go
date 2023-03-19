@@ -6,6 +6,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/CosmosContracts/juno/v13/x/feeshare/types"
 	feeshare "github.com/CosmosContracts/juno/v13/x/feeshare/types"
 )
 
@@ -16,6 +17,7 @@ type FeeSharePayoutDecorator struct {
 	feesharekeeper FeeShareKeeper
 }
 
+// NewFeeSharePayoutDecorator returns a new FeeSharePayoutDecorator
 func NewFeeSharePayoutDecorator(bk BankKeeper, fs FeeShareKeeper) FeeSharePayoutDecorator {
 	return FeeSharePayoutDecorator{
 		bankKeeper:     bk,
@@ -23,6 +25,7 @@ func NewFeeSharePayoutDecorator(bk BankKeeper, fs FeeShareKeeper) FeeSharePayout
 	}
 }
 
+// AnteHandle is an AnteHandler that will distribute fees
 func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
@@ -52,8 +55,7 @@ func FeePayLogic(fees sdk.Coins, govPercent sdk.Dec, numPairs int) sdk.Coins {
 	return splitFees
 }
 
-// FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
-// provided they opted-in to payments.
+// FeeSharePayout takes the total fees and splits them to valid withdraw addresses from contraacts.
 func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, revKeeper FeeShareKeeper, msgs []sdk.Msg) error {
 	params := revKeeper.GetParams(ctx)
 	if !params.EnableFeeShare {
@@ -61,21 +63,9 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 	}
 
 	// Get valid withdraw addresses from contracts
-	toPay := make([]sdk.AccAddress, 0)
-	for _, msg := range msgs {
-		if _, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
-			contractAddr, err := sdk.AccAddressFromBech32(msg.(*wasmtypes.MsgExecuteContract).Contract)
-			if err != nil {
-				return err
-			}
-
-			shareData, _ := revKeeper.GetFeeShare(ctx, contractAddr)
-
-			withdrawAddr := shareData.GetWithdrawerAddr()
-			if withdrawAddr != nil && !withdrawAddr.Empty() {
-				toPay = append(toPay, withdrawAddr)
-			}
-		}
+	toPay, err := getPayees(ctx, msgs, revKeeper)
+	if err != nil {
+		return err
 	}
 
 	// Do nothing if no one needs payment
@@ -84,19 +74,7 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 	}
 
 	// Get only allowed governance fees to be paid (helps for taxes)
-	var fees sdk.Coins
-	if len(params.AllowedDenoms) == 0 {
-		// If empty, we allow all denoms to be used as payment
-		fees = totalFees
-	} else {
-		for _, fee := range totalFees.Sort() {
-			for _, allowed := range params.AllowedDenoms {
-				if fee.Denom == allowed {
-					fees = fees.Add(fee)
-				}
-			}
-		}
-	}
+	fees := getFeesToPay(params, totalFees)
 
 	// FeeShare logic payouts for contracts
 	numPairs := len(toPay)
@@ -114,4 +92,43 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 	}
 
 	return nil
+}
+
+// getPayees returns the addresses that are allowed to be paid out
+func getPayees(ctx sdk.Context, msgs []sdk.Msg, revKeeper FeeShareKeeper) ([]sdk.AccAddress, error) {
+	toPay := make([]sdk.AccAddress, 0)
+	for _, msg := range msgs {
+		if _, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
+			contractAddr, err := sdk.AccAddressFromBech32(msg.(*wasmtypes.MsgExecuteContract).Contract)
+			if err != nil {
+				return nil, err
+			}
+
+			shareData, _ := revKeeper.GetFeeShare(ctx, contractAddr)
+
+			withdrawAddr := shareData.GetWithdrawerAddr()
+			if withdrawAddr != nil && !withdrawAddr.Empty() {
+				toPay = append(toPay, withdrawAddr)
+			}
+		}
+	}
+	return toPay, nil
+}
+
+// getFeesToPay returns the fees that are allowed to be paid out
+func getFeesToPay(params types.Params, totalFees sdk.Coins) sdk.Coins {
+	var fees sdk.Coins
+	if len(params.AllowedDenoms) == 0 {
+		// If empty, we allow all denoms to be used as payment
+		fees = totalFees
+	} else {
+		for _, fee := range totalFees.Sort() {
+			for _, allowed := range params.AllowedDenoms {
+				if fee.Denom == allowed {
+					fees = fees.Add(fee)
+				}
+			}
+		}
+	}
+	return fees
 }

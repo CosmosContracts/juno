@@ -15,6 +15,7 @@ const (
 	TypeMsgRegisterFeeShare = "register_feeshare"
 	TypeMsgCancelFeeShare   = "cancel_feeshare"
 	TypeMsgUpdateFeeShare   = "update_feeshare"
+	InvalidDeployerAddress  = "invalid deployer address %s"
 )
 
 // NewMsgRegisterFeeShare creates new instance of MsgRegisterFeeShare
@@ -91,11 +92,11 @@ func (MsgCancelFeeShare) Type() string { return TypeMsgCancelFeeShare }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCancelFeeShare) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
+		return sdkerrors.Wrapf(err, InvalidDeployerAddress, msg.DeployerAddress)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
+		return sdkerrors.Wrapf(err, InvalidDeployerAddress, msg.DeployerAddress)
 	}
 
 	return nil
@@ -134,7 +135,7 @@ func (MsgUpdateFeeShare) Type() string { return TypeMsgUpdateFeeShare }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUpdateFeeShare) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
+		return sdkerrors.Wrapf(err, InvalidDeployerAddress, msg.DeployerAddress)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {

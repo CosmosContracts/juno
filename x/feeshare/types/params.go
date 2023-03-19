@@ -53,7 +53,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	}
 }
 
-func validateBool(i interface{}) error {
+// validateBool validates that the parameter is a boolean
+func validateBool(i any) error {
 	_, ok := i.(bool)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -62,7 +63,8 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func validateShares(i interface{}) error {
+// validateShares validates that the parameter is a decimal between 0 and 1
+func validateShares(i any) error {
 	v, ok := i.(sdk.Dec)
 
 	if !ok {
@@ -84,7 +86,8 @@ func validateShares(i interface{}) error {
 	return nil
 }
 
-func validateArray(i interface{}) error {
+// validateArray validates that the parameter is an array of strings
+func validateArray(i any) error {
 	_, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -99,6 +102,7 @@ func validateArray(i interface{}) error {
 	return nil
 }
 
+// Validate performs basic validation of feeshare parameters.
 func (p Params) Validate() error {
 	if err := validateBool(p.EnableFeeShare); err != nil {
 		return err
