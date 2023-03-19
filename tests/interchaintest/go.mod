@@ -219,6 +219,9 @@ replace (
 	// use informal system fork of tendermint
 	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.26
 
+	// use exactly the same version of tm-db consistently
+	github.com/tendermint/tm-db => github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
+
 	// use strangelove's go-subkey
 	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
 

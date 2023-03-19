@@ -155,24 +155,39 @@ require (
 	nhooyr.io/websocket v1.8.7 // indirect
 )
 
+// from the cosmos SDK
 replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	// token factory:
-	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
-	// use the correct version of btcd
-	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
+
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
+
 	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
+
 	// use cosmos-flavored protocol buffers
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+
 	// Informal Tendermint fork due to hostile takeover
 	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.26
+
 	// use grpc version that's compatible with cosmos-flavored protocol buffers
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
+
+)
+
+// for Juno
+replace (
+	// token factory:
+	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
+
+	// use the correct version of btcd
+	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2
+
+	// use exactly the same version of tm-db consistently
+	github.com/tendermint/tm-db => github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
 
 )
