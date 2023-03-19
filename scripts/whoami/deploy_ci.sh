@@ -9,7 +9,7 @@ BINARY="docker exec -i $CONTAINER_NAME junod"
 DENOM='ujunox'
 CHAIN_ID='testing'
 RPC='http://localhost:26657/'
-TXFLAG="--gas-prices 0.1$DENOM --gas auto --gas-adjustment 1.3 -y -b block --chain-id $CHAIN_ID --node $RPC"
+TXFLAG="--gas-prices 0.1$DENOM --gas auto --gas-adjustment 1.3 -y --chain-id $CHAIN_ID --node $RPC"
 
 # copy wasm to docker container
 docker cp ./scripts/whoami/whoami.wasm $CONTAINER_NAME:/whoami.wasm
