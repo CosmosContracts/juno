@@ -101,7 +101,7 @@ func (q Querier) Params(
 
 // DeployerFeeShares returns all contracts that have been registered for fee
 // distribution by a given deployer
-func (q Querier) DeployerFeeShares( // nolint: dupl
+func (q Querier) DeployerFeeShares( //nolint: dupl
 	c context.Context,
 	req *types.QueryDeployerFeeSharesRequest,
 ) (*types.QueryDeployerFeeSharesResponse, error) {
@@ -140,7 +140,7 @@ func (q Querier) DeployerFeeShares( // nolint: dupl
 }
 
 // WithdrawerFeeShares returns all fees for a given withdraw address
-func (q Querier) WithdrawerFeeShares( // nolint: dupl
+func (q Querier) WithdrawerFeeShares( //nolint: dupl
 	c context.Context,
 	req *types.QueryWithdrawerFeeSharesRequest,
 ) (*types.QueryWithdrawerFeeSharesResponse, error) {
