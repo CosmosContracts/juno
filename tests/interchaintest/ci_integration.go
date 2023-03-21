@@ -2,6 +2,7 @@ package interchaintest
 
 import (
 	"os"
+	"strings"
 )
 
 // GetDockerImageInfo returns the appropriate repo and branch version string for integration with the CI pipeline.
@@ -9,10 +10,13 @@ import (
 // If testing locally, user should run `make local-image` and interchaintest will use the local image.
 func GetDockerImageInfo() (repo, version string) {
 	branchVersion, found := os.LookupEnv("BRANCH_CI")
-	repo = "ghcr.io/cosmoscontracts/juno"
+	repo = "ghcr.io/cosmoscontracts/juno-e2e"
 	if !found {
 		repo = "juno"
 		branchVersion = "local"
 	}
+
+	// github converts / to - for pushed docker images
+	branchVersion = strings.ReplaceAll(branchVersion, "/", "-")
 	return repo, branchVersion
 }

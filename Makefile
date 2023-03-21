@@ -21,7 +21,7 @@ TM_VERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
 BUILDDIR ?= $(CURDIR)/build
-E2E_UPGRADE_VERSION := "v13"
+E2E_UPGRADE_VERSION := "v14"
 export GO111MODULE = on
 
 # process build tags
@@ -111,33 +111,11 @@ test-sim-multi-seed-short: runsim
 	@echo "Running short multi-seed application simulation. This may take awhile!"
 	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(APP) -ExitOnFail 50 10 TestFullAppSimulation
 
-###############################################################################
-###                                  Tests e2e                              ###
-###############################################################################
-
-PACKAGES_UNIT=$(shell go list ./... | grep -E -v 'tests/e2e')
-PACKAGES_E2E=$(shell go list -tags e2e ./... | grep '/e2e')
-TEST_PACKAGES=./...
-
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_UNIT)
 
-build-e2e-script:
-	mkdir -p $(BUILDDIR)
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/ ./tests/e2e/initialization/$(E2E_SCRIPT_NAME)
-
-docker-build-debug:
-	@DOCKER_BUILDKIT=1 docker build -t juno:${COMMIT} --build-arg BASE_IMG_TAG=debug -f tests/e2e/initialization/Dockerfile .
-	@DOCKER_BUILDKIT=1 docker tag juno:${COMMIT} juno:debug
-
-docker-build-e2e-init-chain:
-	@DOCKER_BUILDKIT=1 docker build -t juno-e2e-init-chain:debug --build-arg E2E_SCRIPT_NAME=chain -f tests/e2e/initialization/init.Dockerfile .
-
-docker-build-e2e-init-node:
-	@DOCKER_BUILDKIT=1 docker build -t juno-e2e-init-node:debug --build-arg E2E_SCRIPT_NAME=node -f tests/e2e/initialization/init.Dockerfile .
-
 ###############################################################################
-###                                e2e interchain test                             ###
+###                             e2e interchain test                         ###
 ###############################################################################
 
 # Executes basic chain tests via interchaintest
@@ -148,11 +126,17 @@ ictest-basic:
 ictest-upgrade:
 	cd tests/interchaintest && go test -race -v -run TestBasicJunoUpgrade .
 
+# Executes a basic chain upgrade locally via interchaintest after compiling a local image as juno:local
+ictest-upgrade-local: local-image ictest-upgrade
+
 # Executes IBC tests via interchaintest
 ictest-ibc:
 	cd tests/interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
 
-.PHONY: test-mutation ictest-basic ictest-ibc
+# Executes all tests via interchaintest after compling a local image as juno:local
+ictest-all: local-image ictest-basic ictest-upgrade ictest-ibc
+
+.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-all
 
 ###############################################################################
 ###                                  heighliner                             ###
