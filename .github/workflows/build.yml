@@ -2,10 +2,12 @@
 on:
   push:
     paths:
-      - '**.go'
+      - '**.go'      
+      - 'go.**' # go.mod & go.sum
   pull_request:
     paths:
       - '**.go'
+      - 'go.**' # go.mod & go.sum
 name: build
 
 concurrency:
