@@ -42,7 +42,6 @@ type HandlerOptions struct {
 	Cdc               codec.BinaryCodec
 	StakingSubspace   paramtypes.Subspace
 
-	// GlobalFee
 	BypassMinFeeMsgTypes []string
 	GlobalFeeSubspace    paramtypes.Subspace
 }

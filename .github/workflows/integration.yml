@@ -3,7 +3,11 @@ name: Contract CI
 
 on:
   pull_request:
+    paths:
+    - '**.go'
   push:
+    paths:
+    - '**.go'
     tags:
     branches:
       - 'main'

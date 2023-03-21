@@ -2,7 +2,11 @@
 name: Build Docker Image on PR
 
 on:
-  pull_request:
+  push:
+    paths:
+      - "**docker**"
+      - "**.sh"
+      - "**.bash"
 
 env:
   REGISTRY: ghcr.io

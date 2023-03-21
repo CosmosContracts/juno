@@ -8,6 +8,9 @@ import (
 )
 
 var (
+	JunoE2ERepo  = "ghcr.io/cosmoscontracts/juno-e2e"
+	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
+
 	junoRepo, junoVersion = GetDockerImageInfo()
 
 	JunoImage = ibc.DockerImage{
