@@ -66,8 +66,8 @@ github.com/CloudyKit/jet v2.1.3-0.20180809161101-62edd43e4f88+incompatible/go.mo
 github.com/CloudyKit/jet/v3 v3.0.0/go.mod h1:HKQPgSJmdK8hdoAbKUUWajkHyHo4RaU5rMdUywE7VMo=
 github.com/CosmWasm/wasmvm v1.1.1 h1:0xtdrmmsP9fibe+x42WcMkp5aQ738BICgcH3FNVLzm4=
 github.com/CosmWasm/wasmvm v1.1.1/go.mod h1:ei0xpvomwSdONsxDuONzV7bL1jSET1M8brEx0FCXc+A=
-github.com/CosmosContracts/token-factory v0.0.0-20230320065215-5de9dc555ffa h1:hs2IybSR3KmKe6bxokwKcWvRBn93odF/N89+MKZxjUM=
-github.com/CosmosContracts/token-factory v0.0.0-20230320065215-5de9dc555ffa/go.mod h1:REKRfNe+zunKZitx2wGCPJBBmwu8qofOxGhsgV2h4cw=
+github.com/CosmosContracts/token-factory v1.1.0 h1:redxvIhGHSSma5MI248bReZbinohaAS7IDYBDUE1SPw=
+github.com/CosmosContracts/token-factory v1.1.0/go.mod h1:REKRfNe+zunKZitx2wGCPJBBmwu8qofOxGhsgV2h4cw=
 github.com/CosmosContracts/wasmd v0.30.0-patch.1 h1:mAuzoXioeuD0weDLlvMRaoeHG8qVKp1/tqPZYLdmBPE=
 github.com/CosmosContracts/wasmd v0.30.0-patch.1/go.mod h1:umLGeYyowAMMEdOYfDOf8jsDrQ75Qkm1+ogBXT/w01c=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
