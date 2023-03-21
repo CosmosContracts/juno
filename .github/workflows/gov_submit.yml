@@ -3,10 +3,15 @@ name: Gov Contract CI - Submit Contract Prop
 
 on:
   pull_request:
+    paths:
+    - '**.go'
   push:
+    paths:
+    - '**.go'
     tags:
     branches:
       - 'main'
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
