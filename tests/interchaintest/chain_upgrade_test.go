@@ -40,7 +40,13 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 			Version:   initialVersion,
 			ChainConfig: ibc.ChainConfig{
 				ModifyGenesis: cosmos.ModifyGenesisProposalTime(votingPeriod, maxDepositPeriod),
-				Images:        []ibc.DockerImage{JunoImage},
+				Images: []ibc.DockerImage{
+					{
+						Repository: JunoE2ERepo,
+						Version:    initialVersion,
+						UidGid:     JunoImage.UidGid,
+					},
+				},
 			},
 		},
 	})
