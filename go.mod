@@ -156,7 +156,8 @@ replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// token factory:
-	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
+	// https://github.com/CosmosContracts/token-factory/pull/9
+	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230320065215-5de9dc555ffa
 	// governance patch
 	github.com/CosmWasm/wasmd => github.com/CosmosContracts/wasmd v0.30.0-patch.1
 	// TODO: Simapp dependency, review removing when updating to SDK with backported update https://github.com/cosmos/cosmos-sdk/issues/13423
