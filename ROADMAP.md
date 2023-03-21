@@ -23,10 +23,13 @@ This update will focus more on upgrading the base layer of the Juno stack, bring
 
 ## Features
 
-- Using [Skip's MEV Tendermint fork](https://github.com/skip-mev/mev-tendermint) by default
+- IBC-Hooks
+- CosmWasm v0.31
+- WasmVM v1.2.1
 - Global Minimum Fees (governance set)
 - TokenFactory: burnFrom, burnTo, ForceTransfer
 - [Interchain test](https://github.com/strangelove-ventures/interchaintest)
+- Using [Skip's MEV Tendermint fork](https://github.com/skip-mev/mev-tendermint) by default
 
 ---
 
