@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/CosmosContracts/juno/v13/app/keepers"
+	"github.com/CosmosContracts/juno/v14/app/keepers"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -16,7 +16,7 @@ import (
 
 	// types
 	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
-	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
+	feesharetypes "github.com/CosmosContracts/juno/v14/x/feeshare/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 

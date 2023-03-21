@@ -1,7 +1,7 @@
 # https://github.com/osmosis-labs/osmosis/blob/main/tests/ibc-hooks/test_hooks.sh
 
-CHAIN_A_ARGS="--keyring-backend test --chain-id local-1 --home $HOME/.juno1/ --node http://localhost:26657 --gas 5000000 -b block --yes"
-CHAIN_B_ARGS="--keyring-backend test --chain-id local-2 --home $HOME/.juno2/ --node http://localhost:36657 --gas 5000000 -b block --yes"
+CHAIN_A_ARGS="--keyring-backend test --chain-id local-1 --home $HOME/.juno1/ --node http://localhost:26657 --gas 5000000 -b block --yes --fees=12500ujuno"
+CHAIN_B_ARGS="--keyring-backend test --chain-id local-2 --home $HOME/.juno2/ --node http://localhost:36657 --gas 5000000 -b block --yes --fees=12500ujuno"
 
 # upload contract on chain B (receiving chain)
 junod tx wasm store ./scripts/ibcmemo/counter.wasm --from juno1 $CHAIN_B_ARGS

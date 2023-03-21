@@ -9,6 +9,8 @@ bin
 .ash_history
 tmp-swagger-gen
 
+heighliner*
+
 # emacs editor config
 \#*\#
 .\#*

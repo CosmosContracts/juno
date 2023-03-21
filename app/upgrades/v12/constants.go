@@ -1,7 +1,7 @@
 package v12
 
 import (
-	"github.com/CosmosContracts/juno/v13/app/upgrades"
+	"github.com/CosmosContracts/juno/v14/app/upgrades"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 )
 

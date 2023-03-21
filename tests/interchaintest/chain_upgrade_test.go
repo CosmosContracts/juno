@@ -1,7 +1,5 @@
 package interchaintest
 
-// upgrade from v13.0.0 to this branch
-
 import (
 	"context"
 	"testing"
@@ -24,10 +22,11 @@ const (
 
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
-	CosmosChainUpgradeTest(t, "juno", "v13.0.0", version, repo, "v13")
+	upgradeName := "v14"
+	CosmosChainUpgradeTest(t, "juno", "v13.0.1", version, repo, upgradeName)
 }
 
-func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVersion, upgradeRepo, upgradeName string) {
+func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}
@@ -41,6 +40,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVers
 			Version:   initialVersion,
 			ChainConfig: ibc.ChainConfig{
 				ModifyGenesis: cosmos.ModifyGenesisProposalTime(votingPeriod, maxDepositPeriod),
+				Images:        []ibc.DockerImage{JunoImage},
 			},
 		},
 	})
@@ -56,12 +56,14 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVers
 	ctx := context.Background()
 	client, network := interchaintest.DockerSetup(t)
 
-	require.NoError(t, ic.Build(ctx, nil, interchaintest.InterchainBuildOptions{
+	err = ic.Build(ctx, nil, interchaintest.InterchainBuildOptions{
 		TestName:         t.Name(),
 		Client:           client,
 		NetworkID:        network,
 		SkipPathCreation: true,
-	}))
+	})
+	require.NoError(t, err)
+
 	t.Cleanup(func() {
 		_ = ic.Close()
 	})
@@ -114,9 +116,10 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeVers
 	// upgrade version amd repo on all nodes
 	for _, node := range chain.Nodes() {
 		node.Image.Repository = upgradeRepo
+		node.Image.Version = upgradeBranchVersion
 	}
 
-	chain.UpgradeVersion(ctx, client, upgradeVersion)
+	chain.UpgradeVersion(ctx, client, upgradeBranchVersion)
 
 	// start all nodes back up.
 	// validators reach consensus on first block after upgrade height
