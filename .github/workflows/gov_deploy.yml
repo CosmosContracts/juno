@@ -3,12 +3,14 @@ name: Gov Contract CI - Deploy
 
 on:
   pull_request:
+    paths:
+    - '**.go'
   push:
+    paths:
+    - '**.go'
     tags:
     branches:
       - 'main'
-    paths:
-      - '**.go'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
