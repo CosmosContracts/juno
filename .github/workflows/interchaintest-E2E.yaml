@@ -8,6 +8,7 @@ on:
       - '**'
     paths:
       - '**.go'
+      - 'go.sum'
 
 env:
   REGISTRY: ghcr.io  
