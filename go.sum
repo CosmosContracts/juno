@@ -68,8 +68,8 @@ github.com/CosmWasm/wasmd v0.31.0 h1:xACf6A/SkCeGWQWrKGsR4X9PQb5G4XYuNfnrl+HQ1mE
 github.com/CosmWasm/wasmd v0.31.0/go.mod h1:VcyDGk/ISVlMUeW+1GGL0zdHWBS2FPwLEV2qZ86l7l8=
 github.com/CosmWasm/wasmvm v1.2.1 h1:si0tRsRDdUShV0k51Wn6zRKlmj3/WWP9Yr4cLmDTf+8=
 github.com/CosmWasm/wasmvm v1.2.1/go.mod h1:vW/E3h8j9xBQs9bCoijDuawKo9kCtxOaS8N8J7KFtkc=
-github.com/CosmosContracts/token-factory v1.1.0 h1:redxvIhGHSSma5MI248bReZbinohaAS7IDYBDUE1SPw=
-github.com/CosmosContracts/token-factory v1.1.0/go.mod h1:REKRfNe+zunKZitx2wGCPJBBmwu8qofOxGhsgV2h4cw=
+github.com/CosmosContracts/token-factory v1.1.1-0.20230322161639-a1f5cfad5f4a h1:o4vOyEqNIfw6GdGH83EZFDJjqlQ3WIHhIWmOBh7BqB4=
+github.com/CosmosContracts/token-factory v1.1.1-0.20230322161639-a1f5cfad5f4a/go.mod h1:REKRfNe+zunKZitx2wGCPJBBmwu8qofOxGhsgV2h4cw=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/zstd v1.4.5/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
