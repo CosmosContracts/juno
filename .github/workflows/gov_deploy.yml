@@ -3,7 +3,11 @@ name: Gov Contract CI - Deploy
 
 on:
   pull_request:
+    paths:
+    - '**.go'
   push:
+    paths:
+    - '**.go'
     tags:
     branches:
       - 'main'

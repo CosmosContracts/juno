@@ -10,8 +10,9 @@ import (
 // If testing locally, user should run `make local-image` and interchaintest will use the local image.
 func GetDockerImageInfo() (repo, version string) {
 	branchVersion, found := os.LookupEnv("BRANCH_CI")
-	repo = "ghcr.io/cosmoscontracts/juno-e2e"
+	repo = JunoE2ERepo
 	if !found {
+		// make local-image
 		repo = "juno"
 		branchVersion = "local"
 	}
