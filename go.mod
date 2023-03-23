@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/CosmWasm/token-factory v0.0.0-00010101000000-000000000000
-	github.com/CosmWasm/wasmd v0.31.0
+	github.com/CosmWasm/wasmd v0.31.1-0.20230322155833-d48bb69b391e
 	github.com/cometbft/cometbft-db v0.7.0
 	github.com/cosmos/cosmos-sdk v0.45.15
 	github.com/cosmos/gaia/v9 v9.0.1
@@ -159,18 +159,24 @@ require (
 replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+
 	// token factory:
 	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v1.1.1-0.20230322161639-a1f5cfad5f4a
+
 	// TODO: Simapp dependency, review removing when updating to SDK with backported update https://github.com/cosmos/cosmos-sdk/issues/13423
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 // indirect
+
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
+
 	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
+
 	// use cosmos-flavored protocol buffers
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+
 	// cometbft
 	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.27
 	// use grpc version that's compatible with cosmos-flavored protocol buffers
