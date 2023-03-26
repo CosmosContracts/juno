@@ -33,6 +33,10 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 
 	t.Parallel()
 
+	if upgradeRepo == "juno" {
+		initialVersion = "local"
+	}
+
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:      chainName,
@@ -42,7 +46,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 				ModifyGenesis: cosmos.ModifyGenesisProposalTime(votingPeriod, maxDepositPeriod),
 				Images: []ibc.DockerImage{
 					{
-						Repository: JunoE2ERepo,
+						Repository: upgradeRepo,
 						Version:    initialVersion,
 						UidGid:     JunoImage.UidGid,
 					},
