@@ -120,21 +120,25 @@ benchmark:
 
 # Executes basic chain tests via interchaintest
 ictest-basic:
-	cd tests/interchaintest && go test -race -v -run TestBasic .
+	cd interchaintest && go test -race -v -run TestBasic .
 
 # Executes a basic chain upgrade test via interchaintest
 ictest-upgrade:
-	cd tests/interchaintest && go test -race -v -run TestBasicJunoUpgrade .
+	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
 
 # Executes a basic chain upgrade locally via interchaintest after compiling a local image as juno:local
 ictest-upgrade-local: local-image ictest-upgrade
 
 # Executes IBC tests via interchaintest
 ictest-ibc:
-	cd tests/interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
+	cd interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
+
+# Executes a Packet Forward middleware (IBC Router) test.
+ictest-packet-forward:
+	cd interchaintest && go test -race -v -run TestPacketForwardMiddleware .
 
 # Executes all tests via interchaintest after compling a local image as juno:local
-ictest-all: local-image ictest-basic ictest-upgrade ictest-ibc
+ictest-all: local-image ictest-basic ictest-upgrade ictest-ibc ictest-pfm
 
 .PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-all
 
