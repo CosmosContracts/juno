@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -87,6 +88,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 				return err
 			}
+
+			serverCtx := server.GetServerContextFromCmd(cmd)
+			serverCtx.Config.Consensus.TimeoutCommit = 2 * time.Second
 
 			return server.InterceptConfigsPreRunHandler(cmd, "", nil)
 		},
