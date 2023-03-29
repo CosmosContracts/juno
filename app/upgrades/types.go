@@ -1,6 +1,8 @@
 package upgrades
 
 import (
+	"strings"
+
 	"github.com/CosmosContracts/juno/v14/app/keepers"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,4 +35,12 @@ type Upgrade struct {
 
 	// Store upgrades, should be used for any new modules introduced, new modules deleted, or store names renamed.
 	StoreUpgrades store.StoreUpgrades
+}
+
+// Returns "ujunox" if the chain is uni, else returns the standard ujuno token denom.
+func GetChainsDenomToken(chainID string) string {
+	if strings.HasPrefix(chainID, "uni-") {
+		return "ujunox"
+	}
+	return "ujuno"
 }
