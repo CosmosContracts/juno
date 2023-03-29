@@ -367,7 +367,7 @@ func NewAppKeepers(
 	}
 
 	// Setup wasm bindings
-	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,token_factory"
+	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,cosmwasm_1_2,token_factory"
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
 	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
