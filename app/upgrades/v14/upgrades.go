@@ -5,9 +5,9 @@ import (
 
 	"github.com/CosmosContracts/juno/v14/app/keepers"
 
+	"github.com/CosmosContracts/juno/v14/app/upgrades"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/CosmosContracts/juno/v14/app/upgrades"
 
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
