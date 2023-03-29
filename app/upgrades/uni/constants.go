@@ -12,7 +12,5 @@ const UpgradeName = "uni14_2"
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateUniUpgradeHandler,
-	StoreUpgrades: store.StoreUpgrades{
-		Added: []string{},
-	},
+	StoreUpgrades:        store.StoreUpgrades{},
 }
