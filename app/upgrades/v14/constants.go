@@ -16,7 +16,7 @@ var Upgrade = upgrades.Upgrade{
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
 			globalfee.ModuleName,
-			ibchookstypes.StoreKey,
+			ibchookstypes.ModuleName,
 		},
 	},
 }
