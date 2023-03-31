@@ -172,7 +172,7 @@ replace (
 	// use cosmos-flavored protocol buffers
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// cometbft
-	github.com/tendermint/tendermint => github.com/skip-mev/mev-cometbft v0.34.27-mev.16
+	github.com/tendermint/tendermint => github.com/skip-mev/mev-cometbft v0.34.27-mev.17
 	// use grpc version that's compatible with cosmos-flavored protocol buffers
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
