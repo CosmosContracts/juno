@@ -6,7 +6,7 @@ import (
 )
 
 // Temp
-const UpgradeName = "v14_2"
+const UpgradeName = "v14part2"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
