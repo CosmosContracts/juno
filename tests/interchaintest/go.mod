@@ -6,7 +6,7 @@ require (
 	github.com/CosmosContracts/juno/v13 v13.0.0
 	github.com/cosmos/cosmos-sdk v0.45.14
 	github.com/cosmos/ibc-go/v4 v4.3.0
-	github.com/strangelove-ventures/interchaintest/v4 v4.0.0-20230316161044-8d8c01f96b4a
+	github.com/strangelove-ventures/interchaintest/v4 v4.0.0-20230331040355-5d08aab13017
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.23.0
 )
@@ -18,8 +18,8 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
 	github.com/ChainSafe/go-schnorrkel/1 v0.0.0-00010101000000-000000000000 // indirect
-	github.com/CosmWasm/wasmd v0.30.0 // indirect
-	github.com/CosmWasm/wasmvm v1.1.1 // indirect
+	github.com/CosmWasm/wasmd v0.31.0 // indirect
+	github.com/CosmWasm/wasmvm v1.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.0 // indirect
 	github.com/StirlingMarketingGroup/go-namecase v1.0.0 // indirect
 	github.com/armon/go-metrics v0.4.0 // indirect
