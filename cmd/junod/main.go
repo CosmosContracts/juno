@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/CosmosContracts/juno/v14/app"
-	"github.com/CosmosContracts/juno/v14/cmd/junod/cmd"
+	"github.com/CosmosContracts/juno/v15/app"
+	"github.com/CosmosContracts/juno/v15/cmd/junod/cmd"
 	"github.com/cosmos/cosmos-sdk/server"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"

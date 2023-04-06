@@ -14,10 +14,10 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	decorators "github.com/CosmosContracts/juno/v14/app/decorators"
+	decorators "github.com/CosmosContracts/juno/v15/app/decorators"
 
-	feeshareante "github.com/CosmosContracts/juno/v14/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v14/x/feeshare/keeper"
+	feeshareante "github.com/CosmosContracts/juno/v15/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
 
 	gaiafeeante "github.com/cosmos/gaia/v9/x/globalfee/ante"
 )
