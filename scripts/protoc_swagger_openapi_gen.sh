@@ -13,7 +13,7 @@ mkdir -p ./tmp-swagger-gen
 # Get the paths used repos from go/pkg/mod
 cosmos_sdk_dir=$(go list -f '{{ .Dir }}' -m github.com/cosmos/cosmos-sdk)
 wasmd=$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/wasmd)
-token_factory=$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/token-factory)
+token_factory=$(go list -f '{{ .Dir }}' -m github.com/CosmosTokenFactory/token-factory)
 gaia=$(go list -f '{{ .Dir }}' -m github.com/cosmos/gaia/v9)
 ica=$(go list -f '{{ .Dir }}' -m github.com/cosmos/interchain-accounts)
 pfm=$(go list -f '{{ .Dir }}' -m github.com/strangelove-ventures/packet-forward-middleware/v4)

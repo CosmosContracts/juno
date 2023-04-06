@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/CosmWasm/wasmd v0.31.0
-	github.com/CosmosTokenFactory/token-factory v0.0.0-20230406022318-478ada617c05
+	github.com/CosmosTokenFactory/token-factory v0.0.0-20230406023758-6bd164cf3aa9
 	github.com/cometbft/cometbft-db v0.7.0
 	github.com/cosmos/cosmos-sdk v0.45.15
 	github.com/cosmos/gaia/v9 v9.0.2
