@@ -22,8 +22,8 @@ const (
 
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
-	upgradeName := "v14"
-	CosmosChainUpgradeTest(t, "juno", "v13.0.1", version, repo, upgradeName)
+	upgradeName := "v15"
+	CosmosChainUpgradeTest(t, "juno", "v14.0.0-alpha.2", version, repo, upgradeName)
 }
 
 func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
@@ -91,6 +91,14 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 		Height:      haltHeight,
 	}
 
+	// TODO: Do a param change proposal to match mainnets '5048093' blocks per year rate?
+	// or just create a function to modify as a fork of cosmos.ModifyGenesisProposalTime. This should really be a builder yea?
+
+	// !IMPORTANT: V15 - Query the current minting parameters
+	param, _ := chain.QueryParam(ctx, "mint", "BlocksPerYear")
+	require.NoError(t, err, "error querying blocks per year")
+	require.Equal(t, param.Value, "\"6311520\"") // mainnet it is 5048093, but we are just ensuring the upgrade applies correctly from default.
+
 	upgradeTx, err := chain.UpgradeProposal(ctx, chainUser.KeyName, proposal)
 	require.NoError(t, err, "error submitting software upgrade proposal tx")
 
@@ -143,4 +151,9 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.NoError(t, err, "error fetching height after upgrade")
 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
+
+	// !IMPORTANT: V15 - Query the current minting parameters
+	param, _ = chain.QueryParam(ctx, "mint", "BlocksPerYear")
+	require.NoError(t, err, "error querying blocks per year")
+	require.Equal(t, param.Value, "\"12623040\"") // double the blocks per year from default
 }
