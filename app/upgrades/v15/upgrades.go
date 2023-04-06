@@ -32,7 +32,7 @@ func CreateV15UpgradeHandler(
 
 		// Double blocks per year (from 6 seconds to 3 = 2x blocks per year)
 		mintParams := keepers.MintKeeper.GetParams(ctx)
-		mintParams.BlocksPerYear = mintParams.BlocksPerYear * 2
+		mintParams.BlocksPerYear *= 2
 		keepers.MintKeeper.SetParams(ctx, mintParams)
 		logger.Info(fmt.Sprintf("updated minted blocks per year logic to %v", mintParams.BlocksPerYear))
 
