@@ -34,7 +34,13 @@ func CreateV15UpgradeHandler(
 		mintParams := keepers.MintKeeper.GetParams(ctx)
 		mintParams.BlocksPerYear *= 2
 		keepers.MintKeeper.SetParams(ctx, mintParams)
-		logger.Info(fmt.Sprintf("updated minted blocks per year logic to %v", mintParams.BlocksPerYear))
+		logger.Info(fmt.Sprintf("updated minted blocks per year logic to %v", mintParams))
+
+		// tokenfactory add gas only backup with 2 million gas default
+		tfParams := keepers.TokenFactoryKeeper.GetParams(ctx)
+		tfParams.DenomCreationGasConsume = 2_000_000
+		keepers.TokenFactoryKeeper.SetParams(ctx, tfParams)
+		logger.Info(fmt.Sprintf("updated tokenfactory denom creation gas to %v", tfParams))
 
 		return versionMap, err
 	}

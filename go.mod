@@ -3,8 +3,8 @@ module github.com/CosmosContracts/juno/v15
 go 1.19
 
 require (
-	github.com/CosmWasm/token-factory v0.0.0-00010101000000-000000000000
 	github.com/CosmWasm/wasmd v0.31.0
+	github.com/CosmosTokenFactory/token-factory v0.0.0-20230406022318-478ada617c05
 	github.com/cometbft/cometbft-db v0.7.0
 	github.com/cosmos/cosmos-sdk v0.45.15
 	github.com/cosmos/gaia/v9 v9.0.2
@@ -159,8 +159,6 @@ require (
 replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	// token factory:
-	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v1.2.0-juno
 	// TODO: Simapp dependency, review removing when updating to SDK with backported update https://github.com/cosmos/cosmos-sdk/issues/13423
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 // indirect
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.

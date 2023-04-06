@@ -185,9 +185,6 @@ replace (
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
 
-	// token factory:
-	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
-
 	// For this nested module, you always want to replace the parent reference with the current worktree.
 	github.com/CosmosContracts/juno => ../../
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
