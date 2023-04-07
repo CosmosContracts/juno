@@ -80,6 +80,13 @@ import (
 	"github.com/cosmos/gaia/v9/x/globalfee"
 )
 
+var (
+	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2"
+
+	// Types are: `tokenfactorytypes.Enable*``
+	tokenFactoryCapabilities = []string{}
+)
+
 type AppKeepers struct {
 	// keys to access the substores
 	keys    map[string]*sdk.KVStoreKey
@@ -357,6 +364,7 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,
+		tokenFactoryCapabilities,
 	)
 
 	wasmDir := filepath.Join(homePath, "data")
@@ -366,8 +374,6 @@ func NewAppKeepers(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	// Setup wasm bindings
-	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,cosmwasm_1_2,token_factory"
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
 	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
@@ -415,7 +421,7 @@ func NewAppKeepers(
 		bApp.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
-		supportedFeatures,
+		wasmCapabilities,
 		wasmOpts...,
 	)
 
