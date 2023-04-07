@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
+	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
@@ -36,11 +37,12 @@ func CreateV15UpgradeHandler(
 		keepers.MintKeeper.SetParams(ctx, mintParams)
 		logger.Info(fmt.Sprintf("updated minted blocks per year logic to %v", mintParams))
 
-		// tokenfactory add gas only backup with 2 million gas default
-		tfParams := keepers.TokenFactoryKeeper.GetParams(ctx)
-		tfParams.DenomCreationGasConsume = 2_000_000
-		keepers.TokenFactoryKeeper.SetParams(ctx, tfParams)
-		logger.Info(fmt.Sprintf("updated tokenfactory denom creation gas to %v", tfParams))
+		// Add new TokenFactory param
+		updatedTf := tokenfactorytypes.Params{
+			DenomCreationGasConsume: 2_000_000,
+		}
+		keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf)
+		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
 
 		return versionMap, err
 	}
