@@ -41,10 +41,6 @@ import (
 	"github.com/CosmosContracts/juno/v15/app/params"
 )
 
-const (
-	EnvPrefix = "JUNO"
-)
-
 // NewRootCmd creates a new root command for junod. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
@@ -66,7 +62,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithAccountRetriever(authtypes.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(app.DefaultNodeHome).
-		WithViper(EnvPrefix)
+		WithViper("")
 
 	// Allows you to add extra params to your client.toml
 	// gas, gas-price, gas-adjustment, fees, note, etc.
