@@ -45,8 +45,8 @@ func InterceptConfigsPreRunHandler(cmd *cobra.Command, customAppConfigTemplate s
 	basename := path.Base(executableName)
 
 	// Configure the viper instance
-	serverCtx.Viper.BindPFlags(cmd.Flags())
-	serverCtx.Viper.BindPFlags(cmd.PersistentFlags())
+	serverCtx.Viper.BindPFlags(cmd.Flags())           // nolint: errcheck
+	serverCtx.Viper.BindPFlags(cmd.PersistentFlags()) // nolint: errcheck
 	serverCtx.Viper.SetEnvPrefix(basename)
 	serverCtx.Viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	serverCtx.Viper.AutomaticEnv()
@@ -165,7 +165,7 @@ func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customCo
 
 func bindFlags(basename string, cmd *cobra.Command, v *viper.Viper) (err error) {
 	defer func() {
-		recover()
+		recover() // nolint: errcheck
 	}()
 
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
