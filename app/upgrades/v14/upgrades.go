@@ -2,10 +2,10 @@ package v14
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/CosmosContracts/juno/v14/app/keepers"
 
+	"github.com/CosmosContracts/juno/v14/app/upgrades"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -13,14 +13,6 @@ import (
 
 	globalfeetypes "github.com/cosmos/gaia/v9/x/globalfee/types"
 )
-
-// Returns "ujunox" if the chain is uni, else returns the standard ujuno token denom.
-func GetChainsDenomToken(chainID string) string {
-	if strings.HasPrefix(chainID, "uni-") {
-		return "ujunox"
-	}
-	return "ujuno"
-}
 
 func CreateV14UpgradeHandler(
 	mm *module.Manager,
@@ -30,7 +22,7 @@ func CreateV14UpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		nativeDenom := GetChainsDenomToken(ctx.ChainID())
+		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
 
 		logger.Info(fmt.Sprintf("pre migrate version map: %v", vm))

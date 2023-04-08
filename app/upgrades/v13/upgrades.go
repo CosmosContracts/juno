@@ -2,10 +2,10 @@ package v13
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/CosmosContracts/juno/v14/app/keepers"
 
+	"github.com/CosmosContracts/juno/v14/app/upgrades"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -23,14 +23,6 @@ import (
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 )
 
-// Returns "ujunox" if the chain is uni, else returns the standard ujuno token denom.
-func GetChainsDenomToken(chainID string) string {
-	if strings.HasPrefix(chainID, "uni-") {
-		return "ujunox"
-	}
-	return "ujuno"
-}
-
 func CreateV13UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
@@ -41,7 +33,7 @@ func CreateV13UpgradeHandler(
 		// the above is https://github.com/cosmos/ibc-go/blob/v5.1.0/docs/migrations/v3-to-v4.md
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		nativeDenom := GetChainsDenomToken(ctx.ChainID())
+		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
 
 		// ICA - https://github.com/CosmosContracts/juno/blob/integrate_ica_changes/app/app.go#L846-L885
