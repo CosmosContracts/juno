@@ -10,12 +10,28 @@ This document contains the roadmap for the Juno project. It is a living document
 - SDK v0.47, Tendermint 0.37
 - IBC v5/6, ICA v3 (optional)
 - [Native Liquid Staking](https://github.com/iqlusioninc/liquidity-staking-module)
-- Faster Block times
 - [Improving the Nakamoto Coefficient](https://github.com/CosmosContracts/juno/issues/474)
 - Wasm based oracle
 
-## V14 - Q2/3 2023
-<!-- - [Medium Blog](https://medium.com/@reecepbcups/juno-v12-update-4bab64640a62) -->
+---
+
+## V15 - End of Q2 2023
+
+<!-- - [Medium Blog](...) -->
+
+<!-- - [V15 Tracking Issue](...) -->
+
+This upgrade focuses entirely on moving Juno's block times from 6 seconds to 3 seconds.
+
+## Features
+
+- 3 second block times (from 6 seconds)
+
+---
+
+## V14 (Aurora) - Early Q2 2023
+
+- [Medium Blog](https://medium.com/@JunoNetwork/jun%C3%B8-aurora-ac67a8143e22)
 
 - [V14 Tracking Issue](https://github.com/CosmosContracts/juno/issues/548)
 
@@ -26,10 +42,11 @@ This update will focus more on upgrading the base layer of the Juno stack, bring
 - IBC-Hooks
 - CosmWasm v0.31
 - WasmVM v1.2.1
-- Global Minimum Fees (governance set)
+- Global Minimum Fees (governance controlled)
+- Feeless IBC Relaying
 - TokenFactory: burnFrom, burnTo, ForceTransfer
 - [Interchain test](https://github.com/strangelove-ventures/interchaintest)
-- Using [Skip's MEV Tendermint fork](https://github.com/skip-mev/mev-tendermint) by default
+- Using [Skip's MEV Tendermint fork](https://github.com/skip-mev/mev-cometbft) by default
 
 ---
 
