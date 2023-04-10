@@ -61,9 +61,9 @@ import (
 	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v4/router/keeper"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 
-	"github.com/CosmWasm/token-factory/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmWasm/token-factory/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
+	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
 
 	icahost "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/keeper"
@@ -78,6 +78,13 @@ import (
 	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
 
 	"github.com/cosmos/gaia/v9/x/globalfee"
+)
+
+var (
+	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2"
+
+	// Types are: `tokenfactorytypes.Enable*``
+	tokenFactoryCapabilities = []string{}
 )
 
 type AppKeepers struct {
@@ -357,6 +364,7 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,
+		tokenFactoryCapabilities,
 	)
 
 	wasmDir := filepath.Join(homePath, "data")
@@ -366,8 +374,6 @@ func NewAppKeepers(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	// Setup wasm bindings
-	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,cosmwasm_1_2,token_factory"
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
 	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
@@ -415,7 +421,7 @@ func NewAppKeepers(
 		bApp.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
-		supportedFeatures,
+		wasmCapabilities,
 		wasmOpts...,
 	)
 
