@@ -72,6 +72,7 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 
+	icq "github.com/strangelove-ventures/async-icq/v4"
 	icqkeeper "github.com/strangelove-ventures/async-icq/v4/keeper"
 	icqtypes "github.com/strangelove-ventures/async-icq/v4/types"
 
@@ -481,12 +482,16 @@ func NewAppKeepers(
 	wasmStack = wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCFeeKeeper)
 	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, appKeepers.IBCFeeKeeper)
 
+	// create ICQ module
+	icqModule := icq.NewIBCModule(appKeepers.ICQKeeper)
+
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter().
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
 		AddRoute(wasm.ModuleName, wasmStack).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
-		AddRoute(icahosttypes.SubModuleName, icaHostStack)
+		AddRoute(icahosttypes.SubModuleName, icaHostStack).
+		AddRoute(icqtypes.ModuleName, icqModule)
 
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
