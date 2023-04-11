@@ -52,6 +52,8 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
+	icq "github.com/strangelove-ventures/async-icq/v4"
+	icqtypes "github.com/strangelove-ventures/async-icq/v4/types"
 	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v4/router"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 )
@@ -64,6 +66,7 @@ var maccPerms = map[string][]string{
 	stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 	govtypes.ModuleName:            {authtypes.Burner},
+	icqtypes.ModuleName:            nil,
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:            nil,
 	ibcfeetypes.ModuleName:         nil,
@@ -88,6 +91,7 @@ var ModuleBasics = module.NewBasicManager(
 	slashing.AppModuleBasic{},
 	ibc.AppModuleBasic{},
 	ibcfee.AppModuleBasic{},
+	icq.AppModuleBasic{},
 	feegrantmodule.AppModuleBasic{},
 	upgrade.AppModuleBasic{},
 	evidence.AppModuleBasic{},
@@ -139,6 +143,8 @@ func appModules(
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		ibchooks.NewAppModule(app.AccountKeeper),
+		// IBC modules
+		icq.NewAppModule(app.ICQKeeper),
 		packetforward.NewAppModule(app.PacketForwardKeeper),
 	}
 }
@@ -199,6 +205,7 @@ func orderBeginBlockers() []string {
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
@@ -231,6 +238,7 @@ func orderEndBlockers() []string {
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
@@ -263,6 +271,7 @@ func orderInitBlockers() []string {
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
