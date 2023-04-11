@@ -359,7 +359,7 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		scopedICQKeeper,
-		accepted, // accept the same queries that we accept for wasm.
+		NewQuerierWrapper(bApp),
 	)
 
 	appKeepers.PacketForwardKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
