@@ -329,28 +329,6 @@ func NewAppKeepers(
 		scopedTransferKeeper,
 	)
 
-	// Stargate Queries
-	accepted := wasmkeeper.AcceptedStargateQueries{
-		// ibc
-		"/ibc.core.client.v1.Query/ClientState":    &ibcclienttypes.QueryClientStateResponse{},
-		"/ibc.core.client.v1.Query/ConsensusState": &ibcclienttypes.QueryConsensusStateResponse{},
-		"/ibc.core.connection.v1.Query/Connection": &ibcconnectiontypes.QueryConnectionResponse{},
-
-		// governance
-		"/cosmos.gov.v1beta1.Query/Vote": &govtypes.QueryVoteResponse{},
-
-		// staking
-		"/cosmos.staking.v1beta1.Query/Delegation":          &stakingtypes.QueryDelegationResponse{},
-		"/cosmos.staking.v1beta1.Query/Redelegations":       &stakingtypes.QueryRedelegationsResponse{},
-		"/cosmos.staking.v1beta1.Query/UnbondingDelegation": &stakingtypes.QueryUnbondingDelegationResponse{},
-		"/cosmos.staking.v1beta1.Query/Validator":           &stakingtypes.QueryValidatorResponse{},
-
-		// token factory
-		"/osmosis.tokenfactory.v1beta1.Query/Params":                 &tokenfactorytypes.QueryParamsResponse{},
-		"/osmosis.tokenfactory.v1beta1.Query/DenomAuthorityMetadata": &tokenfactorytypes.QueryDenomAuthorityMetadataResponse{},
-		"/osmosis.tokenfactory.v1beta1.Query/DenomsFromCreator":      &tokenfactorytypes.QueryDenomsFromCreatorResponse{},
-	}
-
 	// ICQ Keeper
 	appKeepers.ICQKeeper = icqkeeper.NewKeeper(
 		appCodec,
@@ -418,6 +396,28 @@ func NewAppKeepers(
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
 	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
+
+	// Stargate Queries
+	accepted := wasmkeeper.AcceptedStargateQueries{
+		// ibc
+		"/ibc.core.client.v1.Query/ClientState":    &ibcclienttypes.QueryClientStateResponse{},
+		"/ibc.core.client.v1.Query/ConsensusState": &ibcclienttypes.QueryConsensusStateResponse{},
+		"/ibc.core.connection.v1.Query/Connection": &ibcconnectiontypes.QueryConnectionResponse{},
+
+		// governance
+		"/cosmos.gov.v1beta1.Query/Vote": &govtypes.QueryVoteResponse{},
+
+		// staking
+		"/cosmos.staking.v1beta1.Query/Delegation":          &stakingtypes.QueryDelegationResponse{},
+		"/cosmos.staking.v1beta1.Query/Redelegations":       &stakingtypes.QueryRedelegationsResponse{},
+		"/cosmos.staking.v1beta1.Query/UnbondingDelegation": &stakingtypes.QueryUnbondingDelegationResponse{},
+		"/cosmos.staking.v1beta1.Query/Validator":           &stakingtypes.QueryValidatorResponse{},
+
+		// token factory
+		"/osmosis.tokenfactory.v1beta1.Query/Params":                 &tokenfactorytypes.QueryParamsResponse{},
+		"/osmosis.tokenfactory.v1beta1.Query/DenomAuthorityMetadata": &tokenfactorytypes.QueryDenomAuthorityMetadataResponse{},
+		"/osmosis.tokenfactory.v1beta1.Query/DenomsFromCreator":      &tokenfactorytypes.QueryDenomsFromCreatorResponse{},
+	}
 
 	querierOpts := wasmkeeper.WithQueryPlugins(
 		&wasmkeeper.QueryPlugins{
