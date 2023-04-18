@@ -161,6 +161,8 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// token factory:
 	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v1.2.0-juno
+	// CWA-2023-002
+	github.com/CosmWasm/wasmvm => github.com/CosmWasm/wasmvm v1.2.3
 	// TODO: Simapp dependency, review removing when updating to SDK with backported update https://github.com/cosmos/cosmos-sdk/issues/13423
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 // indirect
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
