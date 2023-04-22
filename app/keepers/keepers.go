@@ -83,8 +83,11 @@ import (
 var (
 	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2"
 
-	// Types are: `tokenfactorytypes.Enable*``
-	tokenFactoryCapabilities = []string{}
+	tokenFactoryCapabilities = []string{
+		tokenfactorytypes.EnableBurnFrom,
+		tokenfactorytypes.EnableForceTransfer,
+		tokenfactorytypes.EnableSetMetadata,
+	}
 )
 
 type AppKeepers struct {
