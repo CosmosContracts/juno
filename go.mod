@@ -3,6 +3,7 @@ module github.com/CosmosContracts/juno/v15
 go 1.19
 
 require (
+	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.0
 	cosmossdk.io/simapp v0.0.0-20230224204036-a6adb0821462
 	github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8
@@ -32,7 +33,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v0.12.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
-	cosmossdk.io/errors v1.0.0-beta.7 // indirect
 	cosmossdk.io/tools/rosetta v0.2.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.203 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
@@ -195,4 +195,7 @@ replace (
 
 	// temporary, need to fix, issue is at import of: github.com/cosmos/gogogateway
 	github.com/gogo/protobuf v1.3.3 => github.com/gogo/protobuf v1.3.2
+
+	// pin the version of goleveldb to v1.0.1-0.20210819022825-2ae1ddf74ef7
+	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
