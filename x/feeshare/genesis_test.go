@@ -11,7 +11,7 @@ import (
 	"github.com/CosmosContracts/juno/v15/app"
 	"github.com/CosmosContracts/juno/v15/x/feeshare"
 	"github.com/CosmosContracts/juno/v15/x/feeshare/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 )
 
 type GenesisTestSuite struct {

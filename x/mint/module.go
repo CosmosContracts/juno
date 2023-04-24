@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"math/rand"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/CosmosContracts/juno/v15/x/mint/client/cli"
 	"github.com/CosmosContracts/juno/v15/x/mint/client/rest"
