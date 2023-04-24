@@ -5,7 +5,7 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	tokenfactorykeeper "github.com/CosmosContracts/juno/x/tokenfactory/keeper"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 

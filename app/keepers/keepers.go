@@ -57,9 +57,9 @@ import (
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 	ibchookskeeper "github.com/osmosis-labs/osmosis/x/ibc-hooks/keeper"
 
-	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v4/router"
-	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v4/router/keeper"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
+	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
+	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
 	"github.com/CosmosContracts/juno/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/x/tokenfactory/keeper"
@@ -72,16 +72,16 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 
-	icq "github.com/strangelove-ventures/async-icq/v4"
-	icqkeeper "github.com/strangelove-ventures/async-icq/v4/keeper"
-	icqtypes "github.com/strangelove-ventures/async-icq/v4/types"
+	icq "github.com/strangelove-ventures/async-icq/v7"
+	icqkeeper "github.com/strangelove-ventures/async-icq/v7/keeper"
+	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
 	// ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 
-	"github.com/cosmos/gaia/v9/x/globalfee"
+	"github.com/CosmosContracts/juno/v15/x/globalfee"
 )
 
 var (

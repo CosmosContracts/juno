@@ -4,8 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
-	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
+	"cosmossdk.io/simapp"
+	appparams "github.com/CosmosContracts/juno/app/params"
+	dbm "github.com/cometbft/cometbft-db"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,11 +16,8 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
 
-	"github.com/cosmos/gaia/v9/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v15/x/globalfee/types"
 )
 
 func TestDefaultGenesis(t *testing.T) {
@@ -106,7 +106,7 @@ func TestInitExportGenesis(t *testing.T) {
 	}
 }
 
-func setupTestStore(t *testing.T) (sdk.Context, simappparams.EncodingConfig, paramstypes.Subspace) {
+func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, paramstypes.Subspace) {
 	t.Helper()
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db)

@@ -19,7 +19,7 @@ import (
 	feeshareante "github.com/CosmosContracts/juno/v15/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
 
-	gaiafeeante "github.com/cosmos/gaia/v9/x/globalfee/ante"
+	gaiafeeante "github.com/CosmosContracts/juno/v15/x/globalfee/ante"
 )
 
 const maxBypassMinFeeMsgGasUsage = 1_000_000

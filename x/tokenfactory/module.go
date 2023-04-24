@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"math/rand"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -22,14 +23,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 
-	simulation "github.com/CosmosContracts/juno/x/tokenfactory/simulation"
+	simulation "github.com/CosmosContracts/juno/v15/x/tokenfactory/simulation"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosContracts/juno/x/tokenfactory/client/cli"
-	"github.com/CosmosContracts/juno/x/tokenfactory/keeper"
-	"github.com/CosmosContracts/juno/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v15/x/tokenfactory/client/cli"
+	"github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
+	"github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 )
 
 var (

@@ -3,9 +3,7 @@ module github.com/CosmosContracts/juno/v15
 go 1.19
 
 require (
-	github.com/CosmosTokenFactory/token-factory v0.0.0-20230422130917-82986c5b3ec0
 	github.com/cometbft/cometbft-db v0.7.0
-	github.com/cosmos/gaia/v9 v9.0.2
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -14,13 +12,15 @@ require (
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.2
-	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
 	google.golang.org/grpc v1.54.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8 // indirect
+require (
+	github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8 // indirect
+	github.com/cosmos/cosmos-sdk v0.47.1 // indirect
+)
 
 require (
 	cosmossdk.io/api v0.3.1 // indirect

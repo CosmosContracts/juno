@@ -25,8 +25,8 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
-	icqtypes "github.com/strangelove-ventures/async-icq/v4/types"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
+	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {

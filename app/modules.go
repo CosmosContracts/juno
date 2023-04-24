@@ -5,6 +5,7 @@ import (
 	encparams "github.com/CosmosContracts/juno/v15/app/params"
 	feeshare "github.com/CosmosContracts/juno/v15/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v15/x/globalfee"
 	"github.com/CosmosContracts/juno/v15/x/mint"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 	"github.com/CosmosContracts/juno/x/tokenfactory"
@@ -41,7 +42,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/cosmos/gaia/v9/x/globalfee"
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 	ibcfee "github.com/cosmos/ibc-go/v7/modules/apps/29-fee"
@@ -52,10 +52,10 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
 	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
-	icq "github.com/strangelove-ventures/async-icq/v4"
-	icqtypes "github.com/strangelove-ventures/async-icq/v4/types"
-	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v4/router"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
+	icq "github.com/strangelove-ventures/async-icq/v7"
+	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
+	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
 // module account permissions

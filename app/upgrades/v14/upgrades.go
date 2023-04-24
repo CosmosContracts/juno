@@ -11,7 +11,7 @@ import (
 
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	globalfeetypes "github.com/cosmos/gaia/v9/x/globalfee/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v15/x/globalfee/types"
 )
 
 func CreateV14UpgradeHandler(

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -14,10 +15,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/cosmos/gaia/v9/x/globalfee/client/cli"
-	"github.com/cosmos/gaia/v9/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v15/x/globalfee/client/cli"
+	"github.com/CosmosContracts/juno/v15/x/globalfee/types"
 )
 
 var (

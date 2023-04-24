@@ -7,11 +7,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/x/tokenfactory/testhelpers"
-	"github.com/CosmosContracts/juno/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v15/x/tokenfactory/testhelpers"
+	"github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 
+	"github.com/cometbft/cometbft/crypto/ed25519"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
 // // Test authz serialize and de-serializes for tokenfactory msg.

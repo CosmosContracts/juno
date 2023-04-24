@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 

@@ -3,6 +3,8 @@ package antetest
 import (
 	"fmt"
 
+	tmrand "github.com/cometbft/cometbft/libs/rand"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -13,15 +15,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	gaiahelpers "github.com/cosmos/gaia/v9/app/helpers"
-	gaiafeeante "github.com/cosmos/gaia/v9/x/globalfee/ante"
+	gaiahelpers "github.com/CosmosContracts/juno/v15/app/helpers"
+	gaiafeeante "github.com/CosmosContracts/juno/v15/x/globalfee/ante"
 
-	gaiaapp "github.com/cosmos/gaia/v9/app"
-	"github.com/cosmos/gaia/v9/x/globalfee"
-	globfeetypes "github.com/cosmos/gaia/v9/x/globalfee/types"
+	gaiaapp "github.com/CosmosContracts/juno/v15/app"
+	"github.com/CosmosContracts/juno/v15/x/globalfee"
+	globfeetypes "github.com/CosmosContracts/juno/v15/x/globalfee/types"
 )
 
 type IntegrationTestSuite struct {
