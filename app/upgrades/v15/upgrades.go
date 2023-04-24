@@ -44,6 +44,11 @@ func CreateV15UpgradeHandler(
 		keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf)
 		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
 
+		// upgrade the slashing signing window here *2 from standard
+		slashingParams := keepers.SlashingKeeper.GetParams(ctx)
+		slashingParams.SignedBlocksWindow *= 2
+		keepers.SlashingKeeper.SetParams(ctx, slashingParams)
+
 		return versionMap, err
 	}
 }

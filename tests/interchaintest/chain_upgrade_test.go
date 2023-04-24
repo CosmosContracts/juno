@@ -23,7 +23,7 @@ const (
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
 	upgradeName := "v15"
-	CosmosChainUpgradeTest(t, "juno", "v14.0.0-alpha.2", version, repo, upgradeName)
+	CosmosChainUpgradeTest(t, "juno", "v14.1.0", version, repo, upgradeName)
 }
 
 func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
@@ -153,7 +153,12 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
 
 	// !IMPORTANT: V15 - Query the current minting parameters
-	param, _ = chain.QueryParam(ctx, "mint", "BlocksPerYear")
+	param, err = chain.QueryParam(ctx, "mint", "BlocksPerYear")
 	require.NoError(t, err, "error querying blocks per year")
 	require.Equal(t, param.Value, "\"12623040\"") // double the blocks per year from default
+
+	// ensure the new SignedBlocksWindow is "20000"
+	param, err = chain.QueryParam(ctx, "slashing", "SignedBlocksWindow")
+	require.NoError(t, err, "error querying signed blocks window")
+	require.Equal(t, param.Value, "\"20000\"")
 }
