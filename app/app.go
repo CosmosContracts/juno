@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"cosmossdk.io/simapp"
 	"github.com/CosmosContracts/juno/v15/app/openapiconsole"
 	"github.com/CosmosContracts/juno/v15/docs"
 	dbm "github.com/cometbft/cometbft-db"
@@ -20,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -178,7 +178,7 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 }
 
 var (
-	_ simapp.App              = (*App)(nil)
+	_ runtime.AppI            = (*App)(nil)
 	_ servertypes.Application = (*App)(nil)
 )
 
