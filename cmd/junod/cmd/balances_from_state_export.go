@@ -1,7 +1,7 @@
 package cmd
 
 // modified from osmosis
-// https://github.com/osmosis-labs/osmosis/blob/main/cmd/osmosisd/cmd/balances_from_state_export.go
+// https://github.com/CosmosContracts/juno/v15/blob/main/cmd/osmosisd/cmd/balances_from_state_export.go
 
 import (
 	"encoding/csv"

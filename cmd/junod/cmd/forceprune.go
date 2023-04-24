@@ -3,7 +3,7 @@ package cmd
 // DONTCOVER
 
 // from osmosis
-// https://github.com/osmosis-labs/osmosis/blob/main/cmd/junod/cmd/forceprune.go
+// https://github.com/CosmosContracts/juno/v15/blob/main/cmd/junod/cmd/forceprune.go
 
 import (
 	"fmt"

@@ -3,10 +3,12 @@ package keepers
 import (
 	"path/filepath"
 
-	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
+	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibc-hooks/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	ibchooks "github.com/CosmosContracts/juno/v15/x/ibc-hooks"
+	ibchookskeeper "github.com/CosmosContracts/juno/v15/x/ibc-hooks/keeper"
 	mintkeeper "github.com/CosmosContracts/juno/v15/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -54,16 +56,14 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
-	ibchookskeeper "github.com/osmosis-labs/osmosis/x/ibc-hooks/keeper"
 
 	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
 	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
-	"github.com/CosmosContracts/juno/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v15/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 
 	icahost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
