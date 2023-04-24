@@ -60,20 +60,20 @@ func (appKeepers *AppKeepers) GetMemoryStoreKey() map[string]*storetypes.MemoryS
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (appKeepers *AppKeepers) GetKey(storeKey string) *sdk.KVStoreKey {
+func (appKeepers *AppKeepers) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return appKeepers.keys[storeKey]
 }
 
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (appKeepers *AppKeepers) GetTKey(storeKey string) *sdk.TransientStoreKey {
+func (appKeepers *AppKeepers) GetTKey(storeKey string) *storetypes.TransientStoreKey {
 	return appKeepers.tkeys[storeKey]
 }
 
 // GetMemKey returns the MemStoreKey for the provided mem key.
 //
 // NOTE: This is solely used for testing purposes.
-func (appKeepers *AppKeepers) GetMemKey(storeKey string) *sdk.MemoryStoreKey {
+func (appKeepers *AppKeepers) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	return appKeepers.memKeys[storeKey]
 }
