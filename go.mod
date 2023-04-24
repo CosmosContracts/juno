@@ -161,5 +161,8 @@ replace (
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 
+	// temporary, need to fix, issue is at import of: github.com/cosmos/gogogateway
+	github.com/gogo/protobuf v1.3.3 => github.com/gogo/protobuf v1.3.2
+
 	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.47.2-0.20230424060617-ebc292e8de8b
 )
