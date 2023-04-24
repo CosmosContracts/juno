@@ -46,7 +46,6 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
@@ -167,7 +166,6 @@ func GetWasmOpts(appOpts servertypes.AppOptions) []wasm.Option {
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
-	govProposalHandlers = wasmclient.ProposalHandlers
 
 	govProposalHandlers = append(govProposalHandlers,
 		paramsclient.ProposalHandler,

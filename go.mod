@@ -165,4 +165,6 @@ replace (
 	github.com/gogo/protobuf v1.3.3 => github.com/gogo/protobuf v1.3.2
 
 	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.47.2-0.20230424060617-ebc292e8de8b
+
+	github.com/CosmosContracts/juno/v15/osmoutils => ./osmoutils
 )
