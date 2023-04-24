@@ -75,18 +75,18 @@ func (m MsgMint) Type() string  { return TypeMsgMint }
 func (m MsgMint) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
 	}
 
 	if m.MintToAddress != "" {
 		_, err = sdk.AccAddressFromBech32(m.MintToAddress)
 		if err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid mint to address (%s)", err)
+			return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid mint to address (%s)", err)
 		}
 	}
 
 	if !m.Amount.IsValid() || m.Amount.Amount.Equal(sdk.ZeroInt()) {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, m.Amount.String())
+		return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, m.Amount.String())
 	}
 
 	return nil
@@ -125,17 +125,17 @@ func (m MsgBurn) Type() string  { return TypeMsgBurn }
 func (m MsgBurn) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
 	}
 
 	if !m.Amount.IsValid() || m.Amount.Amount.Equal(sdk.ZeroInt()) {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, m.Amount.String())
+		return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, m.Amount.String())
 	}
 
 	if m.BurnFromAddress != "" {
 		_, err = sdk.AccAddressFromBech32(m.BurnFromAddress)
 		if err != nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid burn from address (%s)", err)
+			return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid burn from address (%s)", err)
 		}
 	}
 
@@ -168,20 +168,20 @@ func (m MsgForceTransfer) Type() string  { return TypeMsgForceTransfer }
 func (m MsgForceTransfer) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
 	}
 
 	_, err = sdk.AccAddressFromBech32(m.TransferFromAddress)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid from address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid from address (%s)", err)
 	}
 	_, err = sdk.AccAddressFromBech32(m.TransferToAddress)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid to address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid to address (%s)", err)
 	}
 
 	if !m.Amount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, m.Amount.String())
+		return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, m.Amount.String())
 	}
 
 	return nil
@@ -212,12 +212,12 @@ func (m MsgChangeAdmin) Type() string  { return TypeMsgChangeAdmin }
 func (m MsgChangeAdmin) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
 	}
 
 	_, err = sdk.AccAddressFromBech32(m.NewAdmin)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid address (%s)", err)
 	}
 
 	_, _, err = DeconstructDenom(m.Denom)
@@ -252,7 +252,7 @@ func (m MsgSetDenomMetadata) Type() string  { return TypeMsgSetDenomMetadata }
 func (m MsgSetDenomMetadata) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
 	}
 
 	err = m.Metadata.Validate()
