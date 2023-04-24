@@ -7,12 +7,10 @@ import (
 	"math/rand"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
 	"github.com/CosmosContracts/juno/v15/x/mint/client/cli"
-	"github.com/CosmosContracts/juno/v15/x/mint/client/rest"
 	"github.com/CosmosContracts/juno/v15/x/mint/keeper"
 	"github.com/CosmosContracts/juno/v15/x/mint/simulation"
 	"github.com/CosmosContracts/juno/v15/x/mint/types"
@@ -62,11 +60,6 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingCo
 	}
 
 	return types.ValidateGenesis(data)
-}
-
-// RegisterRESTRoutes registers the REST routes for the mint module.
-func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rest.RegisterRoutes(clientCtx, rtr)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the mint module.
