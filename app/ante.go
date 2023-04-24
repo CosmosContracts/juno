@@ -37,7 +37,7 @@ type HandlerOptions struct {
 	IBCKeeper         *ibckeeper.Keeper
 	FeeShareKeeper    feesharekeeper.Keeper
 	BankKeeperFork    feeshareante.BankKeeper
-	TxCounterStoreKey sdk.StoreKey
+	TxCounterStoreKey storetypes.StoreKey
 	WasmConfig        wasmTypes.WasmConfig
 	Cdc               codec.BinaryCodec
 	StakingSubspace   paramtypes.Subspace
