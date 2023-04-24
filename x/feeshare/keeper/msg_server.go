@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -90,18 +91,18 @@ func (k Keeper) RegisterFeeShare(
 	// Get Contract
 	contract, err := sdk.AccAddressFromBech32(msg.ContractAddress)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
 	}
 
 	// Check if contract is already registered
 	if k.IsFeeShareRegistered(ctx, contract) {
-		return nil, sdkerrors.Wrapf(types.ErrFeeShareAlreadyRegistered, "contract is already registered %s", contract)
+		return nil, errorsmod.Wrapf(types.ErrFeeShareAlreadyRegistered, "contract is already registered %s", contract)
 	}
 
 	// Get the withdraw address of the contract
 	withdrawer, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid withdrawer address %s", msg.WithdrawerAddress)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid withdrawer address %s", msg.WithdrawerAddress)
 	}
 
 	var deployer sdk.AccAddress
@@ -109,7 +110,7 @@ func (k Keeper) RegisterFeeShare(
 	if k.GetIfContractWasCreatedFromFactory(ctx, contract, k.wasmKeeper.GetContractInfo(ctx, contract)) {
 		// Anyone is allowed to register a contract to itself if it was created from a factory contract
 		if msg.WithdrawerAddress != msg.ContractAddress {
-			return nil, sdkerrors.Wrapf(types.ErrFeeShareInvalidWithdrawer, "withdrawer address must be the same as the contract address if it is from a factory contract withdraw:%s contract:%s", msg.WithdrawerAddress, msg.ContractAddress)
+			return nil, errorsmod.Wrapf(types.ErrFeeShareInvalidWithdrawer, "withdrawer address must be the same as the contract address if it is from a factory contract withdraw:%s contract:%s", msg.WithdrawerAddress, msg.ContractAddress)
 		}
 
 		// set the deployer address to the contract address so it can self register
