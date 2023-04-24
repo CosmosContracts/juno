@@ -24,7 +24,7 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
@@ -33,7 +33,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 	appKeepers.keys = sdk.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
+		govtypes.StoreKey, paramstypes.StoreKey, ibcexported.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		authzkeeper.StoreKey, feegrant.StoreKey, icahosttypes.StoreKey, ibcfeetypes.StoreKey,
 		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, wasm.StoreKey,
