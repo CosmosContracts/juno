@@ -7,7 +7,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
 var MiniumInitialDepositRate = sdk.NewDecWithPrec(20, 2)
@@ -44,11 +44,15 @@ func (gpsd GovPreventSpamDecorator) AnteHandle(
 
 func (gpsd GovPreventSpamDecorator) checkSpamSubmitProposalMsg(ctx sdk.Context, msgs []sdk.Msg) error {
 	validMsg := func(m sdk.Msg) error {
-		if msg, ok := m.(*govtypes.MsgSubmitProposal); ok {
+		if msg, ok := m.(*govv1types.MsgSubmitProposal); ok {
 			// prevent spam gov msg
-			depositParams := gpsd.govKeeper.GetDepositParams(ctx)
-			miniumInitialDeposit := gpsd.calcMiniumInitialDeposit(depositParams.MinDeposit)
-			if msg.InitialDeposit.IsAllLT(miniumInitialDeposit) {
+			minDeposit := gpsd.govKeeper.GetParams(ctx).MinDeposit
+			miniumInitialDeposit := gpsd.calcMiniumInitialDeposit(minDeposit)
+			initialDeposits := sdk.Coins{}
+			for _, InitialDepositToken := range msg.InitialDeposit {
+				initialDeposits.Add(InitialDepositToken)
+			}
+			if initialDeposits.IsAllLT(miniumInitialDeposit) {
 				return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "not enough initial deposit. required: %v", miniumInitialDeposit)
 			}
 		}
