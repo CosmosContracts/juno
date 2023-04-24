@@ -95,9 +95,13 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	// or just create a function to modify as a fork of cosmos.ModifyGenesisProposalTime. This should really be a builder yea?
 
 	// !IMPORTANT: V15 - Query the current minting parameters
-	param, _ := chain.QueryParam(ctx, "mint", "BlocksPerYear")
+	param, err := chain.QueryParam(ctx, "mint", "BlocksPerYear")
 	require.NoError(t, err, "error querying blocks per year")
 	require.Equal(t, param.Value, "\"6311520\"") // mainnet it is 5048093, but we are just ensuring the upgrade applies correctly from default.
+
+	param, err = chain.QueryParam(ctx, "slashing", "SignedBlocksWindow")
+	require.NoError(t, err, "error querying signed blocks window")
+	require.Equal(t, param.Value, "\"100\"")
 
 	upgradeTx, err := chain.UpgradeProposal(ctx, chainUser.KeyName, proposal)
 	require.NoError(t, err, "error submitting software upgrade proposal tx")
@@ -157,8 +161,8 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.NoError(t, err, "error querying blocks per year")
 	require.Equal(t, param.Value, "\"12623040\"") // double the blocks per year from default
 
-	// ensure the new SignedBlocksWindow is "20000"
+	// ensure the new SignedBlocksWindow is double (efault 100)
 	param, err = chain.QueryParam(ctx, "slashing", "SignedBlocksWindow")
 	require.NoError(t, err, "error querying signed blocks window")
-	require.Equal(t, param.Value, "\"20000\"")
+	require.Equal(t, param.Value, "\"200\"")
 }
