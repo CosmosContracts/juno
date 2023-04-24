@@ -14,6 +14,10 @@ env:
   REGISTRY: ghcr.io  
   IMAGE_NAME: ${{ github.repository }}-e2e
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest

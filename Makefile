@@ -120,7 +120,7 @@ benchmark:
 
 # Executes basic chain tests via interchaintest
 ictest-basic:
-	cd tests/interchaintest && go test -race -v -run TestBasic .
+	cd tests/interchaintest && go test -race -v -run TestBasicJunoStart .
 
 # Executes a basic chain upgrade test via interchaintest
 ictest-upgrade:
