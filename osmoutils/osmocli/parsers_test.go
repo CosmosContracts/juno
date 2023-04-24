@@ -91,13 +91,13 @@ func TestParseFieldFromArg(t *testing.T) {
 			}},
 		},
 		"Struct (sdk.Coin) change": {
-			testingStruct:  testingStruct{Struct: sdk.NewCoin("bar", sdk.NewInt(10))}, // only supports sdk.Int, sdk.Coin or time.Time, other structs are not recognized
+			testingStruct:  testingStruct{Struct: sdk.NewCoin("bar", sdk.NewInt(10))}, // only supports math.Int, sdk.Coin or time.Time, other structs are not recognized
 			arg:            "100bar",
 			fieldIndex:     7,
 			expectedStruct: testingStruct{Struct: sdk.NewCoin("bar", sdk.NewInt(10))},
 		},
 		"Unrecognizable struct": {
-			testingStruct: testingStruct{Struct: testingStruct{}}, // only supports sdk.Int, sdk.Coin or time.Time, other structs are not recognized
+			testingStruct: testingStruct{Struct: testingStruct{}}, // only supports math.Int, sdk.Coin or time.Time, other structs are not recognized
 			arg:           "whatever",
 			fieldIndex:    7,
 			expectingErr:  true,

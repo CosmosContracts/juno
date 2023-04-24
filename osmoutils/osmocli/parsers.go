@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/pflag"
@@ -326,10 +327,10 @@ func ParseCoins(arg string, fieldName string) (sdk.Coins, error) {
 }
 
 // TODO: This really shouldn't be getting used in the CLI, its misdesign on the CLI ux
-func ParseSdkInt(arg string, fieldName string) (sdk.Int, error) {
+func ParseSdkInt(arg string, fieldName string) (math.Int, error) {
 	i, ok := sdk.NewIntFromString(arg)
 	if !ok {
-		return sdk.Int{}, fmt.Errorf("could not parse %s as sdk.Int for field %s", arg, fieldName)
+		return math.Int{}, fmt.Errorf("could not parse %s as math.Int for field %s", arg, fieldName)
 	}
 	return i, nil
 }

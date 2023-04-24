@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"cosmossdk.io/math"
 	"github.com/gogo/protobuf/proto"
 
 	stypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -15,7 +16,7 @@ import (
 
 type Child struct {
 	Index []byte
-	Acc   sdk.Int
+	Acc   math.Int
 }
 
 type Children []Child // branch nodes

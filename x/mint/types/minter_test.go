@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -63,8 +64,8 @@ func TestNextPhase(t *testing.T) {
 	blocksPerYear := uint64(100)
 	tests := []struct {
 		currentBlock, currentPhase, startPhaseBlock, blocksYear, expPhase uint64
-		currentSupply                                                     sdk.Int
-		targetSupply                                                      sdk.Int
+		currentSupply                                                     math.Int
+		targetSupply                                                      math.Int
 	}{
 		{1, 0, 0, blocksPerYear, 1, sdk.NewInt(10000), sdk.NewInt(14000)},
 		{50, 1, 1, blocksPerYear, 1, sdk.NewInt(12000), sdk.NewInt(14000)},
@@ -99,7 +100,7 @@ func TestBlockProvision(t *testing.T) {
 	tests := []struct {
 		annualProvisions int64
 		expProvisions    int64
-		totalSupply      sdk.Int
+		totalSupply      math.Int
 	}{
 		{secondsPerYear / 5, 1, sdk.NewInt(1)},
 		{secondsPerYear/5 + 1, 1, sdk.NewInt(1)},
@@ -134,7 +135,7 @@ func TestBlockProvision(t *testing.T) {
 }
 
 // Benchmarking :)
-// previously using sdk.Int operations:
+// previously using math.Int operations:
 // BenchmarkBlockProvision-4 5000000 220 ns/op
 //
 // using sdk.Dec operations: (current implementation)

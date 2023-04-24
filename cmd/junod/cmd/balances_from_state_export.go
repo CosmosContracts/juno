@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"cosmossdk.io/math"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/spf13/cobra"
@@ -37,8 +38,8 @@ type DeriveSnapshot struct {
 type DerivedAccount struct {
 	Address        string    `json:"address"`
 	LiquidBalances sdk.Coins `json:"liquid_balance"`
-	Staked         sdk.Int   `json:"staked"`
-	UnbondingStake sdk.Int   `json:"unbonding_stake"`
+	Staked         math.Int  `json:"staked"`
+	UnbondingStake math.Int  `json:"unbonding_stake"`
 	Bonded         sdk.Coins `json:"bonded"`
 	TotalBalances  sdk.Coins `json:"total_balances"`
 }

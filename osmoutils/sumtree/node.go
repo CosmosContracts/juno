@@ -3,12 +3,13 @@ package sumtree
 import (
 	"bytes"
 
+	"cosmossdk.io/math"
 	"github.com/gogo/protobuf/proto"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func NewLeaf(key []byte, acc sdk.Int) *Leaf {
+func NewLeaf(key []byte, acc math.Int) *Leaf {
 	return &Leaf{Leaf: &Child{
 		Index:        key,
 		Accumulation: acc,
@@ -208,7 +209,7 @@ func (ptr *ptr) pull(key []byte) {
 	}
 }
 
-func (node Node) accumulate() (res sdk.Int) {
+func (node Node) accumulate() (res math.Int) {
 	res = sdk.ZeroInt()
 	for _, child := range node.Children {
 		res = res.Add(child.Accumulation)
@@ -237,7 +238,7 @@ func (node Node) find(key []byte) (idx int, match bool) {
 	return len(node.Children), false
 }
 
-func (node *Node) setAcc(idx int, acc sdk.Int) *Node {
+func (node *Node) setAcc(idx int, acc math.Int) *Node {
 	node.Children[idx] = &Child{node.Children[idx].Index, acc}
 	return node
 }
