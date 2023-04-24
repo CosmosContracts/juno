@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/x/tokenfactory/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 )

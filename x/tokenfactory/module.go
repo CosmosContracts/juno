@@ -24,12 +24,12 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	simulation "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/simulation"
+	simulation "github.com/CosmosContracts/juno/x/tokenfactory/simulation"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/client/cli"
-	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/keeper"
-	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/x/tokenfactory/client/cli"
+	"github.com/CosmosContracts/juno/x/tokenfactory/keeper"
+	"github.com/CosmosContracts/juno/x/tokenfactory/types"
 )
 
 var (

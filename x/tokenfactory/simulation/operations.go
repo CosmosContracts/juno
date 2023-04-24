@@ -3,8 +3,8 @@ package simulation
 import (
 	"math/rand"
 
-	"github.com/CosmosTokenFactory/token-factory/app/params"
-	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/app/params"
+	"github.com/CosmosContracts/juno/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"

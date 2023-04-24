@@ -6,9 +6,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/bindings"
-	bindings "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/bindings/types"
-	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
+	wasmbinding "github.com/CosmosContracts/juno/x/tokenfactory/bindings"
+	bindings "github.com/CosmosContracts/juno/x/tokenfactory/bindings/types"
+	"github.com/CosmosContracts/juno/x/tokenfactory/types"
 
 	"github.com/stretchr/testify/require"
 )

@@ -10,8 +10,8 @@ import (
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosTokenFactory/token-factory/app"
-	bindings "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/bindings/types"
+	"github.com/CosmosContracts/juno/app"
+	bindings "github.com/CosmosContracts/juno/x/tokenfactory/bindings/types"
 )
 
 func TestQueryFullDenom(t *testing.T) {

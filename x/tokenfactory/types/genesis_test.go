@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/x/tokenfactory/types"
 )
 
 func TestGenesisState_Validate(t *testing.T) {

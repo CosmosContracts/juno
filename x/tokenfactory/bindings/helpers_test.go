@@ -15,7 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/CosmosTokenFactory/token-factory/app"
+	"github.com/CosmosContracts/juno/app"
 )
 
 func CreateTestInput() (*app.TokenApp, sdk.Context) {

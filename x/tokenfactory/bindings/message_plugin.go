@@ -10,9 +10,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	bindingstypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/bindings/types"
-	tokenfactorykeeper "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
+	bindingstypes "github.com/CosmosContracts/juno/x/tokenfactory/bindings/types"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/x/tokenfactory/types"
 )
 
 // CustomMessageDecorator returns decorator for custom CosmWasm bindings messages
