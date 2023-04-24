@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"text/template"
 
-	tmcli "github.com/tendermint/tendermint/libs/cli"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
 
 	"github.com/spf13/cobra"
 

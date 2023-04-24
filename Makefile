@@ -159,7 +159,7 @@ endif
 ###                                  Proto                                  ###
 ###############################################################################
 
-protoVer=v0.7
+protoVer=v0.12.1
 protoImageName=tendermintdev/sdk-proto-gen:$(protoVer)
 containerProtoGen=juno-proto-gen-$(protoVer)
 containerProtoGenAny=juno-proto-gen-any-$(protoVer)

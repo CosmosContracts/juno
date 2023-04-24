@@ -11,9 +11,9 @@ import (
 	"os"
 	"path/filepath"
 
+	tmjson "github.com/cometbft/cometbft/libs/json"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/spf13/cobra"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	tmtypes "github.com/tendermint/tendermint/types"
 
 	appparams "github.com/CosmosContracts/juno/v15/app/params"
 	"github.com/cosmos/cosmos-sdk/client"
