@@ -188,17 +188,19 @@ var (
 // capabilities aren't needed for testing.
 type App struct {
 	*baseapp.BaseApp
-	keepers.AppKeepers
-
-	cdc               *codec.LegacyAmino
+	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
+	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
 
-	invCheckPeriod uint
-
 	// the module manager
-	mm *module.Manager
+	ModuleManager *module.Manager
+
+	// simulation manager
 	sm *module.SimulationManager
+
+	// module configurator
+	configurator module.Configurator
 }
 
 // New returns a reference to an initialized Juno.
