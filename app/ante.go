@@ -73,7 +73,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		decorators.NewMinCommissionDecorator(options.Cdc),
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
-		ante.RejectExtensionOptionsDecorator{},
+		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		decorators.MsgFilterDecorator{},
 		decorators.NewGovPreventSpamDecorator(options.Cdc, options.GovKeeper),
 		ante.NewValidateBasicDecorator(),
