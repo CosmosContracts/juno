@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -10,7 +9,9 @@ import (
 	"time"
 
 	tmcfg "github.com/cometbft/cometbft/config"
-	"github.com/rs/zerolog"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
+	tmflags "github.com/cometbft/cometbft/libs/cli/flags"
+	tmlog "github.com/cometbft/cometbft/libs/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -66,20 +67,24 @@ func InterceptConfigsPreRunHandler(cmd *cobra.Command, customAppConfigTemplate s
 		return err
 	}
 
-	var logWriter io.Writer
-	if strings.ToLower(serverCtx.Viper.GetString(flags.FlagLogFormat)) == tmcfg.LogFormatPlain {
-		logWriter = zerolog.ConsoleWriter{Out: os.Stderr}
+	var logger tmlog.Logger
+	if serverCtx.Viper.GetString(flags.FlagLogFormat) == tmcfg.LogFormatJSON {
+		logger = tmlog.NewTMJSONLogger(tmlog.NewSyncWriter(os.Stdout))
 	} else {
-		logWriter = os.Stderr
+		logger = tmlog.NewTMLogger(tmlog.NewSyncWriter(os.Stdout))
 	}
-
-	logLvlStr := serverCtx.Viper.GetString(flags.FlagLogLevel)
-	logLvl, err := zerolog.ParseLevel(logLvlStr)
+	logger, err = tmflags.ParseLogLevel(config.LogLevel, logger, tmcfg.DefaultLogLevel)
 	if err != nil {
-		return fmt.Errorf("failed to parse log level (%s): %w", logLvlStr, err)
+		return err
 	}
 
-	serverCtx.Logger = server.ZeroLogWrapper{Logger: zerolog.New(logWriter).Level(logLvl).With().Timestamp().Logger()}
+	// Check if the tendermint flag for trace logging is set if it is then setup
+	// a tracing logger in this app as well.
+	if serverCtx.Viper.GetBool(tmcli.TraceFlag) {
+		logger = tmlog.NewTracingLogger(logger)
+	}
+
+	serverCtx.Logger = logger.With("module", "server")
 
 	return server.SetCmdServerContext(cmd, serverCtx)
 }
