@@ -56,6 +56,7 @@ import (
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	consensus "github.com/cosmos/cosmos-sdk/x/consensus"
 )
 
 // module account permissions
@@ -105,6 +106,7 @@ var ModuleBasics = module.NewBasicManager(
 	globalfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
+	consensus.AppModuleBasic{},
 )
 
 func appModules(
