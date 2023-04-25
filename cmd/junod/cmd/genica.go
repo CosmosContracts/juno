@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	genesistypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/genesis/types"
 )
 
 // AddGenesisAccountCmd returns add-genesis-account cobra Command.
@@ -37,18 +38,18 @@ func AddGenesisIcaCmd(defaultNodeHome string) *cobra.Command {
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}
 
-			controllerGenesisState := icatypes.DefaultControllerGenesis()
+			controllerGenesisState := genesistypes.DefaultControllerGenesis()
 			// no params set in upgrade handler, no params set here
 			controllerGenesisState.Params = icacontrollertypes.Params{}
 
-			hostGenesisState := icatypes.DefaultHostGenesis()
+			hostGenesisState := genesistypes.DefaultHostGenesis()
 			// add the messages we want (from old upgrade handler)
 			hostGenesisState.Params = icahosttypes.Params{
 				HostEnabled:   true,
 				AllowMessages: []string{"*"},
 			}
 
-			newIcaGenState := icatypes.NewGenesisState(controllerGenesisState, hostGenesisState)
+			newIcaGenState := genesistypes.NewGenesisState(controllerGenesisState, hostGenesisState)
 
 			icaGenStateBz, err := clientCtx.Codec.MarshalJSON(newIcaGenState)
 			if err != nil {
