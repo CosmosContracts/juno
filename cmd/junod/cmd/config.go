@@ -97,7 +97,7 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 			cmd.Println(jcc.GasAdjustment)
 		case flags.FlagFees:
 			cmd.Println(jcc.Fees)
-		case flags.FlagFeeAccount:
+		case flags.FlagFeePayer:
 			cmd.Println(jcc.FeeAccount)
 		case flags.FlagNote:
 			cmd.Println(jcc.Note)
@@ -131,7 +131,7 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 		case flags.FlagFees:
 			jcc.Fees = value
 			jcc.GasPrices = "" // resets since we can only use 1 at a time
-		case flags.FlagFeeAccount:
+		case flags.FlagFeePayer:
 			jcc.FeeAccount = value
 		case flags.FlagNote:
 			jcc.Note = value
