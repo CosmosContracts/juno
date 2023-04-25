@@ -74,7 +74,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		decorators.NewMinCommissionDecorator(options.Cdc),
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
-		ante.NewRejectExtensionOptionsDecorator(),
+		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		decorators.MsgFilterDecorator{},
 		decorators.NewGovPreventSpamDecorator(options.Cdc, options.GovKeeper),
 		ante.NewMempoolFeeDecorator(),
@@ -83,7 +83,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace, maxBypassMinFeeMsgGasUsage),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),

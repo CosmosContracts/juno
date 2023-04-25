@@ -5,21 +5,16 @@ go 1.19
 require (
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.0
-	cosmossdk.io/simapp v0.0.0-20230224204036-a6adb0821462
-	github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8
-	github.com/CosmosContracts/juno/v15/osmoutils v0.0.0-00010101000000-000000000000
+	github.com/CosmWasm/wasmd v0.31.0-rc0
 	github.com/cometbft/cometbft v0.37.0
 	github.com/cometbft/cometbft-db v0.7.0
-	github.com/cosmos/cosmos-sdk v0.47.1
-	github.com/cosmos/ibc-go/v7 v7.0.0
+	github.com/cosmos/cosmos-sdk v0.46.12
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/prometheus/client_golang v1.15.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.7.0
-	github.com/strangelove-ventures/async-icq/v7 v7.0.0-20230413165143-a3b65ccdc897
-	github.com/strangelove-ventures/packet-forward-middleware/v7 v7.0.0-20230412224111-136e94e98861
 	github.com/stretchr/testify v1.8.2
 	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
@@ -33,7 +28,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v0.12.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
-	cosmossdk.io/tools/rosetta v0.2.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.203 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
@@ -67,7 +61,7 @@ require (
 
 require (
 	cosmossdk.io/api v0.3.1 // indirect
-	cosmossdk.io/core v0.5.1 // indirect
+	cosmossdk.io/core v0.3.2 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.3 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -185,7 +179,7 @@ replace (
 
 	github.com/CosmosContracts/juno/v15/osmoutils => ./osmoutils
 
-	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.47.2-0.20230424060617-ebc292e8de8b
+	//	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.47.2-0.20230424060617-ebc292e8de8b
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2

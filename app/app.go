@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -193,6 +194,11 @@ type App struct {
 	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
 
+	// keys to access the substores
+	keys    map[string]*storetypes.KVStoreKey
+	tkeys   map[string]*storetypes.TransientStoreKey
+	memKeys map[string]*storetypes.MemoryStoreKey
+
 	// the module manager
 	ModuleManager *module.Manager
 
@@ -229,10 +235,13 @@ func New(
 
 	app := &App{
 		BaseApp:           bApp,
-		cdc:               cdc,
+		legacyAmino:       legacyAmino,
 		appCodec:          appCodec,
+		txConfig:          txConfig,
 		interfaceRegistry: interfaceRegistry,
-		invCheckPeriod:    invCheckPeriod,
+		keys:              keys,
+		tkeys:             tkeys,
+		memKeys:           memKeys,
 	}
 
 	// Setup keepers
@@ -267,25 +276,25 @@ func New(
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
-	app.mm = module.NewManager(appModules(app, encodingConfig, skipGenesisInvariants)...)
+	app.ModuleManager = module.NewManager(appModules(app, encodingConfig, skipGenesisInvariants)...)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
-	app.mm.SetOrderBeginBlockers(orderBeginBlockers()...)
+	app.ModuleManager.SetOrderBeginBlockers(orderBeginBlockers()...)
 
-	app.mm.SetOrderEndBlockers(orderEndBlockers()...)
+	app.ModuleManager.SetOrderEndBlockers(orderEndBlockers()...)
 
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	// NOTE: Capability module must occur first so that it can initialize any capabilities
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
-	app.mm.SetOrderInitGenesis(orderInitBlockers()...)
+	app.ModuleManager.SetOrderInitGenesis(orderInitBlockers()...)
 
-	app.mm.RegisterInvariants(&app.CrisisKeeper)
-	app.mm.RegisterServices(cfg)
+	app.ModuleManager.RegisterInvariants(&app.CrisisKeeper)
+	app.ModuleManager.RegisterServices(cfg)
 	// initialize stores
 	app.MountKVStores(app.GetKVStoreKey())
 	app.MountTransientStores(app.GetTransientStoreKey())
@@ -388,12 +397,12 @@ func (app *App) Name() string {
 
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
+	return app.ModuleManager.BeginBlock(ctx, req)
 }
 
 // EndBlocker application updates every end block
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
+	return app.ModuleManager.EndBlock(ctx, req)
 }
 
 // InitChainer application update at chain initialization
@@ -402,8 +411,8 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
-	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
-	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
+	return app.ModuleManager.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
 // LoadHeight loads a particular height
@@ -426,7 +435,7 @@ func (app *App) ModuleAccountAddrs() map[string]bool {
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
 func (app *App) LegacyAmino() *codec.LegacyAmino {
-	return app.cdc
+	return app.legacyAmino
 }
 
 // AppCodec returns Juno's app codec.
@@ -511,7 +520,7 @@ func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 		app.UpgradeKeeper.SetUpgradeHandler(
 			upgrade.UpgradeName,
 			upgrade.CreateUpgradeHandler(
-				app.mm,
+				app.ModuleManager,
 				cfg,
 				&app.AppKeepers,
 			),
