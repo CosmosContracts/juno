@@ -47,7 +47,7 @@ type ChainResponse struct {
 	Data []byte `json:"data"`
 }
 
-func queryCustom(t *testing.T, ctx sdk.Context, tokenz *app.TokenApp, contract sdk.AccAddress, request bindings.TokenQuery, response interface{}) {
+func queryCustom(t *testing.T, ctx sdk.Context, app *app.App, contract sdk.AccAddress, request bindings.TokenQuery, response interface{}) {
 	wrapped := bindings.TokenFactoryQuery{
 		Token: &request,
 	}
@@ -64,7 +64,7 @@ func queryCustom(t *testing.T, ctx sdk.Context, tokenz *app.TokenApp, contract s
 	require.NoError(t, err)
 	fmt.Println(string(queryBz))
 
-	resBz, err := tokenz.WasmKeeper.QuerySmart(ctx, contract, queryBz)
+	resBz, err := app.AppKeepers.WasmKeeper.QuerySmart(ctx, contract, queryBz)
 	require.NoError(t, err)
 	var resp ChainResponse
 	err = json.Unmarshal(resBz, &resp)

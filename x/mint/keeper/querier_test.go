@@ -17,7 +17,7 @@ import (
 func TestNewQuerier(t *testing.T) {
 	app, ctx := createTestApp(true)
 	legacyQuerierCdc := codec.NewAminoCodec(app.LegacyAmino())
-	querier := keep.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
+	querier := keep.NewQuerier(app.AppKeepers.MintKeeper, legacyQuerierCdc.LegacyAmino)
 
 	query := abci.RequestQuery{
 		Path: "",
@@ -40,7 +40,7 @@ func TestNewQuerier(t *testing.T) {
 func TestQueryParams(t *testing.T) {
 	app, ctx := createTestApp(true)
 	legacyQuerierCdc := codec.NewAminoCodec(app.LegacyAmino())
-	querier := keep.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
+	querier := keep.NewQuerier(app.AppKeepers.MintKeeper, legacyQuerierCdc.LegacyAmino)
 
 	var params types.Params
 
@@ -50,13 +50,13 @@ func TestQueryParams(t *testing.T) {
 	err := app.LegacyAmino().UnmarshalJSON(res, &params)
 	require.NoError(t, err)
 
-	require.Equal(t, app.MintKeeper.GetParams(ctx), params)
+	require.Equal(t, app.AppKeepers.MintKeeper.GetParams(ctx), params)
 }
 
 func TestQueryInflation(t *testing.T) {
 	app, ctx := createTestApp(true)
 	legacyQuerierCdc := codec.NewAminoCodec(app.LegacyAmino())
-	querier := keep.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
+	querier := keep.NewQuerier(app.AppKeepers.MintKeeper, legacyQuerierCdc.LegacyAmino)
 
 	var inflation sdk.Dec
 
@@ -66,13 +66,13 @@ func TestQueryInflation(t *testing.T) {
 	err := app.LegacyAmino().UnmarshalJSON(res, &inflation)
 	require.NoError(t, err)
 
-	require.Equal(t, app.MintKeeper.GetMinter(ctx).Inflation, inflation)
+	require.Equal(t, app.AppKeepers.MintKeeper.GetMinter(ctx).Inflation, inflation)
 }
 
 func TestQueryAnnualProvisions(t *testing.T) {
 	app, ctx := createTestApp(true)
 	legacyQuerierCdc := codec.NewAminoCodec(app.LegacyAmino())
-	querier := keep.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
+	querier := keep.NewQuerier(app.AppKeepers.MintKeeper, legacyQuerierCdc.LegacyAmino)
 
 	var annualProvisions sdk.Dec
 
@@ -82,5 +82,5 @@ func TestQueryAnnualProvisions(t *testing.T) {
 	err := app.LegacyAmino().UnmarshalJSON(res, &annualProvisions)
 	require.NoError(t, err)
 
-	require.Equal(t, app.MintKeeper.GetMinter(ctx).AnnualProvisions, annualProvisions)
+	require.Equal(t, app.AppKeepers.MintKeeper.GetMinter(ctx).AnnualProvisions, annualProvisions)
 }

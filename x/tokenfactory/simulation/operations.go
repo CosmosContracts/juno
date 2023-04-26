@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
@@ -363,7 +364,7 @@ func SimulateMsgCreateDenom(tfKeeper TokenfactoryKeeper, ak types.AccountKeeper,
 		// Check if sims account enough create fee
 		createFee := tfKeeper.GetParams(ctx).DenomCreationFee
 		balances := bk.GetAllBalances(ctx, simAccount.Address)
-		_, hasNeg := balances.SafeSub(createFee)
+		_, hasNeg := balances.SafeSub(createFee...)
 		if hasNeg {
 			return simtypes.NoOpMsg(types.ModuleName, types.MsgCreateDenom{}.Type(), "Creator not enough creation fee"), nil, nil
 		}
@@ -396,7 +397,7 @@ func BuildOperationInput(
 	return simulation.OperationInput{
 		R:               r,
 		App:             app,
-		TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+		TxGen:           testutil.MakeTestEncodingConfig().TxConfig,
 		Cdc:             nil,
 		Msg:             msg,
 		MsgType:         msg.Type(),

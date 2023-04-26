@@ -115,7 +115,7 @@ func (suite *KeeperTestSuite) TestCreateDenomMsg() {
 	} {
 		suite.SetupTest()
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
-			tokenFactoryKeeper := suite.App.TokenFactoryKeeper
+			tokenFactoryKeeper := suite.App.AppKeepers.TokenFactoryKeeper
 			ctx := suite.Ctx.WithEventManager(sdk.NewEventManager())
 			suite.Require().Equal(0, len(ctx.EventManager().Events()))
 			// Set denom creation fee in params

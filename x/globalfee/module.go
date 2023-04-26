@@ -114,7 +114,7 @@ func (a AppModule) QuerierRoute() string {
 	return types.QuerierRoute
 }
 
-func (a AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
+func (a AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) func(ctx sdk.Context, path []string, _ abci.RequestQuery) ([]byte, error) {
 	return nil
 }
 

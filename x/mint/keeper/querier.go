@@ -10,7 +10,7 @@ import (
 )
 
 // NewQuerier returns a minting Querier handler.
-func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) func(ctx sdk.Context, path []string, _ abci.RequestQuery) ([]byte, error) {
 	return func(ctx sdk.Context, path []string, _ abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
 		case types.QueryParameters:
