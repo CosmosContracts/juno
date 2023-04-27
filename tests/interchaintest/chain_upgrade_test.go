@@ -23,7 +23,7 @@ const (
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
 	upgradeName := "v15"
-	CosmosChainUpgradeTest(t, "juno", "v14.0.0-alpha.2", version, repo, upgradeName)
+	CosmosChainUpgradeTest(t, "juno", "v14.1.0", version, repo, upgradeName)
 }
 
 func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
@@ -95,9 +95,13 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	// or just create a function to modify as a fork of cosmos.ModifyGenesisProposalTime. This should really be a builder yea?
 
 	// !IMPORTANT: V15 - Query the current minting parameters
-	param, _ := chain.QueryParam(ctx, "mint", "BlocksPerYear")
+	param, err := chain.QueryParam(ctx, "mint", "BlocksPerYear")
 	require.NoError(t, err, "error querying blocks per year")
 	require.Equal(t, param.Value, "\"6311520\"") // mainnet it is 5048093, but we are just ensuring the upgrade applies correctly from default.
+
+	param, err = chain.QueryParam(ctx, "slashing", "SignedBlocksWindow")
+	require.NoError(t, err, "error querying signed blocks window")
+	require.Equal(t, param.Value, "\"100\"")
 
 	upgradeTx, err := chain.UpgradeProposal(ctx, chainUser.KeyName, proposal)
 	require.NoError(t, err, "error submitting software upgrade proposal tx")
@@ -153,7 +157,21 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
 
 	// !IMPORTANT: V15 - Query the current minting parameters
-	param, _ = chain.QueryParam(ctx, "mint", "BlocksPerYear")
+	param, err = chain.QueryParam(ctx, "mint", "BlocksPerYear")
 	require.NoError(t, err, "error querying blocks per year")
 	require.Equal(t, param.Value, "\"12623040\"") // double the blocks per year from default
+
+	// ensure the new SignedBlocksWindow is double (efault 100)
+	param, err = chain.QueryParam(ctx, "slashing", "SignedBlocksWindow")
+	require.NoError(t, err, "error querying signed blocks window")
+	require.Equal(t, param.Value, "\"200\"")
+
+	// ensure DenomCreationGasConsume for tokenfactory is set to 2000000 with the standard fee being set to empty
+	param, err = chain.QueryParam(ctx, "tokenfactory", "DenomCreationGasConsume")
+	require.NoError(t, err, "error querying denom creation gas consume")
+	require.Equal(t, param.Value, "\"2000000\"")
+
+	param, err = chain.QueryParam(ctx, "tokenfactory", "DenomCreationFee")
+	require.NoError(t, err, "error querying denom creation fee")
+	require.Equal(t, param.Value, "[]")
 }

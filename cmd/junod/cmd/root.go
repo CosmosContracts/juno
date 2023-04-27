@@ -96,7 +96,8 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			customAppTemplate, customAppConfig := initAppConfig()
 			// return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
 
-			timeoutCommit := 3 * time.Second
+			// 2 seconds + 1 second tendermint = 3 seconds total.
+			timeoutCommit := 2 * time.Second
 			return InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, timeoutCommit)
 		},
 	}
