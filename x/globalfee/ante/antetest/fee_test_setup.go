@@ -16,10 +16,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 
-	gaiahelpers "github.com/CosmosContracts/juno/v15/app/helpers"
-	gaiafeeante "github.com/CosmosContracts/juno/v15/x/globalfee/ante"
+	junohelpers "github.com/CosmosContracts/juno/v15/app/helpers"
+	junofeeante "github.com/CosmosContracts/juno/v15/x/globalfee/ante"
 
-	gaiaapp "github.com/CosmosContracts/juno/v15/app"
+	"github.com/CosmosContracts/juno/v15/app"
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
 	globfeetypes "github.com/CosmosContracts/juno/v15/x/globalfee/types"
 )
@@ -27,7 +27,7 @@ import (
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	app       *gaiaapp.GaiaApp
+	app       *app.App
 	ctx       sdk.Context
 	clientCtx client.Context
 	txBuilder client.TxBuilder
@@ -39,13 +39,13 @@ var (
 )
 
 func (s *IntegrationTestSuite) SetupTest() {
-	app := gaiahelpers.Setup(s.T())
+	app := junohelpers.Setup(s.T())
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{
 		ChainID: fmt.Sprintf("test-chain-%s", tmrand.Str(4)),
 		Height:  1,
 	})
 
-	encodingConfig := gaiaapp.MakeTestEncodingConfig()
+	encodingConfig := app.MakeTestEncodingConfig()
 	encodingConfig.Amino.RegisterConcrete(&testdata.TestMsg{}, "testdata.TestMsg", nil)
 	testdata.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 
@@ -54,7 +54,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 	s.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 }
 
-func (s *IntegrationTestSuite) SetupTestGlobalFeeStoreAndMinGasPrice(minGasPrice []sdk.DecCoin, globalFeeParams *globfeetypes.Params) (gaiafeeante.FeeDecorator, sdk.AnteHandler) {
+func (s *IntegrationTestSuite) SetupTestGlobalFeeStoreAndMinGasPrice(minGasPrice []sdk.DecCoin, globalFeeParams *globfeetypes.Params) (junofeeante.FeeDecorator, sdk.AnteHandler) {
 	subspace := s.app.GetSubspace(globalfee.ModuleName)
 	subspace.SetParamSet(s.ctx, globalFeeParams)
 	s.ctx = s.ctx.WithMinGasPrices(minGasPrice).WithIsCheckTx(true)
@@ -65,7 +65,7 @@ func (s *IntegrationTestSuite) SetupTestGlobalFeeStoreAndMinGasPrice(minGasPrice
 	stakingSubspace := s.SetupTestStakingSubspace(stakingParam)
 
 	// build fee decorator
-	feeDecorator := gaiafeeante.NewFeeDecorator(gaiaapp.GetDefaultBypassFeeMessages(), subspace, stakingSubspace, uint64(1_000_000))
+	feeDecorator := junofeeante.NewFeeDecorator(app.GetDefaultBypassFeeMessages(), subspace, stakingSubspace, uint64(1_000_000))
 
 	// chain fee decorator to antehandler
 	antehandler := sdk.ChainAnteDecorators(feeDecorator)
