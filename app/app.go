@@ -54,7 +54,6 @@ import (
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
 
 	"github.com/CosmosContracts/juno/v15/app/keepers"
-	encparams "github.com/CosmosContracts/juno/v15/app/params"
 	upgrades "github.com/CosmosContracts/juno/v15/app/upgrades"
 	v10 "github.com/CosmosContracts/juno/v15/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v15/app/upgrades/v11"
@@ -215,23 +214,22 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	skipUpgradeHeights map[int64]bool,
-	homePath string,
-	invCheckPeriod uint,
-	encodingConfig encparams.EncodingConfig,
 	enabledProposals []wasm.ProposalType,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasm.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-	appCodec := encodingConfig.Marshaler
-	cdc := encodingConfig.Amino
-	interfaceRegistry := encodingConfig.InterfaceRegistry
+	encodingConfig := MakeEncodingConfig()
 
-	bApp := baseapp.NewBaseApp(Name, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
+	appCodec, legacyAmino := encodingConfig.Marshaler, encodingConfig.Amino
+	interfaceRegistry := encodingConfig.InterfaceRegistry
+	txConfig := encodingConfig.TxConfig
+
+	bApp := baseapp.NewBaseApp(Name, logger, db, txConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
+	bApp.SetTxEncoder(txConfig.TxEncoder())
 
 	app := &App{
 		BaseApp:           bApp,
@@ -239,21 +237,15 @@ func New(
 		appCodec:          appCodec,
 		txConfig:          txConfig,
 		interfaceRegistry: interfaceRegistry,
-		keys:              keys,
-		tkeys:             tkeys,
-		memKeys:           memKeys,
 	}
 
 	// Setup keepers
 	app.AppKeepers = keepers.NewAppKeepers(
 		appCodec,
 		bApp,
-		cdc,
+		legacyAmino,
 		maccPerms,
 		app.ModuleAccountAddrs(),
-		skipUpgradeHeights,
-		homePath,
-		invCheckPeriod,
 		enabledProposals,
 		appOpts,
 		wasmOpts,
@@ -493,6 +485,10 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 		app.interfaceRegistry,
 		app.Query,
 	)
+}
+
+func (app *App) RegisterNodeService(clientCtx client.Context) {
+	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
 
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
