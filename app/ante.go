@@ -1,6 +1,7 @@
 package app
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -16,6 +17,7 @@ import (
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	decorators "github.com/CosmosContracts/juno/v15/app/decorators"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	feeshareante "github.com/CosmosContracts/juno/v15/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
@@ -52,15 +54,15 @@ type HandlerOptions struct {
 // signer.
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.AccountKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
 	}
 
 	if options.BankKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
 	}
 
 	if options.SignModeHandler == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
 
 	sigGasConsumer := options.SigGasConsumer

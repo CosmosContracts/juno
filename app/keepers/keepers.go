@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibc-hooks/types"
+	"github.com/spf13/cast"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -12,7 +13,9 @@ import (
 	mintkeeper "github.com/CosmosContracts/juno/v15/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -58,7 +61,7 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
-	exportedtypes "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
 	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
@@ -109,12 +112,12 @@ type AppKeepers struct {
 	BankKeeper            bankkeeper.BaseKeeper
 	CapabilityKeeper      *capabilitykeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
-	StakingKeeper         stakingkeeper.Keeper
+	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	MintKeeper            mintkeeper.Keeper
 	DistrKeeper           distrkeeper.Keeper
 	GovKeeper             govkeeper.Keeper
-	CrisisKeeper          crisiskeeper.Keeper
+	CrisisKeeper          *crisiskeeper.Keeper
 	UpgradeKeeper         upgradekeeper.Keeper
 	ParamsKeeper          paramskeeper.Keeper
 	IBCKeeper             *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -155,9 +158,6 @@ func NewAppKeepers(
 	cdc *codec.LegacyAmino,
 	maccPerms map[string][]string,
 	blockedAddress map[string]bool,
-	skipUpgradeHeights map[int64]bool,
-	homePath string,
-	invCheckPeriod uint,
 	enabledProposals []wasm.ProposalType,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasm.Option,
@@ -178,6 +178,7 @@ func NewAppKeepers(
 
 	// set the BaseApp's parameter store
 	bApp.SetParamStore(&appKeepers.ConsensusParamsKeeper)
+	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, appKeepers.keys[consensusparamtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
 
 	// add capability keeper and ScopeToModule for ibc module
 	appKeepers.CapabilityKeeper = capabilitykeeper.NewKeeper(
@@ -187,7 +188,7 @@ func NewAppKeepers(
 	)
 
 	// grant capabilities for the ibc and ibc-transfer modules
-	scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(exportedtypes.ModuleName)
+	scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
 	scopedICAControllerKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedICAHostKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	scopedICQKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
@@ -200,16 +201,18 @@ func NewAppKeepers(
 		appKeepers.keys[authtypes.StoreKey],
 		authtypes.ProtoBaseAccount,
 		maccPerms,
-		sdk.Bech32MainPrefix,
+		Bech32Prefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
 	appKeepers.BankKeeper = bankkeeper.NewBaseKeeper(
 		appCodec,
 		appKeepers.keys[banktypes.StoreKey],
 		appKeepers.AccountKeeper,
-		blockedAddress,
+		BlockedAddresses(),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[stakingtypes.StoreKey],
@@ -242,7 +245,9 @@ func NewAppKeepers(
 		stakingKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	appKeepers.CrisisKeeper = *crisiskeeper.NewKeeper(
+
+	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
+	appKeepers.CrisisKeeper = crisiskeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[crisistypes.StoreKey],
 		invCheckPeriod,
@@ -250,6 +255,14 @@ func NewAppKeepers(
 		authtypes.FeeCollectorName,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
+	// get skipUpgradeHeights from the app options
+	skipUpgradeHeights := map[int64]bool{}
+	for _, h := range cast.ToIntSlice(appOpts.Get(server.FlagUnsafeSkipUpgrades)) {
+		skipUpgradeHeights[int64(h)] = true
+	}
+	homePath := cast.ToString(appOpts.Get(flags.FlagHome))
+
 	appKeepers.UpgradeKeeper = *upgradekeeper.NewKeeper(skipUpgradeHeights,
 		appKeepers.keys[upgradetypes.StoreKey],
 		appCodec,
@@ -268,8 +281,8 @@ func NewAppKeepers(
 
 	// Create IBC Keeper
 	appKeepers.IBCKeeper = ibckeeper.NewKeeper(
-		appCodec, appKeepers.keys[exportedtypes.StoreKey],
-		appKeepers.GetSubspace(exportedtypes.ModuleName),
+		appCodec, appKeepers.keys[ibcexported.StoreKey],
+		appKeepers.GetSubspace(ibcexported.ModuleName),
 		appKeepers.StakingKeeper,
 		appKeepers.UpgradeKeeper,
 		scopedIBCKeeper,
@@ -386,7 +399,7 @@ func NewAppKeepers(
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
-		appCodec, appKeepers.keys[evidencetypes.StoreKey], &appKeepers.StakingKeeper, appKeepers.SlashingKeeper,
+		appCodec, appKeepers.keys[evidencetypes.StoreKey], appKeepers.StakingKeeper, appKeepers.SlashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	appKeepers.EvidenceKeeper = *evidenceKeeper
@@ -543,7 +556,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
-	paramsKeeper.Subspace(exportedtypes.ModuleName)
+	paramsKeeper.Subspace(ibcexported.ModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
@@ -562,7 +575,7 @@ func (appKeepers *AppKeepers) GetSubspace(moduleName string) paramstypes.Subspac
 
 // GetStakingKeeper implements the TestingApp interface.
 func (appKeepers *AppKeepers) GetStakingKeeper() stakingkeeper.Keeper {
-	return appKeepers.StakingKeeper
+	return *appKeepers.StakingKeeper
 }
 
 // GetIBCKeeper implements the TestingApp interface.
@@ -578,4 +591,17 @@ func (appKeepers *AppKeepers) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper
 // GetWasmKeeper implements the TestingApp interface.
 func (appKeepers *AppKeepers) GetWasmKeeper() wasm.Keeper {
 	return appKeepers.WasmKeeper
+}
+
+// BlockedAddresses returns all the app's blocked account addresses.
+func BlockedAddresses() map[string]bool {
+	modAccAddrs := make(map[string]bool)
+	for acc := range GetMaccPerms() {
+		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
+	}
+
+	// allow the following addresses to receive funds
+	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+
+	return modAccAddrs
 }

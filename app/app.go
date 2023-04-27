@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -53,7 +54,6 @@ import (
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
 
 	"github.com/CosmosContracts/juno/v15/app/keepers"
-	encparams "github.com/CosmosContracts/juno/v15/app/params"
 	upgrades "github.com/CosmosContracts/juno/v15/app/upgrades"
 	v10 "github.com/CosmosContracts/juno/v15/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v15/app/upgrades/v11"
@@ -193,6 +193,11 @@ type App struct {
 	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
 
+	// keys to access the substores
+	keys    map[string]*storetypes.KVStoreKey
+	tkeys   map[string]*storetypes.TransientStoreKey
+	memKeys map[string]*storetypes.MemoryStoreKey
+
 	// the module manager
 	ModuleManager *module.Manager
 
@@ -211,27 +216,28 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	skipUpgradeHeights map[int64]bool,
-	homePath string,
-	invCheckPeriod uint,
-	encodingConfig encparams.EncodingConfig,
 	enabledProposals []wasm.ProposalType,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasm.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-	appCodec := encodingConfig.Marshaler
-	cdc := encodingConfig.Amino
-	interfaceRegistry := encodingConfig.InterfaceRegistry
+	encodingConfig := MakeEncodingConfig()
 
-	bApp := baseapp.NewBaseApp(Name, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
+	appCodec, legacyAmino := encodingConfig.Marshaler, encodingConfig.Amino
+	interfaceRegistry := encodingConfig.InterfaceRegistry
+	txConfig := encodingConfig.TxConfig
+
+	bApp := baseapp.NewBaseApp(Name, logger, db, txConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
+	bApp.SetTxEncoder(txConfig.TxEncoder())
 
 	app := &App{
 		BaseApp:           bApp,
+		legacyAmino:       legacyAmino,
 		appCodec:          appCodec,
+		txConfig:          txConfig,
 		interfaceRegistry: interfaceRegistry,
 	}
 
@@ -239,12 +245,9 @@ func New(
 	app.AppKeepers = keepers.NewAppKeepers(
 		appCodec,
 		bApp,
-		cdc,
+		legacyAmino,
 		maccPerms,
 		app.ModuleAccountAddrs(),
-		skipUpgradeHeights,
-		homePath,
-		invCheckPeriod,
 		enabledProposals,
 		appOpts,
 		wasmOpts,
@@ -284,7 +287,7 @@ func New(
 	// can do so safely.
 	app.ModuleManager.SetOrderInitGenesis(orderInitBlockers()...)
 
-	app.ModuleManager.RegisterInvariants(&app.AppKeepers.CrisisKeeper)
+	app.ModuleManager.RegisterInvariants(app.AppKeepers.CrisisKeeper)
 	app.ModuleManager.RegisterServices(cfg)
 	// initialize stores
 	app.MountKVStores(app.AppKeepers.GetKVStoreKey())
