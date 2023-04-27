@@ -17,7 +17,6 @@ import (
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	decorators "github.com/CosmosContracts/juno/v15/app/decorators"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	feeshareante "github.com/CosmosContracts/juno/v15/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"

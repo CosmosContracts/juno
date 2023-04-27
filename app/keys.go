@@ -1,4 +1,4 @@
-package keepers
+package app
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -30,8 +30,8 @@ import (
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
-func (appKeepers *AppKeepers) GenerateKeys() {
-	appKeepers.keys = sdk.NewKVStoreKeys(
+func (app *App) GenerateKeys() {
+	app.keys = sdk.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, exporttypes.StoreKey, upgradetypes.StoreKey,
@@ -42,39 +42,39 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		icqtypes.StoreKey, consensusparamtypes.StoreKey,
 	)
 
-	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
-	appKeepers.memKeys = sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	app.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
+	app.memKeys = sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 }
 
-func (appKeepers *AppKeepers) GetKVStoreKey() map[string]*storetypes.KVStoreKey {
-	return appKeepers.keys
+func (app *App) GetKVStoreKey() map[string]*storetypes.KVStoreKey {
+	return app.keys
 }
 
-func (appKeepers *AppKeepers) GetTransientStoreKey() map[string]*storetypes.TransientStoreKey {
-	return appKeepers.tkeys
+func (app *App) GetTransientStoreKey() map[string]*storetypes.TransientStoreKey {
+	return app.tkeys
 }
 
-func (appKeepers *AppKeepers) GetMemoryStoreKey() map[string]*storetypes.MemoryStoreKey {
-	return appKeepers.memKeys
+func (app *App) GetMemoryStoreKey() map[string]*storetypes.MemoryStoreKey {
+	return app.memKeys
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (appKeepers *AppKeepers) GetKey(storeKey string) *storetypes.KVStoreKey {
-	return appKeepers.keys[storeKey]
+func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey {
+	return app.keys[storeKey]
 }
 
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (appKeepers *AppKeepers) GetTKey(storeKey string) *storetypes.TransientStoreKey {
-	return appKeepers.tkeys[storeKey]
+func (app *App) GetTKey(storeKey string) *storetypes.TransientStoreKey {
+	return app.tkeys[storeKey]
 }
 
 // GetMemKey returns the MemStoreKey for the provided mem key.
 //
 // NOTE: This is solely used for testing purposes.
-func (appKeepers *AppKeepers) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
-	return appKeepers.memKeys[storeKey]
+func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+	return app.memKeys[storeKey]
 }
