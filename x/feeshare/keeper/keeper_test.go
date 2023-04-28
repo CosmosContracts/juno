@@ -57,7 +57,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 	s.bankKeeper = s.app.AppKeepers.BankKeeper
 	s.accountKeeper = s.app.AppKeepers.AccountKeeper
 	s.feeShareMsgServer = s.app.AppKeepers.FeeShareKeeper
-	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl((*wasmkeeper.Keeper)(wasmkeeper.NewDefaultPermissionKeeper(s.app.AppKeepers.WasmKeeper)))
+	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl(&s.app.AppKeepers.WasmKeeper)
 }
 
 func (s *IntegrationTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
