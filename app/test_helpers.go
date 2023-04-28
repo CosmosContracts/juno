@@ -129,10 +129,6 @@ func setup(withGenesis bool, invCheckPeriod uint) (*App, GenesisState) {
 		db,
 		nil,
 		true,
-		map[int64]bool{},
-		DefaultNodeHome,
-		invCheckPeriod,
-		encCdc,
 		GetEnabledProposals(),
 		EmptyBaseAppOptions{},
 		emptyWasmOpts,
@@ -248,7 +244,7 @@ func ExecuteRawCustom(t *testing.T, ctx sdk.Context, app *App, contract sdk.AccA
 		coins = sdk.Coins{funds}
 	}
 
-	contractKeeper := keeper.NewDefaultPermissionKeeper(app.AppKeepers.GetWasmKeeper())
+	contractKeeper := keeper.NewDefaultPermissionKeeper(app.GetWasmKeeper())
 	_, err = contractKeeper.Execute(ctx, contract, sender, oracleBz, coins)
 	return err
 }

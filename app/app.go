@@ -797,7 +797,7 @@ func New(
 	app.MountMemoryStores(app.GetMemoryStoreKey())
 
 	// register upgrade
-	app.setupUpgradeHandlers(cfg)
+	//	app.setupUpgradeHandlers(cfg)
 
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
@@ -1010,6 +1010,7 @@ func (app *App) setupUpgradeStoreLoaders() {
 	}
 }
 
+/*
 func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 	for _, upgrade := range Upgrades {
 		app.UpgradeKeeper.SetUpgradeHandler(
@@ -1017,11 +1018,12 @@ func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 			upgrade.CreateUpgradeHandler(
 				app.ModuleManager,
 				cfg,
-				&app,
+				app,
 			),
 		)
 	}
 }
+*/
 
 // GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {

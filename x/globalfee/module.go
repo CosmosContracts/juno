@@ -106,10 +106,6 @@ func (a AppModule) ExportGenesis(ctx sdk.Context, marshaler codec.JSONCodec) jso
 func (a AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {
 }
 
-func (a AppModule) Route() sdk.Route {
-	return sdk.Route{}
-}
-
 func (a AppModule) QuerierRoute() string {
 	return types.QuerierRoute
 }

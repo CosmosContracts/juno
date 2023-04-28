@@ -26,7 +26,7 @@ func CreateTestInput() (*app.App, sdk.Context) {
 }
 
 func FundAccount(t *testing.T, ctx sdk.Context, app *app.App, acct sdk.AccAddress) {
-	err := simtestutil.FundAccount(app.AppKeepers.BankKeeper, ctx, acct, sdk.NewCoins(
+	err := simtestutil.FundAccount(app.BankKeeper, ctx, acct, sdk.NewCoins(
 		sdk.NewCoin("uosmo", sdk.NewInt(10000000000)),
 	))
 	require.NoError(t, err)
