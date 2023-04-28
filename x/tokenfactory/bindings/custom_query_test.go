@@ -16,9 +16,9 @@ import (
 
 func TestQueryFullDenom(t *testing.T) {
 	actor := RandomAccountAddress()
-	tokenz, ctx := SetupCustomApp(t, actor)
+	junoapp, ctx := SetupCustomApp(t, actor)
 
-	reflect := instantiateReflectContract(t, ctx, tokenz, actor)
+	reflect := instantiateReflectContract(t, ctx, junoapp, actor)
 	require.NotEmpty(t, reflect)
 
 	// query full denom
@@ -29,7 +29,7 @@ func TestQueryFullDenom(t *testing.T) {
 		},
 	}
 	resp := bindings.FullDenomResponse{}
-	queryCustom(t, ctx, tokenz, reflect, query, &resp)
+	queryCustom(t, ctx, junoapp, reflect, query, &resp)
 
 	expected := fmt.Sprintf("factory/%s/ustart", reflect.String())
 	require.EqualValues(t, expected, resp.Denom)
@@ -47,7 +47,7 @@ type ChainResponse struct {
 	Data []byte `json:"data"`
 }
 
-func queryCustom(t *testing.T, ctx sdk.Context, tokenz *app.TokenApp, contract sdk.AccAddress, request bindings.TokenQuery, response interface{}) {
+func queryCustom(t *testing.T, ctx sdk.Context, junoapp *app.App, contract sdk.AccAddress, request bindings.TokenQuery, response interface{}) {
 	wrapped := bindings.TokenFactoryQuery{
 		Token: &request,
 	}
@@ -64,7 +64,7 @@ func queryCustom(t *testing.T, ctx sdk.Context, tokenz *app.TokenApp, contract s
 	require.NoError(t, err)
 	fmt.Println(string(queryBz))
 
-	resBz, err := tokenz.WasmKeeper.QuerySmart(ctx, contract, queryBz)
+	resBz, err := junoapp.AppKeepers.WasmKeeper.QuerySmart(ctx, contract, queryBz)
 	require.NoError(t, err)
 	var resp ChainResponse
 	err = json.Unmarshal(resBz, &resp)

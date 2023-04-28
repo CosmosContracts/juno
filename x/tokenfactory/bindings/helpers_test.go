@@ -18,14 +18,14 @@ import (
 	"github.com/CosmosContracts/juno/v15/app"
 )
 
-func CreateTestInput() (*app.TokenApp, sdk.Context) {
-	osmosis := app.Setup(false)
+func CreateTestInput(t *testing.T) (*app.App, sdk.Context) {
+	osmosis := app.Setup(t)
 	ctx := osmosis.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "osmosis-1", Time: time.Now().UTC()})
 	return osmosis, ctx
 }
 
-func FundAccount(t *testing.T, ctx sdk.Context, osmosis *app.TokenApp, acct sdk.AccAddress) {
-	err := simapp.FundAccount(osmosis.BankKeeper, ctx, acct, sdk.NewCoins(
+func FundAccount(t *testing.T, ctx sdk.Context, junoapp *app.App, acct sdk.AccAddress) {
+	err := simapp.FundAccount(junoapp.AppKeepers.BankKeeper, ctx, acct, sdk.NewCoins(
 		sdk.NewCoin("uosmo", sdk.NewInt(10000000000)),
 	))
 	require.NoError(t, err)
@@ -48,20 +48,20 @@ func RandomBech32AccountAddress() string {
 	return RandomAccountAddress().String()
 }
 
-func storeReflectCode(t *testing.T, ctx sdk.Context, tokenz *app.TokenApp, addr sdk.AccAddress) uint64 {
+func storeReflectCode(t *testing.T, ctx sdk.Context, junoapp *app.App, addr sdk.AccAddress) uint64 {
 	wasmCode, err := os.ReadFile("./testdata/token_reflect.wasm")
 	require.NoError(t, err)
 
-	contractKeeper := keeper.NewDefaultPermissionKeeper(tokenz.WasmKeeper)
+	contractKeeper := keeper.NewDefaultPermissionKeeper(junoapp.AppKeepers.WasmKeeper)
 	codeID, _, err := contractKeeper.Create(ctx, addr, wasmCode, nil)
 	require.NoError(t, err)
 
 	return codeID
 }
 
-func instantiateReflectContract(t *testing.T, ctx sdk.Context, tokenz *app.TokenApp, funder sdk.AccAddress) sdk.AccAddress {
+func instantiateReflectContract(t *testing.T, ctx sdk.Context, junoapp *app.App, funder sdk.AccAddress) sdk.AccAddress {
 	initMsgBz := []byte("{}")
-	contractKeeper := keeper.NewDefaultPermissionKeeper(tokenz.WasmKeeper)
+	contractKeeper := keeper.NewDefaultPermissionKeeper(junoapp.AppKeepers.WasmKeeper)
 	codeID := uint64(1)
 	addr, _, err := contractKeeper.Instantiate(ctx, codeID, funder, funder, initMsgBz, "demo contract", nil)
 	require.NoError(t, err)
@@ -69,9 +69,9 @@ func instantiateReflectContract(t *testing.T, ctx sdk.Context, tokenz *app.Token
 	return addr
 }
 
-func fundAccount(t *testing.T, ctx sdk.Context, tokenz *app.TokenApp, addr sdk.AccAddress, coins sdk.Coins) {
+func fundAccount(t *testing.T, ctx sdk.Context, junoapp *app.App, addr sdk.AccAddress, coins sdk.Coins) {
 	err := simapp.FundAccount(
-		tokenz.BankKeeper,
+		junoapp.AppKeepers.BankKeeper,
 		ctx,
 		addr,
 		coins,
@@ -79,14 +79,14 @@ func fundAccount(t *testing.T, ctx sdk.Context, tokenz *app.TokenApp, addr sdk.A
 	require.NoError(t, err)
 }
 
-func SetupCustomApp(t *testing.T, addr sdk.AccAddress) (*app.TokenApp, sdk.Context) {
-	tokenz, ctx := CreateTestInput()
-	wasmKeeper := tokenz.WasmKeeper
+func SetupCustomApp(t *testing.T, addr sdk.AccAddress) (*app.App, sdk.Context) {
+	junoApp, ctx := CreateTestInput(t)
+	wasmKeeper := junoApp.AppKeepers.WasmKeeper
 
-	storeReflectCode(t, ctx, tokenz, addr)
+	storeReflectCode(t, ctx, junoApp, addr)
 
 	cInfo := wasmKeeper.GetCodeInfo(ctx, 1)
 	require.NotNil(t, cInfo)
 
-	return tokenz, ctx
+	return junoApp, ctx
 }
