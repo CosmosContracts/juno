@@ -198,6 +198,8 @@ type App struct {
 	tkeys   map[string]*storetypes.TransientStoreKey
 	memKeys map[string]*storetypes.MemoryStoreKey
 
+	AppKeepers keepers.AppKeepers
+
 	// the module manager
 	ModuleManager *module.Manager
 
@@ -285,12 +287,12 @@ func New(
 	// can do so safely.
 	app.ModuleManager.SetOrderInitGenesis(orderInitBlockers()...)
 
-	app.ModuleManager.RegisterInvariants(&app.CrisisKeeper)
+	app.ModuleManager.RegisterInvariants(app.AppKeepers.CrisisKeeper)
 	app.ModuleManager.RegisterServices(cfg)
 	// initialize stores
-	app.MountKVStores(app.GetKVStoreKey())
-	app.MountTransientStores(app.GetTransientStoreKey())
-	app.MountMemoryStores(app.GetMemoryStoreKey())
+	app.MountKVStores(app.AppKeepers.GetKVStoreKey())
+	app.MountTransientStores(app.AppKeepers.GetTransientStoreKey())
+	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKey())
 
 	// register upgrade
 	app.setupUpgradeHandlers(cfg)
@@ -303,18 +305,18 @@ func New(
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
-				AccountKeeper:   app.AccountKeeper,
-				BankKeeper:      app.BankKeeper,
-				FeegrantKeeper:  app.FeeGrantKeeper,
+				AccountKeeper:   app.AppKeepers.AccountKeeper,
+				BankKeeper:      app.AppKeepers.BankKeeper,
+				FeegrantKeeper:  app.AppKeepers.FeeGrantKeeper,
 				SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
 
-			GovKeeper:         app.GovKeeper,
-			IBCKeeper:         app.IBCKeeper,
-			FeeShareKeeper:    app.FeeShareKeeper,
-			BankKeeperFork:    app.BankKeeper, // since we need extra methods
-			TxCounterStoreKey: app.GetKey(wasm.StoreKey),
+			GovKeeper:         app.AppKeepers.GovKeeper,
+			IBCKeeper:         app.AppKeepers.IBCKeeper,
+			FeeShareKeeper:    app.AppKeepers.FeeShareKeeper,
+			BankKeeperFork:    app.AppKeepers.BankKeeper, // since we need extra methods
+			TxCounterStoreKey: app.AppKeepers.GetKey(wasm.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
 			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName),
@@ -335,7 +337,7 @@ func New(
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(
-			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.WasmKeeper),
+			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
 		)
 		if err != nil {
 			panic("failed to register snapshot extension: " + err.Error())
@@ -356,7 +358,7 @@ func New(
 		// that in-memory capabilities get regenerated on app restart.
 		// Note that since this reads from the store, we can only perform it when
 		// `loadLatest` is set to true.
-		app.CapabilityKeeper.Seal()
+		app.AppKeepers.CapabilityKeeper.Seal()
 	}
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
@@ -403,7 +405,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
-	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
+	app.AppKeepers.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
 	return app.ModuleManager.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
@@ -447,7 +449,7 @@ func (app *App) InterfaceRegistry() types.InterfaceRegistry {
 //
 // NOTE: This is solely to be used for testing purposes.
 func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
-	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
+	subspace, _ := app.AppKeepers.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
@@ -493,12 +495,12 @@ func (app *App) RegisterNodeService(clientCtx client.Context) {
 
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
 func (app *App) setupUpgradeStoreLoaders() {
-	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	upgradeInfo, err := app.AppKeepers.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
 		panic("failed to read upgrade info from disk" + err.Error())
 	}
 
-	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if app.AppKeepers.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		return
 	}
 
@@ -513,7 +515,7 @@ func (app *App) setupUpgradeStoreLoaders() {
 
 func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 	for _, upgrade := range Upgrades {
-		app.UpgradeKeeper.SetUpgradeHandler(
+		app.AppKeepers.UpgradeKeeper.SetUpgradeHandler(
 			upgrade.UpgradeName,
 			upgrade.CreateUpgradeHandler(
 				app.ModuleManager,
