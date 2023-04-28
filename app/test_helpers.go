@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/CosmWasm/wasmd/x/wasm/keeper"	
+	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 	apphelpers "github.com/CosmosContracts/juno/v15/app/helpers"
 	appparams "github.com/CosmosContracts/juno/v15/app/params"
 	dbm "github.com/cometbft/cometbft-db"
@@ -244,7 +244,7 @@ func ExecuteRawCustom(t *testing.T, ctx sdk.Context, app *App, contract sdk.AccA
 		coins = sdk.Coins{funds}
 	}
 
-	contractKeeper := keeper.NewDefaultPermissionKeeper(app.GetWasmKeeper())
+	contractKeeper := keeper.NewDefaultPermissionKeeper(app.AppKeepers.WasmKeeper)
 	_, err = contractKeeper.Execute(ctx, contract, sender, oracleBz, coins)
 	return err
 }

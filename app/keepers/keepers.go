@@ -146,7 +146,7 @@ type AppKeepers struct {
 	AuthzKeeper           authzkeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	FeeShareKeeper        feesharekeeper.Keeper
-	ContractKeeper        *wasmkeeper.PermissionedKeeper
+	ContractKeeper        *wasmkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
 	ICAControllerKeeper icacontrollerkeeper.Keeper
@@ -571,7 +571,7 @@ func NewAppKeepers(
 	appKeepers.ScopedICAControllerKeeper = scopedICAControllerKeeper
 
 	// set the contract keeper for the Ics20WasmHooks
-	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
+	appKeepers.ContractKeeper = &appKeepers.WasmKeeper
 	appKeepers.Ics20WasmHooks.ContractKeeper = appKeepers.ContractKeeper
 
 	return appKeepers

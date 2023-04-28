@@ -28,12 +28,12 @@ type ContractAck struct {
 }
 
 type WasmHooks struct {
-	ContractKeeper      *wasmkeeper.PermissionedKeeper
+	ContractKeeper      *wasmkeeper.Keeper
 	ibcHooksKeeper      *keeper.Keeper
 	bech32PrefixAccAddr string
 }
 
-func NewWasmHooks(ibcHooksKeeper *keeper.Keeper, contractKeeper *wasmkeeper.PermissionedKeeper, bech32PrefixAccAddr string) WasmHooks {
+func NewWasmHooks(ibcHooksKeeper *keeper.Keeper, contractKeeper *wasmkeeper.Keeper, bech32PrefixAccAddr string) WasmHooks {
 	return WasmHooks{
 		ContractKeeper:      contractKeeper,
 		ibcHooksKeeper:      ibcHooksKeeper,
