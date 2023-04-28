@@ -8,10 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	dbm "github.com/tendermint/tm-db"
+	dbm "github.com/cometbft/cometbft-db"
 )
 
-func CtxWithStoreKeys(keys []sdk.StoreKey, header tmproto.Header, isCheckTx bool) sdk.Context {
+func CtxWithStoreKeys(keys []sdk.Store, header tmproto.Header, isCheckTx bool) sdk.Context {
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
 	cms := store.NewCommitMultiStore(db, logger)

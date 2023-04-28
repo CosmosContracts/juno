@@ -302,7 +302,7 @@ type ReflectSubMsgs struct {
 	Msgs []wasmvmtypes.SubMsg `json:"msgs"`
 }
 
-func executeCustom(t *testing.T, ctx sdk.Context, osmosis *app.TokenApp, contract sdk.AccAddress, sender sdk.AccAddress, msg bindings.TokenMsg, funds sdk.Coin) error {
+func executeCustom(t *testing.T, ctx sdk.Context, junoapp *app.App, contract sdk.AccAddress, sender sdk.AccAddress, msg bindings.TokenMsg, funds sdk.Coin) error {
 	wrapped := bindings.TokenFactoryMsg{
 		Token: &msg,
 	}
@@ -325,7 +325,7 @@ func executeCustom(t *testing.T, ctx sdk.Context, osmosis *app.TokenApp, contrac
 		coins = sdk.Coins{funds}
 	}
 
-	contractKeeper := keeper.NewDefaultPermissionKeeper(osmosis.WasmKeeper)
+	contractKeeper := keeper.NewDefaultPermissionKeeper(junoapp.ModuleManager)
 	_, err = contractKeeper.Execute(ctx, contract, sender, reflectBz, coins)
 	return err
 }

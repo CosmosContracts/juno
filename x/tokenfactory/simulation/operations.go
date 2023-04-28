@@ -3,6 +3,7 @@ package simulation
 import (
 	"math/rand"
 
+	simappparams "cosmossdk.io/simapp/params"
 	"github.com/CosmosContracts/juno/v15/app/params"
 	"github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -363,7 +364,7 @@ func SimulateMsgCreateDenom(tfKeeper TokenfactoryKeeper, ak types.AccountKeeper,
 		// Check if sims account enough create fee
 		createFee := tfKeeper.GetParams(ctx).DenomCreationFee
 		balances := bk.GetAllBalances(ctx, simAccount.Address)
-		_, hasNeg := balances.SafeSub(createFee)
+		_, hasNeg := balances.SafeSub(createFee[0])
 		if hasNeg {
 			return simtypes.NoOpMsg(types.ModuleName, types.MsgCreateDenom{}.Type(), "Creator not enough creation fee"), nil, nil
 		}

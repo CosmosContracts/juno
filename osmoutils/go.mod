@@ -3,15 +3,15 @@ module github.com/osmosis-labs/osmosis/osmoutils
 go 1.20
 
 require (
-	github.com/cosmos/cosmos-sdk v0.47.1
+	github.com/cosmos/cosmos-sdk v0.47.2
 	github.com/cosmos/iavl v0.19.5
 	github.com/cosmos/ibc-go/v4 v4.3.0
 	github.com/gogo/protobuf v1.3.3
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.2
-	github.com/tendermint/tendermint v0.34.26
-	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
+	github.com/cometbft/cometbft v0.37.1
+	github.com/cometbft/cometbft-db v0.8.0
 	golang.org/x/exp v0.0.0-20230131160201-f062dba9d201
 )
 
@@ -135,11 +135,8 @@ require (
 )
 
 replace (
-	// Our cosmos-sdk branch is:  https://github.com/osmosis-labs/cosmos-sdk, current branch: v16.x. Direct commit link: https://github.com/osmosis-labs/cosmos-sdk/commit/43c58d9061e3b8e0f06c3d9efef8c728800ab554
-	github.com/cosmos/cosmos-sdk => github.com/osmosis-labs/cosmos-sdk v0.45.1-0.20230326212251-7a2cf2993434
 	// use cosmos-compatible protobufs
-	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.24
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1	
 	// use grpc compatible with cosmos protobufs
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )
