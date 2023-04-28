@@ -100,14 +100,14 @@ func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 
 			if tc.expPanic {
 				suite.Require().Panics(func() {
-					feeshare.InitGenesis(suite.ctx, suite.app.FeeShareKeeper, tc.genesis)
+					feeshare.InitGenesis(suite.ctx, suite.app.AppKeepers.FeeShareKeeper, tc.genesis)
 				})
 			} else {
 				suite.Require().NotPanics(func() {
-					feeshare.InitGenesis(suite.ctx, suite.app.FeeShareKeeper, tc.genesis)
+					feeshare.InitGenesis(suite.ctx, suite.app.AppKeepers.FeeShareKeeper, tc.genesis)
 				})
 
-				params := suite.app.FeeShareKeeper.GetParams(suite.ctx)
+				params := suite.app.AppKeepers.FeeShareKeeper.GetParams(suite.ctx)
 				suite.Require().Equal(tc.genesis.Params, params)
 			}
 		})

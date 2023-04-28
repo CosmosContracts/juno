@@ -10,8 +10,8 @@ import (
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 
-	"cosmossdk.io/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -25,7 +25,7 @@ func CreateTestInput(t *testing.T) (*app.App, sdk.Context) {
 }
 
 func FundAccount(t *testing.T, ctx sdk.Context, junoapp *app.App, acct sdk.AccAddress) {
-	err := simapp.FundAccount(junoapp.AppKeepers.BankKeeper, ctx, acct, sdk.NewCoins(
+	err := banktestutil.FundAccount(junoapp.AppKeepers.BankKeeper, ctx, acct, sdk.NewCoins(
 		sdk.NewCoin("uosmo", sdk.NewInt(10000000000)),
 	))
 	require.NoError(t, err)
@@ -70,7 +70,7 @@ func instantiateReflectContract(t *testing.T, ctx sdk.Context, junoapp *app.App,
 }
 
 func fundAccount(t *testing.T, ctx sdk.Context, junoapp *app.App, addr sdk.AccAddress, coins sdk.Coins) {
-	err := simapp.FundAccount(
+	err := banktestutil.FundAccount(
 		junoapp.AppKeepers.BankKeeper,
 		ctx,
 		addr,

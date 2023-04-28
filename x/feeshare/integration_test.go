@@ -3,15 +3,16 @@ package feeshare_test
 import (
 	"encoding/json"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	"cosmossdk.io/simapp"
 	junoapp "github.com/CosmosContracts/juno/v15/app"
 
 	"github.com/CosmosContracts/juno/v15/x/mint/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -39,7 +40,7 @@ func Setup(isCheckTx bool) *junoapp.App {
 		app.InitChain(
 			abci.RequestInitChain{
 				Validators:      []abci.ValidatorUpdate{},
-				ConsensusParams: simapp.DefaultConsensusParams,
+				ConsensusParams: simtestutil.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
 			},
 		)
@@ -51,18 +52,17 @@ func Setup(isCheckTx bool) *junoapp.App {
 func GenApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.GenesisState) {
 	db := dbm.NewMemDB()
 	encCdc := junoapp.MakeEncodingConfig()
+
+	var emptyWasmOpts []wasm.Option
+
 	app := junoapp.New(
 		log.NewNopLogger(),
 		db,
 		nil,
 		true,
-		map[int64]bool{},
-		simapp.DefaultNodeHome,
-		invCheckPeriod,
-		encCdc,
-		junoapp.GetEnabledProposals(),
-		simapp.EmptyAppOptions{},
-		junoapp.GetWasmOpts(simapp.EmptyAppOptions{}),
+		wasm.EnableAllProposals,
+		simtestutil.EmptyAppOptions{},
+		emptyWasmOpts,
 	)
 
 	if withGenesis {

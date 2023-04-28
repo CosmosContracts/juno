@@ -16,10 +16,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 
-	gaiahelpers "github.com/CosmosContracts/juno/v15/app/helpers"
+	// gaiahelpers "github.com/CosmosContracts/juno/v15/app/helpers"
+	"github.com/CosmosContracts/juno/v15/app"
 	gaiafeeante "github.com/CosmosContracts/juno/v15/x/globalfee/ante"
 
 	junoapp "github.com/CosmosContracts/juno/v15/app"
+	appparams "github.com/CosmosContracts/juno/v15/app/params"
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
 	globfeetypes "github.com/CosmosContracts/juno/v15/x/globalfee/types"
 )
@@ -39,13 +41,13 @@ var (
 )
 
 func (s *IntegrationTestSuite) SetupTest() {
-	app := gaiahelpers.Setup(s.T())
+	app := app.Setup(s.T())
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{
 		ChainID: fmt.Sprintf("test-chain-%s", tmrand.Str(4)),
 		Height:  1,
 	})
 
-	encodingConfig := gaiaapp.MakeTestEncodingConfig()
+	encodingConfig := appparams.MakeEncodingConfig()
 	encodingConfig.Amino.RegisterConcrete(&testdata.TestMsg{}, "testdata.TestMsg", nil)
 	testdata.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 
@@ -65,7 +67,7 @@ func (s *IntegrationTestSuite) SetupTestGlobalFeeStoreAndMinGasPrice(minGasPrice
 	stakingSubspace := s.SetupTestStakingSubspace(stakingParam)
 
 	// build fee decorator
-	feeDecorator := gaiafeeante.NewFeeDecorator(gaiaapp.GetDefaultBypassFeeMessages(), subspace, stakingSubspace, uint64(1_000_000))
+	feeDecorator := gaiafeeante.NewFeeDecorator(app.GetDefaultBypassFeeMessages(), subspace, stakingSubspace, uint64(1_000_000))
 
 	// chain fee decorator to antehandler
 	antehandler := sdk.ChainAnteDecorators(feeDecorator)

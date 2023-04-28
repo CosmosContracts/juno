@@ -3,8 +3,7 @@ package simulation
 import (
 	"math/rand"
 
-	simappparams "cosmossdk.io/simapp/params"
-	"github.com/CosmosContracts/juno/v15/app/params"
+	appparams "github.com/CosmosContracts/juno/v15/app/params"
 	"github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -56,32 +55,32 @@ func WeightedOperations(
 
 	simstate.AppParams.GetOrGenerate(simstate.Cdc, OpWeightMsgCreateDenom, &weightMsgCreateDenom, nil,
 		func(_ *rand.Rand) {
-			weightMsgCreateDenom = params.DefaultWeightMsgCreateDenom
+			weightMsgCreateDenom = appparams.DefaultWeightMsgCreateDenom
 		},
 	)
 	simstate.AppParams.GetOrGenerate(simstate.Cdc, OpWeightMsgMint, &weightMsgMint, nil,
 		func(_ *rand.Rand) {
-			weightMsgMint = params.DefaultWeightMsgMint
+			weightMsgMint = appparams.DefaultWeightMsgMint
 		},
 	)
 	simstate.AppParams.GetOrGenerate(simstate.Cdc, OpWeightMsgBurn, &weightMsgBurn, nil,
 		func(_ *rand.Rand) {
-			weightMsgBurn = params.DefaultWeightMsgBurn
+			weightMsgBurn = appparams.DefaultWeightMsgBurn
 		},
 	)
 	simstate.AppParams.GetOrGenerate(simstate.Cdc, OpWeightMsgChangeAdmin, &weightMsgChangeAdmin, nil,
 		func(_ *rand.Rand) {
-			weightMsgChangeAdmin = params.DefaultWeightMsgChangeAdmin
+			weightMsgChangeAdmin = appparams.DefaultWeightMsgChangeAdmin
 		},
 	)
 	simstate.AppParams.GetOrGenerate(simstate.Cdc, OpWeightMsgSetDenomMetadata, &weightMsgSetDenomMetadata, nil,
 		func(_ *rand.Rand) {
-			weightMsgSetDenomMetadata = params.DefaultWeightMsgSetDenomMetadata
+			weightMsgSetDenomMetadata = appparams.DefaultWeightMsgSetDenomMetadata
 		},
 	)
 	simstate.AppParams.GetOrGenerate(simstate.Cdc, OpWeightMsgForceTransfer, &weightMsgForceTransfer, nil,
 		func(_ *rand.Rand) {
-			weightMsgForceTransfer = params.DefaultWeightMsgForceTransfer
+			weightMsgForceTransfer = appparams.DefaultWeightMsgForceTransfer
 		},
 	)
 
@@ -397,7 +396,7 @@ func BuildOperationInput(
 	return simulation.OperationInput{
 		R:               r,
 		App:             app,
-		TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+		TxGen:           appparams.MakeEncodingConfig().TxConfig,
 		Cdc:             nil,
 		Msg:             msg,
 		MsgType:         msg.Type(),

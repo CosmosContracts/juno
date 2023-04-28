@@ -42,7 +42,7 @@ type IntegrationTestSuite struct {
 
 func (s *IntegrationTestSuite) SetupTest() {
 	isCheckTx := false
-	s.app = app.Setup(s.T(), isCheckTx, 1)
+	s.app = app.Setup(s.T())
 
 	s.ctx = s.app.BaseApp.NewContext(isCheckTx, tmproto.Header{
 		ChainID: fmt.Sprintf("test-chain-%s", tmrand.Str(4)),
@@ -51,12 +51,12 @@ func (s *IntegrationTestSuite) SetupTest() {
 	})
 
 	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQuerier(s.app.FeeShareKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQuerier(s.app.AppKeepers.FeeShareKeeper))
 
 	s.queryClient = types.NewQueryClient(queryHelper)
-	s.bankKeeper = s.app.BankKeeper
-	s.accountKeeper = s.app.AccountKeeper
-	s.feeShareMsgServer = s.app.FeeShareKeeper
+	s.bankKeeper = s.app.AppKeepers.BankKeeper
+	s.accountKeeper = s.app.AppKeepers.AccountKeeper
+	s.feeShareMsgServer = s.app.AppKeepers.FeeShareKeeper
 	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl(wasmkeeper.NewDefaultPermissionKeeper(s.app.WasmKeeper))
 }
 

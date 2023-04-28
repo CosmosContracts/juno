@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/simapp"
 	appparams "github.com/CosmosContracts/juno/v15/app/params"
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
@@ -21,13 +20,13 @@ import (
 )
 
 func TestDefaultGenesis(t *testing.T) {
-	encCfg := simapp.MakeTestEncodingConfig()
+	encCfg := appparams.MakeEncodingConfig()
 	gotJSON := AppModuleBasic{}.DefaultGenesis(encCfg.Marshaler)
 	assert.JSONEq(t, `{"params":{"minimum_gas_prices":[]}}`, string(gotJSON), string(gotJSON))
 }
 
 func TestValidateGenesis(t *testing.T) {
-	encCfg := simapp.MakeTestEncodingConfig()
+	encCfg := appparams.MakeEncodingConfig()
 	specs := map[string]struct {
 		src    string
 		expErr bool
@@ -110,7 +109,7 @@ func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, params
 	t.Helper()
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db)
-	encCfg := simapp.MakeTestEncodingConfig()
+	encCfg := appparams.MakeEncodingConfig()
 	keyParams := sdk.NewKVStoreKey(paramstypes.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(paramstypes.TStoreKey)
 	ms.MountStoreWithDB(keyParams, storetypes.StoreTypeIAVL, db)
