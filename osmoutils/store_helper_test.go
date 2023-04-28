@@ -19,6 +19,7 @@ import (
 	"github.com/CosmosContracts/juno/v15/osmoutils"
 	"github.com/CosmosContracts/juno/v15/osmoutils/noapptest"
 	"github.com/CosmosContracts/juno/v15/osmoutils/osmoassert"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 // We need to setup a test suite with account keeper
@@ -30,7 +31,7 @@ type TestSuite struct {
 	ctx   sdk.Context
 	store sdk.KVStore
 
-	authStoreKey  sdk.StoreKey
+	authStoreKey  storetypes.StoreKey
 	accountKeeper authkeeper.AccountKeeperI
 }
 
@@ -43,7 +44,7 @@ func (suite *TestSuite) SetupTest() {
 	paramsKey := sdk.NewKVStoreKey(paramstypes.StoreKey)
 	paramsTKey := sdk.NewKVStoreKey(paramstypes.TStoreKey)
 	suite.ctx = noapptest.DefaultCtxWithStoreKeys(
-		[]sdk.StoreKey{customStoreKey, suite.authStoreKey, paramsKey, paramsTKey})
+		[]storetypes.StoreKey{customStoreKey, suite.authStoreKey, paramsKey, paramsTKey})
 	suite.store = suite.ctx.KVStore(customStoreKey)
 	// setup params (needed for auth)
 	encConfig := noapptest.MakeTestEncodingConfig(auth.AppModuleBasic{}, params.AppModuleBasic{})

@@ -170,6 +170,8 @@ func NewAppKeepers(
 		appKeepers.tkeys[paramstypes.TStoreKey],
 	)
 
+	keys := appKeepers.GetKVStoreKey()
+
 	// set the BaseApp's parameter store
 	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, keys[consensusparamtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
 
@@ -189,7 +191,8 @@ func NewAppKeepers(
 	scopedWasmKeeper := appKeepers.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
 	// add keepers
-	app.AccountKeeper = authkeeper.NewAccountKeeper(
+	Bech32Prefix := "juno"
+	appKeepers.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec,
 		keys[authtypes.StoreKey],
 		authtypes.ProtoBaseAccount,
@@ -522,7 +525,7 @@ func NewAppKeepers(
 }
 
 // initParamsKeeper init params keeper and its subspaces
-func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
+func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey storetypes.StoreKey) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
 	paramsKeeper.Subspace(authtypes.ModuleName)

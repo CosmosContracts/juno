@@ -85,7 +85,7 @@ var ModuleBasics = module.NewBasicManager(
 	staking.AppModuleBasic{},
 	mint.AppModuleBasic{},
 	distr.AppModuleBasic{},
-	gov.NewAppModuleBasic(getGovProposalHandlers()...),
+	gov.NewAppModuleBasic(getGovProposalHandlers()),
 	params.AppModuleBasic{},
 	crisis.AppModuleBasic{},
 	slashing.AppModuleBasic{},

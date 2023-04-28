@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/CosmWasm/wasmd/x/wasm/keeper"
+	"github.com/CosmWasm/wasmd/x/wasm/keeper"	
 	apphelpers "github.com/CosmosContracts/juno/v15/app/helpers"
 	appparams "github.com/CosmosContracts/juno/v15/app/params"
 	dbm "github.com/cometbft/cometbft-db"
@@ -129,12 +129,8 @@ func setup(withGenesis bool, invCheckPeriod uint) (*App, GenesisState) {
 		db,
 		nil,
 		true,
-		map[int64]bool{},
-		DefaultNodeHome,
-		invCheckPeriod,
-		encCdc,
-		GetEnabledProposals(),
-		EmptyBaseAppOptions{},
+		wasm.EnableAllProposals,
+		EmptyAppOptions{},
 		emptyWasmOpts,
 	)
 	if withGenesis {
@@ -188,6 +184,7 @@ func genesisStateWithValSet(t *testing.T,
 		defaultStParams.MaxEntries,
 		defaultStParams.HistoricalEntries,
 		appparams.BondDenom,
+		defaultStParams.MinCommissionRate, // 5%
 	)
 
 	// set validators and delegations
@@ -217,6 +214,7 @@ func genesisStateWithValSet(t *testing.T,
 		balances,
 		totalSupply,
 		[]banktypes.Metadata{},
+		banktypes.DefaultGenesisState().SendEnabled,
 	)
 
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
