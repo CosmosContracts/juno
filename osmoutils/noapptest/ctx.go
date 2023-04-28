@@ -12,9 +12,9 @@ import (
 )
 
 func CtxWithStoreKeys(keys []sdk.Store, header tmproto.Header, isCheckTx bool) sdk.Context {
-	db := dbm.NewMemDB()
+	db, _ := dbm.NewDB("test", dbm.GoLevelDBBackend, "")
 	logger := log.NewNopLogger()
-	cms := store.NewCommitMultiStore(db, logger)
+	cms := store.NewCommitMultiStore(db)
 	for _, key := range keys {
 		cms.MountStoreWithDB(key, sdk.StoreTypeIAVL, nil)
 	}
