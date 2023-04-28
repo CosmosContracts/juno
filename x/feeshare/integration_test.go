@@ -20,8 +20,8 @@ func CreateTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) {
 	app := Setup(isCheckTx)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
-	app.MintKeeper.SetParams(ctx, types.DefaultParams())
-	app.MintKeeper.SetMinter(ctx, types.DefaultInitialMinter())
+	app.AppKeepers.MintKeeper.SetParams(ctx, types.DefaultParams())
+	app.AppKeepers.MintKeeper.SetMinter(ctx, types.DefaultInitialMinter())
 
 	return app, ctx
 }

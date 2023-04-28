@@ -19,7 +19,7 @@ import (
 	gaiahelpers "github.com/CosmosContracts/juno/v15/app/helpers"
 	gaiafeeante "github.com/CosmosContracts/juno/v15/x/globalfee/ante"
 
-	gaiaapp "github.com/CosmosContracts/juno/v15/app"
+	junoapp "github.com/CosmosContracts/juno/v15/app"
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
 	globfeetypes "github.com/CosmosContracts/juno/v15/x/globalfee/types"
 )
@@ -27,7 +27,7 @@ import (
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	app       *gaiaapp.GaiaApp
+	app       *junoapp.App
 	ctx       sdk.Context
 	clientCtx client.Context
 	txBuilder client.TxBuilder

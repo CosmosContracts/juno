@@ -3,12 +3,13 @@ package keeper_test
 import (
 	"encoding/json"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 
-	"cosmossdk.io/simapp"
 	junoapp "github.com/CosmosContracts/juno/v15/app"
 
 	"github.com/CosmosContracts/juno/v15/x/mint/types"
@@ -20,8 +21,8 @@ func createTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) { //nolint:unpara
 	app := setup(isCheckTx)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
-	app.MintKeeper.SetParams(ctx, types.DefaultParams())
-	app.MintKeeper.SetMinter(ctx, types.DefaultInitialMinter())
+	app.AppKeepers.MintKeeper.SetParams(ctx, types.DefaultParams())
+	app.AppKeepers.MintKeeper.SetMinter(ctx, types.DefaultInitialMinter())
 
 	return app, ctx
 }
@@ -39,7 +40,7 @@ func setup(isCheckTx bool) *junoapp.App {
 		app.InitChain(
 			abci.RequestInitChain{
 				Validators:      []abci.ValidatorUpdate{},
-				ConsensusParams: simapp.DefaultConsensusParams,
+				ConsensusParams: simtestutil.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
 			},
 		)
@@ -51,18 +52,17 @@ func setup(isCheckTx bool) *junoapp.App {
 func genApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.GenesisState) {
 	db := dbm.NewMemDB()
 	encCdc := junoapp.MakeEncodingConfig()
+
+	var emptyWasmOpts []wasm.Option
+
 	app := junoapp.New(
 		log.NewNopLogger(),
 		db,
 		nil,
 		true,
-		map[int64]bool{},
-		simapp.DefaultNodeHome,
-		invCheckPeriod,
-		encCdc,
-		junoapp.GetEnabledProposals(),
-		simapp.EmptyAppOptions{},
-		junoapp.GetWasmOpts(simapp.EmptyAppOptions{}),
+		wasm.EnableAllProposals,
+		simtestutil.EmptyAppOptions{},
+		emptyWasmOpts,
 	)
 
 	if withGenesis {

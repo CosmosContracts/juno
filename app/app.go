@@ -246,7 +246,7 @@ func New(
 		appCodec,
 		bApp,
 		legacyAmino,
-		maccPerms,
+		keepers.GetMaccPerms(),
 		app.ModuleAccountAddrs(),
 		enabledProposals,
 		appOpts,
@@ -417,7 +417,7 @@ func (app *App) LoadHeight(height int64) error {
 // ModuleAccountAddrs returns all the app's module account addresses.
 func (app *App) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
-	for acc := range maccPerms {
+	for acc := range keepers.GetMaccPerms() {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
@@ -524,15 +524,6 @@ func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 			),
 		)
 	}
-}
-
-// GetMaccPerms returns a copy of the module account permissions
-func GetMaccPerms() map[string][]string {
-	dupMaccPerms := make(map[string][]string)
-	for k, v := range maccPerms {
-		dupMaccPerms[k] = v
-	}
-	return dupMaccPerms
 }
 
 // SimulationManager implements the SimulationApp interface
