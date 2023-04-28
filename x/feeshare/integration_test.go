@@ -9,7 +9,6 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 
-	"cosmossdk.io/simapp"
 	junoapp "github.com/CosmosContracts/juno/v15/app"
 
 	"github.com/CosmosContracts/juno/v15/x/mint/types"
@@ -21,8 +20,8 @@ func CreateTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) {
 	app := Setup(isCheckTx)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
-	app.AppKeepers.MintKeeper.SetParams(ctx, types.DefaultParams())
-	app.AppKeepers.MintKeeper.SetMinter(ctx, types.DefaultInitialMinter())
+	app.MintKeeper.SetParams(ctx, types.DefaultParams())
+	app.MintKeeper.SetMinter(ctx, types.DefaultInitialMinter())
 
 	return app, ctx
 }
@@ -57,10 +56,6 @@ func GenApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.Genesi
 		db,
 		nil,
 		true,
-		map[int64]bool{},
-		simapp.DefaultNodeHome,
-		invCheckPeriod,
-		encCdc,
 		junoapp.GetEnabledProposals(),
 		simtestutil.EmptyAppOptions{},
 		junoapp.GetWasmOpts(simtestutil.EmptyAppOptions{}),

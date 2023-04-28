@@ -64,7 +64,7 @@ func queryCustom(t *testing.T, ctx sdk.Context, app *app.App, contract sdk.AccAd
 	require.NoError(t, err)
 	fmt.Println(string(queryBz))
 
-	resBz, err := app.AppKeepers.WasmKeeper.QuerySmart(ctx, contract, queryBz)
+	resBz, err := app.WasmKeeper.QuerySmart(ctx, contract, queryBz)
 	require.NoError(t, err)
 	var resp ChainResponse
 	err = json.Unmarshal(resBz, &resp)
