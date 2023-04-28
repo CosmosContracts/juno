@@ -26,7 +26,7 @@ func (suite *MintTestSuite) SetupTest() {
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, app.AppKeepers.MintKeeper)
+	types.RegisterQueryServer(queryHelper, app.MintKeeper)
 	queryClient := types.NewQueryClient(queryHelper)
 
 	suite.app = app
@@ -40,15 +40,15 @@ func (suite *MintTestSuite) TestGRPCParams() {
 
 	params, err := queryClient.Params(gocontext.Background(), &types.QueryParamsRequest{})
 	suite.Require().NoError(err)
-	suite.Require().Equal(params.Params, app.AppKeepers.MintKeeper.GetParams(ctx))
+	suite.Require().Equal(params.Params, app.MintKeeper.GetParams(ctx))
 
 	inflation, err := queryClient.Inflation(gocontext.Background(), &types.QueryInflationRequest{})
 	suite.Require().NoError(err)
-	suite.Require().Equal(inflation.Inflation, app.AppKeepers.MintKeeper.GetMinter(ctx).Inflation)
+	suite.Require().Equal(inflation.Inflation, app.MintKeeper.GetMinter(ctx).Inflation)
 
 	annualProvisions, err := queryClient.AnnualProvisions(gocontext.Background(), &types.QueryAnnualProvisionsRequest{})
 	suite.Require().NoError(err)
-	suite.Require().Equal(annualProvisions.AnnualProvisions, app.AppKeepers.MintKeeper.GetMinter(ctx).AnnualProvisions)
+	suite.Require().Equal(annualProvisions.AnnualProvisions, app.MintKeeper.GetMinter(ctx).AnnualProvisions)
 }
 
 func TestMintTestSuite(t *testing.T) {

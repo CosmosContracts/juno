@@ -27,7 +27,7 @@ func (s *IntegrationTestSuite) StoreCode() {
 	expHash := sha256.Sum256(wasmContract)
 	s.Require().Equal(expHash[:], result.Checksum)
 	// and
-	info := s.app.AppKeepers.WasmKeeper.GetCodeInfo(s.ctx, 1)
+	info := s.app.WasmKeeper.GetCodeInfo(s.ctx, 1)
 	s.Require().NotNil(info)
 	s.Require().Equal(expHash[:], info.CodeHash)
 	s.Require().Equal(sender.String(), info.Creator)
@@ -51,7 +51,7 @@ func (s *IntegrationTestSuite) InstantiateContract(sender string, admin string) 
 	s.Require().NoError(err)
 	var result wasmtypes.MsgInstantiateContractResponse
 	s.Require().NoError(s.app.AppCodec().Unmarshal(resp.Data, &result))
-	contractInfo := s.app.AppKeepers.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(result.Address))
+	contractInfo := s.app.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(result.Address))
 	s.Require().Equal(contractInfo.CodeID, uint64(1))
 	s.Require().Equal(contractInfo.Admin, admin)
 	s.Require().Equal(contractInfo.Creator, sender)
@@ -96,10 +96,10 @@ func (s *IntegrationTestSuite) TestGetContractAdminOrCreatorAddress() {
 		tc := tc
 		s.Run(tc.desc, func() {
 			if !tc.shouldErr {
-				_, err := s.app.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
+				_, err := s.app.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
 				s.Require().NoError(err)
 			} else {
-				_, err := s.app.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
+				_, err := s.app.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
 				s.Require().Error(err)
 			}
 		})

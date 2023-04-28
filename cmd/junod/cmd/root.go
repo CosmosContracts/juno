@@ -325,10 +325,7 @@ func (ac appCreator) newApp(
 		cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent)),
 	)
 
-	return app.New(logger, db, traceStore, true, skipUpgradeHeights,
-		cast.ToString(appOpts.Get(flags.FlagHome)),
-		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
-		ac.encCfg,
+	return app.New(logger, db, traceStore, true,
 		app.GetEnabledProposals(),
 		appOpts,
 		wasmOpts,
@@ -369,10 +366,6 @@ func (ac appCreator) appExport(
 		db,
 		traceStore,
 		loadLatest,
-		map[int64]bool{},
-		homePath,
-		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
-		ac.encCfg,
 		app.GetEnabledProposals(),
 		appOpts,
 		emptyWasmOpts,

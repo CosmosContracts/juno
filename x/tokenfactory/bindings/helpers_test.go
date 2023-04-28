@@ -53,7 +53,7 @@ func storeReflectCode(t *testing.T, ctx sdk.Context, tokenz *app.App, addr sdk.A
 	wasmCode, err := os.ReadFile("./testdata/token_reflect.wasm")
 	require.NoError(t, err)
 
-	contractKeeper := keeper.NewDefaultPermissionKeeper(tokenz.AppKeepers.WasmKeeper)
+	contractKeeper := keeper.NewDefaultPermissionKeeper(tokenz.WasmKeeper)
 	codeID, _, err := contractKeeper.Create(ctx, addr, wasmCode, nil)
 	require.NoError(t, err)
 
@@ -62,7 +62,7 @@ func storeReflectCode(t *testing.T, ctx sdk.Context, tokenz *app.App, addr sdk.A
 
 func instantiateReflectContract(t *testing.T, ctx sdk.Context, tokenz *app.App, funder sdk.AccAddress) sdk.AccAddress {
 	initMsgBz := []byte("{}")
-	contractKeeper := keeper.NewDefaultPermissionKeeper(tokenz.AppKeepers.WasmKeeper)
+	contractKeeper := keeper.NewDefaultPermissionKeeper(tokenz.WasmKeeper)
 	codeID := uint64(1)
 	addr, _, err := contractKeeper.Instantiate(ctx, codeID, funder, funder, initMsgBz, "demo contract", nil)
 	require.NoError(t, err)
@@ -72,7 +72,7 @@ func instantiateReflectContract(t *testing.T, ctx sdk.Context, tokenz *app.App, 
 
 func fundAccount(t *testing.T, ctx sdk.Context, tokenz *app.App, addr sdk.AccAddress, coins sdk.Coins) {
 	err := simtestutil.FundAccount(
-		tokenz.AppKeepers.BankKeeper,
+		tokenz.BankKeeper,
 		ctx,
 		addr,
 		coins,
@@ -82,7 +82,7 @@ func fundAccount(t *testing.T, ctx sdk.Context, tokenz *app.App, addr sdk.AccAdd
 
 func SetupCustomApp(t *testing.T, addr sdk.AccAddress) (*app.App, sdk.Context) {
 	tokenz, ctx := CreateTestInput()
-	wasmKeeper := tokenz.AppKeepers.WasmKeeper
+	wasmKeeper := tokenz.WasmKeeper
 
 	storeReflectCode(t, ctx, tokenz, addr)
 

@@ -51,13 +51,13 @@ func (s *IntegrationTestSuite) SetupTest() {
 	})
 
 	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQuerier(s.app.AppKeepers.FeeShareKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQuerier(s.app.FeeShareKeeper))
 
 	s.queryClient = types.NewQueryClient(queryHelper)
-	s.bankKeeper = s.app.AppKeepers.BankKeeper
-	s.accountKeeper = s.app.AppKeepers.AccountKeeper
-	s.feeShareMsgServer = s.app.AppKeepers.FeeShareKeeper
-	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl(&s.app.AppKeepers.WasmKeeper)
+	s.bankKeeper = s.app.BankKeeper
+	s.accountKeeper = s.app.AccountKeeper
+	s.feeShareMsgServer = s.app.FeeShareKeeper
+	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl(&s.app.WasmKeeper)
 }
 
 func (s *IntegrationTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {

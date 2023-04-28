@@ -67,17 +67,17 @@ func TestDenomAdmin(t *testing.T) {
 	app, ctx := SetupCustomApp(t, addr)
 
 	// set token creation fee to zero to make testing easier
-	tfParams := app.AppKeepers.TokenFactoryKeeper.GetParams(ctx)
+	tfParams := app.TokenFactoryKeeper.GetParams(ctx)
 	tfParams.DenomCreationFee = sdk.NewCoins()
-	app.AppKeepers.TokenFactoryKeeper.SetParams(ctx, tfParams)
+	app.TokenFactoryKeeper.SetParams(ctx, tfParams)
 
 	// create a subdenom via the token factory
 	admin := sdk.AccAddress([]byte("addr1_______________"))
-	tfDenom, err := app.AppKeepers.TokenFactoryKeeper.CreateDenom(ctx, admin.String(), "subdenom")
+	tfDenom, err := app.TokenFactoryKeeper.CreateDenom(ctx, admin.String(), "subdenom")
 	require.NoError(t, err)
 	require.NotEmpty(t, tfDenom)
 
-	queryPlugin := wasmbinding.NewQueryPlugin(&app.AppKeepers.BankKeeper, &app.AppKeepers.TokenFactoryKeeper)
+	queryPlugin := wasmbinding.NewQueryPlugin(&app.BankKeeper, &app.TokenFactoryKeeper)
 
 	testCases := []struct {
 		name        string

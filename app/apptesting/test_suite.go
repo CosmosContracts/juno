@@ -96,18 +96,18 @@ func (s *KeeperTestHelper) Commit() {
 
 // FundAcc funds target address with specified amount.
 func (s *KeeperTestHelper) FundAcc(acc sdk.AccAddress, amounts sdk.Coins) {
-	err := simtestutil.FundAccount(s.App.AppKeepers.BankKeeper, s.Ctx, acc, amounts)
+	err := simtestutil.FundAccount(s.App.BankKeeper, s.Ctx, acc, amounts)
 	s.Require().NoError(err)
 }
 
 // FundModuleAcc funds target modules with specified amount.
 func (s *KeeperTestHelper) FundModuleAcc(moduleName string, amounts sdk.Coins) {
-	err := simtestutil.FundModuleAccount(s.App.AppKeepers.BankKeeper, s.Ctx, moduleName, amounts)
+	err := simtestutil.FundModuleAccount(s.App.BankKeeper, s.Ctx, moduleName, amounts)
 	s.Require().NoError(err)
 }
 
 func (s *KeeperTestHelper) MintCoins(coins sdk.Coins) {
-	err := s.App.AppKeepers.BankKeeper.MintCoins(s.Ctx, minttypes.ModuleName, coins)
+	err := s.App.BankKeeper.MintCoins(s.Ctx, minttypes.ModuleName, coins)
 	s.Require().NoError(err)
 }
 
@@ -115,12 +115,12 @@ func (s *KeeperTestHelper) MintCoins(coins sdk.Coins) {
 func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sdk.ValAddress {
 	valPub := secp256k1.GenPrivKey().PubKey()
 	valAddr := sdk.ValAddress(valPub.Address())
-	bondDenom := s.App.AppKeepers.StakingKeeper.GetParams(s.Ctx).BondDenom
+	bondDenom := s.App.StakingKeeper.GetParams(s.Ctx).BondDenom
 	selfBond := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100), Denom: bondDenom})
 
 	s.FundAcc(sdk.AccAddress(valAddr), selfBond)
 
-	stakingHandler := staking.NewHandler(s.App.AppKeepers.StakingKeeper)
+	stakingHandler := staking.NewHandler(s.App.StakingKeeper)
 	stakingCoin := sdk.NewCoin(sdk.DefaultBondDenom, selfBond[0].Amount)
 	ZeroCommission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
 	msg, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{}, ZeroCommission, sdk.OneInt())
@@ -129,11 +129,11 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 	s.Require().NoError(err)
 	s.Require().NotNil(res)
 
-	val, found := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, valAddr)
+	val, found := s.App.StakingKeeper.GetValidator(s.Ctx, valAddr)
 	s.Require().True(found)
 
 	val = val.UpdateStatus(bondStatus)
-	s.App.AppKeepers.StakingKeeper.SetValidator(s.Ctx, val)
+	s.App.StakingKeeper.SetValidator(s.Ctx, val)
 
 	consAddr, err := val.GetConsAddr()
 	s.Suite.Require().NoError(err)
@@ -146,7 +146,7 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 		false,
 		0,
 	)
-	s.App.AppKeepers.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
+	s.App.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
 
 	return valAddr
 }
@@ -155,14 +155,14 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 func (s *KeeperTestHelper) BeginNewBlock() {
 	var valAddr []byte
 
-	validators := s.App.AppKeepers.StakingKeeper.GetAllValidators(s.Ctx)
+	validators := s.App.StakingKeeper.GetAllValidators(s.Ctx)
 	if len(validators) >= 1 {
 		valAddrFancy, err := validators[0].GetConsAddr()
 		s.Require().NoError(err)
 		valAddr = valAddrFancy.Bytes()
 	} else {
 		valAddrFancy := s.SetupValidator(stakingtypes.Bonded)
-		validator, _ := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, valAddrFancy)
+		validator, _ := s.App.StakingKeeper.GetValidator(s.Ctx, valAddrFancy)
 		valAddr2, _ := validator.GetConsAddr()
 		valAddr = valAddr2.Bytes()
 	}
@@ -172,7 +172,7 @@ func (s *KeeperTestHelper) BeginNewBlock() {
 
 // BeginNewBlockWithProposer begins a new block with a proposer.
 func (s *KeeperTestHelper) BeginNewBlockWithProposer(proposer sdk.ValAddress) {
-	validator, found := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, proposer)
+	validator, found := s.App.StakingKeeper.GetValidator(s.Ctx, proposer)
 	s.Assert().True(found)
 
 	valConsAddr, err := validator.GetConsAddr()
@@ -205,18 +205,18 @@ func (s *KeeperTestHelper) EndBlock() {
 
 // AllocateRewardsToValidator allocates reward tokens to a distribution module then allocates rewards to the validator address.
 func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, rewardAmt math.Int) {
-	validator, found := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, valAddr)
+	validator, found := s.App.StakingKeeper.GetValidator(s.Ctx, valAddr)
 	s.Require().True(found)
 
 	// allocate reward tokens to distribution module
 	coins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, rewardAmt)}
-	err := simtestutil.FundModuleAccount(s.App.AppKeepers.BankKeeper, s.Ctx, distrtypes.ModuleName, coins)
+	err := simtestutil.FundModuleAccount(s.App.BankKeeper, s.Ctx, distrtypes.ModuleName, coins)
 	s.Require().NoError(err)
 
 	// allocate rewards to validator
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
 	decTokens := sdk.DecCoins{{Denom: sdk.DefaultBondDenom, Amount: sdk.NewDec(20000)}}
-	s.App.AppKeepers.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
+	s.App.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
 }
 
 // BuildTx builds a transaction.
