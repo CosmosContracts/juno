@@ -7,7 +7,6 @@ require (
 	cosmossdk.io/math v1.0.0
 	cosmossdk.io/simapp v0.0.0-20230224204036-a6adb0821462
 	github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8
-	github.com/CosmosContracts/juno/v15/osmoutils v0.0.0-00010101000000-000000000000
 	github.com/cometbft/cometbft v0.37.1
 	github.com/cometbft/cometbft-db v0.8.0
 	github.com/cosmos/cosmos-sdk v0.47.2
@@ -182,7 +181,8 @@ replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
-	github.com/CosmosContracts/juno/v15/osmoutils => ./osmoutils
+	// ibc hooks only requires the ibc.go file from osmoutils
+	// github.com/CosmosContracts/juno/v15/osmoutils => ./osmoutils
 
 	//	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.47.2-0.20230424060617-ebc292e8de8b
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
