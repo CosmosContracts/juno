@@ -209,7 +209,7 @@ type App struct {
 	sm *module.SimulationManager
 
 	// module configurator
-	configurator module.Configurator
+	//	configurator module.Configurator // TODO: I think we need to do something with this...
 }
 
 // New returns a reference to an initialized Juno.
@@ -466,7 +466,7 @@ func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
-func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
