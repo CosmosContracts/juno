@@ -95,6 +95,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	// or just create a function to modify as a fork of cosmos.ModifyGenesisProposalTime. This should really be a builder yea?
 
 	// !IMPORTANT: V15 - Query the current minting parameters
+	// param, _ := chain.QueryParam(ctx, "mint", "BlocksPerYear")
 	param, _ := chain.QueryParam(ctx, "mint", "BlocksPerYear")
 	require.NoError(t, err, "error querying blocks per year")
 	require.Equal(t, param.Value, "\"6311520\"") // mainnet it is 5048093, but we are just ensuring the upgrade applies correctly from default.

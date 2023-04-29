@@ -1,8 +1,9 @@
 package interchaintest
 
 import (
-	simappparams "cosmossdk.io/simapp/params"
-	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
+
+	// feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 )
@@ -32,8 +33,6 @@ var (
 		GasAdjustment:       1.1,
 		TrustingPeriod:      "112h",
 		NoHostMount:         false,
-		SkipGenTx:           false,
-		PreGenesis:          nil,
 		ModifyGenesis:       nil,
 		ConfigFileOverrides: nil,
 		EncodingConfig:      junoEncoding(),
@@ -45,11 +44,11 @@ var (
 
 // junoEncoding registers the Juno specific module codecs so that the associated types and msgs
 // will be supported when writing to the blocksdb sqlite database.
-func junoEncoding() *simappparams.EncodingConfig {
+func junoEncoding() *testutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 
 	// register custom types
-	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
+	// feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
 	return &cfg
 }
