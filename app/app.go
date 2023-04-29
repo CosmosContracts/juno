@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/store/streaming"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
@@ -33,6 +34,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
@@ -239,6 +241,8 @@ func New(
 		appCodec:          appCodec,
 		txConfig:          txConfig,
 		interfaceRegistry: interfaceRegistry,
+		tkeys:             sdk.NewTransientStoreKeys(paramstypes.TStoreKey),
+		memKeys:           sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey),
 	}
 
 	// Setup keepers
@@ -252,6 +256,13 @@ func New(
 		appOpts,
 		wasmOpts,
 	)
+	app.keys = app.AppKeepers.GetKVStoreKey()
+
+	// load state streaming if enabled
+	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, app.keys); err != nil {
+		logger.Error("failed to load state streaming", "err", err)
+		os.Exit(1)
+	}
 
 	if maxSize := os.Getenv("MAX_WASM_SIZE"); maxSize != "" {
 		// https://github.com/CosmWasm/wasmd#compile-time-parameters
@@ -290,7 +301,7 @@ func New(
 	app.ModuleManager.RegisterInvariants(app.AppKeepers.CrisisKeeper)
 	app.ModuleManager.RegisterServices(cfg)
 	// initialize stores
-	app.MountKVStores(app.AppKeepers.GetKVStoreKey())
+	app.MountKVStores(app.keys)
 	app.MountTransientStores(app.AppKeepers.GetTransientStoreKey())
 	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKey())
 
