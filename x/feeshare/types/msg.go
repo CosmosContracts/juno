@@ -1,6 +1,7 @@
 package types
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -134,15 +135,15 @@ func (msg MsgUpdateFeeShare) Type() string { return TypeMsgUpdateFeeShare }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUpdateFeeShare) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DeployerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
+		return errorsmod.Wrapf(err, "invalid deployer address %s", msg.DeployerAddress)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
+		return errorsmod.Wrapf(err, "invalid contract address %s", msg.ContractAddress)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress); err != nil {
-		return sdkerrors.Wrapf(err, "invalid withdraw address %s", msg.WithdrawerAddress)
+		return errorsmod.Wrapf(err, "invalid withdraw address %s", msg.WithdrawerAddress)
 	}
 
 	return nil

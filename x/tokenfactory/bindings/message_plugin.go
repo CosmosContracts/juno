@@ -3,6 +3,7 @@ package bindings
 import (
 	"encoding/json"
 
+	errorsmod "cosmossdk.io/errors"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,10 +42,10 @@ func (m *CustomMessenger) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddre
 		// leave everything else for the wrapped version
 		var contractMsg bindingstypes.TokenFactoryMsg
 		if err := json.Unmarshal(msg.Custom, &contractMsg); err != nil {
-			return nil, nil, sdkerrors.Wrap(err, "token factory msg")
+			return nil, nil, errorsmod.Wrap(err, "token factory msg")
 		}
 		if contractMsg.Token == nil {
-			return nil, nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "nil token field")
+			return nil, nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "nil token field")
 		}
 		tokenMsg := contractMsg.Token
 
@@ -74,7 +75,7 @@ func (m *CustomMessenger) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddre
 func (m *CustomMessenger) createDenom(ctx sdk.Context, contractAddr sdk.AccAddress, createDenom *bindingstypes.CreateDenom) ([]sdk.Event, [][]byte, error) {
 	bz, err := PerformCreateDenom(m.tokenFactory, m.bank, ctx, contractAddr, createDenom)
 	if err != nil {
-		return nil, nil, sdkerrors.Wrap(err, "perform create denom")
+		return nil, nil, errorsmod.Wrap(err, "perform create denom")
 	}
 	// TODO: double check how this is all encoded to the contract
 	return nil, [][]byte{bz}, nil
@@ -91,7 +92,7 @@ func PerformCreateDenom(f *tokenfactorykeeper.Keeper, b *bankkeeper.BaseKeeper, 
 	msgCreateDenom := tokenfactorytypes.NewMsgCreateDenom(contractAddr.String(), createDenom.Subdenom)
 
 	if err := msgCreateDenom.ValidateBasic(); err != nil {
-		return nil, sdkerrors.Wrap(err, "failed validating MsgCreateDenom")
+		return nil, errorsmod.Wrap(err, "failed validating MsgCreateDenom")
 	}
 
 	// Create denom
@@ -100,14 +101,14 @@ func PerformCreateDenom(f *tokenfactorykeeper.Keeper, b *bankkeeper.BaseKeeper, 
 		msgCreateDenom,
 	)
 	if err != nil {
-		return nil, sdkerrors.Wrap(err, "creating denom")
+		return nil, errorsmod.Wrap(err, "creating denom")
 	}
 
 	if createDenom.Metadata != nil {
 		newDenom := resp.NewTokenDenom
 		err := PerformSetMetadata(f, b, ctx, contractAddr, newDenom, *createDenom.Metadata)
 		if err != nil {
-			return nil, sdkerrors.Wrap(err, "setting metadata")
+			return nil, errorsmod.Wrap(err, "setting metadata")
 		}
 	}
 

@@ -28,7 +28,7 @@ func CreateTestApp(isCheckTx bool) (*junoapp.App, sdk.Context) {
 }
 
 func Setup(isCheckTx bool) *junoapp.App {
-	app, genesisState := GenApp(!isCheckTx, 5)
+	app, genesisState := GenApp(!isCheckTx)
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
 		stateBytes, err := json.MarshalIndent(genesisState, "", " ")
@@ -49,7 +49,7 @@ func Setup(isCheckTx bool) *junoapp.App {
 	return app
 }
 
-func GenApp(withGenesis bool, invCheckPeriod uint) (*junoapp.App, junoapp.GenesisState) {
+func GenApp(withGenesis bool) (*junoapp.App, junoapp.GenesisState) {
 	db := dbm.NewMemDB()
 	encCdc := junoapp.MakeEncodingConfig()
 
