@@ -66,7 +66,7 @@ from_scratch () {
   update_test_genesis '.app_state["globalfee"]["params"]["minimum_gas_prices"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
 
   update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="ujuno"'  
-  update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ujuno","enabled": true}]'
+  # update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ujuno","enabled": true}]'
   # update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.100000000000000000"' # sdk 46 only   
 
   update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ujuno"'  

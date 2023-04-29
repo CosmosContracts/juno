@@ -12,6 +12,8 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
@@ -24,7 +26,6 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
@@ -32,14 +33,21 @@ import (
 
 func (appKeepers *AppKeepers) GenerateKeys() {
 	appKeepers.keys = sdk.NewKVStoreKeys(
-		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
+		// authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
+		// minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
+		// govtypes.StoreKey, paramstypes.StoreKey, ibcexported.StoreKey, upgradetypes.StoreKey,
+		// evidencetypes.StoreKey, capabilitytypes.StoreKey,
+		// authzkeeper.StoreKey, feegrant.StoreKey,
+		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey, crisistypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey, ibcexported.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		authzkeeper.StoreKey, feegrant.StoreKey, icahosttypes.StoreKey, ibcfeetypes.StoreKey,
-		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, wasm.StoreKey,
-		icacontrollertypes.StoreKey, ibchookstypes.StoreKey, packetforwardtypes.StoreKey,
-		icqtypes.StoreKey, ibchost.SubModuleName,
+		govtypes.StoreKey, paramstypes.StoreKey, consensusparamtypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
+		evidencetypes.StoreKey, capabilitytypes.StoreKey,
+		authzkeeper.StoreKey,
+
+		// non sdk store keys
+		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
+		wasm.StoreKey, icahosttypes.StoreKey,
+		icacontrollertypes.StoreKey, icqtypes.StoreKey, packetforwardtypes.StoreKey, ibchookstypes.StoreKey, tokenfactorytypes.StoreKey, feesharetypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
