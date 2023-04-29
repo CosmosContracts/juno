@@ -25,6 +25,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	"github.com/cosmos/cosmos-sdk/x/consensus"
+	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
@@ -53,6 +55,7 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v7/modules/core"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
@@ -64,7 +67,7 @@ import (
 // and genesis verification.
 var ModuleBasics = module.NewBasicManager(
 	auth.AppModuleBasic{},
-	genutil.AppModuleBasic{},
+	genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
 	bank.AppModuleBasic{},
 	capability.AppModuleBasic{},
 	staking.AppModuleBasic{},
@@ -74,18 +77,21 @@ var ModuleBasics = module.NewBasicManager(
 	params.AppModuleBasic{},
 	crisis.AppModuleBasic{},
 	slashing.AppModuleBasic{},
+	upgrade.AppModuleBasic{},
+	evidence.AppModuleBasic{},
+	authzmodule.AppModuleBasic{},
+	vesting.AppModuleBasic{},
+	consensus.AppModuleBasic{},
+	// non sdk modules
+	wasm.AppModuleBasic{},
 	ibc.AppModuleBasic{},
+	ibctm.AppModuleBasic{},
+	transfer.AppModuleBasic{},
+	ica.AppModuleBasic{},
 	ibcfee.AppModuleBasic{},
 	icq.AppModuleBasic{},
 	feegrantmodule.AppModuleBasic{},
-	upgrade.AppModuleBasic{},
-	evidence.AppModuleBasic{},
-	transfer.AppModuleBasic{},
-	vesting.AppModuleBasic{},
-	authzmodule.AppModuleBasic{},
 	tokenfactory.AppModuleBasic{},
-	wasm.AppModuleBasic{},
-	ica.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
@@ -115,12 +121,13 @@ func appModules(
 		mint.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
 		slashing.NewAppModule(appCodec, app.AppKeepers.SlashingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName)),
 		distr.NewAppModule(appCodec, app.AppKeepers.DistrKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
-		staking.NewAppModule(appCodec, &app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
+		staking.NewAppModule(appCodec, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		upgrade.NewAppModule(app.AppKeepers.UpgradeKeeper),
 		evidence.NewAppModule(app.AppKeepers.EvidenceKeeper),
 		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
 		params.NewAppModule(app.AppKeepers.ParamsKeeper),
 		authzmodule.NewAppModule(appCodec, app.AppKeepers.AuthzKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
+		consensus.NewAppModule(appCodec, app.AppKeepers.ConsensusParamsKeeper),
 		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
 		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
 		tokenfactory.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper),
@@ -153,7 +160,7 @@ func simulationModules(
 		authzmodule.NewAppModule(appCodec, app.AppKeepers.AuthzKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
 		gov.NewAppModule(appCodec, &app.AppKeepers.GovKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
 		mint.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
-		staking.NewAppModule(appCodec, &app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
+		staking.NewAppModule(appCodec, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		distr.NewAppModule(appCodec, app.AppKeepers.DistrKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
 		slashing.NewAppModule(appCodec, app.AppKeepers.SlashingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		params.NewAppModule(app.AppKeepers.ParamsKeeper),
@@ -186,6 +193,7 @@ func orderBeginBlockers() []string {
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
+		consensusparamtypes.ModuleName,
 		// additional modules
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -219,6 +227,7 @@ func orderEndBlockers() []string {
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		consensusparamtypes.ModuleName,
 		// additional non simd modules
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -252,6 +261,7 @@ func orderInitBlockers() []string {
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		feegrant.ModuleName,
+		consensusparamtypes.ModuleName,
 		// additional non simd modules
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,

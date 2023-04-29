@@ -128,7 +128,7 @@ type AppKeepers struct {
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.BaseKeeper
 	CapabilityKeeper      *capabilitykeeper.Keeper
-	StakingKeeper         stakingkeeper.Keeper
+	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	MintKeeper            mintkeeper.Keeper
 	DistrKeeper           distrkeeper.Keeper
@@ -183,18 +183,19 @@ func NewAppKeepers(
 
 	// Set keys KVStoreKey, TransientStoreKey, MemoryStoreKey
 	appKeepers.GenerateKeys()
+	keys := appKeepers.GetKVStoreKey()
+	tkeys := appKeepers.GetTransientStoreKey()
 
 	appKeepers.ParamsKeeper = initParamsKeeper(
 		appCodec,
 		cdc,
-		appKeepers.keys[paramstypes.StoreKey],
-		appKeepers.tkeys[paramstypes.TStoreKey],
+		keys[paramstypes.StoreKey],
+		tkeys[paramstypes.TStoreKey],
 	)
-
-	keys := appKeepers.GetKVStoreKey()
 
 	// set the BaseApp's parameter store
 	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, keys[consensusparamtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	bApp.SetParamStore(&appKeepers.ConsensusParamsKeeper)
 
 	// add capability keeper and ScopeToModule for ibc module
 	appKeepers.CapabilityKeeper = capabilitykeeper.NewKeeper(
@@ -278,7 +279,7 @@ func NewAppKeepers(
 		skipUpgradeHeights[int64(h)] = true
 	}
 	homePath := cast.ToString(appOpts.Get(flags.FlagHome))
-
+	// set the governance module account as the authority for conducting upgrades
 	appKeepers.UpgradeKeeper = upgradekeeper.NewKeeper(
 		skipUpgradeHeights,
 		appKeepers.keys[upgradetypes.StoreKey],
@@ -294,7 +295,7 @@ func NewAppKeepers(
 		stakingtypes.NewMultiStakingHooks(appKeepers.DistrKeeper.Hooks(),
 			appKeepers.SlashingKeeper.Hooks()),
 	)
-	appKeepers.StakingKeeper = *stakingKeeper
+	appKeepers.StakingKeeper = stakingKeeper
 
 	// ... other modules keepers
 
@@ -611,7 +612,7 @@ func (appKeepers *AppKeepers) GetSubspace(moduleName string) paramstypes.Subspac
 }
 
 // GetStakingKeeper implements the TestingApp interface.
-func (appKeepers *AppKeepers) GetStakingKeeper() stakingkeeper.Keeper {
+func (appKeepers *AppKeepers) GetStakingKeeper() *stakingkeeper.Keeper {
 	return appKeepers.StakingKeeper
 }
 

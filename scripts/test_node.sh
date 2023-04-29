@@ -80,16 +80,16 @@ from_scratch () {
   update_test_genesis '.app_state["feeshare"]["params"]["allowed_denoms"]=["ujuno"]'
 
   # Allocate genesis accounts
-  BINARY add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
-  BINARY add-genesis-account feeacc 1000000ujuno,1000utest --keyring-backend $KEYRING
+  BINARY genesis add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
+  BINARY genesis add-genesis-account feeacc 1000000ujuno,1000utest --keyring-backend $KEYRING
 
-  BINARY gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID
+  BINARY genesis gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID
 
   # Collect genesis tx
-  BINARY collect-gentxs
+  BINARY genesis collect-gentxs
 
   # Run this to ensure junorything worked and that the genesis file is setup correctly
-  BINARY validate-genesis
+  BINARY genesis validate-genesis
 }
 
 # check if CLEAN is not set to false
