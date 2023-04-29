@@ -1,25 +1,25 @@
-package ibc_hooks
+package ibchooks
 
 import (
 	"encoding/json"
 	"fmt"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/CosmosContracts/juno/v15/x/ibc-hooks/keeper"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/CosmosContracts/juno/v15/x/ibchooks/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"github.com/CosmosContracts/juno/v15/osmoutils"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
-	"github.com/CosmosContracts/juno/v15/x/ibc-hooks/types"
+	"github.com/CosmosContracts/juno/v15/x/ibchooks/types"
 )
 
 type ContractAck struct {
@@ -279,7 +279,7 @@ func (h WasmHooks) SendPacketOverride(i ICS4Middleware, ctx sdk.Context, chanCap
 	delete(metadata, types.IBCCallbackKey)
 	bzMetadata, err := json.Marshal(metadata)
 	if err != nil {
-		return sdkerrors.Wrap(err, "Send packet with callback error")
+		return errorsmod.Wrap(err, "Send packet with callback error")
 	}
 	stringMetadata := string(bzMetadata)
 	if stringMetadata == "{}" {
@@ -289,7 +289,7 @@ func (h WasmHooks) SendPacketOverride(i ICS4Middleware, ctx sdk.Context, chanCap
 	}
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
-		return sdkerrors.Wrap(err, "Send packet with callback error")
+		return errorsmod.Wrap(err, "Send packet with callback error")
 	}
 
 	packetWithoutCallbackMemo := channeltypes.Packet{
@@ -347,7 +347,7 @@ func (h WasmHooks) OnAcknowledgementPacketOverride(im IBCMiddleware, ctx sdk.Con
 
 	contractAddr, err := sdk.AccAddressFromBech32(contract)
 	if err != nil {
-		return sdkerrors.Wrap(err, "Ack callback error") // The callback configured is not a bech32. Error out
+		return errorsmod.Wrap(err, "Ack callback error") // The callback configured is not a bech32. Error out
 	}
 
 	success := "false"
@@ -369,7 +369,7 @@ func (h WasmHooks) OnAcknowledgementPacketOverride(im IBCMiddleware, ctx sdk.Con
 	if err != nil {
 		// error processing the callback
 		// ToDo: Open Question: Should we also delete the callback here?
-		return sdkerrors.Wrap(err, "Ack callback error")
+		return errorsmod.Wrap(err, "Ack callback error")
 	}
 	h.ibcHooksKeeper.DeletePacketCallback(ctx, packet.GetSourceChannel(), packet.GetSequence())
 	return nil
@@ -394,7 +394,7 @@ func (h WasmHooks) OnTimeoutPacketOverride(im IBCMiddleware, ctx sdk.Context, pa
 
 	contractAddr, err := sdk.AccAddressFromBech32(contract)
 	if err != nil {
-		return sdkerrors.Wrap(err, "Timeout callback error") // The callback configured is not a bech32. Error out
+		return errorsmod.Wrap(err, "Timeout callback error") // The callback configured is not a bech32. Error out
 	}
 
 	sudoMsg := []byte(fmt.Sprintf(

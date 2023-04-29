@@ -33,3 +33,6 @@ linters-settings:
   gosec:
     excludes:
       - G404
+
+issues:
+  max-issues-per-linter: 0

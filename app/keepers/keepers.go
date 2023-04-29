@@ -3,13 +3,13 @@ package keepers
 import (
 	"path/filepath"
 
-	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibc-hooks/types"
+	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
 	"github.com/spf13/cast"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	ibchooks "github.com/CosmosContracts/juno/v15/x/ibc-hooks"
-	ibchookskeeper "github.com/CosmosContracts/juno/v15/x/ibc-hooks/keeper"
+	ibchooks "github.com/CosmosContracts/juno/v15/x/ibchooks"
+	ibchookskeeper "github.com/CosmosContracts/juno/v15/x/ibchooks/keeper"
 	mintkeeper "github.com/CosmosContracts/juno/v15/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"

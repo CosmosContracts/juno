@@ -38,7 +38,7 @@ type StoreKeysPrefixes struct {
 }
 
 // SetupSimulation wraps simapp.SetupSimulation in order to create any export directory if they do not exist yet
-func SetupSimulation(dirPrefix, dbName string) (simtypes.Config, dbm.DB, string, log.Logger, bool, error) {
+func SetupSimulation() (simtypes.Config, dbm.DB, string, log.Logger, bool, error) {
 	config := simcli.NewConfigFromFlags()
 	config.ChainID = SimAppChainID
 
@@ -90,7 +90,7 @@ func fauxMerkleModeOpt(bapp *baseapp.BaseApp) {
 }
 
 func TestFullAppSimulation(t *testing.T) {
-	config, db, dir, logger, skip, err := SetupSimulation("leveldb-app-sim", "Simulation")
+	config, db, dir, logger, skip, err := SetupSimulation()
 	if skip {
 		t.Skip("skipping application simulation")
 	}

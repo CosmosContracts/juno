@@ -1,4 +1,4 @@
-package ibc_hooks
+package ibchooks
 
 import (
 	// external libraries
