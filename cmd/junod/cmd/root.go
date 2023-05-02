@@ -109,7 +109,8 @@ func initTendermintConfig() *tmcfg.Config {
 	// cfg.P2P.MaxNumInboundPeers = 100
 	// cfg.P2P.MaxNumOutboundPeers = 40
 
-	cfg.Consensus.TimeoutCommit = 3 * time.Second
+	// 2 seconds + 1 second tendermint = 3 second blocks (v15 upgrade)
+	cfg.Consensus.TimeoutCommit = 2 * time.Second
 
 	return cfg
 }
@@ -126,7 +127,7 @@ func initAppConfig() (string, interface{}) {
 	// Optionally allow the chain developer to overwrite the SDK's default
 	// server config.
 	srvCfg := serverconfig.DefaultConfig()
-	// srvCfg.MinGasPrices = "0.0025ujuno,0.0025ujunox"
+	// srvCfg.MinGasPrices = "0ujuno,0ujunox" // GlobalFee handles
 
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,

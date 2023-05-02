@@ -168,17 +168,13 @@ func GetWasmOpts(appOpts servertypes.AppOptions) []wasm.Option {
 }
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
-	var govProposalHandlers []govclient.ProposalHandler
-
-	govProposalHandlers = append(govProposalHandlers,
+	return []govclient.ProposalHandler{
 		paramsclient.ProposalHandler,
 		upgradeclient.LegacyProposalHandler,
 		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
-	)
-
-	return govProposalHandlers
+	}
 }
 
 var (

@@ -33,11 +33,6 @@ import (
 
 func (appKeepers *AppKeepers) GenerateKeys() {
 	appKeepers.keys = sdk.NewKVStoreKeys(
-		// authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
-		// minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
-		// govtypes.StoreKey, paramstypes.StoreKey, ibcexported.StoreKey, upgradetypes.StoreKey,
-		// evidencetypes.StoreKey, capabilitytypes.StoreKey,
-		// authzkeeper.StoreKey, feegrant.StoreKey,
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey, crisistypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, consensusparamtypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
