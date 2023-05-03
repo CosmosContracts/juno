@@ -2,8 +2,8 @@
 # Run this script to quickly install, setup, and run the current version of juno without docker.
 #
 # Example:
-# CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
-# CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
+# CHAIN_ID="local-1" HOME_DIR="~/.juno1" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
+# CHAIN_ID="local-2" HOME_DIR="~/.juno2" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
 #
 # To use unoptomized wasm files up to ~5mb, add: MAX_WASM_SIZE=5000000
 
@@ -13,7 +13,7 @@ export CHAIN_ID=${CHAIN_ID:-"local-1"}
 export MONIKER="localjuno"
 export KEYALGO="secp256k1"
 export KEYRING=${KEYRING:-"test"}
-export HOME_DIR=$(eval echo "${HOME_DIR:-"~/.juno/"}")
+export HOME_DIR=$(eval echo "${HOME_DIR:-"~/.juno"}")
 
 export BINARY=${BINARY:-junod}
 export CLEAN=${CLEAN:-"false"}
@@ -73,7 +73,9 @@ from_scratch () {
   update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom": "ujuno","amount": "1000000"}]'
   update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ujuno","amount": "1000"}'  
 
-  update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom":"ujuno","amount":"100"}]'
+  # update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom":"ujuno","amount":"100"}]'
+  update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[]'
+  update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_gas_consume"]=2000000'
 
   update_test_genesis '.app_state["feeshare"]["params"]["allowed_denoms"]=["ujuno"]'
 
