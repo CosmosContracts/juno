@@ -57,7 +57,7 @@ func CreateV15UpgradeHandler(
 		keepers.SlashingKeeper.SetParams(ctx, slashingParams)
 
 		// Migrate Core-1 vesting accounts
-		if nativeDenom == "ujuno" {
+		if ctx.ChainID() == "juno-1" {
 			migrateCore1VestingAccountsToVestingContract(ctx, keepers)
 		}
 
