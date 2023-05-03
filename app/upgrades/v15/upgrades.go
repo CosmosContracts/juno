@@ -75,7 +75,7 @@ func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keep
 	// https://indexer.daodao.zone/juno-1/contract/juno1axkh35fx7vdtga3s3tj6hadzwdkq8meeq3gen5sardn69lgnmxgslauw4p/cwPayrollFactory/listVestingContracts?
 	// junod q wasm contract juno1d232p6f2rn4s66j5mp8fqt8h00rh2z6g84vs4ww58zgtulm2fheqs3u3c4 --output json | jq -r .contract_info.code_id
 
-	vestingCodeId := 2453
+	vestingCodeID := 2453
 	junoUnbondingSeconds := 2419200
 	core1SubDaoAddr := "juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3"
 
@@ -125,14 +125,12 @@ func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keep
 		_ = wasmtypes.MsgInstantiateContract{
 			Sender: core1SubDaoAddr,
 			Admin:  core1SubDaoAddr,
-			CodeID: uint64(vestingCodeId),
+			CodeID: uint64(vestingCodeID),
 			Label:  fmt.Sprintf("vest_to_%s_%d", address, currentEpochTime),
 			Msg:    []byte(msg),
 			Funds: []sdk.Coin{
 				sdk.NewCoin("ujuno", sdk.NewInt(preVestedCoin.Amount.Int64())),
 			},
 		}
-
 	}
-
 }
