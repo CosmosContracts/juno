@@ -61,9 +61,9 @@ import (
 	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v4/router/keeper"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 
-	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v15/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 
 	icahost "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/keeper"

@@ -3,7 +3,7 @@ package v13
 import (
 	"github.com/CosmosContracts/juno/v15/app/upgrades"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"

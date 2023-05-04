@@ -4,7 +4,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
-	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
