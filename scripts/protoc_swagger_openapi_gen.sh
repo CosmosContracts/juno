@@ -2,6 +2,10 @@
 
 # Run from the project root directory
 # This script generates the swagger & openapi.yaml documentation for the rest API on port 1317
+#
+# Install the following::
+# sudo npm install -g swagger2openapi swagger-merger swagger-combine
+# go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@v1.16.0
 
 # change to the scripts folder
 cd "$(dirname `realpath "$0"`)"
@@ -13,7 +17,7 @@ mkdir -p ./tmp-swagger-gen
 # Get the paths used repos from go/pkg/mod
 cosmos_sdk_dir=$(go list -f '{{ .Dir }}' -m github.com/cosmos/cosmos-sdk)
 wasmd=$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/wasmd)
-token_factory=$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/token-factory)
+token_factory=$(go list -f '{{ .Dir }}' -m github.com/CosmosTokenFactory/token-factory)
 gaia=$(go list -f '{{ .Dir }}' -m github.com/cosmos/gaia/v9)
 ica=$(go list -f '{{ .Dir }}' -m github.com/cosmos/interchain-accounts)
 pfm=$(go list -f '{{ .Dir }}' -m github.com/strangelove-ventures/packet-forward-middleware/v4)
@@ -24,7 +28,6 @@ for dir in $proto_dirs; do
   # generate swagger files (filter query files)
   query_file=$(find "${dir}" -maxdepth 1 \( -name 'query.proto' -o -name 'service.proto' \))
   if [[ ! -z "$query_file" ]]; then
-    # Get swagger protoc plugin with `go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@v1.16.0`
     protoc  \
     -I "proto" \
     -I "$cosmos_sdk_dir/third_party/proto" \

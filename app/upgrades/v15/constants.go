@@ -1,14 +1,15 @@
-package v12
+package v15
 
 import (
 	"github.com/CosmosContracts/juno/v15/app/upgrades"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 )
 
-const UpgradeName = "v12"
+// UpgradeName defines the on-chain upgrade name for the upgrade.
+const UpgradeName = "v15"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: CreateV12UpgradeHandler,
+	CreateUpgradeHandler: CreateV15UpgradeHandler,
 	StoreUpgrades:        store.StoreUpgrades{},
 }
