@@ -71,7 +71,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max        
+          cache-to: type=gha,mode=max   
+
+      # make juno:branchname here for all needs.build-and-push-image.outputs.branchTag
+      # then upload to github. Then download for each as a cache. This way its only built once     
 
   test-juno-basic:
     runs-on: ubuntu-latest
