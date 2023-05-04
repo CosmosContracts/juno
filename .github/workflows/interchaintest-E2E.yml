@@ -1,4 +1,4 @@
-name: Create Docker Image + E2E Tests
+name: ictest E2E
 
 on:
   push:
