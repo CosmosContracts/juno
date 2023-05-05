@@ -2,12 +2,17 @@ package interchaintest
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	feesharetypes "github.com/CosmosContracts/juno/v14/x/feeshare/types"
+	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types" // TODO: fix this so we can store in the DB.
+
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/docker/docker/client"
+	"github.com/icza/dyno"
 
 	interchaintest "github.com/strangelove-ventures/interchaintest/v4"
 	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
@@ -39,8 +44,8 @@ var (
 		Bech32Prefix:        "juno",
 		Denom:               "ujuno",
 		CoinType:            "118",
-		GasPrices:           "0.0ujuno",
-		GasAdjustment:       1.1,
+		GasPrices:           "0ujuno",
+		GasAdjustment:       1.8,
 		TrustingPeriod:      "112h",
 		NoHostMount:         false,
 		SkipGenTx:           false,
@@ -60,8 +65,9 @@ func junoEncoding() *simappparams.EncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 
 	// register custom types
-	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
+	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
+	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
 	return &cfg
 }
@@ -114,6 +120,8 @@ func CreateThisBranchChain(t *testing.T) []ibc.Chain {
 						UidGid:     JunoImage.UidGid,
 					},
 				},
+				GasPrices: "0ujuno",
+				Denom:     "ujuno",
 			},
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
@@ -153,4 +161,27 @@ func BuildInitialChain(t *testing.T, chains []ibc.Chain) (*interchaintest.Interc
 	require.NoError(t, err)
 
 	return ic, ctx, client, network
+}
+
+func ModifyGenesisProposalTime(votingPeriod string, maxDepositPeriod string) func(ibc.ChainConfig, []byte) ([]byte, error) {
+	return func(chainConfig ibc.ChainConfig, genbz []byte) ([]byte, error) {
+		g := make(map[string]interface{})
+		if err := json.Unmarshal(genbz, &g); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal genesis file: %w", err)
+		}
+		if err := dyno.Set(g, votingPeriod, "app_state", "gov", "voting_params", "voting_period"); err != nil {
+			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
+		}
+		if err := dyno.Set(g, maxDepositPeriod, "app_state", "gov", "deposit_params", "max_deposit_period"); err != nil {
+			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
+		}
+		if err := dyno.Set(g, chainConfig.Denom, "app_state", "gov", "deposit_params", "min_deposit", 0, "denom"); err != nil {
+			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
+		}
+		out, err := json.Marshal(g)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal genesis bytes to json: %w", err)
+		}
+		return out, nil
+	}
 }

@@ -22,3 +22,4 @@ func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain,
 
 	return codeId, contractAddr
 }
+
