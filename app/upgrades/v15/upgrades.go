@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
@@ -106,7 +105,6 @@ func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keep
 		fmt.Printf("moved %d ujuno from %s to %s\n", preVestedCoin.Amount.Int64(), address, core1SubDaoAddr)
 
 		// delete the old vesting base account
-
 		keepers.AccountKeeper.RemoveAccount(ctx, acc)
 
 		// Now funds are in Core-1 Subdao Control, and we can instantiate a vesting contract on behalf of the subdao for the amount stated
@@ -116,21 +114,31 @@ func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keep
 		// unbonding_duration_seconds:
 		// vesting_duration_seconds (94608000 = 3 years)
 		msg := fmt.Sprintf(`{"owner":"%s","recipient":"%s","title":"%s","description":"Core-1 Vesting","total":%d,"denom":{"native":"ujuno"}},"schedule":"saturating_linear","unbonding_duration_seconds":%d,"vesting_duration_seconds":9999}`, core1SubDaoAddr, address, memberName, preVestedCoin.Amount.Int64(), junoUnbondingSeconds)
-		// set as label vest_to_juno1addr_1682213004408 where the ending is the current epoch time
+		// set as label vest_to_juno1addr_1682213004408 where the ending is the current epoch time of prev block
 		// also pass through funds which must == total.
 
+		// replace with previous blocktime header in the future
 		currentEpochTime := time.Now().Unix() / 1000
 
-		// Example Msg. Switch this to just init on behalf of the subdao
-		_ = wasmtypes.MsgInstantiateContract{
-			Sender: core1SubDaoAddr,
-			Admin:  core1SubDaoAddr,
-			CodeID: uint64(vestingCodeID),
-			Label:  fmt.Sprintf("vest_to_%s_%d", address, currentEpochTime),
-			Msg:    []byte(msg),
-			Funds: []sdk.Coin{
-				sdk.NewCoin("ujuno", sdk.NewInt(preVestedCoin.Amount.Int64())),
-			},
+		coins := []sdk.Coin{
+			sdk.NewCoin("ujuno", sdk.NewInt(preVestedCoin.Amount.Int64())),
 		}
+
+		// use wasmtypes.ContractOpsKeeper here instead of permissioned keeper? or does it matter since we are permissionless anyways
+		contractAddr, _, err := keepers.ContractKeeper.Instantiate(
+			ctx,
+			uint64(vestingCodeID),
+			sdk.MustAccAddressFromBech32(core1SubDaoAddr),
+			sdk.MustAccAddressFromBech32(core1SubDaoAddr),
+			[]byte(msg),
+			fmt.Sprintf("vest_to_%s_%d", address, currentEpochTime),
+			coins,
+		)
+		// log contractAddr
+		fmt.Println(contractAddr, err)
+		if err != nil {
+			panic(err)
+		}
+
 	}
 }
