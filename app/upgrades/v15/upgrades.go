@@ -106,7 +106,10 @@ func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keep
 	for address, memberName := range vestingAccounts {
 		fmt.Println(address, memberName)
 
-		addr, _ := sdk.AccAddressFromBech32(address)
+		addr, err := sdk.AccAddressFromBech32(address)
+		if err != nil {
+			panic(err)
+		}
 
 		acc := keepers.AccountKeeper.GetAccount(ctx, addr)
 		if acc == nil {
