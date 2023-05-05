@@ -3,7 +3,7 @@ module github.com/CosmosContracts/juno/v15
 go 1.19
 
 require (
-	github.com/CosmWasm/wasmd v0.31.0
+	github.com/CosmWasm/wasmd v0.31.0	
 	github.com/cometbft/cometbft-db v0.8.0
 	github.com/cosmos/cosmos-sdk v0.45.15
 	github.com/cosmos/gaia/v9 v9.0.2
@@ -16,7 +16,7 @@ require (
 	github.com/prometheus/client_golang v1.15.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.7.0
-	github.com/strangelove-ventures/packet-forward-middleware/v4 v4.0.4
+	github.com/strangelove-ventures/packet-forward-middleware/v4 v4.0.5
 	github.com/stretchr/testify v1.8.2
 	github.com/tendermint/tendermint v0.34.27
 	github.com/tendermint/tm-db v0.6.8-0.20220506192307-f628bb5dc95b
