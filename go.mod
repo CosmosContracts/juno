@@ -3,7 +3,7 @@ module github.com/CosmosContracts/juno/v15
 go 1.19
 
 require (
-	github.com/CosmWasm/wasmd v0.31.0	
+	github.com/CosmWasm/wasmd v0.31.0
 	github.com/cometbft/cometbft-db v0.8.0
 	github.com/cosmos/cosmos-sdk v0.45.15
 	github.com/cosmos/gaia/v9 v9.0.2

@@ -81,14 +81,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
+      - name: checkout chain
+        uses: actions/checkout@v2
+
       - name: Setup Golang with cache
         uses: magnetikonline/action-golang-cache@v4
         with:
           go-version: ${{ env.GO_VERSION }}
         id: go
-
-      - name: checkout chain
-        uses: actions/checkout@v2
 
       - run: make ictest-basic
         env:
@@ -115,14 +115,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
+      - name: checkout chain
+        uses: actions/checkout@v2
+
       - name: Setup Golang with cache
         uses: magnetikonline/action-golang-cache@v4
         with:
           go-version: ${{ env.GO_VERSION }}
         id: go
-
-      - name: checkout chain
-        uses: actions/checkout@v2
 
       - run: make ictest-upgrade
         env:
@@ -132,14 +132,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
+      - name: checkout chain
+        uses: actions/checkout@v2
+
       - name: Setup Golang with cache
         uses: magnetikonline/action-golang-cache@v4
         with:
           go-version: ${{ env.GO_VERSION }}
         id: go
-
-      - name: checkout chain
-        uses: actions/checkout@v2
 
       - run: make ictest-tokenfactory
         env:
