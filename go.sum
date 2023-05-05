@@ -799,8 +799,8 @@ github.com/openzipkin/zipkin-go v0.1.6/go.mod h1:QgAqvLzwWbR/WpD4A3cGpPtJrZXNIiJ
 github.com/openzipkin/zipkin-go v0.2.1/go.mod h1:NaW6tEwdmWMaCDZzg8sh+IBNOxHMPnhQw8ySjnjRyN4=
 github.com/openzipkin/zipkin-go v0.2.2/go.mod h1:NaW6tEwdmWMaCDZzg8sh+IBNOxHMPnhQw8ySjnjRyN4=
 github.com/ory/dockertest v3.3.5+incompatible h1:iLLK6SQwIhcbrG783Dghaaa3WPzGc+4Emza6EbVUUGA=
-github.com/osmosis-labs/osmosis/osmoutils v0.0.3-rc0 h1:u91mXL0DbbQdLy95gCkLrM6cxya9b53fuiNkLO04KOE=
-github.com/osmosis-labs/osmosis/osmoutils v0.0.3-rc0/go.mod h1:rO4YKI0ZQkS3o4UDhFuQFy+j4eM/as8GLvuBDNBStkQ=
+github.com/osmosis-labs/osmosis/osmoutils v0.0.0-20230105184425-1e6fcd979d99 h1:8yYGNa5u8MmFdh+FpZQ7/4jlGABd5XSDfPcENJE9HXs=
+github.com/osmosis-labs/osmosis/osmoutils v0.0.0-20230105184425-1e6fcd979d99/go.mod h1:K4de+n3DtLdueen98dOzaRXZvqMd8JvigL8O1xW445o=
 github.com/osmosis-labs/osmosis/x/ibc-hooks v0.0.0-20230201151635-ef43e092d196 h1:V8OgwzvHwvGt2yEHRFsiWUPC647qez2LNgcvLzXgw8U=
 github.com/osmosis-labs/osmosis/x/ibc-hooks v0.0.0-20230201151635-ef43e092d196/go.mod h1:eoSRNkeqi3ufOmvY8XcW8y0NgbbaPyBTEn7DTxq8XY4=
 github.com/otiai10/copy v1.6.0 h1:IinKAryFFuPONZ7cm6T6E2QX/vcJwSnlaA5lfoaXIiQ=
@@ -950,8 +950,8 @@ github.com/spf13/viper v1.3.2/go.mod h1:ZiWeW+zYFKm7srdB9IoDzzZXaJaI5eL9QjNiN/DM
 github.com/spf13/viper v1.15.0 h1:js3yy885G8xwJa6iOISGFwd+qlUo5AvyXb7CiihdtiU=
 github.com/spf13/viper v1.15.0/go.mod h1:fFcTBJxvhhzSJiZy8n+PeW6t8l+KeT/uTARa0jHOQLA=
 github.com/status-im/keycard-go v0.0.0-20190316090335-8537d3370df4/go.mod h1:RZLeN1LMWmRsyYjvAu+I6Dm9QmlDaIIt+Y+4Kd7Tp+Q=
-github.com/strangelove-ventures/packet-forward-middleware/v4 v4.0.5 h1:KKUqeGhVBK38+1LwThC8IeIcsJZ6COX5kvhiJroFqCM=
-github.com/strangelove-ventures/packet-forward-middleware/v4 v4.0.5/go.mod h1:4zAtg449/JISRmf+sbmqolqSLP+QJBh+EtWkWtt/AKE=
+github.com/strangelove-ventures/packet-forward-middleware/v4 v4.0.4 h1:8Tn4Gy/DAq7wzV1CxEGv80ujZ+nUvzgwwdCobO/Gj8Y=
+github.com/strangelove-ventures/packet-forward-middleware/v4 v4.0.4/go.mod h1:AG8F5pdk3x1h7PlRvPoMem3623W+w8HJHrWYkVJ51kk=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/handy v0.0.0-20190108123426-d5acb3125c2a/go.mod h1:qNTQ5P5JnDBl6z3cMAg/SywNDC5ABu5ApDIw6lUbRmI=
