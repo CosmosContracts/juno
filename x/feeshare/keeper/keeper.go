@@ -21,8 +21,9 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	paramstore paramtypes.Subspace
 
-	bankKeeper revtypes.BankKeeper
-	wasmKeeper wasmkeeper.Keeper
+	bankKeeper    revtypes.BankKeeper
+	wasmKeeper    wasmkeeper.Keeper
+	accountKeeper revtypes.AccountKeeper
 
 	feeCollectorName string
 }
@@ -34,6 +35,7 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	bk revtypes.BankKeeper,
 	wk wasmkeeper.Keeper,
+	ak revtypes.AccountKeeper,
 	feeCollector string,
 ) Keeper {
 	// set KeyTable if it has not already been set
@@ -47,6 +49,7 @@ func NewKeeper(
 		paramstore:       ps,
 		bankKeeper:       bk,
 		wasmKeeper:       wk,
+		accountKeeper:    ak,
 		feeCollectorName: feeCollector,
 	}
 }

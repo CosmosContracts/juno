@@ -8,6 +8,7 @@ import (
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -16,20 +17,28 @@ func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, _ sdk.AccAdd
 	// This will allow ANYONE to register FeeShare funds to its own contract if it was created from a factory contract
 	// Note: if there is no admin but a creator made it, then the creator can register it how they wish
 
+	govAddress := k.accountKeeper.GetModuleAddress(govtypes.ModuleName).String()
+
 	creator, err := sdk.AccAddressFromBech32(info.Creator)
 	if err != nil {
 		return false
 	}
 
-	isFactoryContract := false
+	// If the admin is the gov module (ex: some subDAOs, its a factory contract. Allow register to itself)
+	if info.Admin == govAddress {
+		return true
+	}
 
+	isFactoryContract := false
 	if len(info.Admin) == 0 {
+		// if there is no admin & the creator is a contract, then its a factory contract
 		isFactoryContract = k.wasmKeeper.HasContractInfo(ctx, creator)
 	} else {
 		admin, err := sdk.AccAddressFromBech32(info.Admin)
 		if err != nil {
 			return false
 		}
+		// if there is an admin & the admin is a contract, then its a factory contract
 		isFactoryContract = k.wasmKeeper.HasContractInfo(ctx, admin)
 	}
 
