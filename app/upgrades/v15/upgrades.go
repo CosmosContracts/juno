@@ -64,6 +64,12 @@ func CreateV15UpgradeHandler(
 	}
 }
 
+func getBlockTime(ctx sdk.Context) uint64 {
+	now := ctx.BlockHeader().Time
+	// get the block time in seconds
+	return uint64(now.Unix())
+}
+
 func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keepers.AppKeepers) {
 	// TODO: Easier solution - return all funds back to core1SubDao, then propose new vesting contracts from there.
 	// Can print out values here for each account on the nodes to ensure each gets what they need + remove the accounts & upgrade time
@@ -87,6 +93,14 @@ func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keep
 		// max & alex?
 	}
 
+	// CurrentTime. Used for label in seconds
+	currentUnixSeconds := getBlockTime(ctx)
+
+	// End Vesting Time (Juno Network launch Oct 1st, 2021. Vested 12 years = 2033)
+	endVestingEpochDate := time.Date(2033, 10, 1, 0, 0, 0, 0, time.UTC)
+	endVestingEpochSeconds := uint64(endVestingEpochDate.Unix())
+	vestingDurationSeconds := endVestingEpochSeconds - currentUnixSeconds
+
 	// iterate through accounts
 	// Instantiate on behalf of the core-1 subDAO as the owner, and move all balance, pending rewards, and staked amounts into the new contract
 	for address, memberName := range vestingAccounts {
@@ -109,16 +123,18 @@ func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keep
 
 		// Now funds are in Core-1 Subdao Control, and we can instantiate a vesting contract on behalf of the subdao for the amount stated
 
-		// start_time is not set as it is Optional, which then sets when it is instantiated. ("start_time": "1677657600000000000")
-		// vesting_duration_seconds a time in the future. 12 years. So get current epoch second, time until 12 year end, difference
-		// unbonding_duration_seconds:
-		// vesting_duration_seconds (94608000 = 3 years)
-		msg := fmt.Sprintf(`{"owner":"%s","recipient":"%s","title":"%s","description":"Core-1 Vesting","total":%d,"denom":{"native":"ujuno"}},"schedule":"saturating_linear","unbonding_duration_seconds":%d,"vesting_duration_seconds":9999}`, core1SubDaoAddr, address, memberName, preVestedCoin.Amount.Int64(), junoUnbondingSeconds)
+		// start_time is NOT set as it is Optional. Sets when it is instantiated in nano seconds.
+		msg := fmt.Sprintf(`{"owner":"%s","recipient":"%s","title":"%s","description":"Core-1 Vesting","total":%d,"denom":{"native":"ujuno"}},"schedule":"saturating_linear","unbonding_duration_seconds":%d,"vesting_duration_seconds":%d}`,
+			core1SubDaoAddr,
+			address,
+			memberName,
+			preVestedCoin.Amount.Int64(),
+			junoUnbondingSeconds,
+			vestingDurationSeconds,
+		)
+
 		// set as label vest_to_juno1addr_1682213004408 where the ending is the current epoch time of prev block
 		// also pass through funds which must == total.
-
-		// replace with previous blocktime header in the future
-		currentEpochTime := time.Now().Unix() / 1000
 
 		coins := []sdk.Coin{
 			sdk.NewCoin("ujuno", sdk.NewInt(preVestedCoin.Amount.Int64())),
@@ -131,11 +147,10 @@ func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keep
 			sdk.MustAccAddressFromBech32(core1SubDaoAddr),
 			sdk.MustAccAddressFromBech32(core1SubDaoAddr),
 			[]byte(msg),
-			fmt.Sprintf("vest_to_%s_%d", address, currentEpochTime),
+			fmt.Sprintf("vest_to_%s_%d", address, currentUnixSeconds),
 			coins,
 		)
-		// log contractAddr
-		fmt.Println(contractAddr, err)
+		fmt.Println("Contract Created for:", contractAddr, address, memberName, "With ujuno Amount:", preVestedCoin.Amount.Int64())
 		if err != nil {
 			panic(err)
 		}
