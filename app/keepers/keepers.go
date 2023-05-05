@@ -382,6 +382,9 @@ func NewAppKeepers(
 		// governance
 		"/cosmos.gov.v1beta1.Query/Vote": &govtypes.QueryVoteResponse{},
 
+		// distribution
+		"/cosmos.distribution.v1beta1.Query/DelegationRewards": &distrtypes.QueryDelegationRewardsResponse{},
+
 		// staking
 		"/cosmos.staking.v1beta1.Query/Delegation":          &stakingtypes.QueryDelegationResponse{},
 		"/cosmos.staking.v1beta1.Query/Redelegations":       &stakingtypes.QueryRedelegationsResponse{},
