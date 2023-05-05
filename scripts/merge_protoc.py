@@ -15,11 +15,23 @@ project_root = os.path.dirname(current_dir)
 
 all_dir = os.path.join(project_root, "tmp-swagger-gen", "_all")
 
+# get the go.mod file Version
+version = ""
+with open(os.path.join(project_root, "go.mod"), "r") as f:
+    for line in f.readlines():
+        if line.startswith("module"):
+            version = line.split("/")[-1].strip()
+            break
+
+if not version:
+    print("Could not find version in go.mod")
+    exit(1)
+
 # What we will save when all combined
 output: dict
 output = {
     "swagger": "2.0",
-    "info": {"title": "Juno network", "version": "v14"},
+    "info": {"title": "Juno network", "version": version},
     "consumes": ["application/json"],
     "produces": ["application/json"],
     "paths": {},

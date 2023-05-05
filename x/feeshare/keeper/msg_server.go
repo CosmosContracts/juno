@@ -7,7 +7,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v14/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v15/x/feeshare/types"
 )
 
 var _ types.MsgServer = &Keeper{}

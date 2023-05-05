@@ -3,9 +3,9 @@ package v13
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v14/app/keepers"
+	"github.com/CosmosContracts/juno/v15/app/keepers"
 
-	"github.com/CosmosContracts/juno/v14/app/upgrades"
+	"github.com/CosmosContracts/juno/v15/app/upgrades"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -15,8 +15,8 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
 
 	// types
-	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
-	feesharetypes "github.com/CosmosContracts/juno/v14/x/feeshare/types"
+	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
 

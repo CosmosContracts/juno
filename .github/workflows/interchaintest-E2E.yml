@@ -7,16 +7,19 @@ on:
     branches:
       - '**'
     paths:
+      - '**.yml'
       - '**.go'
       - 'go.sum'
 
 env:
   REGISTRY: ghcr.io  
   IMAGE_NAME: ${{ github.repository }}-e2e
+  GO_VERSION: 1.19
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+  
 
 jobs:
   build-and-push-image:
@@ -30,6 +33,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      # We setup go & cache dependencies here. This way each child job
+      # does not have to reinstall all dependencies individually.
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+        id: go
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -60,16 +71,16 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max        
 
   test-juno-basic:
     runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
-      - name: Set up Go 1.19
-        uses: actions/setup-go@v3
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v4
         with:
-          go-version: 1.19
+          go-version: ${{ env.GO_VERSION }}
         id: go
 
       - name: checkout chain
@@ -83,10 +94,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
-      - name: Set up Go 1.19
-        uses: actions/setup-go@v3
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v4
         with:
-          go-version: 1.19
+          go-version: ${{ env.GO_VERSION }}
         id: go
 
       - name: checkout chain
@@ -100,10 +111,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
-      - name: Set up Go 1.19
-        uses: actions/setup-go@v3
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v4
         with:
-          go-version: 1.19
+          go-version: ${{ env.GO_VERSION }}
         id: go
 
       - name: checkout chain
