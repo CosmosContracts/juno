@@ -2,30 +2,11 @@ module github.com/CosmosContracts/juno/tests/interchaintest
 
 go 1.19
 
-replace (
-	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
-	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
-
-	// For this nested module, you always want to replace the parent reference with the current worktree.
-	github.com/CosmosContracts/juno => ../
-	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
-
-	// interchaintest supports ICS features so we need this for now
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.45.13-ics
-	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-
-	// use informal system fork of tendermint
-	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.26
-
-	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
-)
-
 require (
 	github.com/CosmWasm/wasmd v0.31.0
 	github.com/CosmosContracts/juno/v14 v14.1.0
 	github.com/cosmos/cosmos-sdk v0.45.15
 	github.com/cosmos/ibc-go/v4 v4.3.0
-	github.com/strangelove-ventures/interchaintest/v4 v4.0.0-20230331040355-5d08aab13017
 	github.com/docker/docker v20.10.24+incompatible
 	github.com/strangelove-ventures/interchaintest/v4 v4.0.0-20230331040355-5d08aab13017
 	github.com/stretchr/testify v1.8.2
@@ -39,7 +20,6 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
 	github.com/ChainSafe/go-schnorrkel/1 v0.0.0-00010101000000-000000000000 // indirect
-	github.com/CosmWasm/wasmd v0.31.0 // indirect
 	github.com/CosmWasm/wasmvm v1.2.3 // indirect
 	github.com/Microsoft/go-winio v0.6.0 // indirect
 	github.com/StirlingMarketingGroup/go-namecase v1.0.0 // indirect
@@ -206,7 +186,7 @@ replace (
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
 
 	// For this nested module, you always want to replace the parent reference with the current worktree.
-	github.com/CosmosContracts/juno => ../../
+	github.com/CosmosContracts/juno => ../
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
 
 	// interchaintest supports ICS features so we need this for now
