@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -43,7 +44,7 @@ func (k Keeper) GetContractAdminOrCreatorAddress(ctx sdk.Context, contract sdk.A
 	// Ensures deployer String is valid
 	_, err := sdk.AccAddressFromBech32(deployer)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid deployer address %s", deployer)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid deployer address %s", deployer)
 	}
 
 	info := k.wasmKeeper.GetContractInfo(ctx, contract)
@@ -51,23 +52,23 @@ func (k Keeper) GetContractAdminOrCreatorAddress(ctx sdk.Context, contract sdk.A
 	if len(info.Admin) == 0 {
 		// no admin, see if they are the creator of the contract
 		if info.Creator != deployer {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "you are not the creator of this contract %s", info.Creator)
+			return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "you are not the creator of this contract %s", info.Creator)
 		}
 
 		creatorAddr, err := sdk.AccAddressFromBech32(info.Creator)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address %s", info.Creator)
+			return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address %s", info.Creator)
 		}
 		controllingAccount = creatorAddr
 	} else {
 		// Admin is set, so we check if the deployer is the admin
 		if info.Admin != deployer {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "you are not an admin of this contract %s", deployer)
+			return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "you are not an admin of this contract %s", deployer)
 		}
 
 		adminAddr, err := sdk.AccAddressFromBech32(info.Admin)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid admin address %s", info.Admin)
+			return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid admin address %s", info.Admin)
 		}
 		controllingAccount = adminAddr
 	}
@@ -90,18 +91,18 @@ func (k Keeper) RegisterFeeShare(
 	// Get Contract
 	contract, err := sdk.AccAddressFromBech32(msg.ContractAddress)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
 	}
 
 	// Check if contract is already registered
 	if k.IsFeeShareRegistered(ctx, contract) {
-		return nil, sdkerrors.Wrapf(types.ErrFeeShareAlreadyRegistered, "contract is already registered %s", contract)
+		return nil, errorsmod.Wrapf(types.ErrFeeShareAlreadyRegistered, "contract is already registered %s", contract)
 	}
 
 	// Get the withdraw address of the contract
 	withdrawer, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid withdrawer address %s", msg.WithdrawerAddress)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid withdrawer address %s", msg.WithdrawerAddress)
 	}
 
 	var deployer sdk.AccAddress
@@ -109,7 +110,7 @@ func (k Keeper) RegisterFeeShare(
 	if k.GetIfContractWasCreatedFromFactory(ctx, contract, k.wasmKeeper.GetContractInfo(ctx, contract)) {
 		// Anyone is allowed to register a contract to itself if it was created from a factory contract
 		if msg.WithdrawerAddress != msg.ContractAddress {
-			return nil, sdkerrors.Wrapf(types.ErrFeeShareInvalidWithdrawer, "withdrawer address must be the same as the contract address if it is from a factory contract withdraw:%s contract:%s", msg.WithdrawerAddress, msg.ContractAddress)
+			return nil, errorsmod.Wrapf(types.ErrFeeShareInvalidWithdrawer, "withdrawer address must be the same as the contract address if it is from a factory contract withdraw:%s contract:%s", msg.WithdrawerAddress, msg.ContractAddress)
 		}
 
 		// set the deployer address to the contract address so it can self register
@@ -168,7 +169,7 @@ func (k Keeper) UpdateFeeShare(
 
 	contract, err := sdk.AccAddressFromBech32(msg.ContractAddress)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			sdkerrors.ErrInvalidAddress,
 			"invalid contract address (%s)", err,
 		)
@@ -176,7 +177,7 @@ func (k Keeper) UpdateFeeShare(
 
 	feeshare, found := k.GetFeeShare(ctx, contract)
 	if !found {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrFeeShareContractNotRegistered,
 			"contract %s is not registered", msg.ContractAddress,
 		)
@@ -184,7 +185,7 @@ func (k Keeper) UpdateFeeShare(
 
 	// feeshare with the given withdraw address is already registered
 	if msg.WithdrawerAddress == feeshare.WithdrawerAddress {
-		return nil, sdkerrors.Wrapf(types.ErrFeeShareAlreadyRegistered, "feeshare with withdraw address %s is already registered", msg.WithdrawerAddress)
+		return nil, errorsmod.Wrapf(types.ErrFeeShareAlreadyRegistered, "feeshare with withdraw address %s is already registered", msg.WithdrawerAddress)
 	}
 
 	// Check that the person who signed the message is the wasm contract admin, if so return the deployer address
@@ -195,14 +196,14 @@ func (k Keeper) UpdateFeeShare(
 
 	withdrawAddr, err := sdk.AccAddressFromBech32(feeshare.WithdrawerAddress)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			sdkerrors.ErrInvalidAddress,
 			"invalid withdrawer address (%s)", err,
 		)
 	}
 	newWithdrawAddr, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid WithdrawerAddress %s", msg.WithdrawerAddress)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid WithdrawerAddress %s", msg.WithdrawerAddress)
 	}
 
 	k.DeleteWithdrawerMap(ctx, withdrawAddr, contract)
@@ -240,12 +241,12 @@ func (k Keeper) CancelFeeShare(
 
 	contract, err := sdk.AccAddressFromBech32(msg.ContractAddress)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
 	}
 
 	fee, found := k.GetFeeShare(ctx, contract)
 	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrFeeShareContractNotRegistered, "contract %s is not registered", msg.ContractAddress)
+		return nil, errorsmod.Wrapf(types.ErrFeeShareContractNotRegistered, "contract %s is not registered", msg.ContractAddress)
 	}
 
 	// Check that the person who signed the message is the wasm contract admin, if so return the deployer address

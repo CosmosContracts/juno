@@ -3,6 +3,7 @@ module github.com/CosmosContracts/juno/v15
 go 1.19
 
 require (
+	cosmossdk.io/errors v1.0.0-beta.7
 	github.com/CosmWasm/wasmd v0.31.0
 	github.com/CosmosTokenFactory/token-factory v0.0.0-20230422130917-82986c5b3ec0
 	github.com/cometbft/cometbft-db v0.8.0
