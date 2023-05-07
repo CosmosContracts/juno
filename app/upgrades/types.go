@@ -3,7 +3,7 @@ package upgrades
 import (
 	"strings"
 
-	"github.com/CosmosContracts/juno/v14/app/keepers"
+	"github.com/CosmosContracts/juno/v15/app/keepers"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"

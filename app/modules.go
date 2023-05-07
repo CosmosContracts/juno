@@ -1,14 +1,14 @@
 package app
 
 import (
-	"github.com/CosmWasm/token-factory/x/tokenfactory"
-	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
 	"github.com/CosmWasm/wasmd/x/wasm"
-	encparams "github.com/CosmosContracts/juno/v14/app/params"
-	feeshare "github.com/CosmosContracts/juno/v14/x/feeshare"
-	feesharetypes "github.com/CosmosContracts/juno/v14/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v14/x/mint"
-	minttypes "github.com/CosmosContracts/juno/v14/x/mint/types"
+	encparams "github.com/CosmosContracts/juno/v15/app/params"
+	feeshare "github.com/CosmosContracts/juno/v15/x/feeshare"
+	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v15/x/mint"
+	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
+	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory"
+	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"

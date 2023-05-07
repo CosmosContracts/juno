@@ -7,8 +7,8 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	mintkeeper "github.com/CosmosContracts/juno/v14/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v14/x/mint/types"
+	mintkeeper "github.com/CosmosContracts/juno/v15/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -61,16 +61,16 @@ import (
 	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v4/router/keeper"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
 
-	"github.com/CosmWasm/token-factory/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmWasm/token-factory/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmWasm/token-factory/x/tokenfactory/types"
+	"github.com/CosmosTokenFactory/token-factory/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosTokenFactory/token-factory/x/tokenfactory/types"
 
 	icahost "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
 
-	feesharekeeper "github.com/CosmosContracts/juno/v14/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v14/x/feeshare/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 
 	// ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller"
@@ -78,6 +78,16 @@ import (
 	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
 
 	"github.com/cosmos/gaia/v9/x/globalfee"
+)
+
+var (
+	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2"
+
+	tokenFactoryCapabilities = []string{
+		tokenfactorytypes.EnableBurnFrom,
+		tokenfactorytypes.EnableForceTransfer,
+		tokenfactorytypes.EnableSetMetadata,
+	}
 )
 
 type AppKeepers struct {
@@ -357,6 +367,7 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,
+		tokenFactoryCapabilities,
 	)
 
 	wasmDir := filepath.Join(homePath, "data")
@@ -366,8 +377,6 @@ func NewAppKeepers(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	// Setup wasm bindings
-	supportedFeatures := "iterator,staking,stargate,cosmwasm_1_1,cosmwasm_1_2,token_factory"
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
 	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
@@ -381,6 +390,9 @@ func NewAppKeepers(
 
 		// governance
 		"/cosmos.gov.v1beta1.Query/Vote": &govtypes.QueryVoteResponse{},
+
+		// distribution
+		"/cosmos.distribution.v1beta1.Query/DelegationRewards": &distrtypes.QueryDelegationRewardsResponse{},
 
 		// staking
 		"/cosmos.staking.v1beta1.Query/Delegation":          &stakingtypes.QueryDelegationResponse{},
@@ -415,7 +427,7 @@ func NewAppKeepers(
 		bApp.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
-		supportedFeatures,
+		wasmCapabilities,
 		wasmOpts...,
 	)
 
