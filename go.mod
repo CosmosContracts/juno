@@ -7,7 +7,7 @@ require (
 	github.com/CosmosTokenFactory/token-factory v0.0.0-20230422130917-82986c5b3ec0
 	github.com/cometbft/cometbft-db v0.8.0
 	github.com/cosmos/cosmos-sdk v0.45.15
-	github.com/cosmos/gaia/v9 v9.0.2
+	github.com/cosmos/gaia/v9 v9.1.0
 	github.com/cosmos/ibc-go/v4 v4.4.0
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.3
