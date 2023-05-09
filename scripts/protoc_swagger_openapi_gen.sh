@@ -17,12 +17,11 @@ mkdir -p ./tmp-swagger-gen
 # Get the paths used repos from go/pkg/mod
 cosmos_sdk_dir=$(go list -f '{{ .Dir }}' -m github.com/cosmos/cosmos-sdk)
 wasmd=$(go list -f '{{ .Dir }}' -m github.com/CosmWasm/wasmd)
-token_factory=$(go list -f '{{ .Dir }}' -m github.com/CosmosTokenFactory/token-factory)
 gaia=$(go list -f '{{ .Dir }}' -m github.com/cosmos/gaia/v9)
 ica=$(go list -f '{{ .Dir }}' -m github.com/cosmos/interchain-accounts)
 pfm=$(go list -f '{{ .Dir }}' -m github.com/strangelove-ventures/packet-forward-middleware/v4)
 
-proto_dirs=$(find ./proto "$cosmos_sdk_dir"/proto "$wasmd"/proto "$token_factory"/proto "$gaia"/proto "$ica"/proto "$pfm"/proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+proto_dirs=$(find ./proto "$cosmos_sdk_dir"/proto "$wasmd"/proto "$gaia"/proto "$ica"/proto "$pfm"/proto -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
 for dir in $proto_dirs; do
 
   # generate swagger files (filter query files)
@@ -33,7 +32,6 @@ for dir in $proto_dirs; do
     -I "$cosmos_sdk_dir/third_party/proto" \
     -I "$cosmos_sdk_dir/proto" \
     -I "$wasmd/proto" \
-    -I "$token_factory/proto" \
     -I "$gaia/proto" \
     -I "$ica/proto" \
     -I "$pfm/proto" \
@@ -74,8 +72,6 @@ for f in $files; do
     cp $f ./tmp-swagger-gen/_all/juno-$counter.json
   elif [[ "$f" =~ "cosmos" ]]; then
     cp $f ./tmp-swagger-gen/_all/cosmos-$counter.json
-  elif [[ "$f" =~ "tokenfactory" ]]; then
-    cp $f ./tmp-swagger-gen/_all/tokenfactory-$counter.json
   # elif [[ "$f" =~ "intertx" ]]; then
   #   cp $f ./tmp-swagger-gen/_all/intertx-$counter.json
   else
