@@ -18,7 +18,7 @@ func TestJunoTokenFactory(t *testing.T) {
 	chains := CreateThisBranchChain(t)
 	ic, ctx, _, _ := BuildInitialChain(t, chains)
 
-	// get
+	// Chains
 	juno := chains[0].(*cosmos.CosmosChain)
 	t.Log("juno.GetHostRPCAddress()", juno.GetHostRPCAddress())
 
