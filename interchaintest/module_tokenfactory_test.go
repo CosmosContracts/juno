@@ -50,7 +50,6 @@ func TestJunoTokenFactory(t *testing.T) {
 		t.Fatal("balance not 70")
 	}
 
-	// TODO: Use same contract for a feeshare test with changing params
 	// This allows the uaddr here to mint tokens on behalf of the contract. Typically you only allow a contract here, but this is testing.
 	coreInitMsg := fmt.Sprintf(`{"allowed_mint_addresses":["%s"],"denoms":["%s"]}`, uaddr, tfDenom)
 	_, coreTFContract := helpers.SetupContract(t, ctx, juno, user.KeyName, "contracts/tokenfactory_core.wasm", coreInitMsg)
