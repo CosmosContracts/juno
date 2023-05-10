@@ -30,6 +30,9 @@ func CreateV15UpgradeHandler(
 		// Run migrations
 		logger.Info(fmt.Sprintf("pre migrate version map: %v", vm))
 		versionMap, err := mm.RunMigrations(ctx, cfg, vm)
+		if err != nil {
+			return nil, err
+		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
 		// x/Mint
@@ -52,7 +55,10 @@ func CreateV15UpgradeHandler(
 		// Double slashing window due to double blocks per year
 		slashingParams := keepers.SlashingKeeper.GetParams(ctx)
 		slashingParams.SignedBlocksWindow *= 2
-		keepers.SlashingKeeper.SetParams(ctx, slashingParams)
+		err = keepers.SlashingKeeper.SetParams(ctx, slashingParams)
+		if err != nil {
+			return nil, err
+		}
 
 		return versionMap, err
 	}
