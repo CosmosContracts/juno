@@ -14,3 +14,11 @@ func GetUserTokenFactoryBalances(t *testing.T, ctx context.Context, chain *cosmo
 	require.NoError(t, err)
 	return res
 }
+
+func GetUnityContractWithdrawalReadyTime(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) WithdrawalTimestampResponse {
+	// junod query wasm contract-state smart <contract> '{"get_withdrawal_ready_time":{}}' --output json
+	var res WithdrawalTimestampResponse
+	err := chain.QueryContract(ctx, contract, QueryMsg{GetWithdrawalReadyTime: &struct{}{}}, &res)
+	require.NoError(t, err)
+	return res
+}

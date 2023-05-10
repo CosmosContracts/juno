@@ -106,13 +106,16 @@ func CreateThisBranchChain(t *testing.T) []ibc.Chain {
 	numVals := 1
 	numFullNodes := 0
 
+	votingPeriod := "10s"
+	maxDepositPeriod := "10s"
+
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:      "juno",
 			ChainName: "juno",
 			Version:   junoVersion,
 			ChainConfig: ibc.ChainConfig{
-				// ModifyGenesis: cosmos.ModifyGenesisProposalTime(votingPeriod, maxDepositPeriod),
+				ModifyGenesis: cosmos.ModifyGenesisProposalTime(votingPeriod, maxDepositPeriod),
 				Images: []ibc.DockerImage{
 					{
 						Repository: junoRepo,
