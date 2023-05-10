@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/strangelove-ventures/interchaintest/v4"
-	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v7"
+	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
@@ -24,10 +24,10 @@ func TestJunoTokenFactory(t *testing.T) {
 
 	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", int64(10_000_000), juno, juno)
 	user := users[0]
-	uaddr := user.Bech32Address(juno.Config().Bech32Prefix)
+	uaddr := user.FormattedAddress()
 
 	user2 := users[1]
-	uaddr2 := user2.Bech32Address(juno.Config().Bech32Prefix)
+	uaddr2 := user2.FormattedAddress()
 
 	tfDenom := helpers.CreateTokenFactoryDenom(t, ctx, juno, user, "ictestdenom")
 	t.Log("tfDenom", tfDenom)
@@ -52,7 +52,7 @@ func TestJunoTokenFactory(t *testing.T) {
 
 	// This allows the uaddr here to mint tokens on behalf of the contract. Typically you only allow a contract here, but this is testing.
 	coreInitMsg := fmt.Sprintf(`{"allowed_mint_addresses":["%s"],"denoms":["%s"]}`, uaddr, tfDenom)
-	_, coreTFContract := helpers.SetupContract(t, ctx, juno, user.KeyName, "contracts/tokenfactory_core.wasm", coreInitMsg)
+	_, coreTFContract := helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/tokenfactory_core.wasm", coreInitMsg)
 	t.Log("coreContract", coreTFContract)
 
 	// change admin to the contract
@@ -67,7 +67,7 @@ func TestJunoTokenFactory(t *testing.T) {
 
 	// Mint on the contract for the user to ensure mint bindings work.
 	mintMsg := fmt.Sprintf(`{"mint":{"address":"%s","denom":[{"denom":"%s","amount":"31"}]}}`, uaddr2, tfDenom)
-	if _, err := juno.ExecuteContract(ctx, user.KeyName, coreTFContract, mintMsg); err != nil {
+	if err := juno.ExecuteContract(ctx, user.KeyName(), coreTFContract, mintMsg); err != nil {
 		t.Fatal(err)
 	}
 

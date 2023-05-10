@@ -10,17 +10,18 @@ import (
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types" // TODO: fix this so we can store in the DB.
 
-	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/docker/docker/client"
 	"github.com/icza/dyno"
 
-	interchaintest "github.com/strangelove-ventures/interchaintest/v4"
-	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v4/ibc"
-	"github.com/strangelove-ventures/interchaintest/v4/testreporter"
+	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
+	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
 
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
+
+	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 )
 
 var (
@@ -48,8 +49,6 @@ var (
 		GasAdjustment:       1.8,
 		TrustingPeriod:      "112h",
 		NoHostMount:         false,
-		SkipGenTx:           false,
-		PreGenesis:          nil,
 		ModifyGenesis:       nil,
 		ConfigFileOverrides: nil,
 		EncodingConfig:      junoEncoding(),
@@ -61,13 +60,15 @@ var (
 
 // junoEncoding registers the Juno specific module codecs so that the associated types and msgs
 // will be supported when writing to the blocksdb sqlite database.
-func junoEncoding() *simappparams.EncodingConfig {
+func junoEncoding() *testutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 
 	// register custom types
 	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
+
+	//github.com/cosmos/cosmos-sdk/types/module/testutil
 
 	return &cfg
 }
@@ -106,8 +107,8 @@ func CreateThisBranchChain(t *testing.T) []ibc.Chain {
 	numVals := 1
 	numFullNodes := 0
 
-	votingPeriod := "10s"
-	maxDepositPeriod := "10s"
+	// votingPeriod := "10s"
+	// maxDepositPeriod := "10s"
 
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
@@ -115,7 +116,7 @@ func CreateThisBranchChain(t *testing.T) []ibc.Chain {
 			ChainName: "juno",
 			Version:   junoVersion,
 			ChainConfig: ibc.ChainConfig{
-				ModifyGenesis: cosmos.ModifyGenesisProposalTime(votingPeriod, maxDepositPeriod),
+				// ModifyGenesis: modifyGenesisShortProposals(votingPeriod, maxDepositPeriod),
 				Images: []ibc.DockerImage{
 					{
 						Repository: junoRepo,
@@ -123,8 +124,9 @@ func CreateThisBranchChain(t *testing.T) []ibc.Chain {
 						UidGid:     JunoImage.UidGid,
 					},
 				},
-				GasPrices: "0ujuno",
-				Denom:     "ujuno",
+				GasPrices:              "0ujuno",
+				Denom:                  "ujuno",
+				UsingNewGenesisCommand: true, // v47
 			},
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
@@ -166,7 +168,8 @@ func BuildInitialChain(t *testing.T, chains []ibc.Chain) (*interchaintest.Interc
 	return ic, ctx, client, network
 }
 
-func ModifyGenesisProposalTime(votingPeriod string, maxDepositPeriod string) func(ibc.ChainConfig, []byte) ([]byte, error) {
+// Setup Helpers
+func modifyGenesisShortProposals(votingPeriod string, maxDepositPeriod string) func(ibc.ChainConfig, []byte) ([]byte, error) {
 	return func(chainConfig ibc.ChainConfig, genbz []byte) ([]byte, error) {
 		g := make(map[string]interface{})
 		if err := json.Unmarshal(genbz, &g); err != nil {

@@ -107,12 +107,8 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	// Get our Bech32 encoded user addresses
 	junoUser, gaiaUser := users[0], users[1]
 
-
-	
-	junoUserAddr := junoUser.Bech32Address(juno.Config().Bech32Prefix)
-	gaiaUserAddr := gaiaUser.Bech32Address(gaia.Config().Bech32Prefix)
-
-	
+	junoUserAddr := junoUser.FormattedAddress()
+	gaiaUserAddr := gaiaUser.FormattedAddress()
 
 	// Get original account balances
 	junoOrigBal, err := juno.GetBalance(ctx, junoUserAddr, juno.Config().Denom)
