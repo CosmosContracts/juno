@@ -11,6 +11,8 @@ tmp-swagger-gen
 
 heighliner*
 
+x/**/data/wasm/*
+
 # emacs editor config
 \#*\#
 .\#*
