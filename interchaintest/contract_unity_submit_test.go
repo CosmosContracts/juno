@@ -55,20 +55,6 @@ func TestJunoUnityContractGovSubmit(t *testing.T) {
 	_, err = cosmos.PollForProposalStatus(ctx, juno, height, height+haltHeightDelta, proposalID, cosmos.ProposalStatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
-	// TODO start_withdraw on it here to remove the other test
-
-	// Execute to start the withdrawl countdown
-	// juno.ExecuteContract(ctx, withdrawUser.KeyName, contractAddr, `{"start_withdraw":{}}`)
-
-	fmt.Print("juno RPC: ", juno.GetHostRPCAddress())
-	if err := testutil.WaitForBlocks(ctx, 50, juno); err != nil {
-		t.Fatal(err)
-	}
-
-	// make a query with GetUnityContractWithdrawalReadyTime
-	res := helpers.GetUnityContractWithdrawalReadyTime(t, ctx, juno, contractAddr)
-	t.Log("WithdrawalReadyTimestamp", res.Data.WithdrawalReadyTimestamp)
-
 	t.Cleanup(func() {
 		_ = ic.Close()
 	})
