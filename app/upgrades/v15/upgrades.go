@@ -11,6 +11,8 @@ import (
 
 	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 )
 
 // We now charge 2 million gas * gas price to create a denom.
@@ -35,12 +37,11 @@ func CreateV15UpgradeHandler(
 		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
-		// x/Mint
-		// Double blocks per year (from 6 seconds to 3 = 2x blocks per year)
-		mintParams := keepers.MintKeeper.GetParams(ctx)
-		mintParams.BlocksPerYear *= 2
-		keepers.MintKeeper.SetParams(ctx, mintParams)
-		logger.Info(fmt.Sprintf("updated minted blocks per year logic to %v", mintParams))
+		// Anything to do with ConsensusParamsKeeper?
+
+		// Interchain Queries
+		icqParams := icqtypes.NewParams(true, nil)
+		keepers.ICQKeeper.SetParams(ctx, icqParams)
 
 		// x/TokenFactory
 		// Use denom creation gas consumtion instead of fee for contract developers
@@ -51,15 +52,24 @@ func CreateV15UpgradeHandler(
 		keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf)
 		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
 
-		// x/Slashing
-		// Double slashing window due to double blocks per year
-		slashingParams := keepers.SlashingKeeper.GetParams(ctx)
-		slashingParams.SignedBlocksWindow *= 2
-		err = keepers.SlashingKeeper.SetParams(ctx, slashingParams)
-		if err != nil {
-			return nil, err
-		}
-
 		return versionMap, err
 	}
 }
+
+// Previously planned Faster block time upgrade
+//
+// x/Mint
+// Double blocks per year (from 6 seconds to 3 = 2x blocks per year)
+// mintParams := keepers.MintKeeper.GetParams(ctx)
+// mintParams.BlocksPerYear *= 2
+// keepers.MintKeeper.SetParams(ctx, mintParams)
+// logger.Info(fmt.Sprintf("updated minted blocks per year logic to %v", mintParams))
+//
+// x/Slashing
+// Double slashing window due to double blocks per year
+// slashingParams := keepers.SlashingKeeper.GetParams(ctx)
+// slashingParams.SignedBlocksWindow *= 2
+// err = keepers.SlashingKeeper.SetParams(ctx, slashingParams)
+// if err != nil {
+// 	return nil, err
+// }

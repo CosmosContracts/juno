@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"time"
 
 	tmcfg "github.com/cometbft/cometbft/config"
 	"github.com/prometheus/client_golang/prometheus"
@@ -110,7 +109,7 @@ func initTendermintConfig() *tmcfg.Config {
 	// cfg.P2P.MaxNumOutboundPeers = 40
 
 	// 2 seconds + 1 second tendermint = 3 second blocks (v15 upgrade)
-	cfg.Consensus.TimeoutCommit = 2 * time.Second
+	// cfg.Consensus.TimeoutCommit = 2 * time.Second
 
 	return cfg
 }
