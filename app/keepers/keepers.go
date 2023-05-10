@@ -519,6 +519,7 @@ func NewAppKeepers(
 		appKeepers.GetSubspace(feesharetypes.ModuleName),
 		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
+		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
 	)
 
