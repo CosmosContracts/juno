@@ -2,6 +2,24 @@ module github.com/CosmosContracts/juno/tests/interchaintest
 
 go 1.19
 
+replace (
+	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
+	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
+
+	// For this nested module, you always want to replace the parent reference with the current worktree.
+	github.com/CosmosContracts/juno => ../
+	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
+
+	// interchaintest supports ICS features so we need this for now
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.45.15-ics
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+
+	// github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.17
+	github.com/tendermint/tendermint => github.com/skip-mev/mev-cometbft v0.34.27-mev.18
+
+	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
+)
+
 require (
 	cosmossdk.io/simapp v0.0.0-20230224204036-a6adb0821462
 	github.com/cosmos/ibc-go/v7 v7.0.0
@@ -51,6 +69,7 @@ require (
 	github.com/cometbft/cometbft-db v0.7.0 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
+	github.com/cosmos/cosmos-db v0.0.0-20221226095112-f3c38ecb5e32 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.2 // indirect
 	github.com/cosmos/cosmos-sdk v0.47.1 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
@@ -73,7 +92,6 @@ require (
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
-	github.com/docker/docker v20.10.19+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -81,6 +99,7 @@ require (
 	github.com/ethereum/go-ethereum v1.10.20 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/getsentry/sentry-go v0.17.0 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
@@ -161,7 +180,7 @@ require (
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.14.0 // indirect
+	github.com/prometheus/client_golang v1.15.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.40.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
@@ -232,7 +251,7 @@ require (
 replace (
 
 	// interchaintest supports ICS features so we need this for now
-	// github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.45.13-ics
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.45.15-ics
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
 	// For this nested module, you always want to replace the parent reference with the current worktree.

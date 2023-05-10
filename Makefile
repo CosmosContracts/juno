@@ -103,6 +103,9 @@ install: go.sum
 build:
 	go build $(BUILD_FLAGS) -o bin/junod ./cmd/junod
 
+test-node:
+	CHAIN_ID="local-1" HOME_DIR="~/.juno1" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
+
 ###############################################################################
 ###                                Testing                                  ###
 ###############################################################################
@@ -120,18 +123,21 @@ benchmark:
 
 # Executes basic chain tests via interchaintest
 ictest-basic:
-	cd tests/interchaintest && go test -race -v -run TestBasicJunoStart .
+	cd interchaintest && go test -race -v -run TestBasicJunoStart .
+
+ictest-tokenfactory:
+	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
 
 # Executes a basic chain upgrade test via interchaintest
 ictest-upgrade:
-	cd tests/interchaintest && go test -race -v -run TestBasicJunoUpgrade .
+	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
 
 # Executes a basic chain upgrade locally via interchaintest after compiling a local image as juno:local
 ictest-upgrade-local: local-image ictest-upgrade
 
 # Executes IBC tests via interchaintest
 ictest-ibc:
-	cd tests/interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
+	cd interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
 
 # Executes all tests via interchaintest after compling a local image as juno:local
 ictest-all: local-image ictest-basic ictest-upgrade ictest-ibc
