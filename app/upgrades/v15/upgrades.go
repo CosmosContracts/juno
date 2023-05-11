@@ -100,7 +100,9 @@ func CreateV15UpgradeHandler(
 		// TODO: Add test for this
 		govParams := keepers.GovKeeper.GetParams(ctx)
 		govParams.MinInitialDepositRatio = sdk.NewDec(20).Quo(sdk.NewDec(100)).String()
-		keepers.GovKeeper.SetParams(ctx, govParams)
+		if err := keepers.GovKeeper.SetParams(ctx, govParams); err != nil {
+			return nil, err
+		}
 
 		// x/TokenFactory
 		// Use denom creation gas consumtion instead of fee for contract developers

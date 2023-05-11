@@ -181,7 +181,7 @@ func (mfd FeeDecorator) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, er
 	return []sdk.DecCoin{sdk.NewDecCoinFromDec(bondDenom, sdk.NewDec(0))}, nil
 }
 
-func (mfd FeeDecorator) getBondDenom(ctx sdk.Context) string {
+func (mfd FeeDecorator) getBondDenom(_ sdk.Context) string {
 	// TODO:
 	// var bondDenom string
 	// if mfd.StakingSubspace.Has(ctx, stakingtypes.KeyBondDenom) {
