@@ -8,7 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
 	"github.com/CosmosContracts/juno/v15/x/globalfee/types"
@@ -28,9 +27,10 @@ import (
 var _ sdk.AnteDecorator = FeeDecorator{}
 
 type FeeDecorator struct {
-	BypassMinFeeMsgTypes            []string
-	GlobalMinFee                    globalfee.ParamSource
-	StakingSubspace                 paramtypes.Subspace
+	BypassMinFeeMsgTypes []string
+	GlobalMinFee         globalfee.ParamSource
+	// TODO: we do not use subspaces anymore. Get it from the module still though
+	// StakingSubspace                 paramtypes.Subspace
 	MaxTotalBypassMinFeeMsgGasUsage uint64
 }
 
@@ -44,9 +44,9 @@ func NewFeeDecorator(bypassMsgTypes []string, globalfeeSubspace, stakingSubspace
 	}
 
 	return FeeDecorator{
-		BypassMinFeeMsgTypes:            bypassMsgTypes,
-		GlobalMinFee:                    globalfeeSubspace,
-		StakingSubspace:                 stakingSubspace,
+		BypassMinFeeMsgTypes: bypassMsgTypes,
+		GlobalMinFee:         globalfeeSubspace,
+		// StakingSubspace:                 stakingSubspace,
 		MaxTotalBypassMinFeeMsgGasUsage: maxTotalBypassMinFeeMsgGasUsage,
 	}
 }
@@ -182,12 +182,13 @@ func (mfd FeeDecorator) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, er
 }
 
 func (mfd FeeDecorator) getBondDenom(ctx sdk.Context) string {
-	var bondDenom string
-	if mfd.StakingSubspace.Has(ctx, stakingtypes.KeyBondDenom) {
-		mfd.StakingSubspace.Get(ctx, stakingtypes.KeyBondDenom, &bondDenom)
-	}
-
-	return bondDenom
+	// TODO:
+	// var bondDenom string
+	// if mfd.StakingSubspace.Has(ctx, stakingtypes.KeyBondDenom) {
+	// 	mfd.StakingSubspace.Get(ctx, stakingtypes.KeyBondDenom, &bondDenom)
+	// }
+	// return bondDenom
+	return "ujuno"
 }
 
 // ContainsOnlyBypassMinFeeMsgs returns true if all the given msgs type are listed
