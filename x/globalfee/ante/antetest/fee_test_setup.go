@@ -13,7 +13,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 
-	// gaiahelpers "github.com/CosmosContracts/juno/v15/app/helpers"
 	"github.com/CosmosContracts/juno/v15/app"
 	gaiafeeante "github.com/CosmosContracts/juno/v15/x/globalfee/ante"
 
@@ -30,11 +29,6 @@ type IntegrationTestSuite struct {
 	clientCtx client.Context
 	txBuilder client.TxBuilder
 }
-
-var (
-	testBondDenom                              = "uatom"
-	testMaxTotalBypassMinFeeMsgGasUsage uint64 = 1_000_000
-)
 
 func (s *IntegrationTestSuite) SetupTest() {
 	app := app.Setup(s.T())
@@ -59,7 +53,7 @@ func (s *IntegrationTestSuite) SetupTestGlobalFeeStoreAndMinGasPrice(minGasPrice
 
 	// set staking params
 	stakingParam := stakingtypes.DefaultParams()
-	stakingParam.BondDenom = testBondDenom
+	stakingParam.BondDenom = "uatom"
 	stakingSubspace := s.SetupTestStakingSubspace(stakingParam)
 
 	// build fee decorator

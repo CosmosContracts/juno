@@ -34,7 +34,6 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 			ChainConfig:   junoConfig,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
-				
 		},
 		{
 			Name:          "gaia",
