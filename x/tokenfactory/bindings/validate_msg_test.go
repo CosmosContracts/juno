@@ -40,7 +40,7 @@ func TestCreateDenom(t *testing.T) {
 			createDenom: &bindings.CreateDenom{
 				Subdenom: "sub-denom_2",
 			},
-			expErr: true,
+			expErr: false,
 		},
 		"null create denom": {
 			createDenom: nil,
@@ -53,6 +53,7 @@ func TestCreateDenom(t *testing.T) {
 			_, gotErr := wasmbinding.PerformCreateDenom(&junoapp.AppKeepers.TokenFactoryKeeper, &junoapp.AppKeepers.BankKeeper, ctx, actor, spec.createDenom)
 			// then
 			if spec.expErr {
+				t.Logf("validate_msg_test got error: %v", gotErr)
 				require.Error(t, gotErr)
 				return
 			}

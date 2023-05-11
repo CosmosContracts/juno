@@ -96,10 +96,12 @@ func PerformCreateDenom(f *tokenfactorykeeper.Keeper, b *bankkeeper.BaseKeeper, 
 	}
 
 	// Create denom
+	// TODO: issue here: nil key on Store
 	resp, err := msgServer.CreateDenom(
 		sdk.WrapSDKContext(ctx),
 		msgCreateDenom,
 	)
+
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "creating denom")
 	}

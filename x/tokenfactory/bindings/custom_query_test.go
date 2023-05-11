@@ -53,7 +53,7 @@ func queryCustom(t *testing.T, ctx sdk.Context, junoapp *app.App, contract sdk.A
 	}
 	msgBz, err := json.Marshal(wrapped)
 	require.NoError(t, err)
-	fmt.Println(string(msgBz))
+	fmt.Println("queryCustom1", string(msgBz))
 
 	query := ReflectQuery{
 		Chain: &ChainRequest{
@@ -62,7 +62,7 @@ func queryCustom(t *testing.T, ctx sdk.Context, junoapp *app.App, contract sdk.A
 	}
 	queryBz, err := json.Marshal(query)
 	require.NoError(t, err)
-	fmt.Println(string(queryBz))
+	fmt.Println("queryCustom2", string(queryBz))
 
 	resBz, err := junoapp.AppKeepers.WasmKeeper.QuerySmart(ctx, contract, queryBz)
 	require.NoError(t, err)

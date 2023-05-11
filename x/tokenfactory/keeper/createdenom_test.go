@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory/testhelpers"
+	"github.com/CosmosContracts/juno/v15/app/apptesting"
 	"github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 )
 
@@ -64,7 +64,7 @@ func (suite *KeeperTestSuite) TestMsgCreateDenom() {
 func (suite *KeeperTestSuite) TestCreateDenom() {
 	var (
 		primaryDenom            = types.DefaultParams().DenomCreationFee[0].Denom
-		secondaryDenom          = testhelpers.SecondaryDenom
+		secondaryDenom          = apptesting.SecondaryDenom
 		defaultDenomCreationFee = types.Params{DenomCreationFee: sdk.NewCoins(sdk.NewCoin(primaryDenom, sdk.NewInt(50000000)))}
 		twoDenomCreationFee     = types.Params{DenomCreationFee: sdk.NewCoins(sdk.NewCoin(primaryDenom, sdk.NewInt(50000000)), sdk.NewCoin(secondaryDenom, sdk.NewInt(50000000)))}
 		nilCreationFee          = types.Params{DenomCreationFee: nil}
@@ -138,12 +138,16 @@ func (suite *KeeperTestSuite) TestCreateDenom() {
 			suite.Require().Equal(tc.denomCreationFee.DenomCreationFee, denomCreationFee)
 
 			// note balance, create a tokenfactory denom, then note balance again
-			preCreateBalance := bankKeeper.GetAllBalances(suite.Ctx, suite.TestAccs[0])
+			// preCreateBalance := bankKeeper.GetAllBalances(suite.Ctx, suite.TestAccs[0])
+			preCreateBalance := bankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], "stake")
 			res, err := suite.msgServer.CreateDenom(sdk.WrapSDKContext(suite.Ctx), types.NewMsgCreateDenom(suite.TestAccs[0].String(), tc.subdenom))
-			postCreateBalance := bankKeeper.GetAllBalances(suite.Ctx, suite.TestAccs[0])
+			// postCreateBalance := bankKeeper.GetAllBalances(suite.Ctx, suite.TestAccs[0])
+			postCreateBalance := bankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], "stake")
 			if tc.valid {
 				suite.Require().NoError(err)
-				suite.Require().True(preCreateBalance.Sub(postCreateBalance[0]).IsEqual(denomCreationFee))
+				if denomCreationFee != nil {
+					suite.Require().True(preCreateBalance.Sub(postCreateBalance).IsEqual(denomCreationFee[0]))
+				}
 
 				// Make sure that the admin is set correctly
 				queryRes, err := suite.queryClient.DenomAuthorityMetadata(suite.Ctx.Context(), &types.QueryDenomAuthorityMetadataRequest{

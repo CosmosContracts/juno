@@ -51,7 +51,7 @@ var (
 
 // Setup sets up basic environment for suite (App, Ctx, and test accounts)
 func (s *KeeperTestHelper) Setup() {
-	var t *testing.T
+	t := s.T()
 	s.App = app.Setup(t)
 	s.Ctx = s.App.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
 	s.QueryHelper = &baseapp.QueryServiceTestHelper{
@@ -62,7 +62,7 @@ func (s *KeeperTestHelper) Setup() {
 }
 
 func (s *KeeperTestHelper) SetupTestForInitGenesis() {
-	var t *testing.T
+	t := s.T()
 	// Setting to True, leads to init genesis not running
 	s.App = app.Setup(t)
 	s.Ctx = s.App.BaseApp.NewContext(true, tmtypes.Header{

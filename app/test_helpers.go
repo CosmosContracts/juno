@@ -114,6 +114,8 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 			ChainId:         "testing",
+			Time:            time.Now().UTC(),
+			InitialHeight:   1,
 		},
 	)
 
@@ -233,7 +235,7 @@ func genesisStateWithValSet(t *testing.T,
 	// update total supply
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = codec.MustMarshalJSON(bankGenesis)
-	println(string(genesisState[banktypes.ModuleName]))
+	// println("genesisStateWithValSet bankState:", string(genesisState[banktypes.ModuleName]))
 
 	return genesisState
 }
