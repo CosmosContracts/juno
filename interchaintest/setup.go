@@ -46,7 +46,7 @@ var (
 		Denom:                  "ujuno",
 		CoinType:               "118",
 		GasPrices:              "0ujuno",
-		GasAdjustment:          1.8,
+		GasAdjustment:          2.0,
 		TrustingPeriod:         "112h",
 		NoHostMount:            false,
 		ModifyGenesis:          nil,
@@ -103,10 +103,8 @@ func CreateBaseChain(t *testing.T) []ibc.Chain {
 	return chains
 }
 
-func CreateThisBranchChain(t *testing.T) []ibc.Chain {
-	// Create chain factory with Juno
-	numVals := 1
-	numFullNodes := 0
+func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
+	// Create chain factory with Juno on this current branch
 
 	// votingPeriod := "10s"
 	// maxDepositPeriod := "10s"
@@ -126,11 +124,12 @@ func CreateThisBranchChain(t *testing.T) []ibc.Chain {
 					},
 				},
 				GasPrices:              "0ujuno",
+				GasAdjustment:          2.0,
 				Denom:                  "ujuno",
 				UsingNewGenesisCommand: true, // v47
 			},
 			NumValidators: &numVals,
-			NumFullNodes:  &numFullNodes,
+			NumFullNodes:  &numFull,
 		},
 	})
 

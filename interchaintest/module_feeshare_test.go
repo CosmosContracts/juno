@@ -14,7 +14,7 @@ func TestJunoFeeShare(t *testing.T) {
 	t.Parallel()
 
 	// Base setup
-	chains := CreateThisBranchChain(t)
+	chains := CreateThisBranchChain(t, 1, 0)
 	ic, ctx, _, _ := BuildInitialChain(t, chains)
 
 	// Chains
