@@ -17,7 +17,10 @@ var Upgrade = upgrades.Upgrade{
 	CreateUpgradeHandler: CreateV15UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
+			// new module
 			icqtypes.ModuleName,
+
+			// v47 module upgrades
 			crisistypes.ModuleName,
 			consensustypes.ModuleName,
 		},

@@ -191,8 +191,10 @@ func NewAppKeepers(
 		tkeys[paramstypes.TStoreKey],
 	)
 
+	govModAddress := authtypes.NewModuleAddress(govtypes.ModuleName).String()
+
 	// set the BaseApp's parameter store
-	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, keys[consensusparamtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, keys[consensusparamtypes.StoreKey], govModAddress)
 	bApp.SetParamStore(&appKeepers.ConsensusParamsKeeper)
 
 	// add capability keeper and ScopeToModule for ibc module
@@ -218,7 +220,7 @@ func NewAppKeepers(
 		authtypes.ProtoBaseAccount,
 		maccPerms,
 		Bech32Prefix,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 	)
 
 	appKeepers.BankKeeper = bankkeeper.NewBaseKeeper(
@@ -226,7 +228,7 @@ func NewAppKeepers(
 		keys[banktypes.StoreKey],
 		appKeepers.AccountKeeper,
 		BlockedAddresses(),
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 	)
 
 	stakingKeeper := stakingkeeper.NewKeeper(
@@ -234,7 +236,7 @@ func NewAppKeepers(
 		appKeepers.keys[stakingtypes.StoreKey],
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 	)
 	appKeepers.MintKeeper = mintkeeper.NewKeeper(
 		appCodec,
@@ -252,14 +254,14 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		stakingKeeper,
 		authtypes.FeeCollectorName,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 	)
 	appKeepers.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec,
 		cdc,
 		appKeepers.keys[slashingtypes.StoreKey],
 		stakingKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 	)
 
 	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
@@ -269,7 +271,7 @@ func NewAppKeepers(
 		invCheckPeriod,
 		appKeepers.BankKeeper,
 		authtypes.FeeCollectorName,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 	)
 
 	skipUpgradeHeights := map[int64]bool{}
@@ -284,7 +286,7 @@ func NewAppKeepers(
 		appCodec,
 		homePath,
 		bApp,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 	)
 
 	// register the staking hooks
@@ -335,7 +337,7 @@ func NewAppKeepers(
 		appKeepers.StakingKeeper,
 		bApp.MsgServiceRouter(),
 		govtypes.DefaultConfig(),
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 	)
 	appKeepers.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
@@ -509,7 +511,7 @@ func NewAppKeepers(
 		wasmDir,
 		wasmConfig,
 		wasmCapabilities,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 		wasmOpts...,
 	)
 
@@ -584,14 +586,17 @@ func NewAppKeepers(
 func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey storetypes.StoreKey) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
-	paramsKeeper.Subspace(authtypes.ModuleName)
-	paramsKeeper.Subspace(banktypes.ModuleName)
+	// https://github.com/cosmos/ibc-go/issues/2010
+	// can remove all since v47 moves all params to each module
+	// paramsKeeper.Subspace(authtypes.ModuleName)
+	// paramsKeeper.Subspace(banktypes.ModuleName)
+	// paramsKeeper.Subspace(distrtypes.ModuleName)
+	// paramsKeeper.Subspace(slashingtypes.ModuleName)
+	// paramsKeeper.Subspace(govtypes.ModuleName)
+	// paramsKeeper.Subspace(crisistypes.ModuleName)
+
 	paramsKeeper.Subspace(stakingtypes.ModuleName).WithKeyTable(stakingtypes.ParamKeyTable()) // Used for GlobalFee
 	paramsKeeper.Subspace(minttypes.ModuleName)
-	paramsKeeper.Subspace(distrtypes.ModuleName)
-	paramsKeeper.Subspace(slashingtypes.ModuleName)
-	paramsKeeper.Subspace(govtypes.ModuleName)
-	paramsKeeper.Subspace(crisistypes.ModuleName)
 
 	// custom
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
