@@ -16,8 +16,7 @@ replace (
 	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
 )
 
-require (
-	// cosmossdk.io/simapp v0.0.0-20230224204036-a6adb0821462
+require (	
 	github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8
 	github.com/CosmosContracts/juno/v15 v15.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.47.2
