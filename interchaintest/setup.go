@@ -37,21 +37,22 @@ var (
 	}
 
 	junoConfig = ibc.ChainConfig{
-		Type:                "cosmos",
-		Name:                "juno",
-		ChainID:             "juno-2",
-		Images:              []ibc.DockerImage{JunoImage},
-		Bin:                 "junod",
-		Bech32Prefix:        "juno",
-		Denom:               "ujuno",
-		CoinType:            "118",
-		GasPrices:           "0ujuno",
-		GasAdjustment:       1.8,
-		TrustingPeriod:      "112h",
-		NoHostMount:         false,
-		ModifyGenesis:       nil,
-		ConfigFileOverrides: nil,
-		EncodingConfig:      junoEncoding(),
+		Type:                   "cosmos",
+		Name:                   "juno",
+		ChainID:                "juno-2",
+		Images:                 []ibc.DockerImage{JunoImage},
+		Bin:                    "junod",
+		Bech32Prefix:           "juno",
+		Denom:                  "ujuno",
+		CoinType:               "118",
+		GasPrices:              "0ujuno",
+		GasAdjustment:          1.8,
+		TrustingPeriod:         "112h",
+		NoHostMount:            false,
+		ModifyGenesis:          nil,
+		ConfigFileOverrides:    nil,
+		EncodingConfig:         junoEncoding(),
+		UsingNewGenesisCommand: true,
 	}
 
 	pathJunoGaia        = "juno-gaia"

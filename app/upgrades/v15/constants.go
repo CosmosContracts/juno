@@ -5,6 +5,7 @@ import (
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 )
 
@@ -17,6 +18,7 @@ var Upgrade = upgrades.Upgrade{
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
 			icqtypes.ModuleName,
+			crisistypes.ModuleName,
 			consensustypes.ModuleName,
 		},
 	},
