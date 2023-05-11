@@ -22,8 +22,10 @@ type MintTestSuite struct {
 }
 
 func (suite *MintTestSuite) SetupTest() {
-	app := setup(false)
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+	app := app.Setup(suite.T())
+	ctx := app.BaseApp.NewContext(false, tmproto.Header{
+		ChainID: "testing",
+	})
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, app.AppKeepers.MintKeeper)

@@ -119,8 +119,9 @@ func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, params
 	paramsKeeper := paramskeeper.NewKeeper(encCfg.Marshaler, encCfg.Amino, keyParams, tkeyParams)
 
 	ctx := sdk.NewContext(ms, tmproto.Header{
-		Height: 1234567,
-		Time:   time.Date(2020, time.April, 22, 12, 0, 0, 0, time.UTC),
+		Height:  1234567,
+		Time:    time.Date(2020, time.April, 22, 12, 0, 0, 0, time.UTC),
+		ChainID: "testing",
 	}, false, log.NewNopLogger())
 
 	subspace := paramsKeeper.Subspace(ModuleName).WithKeyTable(types.ParamKeyTable())

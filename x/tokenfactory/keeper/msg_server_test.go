@@ -91,7 +91,7 @@ func (suite *KeeperTestSuite) TestBurnDenomMsg() {
 
 // TestCreateDenomMsg tests TypeMsgCreateDenom message is emitted on a successful denom creation
 func (suite *KeeperTestSuite) TestCreateDenomMsg() {
-	defaultDenomCreationFee := types.Params{DenomCreationFee: sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(50000000)))}
+	defaultDenomCreationFee := types.Params{DenomCreationFee: sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(50000000)))}
 	for _, tc := range []struct {
 		desc                  string
 		denomCreationFee      types.Params

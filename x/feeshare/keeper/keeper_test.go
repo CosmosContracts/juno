@@ -1,11 +1,9 @@
 package keeper_test
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
-	tmrand "github.com/cometbft/cometbft/libs/rand"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -45,7 +43,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 	s.app = app.Setup(s.T())
 
 	s.ctx = s.app.BaseApp.NewContext(isCheckTx, tmproto.Header{
-		ChainID: fmt.Sprintf("test-chain-%s", tmrand.Str(4)),
+		ChainID: "testing",
 		Height:  9,
 		Time:    time.Now().UTC(),
 	})

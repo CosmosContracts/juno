@@ -1,9 +1,6 @@
 package antetest
 
 import (
-	"fmt"
-
-	tmrand "github.com/cometbft/cometbft/libs/rand"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -42,7 +39,7 @@ var (
 func (s *IntegrationTestSuite) SetupTest() {
 	app := app.Setup(s.T())
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{
-		ChainID: fmt.Sprintf("test-chain-%s", tmrand.Str(4)),
+		ChainID: "testing",
 		Height:  1,
 	})
 

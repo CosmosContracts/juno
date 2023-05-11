@@ -28,6 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
+	appparams "github.com/CosmosContracts/juno/v15/app/params"
 	authzcodec "github.com/CosmosContracts/juno/v15/x/tokenfactory/types/authzcodec"
 
 	"github.com/CosmosContracts/juno/v15/app"
@@ -52,7 +53,7 @@ var (
 func (s *KeeperTestHelper) Setup() {
 	var t *testing.T
 	s.App = app.Setup(t)
-	s.Ctx = s.App.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "osmosis-1", Time: time.Now().UTC()})
+	s.Ctx = s.App.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
 	s.QueryHelper = &baseapp.QueryServiceTestHelper{
 		GRPCQueryRouter: s.App.GRPCQueryRouter(),
 		Ctx:             s.Ctx,
@@ -64,7 +65,9 @@ func (s *KeeperTestHelper) SetupTestForInitGenesis() {
 	var t *testing.T
 	// Setting to True, leads to init genesis not running
 	s.App = app.Setup(t)
-	s.Ctx = s.App.BaseApp.NewContext(true, tmtypes.Header{})
+	s.Ctx = s.App.BaseApp.NewContext(true, tmtypes.Header{
+		ChainID: "testing",
+	})
 }
 
 // CreateTestContext creates a test context.
@@ -88,7 +91,7 @@ func (s *KeeperTestHelper) Commit() {
 	oldHeight := s.Ctx.BlockHeight()
 	oldHeader := s.Ctx.BlockHeader()
 	s.App.Commit()
-	newHeader := tmtypes.Header{Height: oldHeight + 1, ChainID: oldHeader.ChainID, Time: oldHeader.Time.Add(time.Second)}
+	newHeader := tmtypes.Header{Height: oldHeight + 1, ChainID: "testing", Time: oldHeader.Time.Add(time.Second)}
 	s.App.BeginBlock(abci.RequestBeginBlock{Header: newHeader})
 	s.Ctx = s.App.NewContext(false, newHeader)
 }
@@ -120,7 +123,7 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 	s.FundAcc(sdk.AccAddress(valAddr), selfBond)
 
 	// stakingHandler := staking.NewHandler(s.App.AppKeepers.StakingKeeper)
-	stakingCoin := sdk.NewCoin(sdk.DefaultBondDenom, selfBond[0].Amount)
+	stakingCoin := sdk.NewCoin(appparams.BondDenom, selfBond[0].Amount)
 	ZeroCommission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
 	_, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{}, ZeroCommission, sdk.OneInt())
 	s.Require().NoError(err)
@@ -209,13 +212,13 @@ func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, re
 	s.Require().True(found)
 
 	// allocate reward tokens to distribution module
-	coins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, rewardAmt)}
+	coins := sdk.Coins{sdk.NewCoin(appparams.BondDenom, rewardAmt)}
 	err := banktestutil.FundModuleAccount(s.App.AppKeepers.BankKeeper, s.Ctx, distrtypes.ModuleName, coins)
 	s.Require().NoError(err)
 
 	// allocate rewards to validator
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
-	decTokens := sdk.DecCoins{{Denom: sdk.DefaultBondDenom, Amount: sdk.NewDec(20000)}}
+	decTokens := sdk.DecCoins{{Denom: appparams.BondDenom, Amount: sdk.NewDec(20000)}}
 	s.App.AppKeepers.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
 }
 

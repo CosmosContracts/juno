@@ -2,9 +2,11 @@ package app
 
 import (
 	"encoding/json"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 	apphelpers "github.com/CosmosContracts/juno/v15/app/helpers"
@@ -16,9 +18,14 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+	bam "github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/snapshots"
+	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -28,7 +35,7 @@ import (
 
 // SimAppChainID hardcoded chainID for simulation
 const (
-	SimAppChainID = "juno-app"
+	SimAppChainID = "testing"
 )
 
 // EmptyBaseAppOptions is a stub implementing AppOptions
@@ -68,6 +75,7 @@ func Setup(t *testing.T) *App {
 	privVal := apphelpers.NewPV()
 	pubKey, err := privVal.GetPubKey()
 	require.NoError(t, err)
+
 	// create validator set with single validator
 	validator := tmtypes.NewValidator(pubKey, 1)
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
@@ -80,7 +88,8 @@ func Setup(t *testing.T) *App {
 		Coins:   sdk.NewCoins(sdk.NewCoin(appparams.BondDenom, sdk.NewInt(100000000000000))),
 	}
 
-	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
+	chainID := "testing"
+	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, chainID, balance)
 
 	return app
 }
@@ -89,10 +98,10 @@ func Setup(t *testing.T) *App {
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit in the default token of the JunoApp from first genesis
 // account. A Nop logger is set in JunoApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *App {
+func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, chainId string, balances ...banktypes.Balance) *App {
 	t.Helper()
 
-	junoApp, genesisState := setup(true)
+	junoApp, genesisState := setup(t, true)
 	genesisState = genesisStateWithValSet(t, junoApp, genesisState, valSet, genAccs, balances...)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
@@ -104,25 +113,38 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
+			ChainId:         "testing",
 		},
 	)
 
 	// commit genesis changes
 	junoApp.Commit()
 	junoApp.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+		ChainID:            "testing",
 		Height:             junoApp.LastBlockHeight() + 1,
 		AppHash:            junoApp.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),
 		NextValidatorsHash: valSet.Hash(),
+		Time:               time.Now().UTC(),
 	}})
 
 	return junoApp
 }
 
-func setup(withGenesis bool) (*App, GenesisState) {
+func setup(t *testing.T, withGenesis bool, opts ...wasm.Option) (*App, GenesisState) {
 	db := dbm.NewMemDB()
-	encCdc := MakeEncodingConfig()
-	var emptyWasmOpts []wasm.Option
+	nodeHome := t.TempDir()
+	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
+
+	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
+	require.NoError(t, err)
+	t.Cleanup(func() { snapshotDB.Close() })
+	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	require.NoError(t, err)
+
+	// var emptyWasmOpts []wasm.Option
+	appOptions := make(simtestutil.AppOptionsMap, 0)
+	appOptions[flags.FlagHome] = nodeHome // ensure unique folder
 
 	app := New(
 		log.NewNopLogger(),
@@ -131,10 +153,12 @@ func setup(withGenesis bool) (*App, GenesisState) {
 		true,
 		wasm.EnableAllProposals,
 		EmptyAppOptions{},
-		emptyWasmOpts,
+		opts,
+		bam.SetChainID("testing"),
+		bam.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}),
 	)
 	if withGenesis {
-		return app, NewDefaultGenesisState(encCdc.Marshaler)
+		return app, NewDefaultGenesisState(app.AppCodec())
 	}
 
 	return app, GenesisState{}
@@ -145,9 +169,12 @@ func genesisStateWithValSet(t *testing.T,
 	valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
 	balances ...banktypes.Balance,
 ) GenesisState {
+
+	codec := app.AppCodec()
+
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
-	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
+	genesisState[authtypes.ModuleName] = codec.MustMarshalJSON(authGenesis)
 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
@@ -165,18 +192,18 @@ func genesisStateWithValSet(t *testing.T,
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,
 			Tokens:            bondAmt,
-			DelegatorShares:   sdk.OneDec(),
+			DelegatorShares:   math.LegacyOneDec(),
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
+			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
 
 	}
-	// set validators and delegations
+
 	defaultStParams := stakingtypes.DefaultParams()
 	stParams := stakingtypes.NewParams(
 		defaultStParams.UnbondingTime,
@@ -189,7 +216,13 @@ func genesisStateWithValSet(t *testing.T,
 
 	// set validators and delegations
 	stakingGenesis := stakingtypes.NewGenesisState(stParams, validators, delegations)
-	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
+	genesisState[stakingtypes.ModuleName] = codec.MustMarshalJSON(stakingGenesis)
+
+	// add bonded amount to bonded pool module account
+	balances = append(balances, banktypes.Balance{
+		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
+		Coins:   sdk.Coins{sdk.NewCoin(appparams.BondDenom, bondAmt.MulRaw(int64(len(valSet.Validators))))},
+	})
 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
@@ -197,27 +230,10 @@ func genesisStateWithValSet(t *testing.T,
 		totalSupply = totalSupply.Add(b.Coins...)
 	}
 
-	for range delegations {
-		// add delegated tokens to total supply
-		totalSupply = totalSupply.Add(sdk.NewCoin(appparams.BondDenom, bondAmt))
-	}
-
-	// add bonded amount to bonded pool module account
-	balances = append(balances, banktypes.Balance{
-		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(appparams.BondDenom, bondAmt)},
-	})
-
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(
-		banktypes.DefaultGenesisState().Params,
-		balances,
-		totalSupply,
-		[]banktypes.Metadata{},
-		banktypes.DefaultGenesisState().SendEnabled,
-	)
-
-	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
+	genesisState[banktypes.ModuleName] = codec.MustMarshalJSON(bankGenesis)
+	println(string(genesisState[banktypes.ModuleName]))
 
 	return genesisState
 }

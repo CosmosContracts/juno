@@ -27,6 +27,7 @@ func setup(isCheckTx bool) *junoapp.App {
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: simtestutil.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
+				ChainId:         "testing",
 			},
 		)
 	}

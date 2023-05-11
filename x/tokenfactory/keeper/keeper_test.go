@@ -51,7 +51,7 @@ func (suite *KeeperTestSuite) TestCreateModuleAccount() {
 	app.AppKeepers.AccountKeeper.RemoveAccount(suite.Ctx, tokenfactoryModuleAccount)
 
 	// ensure module account was removed
-	suite.Ctx = app.BaseApp.NewContext(false, tmproto.Header{})
+	suite.Ctx = app.BaseApp.NewContext(false, tmproto.Header{ChainID: "testing"})
 	tokenfactoryModuleAccount = app.AppKeepers.AccountKeeper.GetAccount(suite.Ctx, app.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
 	suite.Require().Nil(tokenfactoryModuleAccount)
 
