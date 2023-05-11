@@ -13,10 +13,15 @@ replace (
 	github.com/CosmosContracts/juno/v15 => github.com/CosmosContracts/juno/v15 v15.0.0-20230510202630-e1183eb692f6
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+
+	// Fixes gas issues in ictest
+	// go get github.com/Reecepbcups/interchaintest@83b50de71a69f3c463a7d809b8f1c02762fb4114
+	github.com/strangelove-ventures/interchaintest/v7 => github.com/Reecepbcups/interchaintest/v7 v7.0.0-20230511194528-83b50de71a69
 	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
+
 )
 
-require (	
+require (
 	github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8
 	github.com/CosmosContracts/juno/v15 v15.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.47.2
