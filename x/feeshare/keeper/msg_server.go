@@ -153,7 +153,7 @@ func (k Keeper) RegisterFeeShare(
 		sdk.Events{
 			sdk.NewEvent(
 				types.EventTypeRegisterFeeShare,
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
+				// sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress), // SDK v47
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, msg.WithdrawerAddress),
 			),
@@ -226,8 +226,8 @@ func (k Keeper) UpdateFeeShare(
 		sdk.Events{
 			sdk.NewEvent(
 				types.EventTypeUpdateFeeShare,
+				// sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress), // SDK v47
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
 				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, msg.WithdrawerAddress),
 			),
 		},
@@ -284,7 +284,7 @@ func (k Keeper) CancelFeeShare(
 		sdk.Events{
 			sdk.NewEvent(
 				types.EventTypeCancelFeeShare,
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
+				// sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress), // SDK v47
 				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
 			),
 		},
