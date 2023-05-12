@@ -54,7 +54,7 @@ func TestJunoUnityContractGovSubmit(t *testing.T) {
 		},
 	}
 
-	proposal, err := juno.BuildProposal(juno, proposalMsgs, "Prop Title", "description", "ipfs://CID", fmt.Sprintf(`1000000000%s`, nativeDenom))
+	proposal, err := juno.BuildProposal(proposalMsgs, "Prop Title", "description", "ipfs://CID", fmt.Sprintf(`1000000000%s`, nativeDenom))
 	require.NoError(t, err, "error making proposal")
 
 	txProp, err := juno.SubmitProposal(ctx, user.KeyName(), proposal)
