@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"testing"
 
+	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/stretchr/testify/require"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
 
@@ -43,15 +45,29 @@ func TestJunoUnityContractGovSubmit(t *testing.T) {
 	height, err := juno.Height(ctx)
 	require.NoError(t, err, "error fetching height")
 
-	msg = fmt.Sprintf(`{"execute_send":{"amount":"1000000","recipient":"%s"}}`, withdrawAddr)
-	helpers.StoreContractGovernanceProposal(t, ctx, juno, user, "Prop Title", "description", fmt.Sprintf(`500000000%s`, nativeDenom), contractAddr, "", msg)
+	// Use cosmos messages, then build the proposal, and submit it.
+	proposalMsgs := []cosmosproto.Message{
+		&wasmtypes.MsgSudoContract{
+			Authority: "juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730",
+			Contract:  contractAddr,
+			Msg:       []byte(fmt.Sprintf(`{"execute_send":{"amount":"1000000","recipient":"%s"}}`, withdrawAddr)),
+		},
+	}
+
+	proposal, err := juno.BuildProposal(juno, proposalMsgs, "Prop Title", "description", "ipfs://CID", fmt.Sprintf(`1000000000%s`, nativeDenom))
+	require.NoError(t, err, "error making proposal")
+
+	txProp, err := juno.SubmitProposal(ctx, user.KeyName(), proposal)
+	t.Log("txProp", txProp)
+	t.Log("err", err)
+
 	proposalID := "1"
 
-	// poll for proposal
 	err = juno.VoteOnProposalAllValidators(ctx, proposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
-	_, err = cosmos.PollForProposalStatus(ctx, juno, height, height+haltHeightDelta, proposalID, cosmos.ProposalStatusPassed)
+	// poll for proposal
+	_, err = cosmos.PollForProposalStatus(ctx, juno, height, height+50, proposalID, cosmos.ProposalStatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
 	t.Cleanup(func() {

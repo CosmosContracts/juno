@@ -25,30 +25,6 @@ func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain,
 	return codeId, contractAddr
 }
 
-func StoreContractGovernanceProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, title, description, depositCoin, contractAddr, amount, message string) {
-	cmd := []string{"junod", "tx", "gov", "submit-proposal", "sudo-contract", contractAddr, message,
-		"--title", title,
-		"--description", description,
-		"--deposit", depositCoin,
-		"--node", chain.GetRPCAddress(),
-		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
-		"--from", user.KeyName(),
-		"--gas", "2000000",
-		"--keyring-dir", chain.HomeDir(),
-		"--keyring-backend", keyring.BackendTest,
-		"-y",
-	}
-
-	if amount != "" {
-		cmd = append(cmd, "--amount", amount)
-	}
-
-	stdout, _, err := chain.Exec(ctx, cmd, nil)
-	require.NoError(t, err)
-	debugOutput(t, string(stdout))
-}
-
 func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr, amount, message string) {
 	// amount is #utoken
 
