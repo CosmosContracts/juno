@@ -26,6 +26,12 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	// External modules
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 )
 
 // We now charge 2 million gas * gas price to create a denom.
@@ -69,6 +75,17 @@ func CreateV15UpgradeHandler(
 				keyTable = govv1.ParamKeyTable() //nolint:staticcheck
 			case crisistypes.ModuleName:
 				keyTable = crisistypes.ParamKeyTable() //nolint:staticcheck
+
+			// ibc types
+			case ibctransfertypes.ModuleName:
+				keyTable = ibctransfertypes.ParamKeyTable()
+			case icahosttypes.SubModuleName:
+				keyTable = icahosttypes.ParamKeyTable()
+			case icacontrollertypes.SubModuleName:
+				keyTable = icacontrollertypes.ParamKeyTable()
+			// wasm
+			case wasmtypes.ModuleName:
+				keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
 			}
 
 			if !subspace.HasKeyTable() {
@@ -76,8 +93,7 @@ func CreateV15UpgradeHandler(
 			}
 		}
 
-		// Migrate Tendermint consensus parameters from x/params module to a
-		// x/consensus module.
+		// Migrate Tendermint consensus parameters from x/params module to a deprecated x/consensus module.
 		// The old params module is required to still be imported in your app.go in order to handle this migration.
 		baseAppLegacySS := keepers.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable())
 		baseapp.MigrateParams(ctx, baseAppLegacySS, &keepers.ConsensusParamsKeeper)
