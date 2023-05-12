@@ -9,6 +9,7 @@ on:
     paths:
       - '**.yml'
       - '**.go'
+      - '**.mod'
       - '**.sum'
 
 env:
