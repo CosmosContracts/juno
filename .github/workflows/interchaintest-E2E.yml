@@ -9,7 +9,7 @@ on:
     paths:
       - '**.yml'
       - '**.go'
-      - 'go.sum'
+      - '**.sum'
 
 env:
   REGISTRY: ghcr.io  
