@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -16,6 +17,7 @@ import (
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cometbft/cometbft/libs/log"
 	tmos "github.com/cometbft/cometbft/libs/os"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -35,6 +37,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
@@ -209,7 +212,7 @@ type App struct {
 	sm *module.SimulationManager
 
 	// module configurator
-	//	configurator module.Configurator // TODO: I think we need to do something with this...
+	configurator module.Configurator
 }
 
 // New returns a reference to an initialized Juno.
@@ -270,7 +273,7 @@ func New(
 	}
 
 	// upgrade handlers
-	cfg := module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
+	app.configurator = module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 
 	/****  Module Options ****/
 
@@ -281,6 +284,7 @@ func New(
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.ModuleManager = module.NewManager(appModules(app, encodingConfig, skipGenesisInvariants)...)
+	app.ModuleManager.RegisterServices(app.configurator)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
@@ -298,14 +302,13 @@ func New(
 	app.ModuleManager.SetOrderInitGenesis(orderInitBlockers()...)
 
 	app.ModuleManager.RegisterInvariants(app.AppKeepers.CrisisKeeper)
-	app.ModuleManager.RegisterServices(cfg)
 	// initialize stores
 	app.MountKVStores(app.keys)
 	app.MountTransientStores(app.AppKeepers.GetTransientStoreKey())
 	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKey())
 
 	// register upgrade
-	app.setupUpgradeHandlers(cfg)
+	app.setupUpgradeHandlers(app.configurator)
 
 	// SDK v47 - since we do not use dep inject, this gives us access to newer gRPC services.
 	autocliv1.RegisterQueryServer(app.GRPCQueryRouter(), runtimeservices.NewAutoCLIQueryService(app.ModuleManager.Modules))
@@ -364,9 +367,34 @@ func New(
 
 	app.setupUpgradeStoreLoaders()
 
+	// In v0.46, the SDK introduces _postHandlers_. PostHandlers are like
+	// antehandlers, but are run _after_ the `runMsgs` execution. They are also
+	// defined as a chain, and have the same signature as antehandlers.
+	//
+	// In baseapp, postHandlers are run in the same store branch as `runMsgs`,
+	// meaning that both `runMsgs` and `postHandler` state will be committed if
+	// both are successful, and both will be reverted if any of the two fails.
+	//
+	// The SDK exposes a default postHandlers chain, which comprises of only
+	// one decorator: the Transaction Tips decorator. However, some chains do
+	// not need it by default, so feel free to comment the next line if you do
+	// not need tips.
+	// To read more about tips:
+	// https://docs.cosmos.network/main/core/tips.html
+	//
+	// Please note that changing any of the anteHandler or postHandler chain is
+	// likely to be a state-machine breaking change, which needs a coordinated
+	// upgrade.
+	app.setPostHandler()
+
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
+		}
+		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+		// Initialize pinned codes in wasmvm as they are not persisted there
+		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 
 		// Initialize and seal the capability keeper so all persistent capabilities
@@ -400,6 +428,17 @@ func GetDefaultBypassFeeMessages() []string {
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeout{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeoutOnClose{}),
 	}
+}
+
+func (app *App) setPostHandler() {
+	postHandler, err := posthandler.NewPostHandler(
+		posthandler.HandlerOptions{},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	app.SetPostHandler(postHandler)
 }
 
 // Name returns the name of the App
