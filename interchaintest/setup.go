@@ -25,6 +25,9 @@ import (
 )
 
 var (
+	VotingPeriod     = "25s"
+	MaxDepositPeriod = "10s"
+
 	JunoE2ERepo  = "ghcr.io/cosmoscontracts/juno-e2e"
 	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
 
@@ -49,10 +52,10 @@ var (
 		GasAdjustment:          2.0,
 		TrustingPeriod:         "112h",
 		NoHostMount:            false,
-		ModifyGenesis:          nil,
 		ConfigFileOverrides:    nil,
 		EncodingConfig:         junoEncoding(),
 		UsingNewGenesisCommand: true,
+		ModifyGenesis:          modifyGenesisShortProposals(VotingPeriod, MaxDepositPeriod),
 	}
 
 	pathJunoGaia        = "juno-gaia"
@@ -74,60 +77,21 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	return &cfg
 }
 
-// Basic chain setup for a Juno chain. No relaying
-func CreateBaseChain(t *testing.T) []ibc.Chain {
-	// Create chain factory with Juno
-	numVals := 1
-	numFullNodes := 0
+// This allows for us to test
+func FundSpecificUsers() {
 
-	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
-		{
-			Name:      "juno",
-			Version:   "latest",
-			ChainName: "juno1",
-			ChainConfig: ibc.ChainConfig{
-				GasPrices:      "0ujuno",
-				GasAdjustment:  2.0,
-				EncodingConfig: junoEncoding(),
-			},
-			NumValidators: &numVals,
-			NumFullNodes:  &numFullNodes,
-		},
-	})
-
-	// Get chains from the chain factory
-	chains, err := cf.Chains(t.Name())
-	require.NoError(t, err)
-
-	// juno := chains[0].(*cosmos.CosmosChain)
-	return chains
 }
 
+// Base chain, no relaying off this branch (or juno:local if no branch is provided.)
 func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
 	// Create chain factory with Juno on this current branch
 
-	// votingPeriod := "10s"
-	// maxDepositPeriod := "10s"
-
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
-			Name:      "juno",
-			ChainName: "juno",
-			Version:   junoVersion,
-			ChainConfig: ibc.ChainConfig{
-				// ModifyGenesis: modifyGenesisShortProposals(votingPeriod, maxDepositPeriod),
-				Images: []ibc.DockerImage{
-					{
-						Repository: junoRepo,
-						Version:    junoVersion,
-						UidGid:     JunoImage.UidGid,
-					},
-				},
-				GasPrices:              "0ujuno",
-				GasAdjustment:          2.0,
-				Denom:                  "ujuno",
-				UsingNewGenesisCommand: true, // v47
-			},
+			Name:          "juno",
+			ChainName:     "juno",
+			Version:       junoVersion,
+			ChainConfig:   junoConfig,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFull,
 		},
@@ -137,7 +101,7 @@ func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
 	chains, err := cf.Chains(t.Name())
 	require.NoError(t, err)
 
-	// juno := chains[0].(*cosmos.CosmosChain)
+	// chain := chains[0].(*cosmos.CosmosChain)
 	return chains
 }
 
@@ -175,13 +139,14 @@ func modifyGenesisShortProposals(votingPeriod string, maxDepositPeriod string) f
 		if err := json.Unmarshal(genbz, &g); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal genesis file: %w", err)
 		}
-		if err := dyno.Set(g, votingPeriod, "app_state", "gov", "voting_params", "voting_period"); err != nil {
+		// v47 puts params in a params field now.
+		if err := dyno.Set(g, votingPeriod, "app_state", "gov", "params", "voting_period"); err != nil {
 			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
 		}
-		if err := dyno.Set(g, maxDepositPeriod, "app_state", "gov", "deposit_params", "max_deposit_period"); err != nil {
+		if err := dyno.Set(g, maxDepositPeriod, "app_state", "gov", "params", "max_deposit_period"); err != nil {
 			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
 		}
-		if err := dyno.Set(g, chainConfig.Denom, "app_state", "gov", "deposit_params", "min_deposit", 0, "denom"); err != nil {
+		if err := dyno.Set(g, chainConfig.Denom, "app_state", "gov", "params", "min_deposit", 0, "denom"); err != nil {
 			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
 		}
 		out, err := json.Marshal(g)

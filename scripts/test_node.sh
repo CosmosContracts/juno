@@ -60,7 +60,7 @@ from_scratch () {
 
   # Set gas limit in genesis
   update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
-  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="15s"'
+  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="150s"'
 
   # GlobalFee
   update_test_genesis '.app_state["globalfee"]["params"]["minimum_gas_prices"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
@@ -70,7 +70,7 @@ from_scratch () {
   # update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.100000000000000000"' # sdk 46 only   
 
   update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ujuno"'  
-  update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom": "ujuno","amount": "1000000"}]'
+  update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom": "ujuno","amount": "1000000"}]'
   update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ujuno","amount": "1000"}'  
 
   # update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom":"ujuno","amount":"100"}]'

@@ -38,7 +38,8 @@ import (
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -322,8 +323,8 @@ func NewAppKeepers(
 	)
 
 	// register the proposal types
-	govRouter := govv1beta1.NewRouter()
-	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
+	govRouter := govv1beta.NewRouter()
+	govRouter.AddRoute(govtypes.RouterKey, govv1beta.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper)). // This should be removed. It is still in place to avoid failures of modules that have not yet been upgraded
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
@@ -472,7 +473,7 @@ func NewAppKeepers(
 		"/ibc.core.connection.v1.Query/Connection": &ibcconnectiontypes.QueryConnectionResponse{},
 
 		// governance
-		"/cosmos.gov.v1beta1.Query/Vote": &govv1beta1.QueryVoteResponse{},
+		"/cosmos.gov.v1beta1.Query/Vote": &govv1.QueryVoteResponse{},
 
 		// distribution
 		"/cosmos.distribution.v1beta1.Query/DelegationRewards": &distrtypes.QueryDelegationRewardsResponse{},
@@ -502,6 +503,7 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
 		distrkeeper.NewQuerier(appKeepers.DistrKeeper),
+		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		scopedWasmKeeper,
@@ -587,13 +589,13 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
 	// https://github.com/cosmos/ibc-go/issues/2010
-	// can remove all since v47 moves all params to each module
-	// paramsKeeper.Subspace(authtypes.ModuleName)
-	// paramsKeeper.Subspace(banktypes.ModuleName)
-	// paramsKeeper.Subspace(distrtypes.ModuleName)
-	// paramsKeeper.Subspace(slashingtypes.ModuleName)
-	// paramsKeeper.Subspace(govtypes.ModuleName)
-	// paramsKeeper.Subspace(crisistypes.ModuleName)
+	// Will remove all of these in the future. For now we keep for legacy proposals to work properly.
+	paramsKeeper.Subspace(authtypes.ModuleName)
+	paramsKeeper.Subspace(banktypes.ModuleName)
+	paramsKeeper.Subspace(distrtypes.ModuleName)
+	paramsKeeper.Subspace(slashingtypes.ModuleName)
+	paramsKeeper.Subspace(govtypes.ModuleName)
+	paramsKeeper.Subspace(crisistypes.ModuleName)
 
 	paramsKeeper.Subspace(stakingtypes.ModuleName).WithKeyTable(stakingtypes.ParamKeyTable()) // Used for GlobalFee
 	paramsKeeper.Subspace(minttypes.ModuleName)

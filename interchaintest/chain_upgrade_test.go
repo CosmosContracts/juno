@@ -16,8 +16,7 @@ import (
 const (
 	haltHeightDelta    = uint64(7) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = uint64(10)
-	votingPeriod       = "10s"
-	maxDepositPeriod   = "10s"
+
 )
 
 func TestBasicJunoUpgrade(t *testing.T) {
@@ -40,7 +39,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 			ChainName: chainName,
 			Version:   initialVersion,
 			ChainConfig: ibc.ChainConfig{
-				ModifyGenesis: modifyGenesisShortProposals(votingPeriod, maxDepositPeriod),
+				ModifyGenesis: modifyGenesisShortProposals(VotingPeriod, MaxDepositPeriod),
 				Images: []ibc.DockerImage{
 					{
 						Repository: JunoE2ERepo,
