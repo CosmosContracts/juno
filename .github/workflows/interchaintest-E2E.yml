@@ -20,8 +20,6 @@ env:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-  
-
 
 jobs:
   build-and-push-image:
@@ -38,6 +36,7 @@ jobs:
 
       # We setup go & cache dependencies here. This way each child job
       # does not have to reinstall all dependencies individually.
+      # Should ID be unique to this job only?
       - name: Setup Golang with cache
         uses: magnetikonline/action-golang-cache@v4
         with:
