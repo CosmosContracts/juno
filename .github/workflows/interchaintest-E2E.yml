@@ -1,4 +1,5 @@
 name: ictest E2E
+name: ictest E2E
 
 on:
   push:
@@ -20,6 +21,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
   
+
 
 
 jobs:
@@ -79,10 +81,16 @@ jobs:
 
   # TODO: Add reusable job template here, just changing the `make` command for each
 
+      # make juno:branchname here for all needs.build-and-push-image.outputs.branchTag
+      # then upload to github. Then download for each as a cache. This way its only built once     
+
   test-juno-basic:
     runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
+      - name: checkout chain
+        uses: actions/checkout@v2
+
       - name: checkout chain
         uses: actions/checkout@v2
 
