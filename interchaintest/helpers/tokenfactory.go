@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const CHAIN_PREFIX = "juno"
+
 func debugOutput(t *testing.T, stdout string) {
 	if true {
 		t.Log(stdout)
