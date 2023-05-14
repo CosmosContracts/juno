@@ -128,6 +128,9 @@ ictest-basic:
 ictest-tokenfactory:
 	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
 
+ictest-feeshare:
+	cd interchaintest && go test -race -v -run TestJunoFeeShare .
+
 # Executes a basic chain upgrade test via interchaintest
 ictest-upgrade:
 	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
