@@ -11,10 +11,13 @@ import (
 
 // EntryPoint
 type QueryMsg struct {
-	GetConfig *struct{} `json:"get_config,omitempty"`
-
+	// Tokenfactory Core
+	GetConfig      *struct{}            `json:"get_config,omitempty"`
 	GetBalance     *GetBalanceQuery     `json:"get_balance,omitempty"`
 	GetAllBalances *GetAllBalancesQuery `json:"get_all_balances,omitempty"`
+
+	// Unity Contract
+	GetWithdrawalReadyTime *struct{} `json:"get_withdrawal_ready_time,omitempty"`
 }
 
 type GetAllBalancesQuery struct {
@@ -25,12 +28,20 @@ type GetAllBalancesResponse struct {
 	Data []sdk.Coin `json:"data"`
 }
 
-// {"get_balance":{"address":"juno1...","denom":"factory/juno1.../RcqfWz"}}
 type GetBalanceQuery struct {
+	// {"get_balance":{"address":"juno1...","denom":"factory/juno1.../RcqfWz"}}
 	Address string `json:"address"`
 	Denom   string `json:"denom"`
 }
 type GetBalanceResponse struct {
 	// or is it wasm Coin type?
 	Data sdk.Coin `json:"data"`
+}
+
+type WithdrawalTimestampResponse struct {
+	// {"data":{"withdrawal_ready_timestamp":"1686146048614053435"}}
+	Data *WithdrawalTimestampObj `json:"data"`
+}
+type WithdrawalTimestampObj struct {
+	WithdrawalReadyTimestamp string `json:"withdrawal_ready_timestamp"`
 }

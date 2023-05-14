@@ -30,6 +30,7 @@ require (
 	github.com/strangelove-ventures/interchaintest/v4 v4.0.0-20230331040355-5d08aab13017
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.23.0
+	gotest.tools/v3 v3.4.0
 )
 
 require (

@@ -128,6 +128,9 @@ ictest-basic:
 ictest-tokenfactory:
 	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
 
+ictest-feeshare:
+	cd interchaintest && go test -race -v -run TestJunoFeeShare .
+
 # Executes a basic chain upgrade test via interchaintest
 ictest-upgrade:
 	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
@@ -138,6 +141,13 @@ ictest-upgrade-local: local-image ictest-upgrade
 # Executes IBC tests via interchaintest
 ictest-ibc:
 	cd interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
+
+# Unity contract CI
+ictest-unity-deploy:
+	cd interchaintest && go test -race -v -run TestJunoUnityContractDeploy .
+
+ictest-unity-gov:
+	cd interchaintest && go test -race -v -run TestJunoUnityContractGovSubmit .
 
 # Executes all tests via interchaintest after compling a local image as juno:local
 ictest-all: local-image ictest-basic ictest-upgrade ictest-ibc
