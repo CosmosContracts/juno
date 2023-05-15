@@ -195,8 +195,8 @@ func orderBeginBlockers() []string {
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		// additional modules
-		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
+		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
@@ -229,8 +229,8 @@ func orderEndBlockers() []string {
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		// additional non simd modules
-		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
+		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
@@ -263,8 +263,8 @@ func orderInitBlockers() []string {
 		feegrant.ModuleName,
 		consensusparamtypes.ModuleName,
 		// additional non simd modules
-		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
+		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,

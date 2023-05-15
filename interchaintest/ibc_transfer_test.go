@@ -4,11 +4,13 @@ import (
 	"context"
 	"testing"
 
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/conformance"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v7/relayer"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
+	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 )
@@ -27,32 +29,9 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	numFullNodes := 1
 
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
-		{
-			Name:          "juno",
-			ChainConfig:   junoConfig,
-			NumValidators: &numVals,
-			NumFullNodes:  &numFullNodes,
-		},
 		// {
-		// 	Name: "juno",
-		// 	ChainConfig: ibc.ChainConfig{
-		// 		Type:                   "cosmos",
-		// 		Name:                   "juno",
-		// 		ChainID:                "juno-3",
-		// 		Images:                 []ibc.DockerImage{JunoImage},
-		// 		Bin:                    "junod",
-		// 		Bech32Prefix:           "juno",
-		// 		Denom:                  "ujuno",
-		// 		CoinType:               "118",
-		// 		GasPrices:              "0ujuno",
-		// 		GasAdjustment:          2.0,
-		// 		TrustingPeriod:         "112h",
-		// 		NoHostMount:            false,
-		// 		ConfigFileOverrides:    nil,
-		// 		EncodingConfig:         junoEncoding(),
-		// 		UsingNewGenesisCommand: true,
-		// 		ModifyGenesis:          modifyGenesisShortProposals(VotingPeriod, MaxDepositPeriod),
-		// 	},
+		// 	Name:          "juno",
+		// 	ChainConfig:   junoConfig,
 		// 	NumValidators: &numVals,
 		// 	NumFullNodes:  &numFullNodes,
 		// },
@@ -62,11 +41,16 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},
+		{
+			Name:          "juno",
+			Version:       "v14.1.0",
+			NumValidators: &numVals,
+			NumFullNodes:  &numFullNodes,
+		},
 	})
 
 	const (
-		path        = "ibc-path"
-		relayerName = "relayer"
+		path = "ibc-path"
 	)
 
 	// Get chains from the chain factory
@@ -77,10 +61,21 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 
 	juno, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
+	// relayerType, relayerName := ibc.CosmosRly, "rly"
+	relayerType, relayerName := ibc.Hermes, "hermes"
+
 	// Get a relayer instance
 	rf := interchaintest.NewBuiltinRelayerFactory(
-		ibc.CosmosRly,
+		relayerType,
 		zaptest.NewLogger(t),
+		// custom docker iamge for the relayer
+		relayer.RelayerOptionDockerImage{
+			DockerImage: ibc.DockerImage{
+				Repository: "ghcr.io/informalsystems/hermes",
+				Version:    "1.4.1",
+				UidGid:     JunoImage.UidGid,
+			},
+		},
 	)
 
 	r := rf.Build(t, client, network)
@@ -99,18 +94,98 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	ctx := context.Background()
 
 	rep := testreporter.NewNopReporter()
+	eRep := rep.RelayerExecReporter(t)
 
-	require.NoError(t, ic.Build(ctx, rep.RelayerExecReporter(t), interchaintest.InterchainBuildOptions{
+	require.NoError(t, ic.Build(ctx, eRep, interchaintest.InterchainBuildOptions{
 		TestName:          t.Name(),
 		Client:            client,
 		NetworkID:         network,
 		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
-		SkipPathCreation:  false,
+		SkipPathCreation:  false,		
 	}))
 	t.Cleanup(func() {
 		_ = ic.Close()
 	})
 
-	// test IBC conformance
-	conformance.TestChainPair(t, ctx, client, network, juno, gaia, rf, rep, r, path)
+	// Create some user accounts on both chains
+	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), genesisWalletAmount, juno, gaia)
+
+	// Wait a few blocks for relayer to start and for user accounts to be created
+	err = testutil.WaitForBlocks(ctx, 5, juno, gaia)
+	require.NoError(t, err)
+
+	// Get our Bech32 encoded user addresses
+	junoUser, gaiaUser := users[0], users[1]
+
+	junoUserAddr := junoUser.FormattedAddress()
+	gaiaUserAddr := gaiaUser.FormattedAddress()
+
+	// Get original account balances
+	junoOrigBal, err := juno.GetBalance(ctx, junoUserAddr, juno.Config().Denom)
+	require.NoError(t, err)
+	require.Equal(t, genesisWalletAmount, junoOrigBal)
+
+	gaiaOrigBal, err := gaia.GetBalance(ctx, gaiaUserAddr, gaia.Config().Denom)
+	require.NoError(t, err)
+	require.Equal(t, genesisWalletAmount, gaiaOrigBal)
+
+	// Compose an IBC transfer and send from Juno -> Gaia
+	const transferAmount = int64(1_000)
+	transfer := ibc.WalletAmount{
+		Address: gaiaUserAddr,
+		Denom:   juno.Config().Denom,
+		Amount:  transferAmount,
+	}
+
+	channel, err := ibc.GetTransferChannel(ctx, r, eRep, juno.Config().ChainID, gaia.Config().ChainID)
+	require.NoError(t, err)
+
+	transferTx, err := juno.SendIBCTransfer(ctx, channel.ChannelID, junoUserAddr, transfer, ibc.TransferOptions{})
+	require.NoError(t, err)
+
+	junoHeight, err := juno.Height(ctx)
+	require.NoError(t, err)
+
+	// Poll for the ack to know the transfer was successful
+	_, err = testutil.PollForAck(ctx, juno, junoHeight, junoHeight+10, transferTx.Packet)
+	require.NoError(t, err)
+
+	// Get the IBC denom for ujuno on Gaia
+	junoTokenDenom := transfertypes.GetPrefixedDenom(channel.Counterparty.PortID, channel.Counterparty.ChannelID, juno.Config().Denom)
+	junoIBCDenom := transfertypes.ParseDenomTrace(junoTokenDenom).IBCDenom()
+
+	// Assert that the funds are no longer present in user acc on Juno and are in the user acc on Gaia
+	junoUpdateBal, err := juno.GetBalance(ctx, junoUserAddr, juno.Config().Denom)
+	require.NoError(t, err)
+	require.Equal(t, junoOrigBal-transferAmount, junoUpdateBal)
+
+	gaiaUpdateBal, err := gaia.GetBalance(ctx, gaiaUserAddr, junoIBCDenom)
+	require.NoError(t, err)
+	require.Equal(t, transferAmount, gaiaUpdateBal)
+
+	// Compose an IBC transfer and send from Gaia -> Juno
+	transfer = ibc.WalletAmount{
+		Address: junoUserAddr,
+		Denom:   junoIBCDenom,
+		Amount:  transferAmount,
+	}
+
+	transferTx, err = gaia.SendIBCTransfer(ctx, channel.Counterparty.ChannelID, gaiaUserAddr, transfer, ibc.TransferOptions{})
+	require.NoError(t, err)
+
+	gaiaHeight, err := gaia.Height(ctx)
+	require.NoError(t, err)
+
+	// Poll for the ack to know the transfer was successful
+	_, err = testutil.PollForAck(ctx, gaia, gaiaHeight, gaiaHeight+10, transferTx.Packet)
+	require.NoError(t, err)
+
+	// Assert that the funds are now back on Juno and not on Gaia
+	junoUpdateBal, err = juno.GetBalance(ctx, junoUserAddr, juno.Config().Denom)
+	require.NoError(t, err)
+	require.Equal(t, junoOrigBal, junoUpdateBal)
+
+	gaiaUpdateBal, err = gaia.GetBalance(ctx, gaiaUserAddr, junoIBCDenom)
+	require.NoError(t, err)
+	require.Equal(t, int64(0), gaiaUpdateBal)
 }
