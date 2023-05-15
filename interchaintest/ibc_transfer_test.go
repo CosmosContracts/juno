@@ -2,12 +2,14 @@ package interchaintest
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	interchaintestrelayer "github.com/strangelove-ventures/interchaintest/v7/relayer"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
@@ -36,7 +38,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 		},
 		{
 			Name:          "gaia",
-			Version:       "v9.0.0",
+			Version:       "v9.1.0",
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},
@@ -60,6 +62,15 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	rf := interchaintest.NewBuiltinRelayerFactory(
 		relayerType,
 		zaptest.NewLogger(t),
+		// relayer.RelayerOptionDockerImage{
+		// 	DockerImage: ibc.DockerImage{
+		// 		Repository: ,
+		// 		Version:    "main",
+		// 		UidGid:     JunoImage.UidGid,
+		// 	},
+		// },
+		interchaintestrelayer.CustomDockerImage("ghcr.io/cosmos/relayer", "latest", "100:1000"),
+		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
 
 	r := rf.Build(t, client, network)
@@ -127,11 +138,22 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	transferTx, err := juno.SendIBCTransfer(ctx, channel.ChannelID, junoUserAddr, transfer, ibc.TransferOptions{})
 	require.NoError(t, err)
 
+	// TODO The packet exits the users account with the 1_000 in funds, but never is ack'ed.
+
+	// print transferTx
+
 	junoHeight, err := juno.Height(ctx)
 	require.NoError(t, err)
 
+	t.Log("JUNO RPC", fmt.Sprintf("export JUNOD_NODE=%s", juno.GetHostRPCAddress()))
+	t.Log("GAIA RPC", fmt.Sprintf("export GAIAD_NODE=%s", gaia.GetHostRPCAddress()))
+	t.Log(transferTx.TxHash)
+
 	// Poll for the ack to know the transfer was successful
-	_, err = testutil.PollForAck(ctx, juno, junoHeight, junoHeight+10, transferTx.Packet)
+	_, err = testutil.PollForAck(ctx, juno, junoHeight-5, junoHeight+50, transferTx.Packet)
+	require.NoError(t, err)
+
+	err = testutil.WaitForBlocks(ctx, 10, juno)
 	require.NoError(t, err)
 
 	// Get the IBC denom for ujuno on Gaia
@@ -161,7 +183,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	require.NoError(t, err)
 
 	// Poll for the ack to know the transfer was successful
-	_, err = testutil.PollForAck(ctx, gaia, gaiaHeight, gaiaHeight+10, transferTx.Packet)
+	_, err = testutil.PollForAck(ctx, gaia, gaiaHeight, gaiaHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 
 	// Assert that the funds are now back on Juno and not on Gaia

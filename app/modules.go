@@ -7,8 +7,6 @@ import (
 	feeshare "github.com/CosmosContracts/juno/v15/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
-	ibchooks "github.com/CosmosContracts/juno/v15/x/ibchooks"
-	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
 	"github.com/CosmosContracts/juno/v15/x/mint"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 	"github.com/CosmosContracts/juno/v15/x/tokenfactory"
@@ -58,8 +56,6 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
-	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -94,8 +90,8 @@ var ModuleBasics = module.NewBasicManager(
 	tokenfactory.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
-	ibchooks.AppModuleBasic{},
-	packetforward.AppModuleBasic{},
+	// ibchooks.AppModuleBasic{},
+	// packetforward.AppModuleBasic{},
 )
 
 func appModules(
@@ -135,7 +131,7 @@ func appModules(
 		feeshare.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
-		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
+		// ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		// IBC modules
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -198,14 +194,14 @@ func orderBeginBlockers() []string {
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
-		packetforwardtypes.ModuleName,
+		// packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
-		ibchookstypes.ModuleName,
+		// ibchookstypes.ModuleName,
 	}
 }
 
@@ -232,14 +228,14 @@ func orderEndBlockers() []string {
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
-		packetforwardtypes.ModuleName,
+		// packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
-		ibchookstypes.ModuleName,
+		// ibchookstypes.ModuleName,
 	}
 }
 
@@ -266,13 +262,13 @@ func orderInitBlockers() []string {
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
-		packetforwardtypes.ModuleName,
+		// packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
-		ibchookstypes.ModuleName,
+		// ibchookstypes.ModuleName,
 	}
 }

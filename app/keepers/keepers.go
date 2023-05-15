@@ -3,13 +3,12 @@ package keepers
 import (
 	"path/filepath"
 
-	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
 	"github.com/spf13/cast"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	ibchooks "github.com/CosmosContracts/juno/v15/x/ibchooks"
-	ibchookskeeper "github.com/CosmosContracts/juno/v15/x/ibchooks/keeper"
+
+	// ibchooks "github.com/CosmosContracts/juno/v15/x/ibchooks"
 	mintkeeper "github.com/CosmosContracts/juno/v15/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -18,7 +17,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -139,7 +137,7 @@ type AppKeepers struct {
 	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	ICQKeeper        icqkeeper.Keeper
 	IBCFeeKeeper     ibcfeekeeper.Keeper
-	IBCHooksKeeper   *ibchookskeeper.Keeper
+	// IBCHooksKeeper   *ibchookskeeper.Keeper
 	// PacketForwardKeeper   *packetforwardkeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 	TransferKeeper        ibctransferkeeper.Keeper
@@ -165,8 +163,8 @@ type AppKeepers struct {
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
 	// Middleware wrapper
-	Ics20WasmHooks   *ibchooks.WasmHooks
-	HooksICS4Wrapper ibchooks.ICS4Middleware
+	// Ics20WasmHooks   *ibchooks.WasmHooks
+	// HooksICS4Wrapper ibchooks.ICS4Middleware
 }
 
 func NewAppKeepers(
@@ -346,18 +344,18 @@ func NewAppKeepers(
 	)
 
 	// Configure the hooks keeper
-	hooksKeeper := ibchookskeeper.NewKeeper(
-		appKeepers.keys[ibchookstypes.StoreKey],
-	)
-	appKeepers.IBCHooksKeeper = &hooksKeeper
+	// hooksKeeper := ibchookskeeper.NewKeeper(
+	// 	appKeepers.keys[ibchookstypes.StoreKey],
+	// )
+	// appKeepers.IBCHooksKeeper = &hooksKeeper
 
-	junoPrefix := sdk.GetConfig().GetBech32AccountAddrPrefix()
-	wasmHooks := ibchooks.NewWasmHooks(appKeepers.IBCHooksKeeper, nil, junoPrefix) // The contract keeper needs to be set later
-	appKeepers.Ics20WasmHooks = &wasmHooks
-	appKeepers.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
-		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.Ics20WasmHooks,
-	)
+	// junoPrefix := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// wasmHooks := ibchooks.NewWasmHooks(appKeepers.IBCHooksKeeper, nil, junoPrefix) // The contract keeper needs to be set later
+	// appKeepers.Ics20WasmHooks = &wasmHooks
+	// appKeepers.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
+	// 	appKeepers.IBCKeeper.ChannelKeeper,
+	// 	appKeepers.Ics20WasmHooks,
+	// )
 
 	// Initialize packet forward middleware router
 	// appKeepers.PacketForwardKeeper = packetforwardkeeper.NewKeeper(
@@ -374,7 +372,7 @@ func NewAppKeepers(
 	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[ibcfeetypes.StoreKey],
-		appKeepers.HooksICS4Wrapper, // replaced with IBC middleware
+		appKeepers.IBCKeeper.ChannelKeeper, // replaced with IBC middleware
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
@@ -413,7 +411,7 @@ func NewAppKeepers(
 		appCodec,
 		appKeepers.keys[icahosttypes.StoreKey],
 		appKeepers.GetSubspace(icahosttypes.SubModuleName),
-		appKeepers.HooksICS4Wrapper,
+		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
@@ -545,7 +543,7 @@ func NewAppKeepers(
 	// 	packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	// )
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
-	transferStack = ibchooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
+	// transferStack = ibchooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
 
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is:
 	// channel.RecvPacket -> fee.OnRecvPacket -> icaHost.OnRecvPacket
@@ -578,7 +576,7 @@ func NewAppKeepers(
 
 	// set the contract keeper for the Ics20WasmHooks
 	appKeepers.ContractKeeper = &appKeepers.WasmKeeper
-	appKeepers.Ics20WasmHooks.ContractKeeper = appKeepers.ContractKeeper
+	// appKeepers.Ics20WasmHooks.ContractKeeper = appKeepers.ContractKeeper
 
 	return appKeepers
 }
