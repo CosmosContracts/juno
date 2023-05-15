@@ -29,21 +29,15 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	numFullNodes := 1
 
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
-		// {
-		// 	Name:          "juno",
-		// 	ChainConfig:   junoConfig,
-		// 	NumValidators: &numVals,
-		// 	NumFullNodes:  &numFullNodes,
-		// },
 		{
-			Name:          "gaia",
-			Version:       "v9.0.0",
+			Name:          "juno",
+			ChainConfig:   junoConfig,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},
 		{
-			Name:          "juno",
-			Version:       "v14.1.0",
+			Name:          "gaia",
+			Version:       "v9.0.0",
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},
@@ -101,7 +95,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 		Client:            client,
 		NetworkID:         network,
 		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
-		SkipPathCreation:  false,		
+		SkipPathCreation:  false,
 	}))
 	t.Cleanup(func() {
 		_ = ic.Close()
