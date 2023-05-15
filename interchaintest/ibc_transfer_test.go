@@ -55,8 +55,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 
 	juno, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
-	// relayerType, relayerName := ibc.CosmosRly, "rly"
-	relayerType, relayerName := ibc.Hermes, "hermes"
+	relayerType, relayerName := ibc.CosmosRly, "rly"
 
 	// Get a relayer instance
 	rf := interchaintest.NewBuiltinRelayerFactory(
