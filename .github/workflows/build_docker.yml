@@ -3,10 +3,9 @@ name: Build Docker Image on PR
 
 on:
   push:
-    paths:
-      - "**docker**"
-      - "**.sh"
-      - "**.bash"
+    branches:
+      - master
+      - main
 
 env:
   REGISTRY: ghcr.io
