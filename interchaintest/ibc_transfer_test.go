@@ -8,7 +8,6 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/relayer"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
@@ -55,20 +54,12 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 
 	juno, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
-	relayerType, relayerName := ibc.CosmosRly, "rly"
+	relayerType, relayerName := ibc.CosmosRly, "relay"
 
 	// Get a relayer instance
 	rf := interchaintest.NewBuiltinRelayerFactory(
 		relayerType,
 		zaptest.NewLogger(t),
-		// custom docker iamge for the relayer
-		relayer.RelayerOptionDockerImage{
-			DockerImage: ibc.DockerImage{
-				Repository: "ghcr.io/informalsystems/hermes",
-				Version:    "1.4.1",
-				UidGid:     JunoImage.UidGid,
-			},
-		},
 	)
 
 	r := rf.Build(t, client, network)
