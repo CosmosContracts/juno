@@ -139,7 +139,7 @@ func appModules(
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		// IBC modules
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
-		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
+		// packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
 	}
 }
 

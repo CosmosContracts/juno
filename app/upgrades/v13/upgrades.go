@@ -18,8 +18,6 @@ import (
 	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
-
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
 func CreateV13UpgradeHandler(
@@ -77,7 +75,7 @@ func CreateV13UpgradeHandler(
 		logger.Info("set feeshare params")
 
 		// Packet Forward middleware initial params
-		keepers.PacketForwardKeeper.SetParams(ctx, packetforwardtypes.DefaultParams())
+		// keepers.PacketForwardKeeper.SetParams(ctx, packetforwardtypes.DefaultParams())
 
 		return versionMap, err
 	}
