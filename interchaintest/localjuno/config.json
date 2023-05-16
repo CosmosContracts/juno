@@ -1,0 +1,43 @@
+{    
+    "chains": [
+        {
+            "chain-id": "localjuno-1",
+            "version": {
+                "type": "tag",
+                "version": "v14.1.0"
+            },
+            "gas-prices": "0ujuno",
+            "gas-adjustment": 2.0,
+            "number-vals": 1,
+            "number-node": 0,
+            "genesis": {
+                "modify": [
+                    {
+                        "key": "app_state.gov.voting_params.voting_period",
+                        "value": "15s"
+                    },
+                    {
+                        "key": "app_state.gov.deposit_params.max_deposit_period",
+                        "value": "15s"
+                    },
+                    {
+                        "key": "app_state.gov.deposit_params.min_deposit.0.denom",
+                        "value": "ujuno"
+                    }
+                ],     
+                "accounts": [
+                    {
+                        "name": "acc0",
+                        "address": "juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk",
+                        "mnemonic": "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry"
+                    },
+                    {
+                        "name": "acc1",
+                        "address": "juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl",
+                        "mnemonic": "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise"
+                    }
+                ]                
+            }
+        }
+    ]
+}
