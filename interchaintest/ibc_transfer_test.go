@@ -2,7 +2,6 @@ package interchaintest
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -62,13 +61,6 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	rf := interchaintest.NewBuiltinRelayerFactory(
 		relayerType,
 		zaptest.NewLogger(t),
-		// relayer.RelayerOptionDockerImage{
-		// 	DockerImage: ibc.DockerImage{
-		// 		Repository: ,
-		// 		Version:    "main",
-		// 		UidGid:     JunoImage.UidGid,
-		// 	},
-		// },
 		interchaintestrelayer.CustomDockerImage("ghcr.io/cosmos/relayer", "latest", "100:1000"),
 		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
@@ -145,11 +137,8 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	junoHeight, err := juno.Height(ctx)
 	require.NoError(t, err)
 
-	t.Log("JUNO RPC", fmt.Sprintf("export JUNOD_NODE=%s", juno.GetHostRPCAddress()))
-	t.Log("GAIA RPC", fmt.Sprintf("export GAIAD_NODE=%s", gaia.GetHostRPCAddress()))
-	t.Log(transferTx.TxHash)
-
 	// Poll for the ack to know the transfer was successful
+	r.Flush(ctx, eRep, path, channel.ChannelID)
 	_, err = testutil.PollForAck(ctx, juno, junoHeight-5, junoHeight+50, transferTx.Packet)
 	require.NoError(t, err)
 
@@ -183,6 +172,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	require.NoError(t, err)
 
 	// Poll for the ack to know the transfer was successful
+	r.Flush(ctx, eRep, path, channel.Counterparty.ChannelID)
 	_, err = testutil.PollForAck(ctx, gaia, gaiaHeight, gaiaHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 
