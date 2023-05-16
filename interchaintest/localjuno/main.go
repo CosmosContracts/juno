@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// Used for quick script testing
+
 // go run main.go config.go
 func main() {
 	config, _ := LoadConfig()
@@ -12,10 +14,10 @@ func main() {
 
 	for _, values := range config.Chains[0].Genesis.Modify {
 		loc := strings.Split(values.Key, ".")
-		// fmt.Println(loc, values.Value)
 
 		var result []interface{}
 		for _, component := range loc {
+			// Need to also account for number interfaces here.
 			result = append(result, component)
 		}
 

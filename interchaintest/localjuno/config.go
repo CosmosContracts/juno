@@ -32,8 +32,7 @@ type MainConfig struct {
 
 // load config
 func LoadConfig() (*MainConfig, error) {
-	// read from current dir "config.json"
-
+	// read from current dir "config.json". Allow user ability for multiple configs
 	bytes, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		return nil, err

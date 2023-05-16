@@ -8,11 +8,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/icza/dyno"
-	"github.com/strangelove-ventures/interchaintest/v4"
-	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v4/ibc"
-	"github.com/strangelove-ventures/interchaintest/v4/testreporter"
+	"github.com/strangelove-ventures/interchaintest/v7"
+	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
@@ -20,10 +21,9 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
-	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 )
 
-func junoEncoding() *simappparams.EncodingConfig {
+func junoEncoding() *testutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 
 	// register custom types
@@ -85,8 +85,6 @@ func TestLocalJuno(t *testing.T) {
 		GasAdjustment:       cfgJuno.GasAdjustment,
 		TrustingPeriod:      "112h",
 		NoHostMount:         false,
-		SkipGenTx:           false,
-		PreGenesis:          nil,
 		ModifyGenesis:       modifyGenesis(config),
 		ConfigFileOverrides: nil,
 		EncodingConfig:      junoEncoding(),
