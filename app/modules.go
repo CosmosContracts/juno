@@ -7,6 +7,8 @@ import (
 	feeshare "github.com/CosmosContracts/juno/v15/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
+	"github.com/CosmosContracts/juno/v15/x/ibchooks"
+	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
 	"github.com/CosmosContracts/juno/v15/x/mint"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 	"github.com/CosmosContracts/juno/v15/x/tokenfactory"
@@ -90,7 +92,7 @@ var ModuleBasics = module.NewBasicManager(
 	tokenfactory.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
-	// ibchooks.AppModuleBasic{},
+	ibchooks.AppModuleBasic{},
 	// packetforward.AppModuleBasic{},
 )
 
@@ -131,9 +133,9 @@ func appModules(
 		feeshare.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
-		// ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		// IBC modules
+		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
 		// packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
 	}
@@ -201,7 +203,7 @@ func orderBeginBlockers() []string {
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
-		// ibchookstypes.ModuleName,
+		ibchookstypes.ModuleName,
 	}
 }
 
@@ -235,7 +237,7 @@ func orderEndBlockers() []string {
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
-		// ibchookstypes.ModuleName,
+		ibchookstypes.ModuleName,
 	}
 }
 
@@ -269,6 +271,6 @@ func orderInitBlockers() []string {
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
-		// ibchookstypes.ModuleName,
+		ibchookstypes.ModuleName,
 	}
 }
