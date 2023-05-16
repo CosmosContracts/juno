@@ -28,7 +28,7 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
-	// packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -43,7 +43,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
 		wasm.StoreKey, icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey, icqtypes.StoreKey,
-		// packetforwardtypes.StoreKey,
+		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
 		tokenfactorytypes.StoreKey, feesharetypes.StoreKey,
 	)

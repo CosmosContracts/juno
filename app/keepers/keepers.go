@@ -66,9 +66,9 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
-	// packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
-	// packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
-	// packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
+	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
 	"github.com/CosmosContracts/juno/v15/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
@@ -127,22 +127,22 @@ type AppKeepers struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.BaseKeeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    *stakingkeeper.Keeper
-	SlashingKeeper   slashingkeeper.Keeper
-	MintKeeper       mintkeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        govkeeper.Keeper
-	CrisisKeeper     *crisiskeeper.Keeper
-	UpgradeKeeper    *upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	ICQKeeper        icqkeeper.Keeper
-	IBCFeeKeeper     ibcfeekeeper.Keeper
-	IBCHooksKeeper   *ibchookskeeper.Keeper
-	// PacketForwardKeeper   *packetforwardkeeper.Keeper
+	AccountKeeper         authkeeper.AccountKeeper
+	BankKeeper            bankkeeper.BaseKeeper
+	CapabilityKeeper      *capabilitykeeper.Keeper
+	StakingKeeper         *stakingkeeper.Keeper
+	SlashingKeeper        slashingkeeper.Keeper
+	MintKeeper            mintkeeper.Keeper
+	DistrKeeper           distrkeeper.Keeper
+	GovKeeper             govkeeper.Keeper
+	CrisisKeeper          *crisiskeeper.Keeper
+	UpgradeKeeper         *upgradekeeper.Keeper
+	ParamsKeeper          paramskeeper.Keeper
+	IBCKeeper             *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	ICQKeeper             icqkeeper.Keeper
+	IBCFeeKeeper          ibcfeekeeper.Keeper
+	IBCHooksKeeper        *ibchookskeeper.Keeper
+	PacketForwardKeeper   *packetforwardkeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 	TransferKeeper        ibctransferkeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
@@ -361,18 +361,6 @@ func NewAppKeepers(
 		appKeepers.Ics20WasmHooks,
 	)
 
-	// Initialize packet forward middleware router
-	// appKeepers.PacketForwardKeeper = packetforwardkeeper.NewKeeper(
-	// 	appCodec, appKeepers.keys[packetforwardtypes.StoreKey],
-	// 	appKeepers.GetSubspace(packetforwardtypes.ModuleName),
-	// 	appKeepers.TransferKeeper, // Will be zero-value here. Reference is set later on with SetTransferKeeper.
-	// 	appKeepers.IBCKeeper.ChannelKeeper,
-	// 	appKeepers.DistrKeeper,
-	// 	appKeepers.BankKeeper,
-	// 	// The ICS4Wrapper is replaced by the IBCFeeKeeper instead of the channel so that sending can be overridden by the middleware
-	// 	&appKeepers.IBCFeeKeeper,
-	// )
-
 	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[ibcfeetypes.StoreKey],
@@ -383,19 +371,34 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 	)
 
+	// Initialize packet forward middleware router
+	appKeepers.PacketForwardKeeper = packetforwardkeeper.NewKeeper(
+		appCodec, appKeepers.keys[packetforwardtypes.StoreKey],
+		appKeepers.GetSubspace(packetforwardtypes.ModuleName),
+		appKeepers.TransferKeeper, // Will be zero-value here. Reference is set later on with SetTransferKeeper.
+		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.DistrKeeper,
+		appKeepers.BankKeeper,
+		// The ICS4Wrapper is replaced by the IBCFeeKeeper instead of the channel so that sending can be overridden by the middleware
+		// &appKeepers.IBCFeeKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
+	)
+
 	// Create Transfer Keepers
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[ibctransfertypes.StoreKey],
 		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
 		// The ICS4Wrapper is replaced by the PacketForwardKeeper instead of the channel so that sending can be overridden by the middleware
-		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.PacketForwardKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		scopedTransferKeeper,
 	)
+
+	appKeepers.PacketForwardKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
 	// ICQ Keeper
 	appKeepers.ICQKeeper = icqkeeper.NewKeeper(
@@ -408,8 +411,6 @@ func NewAppKeepers(
 		scopedICQKeeper,
 		NewQuerierWrapper(bApp),
 	)
-
-	// appKeepers.PacketForwardKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
 		appCodec,
@@ -430,13 +431,6 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper, &appKeepers.IBCKeeper.PortKeeper,
 		scopedICAControllerKeeper, bApp.MsgServiceRouter(),
 	)
-
-	icaHostIBCModule := icahost.NewIBCModule(appKeepers.ICAHostKeeper)
-
-	// initialize ICA module with mock module as the authentication module on the controller side
-	var icaControllerStack porttypes.IBCModule
-	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, appKeepers.ICAControllerKeeper)
-	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, appKeepers.IBCFeeKeeper)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -539,19 +533,26 @@ func NewAppKeepers(
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule
 	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper)
-	// transferStack = packetforward.NewIBCMiddleware(
-	// 	transferStack,
-	// 	appKeepers.PacketForwardKeeper,
-	// 	0,
-	// 	packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
-	// 	packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
-	// )
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
-	// transferStack = ibchooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
+	transferStack = ibchooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
+	transferStack = packetforward.NewIBCMiddleware(
+		transferStack,
+		appKeepers.PacketForwardKeeper,
+		0,
+		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
+		packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+	)
+
+	// initialize ICA module with mock module as the authentication module on the controller side
+	var icaControllerStack porttypes.IBCModule
+	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, appKeepers.ICAControllerKeeper)
+	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, appKeepers.IBCFeeKeeper)
 
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is:
 	// channel.RecvPacket -> fee.OnRecvPacket -> icaHost.OnRecvPacket
-	icaHostStack := ibcfee.NewIBCMiddleware(icaHostIBCModule, appKeepers.IBCFeeKeeper)
+	var icaHostStack porttypes.IBCModule
+	icaHostStack = icahost.NewIBCModule(appKeepers.ICAHostKeeper)
+	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, appKeepers.IBCFeeKeeper)
 
 	// Create fee enabled wasm ibc Stack
 	var wasmStack porttypes.IBCModule
@@ -568,7 +569,6 @@ func NewAppKeepers(
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
 		AddRoute(icahosttypes.SubModuleName, icaHostStack).
 		AddRoute(icqtypes.ModuleName, icqModule)
-
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
 	appKeepers.ScopedIBCKeeper = scopedIBCKeeper
@@ -607,7 +607,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icqtypes.ModuleName)
-	// paramsKeeper.Subspace(packetforwardtypes.ModuleName)
+	paramsKeeper.Subspace(packetforwardtypes.ModuleName)
 	paramsKeeper.Subspace(globalfee.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)

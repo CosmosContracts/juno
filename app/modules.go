@@ -58,6 +58,9 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
+
+	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -93,7 +96,7 @@ var ModuleBasics = module.NewBasicManager(
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
-	// packetforward.AppModuleBasic{},
+	packetforward.AppModuleBasic{},
 )
 
 func appModules(
@@ -137,7 +140,7 @@ func appModules(
 		// IBC modules
 		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
-		// packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
+		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
 	}
 }
 
@@ -196,7 +199,7 @@ func orderBeginBlockers() []string {
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
-		// packetforwardtypes.ModuleName,
+		packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
@@ -230,7 +233,7 @@ func orderEndBlockers() []string {
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
-		// packetforwardtypes.ModuleName,
+		packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
@@ -264,7 +267,7 @@ func orderInitBlockers() []string {
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
-		// packetforwardtypes.ModuleName,
+		packetforwardtypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
