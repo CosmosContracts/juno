@@ -42,7 +42,10 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		// non sdk store keys
 		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
 		wasm.StoreKey, icahosttypes.StoreKey,
-		icacontrollertypes.StoreKey, icqtypes.StoreKey, packetforwardtypes.StoreKey, ibchookstypes.StoreKey, tokenfactorytypes.StoreKey, feesharetypes.StoreKey,
+		icacontrollertypes.StoreKey, icqtypes.StoreKey,
+		packetforwardtypes.StoreKey,
+		ibchookstypes.StoreKey,
+		tokenfactorytypes.StoreKey, feesharetypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)

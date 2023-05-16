@@ -3,13 +3,16 @@ package keepers
 import (
 	"path/filepath"
 
-	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
 	"github.com/spf13/cast"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	ibchooks "github.com/CosmosContracts/juno/v15/x/ibchooks"
+
+	"github.com/CosmosContracts/juno/v15/x/ibchooks"
 	ibchookskeeper "github.com/CosmosContracts/juno/v15/x/ibchooks/keeper"
+	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
 	mintkeeper "github.com/CosmosContracts/juno/v15/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -18,7 +21,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -328,7 +330,6 @@ func NewAppKeepers(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper)). // This should be removed. It is still in place to avoid failures of modules that have not yet been upgraded
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
-		// AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(appKeepers.DistrKeeper)).
 
 	govKeeper := govkeeper.NewKeeper(
 		appCodec,
@@ -360,6 +361,16 @@ func NewAppKeepers(
 		appKeepers.Ics20WasmHooks,
 	)
 
+	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[ibcfeetypes.StoreKey],
+		appKeepers.HooksICS4Wrapper, // replaced with IBC middleware
+		appKeepers.IBCKeeper.ChannelKeeper,
+		&appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+	)
+
 	// Initialize packet forward middleware router
 	appKeepers.PacketForwardKeeper = packetforwardkeeper.NewKeeper(
 		appCodec, appKeepers.keys[packetforwardtypes.StoreKey],
@@ -369,17 +380,8 @@ func NewAppKeepers(
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
 		// The ICS4Wrapper is replaced by the IBCFeeKeeper instead of the channel so that sending can be overridden by the middleware
-		&appKeepers.IBCFeeKeeper,
-	)
-
-	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[ibcfeetypes.StoreKey],
-		appKeepers.HooksICS4Wrapper, // replaced with IBC middleware
+		// &appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
-		&appKeepers.IBCKeeper.PortKeeper,
-		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
 	)
 
 	// Create Transfer Keepers
@@ -396,6 +398,8 @@ func NewAppKeepers(
 		scopedTransferKeeper,
 	)
 
+	appKeepers.PacketForwardKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
+
 	// ICQ Keeper
 	appKeepers.ICQKeeper = icqkeeper.NewKeeper(
 		appCodec,
@@ -407,8 +411,6 @@ func NewAppKeepers(
 		scopedICQKeeper,
 		NewQuerierWrapper(bApp),
 	)
-
-	appKeepers.PacketForwardKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
 		appCodec,
@@ -429,13 +431,6 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper, &appKeepers.IBCKeeper.PortKeeper,
 		scopedICAControllerKeeper, bApp.MsgServiceRouter(),
 	)
-
-	icaHostIBCModule := icahost.NewIBCModule(appKeepers.ICAHostKeeper)
-
-	// initialize ICA module with mock module as the authentication module on the controller side
-	var icaControllerStack porttypes.IBCModule
-	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, appKeepers.ICAControllerKeeper)
-	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, appKeepers.IBCFeeKeeper)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -538,6 +533,8 @@ func NewAppKeepers(
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule
 	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper)
+	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
+	transferStack = ibchooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
 	transferStack = packetforward.NewIBCMiddleware(
 		transferStack,
 		appKeepers.PacketForwardKeeper,
@@ -545,12 +542,17 @@ func NewAppKeepers(
 		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
 		packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	)
-	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
-	transferStack = ibchooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
+
+	// initialize ICA module with mock module as the authentication module on the controller side
+	var icaControllerStack porttypes.IBCModule
+	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, appKeepers.ICAControllerKeeper)
+	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, appKeepers.IBCFeeKeeper)
 
 	// RecvPacket, message that originates from core IBC and goes down to app, the flow is:
 	// channel.RecvPacket -> fee.OnRecvPacket -> icaHost.OnRecvPacket
-	icaHostStack := ibcfee.NewIBCMiddleware(icaHostIBCModule, appKeepers.IBCFeeKeeper)
+	var icaHostStack porttypes.IBCModule
+	icaHostStack = icahost.NewIBCModule(appKeepers.ICAHostKeeper)
+	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, appKeepers.IBCFeeKeeper)
 
 	// Create fee enabled wasm ibc Stack
 	var wasmStack porttypes.IBCModule
@@ -567,7 +569,6 @@ func NewAppKeepers(
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
 		AddRoute(icahosttypes.SubModuleName, icaHostStack).
 		AddRoute(icqtypes.ModuleName, icqModule)
-
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
 	appKeepers.ScopedIBCKeeper = scopedIBCKeeper
