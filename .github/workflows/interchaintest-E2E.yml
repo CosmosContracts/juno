@@ -58,8 +58,6 @@ jobs:
           platforms: linux/amd64
           push: false
           build-args: arch=x86_64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2
