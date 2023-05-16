@@ -4,18 +4,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strconv"
 	"strings"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/types/module/testutil"
+	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/icza/dyno"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
+	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// params
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -23,7 +27,7 @@ import (
 	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 )
 
-func junoEncoding() *testutil.TestEncodingConfig {
+func junoEncoding() *sdktestutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 
 	// register custom types
@@ -114,10 +118,32 @@ func TestLocalJuno(t *testing.T) {
 	chains, err := cf.Chains(t.Name())
 	require.NoError(t, err)
 
+	// iterate all chains config.Chains & setup accounts
+	additionalWallets := make(map[ibc.Chain][]ibc.WalletAmount)
+	for idx, chain := range config.Chains {
+		chainObj := chains[idx].(*cosmos.CosmosChain)
+
+		for _, acc := range chain.Genesis.Accounts {
+			amount, err := sdk.ParseCoinsNormalized(acc.Amount)
+			if err != nil {
+				panic(err)
+			}
+
+			for _, coin := range amount {
+				additionalWallets[chainObj] = append(additionalWallets[chainObj], ibc.WalletAmount{
+					Address: acc.Address,
+					Amount:  coin.Amount.Int64(),
+					Denom:   coin.Denom,
+				})
+			}
+		}
+	}
+
 	juno := chains[0].(*cosmos.CosmosChain)
 
 	// Create a new Interchain object which describes the chains, relayers, and IBC connections we want to use
 	ic := interchaintest.NewInterchain().AddChain(juno)
+	ic.AdditionalGenesisWallets = additionalWallets
 
 	rep := testreporter.NewNopReporter()
 	eRep := rep.RelayerExecReporter(t)
@@ -133,6 +159,27 @@ func TestLocalJuno(t *testing.T) {
 		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
 	})
 	require.NoError(t, err)
+
+	// wait for blocks
+	for idx, chain := range config.Chains {
+		chainObj := chains[idx].(*cosmos.CosmosChain)
+		t.Logf("\n\n\n\nWaiting for %d blocks on chain %s", chain.BlocksTTL, chainObj.Config().ChainID)
+
+		v := LogOutput{
+			// TODO: Rest Address?
+			ChainID:     chainObj.Config().ChainID,
+			ChainName:   chainObj.Config().Name,
+			RPCAddress:  chainObj.GetHostRPCAddress(),
+			GRPCAddress: chainObj.GetHostGRPCAddress(),
+		}
+		bz, _ := json.MarshalIndent(v, "", "  ")
+		ioutil.WriteFile("logs.json", []byte(bz), 0644)
+
+		if err = testutil.WaitForBlocks(ctx, chain.BlocksTTL, chainObj); err != nil {
+			// TODO: Way for us to wait for blocks & show the tx logs?
+			t.Fatal(err)
+		}
+	}
 
 	t.Cleanup(func() {
 		_ = ic.Close()

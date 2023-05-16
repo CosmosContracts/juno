@@ -16,6 +16,7 @@ type MainConfig struct {
 		GasAdjustment float64 `json:"gas-adjustment"`
 		NumberVals    int     `json:"number-vals"`
 		NumberNode    int     `json:"number-node"`
+		BlocksTTL     int     `json:"blocks-ttl"`
 		Genesis       struct {
 			Modify []struct {
 				Key   string `json:"key"`
@@ -23,6 +24,7 @@ type MainConfig struct {
 			} `json:"modify"`
 			Accounts []struct {
 				Name     string `json:"name"`
+				Amount   string `json:"amount"`
 				Address  string `json:"address"`
 				Mnemonic string `json:"mnemonic"`
 			} `json:"accounts"`
@@ -30,7 +32,13 @@ type MainConfig struct {
 	} `json:"chains"`
 }
 
-// load config
+type LogOutput struct {
+	ChainID     string `json:"chain-id"`
+	ChainName   string `json:"chain-name"`
+	RPCAddress  string `json:"rpc-address"`
+	GRPCAddress string `json:"grpc-address"`
+}
+
 func LoadConfig() (*MainConfig, error) {
 	// read from current dir "config.json". Allow user ability for multiple configs
 	bytes, err := ioutil.ReadFile("config.json")

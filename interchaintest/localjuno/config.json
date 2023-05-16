@@ -10,6 +10,7 @@
             "gas-adjustment": 2.0,
             "number-vals": 1,
             "number-node": 0,
+            "blocks-ttl": 50,
             "genesis": {
                 "modify": [
                     {
@@ -29,11 +30,13 @@
                     {
                         "name": "acc0",
                         "address": "juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk",
+                        "amount": "10000000ujuno",
                         "mnemonic": "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry"
                     },
                     {
                         "name": "acc1",
                         "address": "juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl",
+                        "amount": "10000000ujuno",
                         "mnemonic": "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise"
                     }
                 ]                
