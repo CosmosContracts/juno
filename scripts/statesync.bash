@@ -8,7 +8,8 @@ export GOPATH=~/go
 export PATH=$PATH:~/go/bin
 
 # Install Juno with pebbledb 
-go mod edit -replace github.com/tendermint/tm-db=github.com/notional-labs/tm-db@136c7b6
+# TODO: use github.com/cometbft/cometbft-db
+# go mod edit -replace github.com/tendermint/tm-db=github.com/notional-labs/tm-db@136c7b6
 go mod tidy
 go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb' -tags pebbledb ./...
 

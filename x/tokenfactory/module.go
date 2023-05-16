@@ -12,8 +12,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -22,7 +22,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	simulation "github.com/CosmosContracts/juno/v15/x/tokenfactory/simulation"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
@@ -127,18 +126,8 @@ func (am AppModule) Name() string {
 	return am.AppModuleBasic.Name()
 }
 
-// Route returns the x/tokenfactory module's message routing key.
-func (am AppModule) Route() sdk.Route {
-	return sdk.Route{}
-}
-
 // QuerierRoute returns the x/tokenfactory module's query routing key.
 func (AppModule) QuerierRoute() string { return types.QuerierRoute }
-
-// LegacyQuerierHandler returns the x/tokenfactory module's Querier.
-func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
-	return nil
-}
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
@@ -187,7 +176,7 @@ func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.Valid
 // // GenerateGenesisState creates a randomized GenState of the tokenfactory module.
 // func (am AppModule) SimulatorGenesisState(simState *module.SimulationState, s *simtypes.SimCtx) {
 // 	tfDefaultGen := types.DefaultGenesis()
-// 	tfDefaultGen.Params.DenomCreationFee = sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10000000)))
+// 	tfDefaultGen.Params.DenomCreationFee = sdk.NewCoins(sdk.NewCoin(appparams.BondDenom, sdk.NewInt(10000000)))
 // 	tfDefaultGenJson := simState.Cdc.MustMarshalJSON(tfDefaultGen)
 // 	simState.GenState[types.ModuleName] = tfDefaultGenJson
 // }
@@ -210,13 +199,8 @@ func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 }
 
 // GenerateGenesisState creates a randomized GenState of the bank module.
-func (am AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
+func (am AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalMsg {
 	return nil
-}
-
-// RandomizedParams creates randomized bank param changes for the simulator.
-func (am AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
-	return simulation.ParamChanges(r)
 }
 
 // RegisterStoreDecoder registers a decoder for supply module's types

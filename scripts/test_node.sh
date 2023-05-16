@@ -60,17 +60,17 @@ from_scratch () {
 
   # Set gas limit in genesis
   update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
-  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="15s"'
+  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="150s"'
 
   # GlobalFee
   update_test_genesis '.app_state["globalfee"]["params"]["minimum_gas_prices"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
 
   update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="ujuno"'  
-  update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ujuno","enabled": true}]'
+  # update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ujuno","enabled": true}]'
   # update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.100000000000000000"' # sdk 46 only   
 
   update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ujuno"'  
-  update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom": "ujuno","amount": "1000000"}]'
+  update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom": "ujuno","amount": "1000000"}]'
   update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ujuno","amount": "1000"}'  
 
   # update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom":"ujuno","amount":"100"}]'
@@ -80,16 +80,16 @@ from_scratch () {
   update_test_genesis '.app_state["feeshare"]["params"]["allowed_denoms"]=["ujuno"]'
 
   # Allocate genesis accounts
-  BINARY add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
-  BINARY add-genesis-account feeacc 1000000ujuno,1000utest --keyring-backend $KEYRING
+  BINARY genesis add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
+  BINARY genesis add-genesis-account feeacc 1000000ujuno,1000utest --keyring-backend $KEYRING
 
-  BINARY gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID
+  BINARY genesis gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID
 
   # Collect genesis tx
-  BINARY collect-gentxs
+  BINARY genesis collect-gentxs
 
   # Run this to ensure junorything worked and that the genesis file is setup correctly
-  BINARY validate-genesis
+  BINARY genesis validate-genesis
 }
 
 # check if CLEAN is not set to false

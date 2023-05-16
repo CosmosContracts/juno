@@ -3,11 +3,12 @@ package keeper
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/tendermint/tendermint/libs/log"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	revtypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
@@ -57,7 +58,7 @@ func NewKeeper(
 // SendCoinsFromAccountToFeeCollector transfers amt to the fee collector account.
 func (k Keeper) SendCoinsFromAccountToFeeCollector(ctx sdk.Context, senderAddr sdk.AccAddress, amt sdk.Coins) error {
 	if senderAddr.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "senderAddr address cannot be empty")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidAddress, "senderAddr address cannot be empty")
 	}
 	return k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, k.feeCollectorName, amt)
 }
@@ -65,7 +66,7 @@ func (k Keeper) SendCoinsFromAccountToFeeCollector(ctx sdk.Context, senderAddr s
 // SendCoinsFromFeeCollectorToAccount transfers amt from the fee collector account to the recipient.
 func (k Keeper) SendCoinsFromFeeCollectorToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
 	if recipientAddr.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "recipient address cannot be empty")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidAddress, "recipient address cannot be empty")
 	}
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, k.feeCollectorName, recipientAddr, amt)
 }

@@ -6,28 +6,29 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/ed25519"
+	"github.com/cometbft/cometbft/libs/log"
+	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	"github.com/tendermint/tendermint/libs/log"
-	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
 
+	appparams "github.com/CosmosContracts/juno/v15/app/params"
 	authzcodec "github.com/CosmosContracts/juno/v15/x/tokenfactory/types/authzcodec"
 
 	"github.com/CosmosContracts/juno/v15/app"
@@ -50,8 +51,9 @@ var (
 
 // Setup sets up basic environment for suite (App, Ctx, and test accounts)
 func (s *KeeperTestHelper) Setup() {
-	s.App = app.Setup(s.T(), true, 0)
-	s.Ctx = s.App.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "osmosis-1", Time: time.Now().UTC()})
+	t := s.T()
+	s.App = app.Setup(t)
+	s.Ctx = s.App.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
 	s.QueryHelper = &baseapp.QueryServiceTestHelper{
 		GRPCQueryRouter: s.App.GRPCQueryRouter(),
 		Ctx:             s.Ctx,
@@ -60,9 +62,12 @@ func (s *KeeperTestHelper) Setup() {
 }
 
 func (s *KeeperTestHelper) SetupTestForInitGenesis() {
+	t := s.T()
 	// Setting to True, leads to init genesis not running
-	s.App = app.Setup(s.T(), true, 0)
-	s.Ctx = s.App.BaseApp.NewContext(true, tmtypes.Header{})
+	s.App = app.Setup(t)
+	s.Ctx = s.App.BaseApp.NewContext(true, tmtypes.Header{
+		ChainID: "testing",
+	})
 }
 
 // CreateTestContext creates a test context.
@@ -86,25 +91,25 @@ func (s *KeeperTestHelper) Commit() {
 	oldHeight := s.Ctx.BlockHeight()
 	oldHeader := s.Ctx.BlockHeader()
 	s.App.Commit()
-	newHeader := tmtypes.Header{Height: oldHeight + 1, ChainID: oldHeader.ChainID, Time: oldHeader.Time.Add(time.Second)}
+	newHeader := tmtypes.Header{Height: oldHeight + 1, ChainID: "testing", Time: oldHeader.Time.Add(time.Second)}
 	s.App.BeginBlock(abci.RequestBeginBlock{Header: newHeader})
 	s.Ctx = s.App.NewContext(false, newHeader)
 }
 
 // FundAcc funds target address with specified amount.
 func (s *KeeperTestHelper) FundAcc(acc sdk.AccAddress, amounts sdk.Coins) {
-	err := simapp.FundAccount(s.App.BankKeeper, s.Ctx, acc, amounts)
+	err := banktestutil.FundAccount(s.App.AppKeepers.BankKeeper, s.Ctx, acc, amounts)
 	s.Require().NoError(err)
 }
 
 // FundModuleAcc funds target modules with specified amount.
 func (s *KeeperTestHelper) FundModuleAcc(moduleName string, amounts sdk.Coins) {
-	err := simapp.FundModuleAccount(s.App.BankKeeper, s.Ctx, moduleName, amounts)
+	err := banktestutil.FundModuleAccount(s.App.AppKeepers.BankKeeper, s.Ctx, moduleName, amounts)
 	s.Require().NoError(err)
 }
 
 func (s *KeeperTestHelper) MintCoins(coins sdk.Coins) {
-	err := s.App.BankKeeper.MintCoins(s.Ctx, minttypes.ModuleName, coins)
+	err := s.App.AppKeepers.BankKeeper.MintCoins(s.Ctx, minttypes.ModuleName, coins)
 	s.Require().NoError(err)
 }
 
@@ -112,25 +117,25 @@ func (s *KeeperTestHelper) MintCoins(coins sdk.Coins) {
 func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sdk.ValAddress {
 	valPub := secp256k1.GenPrivKey().PubKey()
 	valAddr := sdk.ValAddress(valPub.Address())
-	bondDenom := s.App.StakingKeeper.GetParams(s.Ctx).BondDenom
+	bondDenom := s.App.AppKeepers.StakingKeeper.GetParams(s.Ctx).BondDenom
 	selfBond := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100), Denom: bondDenom})
 
 	s.FundAcc(sdk.AccAddress(valAddr), selfBond)
 
-	stakingHandler := staking.NewHandler(s.App.StakingKeeper)
-	stakingCoin := sdk.NewCoin(sdk.DefaultBondDenom, selfBond[0].Amount)
+	// stakingHandler := staking.NewHandler(s.App.AppKeepers.StakingKeeper)
+	stakingCoin := sdk.NewCoin(appparams.BondDenom, selfBond[0].Amount)
 	ZeroCommission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
-	msg, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{}, ZeroCommission, sdk.OneInt())
+	_, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{}, ZeroCommission, sdk.OneInt())
 	s.Require().NoError(err)
-	res, err := stakingHandler(s.Ctx, msg)
-	s.Require().NoError(err)
-	s.Require().NotNil(res)
+	// res, err := stakingHandler(s.Ctx, msg)
+	// s.Require().NoError(err)
+	// s.Require().NotNil(res)
 
-	val, found := s.App.StakingKeeper.GetValidator(s.Ctx, valAddr)
+	val, found := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, valAddr)
 	s.Require().True(found)
 
 	val = val.UpdateStatus(bondStatus)
-	s.App.StakingKeeper.SetValidator(s.Ctx, val)
+	s.App.AppKeepers.StakingKeeper.SetValidator(s.Ctx, val)
 
 	consAddr, err := val.GetConsAddr()
 	s.Suite.Require().NoError(err)
@@ -143,7 +148,7 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 		false,
 		0,
 	)
-	s.App.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
+	s.App.AppKeepers.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
 
 	return valAddr
 }
@@ -152,14 +157,14 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 func (s *KeeperTestHelper) BeginNewBlock() {
 	var valAddr []byte
 
-	validators := s.App.StakingKeeper.GetAllValidators(s.Ctx)
+	validators := s.App.AppKeepers.StakingKeeper.GetAllValidators(s.Ctx)
 	if len(validators) >= 1 {
 		valAddrFancy, err := validators[0].GetConsAddr()
 		s.Require().NoError(err)
 		valAddr = valAddrFancy.Bytes()
 	} else {
 		valAddrFancy := s.SetupValidator(stakingtypes.Bonded)
-		validator, _ := s.App.StakingKeeper.GetValidator(s.Ctx, valAddrFancy)
+		validator, _ := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, valAddrFancy)
 		valAddr2, _ := validator.GetConsAddr()
 		valAddr = valAddr2.Bytes()
 	}
@@ -169,7 +174,7 @@ func (s *KeeperTestHelper) BeginNewBlock() {
 
 // BeginNewBlockWithProposer begins a new block with a proposer.
 func (s *KeeperTestHelper) BeginNewBlockWithProposer(proposer sdk.ValAddress) {
-	validator, found := s.App.StakingKeeper.GetValidator(s.Ctx, proposer)
+	validator, found := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, proposer)
 	s.Assert().True(found)
 
 	valConsAddr, err := validator.GetConsAddr()
@@ -182,11 +187,12 @@ func (s *KeeperTestHelper) BeginNewBlockWithProposer(proposer sdk.ValAddress) {
 	header := tmtypes.Header{Height: s.Ctx.BlockHeight() + 1, Time: newBlockTime}
 	newCtx := s.Ctx.WithBlockTime(newBlockTime).WithBlockHeight(s.Ctx.BlockHeight() + 1)
 	s.Ctx = newCtx
-	lastCommitInfo := abci.LastCommitInfo{
+	lastCommitInfo := abci.CommitInfo{
 		Votes: []abci.VoteInfo{{
 			Validator:       abci.Validator{Address: valAddr, Power: 1000},
 			SignedLastBlock: true,
 		}},
+		Round: 0,
 	}
 	reqBeginBlock := abci.RequestBeginBlock{Header: header, LastCommitInfo: lastCommitInfo}
 
@@ -201,19 +207,19 @@ func (s *KeeperTestHelper) EndBlock() {
 }
 
 // AllocateRewardsToValidator allocates reward tokens to a distribution module then allocates rewards to the validator address.
-func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, rewardAmt sdk.Int) {
-	validator, found := s.App.StakingKeeper.GetValidator(s.Ctx, valAddr)
+func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, rewardAmt math.Int) {
+	validator, found := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, valAddr)
 	s.Require().True(found)
 
 	// allocate reward tokens to distribution module
-	coins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, rewardAmt)}
-	err := simapp.FundModuleAccount(s.App.BankKeeper, s.Ctx, distrtypes.ModuleName, coins)
+	coins := sdk.Coins{sdk.NewCoin(appparams.BondDenom, rewardAmt)}
+	err := banktestutil.FundModuleAccount(s.App.AppKeepers.BankKeeper, s.Ctx, distrtypes.ModuleName, coins)
 	s.Require().NoError(err)
 
 	// allocate rewards to validator
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
-	decTokens := sdk.DecCoins{{Denom: sdk.DefaultBondDenom, Amount: sdk.NewDec(20000)}}
-	s.App.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
+	decTokens := sdk.DecCoins{{Denom: appparams.BondDenom, Amount: sdk.NewDec(20000)}}
+	s.App.AppKeepers.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
 }
 
 // BuildTx builds a transaction.
@@ -263,7 +269,8 @@ func TestMessageAuthzSerialization(t *testing.T, msg sdk.Msg) {
 
 	// Authz: Grant Msg
 	typeURL := sdk.MsgTypeURL(msg)
-	grant, err := authz.NewGrant(authz.NewGenericAuthorization(typeURL), someDate.Add(time.Hour))
+	later := someDate.Add(time.Hour)
+	grant, err := authz.NewGrant(someDate, authz.NewGenericAuthorization(typeURL), &later)
 	require.NoError(t, err)
 
 	msgGrant := authz.MsgGrant{Granter: mockGranter, Grantee: mockGrantee, Grant: grant}
