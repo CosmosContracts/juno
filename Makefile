@@ -122,37 +122,37 @@ benchmark:
 ###############################################################################
 
 # Executes basic chain tests via interchaintest
-ictest-basic:
+ictest-basic: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoStart .
 
-ictest-tokenfactory:
+ictest-tokenfactory: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
 
-ictest-feeshare:
+ictest-feeshare: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoFeeShare .
 
 # Executes a basic chain upgrade test via interchaintest
-ictest-upgrade:
+ictest-upgrade: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
 
 # Executes a basic chain upgrade locally via interchaintest after compiling a local image as juno:local
 ictest-upgrade-local: local-image ictest-upgrade
 
 # Executes IBC tests via interchaintest
-ictest-ibc:
+ictest-ibc: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
 
 # Unity contract CI
-ictest-unity-deploy:
+ictest-unity-deploy: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoUnityContractDeploy .
 
-ictest-unity-gov:
+ictest-unity-gov: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoUnityContractGovSubmit .
 
-# Executes all tests via interchaintest after compling a local image as juno:local
-ictest-all: local-image ictest-basic ictest-upgrade ictest-ibc
+rm-testcache:
+	go clean -testcache
 
-.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-all
+.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-unity-deploy ictest-unity-gov
 
 ###############################################################################
 ###                                  heighliner                             ###
