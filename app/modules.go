@@ -61,6 +61,9 @@ import (
 
 	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+
+	wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm"
+	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -97,6 +100,7 @@ var ModuleBasics = module.NewBasicManager(
 	globalfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
+	wasm08.AppModuleBasic{},
 )
 
 func appModules(
@@ -141,6 +145,7 @@ func appModules(
 		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
 		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
+		wasm08.NewAppModule(app.AppKeepers.Wasm08ClientKeeper),
 	}
 }
 
@@ -207,6 +212,7 @@ func orderBeginBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		wasm08types.ModuleName,
 	}
 }
 
@@ -241,6 +247,7 @@ func orderEndBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		wasm08types.ModuleName,
 	}
 }
 
@@ -275,5 +282,6 @@ func orderInitBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		wasm08types.ModuleName,
 	}
 }

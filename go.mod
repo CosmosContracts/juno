@@ -54,7 +54,6 @@ require (
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
-	github.com/jhump/protoreflect v1.15.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -166,7 +165,7 @@ require (
 	github.com/zondax/ledger-go v0.14.1 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/crypto v0.7.0 // indirect
+	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
@@ -181,6 +180,11 @@ require (
 replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+
+	// Use strangeloves wasm client fork. Will be in IBC v7.1.x it looks like? or is this v8
+	// https://github.com/strangelove-ventures/ibc-go/commits/feat/wasm-clients
+	// go get github.com/strangelove-ventures/ibc-go/v7@1dc4769e6aa44743394b4d9e13866c0f103e7d8b
+	github.com/cosmos/ibc-go/v7 => github.com/strangelove-ventures/ibc-go/v7 v7.0.0-20230414210327-1dc4769e6aa4
 
 	// ibc hooks only requires the ibc.go file from osmoutils
 	// github.com/CosmosContracts/juno/v15/osmoutils => ./osmoutils

@@ -92,6 +92,10 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
+
+	// wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm"
+	wasm08keeper "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
+	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 )
 
 var (
@@ -149,6 +153,7 @@ type AppKeepers struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	FeeShareKeeper        feesharekeeper.Keeper
 	ContractKeeper        *wasmkeeper.Keeper
+	Wasm08ClientKeeper    wasm08keeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
 	ICAControllerKeeper icacontrollerkeeper.Keeper
@@ -511,6 +516,7 @@ func NewAppKeepers(
 		govModAddress,
 		wasmOpts...,
 	)
+	appKeepers.Wasm08ClientKeeper = wasm08keeper.NewKeeper(appCodec, appKeepers.keys[wasm08types.StoreKey])
 
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
 		appKeepers.keys[feesharetypes.StoreKey],
