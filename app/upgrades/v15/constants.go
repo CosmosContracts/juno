@@ -6,6 +6,7 @@ import (
 
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 )
 
@@ -23,6 +24,7 @@ var Upgrade = upgrades.Upgrade{
 			// v47 module upgrades
 			crisistypes.ModuleName,
 			consensustypes.ModuleName,
+			wasm08types.ModuleName,
 		},
 	},
 }
