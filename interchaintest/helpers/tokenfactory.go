@@ -8,13 +8,11 @@ import (
 
 	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v4/ibc"
-	"github.com/strangelove-ventures/interchaintest/v4/testutil"
+	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 )
-
-const CHAIN_PREFIX = "juno"
 
 func debugOutput(t *testing.T, stdout string) {
 	if true {
@@ -22,13 +20,13 @@ func debugOutput(t *testing.T, stdout string) {
 	}
 }
 
-func CreateTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user *ibc.Wallet, subDenomName string) (fullDenom string) {
+func CreateTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, subDenomName string) (fullDenom string) {
 	// TF gas to create cost 2mil, so we set to 2.5 to be safe
 	cmd := []string{"junod", "tx", "tokenfactory", "create-denom", subDenomName,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
-		"--from", user.KeyName,
+		"--from", user.KeyName(),
 		"--gas", "2500000",
 		"--gas-adjustment", "2.0",
 		"--keyring-dir", chain.HomeDir(),
@@ -43,10 +41,10 @@ func CreateTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Co
 	err = testutil.WaitForBlocks(ctx, 2, chain)
 	require.NoError(t, err)
 
-	return "factory/" + user.Bech32Address(chain.Config().Bech32Prefix) + "/" + subDenomName
+	return "factory/" + user.FormattedAddress() + "/" + subDenomName
 }
 
-func MintTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, admin *ibc.Wallet, amount uint64, fullDenom string) {
+func MintTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, admin ibc.Wallet, amount uint64, fullDenom string) {
 	denom := strconv.FormatUint(amount, 10) + fullDenom
 
 	// mint new tokens to the account
@@ -54,7 +52,7 @@ func MintTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
-		"--from", admin.KeyName,
+		"--from", admin.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -68,10 +66,10 @@ func MintTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 	require.NoError(t, err)
 }
 
-func MintToTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, admin *ibc.Wallet, toWallet *ibc.Wallet, amount uint64, fullDenom string) {
+func MintToTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, admin ibc.Wallet, toWallet ibc.Wallet, amount uint64, fullDenom string) {
 	denom := strconv.FormatUint(amount, 10) + fullDenom
 
-	receiver := toWallet.Bech32Address(chain.Config().Bech32Prefix)
+	receiver := toWallet.FormattedAddress()
 
 	t.Log("minting", denom, "to", receiver)
 
@@ -80,7 +78,7 @@ func MintToTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Co
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
-		"--from", admin.KeyName,
+		"--from", admin.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -94,12 +92,12 @@ func MintToTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Co
 	require.NoError(t, err)
 }
 
-func TransferTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, currentAdmin *ibc.Wallet, newAdminBech32 string, fullDenom string) {
+func TransferTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, currentAdmin ibc.Wallet, newAdminBech32 string, fullDenom string) {
 	cmd := []string{"junod", "tx", "tokenfactory", "change-admin", fullDenom, newAdminBech32,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
-		"--from", currentAdmin.KeyName,
+		"--from", currentAdmin.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -113,7 +111,6 @@ func TransferTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.
 	require.NoError(t, err)
 }
 
-// TODO:
 // Getters
 func GetTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, fullDenom string) string {
 	// $BINARY q tokenfactory denom-authority-metadata $FULL_DENOM

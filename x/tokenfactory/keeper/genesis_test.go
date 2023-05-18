@@ -38,22 +38,18 @@ func (suite *KeeperTestSuite) TestGenesis() {
 	for i, denom := range genesisState.FactoryDenoms {
 		// hacky, sets bank metadata to exist if i != 0, to cover both cases.
 		if i != 0 {
-			app.BankKeeper.SetDenomMetaData(suite.Ctx, banktypes.Metadata{Base: denom.GetDenom()})
+			app.AppKeepers.BankKeeper.SetDenomMetaData(suite.Ctx, banktypes.Metadata{Base: denom.GetDenom()})
 		}
 	}
 
-	// check before initGenesis that the module account is nil
-	// tokenfactoryModuleAccount := app.AccountKeeper.GetAccount(suite.Ctx, app.AccountKeeper.GetModuleAddress(types.ModuleName))
-	// suite.Require().Nil(tokenfactoryModuleAccount)
-
-	app.TokenFactoryKeeper.SetParams(suite.Ctx, types.Params{DenomCreationFee: sdk.Coins{sdk.NewInt64Coin("uosmo", 100)}})
-	app.TokenFactoryKeeper.InitGenesis(suite.Ctx, genesisState)
+	app.AppKeepers.TokenFactoryKeeper.SetParams(suite.Ctx, types.Params{DenomCreationFee: sdk.Coins{sdk.NewInt64Coin("stake", 100)}})
+	app.AppKeepers.TokenFactoryKeeper.InitGenesis(suite.Ctx, genesisState)
 
 	// check that the module account is now initialized
-	tokenfactoryModuleAccount := app.AccountKeeper.GetAccount(suite.Ctx, app.AccountKeeper.GetModuleAddress(types.ModuleName))
+	tokenfactoryModuleAccount := app.AppKeepers.AccountKeeper.GetAccount(suite.Ctx, app.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
 	suite.Require().NotNil(tokenfactoryModuleAccount)
 
-	exportedGenesis := app.TokenFactoryKeeper.ExportGenesis(suite.Ctx)
+	exportedGenesis := app.AppKeepers.TokenFactoryKeeper.ExportGenesis(suite.Ctx)
 	suite.Require().NotNil(exportedGenesis)
 	suite.Require().Equal(genesisState, *exportedGenesis)
 }

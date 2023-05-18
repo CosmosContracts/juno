@@ -3,8 +3,8 @@ package interchaintest
 import (
 	"testing"
 
-	"github.com/strangelove-ventures/interchaintest/v4"
-	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v7"
+	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
@@ -14,7 +14,7 @@ func TestJunoFeeShare(t *testing.T) {
 	t.Parallel()
 
 	// Base setup
-	chains := CreateThisBranchChain(t)
+	chains := CreateThisBranchChain(t, 1, 0)
 	ic, ctx, _, _ := BuildInitialChain(t, chains)
 
 	// Chains
@@ -29,7 +29,7 @@ func TestJunoFeeShare(t *testing.T) {
 	feeRcvAddr := "juno1v75wlkccpv7le3560zw32v2zjes5n0e7csr4qh"
 
 	// Upload & init contract payment to another address
-	_, contractAddr := helpers.SetupContract(t, ctx, juno, user.KeyName, "contracts/cw_template.wasm", `{"count":0}`)
+	_, contractAddr := helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/cw_template.wasm", `{"count":0}`)
 
 	// register contract to a random address (since we are the creator, though not the admin)
 	helpers.RegisterFeeShare(t, ctx, juno, user, contractAddr, feeRcvAddr)

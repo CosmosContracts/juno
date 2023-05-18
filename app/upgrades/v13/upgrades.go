@@ -10,17 +10,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	// ICA
-	icacontrollertypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/controller/types"
-	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
+	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 
 	// types
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
-
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v4/router/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
 func CreateV13UpgradeHandler(
@@ -37,7 +35,7 @@ func CreateV13UpgradeHandler(
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
 
 		// ICA - https://github.com/CosmosContracts/juno/blob/integrate_ica_changes/app/app.go#L846-L885
-		vm[icatypes.ModuleName] = mm.Modules[icatypes.ModuleName].ConsensusVersion()
+		// vm[icatypes.ModuleName] = mm.Modules[icatypes.ModuleName].ConsensusVersion()
 		logger.Info("upgraded icatypes version")
 
 		// Update ICS27 Host submodule params
@@ -48,7 +46,7 @@ func CreateV13UpgradeHandler(
 		}
 
 		// IBCFee
-		vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
+		// vm[ibcfeetypes.ModuleName] = mm.Modules[ibcfeetypes.ModuleName].ConsensusVersion()
 		logger.Info(fmt.Sprintf("ibcfee module version %s set", fmt.Sprint(vm[ibcfeetypes.ModuleName])))
 
 		// Run migrations
