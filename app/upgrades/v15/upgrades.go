@@ -132,7 +132,10 @@ func CreateV15UpgradeHandler(
 		// x/Staking - set minimum commission to 0.050000000000000000
 		stakingParams := keepers.StakingKeeper.GetParams(ctx)
 		stakingParams.MinCommissionRate = sdk.NewDecWithPrec(5, 2)
-		keepers.StakingKeeper.SetParams(ctx, stakingParams)
+		err = keepers.StakingKeeper.SetParams(ctx, stakingParams)
+		if err != nil {
+			return nil, err
+		}
 
 		return versionMap, err
 	}
