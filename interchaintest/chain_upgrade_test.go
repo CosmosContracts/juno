@@ -2,12 +2,10 @@ package interchaintest
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"testing"
 	"time"
 
-	"github.com/icza/dyno"
+	"github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -17,7 +15,7 @@ import (
 )
 
 const (
-	haltHeightDelta    = uint64(15) // will propose upgrade this many blocks in the future
+	haltHeightDelta    = uint64(10) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = uint64(10)
 )
 
@@ -28,31 +26,6 @@ func TestBasicJunoUpgrade(t *testing.T) {
 	CosmosChainUpgradeTest(t, "juno", startVersion, version, repo, upgradeName)
 }
 
-// With us upgrading from v45 to v47, we need to modify the params in the v45 style here & only here.
-// In the future this will be removed to use just `modifyGenesisShortProposals`
-func modifySDKv45GenesisShortProposals(votingPeriod string, maxDepositPeriod string) func(ibc.ChainConfig, []byte) ([]byte, error) {
-	return func(chainConfig ibc.ChainConfig, genbz []byte) ([]byte, error) {
-		g := make(map[string]interface{})
-		if err := json.Unmarshal(genbz, &g); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal genesis file: %w", err)
-		}
-		if err := dyno.Set(g, votingPeriod, "app_state", "gov", "voting_params", "voting_period"); err != nil {
-			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
-		}
-		if err := dyno.Set(g, maxDepositPeriod, "app_state", "gov", "deposit_params", "max_deposit_period"); err != nil {
-			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
-		}
-		if err := dyno.Set(g, chainConfig.Denom, "app_state", "gov", "deposit_params", "min_deposit", 0, "denom"); err != nil {
-			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
-		}
-		out, err := json.Marshal(g)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal genesis bytes to json: %w", err)
-		}
-		return out, nil
-	}
-}
-
 func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
 	if testing.Short() {
 		t.Skip("skipping in short mode")
@@ -60,13 +33,31 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 
 	t.Parallel()
 
+	t.Log(chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName)
+
+	// v45 genesis params
+	genesisKVs := []helpers.GenesisKV{
+		{
+			Key:   "app_state.gov.voting_params.voting_period",
+			Value: VotingPeriod,
+		},
+		{
+			Key:   "app_state.gov.deposit_params.max_deposit_period",
+			Value: MaxDepositPeriod,
+		},
+		{
+			Key:   "app_state.gov.deposit_params.min_deposit.0.denom",
+			Value: junoConfig.Denom,
+		},
+	}
+
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:      chainName,
 			ChainName: chainName,
 			Version:   initialVersion,
 			ChainConfig: ibc.ChainConfig{
-				ModifyGenesis: modifySDKv45GenesisShortProposals(VotingPeriod, MaxDepositPeriod),
+				ModifyGenesis: helpers.ModifyGenesis(genesisKVs),
 				Images: []ibc.DockerImage{
 					{
 						Repository: JunoE2ERepo,
@@ -124,7 +115,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	err = chain.VoteOnProposalAllValidators(ctx, upgradeTx.ProposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
-	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+haltHeightDelta, upgradeTx.ProposalID, cosmos.ProposalStatusPassed)
+	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+(haltHeightDelta*2), upgradeTx.ProposalID, cosmos.ProposalStatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
 	timeoutCtx, timeoutCtxCancel := context.WithTimeout(ctx, time.Second*45)
