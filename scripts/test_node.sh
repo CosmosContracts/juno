@@ -50,7 +50,7 @@ from_scratch () {
   # juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl
   echo "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise" | BINARY keys add feeacc --keyring-backend $KEYRING --algo $KEYALGO --recover
   
-  BINARY init $MONIKER --chain-id $CHAIN_ID
+  BINARY init $MONIKER --chain-id $CHAIN_ID --default-denom ujuno
 
   # Function updates the config based on a jq argument as a string
   update_test_genesis () {
@@ -64,8 +64,9 @@ from_scratch () {
 
   # GlobalFee
   update_test_genesis '.app_state["globalfee"]["params"]["minimum_gas_prices"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
-
+  
   update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="ujuno"'  
+  update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.050000000000000000"'  
   # update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ujuno","enabled": true}]'
   # update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.100000000000000000"' # sdk 46 only   
 

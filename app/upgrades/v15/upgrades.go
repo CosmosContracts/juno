@@ -129,6 +129,11 @@ func CreateV15UpgradeHandler(
 		keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf)
 		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
 
+		// x/Staking - set minimum commission to 0.050000000000000000
+		stakingParams := keepers.StakingKeeper.GetParams(ctx)
+		stakingParams.MinCommissionRate = sdk.NewDecWithPrec(5, 2)
+		keepers.StakingKeeper.SetParams(ctx, stakingParams)
+
 		return versionMap, err
 	}
 }

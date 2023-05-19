@@ -100,8 +100,6 @@ func TestFullAppSimulation(t *testing.T) {
 		db.Close()
 		require.NoError(t, os.RemoveAll(dir))
 	}()
-	// encConf := MakeEncodingConfig()
-	updateAppSimulationFlag(true)
 
 	var emptyWasmOption []wasm.Option
 	app := New(
