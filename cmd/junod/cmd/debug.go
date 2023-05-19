@@ -31,7 +31,6 @@ func DebugCmd() *cobra.Command {
 		ConvertBech32Cmd(),
 		ExportDeriveBalancesCmd(),
 		StakedToCSVCmd(),
-		forceprune(),
 	)
 
 	return cmd
