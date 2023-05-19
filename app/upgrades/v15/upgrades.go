@@ -45,12 +45,10 @@ func CreateV15UpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		// TODO: Add postHandler (like antehandler but runs after runMsgs)
-
 		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
 
-		// TODO: Our mint module needs to be migrated to v47 for minttypes.ModuleName
+		// TODO: Our mint, feeshare, globalfee, and tokenfactory module needs to be migrated to v47 for minttypes.ModuleName
 		// https://github.com/cosmos/cosmos-sdk/pull/12363/files
 		// Set param key table for params module migration
 		for _, subspace := range keepers.ParamsKeeper.GetSubspaces() {
@@ -64,7 +62,7 @@ func CreateV15UpgradeHandler(
 				keyTable = banktypes.ParamKeyTable() //nolint:staticcheck
 			case stakingtypes.ModuleName:
 				keyTable = stakingtypes.ParamKeyTable() //nolint:staticcheck
-			// TODO: mint module v47?
+
 			// case minttypes.ModuleName:
 			// 	keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
 			case distrtypes.ModuleName:
@@ -140,21 +138,3 @@ func CreateV15UpgradeHandler(
 		return versionMap, err
 	}
 }
-
-// Previously planned Faster block time upgrade
-//
-// x/Mint
-// Double blocks per year (from 6 seconds to 3 = 2x blocks per year)
-// mintParams := keepers.MintKeeper.GetParams(ctx)
-// mintParams.BlocksPerYear *= 2
-// keepers.MintKeeper.SetParams(ctx, mintParams)
-// logger.Info(fmt.Sprintf("updated minted blocks per year logic to %v", mintParams))
-//
-// x/Slashing
-// Double slashing window due to double blocks per year
-// slashingParams := keepers.SlashingKeeper.GetParams(ctx)
-// slashingParams.SignedBlocksWindow *= 2
-// err = keepers.SlashingKeeper.SetParams(ctx, slashingParams)
-// if err != nil {
-// 	return nil, err
-// }

@@ -5,8 +5,6 @@ import (
 )
 
 // Go based data types for querying on the contract.
-
-// TODO: Auto generate in the future from Rust types -> Go types?
 // Execute types are not needed here. We just use strings. Could add though in the future and to_string it
 
 // EntryPoint

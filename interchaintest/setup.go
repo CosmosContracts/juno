@@ -8,7 +8,7 @@ import (
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types" // TODO: fix this so we can store in the DB.
+	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 
 	"github.com/docker/docker/client"
 	"github.com/icza/dyno"
