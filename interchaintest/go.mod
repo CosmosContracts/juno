@@ -14,9 +14,9 @@ replace (
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-	// Fixes gas issue, public SubmitProposal
-	// go get github.com/Reecepbcups/interchaintest/v7@33d7fafb6f8b0207be920659b37dd5ae9c85c0ff
-	github.com/strangelove-ventures/interchaintest/v7 => github.com/Reecepbcups/interchaintest/v7 v7.0.0-20230512161406-33d7fafb6f8b
+	// Fixes gas issue, public SubmitProposal, & modify genesis
+	// go get github.com/Reecepbcups/interchaintest/v7@a01b723ae4e1cd77a8fe114bbc1d6b2cf0136018
+	github.com/strangelove-ventures/interchaintest/v7 => github.com/Reecepbcups/interchaintest/v7 v7.0.0-20230519210824-a01b723ae4e1
 	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
 
 )

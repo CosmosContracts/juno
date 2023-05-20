@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -36,7 +35,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	t.Log(chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName)
 
 	// v45 genesis params
-	genesisKVs := []helpers.GenesisKV{
+	genesisKVs := []cosmos.GenesisKV{
 		{
 			Key:   "app_state.gov.voting_params.voting_period",
 			Value: VotingPeriod,
@@ -47,7 +46,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 		},
 		{
 			Key:   "app_state.gov.deposit_params.min_deposit.0.denom",
-			Value: junoConfig.Denom,
+			Value: Denom,
 		},
 	}
 
@@ -57,7 +56,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 			ChainName: chainName,
 			Version:   initialVersion,
 			ChainConfig: ibc.ChainConfig{
-				ModifyGenesis: helpers.ModifyGenesis(genesisKVs),
+				ModifyGenesis: cosmos.ModifyGenesis(genesisKVs),
 				Images: []ibc.DockerImage{
 					{
 						Repository: JunoE2ERepo,
@@ -115,7 +114,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	err = chain.VoteOnProposalAllValidators(ctx, upgradeTx.ProposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
-	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+(haltHeightDelta*2), upgradeTx.ProposalID, cosmos.ProposalStatusPassed)
+	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+haltHeightDelta, upgradeTx.ProposalID, cosmos.ProposalStatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
 	timeoutCtx, timeoutCtxCancel := context.WithTimeout(ctx, time.Second*45)
@@ -134,15 +133,18 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.Equal(t, haltHeight, height, "height is not equal to halt height")
 
 	// bring down nodes to prepare for upgrade
+	t.Log("stopping node(s)")
 	err = chain.StopAllNodes(ctx)
 	require.NoError(t, err, "error stopping node(s)")
 
 	// upgrade version on all nodes
+	t.Log("upgrading node(s)")
 	chain.UpgradeVersion(ctx, client, upgradeRepo, upgradeBranchVersion)
 
 	// start all nodes back up.
 	// validators reach consensus on first block after upgrade height
 	// and chain block production resumes.
+	t.Log("starting node(s)")
 	err = chain.StartAllNodes(ctx)
 	require.NoError(t, err, "error starting upgraded node(s)")
 
