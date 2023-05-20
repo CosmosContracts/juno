@@ -8,6 +8,7 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
 
 	"github.com/docker/docker/client"
 
@@ -83,6 +84,7 @@ func junoEncoding() *testutil.TestEncodingConfig {
 
 	// register custom types
 	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
+	ibcfeetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 

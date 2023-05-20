@@ -131,6 +131,9 @@ ictest-tokenfactory: rm-testcache
 ictest-feeshare: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoFeeShare .
 
+ictest-ibcfee: rm-testcache
+	cd interchaintest && go test -race -v -run TestJunoIBCFee .
+
 # Executes a basic chain upgrade test via interchaintest
 ictest-upgrade: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
