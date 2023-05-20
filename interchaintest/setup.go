@@ -16,8 +16,6 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
 
-	"github.com/CosmosContracts/juno/tests/interchaintest/helpers"
-
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
@@ -41,7 +39,7 @@ var (
 	}
 
 	// SDK v47 Genesis
-	defaultGenesisKV = []helpers.GenesisKV{
+	defaultGenesisKV = []cosmos.GenesisKV{
 		{
 			Key:   "app_state.gov.params.voting_period",
 			Value: VotingPeriod,
@@ -72,7 +70,7 @@ var (
 		ConfigFileOverrides:    nil,
 		EncodingConfig:         junoEncoding(),
 		UsingNewGenesisCommand: true,
-		ModifyGenesis:          helpers.ModifyGenesis(defaultGenesisKV),
+		ModifyGenesis:          cosmos.ModifyGenesis(defaultGenesisKV),
 	}
 
 	genesisWalletAmount = int64(10_000_000)
