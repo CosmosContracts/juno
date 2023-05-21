@@ -6,7 +6,7 @@ require (
 	github.com/CosmWasm/token-factory v0.0.0-00010101000000-000000000000
 	github.com/CosmWasm/wasmd v0.31.0
 	github.com/cometbft/cometbft-db v0.7.0
-	github.com/cosmos/cosmos-sdk v0.45.15
+	github.com/cosmos/cosmos-sdk v0.45.16
 	github.com/cosmos/gaia/v9 v9.0.1
 	github.com/cosmos/ibc-go/v4 v4.3.0
 	github.com/gogo/protobuf v1.3.3
