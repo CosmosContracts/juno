@@ -2,16 +2,14 @@ package interchaintest
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"testing"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types" // TODO: fix this so we can store in the DB.
+	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 
 	"github.com/docker/docker/client"
-	"github.com/icza/dyno"
 
 	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
@@ -25,8 +23,9 @@ import (
 )
 
 var (
-	VotingPeriod     = "25s"
+	VotingPeriod     = "15s"
 	MaxDepositPeriod = "10s"
+	Denom            = "ujuno"
 
 	JunoE2ERepo  = "ghcr.io/cosmoscontracts/juno-e2e"
 	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
@@ -39,6 +38,22 @@ var (
 		UidGid:     "1025:1025",
 	}
 
+	// SDK v47 Genesis
+	defaultGenesisKV = []cosmos.GenesisKV{
+		{
+			Key:   "app_state.gov.params.voting_period",
+			Value: VotingPeriod,
+		},
+		{
+			Key:   "app_state.gov.params.max_deposit_period",
+			Value: MaxDepositPeriod,
+		},
+		{
+			Key:   "app_state.gov.params.min_deposit.0.denom",
+			Value: Denom,
+		},
+	}
+
 	junoConfig = ibc.ChainConfig{
 		Type:                   "cosmos",
 		Name:                   "juno",
@@ -46,19 +61,18 @@ var (
 		Images:                 []ibc.DockerImage{JunoImage},
 		Bin:                    "junod",
 		Bech32Prefix:           "juno",
-		Denom:                  "ujuno",
+		Denom:                  Denom,
 		CoinType:               "118",
-		GasPrices:              "0ujuno",
+		GasPrices:              fmt.Sprintf("0%s", Denom),
 		GasAdjustment:          2.0,
 		TrustingPeriod:         "112h",
 		NoHostMount:            false,
 		ConfigFileOverrides:    nil,
 		EncodingConfig:         junoEncoding(),
 		UsingNewGenesisCommand: true,
-		ModifyGenesis:          modifyGenesisShortProposals(VotingPeriod, MaxDepositPeriod),
+		ModifyGenesis:          cosmos.ModifyGenesis(defaultGenesisKV),
 	}
 
-	pathJunoGaia        = "juno-gaia"
 	genesisWalletAmount = int64(10_000_000)
 )
 
@@ -130,29 +144,4 @@ func BuildInitialChain(t *testing.T, chains []ibc.Chain) (*interchaintest.Interc
 	require.NoError(t, err)
 
 	return ic, ctx, client, network
-}
-
-// Setup Helpers
-func modifyGenesisShortProposals(votingPeriod string, maxDepositPeriod string) func(ibc.ChainConfig, []byte) ([]byte, error) {
-	return func(chainConfig ibc.ChainConfig, genbz []byte) ([]byte, error) {
-		g := make(map[string]interface{})
-		if err := json.Unmarshal(genbz, &g); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal genesis file: %w", err)
-		}
-		// v47 puts params in a params field now.
-		if err := dyno.Set(g, votingPeriod, "app_state", "gov", "params", "voting_period"); err != nil {
-			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
-		}
-		if err := dyno.Set(g, maxDepositPeriod, "app_state", "gov", "params", "max_deposit_period"); err != nil {
-			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
-		}
-		if err := dyno.Set(g, chainConfig.Denom, "app_state", "gov", "params", "min_deposit", 0, "denom"); err != nil {
-			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
-		}
-		out, err := json.Marshal(g)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal genesis bytes to json: %w", err)
-		}
-		return out, nil
-	}
 }

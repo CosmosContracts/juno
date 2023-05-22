@@ -59,7 +59,6 @@ $ %s query ibc-hooks wasm-hooks-sender channel-42 juno12smx2wdlyttvyzvzg54y2vnqw
 		RunE: func(cmd *cobra.Command, args []string) error {
 			channelID := args[0]
 			originalSender := args[1]
-			// ToDo: Make this flexible as an arg
 			prefix := sdk.GetConfig().GetBech32AccountAddrPrefix()
 			senderBech32, err := keeper.DeriveIntermediateSender(channelID, originalSender, prefix)
 			if err != nil {
