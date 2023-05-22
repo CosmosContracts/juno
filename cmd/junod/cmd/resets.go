@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	tmos "github.com/cometbft/cometbft/libs/os"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
-	tmos "github.com/tendermint/tendermint/libs/os"
 )
 
 // Cmd creates a main CLI command

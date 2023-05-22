@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -16,7 +16,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/CosmosContracts/juno/v15/x/feeshare/client/cli"
 	"github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
@@ -127,19 +126,9 @@ func (am AppModule) NewHandler() sdk.Handler {
 	return nil
 }
 
-// Route returns the fees module's message routing key.
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, am.NewHandler())
-}
-
 // QuerierRoute returns the claim module's query routing key.
 func (am AppModule) QuerierRoute() string {
 	return types.RouterKey
-}
-
-// LegacyQuerierHandler returns the claim module's Querier.
-func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
-	return nil
 }
 
 // RegisterServices registers a GRPC query service to respond to the
@@ -184,13 +173,8 @@ func (am AppModule) GenerateGenesisState(_ *module.SimulationState) {
 }
 
 // ProposalContents returns content functions for governance proposals.
-func (am AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
-	return []simtypes.WeightedProposalContent{}
-}
-
-// RandomizedParams creates randomized fees param changes for the simulator.
-func (am AppModule) RandomizedParams(_ *rand.Rand) []simtypes.ParamChange {
-	return []simtypes.ParamChange{}
+func (am AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalMsg {
+	return []simtypes.WeightedProposalMsg{}
 }
 
 // RegisterStoreDecoder registers a decoder for fees module's types.

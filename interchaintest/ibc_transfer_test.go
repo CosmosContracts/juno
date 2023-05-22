@@ -2,15 +2,15 @@ package interchaintest
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
-	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	"github.com/strangelove-ventures/interchaintest/v4"
-	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v4/ibc"
-	"github.com/strangelove-ventures/interchaintest/v4/testreporter"
-	"github.com/strangelove-ventures/interchaintest/v4/testutil"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/strangelove-ventures/interchaintest/v7"
+	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	interchaintestrelayer "github.com/strangelove-ventures/interchaintest/v7/relayer"
+	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
+	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 )
@@ -37,65 +37,62 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 		},
 		{
 			Name:          "gaia",
-			Version:       "v9.0.0",
+			Version:       "v9.1.0",
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},
 	})
 
+	const (
+		path = "ibc-path"
+	)
+
 	// Get chains from the chain factory
 	chains, err := cf.Chains(t.Name())
 	require.NoError(t, err)
 
-	juno, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
-
-	// Create relayer factory to utilize the go-relayer
 	client, network := interchaintest.DockerSetup(t)
 
-	r := interchaintest.NewBuiltinRelayerFactory(ibc.CosmosRly, zaptest.NewLogger(t)).Build(t, client, network)
+	juno, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
-	// Create a new Interchain object which describes the chains, relayers, and IBC connections we want to use
+	relayerType, relayerName := ibc.CosmosRly, "relay"
+
+	// Get a relayer instance
+	rf := interchaintest.NewBuiltinRelayerFactory(
+		relayerType,
+		zaptest.NewLogger(t),
+		interchaintestrelayer.CustomDockerImage("ghcr.io/cosmos/relayer", "latest", "100:1000"),
+		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
+	)
+
+	r := rf.Build(t, client, network)
+
 	ic := interchaintest.NewInterchain().
 		AddChain(juno).
 		AddChain(gaia).
-		AddRelayer(r, "rly").
+		AddRelayer(r, relayerName).
 		AddLink(interchaintest.InterchainLink{
 			Chain1:  juno,
 			Chain2:  gaia,
 			Relayer: r,
-			Path:    pathJunoGaia,
+			Path:    path,
 		})
+
+	ctx := context.Background()
 
 	rep := testreporter.NewNopReporter()
 	eRep := rep.RelayerExecReporter(t)
 
-	ctx := context.Background()
-
-	err = ic.Build(ctx, eRep, interchaintest.InterchainBuildOptions{
-		TestName:         t.Name(),
-		Client:           client,
-		NetworkID:        network,
-		SkipPathCreation: false,
-
-		// This can be used to write to the block database which will index all block data e.g. txs, msgs, events, etc.
-		// BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
-	})
-	require.NoError(t, err)
-
+	require.NoError(t, ic.Build(ctx, eRep, interchaintest.InterchainBuildOptions{
+		TestName:          t.Name(),
+		Client:            client,
+		NetworkID:         network,
+		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
+		SkipPathCreation:  false,
+	}))
 	t.Cleanup(func() {
 		_ = ic.Close()
 	})
-
-	// Start the relayer
-	require.NoError(t, r.StartRelayer(ctx, eRep, pathJunoGaia))
-	t.Cleanup(
-		func() {
-			err := r.StopRelayer(ctx, eRep)
-			if err != nil {
-				panic(fmt.Errorf("an error occurred while stopping the relayer: %s", err))
-			}
-		},
-	)
 
 	// Create some user accounts on both chains
 	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), genesisWalletAmount, juno, gaia)
@@ -107,8 +104,8 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	// Get our Bech32 encoded user addresses
 	junoUser, gaiaUser := users[0], users[1]
 
-	junoUserAddr := junoUser.Bech32Address(juno.Config().Bech32Prefix)
-	gaiaUserAddr := gaiaUser.Bech32Address(gaia.Config().Bech32Prefix)
+	junoUserAddr := junoUser.FormattedAddress()
+	gaiaUserAddr := gaiaUser.FormattedAddress()
 
 	// Get original account balances
 	junoOrigBal, err := juno.GetBalance(ctx, junoUserAddr, juno.Config().Denom)
@@ -133,11 +130,19 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	transferTx, err := juno.SendIBCTransfer(ctx, channel.ChannelID, junoUserAddr, transfer, ibc.TransferOptions{})
 	require.NoError(t, err)
 
+	// TODO The packet exits the users account with the 1_000 in funds, but never is ack'ed.
+
+	// print transferTx
+
 	junoHeight, err := juno.Height(ctx)
 	require.NoError(t, err)
 
 	// Poll for the ack to know the transfer was successful
-	_, err = testutil.PollForAck(ctx, juno, junoHeight, junoHeight+10, transferTx.Packet)
+	r.Flush(ctx, eRep, path, channel.ChannelID)
+	_, err = testutil.PollForAck(ctx, juno, junoHeight-5, junoHeight+50, transferTx.Packet)
+	require.NoError(t, err)
+
+	err = testutil.WaitForBlocks(ctx, 10, juno)
 	require.NoError(t, err)
 
 	// Get the IBC denom for ujuno on Gaia
@@ -167,7 +172,8 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	require.NoError(t, err)
 
 	// Poll for the ack to know the transfer was successful
-	_, err = testutil.PollForAck(ctx, gaia, gaiaHeight, gaiaHeight+10, transferTx.Packet)
+	r.Flush(ctx, eRep, path, channel.Counterparty.ChannelID)
+	_, err = testutil.PollForAck(ctx, gaia, gaiaHeight, gaiaHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 
 	// Assert that the funds are now back on Juno and not on Gaia

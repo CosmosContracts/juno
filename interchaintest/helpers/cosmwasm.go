@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v4/ibc"
-	"github.com/strangelove-ventures/interchaintest/v4/testutil"
+	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,31 +25,7 @@ func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain,
 	return codeId, contractAddr
 }
 
-func StoreContractGovernanceProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user *ibc.Wallet, title, description, depositCoin, contractAddr, amount, message string) {
-	cmd := []string{"junod", "tx", "gov", "submit-proposal", "sudo-contract", contractAddr, message,
-		"--title", title,
-		"--description", description,
-		"--deposit", depositCoin,
-		"--node", chain.GetRPCAddress(),
-		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
-		"--from", user.KeyName,
-		"--gas", "2000000",
-		"--keyring-dir", chain.HomeDir(),
-		"--keyring-backend", keyring.BackendTest,
-		"-y",
-	}
-
-	if amount != "" {
-		cmd = append(cmd, "--amount", amount)
-	}
-
-	stdout, _, err := chain.Exec(ctx, cmd, nil)
-	require.NoError(t, err)
-	debugOutput(t, string(stdout))
-}
-
-func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user *ibc.Wallet, contractAddr, amount, message string) {
+func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr, amount, message string) {
 	// amount is #utoken
 
 	// There has to be a way to do this in ictest?
@@ -57,7 +33,7 @@ func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
-		"--from", user.KeyName,
+		"--from", user.KeyName(),
 		"--gas", "500000",
 		"--amount", amount,
 		"--keyring-dir", chain.HomeDir(),
@@ -74,7 +50,7 @@ func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 	}
 }
 
-func ExecuteMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user *ibc.Wallet, contractAddr, amount, feeCoin, message string) {
+func ExecuteMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr, amount, feeCoin, message string) {
 	// amount is #utoken
 
 	// There has to be a way to do this in ictest?
@@ -82,7 +58,7 @@ func ExecuteMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos.CosmosCh
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
-		"--from", user.KeyName,
+		"--from", user.KeyName(),
 		"--gas", "500000",
 		"--fees", feeCoin,
 		"--keyring-dir", chain.HomeDir(),

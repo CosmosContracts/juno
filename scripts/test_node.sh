@@ -50,7 +50,7 @@ from_scratch () {
   # juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl
   echo "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise" | BINARY keys add feeacc --keyring-backend $KEYRING --algo $KEYALGO --recover
   
-  BINARY init $MONIKER --chain-id $CHAIN_ID
+  BINARY init $MONIKER --chain-id $CHAIN_ID --default-denom ujuno
 
   # Function updates the config based on a jq argument as a string
   update_test_genesis () {
@@ -60,17 +60,18 @@ from_scratch () {
 
   # Set gas limit in genesis
   update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
-  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="15s"'
+  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="150s"'
 
   # GlobalFee
   update_test_genesis '.app_state["globalfee"]["params"]["minimum_gas_prices"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
-
+  
   update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="ujuno"'  
-  update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ujuno","enabled": true}]'
+  update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.050000000000000000"'  
+  # update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ujuno","enabled": true}]'
   # update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.100000000000000000"' # sdk 46 only   
 
   update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ujuno"'  
-  update_test_genesis '.app_state["gov"]["deposit_params"]["min_deposit"]=[{"denom": "ujuno","amount": "1000000"}]'
+  update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom": "ujuno","amount": "1000000"}]'
   update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ujuno","amount": "1000"}'  
 
   # update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom":"ujuno","amount":"100"}]'
@@ -80,16 +81,16 @@ from_scratch () {
   update_test_genesis '.app_state["feeshare"]["params"]["allowed_denoms"]=["ujuno"]'
 
   # Allocate genesis accounts
-  BINARY add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
-  BINARY add-genesis-account feeacc 1000000ujuno,1000utest --keyring-backend $KEYRING
+  BINARY genesis add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
+  BINARY genesis add-genesis-account feeacc 1000000ujuno,1000utest --keyring-backend $KEYRING
 
-  BINARY gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID
+  BINARY genesis gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID
 
   # Collect genesis tx
-  BINARY collect-gentxs
+  BINARY genesis collect-gentxs
 
   # Run this to ensure junorything worked and that the genesis file is setup correctly
-  BINARY validate-genesis
+  BINARY genesis validate-genesis
 }
 
 # check if CLEAN is not set to false
@@ -105,7 +106,7 @@ sed -i 's/laddr = "tcp:\/\/127.0.0.1:26657"/c\laddr = "tcp:\/\/0.0.0.0:'$RPC'"/g
 sed -i 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["\*"\]/g' $HOME_DIR/config/config.toml
 
 # REST endpoint
-sed -i 's/address = "tcp:\/\/0.0.0.0:1317"/address = "tcp:\/\/0.0.0.0:'$REST'"/g' $HOME_DIR/config/app.toml
+sed -i 's/address = "tcp:\/\/localhost:1317"/address = "tcp:\/\/0.0.0.0:'$REST'"/g' $HOME_DIR/config/app.toml
 sed -i 's/enable = false/enable = true/g' $HOME_DIR/config/app.toml
 
 # replace pprof_laddr = "localhost:6060" binding
@@ -115,8 +116,8 @@ sed -i 's/pprof_laddr = "localhost:6060"/pprof_laddr = "localhost:'$PROFF_LADDER
 sed -i 's/laddr = "tcp:\/\/0.0.0.0:26656"/laddr = "tcp:\/\/0.0.0.0:'$P2P'"/g' $HOME_DIR/config/config.toml
 
 # GRPC
-sed -i 's/address = "0.0.0.0:9090"/address = "0.0.0.0:'$GRPC'"/g' $HOME_DIR/config/app.toml
-sed -i 's/address = "0.0.0.0:9091"/address = "0.0.0.0:'$GRPC_WEB'"/g' $HOME_DIR/config/app.toml
+sed -i 's/address = "localhost:9090"/address = "0.0.0.0:'$GRPC'"/g' $HOME_DIR/config/app.toml
+sed -i 's/address = "localhost:9091"/address = "0.0.0.0:'$GRPC_WEB'"/g' $HOME_DIR/config/app.toml
 
 # Rosetta Api
 sed -i 's/address = ":8080"/address = "0.0.0.0:'$ROSETTA'"/g' $HOME_DIR/config/app.toml

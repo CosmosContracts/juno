@@ -52,12 +52,12 @@ if ! junod keys show validator $KEYRING; then
   (echo "$PASSWORD"; echo "$PASSWORD") | junod keys add validator $KEYRING
 
   # hardcode the validator account for this instance
-  echo "$PASSWORD" | junod add-genesis-account validator "1000000000$STAKE,1000000000$FEE" $KEYRING
+  echo "$PASSWORD" | junod genesis add-genesis-account validator "1000000000$STAKE,1000000000$FEE" $KEYRING
 
   # (optionally) add a few more genesis accounts
   for addr in "$@"; do
     echo $addr
-    junod add-genesis-account "$addr" "1000000000$STAKE,1000000000$FEE"
+    junod genesis add-genesis-account "$addr" "1000000000$STAKE,1000000000$FEE"
   done
 
   # submit a genesis validator tx
