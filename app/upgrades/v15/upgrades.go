@@ -135,6 +135,12 @@ func CreateV15UpgradeHandler(
 			return nil, err
 		}
 
+		for _, channel := range keepers.IBCKeeper.ChannelKeeper.GetAllChannels(ctx) {
+			if channel.PortId == "transfer" {
+				keepers.IBCFeeKeeper.SetFeeEnabled(ctx, channel.PortId, channel.ChannelId)
+			}
+		}
+
 		return versionMap, err
 	}
 }
