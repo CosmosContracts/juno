@@ -2,8 +2,6 @@ package interchaintest
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"testing"
 	"time"
 
