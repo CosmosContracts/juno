@@ -361,6 +361,9 @@ func NewAppKeepers(
 		appKeepers.Ics20WasmHooks,
 	)
 
+	// Do not use this middleware for anything except x/wasm requirement.
+	// The spec currently requires new channels to be created, to use it.
+	// We need to wait for Channel Upgradability before we can use this for any other middleware.
 	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[ibcfeetypes.StoreKey],
@@ -379,8 +382,6 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
-		// The ICS4Wrapper is replaced by the IBCFeeKeeper instead of the channel so that sending can be overridden by the middleware
-		// &appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 	)
 
