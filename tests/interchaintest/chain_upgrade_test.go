@@ -143,4 +143,13 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.NoError(t, err, "error fetching height after upgrade")
 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
+
+	// ensure DenomCreationGasConsume for tokenfactory is set to 2000000 with the standard fee being set to empty
+	param, err := chain.QueryParam(ctx, "tokenfactory", "DenomCreationGasConsume")
+	require.NoError(t, err, "error querying denom creation gas consume")
+	require.Equal(t, param.Value, "\"2000000\"")
+
+	param, err = chain.QueryParam(ctx, "tokenfactory", "DenomCreationFee")
+	require.NoError(t, err, "error querying denom creation fee")
+	require.Equal(t, param.Value, "[]")
 }

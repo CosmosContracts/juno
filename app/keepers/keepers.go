@@ -80,6 +80,14 @@ import (
 	"github.com/cosmos/gaia/v9/x/globalfee"
 )
 
+var (
+	EnabledCapabilities = []string{
+		tokenfactorytypes.EnableBurnFrom,
+		tokenfactorytypes.EnableForceTransfer,
+		tokenfactorytypes.EnableSetMetadata,
+	}
+)
+
 type AppKeepers struct {
 	// keys to access the substores
 	keys    map[string]*sdk.KVStoreKey
@@ -357,6 +365,7 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,
+		EnabledCapabilities,
 	)
 
 	wasmDir := filepath.Join(homePath, "data")
