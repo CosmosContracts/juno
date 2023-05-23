@@ -9,7 +9,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-func CreateV14_2_0_UpgradeHandler(
+func CreateV14_2_0UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	_ *keepers.AppKeepers,
