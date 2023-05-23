@@ -80,13 +80,11 @@ import (
 	"github.com/cosmos/gaia/v9/x/globalfee"
 )
 
-var (
-	EnabledCapabilities = []string{
-		tokenfactorytypes.EnableBurnFrom,
-		tokenfactorytypes.EnableForceTransfer,
-		tokenfactorytypes.EnableSetMetadata,
-	}
-)
+var EnabledCapabilities = []string{
+	tokenfactorytypes.EnableBurnFrom,
+	tokenfactorytypes.EnableForceTransfer,
+	tokenfactorytypes.EnableSetMetadata,
+}
 
 type AppKeepers struct {
 	// keys to access the substores
