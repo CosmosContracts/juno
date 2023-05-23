@@ -1,0 +1,36 @@
+syntax = "proto3";
+package juno.drip.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/drip/types";
+
+// Msg defines the fees Msg service.
+service Msg {
+  // DistributeTokens distribute the sent tokens to all stakers in the next block
+  rpc DistributeTokens(MsgDistributeTokens)
+      returns (MsgDistributeTokensResponse) {
+    option (google.api.http).post = "/juno/drip/v1/tx/distribute_tokens";
+  };
+}
+
+// MsgRegisterFeeShare defines a message that registers a FeeShare
+message MsgDistributeTokens {
+  option (gogoproto.equal) = false;
+  // sender_address is the bech32 address of message sender. 
+  string sender_address = 1;
+  
+  // amount is the amount being airdropped to stakers
+  repeated cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (amino.encoding)         = "legacy_coins",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// MsgRegisterFeeShareResponse defines the MsgRegisterFeeShare response type
+message MsgDistributeTokensResponse {}

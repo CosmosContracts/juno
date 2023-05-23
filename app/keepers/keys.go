@@ -2,6 +2,7 @@ package keepers
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
+	driptypes "github.com/CosmosContracts/juno/v15/x/drip/types"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
 	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
@@ -46,6 +47,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
 		tokenfactorytypes.StoreKey, feesharetypes.StoreKey,
+		driptypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)

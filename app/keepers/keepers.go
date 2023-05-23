@@ -74,6 +74,9 @@ import (
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
 
+	dripkeeper "github.com/CosmosContracts/juno/v15/x/drip/keeper"
+	driptypes "github.com/CosmosContracts/juno/v15/x/drip/types"
+
 	icahost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
@@ -165,6 +168,8 @@ type AppKeepers struct {
 	WasmKeeper         wasm.Keeper
 	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
+
+	DripKeeper dripkeeper.Keeper
 
 	// Middleware wrapper
 	Ics20WasmHooks   *ibchooks.WasmHooks
@@ -522,6 +527,15 @@ func NewAppKeepers(
 		authtypes.FeeCollectorName,
 	)
 
+	appKeepers.DripKeeper = dripkeeper.NewKeeper(
+		appKeepers.keys[driptypes.StoreKey],
+		appCodec,
+		appKeepers.GetSubspace(driptypes.ModuleName),
+		appKeepers.BankKeeper,
+		appKeepers.AccountKeeper,
+		authtypes.FeeCollectorName,
+	)
+
 	// register wasm gov proposal types
 	// The gov proposal types can be individually enabled
 	if len(enabledProposals) != 0 {
@@ -611,6 +625,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(globalfee.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)
+	paramsKeeper.Subspace(driptypes.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper

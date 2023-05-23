@@ -4,6 +4,8 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	encparams "github.com/CosmosContracts/juno/v15/app/params"
+	"github.com/CosmosContracts/juno/v15/x/drip"
+	driptypes "github.com/CosmosContracts/juno/v15/x/drip/types"
 	feeshare "github.com/CosmosContracts/juno/v15/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v15/x/globalfee"
@@ -93,6 +95,7 @@ var ModuleBasics = module.NewBasicManager(
 	icq.AppModuleBasic{},
 	feegrantmodule.AppModuleBasic{},
 	tokenfactory.AppModuleBasic{},
+	drip.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
@@ -132,6 +135,7 @@ func appModules(
 		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
 		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
 		tokenfactory.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper),
+		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
 		globalfee.NewAppModule(app.AppKeepers.GetSubspace(globalfee.ModuleName)),
 		feeshare.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
@@ -203,6 +207,7 @@ func orderBeginBlockers() []string {
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		driptypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
@@ -237,6 +242,7 @@ func orderEndBlockers() []string {
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		driptypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
@@ -271,6 +277,7 @@ func orderInitBlockers() []string {
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		driptypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasm.ModuleName,
