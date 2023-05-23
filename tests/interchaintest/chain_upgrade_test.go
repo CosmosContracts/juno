@@ -22,8 +22,8 @@ const (
 
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
-	upgradeName := "v14"
-	CosmosChainUpgradeTest(t, "juno", "v13.0.1", version, repo, upgradeName)
+	upgradeName := "v14_2_0"
+	CosmosChainUpgradeTest(t, "juno", "v14.1.0", version, repo, upgradeName)
 }
 
 func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
