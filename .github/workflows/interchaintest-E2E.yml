@@ -169,6 +169,23 @@ jobs:
         env:
           BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
 
+  test-juno-ibchooks:
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+    steps:
+      - name: checkout chain
+        uses: actions/checkout@v2
+
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+        id: go
+
+      - run: make ictest-ibchooks
+        env:
+          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
+
 
   # === UNITY CONTRACT ===
   test-juno-unity-deploy:

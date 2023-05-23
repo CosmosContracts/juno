@@ -125,6 +125,9 @@ benchmark:
 ictest-basic: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoStart .
 
+ictest-ibchooks: rm-testcache
+	cd interchaintest && go test -race -v -run TestJunoIBCHooks .
+
 ictest-tokenfactory: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
 
