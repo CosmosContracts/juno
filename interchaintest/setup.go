@@ -124,7 +124,7 @@ func BuildInitialChain(t *testing.T, chains []ibc.Chain) (*interchaintest.Interc
 	ic := interchaintest.NewInterchain()
 
 	for _, chain := range chains {
-		ic.AddChain(chain)
+		ic = ic.AddChain(chain)
 	}
 
 	rep := testreporter.NewNopReporter()
