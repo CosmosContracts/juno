@@ -2,9 +2,31 @@ module github.com/CosmosContracts/juno/tests/interchaintest
 
 go 1.19
 
+replace (
+	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
+	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
+
+	// token factory:
+	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
+
+	// For this nested module, you always want to replace the parent reference with the current worktree.
+	// github.com/CosmosContracts/juno => ../../
+	// github.com/CosmosContracts/juno/v15 => github.com/CosmosContracts/juno/v15 v16.0.0-20230524152917-465dae509bfe
+	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
+
+	// interchaintest supports ICS features so we need this for now
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.45.13-ics
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+
+	// use informal system fork of tendermint
+	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.26
+
+	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
+)
+
 require (
-	github.com/CosmosContracts/juno/v15 v14.1.0
-	github.com/cosmos/cosmos-sdk v0.45.15
+	github.com/CosmosContracts/juno/v15 v15.0.0-20230524152339-77942b14da8c
+	github.com/cosmos/cosmos-sdk v0.45.16
 	github.com/cosmos/ibc-go/v4 v4.3.0
 	github.com/strangelove-ventures/interchaintest/v4 v4.0.0-20230508170700-5b7cf4fd016b
 	github.com/stretchr/testify v1.8.2
@@ -179,25 +201,4 @@ require (
 	modernc.org/sqlite v1.17.3 // indirect
 	modernc.org/strutil v1.1.1 // indirect
 	modernc.org/token v1.0.0 // indirect
-)
-
-replace (
-	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
-	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
-
-	// token factory:
-	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
-
-	// For this nested module, you always want to replace the parent reference with the current worktree.
-	github.com/CosmosContracts/juno => ../../
-	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
-
-	// interchaintest supports ICS features so we need this for now
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.45.13-ics
-	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-
-	// use informal system fork of tendermint
-	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.26
-
-	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
 )
