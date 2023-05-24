@@ -3,7 +3,7 @@ package v14
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v14/app/keepers"
+	"github.com/CosmosContracts/juno/v15/app/keepers"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"

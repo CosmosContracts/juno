@@ -3,7 +3,7 @@ module github.com/CosmosContracts/juno/tests/interchaintest
 go 1.19
 
 require (
-	github.com/CosmosContracts/juno/v14 v14.1.0
+	github.com/CosmosContracts/juno/v15 v14.1.0
 	github.com/cosmos/cosmos-sdk v0.45.15
 	github.com/cosmos/ibc-go/v4 v4.3.0
 	github.com/strangelove-ventures/interchaintest/v4 v4.0.0-20230508170700-5b7cf4fd016b

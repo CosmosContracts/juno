@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/CosmosContracts/juno/v14/app/openapiconsole"
-	"github.com/CosmosContracts/juno/v14/docs"
+	"github.com/CosmosContracts/juno/v15/app/openapiconsole"
+	"github.com/CosmosContracts/juno/v15/docs"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -55,15 +55,15 @@ import (
 
 	"github.com/cosmos/gaia/v9/x/globalfee"
 
-	"github.com/CosmosContracts/juno/v14/app/keepers"
-	encparams "github.com/CosmosContracts/juno/v14/app/params"
-	upgrades "github.com/CosmosContracts/juno/v14/app/upgrades"
-	v10 "github.com/CosmosContracts/juno/v14/app/upgrades/v10"
-	v11 "github.com/CosmosContracts/juno/v14/app/upgrades/v11"
-	v12 "github.com/CosmosContracts/juno/v14/app/upgrades/v12"
-	v13 "github.com/CosmosContracts/juno/v14/app/upgrades/v13"
-	v14 "github.com/CosmosContracts/juno/v14/app/upgrades/v14"
-	v15 "github.com/CosmosContracts/juno/v14/app/upgrades/v15"
+	"github.com/CosmosContracts/juno/v15/app/keepers"
+	encparams "github.com/CosmosContracts/juno/v15/app/params"
+	upgrades "github.com/CosmosContracts/juno/v15/app/upgrades"
+	v10 "github.com/CosmosContracts/juno/v15/app/upgrades/v10"
+	v11 "github.com/CosmosContracts/juno/v15/app/upgrades/v11"
+	v12 "github.com/CosmosContracts/juno/v15/app/upgrades/v12"
+	v13 "github.com/CosmosContracts/juno/v15/app/upgrades/v13"
+	v14 "github.com/CosmosContracts/juno/v15/app/upgrades/v14"
+	v15 "github.com/CosmosContracts/juno/v15/app/upgrades/v15"
 )
 
 const (

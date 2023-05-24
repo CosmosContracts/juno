@@ -14,7 +14,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/stretchr/testify/suite"
 
-	minttypes "github.com/CosmosContracts/juno/v14/x/mint/types"
+	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
 )
 
 type IntegrationTestSuite struct {
