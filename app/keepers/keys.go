@@ -2,10 +2,10 @@ package keepers
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
-	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
-	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
-	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"

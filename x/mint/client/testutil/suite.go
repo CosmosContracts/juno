@@ -7,8 +7,8 @@ import (
 	tmcli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v15/x/mint/client/cli"
-	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/mint/client/cli"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"

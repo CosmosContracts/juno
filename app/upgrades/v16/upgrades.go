@@ -3,14 +3,14 @@ package v15
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v15/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 
-	"github.com/CosmosContracts/juno/v15/app/upgrades"
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"

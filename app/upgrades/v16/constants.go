@@ -1,7 +1,7 @@
 package v15
 
 import (
-	"github.com/CosmosContracts/juno/v15/app/upgrades"
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"

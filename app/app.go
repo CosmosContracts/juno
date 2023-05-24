@@ -12,8 +12,8 @@ import (
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 
-	"github.com/CosmosContracts/juno/v15/app/openapiconsole"
-	"github.com/CosmosContracts/juno/v15/docs"
+	"github.com/CosmosContracts/juno/v16/app/openapiconsole"
+	"github.com/CosmosContracts/juno/v16/docs"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
@@ -61,16 +61,16 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/CosmosContracts/juno/v15/x/globalfee"
+	"github.com/CosmosContracts/juno/v16/x/globalfee"
 
-	"github.com/CosmosContracts/juno/v15/app/keepers"
-	upgrades "github.com/CosmosContracts/juno/v15/app/upgrades"
-	v10 "github.com/CosmosContracts/juno/v15/app/upgrades/v10"
-	v11 "github.com/CosmosContracts/juno/v15/app/upgrades/v11"
-	v12 "github.com/CosmosContracts/juno/v15/app/upgrades/v12"
-	v13 "github.com/CosmosContracts/juno/v15/app/upgrades/v13"
-	v14 "github.com/CosmosContracts/juno/v15/app/upgrades/v14"
-	v16 "github.com/CosmosContracts/juno/v15/app/upgrades/v16"
+	"github.com/CosmosContracts/juno/v16/app/keepers"
+	upgrades "github.com/CosmosContracts/juno/v16/app/upgrades"
+	v10 "github.com/CosmosContracts/juno/v16/app/upgrades/v10"
+	v11 "github.com/CosmosContracts/juno/v16/app/upgrades/v11"
+	v12 "github.com/CosmosContracts/juno/v16/app/upgrades/v12"
+	v13 "github.com/CosmosContracts/juno/v16/app/upgrades/v13"
+	v14 "github.com/CosmosContracts/juno/v16/app/upgrades/v14"
+	v16 "github.com/CosmosContracts/juno/v16/app/upgrades/v16"
 )
 
 const (

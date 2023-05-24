@@ -14,9 +14,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/snapshots"
 	"github.com/stretchr/testify/require"
 
-	junoapp "github.com/CosmosContracts/juno/v15/app"
+	junoapp "github.com/CosmosContracts/juno/v16/app"
 
-	"github.com/CosmosContracts/juno/v15/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/mint/types"
 	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"

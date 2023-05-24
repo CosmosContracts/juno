@@ -3,8 +3,8 @@ package mint
 import (
 	"time"
 
-	"github.com/CosmosContracts/juno/v15/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v15/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v16/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

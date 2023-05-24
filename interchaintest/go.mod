@@ -10,7 +10,7 @@ replace (
 	// For this nested module, you always want to replace the parent reference with the current worktree.
 	// For now, we can not do this due to pulling tokenfactory in.
 	// github.com/CosmosContracts/juno => ../../
-	github.com/CosmosContracts/juno/v15 => github.com/CosmosContracts/juno/v15 v15.0.0-20230510202630-e1183eb692f6
+	github.com/CosmosContracts/juno/v16 => github.com/CosmosContracts/juno/v16 v15.0.0-20230510202630-e1183eb692f6
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
@@ -23,7 +23,7 @@ replace (
 
 require (
 	github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8
-	github.com/CosmosContracts/juno/v15 v15.0.0-00010101000000-000000000000
+	github.com/CosmosContracts/juno/v16 v16.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.47.2
 	github.com/cosmos/gogoproto v1.4.8
 	github.com/cosmos/ibc-go/v7 v7.0.0

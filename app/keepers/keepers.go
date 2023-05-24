@@ -10,11 +10,11 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	"github.com/CosmosContracts/juno/v15/x/ibchooks"
-	ibchookskeeper "github.com/CosmosContracts/juno/v15/x/ibchooks/keeper"
-	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
-	mintkeeper "github.com/CosmosContracts/juno/v15/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks"
+	ibchookskeeper "github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
+	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
+	mintkeeper "github.com/CosmosContracts/juno/v16/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -70,16 +70,16 @@ import (
 	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 
 	icahost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 
-	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqkeeper "github.com/strangelove-ventures/async-icq/v7/keeper"
@@ -91,7 +91,7 @@ import (
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
-	"github.com/CosmosContracts/juno/v15/x/globalfee"
+	"github.com/CosmosContracts/juno/v16/x/globalfee"
 )
 
 var (

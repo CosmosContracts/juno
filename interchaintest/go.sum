@@ -222,8 +222,8 @@ github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8 h1:daJIcrTc
 github.com/CosmWasm/wasmd v0.40.0-rc.1.0.20230422061626-b85abcf1d7b8/go.mod h1:uacdue6EGn9JA1TqBNHB3iCe4PCIChuFT23AzIl2VME=
 github.com/CosmWasm/wasmvm v1.2.3 h1:OKYlobwmVGbl0eSn0mXoAAjE5hIuXnQCLPjbNd91sVY=
 github.com/CosmWasm/wasmvm v1.2.3/go.mod h1:vW/E3h8j9xBQs9bCoijDuawKo9kCtxOaS8N8J7KFtkc=
-github.com/CosmosContracts/juno/v15 v15.0.0-20230510202630-e1183eb692f6 h1:7565R2VLJw+Lq5hTu5YKyluu/FD7CGaolXwAQzMQwAo=
-github.com/CosmosContracts/juno/v15 v15.0.0-20230510202630-e1183eb692f6/go.mod h1:+Pm43R0RcChyzTn9X0OrkMkifM502S6OQUQl1dzRNlM=
+github.com/CosmosContracts/juno/v16 v15.0.0-20230510202630-e1183eb692f6 h1:7565R2VLJw+Lq5hTu5YKyluu/FD7CGaolXwAQzMQwAo=
+github.com/CosmosContracts/juno/v16 v15.0.0-20230510202630-e1183eb692f6/go.mod h1:+Pm43R0RcChyzTn9X0OrkMkifM502S6OQUQl1dzRNlM=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e h1:ahyvB3q25YnZWly5Gq1ekg6jcmWaGj/vG/MhF4aisoc=
 github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e/go.mod h1:kGUqhHd//musdITWjFvNTHn90WG9bMLBEPQZ17Cmlpw=

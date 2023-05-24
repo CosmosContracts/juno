@@ -11,9 +11,9 @@ import (
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v15/app"
-	bindings "github.com/CosmosContracts/juno/v15/x/tokenfactory/bindings/types"
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v16/app"
+	bindings "github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings/types"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 func TestCreateDenomMsg(t *testing.T) {

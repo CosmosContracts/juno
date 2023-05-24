@@ -9,9 +9,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v15/app"
-	"github.com/CosmosContracts/juno/v15/x/feeshare"
-	"github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v16/app"
+	"github.com/CosmosContracts/juno/v16/x/feeshare"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
 type GenesisTestSuite struct {

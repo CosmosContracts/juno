@@ -10,7 +10,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	revtypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	revtypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
 // Keeper of this module maintains collections of feeshares for contracts

@@ -16,8 +16,8 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v15/x/globalfee/client/cli"
-	"github.com/CosmosContracts/juno/v15/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v16/x/globalfee/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
 var (
