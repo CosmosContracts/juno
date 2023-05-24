@@ -10,11 +10,11 @@ import (
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.
-const UpgradeName = "v15"
+const UpgradeName = "v16"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: CreateV15UpgradeHandler,
+	CreateUpgradeHandler: CreateV16UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
 			// new module

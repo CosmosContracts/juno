@@ -37,7 +37,7 @@ import (
 // We now charge 2 million gas * gas price to create a denom.
 const NewDenomCreationGasConsume uint64 = 2_000_000
 
-func CreateV15UpgradeHandler(
+func CreateV16UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	keepers *keepers.AppKeepers,
