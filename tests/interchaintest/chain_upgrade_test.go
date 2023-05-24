@@ -22,6 +22,7 @@ const (
 
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
+	// This is a patch upgrade that also includes the tokenfactory changes required for ICS999
 	upgradeName := "v15"
 	CosmosChainUpgradeTest(t, "juno", "v14.1.0", version, repo, upgradeName)
 }
