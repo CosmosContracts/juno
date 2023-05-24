@@ -13,9 +13,9 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v14/app"
-	"github.com/CosmosContracts/juno/v14/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v14/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v15/app"
+	"github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 

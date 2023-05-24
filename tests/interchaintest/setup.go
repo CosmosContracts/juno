@@ -1,7 +1,8 @@
 package interchaintest
 
 import (
-	feesharetypes "github.com/CosmosContracts/juno/v13/x/feeshare/types"
+	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
+
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/strangelove-ventures/interchaintest/v4/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v4/ibc"

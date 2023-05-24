@@ -35,8 +35,8 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v14/app"
-	"github.com/CosmosContracts/juno/v14/app/params"
+	"github.com/CosmosContracts/juno/v15/app"
+	"github.com/CosmosContracts/juno/v15/app/params"
 )
 
 // NewRootCmd creates a new root command for junod. It is called once in the

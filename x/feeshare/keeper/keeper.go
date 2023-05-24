@@ -10,7 +10,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	revtypes "github.com/CosmosContracts/juno/v14/x/feeshare/types"
+	revtypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 

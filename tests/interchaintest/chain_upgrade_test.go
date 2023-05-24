@@ -22,8 +22,9 @@ const (
 
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
-	upgradeName := "v14"
-	CosmosChainUpgradeTest(t, "juno", "v13.0.1", version, repo, upgradeName)
+	// This is a patch upgrade that also includes the tokenfactory changes required for ICS999
+	upgradeName := "v15"
+	CosmosChainUpgradeTest(t, "juno", "v14.1.0", version, repo, upgradeName)
 }
 
 func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
@@ -143,4 +144,13 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.NoError(t, err, "error fetching height after upgrade")
 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
+
+	// ensure DenomCreationGasConsume for tokenfactory is set to 2000000 with the standard fee being set to empty
+	param, err := chain.QueryParam(ctx, "tokenfactory", "DenomCreationGasConsume")
+	require.NoError(t, err, "error querying denom creation gas consume")
+	require.Equal(t, param.Value, "\"2000000\"")
+
+	param, err = chain.QueryParam(ctx, "tokenfactory", "DenomCreationFee")
+	require.NoError(t, err, "error querying denom creation fee")
+	require.Equal(t, param.Value, "[]")
 }

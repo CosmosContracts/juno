@@ -7,8 +7,8 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	apphelpers "github.com/CosmosContracts/juno/v14/app/helpers"
-	appparams "github.com/CosmosContracts/juno/v14/app/params"
+	apphelpers "github.com/CosmosContracts/juno/v15/app/helpers"
+	appparams "github.com/CosmosContracts/juno/v15/app/params"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
