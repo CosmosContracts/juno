@@ -6,10 +6,10 @@ import (
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.
-const UpgradeName = "v14_2_0"
+const UpgradeName = "v15"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: CreateV14_2_0UpgradeHandler,
+	CreateUpgradeHandler: CreateV15PatchUpgradeHandler,
 	StoreUpgrades:        store.StoreUpgrades{},
 }
