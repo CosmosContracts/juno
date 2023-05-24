@@ -29,6 +29,7 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	nftkeeper "github.com/cosmos/cosmos-sdk/x/nft/keeper"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -37,7 +38,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, consensusparamtypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, capabilitytypes.StoreKey,
-		authzkeeper.StoreKey,
+		authzkeeper.StoreKey, nftkeeper.StoreKey,
 
 		// non sdk store keys
 		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
