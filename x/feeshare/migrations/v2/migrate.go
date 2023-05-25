@@ -11,10 +11,9 @@ const (
 	ModuleName = "feeshare"
 )
 
-var (
-	// feeshare/types/keys.go -> prefixParams
-	ParamsKey = []byte{0x04}
-)
+// ParamsKey feeshare/types/keys.go -> prefixParams
+
+var ParamsKey = []byte{0x04}
 
 // Migrate migrates the x/feeshare module state from the consensus version 1 to
 // version 2. Specifically, it takes the parameters that are currently stored

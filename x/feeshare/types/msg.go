@@ -178,9 +178,5 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 		return errorsmod.Wrap(err, "invalid authority address")
 	}
 
-	if err := m.Params.Validate(); err != nil {
-		return err
-	}
-
-	return nil
+	return m.Params.Validate()
 }

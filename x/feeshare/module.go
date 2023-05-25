@@ -18,10 +18,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/CosmosContracts/juno/v16/x/feeshare/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/exported"
 	"github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
 	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v16/x/feeshare/exported"
-	
 )
 
 // type check to ensure the interface is properly implemented
