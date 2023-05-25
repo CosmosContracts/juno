@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -12,7 +11,6 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	revtypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // Keeper of this module maintains collections of feeshares for contracts
@@ -27,6 +25,10 @@ type Keeper struct {
 	accountKeeper revtypes.AccountKeeper
 
 	feeCollectorName string
+
+	// the address capable of executing a MsgUpdateParams message. Typically, this
+	// should be the x/gov module account.
+	authority string
 }
 
 // NewKeeper creates new instances of the fees Keeper
@@ -38,6 +40,7 @@ func NewKeeper(
 	wk wasmkeeper.Keeper,
 	ak revtypes.AccountKeeper,
 	feeCollector string,
+	authority string,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -52,23 +55,13 @@ func NewKeeper(
 		wasmKeeper:       wk,
 		accountKeeper:    ak,
 		feeCollectorName: feeCollector,
+		authority:        authority,
 	}
 }
 
-// SendCoinsFromAccountToFeeCollector transfers amt to the fee collector account.
-func (k Keeper) SendCoinsFromAccountToFeeCollector(ctx sdk.Context, senderAddr sdk.AccAddress, amt sdk.Coins) error {
-	if senderAddr.Empty() {
-		return errorsmod.Wrap(sdkerrors.ErrInvalidAddress, "senderAddr address cannot be empty")
-	}
-	return k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, k.feeCollectorName, amt)
-}
-
-// SendCoinsFromFeeCollectorToAccount transfers amt from the fee collector account to the recipient.
-func (k Keeper) SendCoinsFromFeeCollectorToAccount(ctx sdk.Context, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
-	if recipientAddr.Empty() {
-		return errorsmod.Wrap(sdkerrors.ErrInvalidAddress, "recipient address cannot be empty")
-	}
-	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, k.feeCollectorName, recipientAddr, amt)
+// GetAuthority returns the x/feeshare module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
 }
 
 // Logger returns a module-specific logger.
