@@ -529,6 +529,7 @@ func NewAppKeepers(
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
+		govModAddress,
 	)
 
 	// register wasm gov proposal types

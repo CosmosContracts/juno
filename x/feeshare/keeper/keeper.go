@@ -25,6 +25,10 @@ type Keeper struct {
 	accountKeeper revtypes.AccountKeeper
 
 	feeCollectorName string
+
+	// the address capable of executing a MsgUpdateParams message. Typically, this
+	// should be the x/gov module account.
+	authority string
 }
 
 // NewKeeper creates new instances of the fees Keeper
@@ -36,6 +40,7 @@ func NewKeeper(
 	wk wasmkeeper.Keeper,
 	ak revtypes.AccountKeeper,
 	feeCollector string,
+	authority string,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -50,7 +55,13 @@ func NewKeeper(
 		wasmKeeper:       wk,
 		accountKeeper:    ak,
 		feeCollectorName: feeCollector,
+		authority:        authority,
 	}
+}
+
+// GetAuthority returns the x/feeshare module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
 }
 
 // Logger returns a module-specific logger.
