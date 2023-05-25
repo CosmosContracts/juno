@@ -2,23 +2,12 @@ package types
 
 import (
 	"fmt"
-
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-// Parameter store key
 var (
 	DefaultEnableDrip       = true
 	DefaultAllowedAddresses = []string(nil) // no one allowed
-
-	ParamStoreKeyEnableDrip       = []byte("EnableFeeShare")
-	ParamStoreKeyAllowedAddresses = []byte("AllowedAddresses")
 )
-
-// ParamKeyTable returns the parameter key table.
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
 
 // NewParams creates a new Params object
 func NewParams(
@@ -31,18 +20,11 @@ func NewParams(
 	}
 }
 
+// DefaultParams returns default x/drip module parameters.
 func DefaultParams() Params {
 	return Params{
 		EnableDrip:       DefaultEnableDrip,
 		AllowedAddresses: DefaultAllowedAddresses,
-	}
-}
-
-// ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableDrip, &p.EnableDrip, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyAllowedAddresses, &p.AllowedAddresses, validateArray),
 	}
 }
 

@@ -1,7 +1,5 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
-
 // constants
 const (
 	// module name
@@ -14,28 +12,7 @@ const (
 	RouterKey = ModuleName
 )
 
-// prefix bytes for the fees persistent store
-const (
-	prefixFeeShare = iota + 1
-	prefixDeployer
-	prefixWithdrawer
-)
-
 // KVStore key prefixes
 var (
-	KeyPrefixFeeShare   = []byte{prefixFeeShare}
-	KeyPrefixDeployer   = []byte{prefixDeployer}
-	KeyPrefixWithdrawer = []byte{prefixWithdrawer}
+	ParamsKey = []byte{0x00} // Prefix for params key
 )
-
-// GetKeyPrefixDeployer returns the KVStore key prefix for storing
-// registered feeshare contract for a deployer
-func GetKeyPrefixDeployer(deployerAddress sdk.AccAddress) []byte {
-	return append(KeyPrefixDeployer, deployerAddress.Bytes()...)
-}
-
-// GetKeyPrefixWithdrawer returns the KVStore key prefix for storing
-// registered feeshare contract for a withdrawer
-func GetKeyPrefixWithdrawer(withdrawerAddress sdk.AccAddress) []byte {
-	return append(KeyPrefixWithdrawer, withdrawerAddress.Bytes()...)
-}

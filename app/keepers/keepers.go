@@ -530,10 +530,10 @@ func NewAppKeepers(
 	appKeepers.DripKeeper = dripkeeper.NewKeeper(
 		appKeepers.keys[driptypes.StoreKey],
 		appCodec,
-		appKeepers.GetSubspace(driptypes.ModuleName),
 		appKeepers.BankKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
+		govModAddress,
 	)
 
 	// register wasm gov proposal types
