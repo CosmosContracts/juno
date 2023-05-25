@@ -32,6 +32,9 @@ import (
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
+	// Juno modules
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
 // We now charge 2 million gas * gas price to create a denom.
@@ -84,6 +87,10 @@ func CreateV16UpgradeHandler(
 			// wasm
 			case wasmtypes.ModuleName:
 				keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
+
+			// juno modules
+			case feesharetypes.ModuleName:
+				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
 			}
 
 			if !subspace.HasKeyTable() {
