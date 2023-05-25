@@ -28,7 +28,6 @@ require (
 	github.com/cosmos/gogoproto v1.4.8
 	github.com/cosmos/ibc-go/v7 v7.0.0
 	github.com/docker/docker v20.10.24+incompatible
-	github.com/icza/dyno v0.0.0-20220812133438-f0b6f8a18845
 	github.com/strangelove-ventures/interchaintest/v7 v7.0.0-20230508154211-ebc1cbd6d88e
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.24.0
@@ -141,6 +140,7 @@ require (
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
 	github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
+	github.com/icza/dyno v0.0.0-20220812133438-f0b6f8a18845 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/ipfs/go-cid v0.2.0 // indirect
