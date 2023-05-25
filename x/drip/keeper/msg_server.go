@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -24,13 +23,25 @@ func (k Keeper) DistributeTokens(
 		return nil, types.ErrDripDisabled
 	}
 
+	// Check if sender is allowed
+	authorized := false
+	for _, addr := range params.AllowedAddresses {
+		if msg.SenderAddress == addr {
+			authorized = true
+			break
+		}
+	}
+
+	if !authorized {
+		return nil, types.ErrDripNotAllowed
+	}
+
 	// Get sender
 	sender, err := sdk.AccAddressFromBech32(msg.SenderAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(msg)
 	if err := k.SendCoinsFromAccountToFeeCollector(ctx, sender, msg.Amount); err != nil {
 		return nil, err
 	}
