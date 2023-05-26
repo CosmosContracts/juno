@@ -8,9 +8,7 @@ replace (
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
 	// For this nested module, you always want to replace the parent reference with the current worktree.
-	// For now, we can not do this due to pulling tokenfactory in.
-	// github.com/CosmosContracts/juno => ../../
-	github.com/CosmosContracts/juno/v16 => github.com/CosmosContracts/juno/v16 v16.0.0-20230524152917-465dae509bfe
+	github.com/CosmosContracts/juno => ../
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
@@ -23,7 +21,7 @@ replace (
 
 require (
 	github.com/CosmWasm/wasmd v0.40.0-rc.2.0.20230519100721-8e5b1572ac46
-	github.com/CosmosContracts/juno/v16 v16.0.0-00010101000000-000000000000
+	github.com/CosmosContracts/juno/v16 v16.0.0-20230524152917-465dae509bfe
 	github.com/cosmos/cosmos-sdk v0.47.2
 	github.com/cosmos/gogoproto v1.4.8
 	github.com/cosmos/ibc-go/v7 v7.0.0
