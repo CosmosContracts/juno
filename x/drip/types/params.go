@@ -2,6 +2,9 @@ package types
 
 import (
 	"fmt"
+
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
@@ -43,14 +46,6 @@ func validateArray(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	for _, address := range i.([]string) {
-		if address == "" {
-			return fmt.Errorf("address cannot be blank")
-		}
-
-		// TODO: Validate address
-	}
-
 	return nil
 }
 
@@ -59,6 +54,26 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	err := validateArray(p.AllowedAddresses)
-	return err
+	if err := validateArray(p.AllowedAddresses); err != nil {
+		return err
+	}
+
+	return assertValidAddresses(p.AllowedAddresses)
+}
+
+func assertValidAddresses(addrs []string) error {
+	idx := make(map[string]struct{}, len(addrs))
+	for _, a := range addrs {
+		if a == "" {
+			return ErrBlank.Wrapf("address: %s", a)
+		}
+		if _, err := sdk.AccAddressFromBech32(a); err != nil {
+			return errorsmod.Wrapf(err, "address: %s", a)
+		}
+		if _, exists := idx[a]; exists {
+			return ErrDuplicate.Wrapf("address: %s", a)
+		}
+		idx[a] = struct{}{}
+	}
+	return nil
 }

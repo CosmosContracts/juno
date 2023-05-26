@@ -39,7 +39,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 	suite.genesis = *types.DefaultGenesisState()
 }
 
-func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
+func (suite *GenesisTestSuite) TestDripInitGenesis() {
 	testCases := []struct {
 		name     string
 		genesis  types.GenesisState
@@ -51,48 +51,44 @@ func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 			false,
 		},
 		{
-			"custom genesis - feeshare disabled",
+			"custom genesis - drip enabled, no one allowed",
 			types.GenesisState{
 				Params: types.Params{
-					EnableFeeShare:  false,
-					DeveloperShares: types.DefaultDeveloperShares,
-					AllowedDenoms:   []string{"ujuno"},
+					EnableDrip:       true,
+					AllowedAddresses: []string(nil),
 				},
 			},
 			false,
 		},
 		{
-			"custom genesis - feeshare enabled, 0% developer shares",
+			"custom genesis - drip enabled, only one addr allowed",
 			types.GenesisState{
 				Params: types.Params{
-					EnableFeeShare:  true,
-					DeveloperShares: sdk.NewDecWithPrec(0, 2),
-					AllowedDenoms:   []string{"ujuno"},
+					EnableDrip:       true,
+					AllowedAddresses: []string{"juno1v6vlpuqlhhpwujvaqs4pe5dmljapdev4s827ql"},
 				},
 			},
 			false,
 		},
 		{
-			"custom genesis - feeshare enabled, 100% developer shares",
+			"custom genesis - drip enabled, 2 addr allowed",
 			types.GenesisState{
 				Params: types.Params{
-					EnableFeeShare:  true,
-					DeveloperShares: sdk.NewDecWithPrec(100, 2),
-					AllowedDenoms:   []string{"ujuno"},
+					EnableDrip:       true,
+					AllowedAddresses: []string{"juno1v6vlpuqlhhpwujvaqs4pe5dmljapdev4s827ql", "juno1hq2p69p4kmwndxlss7dqk0sr5pe5mmcpf7wqec"},
 				},
 			},
 			false,
 		},
 		{
-			"custom genesis - feeshare enabled, all denoms allowed",
+			"custom genesis - drip enabled, address invalid",
 			types.GenesisState{
 				Params: types.Params{
-					EnableFeeShare:  true,
-					DeveloperShares: sdk.NewDecWithPrec(10, 2),
-					AllowedDenoms:   []string(nil),
+					EnableDrip:       true,
+					AllowedAddresses: []string{"juno1v6vllollollollollolloldmljapdev4s827ql"},
 				},
 			},
-			false,
+			true,
 		},
 	}
 
