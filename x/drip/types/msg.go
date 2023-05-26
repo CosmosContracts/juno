@@ -35,7 +35,7 @@ func (msg MsgDistributeTokens) Type() string { return TypeMsgDistributeTokens }
 // ValidateBasic runs stateless checks on the message
 func (msg MsgDistributeTokens) ValidateBasic() error {
 
-	// TODO: Whitelist trough governance
+	// Validation logic is inside msg_server
 	return nil
 }
 
