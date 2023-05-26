@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
@@ -35,6 +34,8 @@ import (
 
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 // We now charge 2 million gas * gas price to create a denom.
@@ -51,7 +52,6 @@ func CreateV16UpgradeHandler(
 		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
 
-		// TODO: Our mint, feeshare, globalfee, and tokenfactory module needs to be migrated to v47 for minttypes.ModuleName
 		// https://github.com/cosmos/cosmos-sdk/pull/12363/files
 		// Set param key table for params module migration
 		for _, subspace := range keepers.ParamsKeeper.GetSubspaces() {
@@ -93,6 +93,10 @@ func CreateV16UpgradeHandler(
 				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
 			case tokenfactorytypes.ModuleName:
 				keyTable = tokenfactorytypes.ParamKeyTable() //nolint:staticcheck
+			case minttypes.ModuleName:
+				keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
+
+				// TODO: ICQ? ICA? Any other modules we could miss? (check all via an export here)
 			}
 
 			if !subspace.HasKeyTable() {

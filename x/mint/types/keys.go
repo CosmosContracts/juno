@@ -18,3 +18,7 @@ const (
 	QueryInflation        = "inflation"
 	QueryAnnualProvisions = "annual_provisions"
 )
+
+var (
+	ParamsKey = []byte{0x01}
+)
