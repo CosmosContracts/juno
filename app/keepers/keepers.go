@@ -87,6 +87,9 @@ import (
 	icqkeeper "github.com/strangelove-ventures/async-icq/v7/keeper"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
+	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
+
 	// ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
@@ -121,6 +124,7 @@ var maccPerms = map[string][]string{
 	ibcfeetypes.ModuleName:         nil,
 	wasm.ModuleName:                {authtypes.Burner},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
+	globalfeetypes.ModuleName:      nil,
 }
 
 type AppKeepers struct {
@@ -154,6 +158,7 @@ type AppKeepers struct {
 	FeeShareKeeper        feesharekeeper.Keeper
 	ContractKeeper        *wasmkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
+	GlobalFeeKeeper       globalfeekeeper.Keeper
 
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
@@ -532,6 +537,13 @@ func NewAppKeepers(
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
+		govModAddress,
+	)
+
+	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
+		appKeepers.keys[globalfeetypes.StoreKey],
+		appCodec,
+		appKeepers.AccountKeeper,
 		govModAddress,
 	)
 

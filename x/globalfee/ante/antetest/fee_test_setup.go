@@ -54,10 +54,10 @@ func (s *IntegrationTestSuite) SetupTestGlobalFeeStoreAndMinGasPrice(minGasPrice
 	// set staking params
 	stakingParam := stakingtypes.DefaultParams()
 	stakingParam.BondDenom = "uatom"
-	stakingSubspace := s.SetupTestStakingSubspace(stakingParam)
+	// stakingSubspace := s.SetupTestStakingSubspace(stakingParam)
 
 	// build fee decorator
-	feeDecorator := gaiafeeante.NewFeeDecorator(app.GetDefaultBypassFeeMessages(), subspace, stakingSubspace, uint64(1_000_000))
+	feeDecorator := gaiafeeante.NewFeeDecorator(app.GetDefaultBypassFeeMessages(), globalFeeParams.MinimumGasPrices, stakingParam.BondDenom, uint64(1_000_000))
 
 	// chain fee decorator to antehandler
 	antehandler := sdk.ChainAnteDecorators(feeDecorator)

@@ -46,7 +46,6 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -60,8 +59,6 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
-
-	"github.com/CosmosContracts/juno/v16/x/globalfee"
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 	upgrades "github.com/CosmosContracts/juno/v16/app/upgrades"
@@ -324,6 +321,8 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
+	ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -341,10 +340,10 @@ func New(
 			TxCounterStoreKey: app.AppKeepers.GetKey(wasm.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
-			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName),
+			BondDenom:         app.AppKeepers.StakingKeeper.BondDenom(ctx),
 
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
-			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
+			MinGasPrices:         app.AppKeepers.GlobalFeeKeeper.GetParams(ctx).MinimumGasPrices,
 		},
 	)
 	if err != nil {

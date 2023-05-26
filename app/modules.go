@@ -60,7 +60,6 @@ import (
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
-
 	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
@@ -136,7 +135,7 @@ func appModules(
 		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
 		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
 		tokenfactory.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
-		globalfee.NewAppModule(app.AppKeepers.GetSubspace(globalfee.ModuleName)),
+		globalfee.NewAppModule(app.AppKeepers.GlobalFeeKeeper, app.AppKeepers.GetSubspace(globalfee.ModuleName)),
 		feeshare.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(feesharetypes.ModuleName)),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
@@ -212,6 +211,7 @@ func orderBeginBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		globalfee.ModuleName,
 	}
 }
 
@@ -247,6 +247,7 @@ func orderEndBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		globalfee.ModuleName,
 	}
 }
 
@@ -282,5 +283,6 @@ func orderInitBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		globalfee.ModuleName,
 	}
 }

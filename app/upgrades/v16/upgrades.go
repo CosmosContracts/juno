@@ -34,6 +34,7 @@ import (
 
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	globalfeetype "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
@@ -95,6 +96,8 @@ func CreateV16UpgradeHandler(
 				keyTable = tokenfactorytypes.ParamKeyTable() //nolint:staticcheck
 			case minttypes.ModuleName:
 				keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
+			case globalfeetype.ModuleName:
+				keyTable = globalfeetype.ParamKeyTable() //nolint:staticcheck
 
 				// TODO: ICQ? ICA? Any other modules we could miss? (check all via an export here)
 			}

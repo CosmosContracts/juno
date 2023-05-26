@@ -11,12 +11,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
 	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
+
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 func TestDefaultGenesis(t *testing.T) {
@@ -94,8 +98,8 @@ func TestInitExportGenesis(t *testing.T) {
 	}
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
-			ctx, encCfg, subspace := setupTestStore(t)
-			m := NewAppModule(subspace)
+			ctx, encCfg, gfk := setupTestStore(t)
+			m := NewAppModule(gfk, nil)
 			m.InitGenesis(ctx, encCfg.Marshaler, []byte(spec.src))
 			gotJSON := m.ExportGenesis(ctx, encCfg.Marshaler)
 			var got types.GenesisState
@@ -105,7 +109,7 @@ func TestInitExportGenesis(t *testing.T) {
 	}
 }
 
-func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, paramstypes.Subspace) {
+func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, keeper.Keeper) {
 	t.Helper()
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db)
@@ -116,7 +120,38 @@ func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, params
 	ms.MountStoreWithDB(tkeyParams, storetypes.StoreTypeTransient, db)
 	require.NoError(t, ms.LoadLatestVersion())
 
-	paramsKeeper := paramskeeper.NewKeeper(encCfg.Marshaler, encCfg.Amino, keyParams, tkeyParams)
+	keys := sdk.NewKVStoreKeys(authtypes.StoreKey, paramstypes.StoreKey, types.StoreKey)
+
+	// appKeepers := keepers.AppKeepers{}
+	// appKeepers.GenerateKeys()
+
+	// keys := appKeepers.GetKVStoreKey()
+
+	// paramsKeeper := paramskeeper.NewKeeper(encCfg.Marshaler, encCfg.Amino, keyParams, tkeyParams)
+
+	// key storetypes.StoreKey,
+	// cdc codec.BinaryCodec,
+	// ak types.AccountKeeper,
+	// authority string,
+
+	// appKeepers.GenerateKeys()
+	// keys := appKeepers.GetKVStoreKey()
+
+	emptyMaccPerms := make(map[string][]string)
+	emptyMaccPerms["globalfee"] = []string(nil)
+
+	govModAddress := authtypes.NewModuleAddress(govtypes.ModuleName).String()
+
+	ak := authkeeper.NewAccountKeeper(
+		encCfg.Marshaler,
+		keys[authtypes.StoreKey],
+		authtypes.ProtoBaseAccount,
+		emptyMaccPerms,
+		"juno",
+		govModAddress,
+	)
+
+	globalFeeKeeper := keeper.NewKeeper(keys[types.StoreKey], encCfg.Marshaler, ak, govModAddress)
 
 	ctx := sdk.NewContext(ms, tmproto.Header{
 		Height:  1234567,
@@ -124,6 +159,6 @@ func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, params
 		ChainID: "testing",
 	}, false, log.NewNopLogger())
 
-	subspace := paramsKeeper.Subspace(ModuleName).WithKeyTable(types.ParamKeyTable())
-	return ctx, encCfg, subspace
+	// subspace := paramsKeeper.Subspace(ModuleName).WithKeyTable(types.ParamKeyTable())
+	return ctx, encCfg, globalFeeKeeper
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
+	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
@@ -18,8 +19,9 @@ var Upgrade = upgrades.Upgrade{
 	CreateUpgradeHandler: CreateV16UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
-			// new module
+			// new modules
 			icqtypes.ModuleName,
+			globalfeetypes.ModuleName,
 
 			// v47 module upgrades
 			crisistypes.ModuleName,

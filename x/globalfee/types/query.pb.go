@@ -164,6 +164,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// MinimumGasPrices queries the minimum gas prices from required minimum fee.
 	MinimumGasPrices(ctx context.Context, in *QueryMinimumGasPricesRequest, opts ...grpc.CallOption) (*QueryMinimumGasPricesResponse, error)
 }
 
@@ -186,6 +187,7 @@ func (c *queryClient) MinimumGasPrices(ctx context.Context, in *QueryMinimumGasP
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
+	// MinimumGasPrices queries the minimum gas prices from required minimum fee.
 	MinimumGasPrices(context.Context, *QueryMinimumGasPricesRequest) (*QueryMinimumGasPricesResponse, error)
 }
 
