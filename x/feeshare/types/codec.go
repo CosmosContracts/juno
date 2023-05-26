@@ -40,6 +40,9 @@ func init() {
 	// so that this can later be used to properly serialize MsgGrant and MsgExec
 	// instances.
 	RegisterLegacyAminoCodec(authzcodec.Amino)
+
+	// TODO: Do we seal here?
+	amino.Seal()
 }
 
 // RegisterInterfaces register implementations

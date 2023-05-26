@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	revtypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
@@ -16,9 +15,8 @@ import (
 // Keeper of this module maintains collections of feeshares for contracts
 // registered to receive transaction fees.
 type Keeper struct {
-	storeKey   storetypes.StoreKey
-	cdc        codec.BinaryCodec
-	paramstore paramtypes.Subspace
+	storeKey storetypes.StoreKey
+	cdc      codec.BinaryCodec
 
 	bankKeeper    revtypes.BankKeeper
 	wasmKeeper    wasmkeeper.Keeper
@@ -35,22 +33,15 @@ type Keeper struct {
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
-	ps paramtypes.Subspace,
 	bk revtypes.BankKeeper,
 	wk wasmkeeper.Keeper,
 	ak revtypes.AccountKeeper,
 	feeCollector string,
 	authority string,
 ) Keeper {
-	// set KeyTable if it has not already been set
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(revtypes.ParamKeyTable())
-	}
-
 	return Keeper{
 		storeKey:         storeKey,
 		cdc:              cdc,
-		paramstore:       ps,
 		bankKeeper:       bk,
 		wasmKeeper:       wk,
 		accountKeeper:    ak,

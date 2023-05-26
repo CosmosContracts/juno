@@ -63,7 +63,10 @@ func CreateV13UpgradeHandler(
 		newTokenFactoryParams := tokenfactorytypes.Params{
 			DenomCreationFee: sdk.NewCoins(sdk.NewCoin(nativeDenom, sdk.NewInt(1000000))),
 		}
-		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
+		if err := keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams); err != nil {
+			return nil, err
+		}
+
 		logger.Info("set tokenfactory params")
 
 		// FeeShare

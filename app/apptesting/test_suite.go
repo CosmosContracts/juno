@@ -29,7 +29,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	appparams "github.com/CosmosContracts/juno/v16/app/params"
-	authzcodec "github.com/CosmosContracts/juno/v16/x/tokenfactory/types/authzcodec"
+	authzcodec "github.com/cosmos/cosmos-sdk/x/authz/codec"
 
 	"github.com/CosmosContracts/juno/v16/app"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
