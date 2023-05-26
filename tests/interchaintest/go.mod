@@ -10,8 +10,7 @@ replace (
 	github.com/CosmWasm/token-factory => github.com/CosmosContracts/token-factory v0.0.0-20230226045138-fb4138453558
 
 	// For this nested module, you always want to replace the parent reference with the current worktree.
-	// github.com/CosmosContracts/juno => ../../
-	// github.com/CosmosContracts/juno/v15 => github.com/CosmosContracts/juno/v15 v16.0.0-20230524152917-465dae509bfe
+	github.com/CosmosContracts/juno => ../../	
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
 
 	// interchaintest supports ICS features so we need this for now
