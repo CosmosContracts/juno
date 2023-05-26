@@ -71,8 +71,7 @@ func (k Keeper) GetMinter(ctx sdk.Context) (minter types.Minter) {
 	}
 
 	k.cdc.MustUnmarshal(bz, &minter)
-	return
-	return
+	return minter
 }
 
 // set the minter
