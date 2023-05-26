@@ -26,37 +26,37 @@ func TestDeconstructDenom(t *testing.T) {
 		},
 		{
 			desc:             "normal",
-			denom:            "factory/cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8/bitcoin",
+			denom:            "factory/juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym/bitcoin",
 			expectedSubdenom: "bitcoin",
 		},
 		{
 			desc:             "multiple slashes in subdenom",
-			denom:            "factory/cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8/bitcoin/1",
+			denom:            "factory/juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym/bitcoin/1",
 			expectedSubdenom: "bitcoin/1",
 		},
 		{
 			desc:             "no subdenom",
-			denom:            "factory/cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8/",
+			denom:            "factory/juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym/",
 			expectedSubdenom: "",
 		},
 		{
 			desc:  "incorrect prefix",
-			denom: "ibc/cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8/bitcoin",
+			denom: "ibc/juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym/bitcoin",
 			err:   types.ErrInvalidDenom,
 		},
 		{
 			desc:             "subdenom of only slashes",
-			denom:            "factory/cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8/////",
+			denom:            "factory/juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym/////",
 			expectedSubdenom: "////",
 		},
 		{
 			desc:  "too long name",
-			denom: "factory/cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8/adsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsf",
+			denom: "factory/juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym/adsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsf",
 			err:   types.ErrInvalidDenom,
 		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
-			expectedCreator := "cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8"
+			expectedCreator := "juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym"
 			creator, subdenom, err := types.DeconstructDenom(tc.denom)
 			if tc.err != nil {
 				require.ErrorContains(t, err, tc.err.Error())
@@ -79,43 +79,43 @@ func TestGetTokenDenom(t *testing.T) {
 	}{
 		{
 			desc:     "normal",
-			creator:  "cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8",
+			creator:  "juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym",
 			subdenom: "bitcoin",
 			valid:    true,
 		},
 		{
 			desc:     "multiple slashes in subdenom",
-			creator:  "cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8",
+			creator:  "juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym",
 			subdenom: "bitcoin/1",
 			valid:    true,
 		},
 		{
 			desc:     "no subdenom",
-			creator:  "cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8",
+			creator:  "juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym",
 			subdenom: "",
 			valid:    true,
 		},
 		{
 			desc:     "subdenom of only slashes",
-			creator:  "cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8",
+			creator:  "juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym",
 			subdenom: "/////",
 			valid:    true,
 		},
 		{
 			desc:     "too long name",
-			creator:  "cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8",
+			creator:  "juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym",
 			subdenom: "adsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsfadsf",
 			valid:    false,
 		},
 		{
 			desc:     "subdenom is exactly max length",
-			creator:  "cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8",
+			creator:  "juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfym",
 			subdenom: "bitcoinfsadfsdfeadfsafwefsefsefsdfsdafasefsf",
 			valid:    true,
 		},
 		{
 			desc:     "creator is exactly max length",
-			creator:  "cosmos1t7egva48prqmzl59x5ngv4zx0dtrwewcdqdjr8jhgjhgkhjklhkjhkjhgjhgjgjghelu",
+			creator:  "juno1t7egva48prqmzl59x5ngv4zx0dtrwewcmjwfymjhgjhgkhjklhkjhkjhgjhgjgjghelu",
 			subdenom: "bitcoin",
 			valid:    true,
 		},

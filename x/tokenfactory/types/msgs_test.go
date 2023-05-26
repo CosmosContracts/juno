@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/testhelpers"
+	"github.com/CosmosContracts/juno/v16/app/apptesting"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 
 	"github.com/cometbft/cometbft/crypto/ed25519"
@@ -57,7 +57,7 @@ func TestAuthzMsg(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			testhelpers.TestMessageAuthzSerialization(t, tc.msg)
+			apptesting.TestMessageAuthzSerialization(t, tc.msg)
 		})
 	}
 }
