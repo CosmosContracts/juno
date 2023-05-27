@@ -38,14 +38,14 @@ func junoEncoding() *sdktestutil.TestEncodingConfig {
 	return &cfg
 }
 
-func modifyGenesis(cfg *MainConfig) func(ibc.ChainConfig, []byte) ([]byte, error) {
+func modifyGenesis(genesis Genesis) func(ibc.ChainConfig, []byte) ([]byte, error) {
 	return func(chainConfig ibc.ChainConfig, genbz []byte) ([]byte, error) {
 		g := make(map[string]interface{})
 		if err := json.Unmarshal(genbz, &g); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal genesis file: %w", err)
 		}
 
-		for idx, values := range cfg.Chains[0].Genesis.Modify {
+		for idx, values := range genesis.Modify {
 			path := strings.Split(values.Key, ".")
 
 			result := make([]interface{}, len(path))
@@ -77,36 +77,36 @@ func TestLocalJuno(t *testing.T) {
 
 	cfgJuno := config.Chains[0]
 
+	fmt.Println(cfgJuno)
+
 	chainConfig := ibc.ChainConfig{
-		Type:                "cosmos",
-		Name:                "juno",
+		Type:                cfgJuno.ChainType,
+		Name:                cfgJuno.Name,
 		ChainID:             cfgJuno.ChainID,
-		Bin:                 "junod",
-		Bech32Prefix:        "juno",
-		Denom:               "ujuno",
-		CoinType:            "118",
+		Bin:                 cfgJuno.Binary,
+		Bech32Prefix:        cfgJuno.Bech32Prefix,
+		Denom:               cfgJuno.Denom,
+		CoinType:            fmt.Sprintf("%d", cfgJuno.CoinType),
 		GasPrices:           cfgJuno.GasPrices,
 		GasAdjustment:       cfgJuno.GasAdjustment,
-		TrustingPeriod:      "112h",
+		TrustingPeriod:      cfgJuno.TrustingPeriod,
 		NoHostMount:         false,
-		ModifyGenesis:       modifyGenesis(config),
+		ModifyGenesis:       modifyGenesis(cfgJuno.Genesis),
 		ConfigFileOverrides: nil,
 		EncodingConfig:      junoEncoding(),
 	}
 
-	if cfgJuno.Version.Type == "branch" {
-		chainConfig.Images = []ibc.DockerImage{{
-			Repository: "ghcr.io/cosmoscontracts/juno-e2e",
-			Version:    cfgJuno.Version.Version,
-			UidGid:     "1025:1025",
-		}}
-	}
+	chainConfig.Images = []ibc.DockerImage{{
+		Repository: cfgJuno.DockerImage.Repository,
+		Version:    cfgJuno.DockerImage.Version,
+		UidGid:     cfgJuno.DockerImage.UidGid,
+	}}
 
 	// Create chain factory with Juno
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
-			Name:          "juno",
-			Version:       cfgJuno.Version.Version,
+			Name:          cfgJuno.Name,
+			Version:       cfgJuno.DockerImage.Version,
 			ChainName:     cfgJuno.ChainID,
 			ChainConfig:   chainConfig,
 			NumValidators: &cfgJuno.NumberVals,

@@ -1,16 +1,19 @@
 {    
     "chains": [
         {
+            "name": "juno",            
             "chain-id": "localjuno-1",
-            "version": {
-                "type": "tag",
+            "denom": "ujuno",
+            "docker-image": {
+                "repository": "ghcr.io/cosmoscontracts/juno-e2e",
                 "version": "v14.1.0"
             },
-            "gas-prices": "0ujuno",
+            "gas-prices": "0%DENOM%",
             "gas-adjustment": 2.0,
             "number-vals": 1,
             "number-node": 0,
             "blocks-ttl": 50,
+            "ibc-path": "ibc-juno-juno",
             "genesis": {
                 "modify": [
                     {
@@ -23,20 +26,20 @@
                     },
                     {
                         "key": "app_state.gov.deposit_params.min_deposit.0.denom",
-                        "value": "ujuno"
+                        "value": "%DENOM%"
                     }
                 ],     
                 "accounts": [
                     {
                         "name": "acc0",
                         "address": "juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk",
-                        "amount": "10000000ujuno",
+                        "amount": "10000000%DENOM%",
                         "mnemonic": "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry"
                     },
                     {
                         "name": "acc1",
                         "address": "juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl",
-                        "amount": "10000000ujuno",
+                        "amount": "10000000%DENOM%",
                         "mnemonic": "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise"
                     }
                 ]                
