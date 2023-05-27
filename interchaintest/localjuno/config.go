@@ -20,6 +20,7 @@ type Chain struct {
 	Bech32Prefix   string `json:"bech32-prefix"`
 	Denom          string `json:"denom"`
 	TrustingPeriod string `json:"trusting-period"`
+	Debugging      bool   `json:"debugging"`
 
 	// Required
 	Name    string `json:"name"`
@@ -58,6 +59,7 @@ type LogOutput struct {
 	ChainName   string `json:"chain-name"`
 	RPCAddress  string `json:"rpc-address"`
 	GRPCAddress string `json:"grpc-address"`
+	IBCPath     string `json:"ibc-path"`
 }
 
 func LoadConfig() (*MainConfig, error) {
@@ -77,7 +79,7 @@ func LoadConfig() (*MainConfig, error) {
 	for i := range config.Chains {
 		chain := &config.Chains[i]
 
-		if chain.BlocksTTL == 0 {
+		if chain.BlocksTTL <= 0 {
 			chain.BlocksTTL = math.MaxInt32
 		}
 
@@ -113,6 +115,8 @@ func LoadConfig() (*MainConfig, error) {
 	for i := range config.Chains {
 		chain := config.Chains[i]
 		replaceStringValues(&chain, "%DENOM%", chain.Denom)
+
+		config.Chains[i] = chain
 	}
 
 	return &config, nil
@@ -141,8 +145,8 @@ func replaceStringFields(value reflect.Value, oldStr, replacement string) {
 	case reflect.String:
 		currentStr := value.String()
 		if strings.Contains(currentStr, oldStr) {
-			currentStr = strings.Replace(currentStr, oldStr, replacement, -1)
-			value.SetString(currentStr)
+			updatedStr := strings.Replace(currentStr, oldStr, replacement, -1)
+			value.SetString(updatedStr)
 		}
 	}
 }

@@ -12,8 +12,9 @@
             "gas-adjustment": 2.0,
             "number-vals": 1,
             "number-node": 0,
-            "blocks-ttl": 50,
-            "ibc-path": "ibc-juno-juno",
+            "blocks-ttl": -1,
+            "ibc-path": "juno-ibc-1",
+            "debugging": true,
             "genesis": {
                 "modify": [
                     {
@@ -43,6 +44,26 @@
                         "mnemonic": "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise"
                     }
                 ]                
+            }
+        },
+        {
+            "name": "otherjuno",            
+            "chain-id": "localjuno-2",
+            "denom": "ujuno",
+            "docker-image": {
+                "repository": "ghcr.io/cosmoscontracts/juno-e2e",
+                "version": "v14.1.0"
+            },
+            "gas-prices": "0%DENOM%",
+            "gas-adjustment": 2.0,
+            "number-vals": 1,
+            "number-node": 0,
+            "blocks-ttl": -1,
+            "ibc-path": "juno-ibc-1",
+            "debugging": true,
+            "genesis": {
+                "modify": [],     
+                "accounts": []
             }
         }
     ]
