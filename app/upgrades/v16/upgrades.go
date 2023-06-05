@@ -90,6 +90,8 @@ func CreateV16UpgradeHandler(
 			// juno modules
 			case feesharetypes.ModuleName:
 				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
+			case tokenfactorytypes.ModuleName:
+				keyTable = tokenfactorytypes.ParamKeyTable() //nolint:staticcheck
 			}
 
 			if !subspace.HasKeyTable() {
@@ -130,7 +132,9 @@ func CreateV16UpgradeHandler(
 			DenomCreationFee:        nil,
 			DenomCreationGasConsume: NewDenomCreationGasConsume,
 		}
-		keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf)
+		if err := keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf); err != nil {
+			return nil, err
+		}
 		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
 
 		// x/Staking - set minimum commission to 0.050000000000000000

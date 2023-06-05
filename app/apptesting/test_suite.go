@@ -21,6 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	authzcodec "github.com/cosmos/cosmos-sdk/x/authz/codec"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -29,7 +30,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	appparams "github.com/CosmosContracts/juno/v16/app/params"
-	authzcodec "github.com/CosmosContracts/juno/v16/x/tokenfactory/types/authzcodec"
 
 	"github.com/CosmosContracts/juno/v16/app"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
