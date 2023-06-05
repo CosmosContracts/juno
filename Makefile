@@ -125,11 +125,17 @@ benchmark:
 ictest-basic: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoStart .
 
+ictest-ibchooks: rm-testcache
+	cd interchaintest && go test -race -v -run TestJunoIBCHooks .
+
 ictest-tokenfactory: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
 
 ictest-feeshare: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoFeeShare .
+
+ictest-pfm: rm-testcache
+	cd interchaintest && go test -race -v -run TestPacketForwardMiddlewareRouter .
 
 # Executes a basic chain upgrade test via interchaintest
 ictest-upgrade: rm-testcache

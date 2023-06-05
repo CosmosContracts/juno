@@ -59,11 +59,10 @@ import (
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
-	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
-
 	wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm"
 	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
+	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,

@@ -135,9 +135,6 @@ func GetTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 
 	t.Log(results)
 
-	err = testutil.WaitForBlocks(ctx, 2, chain)
-	require.NoError(t, err)
-
 	// tokenfactorytypes.DenomAuthorityMetadata{
 	// 	Admin: ...,
 	// }

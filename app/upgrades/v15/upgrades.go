@@ -50,7 +50,7 @@ func CreateV15UpgradeHandler(
 		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
 
-		// TODO: Our mint module needs to be migrated to v47 for minttypes.ModuleName
+		// TODO: Our mint, feeshare, globalfee, and tokenfactory module needs to be migrated to v47 for minttypes.ModuleName
 		// https://github.com/cosmos/cosmos-sdk/pull/12363/files
 		// Set param key table for params module migration
 		for _, subspace := range keepers.ParamsKeeper.GetSubspaces() {
@@ -64,7 +64,6 @@ func CreateV15UpgradeHandler(
 				keyTable = banktypes.ParamKeyTable() //nolint:staticcheck
 			case stakingtypes.ModuleName:
 				keyTable = stakingtypes.ParamKeyTable() //nolint:staticcheck
-			// TODO: mint module v47?
 			// case minttypes.ModuleName:
 			// 	keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
 			case distrtypes.ModuleName:
@@ -128,6 +127,20 @@ func CreateV15UpgradeHandler(
 		}
 		keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf)
 		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
+
+		// x/Staking - set minimum commission to 0.050000000000000000
+		stakingParams := keepers.StakingKeeper.GetParams(ctx)
+		stakingParams.MinCommissionRate = sdk.NewDecWithPrec(5, 2)
+		err = keepers.StakingKeeper.SetParams(ctx, stakingParams)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, channel := range keepers.IBCKeeper.ChannelKeeper.GetAllChannels(ctx) {
+			if channel.PortId == "transfer" {
+				keepers.IBCFeeKeeper.SetFeeEnabled(ctx, channel.PortId, channel.ChannelId)
+			}
+		}
 
 		return versionMap, err
 	}

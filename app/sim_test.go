@@ -12,7 +12,6 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/simapp"
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -100,8 +99,6 @@ func TestFullAppSimulation(t *testing.T) {
 		db.Close()
 		require.NoError(t, os.RemoveAll(dir))
 	}()
-	// encConf := MakeEncodingConfig()
-	updateAppSimulationFlag(true)
 
 	var emptyWasmOption []wasm.Option
 	app := New(
@@ -144,7 +141,7 @@ func TestFullAppSimulation(t *testing.T) {
 // If a file is not given for the genesis or the sim params, it creates a randomized one.
 func AppStateFn(codec codec.Codec, manager *module.SimulationManager, genesisState map[string]json.RawMessage) simtypes.AppStateFn {
 	// quick hack to setup app state genesis with our app modules
-	simapp.ModuleBasics = ModuleBasics
+	// simapp.ModuleBasics = ModuleBasics
 	if simcli.FlagGenesisTimeValue == 0 { // always set to have a block time
 		simcli.FlagGenesisTimeValue = time.Now().Unix()
 	}

@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	haltHeightDelta    = uint64(15) // will propose upgrade this many blocks in the future
+	haltHeightDelta    = uint64(10) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = uint64(10)
 )
 
@@ -28,31 +28,6 @@ func TestBasicJunoUpgrade(t *testing.T) {
 	CosmosChainUpgradeTest(t, "juno", startVersion, version, repo, upgradeName)
 }
 
-// With us upgrading from v45 to v47, we need to modify the params in the v45 style here & only here.
-// In the future this will be removed to use just `modifyGenesisShortProposals`
-func modifySDKv45GenesisShortProposals(votingPeriod string, maxDepositPeriod string) func(ibc.ChainConfig, []byte) ([]byte, error) {
-	return func(chainConfig ibc.ChainConfig, genbz []byte) ([]byte, error) {
-		g := make(map[string]interface{})
-		if err := json.Unmarshal(genbz, &g); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal genesis file: %w", err)
-		}
-		if err := dyno.Set(g, votingPeriod, "app_state", "gov", "voting_params", "voting_period"); err != nil {
-			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
-		}
-		if err := dyno.Set(g, maxDepositPeriod, "app_state", "gov", "deposit_params", "max_deposit_period"); err != nil {
-			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
-		}
-		if err := dyno.Set(g, chainConfig.Denom, "app_state", "gov", "deposit_params", "min_deposit", 0, "denom"); err != nil {
-			return nil, fmt.Errorf("failed to set voting period in genesis json: %w", err)
-		}
-		out, err := json.Marshal(g)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal genesis bytes to json: %w", err)
-		}
-		return out, nil
-	}
-}
-
 func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
 	if testing.Short() {
 		t.Skip("skipping in short mode")
@@ -60,13 +35,31 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 
 	t.Parallel()
 
+	t.Log(chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName)
+
+	// v45 genesis params
+	genesisKVs := []cosmos.GenesisKV{
+		{
+			Key:   "app_state.gov.voting_params.voting_period",
+			Value: VotingPeriod,
+		},
+		{
+			Key:   "app_state.gov.deposit_params.max_deposit_period",
+			Value: MaxDepositPeriod,
+		},
+		{
+			Key:   "app_state.gov.deposit_params.min_deposit.0.denom",
+			Value: Denom,
+		},
+	}
+
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:      chainName,
 			ChainName: chainName,
 			Version:   initialVersion,
 			ChainConfig: ibc.ChainConfig{
-				ModifyGenesis: modifySDKv45GenesisShortProposals(VotingPeriod, MaxDepositPeriod),
+				ModifyGenesis: cosmos.ModifyGenesis(genesisKVs),
 				Images: []ibc.DockerImage{
 					{
 						Repository: JunoE2ERepo,
@@ -143,15 +136,18 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.Equal(t, haltHeight, height, "height is not equal to halt height")
 
 	// bring down nodes to prepare for upgrade
+	t.Log("stopping node(s)")
 	err = chain.StopAllNodes(ctx)
 	require.NoError(t, err, "error stopping node(s)")
 
 	// upgrade version on all nodes
+	t.Log("upgrading node(s)")
 	chain.UpgradeVersion(ctx, client, upgradeRepo, upgradeBranchVersion)
 
 	// start all nodes back up.
 	// validators reach consensus on first block after upgrade height
 	// and chain block production resumes.
+	t.Log("starting node(s)")
 	err = chain.StartAllNodes(ctx)
 	require.NoError(t, err, "error starting upgraded node(s)")
 
@@ -167,44 +163,4 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
 
 	// TODO: ensure tokenfactory denom creation fee is set to 2_000_000
-
 }
-
-// TODO: Future v16+ with faster block times, use these
-/*
-	// TODO: Do a param change proposal to match mainnets '5048093' blocks per year rate?
-	// or just create a function to modify as a fork of cosmos.ModifyGenesisProposalTime. This should really be a builder yea?
-
-	// !IMPORTANT: V15 Faster block times - Query the current minting parameters
-	// param, _ := chain.QueryParam(ctx, "mint", "BlocksPerYear")
-	param, _ := chain.QueryParam(ctx, "mint", "BlocksPerYear")
-	require.NoError(t, err, "error querying blocks per year")
-	require.Equal(t, param.Value, "\"6311520\"") // mainnet it is 5048093, but we are just ensuring the upgrade applies correctly from default.
-
-	param, err = chain.QueryParam(ctx, "slashing", "SignedBlocksWindow")
-	require.NoError(t, err, "error querying signed blocks window")
-	require.Equal(t, param.Value, "\"100\"")
-
-
-	upgrade...
-
-	// !IMPORTANT: V15 - Query the current minting parameters
-	param, err = chain.QueryParam(ctx, "mint", "BlocksPerYear")
-	require.NoError(t, err, "error querying blocks per year")
-	require.Equal(t, param.Value, "\"12623040\"") // double the blocks per year from default
-
-	// ensure the new SignedBlocksWindow is double (efault 100)
-	param, err = chain.QueryParam(ctx, "slashing", "SignedBlocksWindow")
-	require.NoError(t, err, "error querying signed blocks window")
-	require.Equal(t, param.Value, "\"200\"")
-
-	// ensure DenomCreationGasConsume for tokenfactory is set to 2000000 with the standard fee being set to empty
-	param, err = chain.QueryParam(ctx, "tokenfactory", "DenomCreationGasConsume")
-	require.NoError(t, err, "error querying denom creation gas consume")
-	require.Equal(t, param.Value, "\"2000000\"")
-
-	param, err = chain.QueryParam(ctx, "tokenfactory", "DenomCreationFee")
-	require.NoError(t, err, "error querying denom creation fee")
-	require.Equal(t, param.Value, "[]")
-
-*/
