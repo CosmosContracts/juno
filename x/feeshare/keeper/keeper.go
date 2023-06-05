@@ -39,7 +39,6 @@ func NewKeeper(
 	feeCollector string,
 	authority string,
 ) Keeper {
-
 	return Keeper{
 		storeKey:         storeKey,
 		cdc:              cdc,

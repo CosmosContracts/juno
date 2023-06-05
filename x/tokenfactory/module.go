@@ -121,7 +121,6 @@ func NewAppModule(
 
 	// legacySubspace is used solely for migration of x/params managed parameters
 	legacySubspace exported.Subspace,
-
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(),

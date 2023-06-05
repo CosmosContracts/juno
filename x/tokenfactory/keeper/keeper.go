@@ -51,6 +51,8 @@ func NewKeeper(
 		communityPoolKeeper: communityPoolKeeper,
 
 		enabledCapabilities: enabledCapabilities,
+
+		authority: authority,
 	}
 }
 
