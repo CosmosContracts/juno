@@ -6,11 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Parameter store key.
-var (
-	ParamsKey = []byte("params")
-)
-
 func NewParams(denomCreationFee sdk.Coins) Params {
 	return Params{
 		DenomCreationFee: denomCreationFee,
