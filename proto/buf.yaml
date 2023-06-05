@@ -1,5 +1,5 @@
 version: v1
-name: buf.build/juno-network/juno
+name: buf.build/CosmosContracts/juno
 deps:
   - buf.build/cosmos/cosmos-sdk:v0.47.0
   - buf.build/cosmos/cosmos-proto:1935555c206d4afb9e94615dfd0fad31
