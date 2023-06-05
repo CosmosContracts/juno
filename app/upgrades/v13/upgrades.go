@@ -72,7 +72,9 @@ func CreateV13UpgradeHandler(
 			DeveloperShares: sdk.NewDecWithPrec(50, 2), // = 50%
 			AllowedDenoms:   []string{nativeDenom},
 		}
-		keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams)
+		if err := keepers.FeeShareKeeper.SetParams(ctx, newFeeShareParams); err != nil {
+			return nil, err
+		}
 		logger.Info("set feeshare params")
 
 		// Packet Forward middleware initial params

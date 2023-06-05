@@ -13,7 +13,9 @@ func InitGenesis(
 	k keeper.Keeper,
 	data types.GenesisState,
 ) {
-	k.SetParams(ctx, data.Params)
+	if err := k.SetParams(ctx, data.Params); err != nil {
+		panic(err)
+	}
 
 	for _, share := range data.FeeShare {
 		contract := share.GetContractAddr()
