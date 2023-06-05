@@ -248,11 +248,11 @@ func NewAppKeepers(
 	appKeepers.MintKeeper = mintkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[minttypes.StoreKey],
-		appKeepers.GetSubspace(minttypes.ModuleName),
 		stakingKeeper,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		authtypes.FeeCollectorName,
+		govModAddress,
 	)
 	appKeepers.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec,
