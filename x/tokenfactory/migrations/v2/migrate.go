@@ -11,7 +11,7 @@ const (
 	ModuleName = "tokenfactory"
 )
 
-var ParamsKey = []byte("params")
+var ParamsKey = []byte{0x02}
 
 // Migrate migrates the x/tokenfactory module state from the consensus version 1 to
 // version 2. Specifically, it takes the parameters that are currently stored

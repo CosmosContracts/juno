@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-var ParamsKey = []byte{0x00}
+var ParamsKey = []byte{0x02}
 
 const (
 	// ModuleName defines the module name
