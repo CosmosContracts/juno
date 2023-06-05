@@ -29,7 +29,9 @@ func CreateTestApp(t *testing.T, isCheckTx bool) (*junoapp.App, sdk.Context) {
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{
 		ChainID: "testing",
 	})
-	app.AppKeepers.MintKeeper.SetParams(ctx, types.DefaultParams())
+	if err := app.AppKeepers.MintKeeper.SetParams(ctx, types.DefaultParams()); err != nil {
+		panic(err)
+	}
 	app.AppKeepers.MintKeeper.SetMinter(ctx, types.DefaultInitialMinter())
 
 	return app, ctx

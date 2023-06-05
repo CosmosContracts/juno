@@ -11,9 +11,7 @@ const (
 	ModuleName = "mint"
 )
 
-var (
-	ParamsKey = []byte{0x01}
-)
+var ParamsKey = []byte{0x01}
 
 // Migrate migrates the x/mint module state from the consensus version 2 to
 // version 3. Specifically, it takes the parameters that are currently stored
