@@ -5,7 +5,7 @@ import (
 	_ "embed"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

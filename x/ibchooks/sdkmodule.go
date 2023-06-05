@@ -10,8 +10,8 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v15/x/ibchooks/client/cli"
-	"github.com/CosmosContracts/juno/v15/x/ibchooks/types"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks/types"
 
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 

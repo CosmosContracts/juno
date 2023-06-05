@@ -6,11 +6,6 @@ on:
     paths:
       - '**.go'      
       - 'go.sum'
-  pull_request:    
-    types: [review_requested, closed, auto_merge_enabled]
-    paths:
-      - '**.go'
-      - 'go.sum'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

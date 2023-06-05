@@ -1,12 +1,10 @@
 package app
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/cometbft/cometbft/libs/log"
@@ -14,12 +12,12 @@ import (
 
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/server"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	simcli "github.com/cosmos/cosmos-sdk/x/simulation/client/cli"
@@ -100,6 +98,10 @@ func TestFullAppSimulation(t *testing.T) {
 		require.NoError(t, os.RemoveAll(dir))
 	}()
 
+	appOptions := make(simtestutil.AppOptionsMap, 0)
+	appOptions[flags.FlagHome] = DefaultNodeHome
+	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
+
 	var emptyWasmOption []wasm.Option
 	app := New(
 		logger,
@@ -107,9 +109,10 @@ func TestFullAppSimulation(t *testing.T) {
 		nil,
 		true,
 		wasm.EnableAllProposals,
-		simtestutil.EmptyAppOptions{},
+		appOptions,
 		emptyWasmOption,
 		fauxMerkleModeOpt,
+		baseapp.SetChainID(SimAppChainID),
 	)
 	require.Equal(t, "juno", app.Name())
 
@@ -118,7 +121,7 @@ func TestFullAppSimulation(t *testing.T) {
 		t,
 		os.Stdout,
 		app.BaseApp,
-		AppStateFn(app.appCodec, app.SimulationManager(), NewDefaultGenesisState(app.appCodec)),
+		simtestutil.AppStateFn(app.appCodec, app.SimulationManager(), NewDefaultGenesisState(app.appCodec)),
 		simtypes.RandomAccounts, // Replace with own random account function if using keys other than secp256k1
 		simtestutil.SimulationOperations(app, app.AppCodec(), config),
 		app.ModuleAccountAddrs(),
@@ -134,16 +137,4 @@ func TestFullAppSimulation(t *testing.T) {
 	if config.Commit {
 		simtestutil.PrintStats(db)
 	}
-}
-
-// AppStateFn returns the initial application state using a genesis or the simulation parameters.
-// It panics if the user provides files for both of them.
-// If a file is not given for the genesis or the sim params, it creates a randomized one.
-func AppStateFn(codec codec.Codec, manager *module.SimulationManager, genesisState map[string]json.RawMessage) simtypes.AppStateFn {
-	// quick hack to setup app state genesis with our app modules
-	// simapp.ModuleBasics = ModuleBasics
-	if simcli.FlagGenesisTimeValue == 0 { // always set to have a block time
-		simcli.FlagGenesisTimeValue = time.Now().Unix()
-	}
-	return simtestutil.AppStateFn(codec, manager, genesisState)
 }

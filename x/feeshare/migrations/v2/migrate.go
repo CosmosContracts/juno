@@ -1,8 +1,8 @@
 package v2
 
 import (
-	"github.com/CosmosContracts/juno/v15/x/feeshare/exported"
-	"github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/exported"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

@@ -10,11 +10,11 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	"github.com/CosmosContracts/juno/v15/x/ibchooks"
-	ibchookskeeper "github.com/CosmosContracts/juno/v15/x/ibchooks/keeper"
-	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
-	mintkeeper "github.com/CosmosContracts/juno/v15/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks"
+	ibchookskeeper "github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
+	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
+	mintkeeper "github.com/CosmosContracts/juno/v16/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -42,6 +42,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/cosmos/cosmos-sdk/x/nft"
+	nftkeeper "github.com/cosmos/cosmos-sdk/x/nft/keeper"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -70,16 +72,16 @@ import (
 	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 
 	icahost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 
-	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqkeeper "github.com/strangelove-ventures/async-icq/v7/keeper"
@@ -91,7 +93,7 @@ import (
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
-	"github.com/CosmosContracts/juno/v15/x/globalfee"
+	"github.com/CosmosContracts/juno/v16/x/globalfee"
 )
 
 var (
@@ -112,6 +114,7 @@ var maccPerms = map[string][]string{
 	stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 	govtypes.ModuleName:            {authtypes.Burner},
+	nft.ModuleName:                 nil,
 	icqtypes.ModuleName:            nil,
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:            nil,
@@ -147,6 +150,7 @@ type AppKeepers struct {
 	TransferKeeper        ibctransferkeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
+	NFTKeeper             nftkeeper.Keeper
 	FeeShareKeeper        feesharekeeper.Keeper
 	ContractKeeper        *wasmkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
@@ -347,6 +351,8 @@ func NewAppKeepers(
 		),
 	)
 
+	appKeepers.NFTKeeper = nftkeeper.NewKeeper(keys[nftkeeper.StoreKey], appCodec, appKeepers.AccountKeeper, appKeepers.BankKeeper)
+
 	// Configure the hooks keeper
 	hooksKeeper := ibchookskeeper.NewKeeper(
 		appKeepers.keys[ibchookstypes.StoreKey],
@@ -361,6 +367,9 @@ func NewAppKeepers(
 		appKeepers.Ics20WasmHooks,
 	)
 
+	// Do not use this middleware for anything except x/wasm requirement.
+	// The spec currently requires new channels to be created, to use it.
+	// We need to wait for Channel Upgradability before we can use this for any other middleware.
 	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[ibcfeetypes.StoreKey],
@@ -379,8 +388,6 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
-		// The ICS4Wrapper is replaced by the IBCFeeKeeper instead of the channel so that sending can be overridden by the middleware
-		// &appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 	)
 
@@ -478,6 +485,8 @@ func NewAppKeepers(
 		"/cosmos.staking.v1beta1.Query/Redelegations":       &stakingtypes.QueryRedelegationsResponse{},
 		"/cosmos.staking.v1beta1.Query/UnbondingDelegation": &stakingtypes.QueryUnbondingDelegationResponse{},
 		"/cosmos.staking.v1beta1.Query/Validator":           &stakingtypes.QueryValidatorResponse{},
+		"/cosmos.staking.v1beta1.Query/Params":              &stakingtypes.QueryParamsResponse{},
+		"/cosmos.staking.v1beta1.Query/Pool":                &stakingtypes.QueryPoolResponse{},
 
 		// token factory
 		"/osmosis.tokenfactory.v1beta1.Query/Params":                 &tokenfactorytypes.QueryParamsResponse{},
