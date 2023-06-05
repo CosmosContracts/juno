@@ -302,7 +302,7 @@ type ReflectSubMsgs struct {
 	Msgs []wasmvmtypes.SubMsg `json:"msgs"`
 }
 
-func executeCustom(t *testing.T, ctx sdk.Context, junoapp *app.App, contract sdk.AccAddress, sender sdk.AccAddress, msg bindings.TokenMsg, funds sdk.Coin) error {
+func executeCustom(t *testing.T, ctx sdk.Context, junoapp *app.App, contract sdk.AccAddress, sender sdk.AccAddress, msg bindings.TokenMsg, funds sdk.Coin) error { //nolint:unparam // funds is always nil but could change in the future.
 	wrapped := bindings.TokenFactoryMsg{
 		Token: &msg,
 	}
