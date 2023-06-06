@@ -7,9 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-const (
-	ModuleName = "tokenfactory"
-)
+const ModuleName = "tokenfactory"
 
 var ParamsKey = []byte{0x02}
 
