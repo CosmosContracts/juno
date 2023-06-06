@@ -7,10 +7,10 @@ import (
 	tmstrings "github.com/cometbft/cometbft/libs/strings"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/CosmosContracts/juno/v16/x/globalfee"
-	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
 )
 
 // FeeWithBypassDecorator checks if the transaction's fee is at least as large
@@ -27,26 +27,17 @@ import (
 var _ sdk.AnteDecorator = FeeDecorator{}
 
 type FeeDecorator struct {
-	BypassMinFeeMsgTypes []string
-	GlobalMinFee         globalfee.ParamSource
-	// TODO: we do not use subspaces anymore. Get it from the module still though
-	// StakingSubspace                 paramtypes.Subspace
+	BypassMinFeeMsgTypes            []string
+	GlobalFeeKeeper                 globalfeekeeper.Keeper
+	StakingKeeper                   stakingkeeper.Keeper
 	MaxTotalBypassMinFeeMsgGasUsage uint64
 }
 
-func NewFeeDecorator(bypassMsgTypes []string, globalfeeSubspace, stakingSubspace paramtypes.Subspace, maxTotalBypassMinFeeMsgGasUsage uint64) FeeDecorator {
-	if !globalfeeSubspace.HasKeyTable() {
-		panic("global fee paramspace was not set up via module")
-	}
-
-	if !stakingSubspace.HasKeyTable() {
-		panic("staking paramspace was not set up via module")
-	}
-
+func NewFeeDecorator(bypassMsgTypes []string, gfk globalfeekeeper.Keeper, sk stakingkeeper.Keeper, maxTotalBypassMinFeeMsgGasUsage uint64) FeeDecorator {
 	return FeeDecorator{
-		BypassMinFeeMsgTypes: bypassMsgTypes,
-		GlobalMinFee:         globalfeeSubspace,
-		// StakingSubspace:                 stakingSubspace,
+		BypassMinFeeMsgTypes:            bypassMsgTypes,
+		GlobalFeeKeeper:                 gfk,
+		StakingKeeper:                   sk,
 		MaxTotalBypassMinFeeMsgGasUsage: maxTotalBypassMinFeeMsgGasUsage,
 	}
 }
@@ -150,9 +141,8 @@ func (mfd FeeDecorator) GetGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coin
 		err                error
 	)
 
-	if mfd.GlobalMinFee.Has(ctx, types.ParamStoreKeyMinGasPrices) {
-		mfd.GlobalMinFee.Get(ctx, types.ParamStoreKeyMinGasPrices, &globalMinGasPrices)
-	}
+	globalMinGasPrices = mfd.GlobalFeeKeeper.GetParams(ctx).MinimumGasPrices
+
 	// global fee is empty set, set global fee to 0uatom
 	if len(globalMinGasPrices) == 0 {
 		globalMinGasPrices, err = mfd.DefaultZeroGlobalFee(ctx)
@@ -181,14 +171,8 @@ func (mfd FeeDecorator) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, er
 	return []sdk.DecCoin{sdk.NewDecCoinFromDec(bondDenom, sdk.NewDec(0))}, nil
 }
 
-func (mfd FeeDecorator) getBondDenom(_ sdk.Context) string {
-	// TODO:
-	// var bondDenom string
-	// if mfd.StakingSubspace.Has(ctx, stakingtypes.KeyBondDenom) {
-	// 	mfd.StakingSubspace.Get(ctx, stakingtypes.KeyBondDenom, &bondDenom)
-	// }
-	// return bondDenom
-	return "ujuno"
+func (mfd FeeDecorator) getBondDenom(ctx sdk.Context) string {
+	return mfd.StakingKeeper.BondDenom(ctx)
 }
 
 // ContainsOnlyBypassMinFeeMsgs returns true if all the given msgs type are listed

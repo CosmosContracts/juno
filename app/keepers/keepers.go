@@ -83,6 +83,9 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 
+	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
+
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqkeeper "github.com/strangelove-ventures/async-icq/v7/keeper"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
@@ -121,6 +124,7 @@ var maccPerms = map[string][]string{
 	ibcfeetypes.ModuleName:         nil,
 	wasm.ModuleName:                {authtypes.Burner},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
+	globalfee.ModuleName:           nil,
 }
 
 type AppKeepers struct {
@@ -152,6 +156,7 @@ type AppKeepers struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	NFTKeeper             nftkeeper.Keeper
 	FeeShareKeeper        feesharekeeper.Keeper
+	GlobalFeeKeeper       globalfeekeeper.Keeper
 	ContractKeeper        *wasmkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -529,6 +534,12 @@ func NewAppKeepers(
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
+		govModAddress,
+	)
+
+	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[globalfeetypes.StoreKey],
 		govModAddress,
 	)
 

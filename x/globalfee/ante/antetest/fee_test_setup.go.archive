@@ -56,6 +56,7 @@ func (s *IntegrationTestSuite) SetupTestGlobalFeeStoreAndMinGasPrice(minGasPrice
 	stakingParam.BondDenom = "uatom"
 	stakingSubspace := s.SetupTestStakingSubspace(stakingParam)
 
+	// TODO: We use keepers here.
 	// build fee decorator
 	feeDecorator := gaiafeeante.NewFeeDecorator(app.GetDefaultBypassFeeMessages(), subspace, stakingSubspace, uint64(1_000_000))
 

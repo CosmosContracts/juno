@@ -20,8 +20,6 @@ import (
 
 	feeshareante "github.com/CosmosContracts/juno/v16/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
-
-	gaiafeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
 )
 
 const maxBypassMinFeeMsgGasUsage = 1_000_000
@@ -75,7 +73,8 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace, maxBypassMinFeeMsgGasUsage),
+		// TODO: RE-ADD THIS
+		// gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace, maxBypassMinFeeMsgGasUsage),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
