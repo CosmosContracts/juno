@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/exported"
+
 	simulation "github.com/CosmosContracts/juno/v16/x/tokenfactory/simulation"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
