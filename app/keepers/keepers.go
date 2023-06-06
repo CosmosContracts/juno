@@ -76,8 +76,8 @@ import (
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 
-	dripkeeper "github.com/CosmosContracts/juno/v15/x/drip/keeper"
-	driptypes "github.com/CosmosContracts/juno/v15/x/drip/types"
+	dripkeeper "github.com/CosmosContracts/juno/v16/x/drip/keeper"
+	driptypes "github.com/CosmosContracts/juno/v16/x/drip/types"
 
 	icahost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"

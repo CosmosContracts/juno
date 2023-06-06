@@ -17,9 +17,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v15/x/drip/client/cli"
-	"github.com/CosmosContracts/juno/v15/x/drip/keeper"
-	"github.com/CosmosContracts/juno/v15/x/drip/types"
+	"github.com/CosmosContracts/juno/v16/x/drip/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/drip/keeper"
+	"github.com/CosmosContracts/juno/v16/x/drip/types"
 )
 
 // type check to ensure the interface is properly implemented

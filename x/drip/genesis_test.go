@@ -9,9 +9,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v15/app"
-	drip "github.com/CosmosContracts/juno/v15/x/drip"
-	"github.com/CosmosContracts/juno/v15/x/drip/types"
+	"github.com/CosmosContracts/juno/v16/app"
+	drip "github.com/CosmosContracts/juno/v16/x/drip"
+	"github.com/CosmosContracts/juno/v16/x/drip/types"
 )
 
 type GenesisTestSuite struct {

@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/CosmosContracts/juno/v15/x/drip/types"
+	"github.com/CosmosContracts/juno/v16/x/drip/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

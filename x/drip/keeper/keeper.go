@@ -6,7 +6,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	revtypes "github.com/CosmosContracts/juno/v15/x/drip/types"
+	revtypes "github.com/CosmosContracts/juno/v16/x/drip/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 

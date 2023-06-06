@@ -3,8 +3,8 @@ package drip
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v15/x/drip/keeper"
-	"github.com/CosmosContracts/juno/v15/x/drip/types"
+	"github.com/CosmosContracts/juno/v16/x/drip/keeper"
+	"github.com/CosmosContracts/juno/v16/x/drip/types"
 )
 
 // InitGenesis import module genesis
