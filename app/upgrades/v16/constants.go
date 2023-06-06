@@ -1,4 +1,4 @@
-package v15
+package v16
 
 import (
 	"github.com/CosmosContracts/juno/v16/app/upgrades"

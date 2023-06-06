@@ -31,6 +31,8 @@ import (
 
 	appparams "github.com/CosmosContracts/juno/v16/app/params"
 
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
 	"github.com/CosmosContracts/juno/v16/app"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
@@ -241,6 +243,21 @@ func (s *KeeperTestHelper) BuildTx(
 	txBuilder.SetGasLimit(gasLimit)
 
 	return txBuilder.GetTx()
+}
+
+func (s *KeeperTestHelper) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
+	s.Ctx = s.Ctx.WithBlockHeight(upgradeHeight - 1)
+	plan := upgradetypes.Plan{Name: upgradeName, Height: upgradeHeight}
+	err := s.App.AppKeepers.UpgradeKeeper.ScheduleUpgrade(s.Ctx, plan)
+	s.Require().NoError(err)
+	_, exists := s.App.AppKeepers.UpgradeKeeper.GetUpgradePlan(s.Ctx)
+	s.Require().True(exists)
+
+	s.Ctx = s.Ctx.WithBlockHeight(upgradeHeight)
+	s.Require().NotPanics(func() {
+		beginBlockRequest := abci.RequestBeginBlock{}
+		s.App.BeginBlocker(s.Ctx, beginBlockRequest)
+	})
 }
 
 // CreateRandomAccounts is a function return a list of randomly generated AccAddresses

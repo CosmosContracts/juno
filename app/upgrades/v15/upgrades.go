@@ -34,7 +34,9 @@ func CreateV15PatchUpgradeHandler(
 			DenomCreationGasConsume: NewDenomCreationGasConsume,
 		}
 
-		keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf)
+		if err := keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf); err != nil {
+			return versionMap, err
+		}
 		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
 
 		return versionMap, err

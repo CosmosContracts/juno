@@ -14,7 +14,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-// // Test authz serialize and de-serializes for tokenfactory msg.
+// Test authz serialize and de-serializes for tokenfactory msg.
 func TestAuthzMsg(t *testing.T) {
 	t.Skip("TODO: figure out how to register authz interfaces for tests")
 	pk1 := ed25519.GenPrivKey().PubKey()

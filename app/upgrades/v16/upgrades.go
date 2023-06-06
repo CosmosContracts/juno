@@ -1,4 +1,4 @@
-package v15
+package v16
 
 import (
 	"fmt"
@@ -81,9 +81,11 @@ func CreateV16UpgradeHandler(
 				keyTable = icahosttypes.ParamKeyTable()
 			case icacontrollertypes.SubModuleName:
 				keyTable = icacontrollertypes.ParamKeyTable()
+
 			// wasm
 			case wasmtypes.ModuleName:
 				keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
+
 			// juno modules
 			case feesharetypes.ModuleName:
 				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
