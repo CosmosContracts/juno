@@ -3,18 +3,18 @@ package app
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	encparams "github.com/CosmosContracts/juno/v15/app/params"
-	"github.com/CosmosContracts/juno/v15/x/drip"
-	driptypes "github.com/CosmosContracts/juno/v15/x/drip/types"
-	feeshare "github.com/CosmosContracts/juno/v15/x/feeshare"
-	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v15/x/globalfee"
-	"github.com/CosmosContracts/juno/v15/x/ibchooks"
-	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
-	"github.com/CosmosContracts/juno/v15/x/mint"
-	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	encparams "github.com/CosmosContracts/juno/v16/app/params"
+	"github.com/CosmosContracts/juno/v16/x/drip"
+	driptypes "github.com/CosmosContracts/juno/v16/x/drip/types"
+	feeshare "github.com/CosmosContracts/juno/v16/x/feeshare"
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v16/x/globalfee"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks"
+	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
+	"github.com/CosmosContracts/juno/v16/x/mint"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -41,6 +41,8 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/cosmos/cosmos-sdk/x/nft"
+	nftmodule "github.com/cosmos/cosmos-sdk/x/nft/module"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
@@ -84,6 +86,7 @@ var ModuleBasics = module.NewBasicManager(
 	evidence.AppModuleBasic{},
 	authzmodule.AppModuleBasic{},
 	vesting.AppModuleBasic{},
+	nftmodule.AppModuleBasic{},
 	consensus.AppModuleBasic{},
 	// non sdk modules
 	wasm.AppModuleBasic{},
@@ -131,6 +134,7 @@ func appModules(
 		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
 		params.NewAppModule(app.AppKeepers.ParamsKeeper),
 		authzmodule.NewAppModule(appCodec, app.AppKeepers.AuthzKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
+		nftmodule.NewAppModule(appCodec, app.AppKeepers.NFTKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(appCodec, app.AppKeepers.ConsensusParamsKeeper),
 		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
 		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
@@ -198,6 +202,7 @@ func orderBeginBlockers() []string {
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
+		nft.ModuleName,
 		consensusparamtypes.ModuleName,
 		// additional modules
 		ibctransfertypes.ModuleName,
@@ -233,6 +238,7 @@ func orderEndBlockers() []string {
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		nft.ModuleName,
 		consensusparamtypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
@@ -268,6 +274,7 @@ func orderInitBlockers() []string {
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		feegrant.ModuleName,
+		nft.ModuleName,
 		consensusparamtypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,

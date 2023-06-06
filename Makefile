@@ -125,11 +125,17 @@ benchmark:
 ictest-basic: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoStart .
 
+ictest-ibchooks: rm-testcache
+	cd interchaintest && go test -race -v -run TestJunoIBCHooks .
+
 ictest-tokenfactory: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
 
 ictest-feeshare: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoFeeShare .
+
+ictest-pfm: rm-testcache
+	cd interchaintest && go test -race -v -run TestPacketForwardMiddlewareRouter .
 
 # Executes a basic chain upgrade test via interchaintest
 ictest-upgrade: rm-testcache
@@ -175,7 +181,7 @@ endif
 ###                                Protobuf                                 ###
 ###############################################################################
 
-protoVer=0.11.6
+protoVer=0.13.1
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 

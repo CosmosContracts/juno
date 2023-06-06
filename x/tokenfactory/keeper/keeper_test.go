@@ -7,9 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v15/app/apptesting"
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v16/app/apptesting"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 type KeeperTestSuite struct {

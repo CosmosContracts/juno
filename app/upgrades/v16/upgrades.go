@@ -3,14 +3,14 @@ package v15
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v15/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 
-	"github.com/CosmosContracts/juno/v15/app/upgrades"
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
@@ -37,7 +37,7 @@ import (
 // We now charge 2 million gas * gas price to create a denom.
 const NewDenomCreationGasConsume uint64 = 2_000_000
 
-func CreateV15UpgradeHandler(
+func CreateV16UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	keepers *keepers.AppKeepers,
@@ -133,12 +133,6 @@ func CreateV15UpgradeHandler(
 		err = keepers.StakingKeeper.SetParams(ctx, stakingParams)
 		if err != nil {
 			return nil, err
-		}
-
-		for _, channel := range keepers.IBCKeeper.ChannelKeeper.GetAllChannels(ctx) {
-			if channel.PortId == "transfer" {
-				keepers.IBCFeeKeeper.SetFeeEnabled(ctx, channel.PortId, channel.ChannelId)
-			}
 		}
 
 		return versionMap, err

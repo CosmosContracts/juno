@@ -13,12 +13,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v15/app"
-	gaiafeeante "github.com/CosmosContracts/juno/v15/x/globalfee/ante"
+	"github.com/CosmosContracts/juno/v16/app"
+	gaiafeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
 
-	appparams "github.com/CosmosContracts/juno/v15/app/params"
-	"github.com/CosmosContracts/juno/v15/x/globalfee"
-	globfeetypes "github.com/CosmosContracts/juno/v15/x/globalfee/types"
+	appparams "github.com/CosmosContracts/juno/v16/app/params"
+	"github.com/CosmosContracts/juno/v16/x/globalfee"
+	globfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
 type IntegrationTestSuite struct {

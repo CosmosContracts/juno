@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -134,9 +134,6 @@ func GetTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 	require.NoError(t, err)
 
 	t.Log(results)
-
-	err = testutil.WaitForBlocks(ctx, 2, chain)
-	require.NoError(t, err)
 
 	// tokenfactorytypes.DenomAuthorityMetadata{
 	// 	Admin: ...,

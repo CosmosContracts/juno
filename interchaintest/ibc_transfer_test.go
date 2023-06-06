@@ -130,14 +130,11 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	transferTx, err := juno.SendIBCTransfer(ctx, channel.ChannelID, junoUserAddr, transfer, ibc.TransferOptions{})
 	require.NoError(t, err)
 
-	// TODO The packet exits the users account with the 1_000 in funds, but never is ack'ed.
-
-	// print transferTx
-
 	junoHeight, err := juno.Height(ctx)
 	require.NoError(t, err)
 
 	// Poll for the ack to know the transfer was successful
+	// TODO: Remove after auto transfer is fixed in the relayer
 	r.Flush(ctx, eRep, path, channel.ChannelID)
 	_, err = testutil.PollForAck(ctx, juno, junoHeight-5, junoHeight+50, transferTx.Packet)
 	require.NoError(t, err)
@@ -172,6 +169,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	require.NoError(t, err)
 
 	// Poll for the ack to know the transfer was successful
+	// TODO: Remove after auto transfer is fixed in the relayer
 	r.Flush(ctx, eRep, path, channel.Counterparty.ChannelID)
 	_, err = testutil.PollForAck(ctx, gaia, gaiaHeight, gaiaHeight+25, transferTx.Packet)
 	require.NoError(t, err)

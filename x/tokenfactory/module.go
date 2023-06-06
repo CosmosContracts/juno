@@ -23,12 +23,12 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	simulation "github.com/CosmosContracts/juno/v15/x/tokenfactory/simulation"
+	simulation "github.com/CosmosContracts/juno/v16/x/tokenfactory/simulation"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory/client/cli"
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory/keeper"
-	"github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 var (

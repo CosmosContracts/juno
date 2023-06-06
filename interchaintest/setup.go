@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 
 	"github.com/docker/docker/client"
 
@@ -124,7 +124,7 @@ func BuildInitialChain(t *testing.T, chains []ibc.Chain) (*interchaintest.Interc
 	ic := interchaintest.NewInterchain()
 
 	for _, chain := range chains {
-		ic.AddChain(chain)
+		ic = ic.AddChain(chain)
 	}
 
 	rep := testreporter.NewNopReporter()

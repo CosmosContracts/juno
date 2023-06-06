@@ -17,9 +17,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v15/x/feeshare/client/cli"
-	"github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
 // type check to ensure the interface is properly implemented

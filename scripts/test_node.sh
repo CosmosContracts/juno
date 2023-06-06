@@ -7,17 +7,17 @@
 #
 # To use unoptomized wasm files up to ~5mb, add: MAX_WASM_SIZE=5000000
 
-
 export KEY="juno1"
+export KEY2="juno2"
+
 export CHAIN_ID=${CHAIN_ID:-"local-1"}
 export MONIKER="localjuno"
 export KEYALGO="secp256k1"
 export KEYRING=${KEYRING:-"test"}
 export HOME_DIR=$(eval echo "${HOME_DIR:-"~/.juno"}")
-
 export BINARY=${BINARY:-junod}
-export CLEAN=${CLEAN:-"false"}
 
+export CLEAN=${CLEAN:-"false"}
 export RPC=${RPC:-"26657"}
 export REST=${REST:-"1317"}
 export PROFF=${PROFF:-"6060"}
@@ -27,16 +27,13 @@ export GRPC_WEB=${GRPC_WEB:-"9091"}
 export ROSETTA=${ROSETTA:-"8080"}
 export TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-"5s"}
 
-junod config keyring-backend $KEYRING
-junod config chain-id $CHAIN_ID
-
 alias BINARY="$BINARY --home=$HOME_DIR"
 
-# Debugging
-echo "CHAIN_ID=$CHAIN_ID, HOME_DIR=$HOME_DIR, CLEAN=$CLEAN, RPC=$RPC, REST=$REST, PROFF=$PROFF, P2P=$P2P, GRPC=$GRPC, GRPC_WEB=$GRPC_WEB, ROSETTA=$ROSETTA, TIMEOUT_COMMIT=$TIMEOUT_COMMIT"
-
-command -v junod > /dev/null 2>&1 || { echo >&2 "junod command not found. Ensure this is setup / properly installed in your GOPATH."; exit 1; }
+command -v $BINARY > /dev/null 2>&1 || { echo >&2 "$BINARY command not found. Ensure this is setup / properly installed in your GOPATH (make install)."; exit 1; }
 command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
+
+$BINARY config keyring-backend $KEYRING
+$BINARY config chain-id $CHAIN_ID
 
 from_scratch () {
   # Fresh install on current branch
@@ -48,41 +45,43 @@ from_scratch () {
   # juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
   echo "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry" | BINARY keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --recover
   # juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl
-  echo "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise" | BINARY keys add feeacc --keyring-backend $KEYRING --algo $KEYALGO --recover
+  echo "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise" | BINARY keys add $KEY2 --keyring-backend $KEYRING --algo $KEYALGO --recover
   
   BINARY init $MONIKER --chain-id $CHAIN_ID --default-denom ujuno
 
   # Function updates the config based on a jq argument as a string
-  update_test_genesis () {
-    # update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
+  update_test_genesis () {    
     cat $HOME_DIR/config/genesis.json | jq "$1" > $HOME_DIR/config/tmp_genesis.json && mv $HOME_DIR/config/tmp_genesis.json $HOME_DIR/config/genesis.json
   }
 
-  # Set gas limit in genesis
+  # Block
   update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
-  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="150s"'
+  # Gov
+  update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom": "ujuno","amount": "1000000"}]'
+  update_test_genesis '.app_state["gov"]["voting_params"]["voting_period"]="15s"'
+  # staking
+  update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="ujuno"'  
+  update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.050000000000000000"'  
+  # mint
+  update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ujuno"'  
+  # crisis
+  update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ujuno","amount": "1000"}'  
 
+  # Custom Modules
   # GlobalFee
   update_test_genesis '.app_state["globalfee"]["params"]["minimum_gas_prices"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
   
-  update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="ujuno"'  
-  update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.050000000000000000"'  
-  # update_test_genesis '.app_state["bank"]["params"]["send_enabled"]=[{"denom": "ujuno","enabled": true}]'
-  # update_test_genesis '.app_state["staking"]["params"]["min_commission_rate"]="0.100000000000000000"' # sdk 46 only   
-
-  update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ujuno"'  
-  update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom": "ujuno","amount": "1000000"}]'
-  update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ujuno","amount": "1000"}'  
-
+  # TokenFactory
   # update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom":"ujuno","amount":"100"}]'
   update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[]'
   update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_gas_consume"]=2000000'
 
+  # FeeShare
   update_test_genesis '.app_state["feeshare"]["params"]["allowed_denoms"]=["ujuno"]'
 
   # Allocate genesis accounts
   BINARY genesis add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
-  BINARY genesis add-genesis-account feeacc 1000000ujuno,1000utest --keyring-backend $KEYRING
+  BINARY genesis add-genesis-account $KEY2 1000000ujuno,1000utest --keyring-backend $KEYRING
 
   BINARY genesis gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID
 
