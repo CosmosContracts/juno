@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	appparams "github.com/CosmosContracts/juno/v15/app/params"
+	appparams "github.com/CosmosContracts/juno/v16/app/params"
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v15/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
 func TestDefaultGenesis(t *testing.T) {

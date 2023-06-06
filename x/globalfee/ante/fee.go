@@ -9,8 +9,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/CosmosContracts/juno/v15/x/globalfee"
-	"github.com/CosmosContracts/juno/v15/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v16/x/globalfee"
+	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
 // FeeWithBypassDecorator checks if the transaction's fee is at least as large

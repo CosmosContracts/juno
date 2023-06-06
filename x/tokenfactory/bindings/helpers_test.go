@@ -15,7 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/CosmosContracts/juno/v15/app"
+	"github.com/CosmosContracts/juno/v16/app"
 )
 
 func CreateTestInput(t *testing.T) (*app.App, sdk.Context) {

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/CosmosContracts/juno/v15/x/ibchooks/keeper"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v15/x/ibchooks/types"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks/types"
 )
 
 func indexRunCmd(cmd *cobra.Command, _ []string) error {
