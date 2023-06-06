@@ -37,9 +37,6 @@ import (
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
-// We now charge 2 million gas * gas price to create a denom.
-const NewDenomCreationGasConsume uint64 = 2_000_000
-
 func CreateV16UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
@@ -125,17 +122,6 @@ func CreateV16UpgradeHandler(
 		if err := keepers.GovKeeper.SetParams(ctx, govParams); err != nil {
 			return nil, err
 		}
-
-		// x/TokenFactory
-		// Use denom creation gas consumtion instead of fee for contract developers
-		updatedTf := tokenfactorytypes.Params{
-			DenomCreationFee:        nil,
-			DenomCreationGasConsume: NewDenomCreationGasConsume,
-		}
-		if err := keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf); err != nil {
-			return nil, err
-		}
-		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
 
 		// x/Staking - set minimum commission to 0.050000000000000000
 		stakingParams := keepers.StakingKeeper.GetParams(ctx)
