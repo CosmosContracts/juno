@@ -36,6 +36,7 @@ import (
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
+
 )
 
 // We now charge 2 million gas * gas price to create a denom.
@@ -95,6 +96,7 @@ func CreateV16UpgradeHandler(
 				keyTable = tokenfactorytypes.ParamKeyTable() //nolint:staticcheck
 			case minttypes.ModuleName:
 				keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
+
 			}
 
 			if !subspace.HasKeyTable() {
