@@ -4,20 +4,21 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 )
 
-// func TestParamKeyTable(t *testing.T) {
-// 	require.IsType(t, paramtypes.KeyTable{}, ParamKeyTable())
-// 	require.NotEmpty(t, ParamKeyTable())
-// }
-
-func TestDefaultParams(t *testing.T) {
-	params := DefaultParams()
-	require.NotEmpty(t, params)
+func TestLegacyParamKeyTable(t *testing.T) {
+	require.IsType(t, paramtypes.KeyTable{}, ParamKeyTable())
+	require.NotEmpty(t, ParamKeyTable())
 }
 
-func TestParamsValidate(t *testing.T) {
+func TestLegacyParamSetPairs(t *testing.T) {
+	params := DefaultParams()
+	require.NotEmpty(t, params.ParamSetPairs())
+}
+
+func TestLegacyParamsValidate(t *testing.T) {
 	devShares := sdk.NewDecWithPrec(60, 2)
 	acceptedDenoms := []string{"ujuno"}
 
@@ -74,7 +75,7 @@ func TestParamsValidate(t *testing.T) {
 	}
 }
 
-func TestParamsValidateShares(t *testing.T) {
+func TestLegacyParamsValidateShares(t *testing.T) {
 	testCases := []struct {
 		name     string
 		value    interface{}
@@ -101,7 +102,7 @@ func TestParamsValidateShares(t *testing.T) {
 	}
 }
 
-func TestParamsValidateBool(t *testing.T) {
+func TestLegacyParamsValidateBool(t *testing.T) {
 	err := validateBool(DefaultEnableFeeShare)
 	require.NoError(t, err)
 	err = validateBool(true)
