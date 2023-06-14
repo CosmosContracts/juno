@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 
@@ -17,7 +17,6 @@ import (
 	gaiafeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
 
 	appparams "github.com/CosmosContracts/juno/v16/app/params"
-	"github.com/CosmosContracts/juno/v16/x/globalfee"
 	globfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
@@ -47,18 +46,19 @@ func (s *IntegrationTestSuite) SetupTest() {
 }
 
 func (s *IntegrationTestSuite) SetupTestGlobalFeeStoreAndMinGasPrice(minGasPrice []sdk.DecCoin, globalFeeParams *globfeetypes.Params) (gaiafeeante.FeeDecorator, sdk.AnteHandler) {
-	subspace := s.app.GetSubspace(globalfee.ModuleName)
-	subspace.SetParamSet(s.ctx, globalFeeParams)
+	keeper := s.app.AppKeepers.GlobalFeeKeeper
+	keeper.SetParams(s.ctx, *globalFeeParams)
+
 	s.ctx = s.ctx.WithMinGasPrices(minGasPrice).WithIsCheckTx(true)
 
 	// set staking params
 	stakingParam := stakingtypes.DefaultParams()
 	stakingParam.BondDenom = "uatom"
-	stakingSubspace := s.SetupTestStakingSubspace(stakingParam)
+	sKeeper := s.app.AppKeepers.StakingKeeper
+	sKeeper.SetParams(s.ctx, stakingParam)
 
-	// TODO: We use keepers here.
 	// build fee decorator
-	feeDecorator := gaiafeeante.NewFeeDecorator(app.GetDefaultBypassFeeMessages(), subspace, stakingSubspace, uint64(1_000_000))
+	feeDecorator := gaiafeeante.NewFeeDecorator(app.GetDefaultBypassFeeMessages(), keeper, *sKeeper, uint64(1_000_000))
 
 	// chain fee decorator to antehandler
 	antehandler := sdk.ChainAnteDecorators(feeDecorator)
@@ -67,9 +67,10 @@ func (s *IntegrationTestSuite) SetupTestGlobalFeeStoreAndMinGasPrice(minGasPrice
 }
 
 // SetupTestStakingSubspace sets uatom as bond denom for the fee tests.
-func (s *IntegrationTestSuite) SetupTestStakingSubspace(params stakingtypes.Params) types.Subspace {
-	s.app.GetSubspace(stakingtypes.ModuleName).SetParamSet(s.ctx, &params)
-	return s.app.GetSubspace(stakingtypes.ModuleName)
+func (s *IntegrationTestSuite) SetupTestStakingKeeper(params stakingtypes.Params) *stakingkeeper.Keeper {
+	sKeeper := s.app.AppKeepers.StakingKeeper
+	sKeeper.SetParams(s.ctx, params)
+	return sKeeper
 }
 
 func (s *IntegrationTestSuite) CreateTestTx(privs []cryptotypes.PrivKey, accNums []uint64, accSeqs []uint64, chainID string) (xauthsigning.Tx, error) {

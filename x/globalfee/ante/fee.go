@@ -8,6 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
@@ -25,6 +27,12 @@ import (
 // If the bypass tx still carries fees, the fee denom should be the same as global fee required.
 
 var _ sdk.AnteDecorator = FeeDecorator{}
+
+// A list of Juno contracts which do not have to pay fees (up to X gas per Tx)
+// TODO: This would be a param.
+var bypassedContractAddresses = map[string]uint64{
+	// "juno1...": 5_000_000,
+}
 
 type FeeDecorator struct {
 	BypassMinFeeMsgTypes            []string
@@ -98,8 +106,7 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	//	i.e., totalGas <=  MaxTotalBypassMinFeeMsgGasUsage
 	//
 	// Otherwise, minimum fees and global fees are checked to prevent spam.
-	doesNotExceedMaxGasUsage := gas <= mfd.MaxTotalBypassMinFeeMsgGasUsage
-	allowedToBypassMinFee := mfd.ContainsOnlyBypassMinFeeMsgs(msgs) && doesNotExceedMaxGasUsage
+	allowedToBypassMinFee := mfd.ContainsOnlyBypassMinFeeMsgsWithinGasConstraints(msgs, gas)
 
 	// Either the transaction contains at least one message of a type
 	// that cannot bypass the minimum fee or the total gas limit exceeds
@@ -175,13 +182,36 @@ func (mfd FeeDecorator) getBondDenom(ctx sdk.Context) string {
 	return mfd.StakingKeeper.BondDenom(ctx)
 }
 
-// ContainsOnlyBypassMinFeeMsgs returns true if all the given msgs type are listed
-// in the BypassMinFeeMsgTypes of the FeeDecorator.
-func (mfd FeeDecorator) ContainsOnlyBypassMinFeeMsgs(msgs []sdk.Msg) bool {
+// ContainsOnlyBypassMinFeeMsgsWithinGasConstraints returns true if all the given msgs type are listed
+// in the BypassMinFeeMsgTypes of the FeeDecorator AND they do not excede the gas limit.
+func (mfd FeeDecorator) ContainsOnlyBypassMinFeeMsgsWithinGasConstraints(msgs []sdk.Msg, gasUsage uint64) bool {
 	for _, msg := range msgs {
-		if tmstrings.StringInSlice(sdk.MsgTypeURL(msg), mfd.BypassMinFeeMsgTypes) {
+		if tmstrings.StringInSlice(sdk.MsgTypeURL(msg), mfd.BypassMinFeeMsgTypes) && gasUsage <= mfd.MaxTotalBypassMinFeeMsgGasUsage {
 			continue
 		}
+
+		foundContractBypass := false
+		if res, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
+			for contractAddr, gasLimit := range bypassedContractAddresses {
+				if res.Contract == contractAddr {
+					// The gas usage for said contract is greater than what is allowed.
+					if gasUsage > gasLimit {
+						return false
+					}
+
+					foundContractBypass = true
+					break
+				} else {
+					// if a contract is not bypassed and does not pass the msg check
+					// break out and found return false.
+					break
+				}
+			}
+		}
+		if foundContractBypass {
+			continue
+		}
+
 		return false
 	}
 
