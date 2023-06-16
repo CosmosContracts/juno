@@ -24,7 +24,6 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authtype "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -34,13 +33,11 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
-	evedencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
@@ -614,15 +611,15 @@ func NewAppKeepers(
 func addCosmosSDKStdStargateQueries(asq wasmkeeper.AcceptedStargateQueries) wasmkeeper.AcceptedStargateQueries {
 	std := map[string]codec.ProtoMarshaler{
 		// auth
-		"/cosmos.auth.v1beta1.Query/Account":              &authtype.QueryAccountResponse{},
-		"/cosmos.auth.v1beta1.Query/AccountAddressByID":   &authtype.QueryAccountAddressByIDResponse{},
-		"/cosmos.auth.v1beta1.Query/Params":               &authtype.QueryParamsResponse{},
-		"/cosmos.auth.v1beta1.Query/ModuleAccounts":       &authtype.QueryModuleAccountsResponse{},
-		"/cosmos.auth.v1beta1.Query/ModuleAccountByName":  &authtype.QueryModuleAccountByNameResponse{},
-		"/cosmos.auth.v1beta1.Query/Bech32Prefix":         &authtype.Bech32PrefixResponse{},
-		"/cosmos.auth.v1beta1.Query/AddressBytesToString": &authtype.AddressBytesToStringResponse{},
-		"/cosmos.auth.v1beta1.Query/AddressStringToBytes": &authtype.AddressStringToBytesResponse{},
-		"/cosmos.auth.v1beta1.Query/AccountInfo":          &authtype.QueryAccountInfoResponse{},
+		"/cosmos.auth.v1beta1.Query/Account":              &authtypes.QueryAccountResponse{},
+		"/cosmos.auth.v1beta1.Query/AccountAddressByID":   &authtypes.QueryAccountAddressByIDResponse{},
+		"/cosmos.auth.v1beta1.Query/Params":               &authtypes.QueryParamsResponse{},
+		"/cosmos.auth.v1beta1.Query/ModuleAccounts":       &authtypes.QueryModuleAccountsResponse{},
+		"/cosmos.auth.v1beta1.Query/ModuleAccountByName":  &authtypes.QueryModuleAccountByNameResponse{},
+		"/cosmos.auth.v1beta1.Query/Bech32Prefix":         &authtypes.Bech32PrefixResponse{},
+		"/cosmos.auth.v1beta1.Query/AddressBytesToString": &authtypes.AddressBytesToStringResponse{},
+		"/cosmos.auth.v1beta1.Query/AddressStringToBytes": &authtypes.AddressStringToBytesResponse{},
+		"/cosmos.auth.v1beta1.Query/AccountInfo":          &authtypes.QueryAccountInfoResponse{},
 
 		// authz
 		"/cosmos.authz.v1beta1.Query/Grants":        &authz.QueryGrantsResponse{},
@@ -642,7 +639,7 @@ func addCosmosSDKStdStargateQueries(asq wasmkeeper.AcceptedStargateQueries) wasm
 		"/cosmos.bank.v1beta1.Query/SendEnabled":             &banktypes.QuerySendEnabledResponse{},
 
 		// consensus
-		"/cosmos.consensus.v1beta1.Query/Params": &consensustypes.QueryParamsResponse{},
+		"/cosmos.consensus.v1beta1.Query/Params": &consensusparamtypes.QueryParamsResponse{},
 
 		// distribution
 		"/cosmos.distribution.v1beta1.Query/ParamsRequest":               &distrtypes.QueryParamsRequest{},
@@ -657,8 +654,8 @@ func addCosmosSDKStdStargateQueries(asq wasmkeeper.AcceptedStargateQueries) wasm
 		"/cosmos.distribution.v1beta1.Query/CommunityPool":               &distrtypes.QueryCommunityPoolResponse{},
 
 		// evidence
-		"/cosmos.evidence.v1beta1.Query/Evidence":    &evedencetypes.QueryEvidenceResponse{},
-		"/cosmos.evidence.v1beta1.Query/AllEvidence": &evedencetypes.QueryAllEvidenceResponse{},
+		"/cosmos.evidence.v1beta1.Query/Evidence":    &evidencetypes.QueryEvidenceResponse{},
+		"/cosmos.evidence.v1beta1.Query/AllEvidence": &evidencetypes.QueryAllEvidenceResponse{},
 
 		// feegrant
 		"/cosmos.feegrant.v1beta1.Query/Allowance":           &feegrant.QueryAllowanceResponse{},
@@ -712,7 +709,6 @@ func addCosmosSDKStdStargateQueries(asq wasmkeeper.AcceptedStargateQueries) wasm
 		// upgrade
 		"/cosmos.upgrade.v1beta1.Query/CurrentPlan":                 &upgradetypes.QueryCurrentPlanResponse{},
 		"/cosmos.upgrade.v1beta1.Query/AppliedPlan":                 &upgradetypes.QueryAppliedPlanResponse{},
-		"/cosmos.upgrade.v1beta1.Query/UpgradedConsensusState":      &upgradetypes.QueryUpgradedConsensusStateResponse{},
 		"/cosmos.upgrade.v1beta1.Query/QueryModuleVersionsResponse": &upgradetypes.QueryModuleVersionsResponse{},
 		"/cosmos.upgrade.v1beta1.Query/QueryAuthorityResponse":      &upgradetypes.QueryAuthorityResponse{},
 	}
