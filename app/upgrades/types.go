@@ -3,7 +3,7 @@ package upgrades
 import (
 	"strings"
 
-	"github.com/CosmosContracts/juno/v15/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/keepers"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

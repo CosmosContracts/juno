@@ -2,10 +2,10 @@ package keepers
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
-	feesharetypes "github.com/CosmosContracts/juno/v15/x/feeshare/types"
-	ibchookstypes "github.com/CosmosContracts/juno/v15/x/ibchooks/types"
-	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -18,6 +18,7 @@ import (
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	nftkeeper "github.com/cosmos/cosmos-sdk/x/nft/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -38,7 +39,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, consensusparamtypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, capabilitytypes.StoreKey,
-		authzkeeper.StoreKey,
+		authzkeeper.StoreKey, nftkeeper.StoreKey,
 
 		// non sdk store keys
 		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,

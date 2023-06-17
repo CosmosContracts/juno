@@ -1,16 +1,16 @@
-package v15
+package v16
 
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v15/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 
-	"github.com/CosmosContracts/juno/v15/app/upgrades"
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	tokenfactorytypes "github.com/CosmosContracts/juno/v15/x/tokenfactory/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
@@ -32,12 +32,16 @@ import (
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+
+	// Juno modules
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
 // We now charge 2 million gas * gas price to create a denom.
 const NewDenomCreationGasConsume uint64 = 2_000_000
 
-func CreateV15UpgradeHandler(
+func CreateV16UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	keepers *keepers.AppKeepers,
@@ -49,6 +53,12 @@ func CreateV15UpgradeHandler(
 
 		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
+
+		// https://github.com/cosmos/ibc-go/blob/v7.1.0/docs/migrations/v7-to-v7_1.md
+		// explicitly update the IBC 02-client params, adding the localhost client type
+		params := keepers.IBCKeeper.ClientKeeper.GetParams(ctx)
+		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
+		keepers.IBCKeeper.ClientKeeper.SetParams(ctx, params)
 
 		// TODO: Our mint, feeshare, globalfee, and tokenfactory module needs to be migrated to v47 for minttypes.ModuleName
 		// https://github.com/cosmos/cosmos-sdk/pull/12363/files
@@ -85,6 +95,9 @@ func CreateV15UpgradeHandler(
 			// wasm
 			case wasmtypes.ModuleName:
 				keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
+			// juno modules
+			case feesharetypes.ModuleName:
+				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
 			}
 
 			if !subspace.HasKeyTable() {
@@ -134,12 +147,6 @@ func CreateV15UpgradeHandler(
 		err = keepers.StakingKeeper.SetParams(ctx, stakingParams)
 		if err != nil {
 			return nil, err
-		}
-
-		for _, channel := range keepers.IBCKeeper.ChannelKeeper.GetAllChannels(ctx) {
-			if channel.PortId == "transfer" {
-				keepers.IBCFeeKeeper.SetFeeEnabled(ctx, channel.PortId, channel.ChannelId)
-			}
 		}
 
 		return versionMap, err

@@ -2,7 +2,7 @@ package v11
 
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v15/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/keepers"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/authz"

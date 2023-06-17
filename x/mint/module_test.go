@@ -7,7 +7,7 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v15/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/mint/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/testutil"

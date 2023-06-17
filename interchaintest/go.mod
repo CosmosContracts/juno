@@ -10,7 +10,7 @@ replace (
 	// For this nested module, you always want to replace the parent reference with the current worktree.
 	// For now, we can not do this due to pulling tokenfactory in.
 	// github.com/CosmosContracts/juno => ../../
-	github.com/CosmosContracts/juno/v15 => github.com/CosmosContracts/juno/v15 v15.0.0-20230510202630-e1183eb692f6
+	github.com/CosmosContracts/juno/v16 => github.com/CosmosContracts/juno/v16 v16.0.0-20230524152917-465dae509bfe
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
@@ -23,10 +23,10 @@ replace (
 
 require (
 	github.com/CosmWasm/wasmd v0.40.0
-	github.com/CosmosContracts/juno/v15 v15.0.0-00010101000000-000000000000
+	github.com/CosmosContracts/juno/v16 v16.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.47.2
 	github.com/cosmos/gogoproto v1.4.8
-	github.com/cosmos/ibc-go/v7 v7.0.1
+	github.com/cosmos/ibc-go/v7 v7.1.0
 	github.com/docker/docker v20.10.24+incompatible
 	github.com/icza/dyno v0.0.0-20220812133438-f0b6f8a18845
 	github.com/strangelove-ventures/interchaintest/v7 v7.0.0-20230508154211-ebc1cbd6d88e
@@ -107,7 +107,7 @@ require (
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
-	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
@@ -149,7 +149,6 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
-	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
 	github.com/libp2p/go-libp2p v0.22.0 // indirect
@@ -183,7 +182,7 @@ require (
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.15.0 // indirect
+	github.com/prometheus/client_golang v1.15.1 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
@@ -208,7 +207,6 @@ require (
 	github.com/tidwall/btree v1.6.0 // indirect
 	github.com/tyler-smith/go-bip32 v1.0.0 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
-	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/zondax/hid v0.9.1 // indirect
 	github.com/zondax/ledger-go v0.14.1 // indirect

@@ -23,8 +23,9 @@ const (
 
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
+	// TODO: Use v15 version in the future after we get PR https://github.com/CosmosContracts/juno/pull/693 on mainnet
 	startVersion := "v14.1.0"
-	upgradeName := "v15"
+	upgradeName := "v16"
 	CosmosChainUpgradeTest(t, "juno", startVersion, version, repo, upgradeName)
 }
 

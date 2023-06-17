@@ -15,13 +15,13 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	decorators "github.com/CosmosContracts/juno/v15/app/decorators"
+	decorators "github.com/CosmosContracts/juno/v16/app/decorators"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
-	feeshareante "github.com/CosmosContracts/juno/v15/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
+	feeshareante "github.com/CosmosContracts/juno/v16/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
 
-	gaiafeeante "github.com/CosmosContracts/juno/v15/x/globalfee/ante"
+	gaiafeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
 )
 
 const maxBypassMinFeeMsgGasUsage = 1_000_000

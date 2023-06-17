@@ -1,8 +1,8 @@
 package mint
 
 import (
-	"github.com/CosmosContracts/juno/v15/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v15/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v16/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

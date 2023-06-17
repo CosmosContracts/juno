@@ -17,9 +17,10 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v15/x/feeshare/client/cli"
-	"github.com/CosmosContracts/juno/v15/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v15/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/exported"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
 // type check to ensure the interface is properly implemented
@@ -28,6 +29,9 @@ var (
 	_ module.AppModuleBasic      = AppModuleBasic{}
 	_ module.AppModuleSimulation = AppModule{}
 )
+
+// ConsensusVersion defines the current x/feeshare module consensus version.
+const ConsensusVersion = 2
 
 // AppModuleBasic type for the fees module
 type AppModuleBasic struct{}
@@ -45,7 +49,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
 func (AppModuleBasic) ConsensusVersion() uint64 {
-	return 1
+	return ConsensusVersion
 }
 
 // RegisterInterfaces registers interfaces and implementations of the fees
@@ -99,17 +103,22 @@ type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
 	ak     authkeeper.AccountKeeper
+
+	// legacySubspace is used solely for migration of x/params managed parameters
+	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a new AppModule Object
 func NewAppModule(
 	k keeper.Keeper,
 	ak authkeeper.AccountKeeper,
+	ss exported.Subspace,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
 		ak:             ak,
+		legacySubspace: ss,
 	}
 }
 
@@ -136,6 +145,11 @@ func (am AppModule) QuerierRoute() string {
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
+
+	m := keeper.NewMigrator(am.keeper, am.legacySubspace)
+	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", types.ModuleName, err))
+	}
 }
 
 // BeginBlock executes all ABCI BeginBlock logic respective to the fees module.

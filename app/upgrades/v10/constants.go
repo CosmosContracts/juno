@@ -1,7 +1,7 @@
 package v10
 
 import (
-	"github.com/CosmosContracts/juno/v15/app/upgrades"
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
