@@ -19,7 +19,6 @@ func NewMsgDistributeTokens(
 	amount sdk.Coins,
 	sender sdk.Address,
 ) *MsgDistributeTokens {
-
 	return &MsgDistributeTokens{
 		SenderAddress: sender.String(),
 		Amount:        amount,
@@ -34,7 +33,6 @@ func (msg MsgDistributeTokens) Type() string { return TypeMsgDistributeTokens }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgDistributeTokens) ValidateBasic() error {
-
 	// Validation logic is inside msg_server
 	return nil
 }
