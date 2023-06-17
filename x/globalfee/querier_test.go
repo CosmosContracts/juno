@@ -18,23 +18,26 @@ func TestQueryMinimumGasPrices(t *testing.T) {
 	}{
 		"one coin": {
 			setupStore: func(ctx sdk.Context, k globalfeekeeper.Keeper) {
-				k.SetParams(ctx, types.Params{
+				err := k.SetParams(ctx, types.Params{
 					MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt())),
 				})
+				require.NoError(t, err)
 			},
 			expMin: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt())),
 		},
 		"multiple coins": {
 			setupStore: func(ctx sdk.Context, k globalfeekeeper.Keeper) {
-				k.SetParams(ctx, types.Params{
+				err := k.SetParams(ctx, types.Params{
 					MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt()), sdk.NewDecCoin("BLX", sdk.NewInt(2))),
 				})
+				require.NoError(t, err)
 			},
 			expMin: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt()), sdk.NewDecCoin("BLX", sdk.NewInt(2))),
 		},
 		"no min gas price set": {
 			setupStore: func(ctx sdk.Context, k globalfeekeeper.Keeper) {
-				k.SetParams(ctx, types.Params{})
+				err := k.SetParams(ctx, types.Params{})
+				require.NoError(t, err)
 			},
 		},
 		"no param set": {

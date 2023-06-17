@@ -32,14 +32,12 @@ import (
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-  exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
-
+	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
-
 )
 
 // We now charge 2 million gas * gas price to create a denom.
