@@ -8,6 +8,7 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
 
 	"github.com/docker/docker/client"
 
@@ -29,6 +30,9 @@ var (
 
 	JunoE2ERepo  = "ghcr.io/cosmoscontracts/juno-e2e"
 	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
+
+	IBCRelayerImage   = "ghcr.io/cosmos/relayer"
+	IBCRelayerVersion = "justin-localhost-ibc"
 
 	junoRepo, junoVersion = GetDockerImageInfo()
 
@@ -82,6 +86,7 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 
 	// register custom types
+	ibclocalhost.RegisterInterfaces(cfg.InterfaceRegistry)
 	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
