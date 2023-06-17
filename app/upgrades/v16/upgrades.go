@@ -34,7 +34,6 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
-
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
