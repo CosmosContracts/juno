@@ -248,3 +248,9 @@ func migrateCore1VestingAccountsToVestingContract(ctx sdk.Context, keepers *keep
 
 	}
 }
+
+func getBlockTime(ctx sdk.Context) uint64 {
+	now := ctx.BlockHeader().Time
+	// get the block time in seconds
+	return uint64(now.Unix())
+}
