@@ -535,12 +535,13 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
 		govModAddress,
-	)
+
 
 	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[globalfeetypes.StoreKey],
 		govModAddress,
+
 	)
 
 	// register wasm gov proposal types

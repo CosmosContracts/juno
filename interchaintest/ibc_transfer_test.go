@@ -61,7 +61,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	rf := interchaintest.NewBuiltinRelayerFactory(
 		relayerType,
 		zaptest.NewLogger(t),
-		interchaintestrelayer.CustomDockerImage("ghcr.io/cosmos/relayer", "latest", "100:1000"),
+		interchaintestrelayer.CustomDockerImage(IBCRelayerImage, IBCRelayerVersion, "100:1000"),
 		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
 

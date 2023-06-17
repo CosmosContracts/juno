@@ -33,4 +33,5 @@ buf generate
 cp -r ./github.com/CosmosContracts/x/* x/
 cp -r ./github.com/cosmos/gaia/x/* x/
 
+
 rm -rf ./github.com
