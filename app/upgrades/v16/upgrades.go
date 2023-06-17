@@ -32,6 +32,10 @@ import (
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+
+	// Juno modules
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
 // We now charge 2 million gas * gas price to create a denom.
@@ -47,6 +51,12 @@ func CreateV16UpgradeHandler(
 
 		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
+
+		// https://github.com/cosmos/ibc-go/blob/v7.1.0/docs/migrations/v7-to-v7_1.md
+		// explicitly update the IBC 02-client params, adding the localhost client type
+		params := keepers.IBCKeeper.ClientKeeper.GetParams(ctx)
+		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
+		keepers.IBCKeeper.ClientKeeper.SetParams(ctx, params)
 
 		// TODO: Our mint, feeshare, globalfee, and tokenfactory module needs to be migrated to v47 for minttypes.ModuleName
 		// https://github.com/cosmos/cosmos-sdk/pull/12363/files
@@ -84,6 +94,9 @@ func CreateV16UpgradeHandler(
 			// wasm
 			case wasmtypes.ModuleName:
 				keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
+			// juno modules
+			case feesharetypes.ModuleName:
+				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
 			}
 
 			if !subspace.HasKeyTable() {

@@ -529,11 +529,11 @@ func NewAppKeepers(
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
 		appKeepers.keys[feesharetypes.StoreKey],
 		appCodec,
-		appKeepers.GetSubspace(feesharetypes.ModuleName),
 		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
+		govModAddress,
 	)
 
 	appKeepers.DripKeeper = dripkeeper.NewKeeper(
