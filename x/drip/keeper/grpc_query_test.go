@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"github.com/CosmosContracts/juno/v16/testutil/nullify"
 	"github.com/CosmosContracts/juno/v16/x/drip/types"
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -27,7 +28,7 @@ func (s *IntegrationTestSuite) TestFeeShares() {
 	var feeShares []types.Drip
 	for _, contractAddress := range contractAddressList {
 		goCtx := sdk.WrapSDKContext(s.ctx)
-		msg := &types.MsgRegisterFeeShare{
+		msg := &feesharetypes.MsgRegisterFeeShare{
 			ContractAddress:   contractAddress,
 			DeployerAddress:   sender.String(),
 			WithdrawerAddress: withdrawer.String(),
@@ -45,8 +46,8 @@ func (s *IntegrationTestSuite) TestFeeShares() {
 		s.Require().NoError(err)
 	}
 
-	request := func(next []byte, offset, limit uint64, total bool) *types.QueryFeeSharesRequest {
-		return &types.QueryFeeSharesRequest{
+	request := func(next []byte, offset, limit uint64, total bool) *feesharetypes.QueryFeeSharesRequest {
+		return &feesharetypes.QueryFeeSharesRequest{
 			Pagination: &query.PageRequest{
 				Key:        next,
 				Offset:     offset,
@@ -95,7 +96,7 @@ func (s *IntegrationTestSuite) TestFeeShare() {
 
 	contractAddress := s.InstantiateContract(sender.String(), "")
 	goCtx := sdk.WrapSDKContext(s.ctx)
-	msg := &types.MsgRegisterFeeShare{
+	msg := &feesharetypes.MsgRegisterFeeShare{
 		ContractAddress:   contractAddress,
 		DeployerAddress:   sender.String(),
 		WithdrawerAddress: withdrawer.String(),
@@ -109,7 +110,7 @@ func (s *IntegrationTestSuite) TestFeeShare() {
 	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
 	s.Require().NoError(err)
 
-	req := &types.QueryFeeShareRequest{
+	req := &feesharetypes.QueryFeeShareRequest{
 		ContractAddress: contractAddress,
 	}
 	goCtx = sdk.WrapSDKContext(s.ctx)
@@ -136,7 +137,7 @@ func (s *IntegrationTestSuite) TestDeployerFeeShares() {
 	// RegsisFeeShare
 	for _, contractAddress := range contractAddressList {
 		goCtx := sdk.WrapSDKContext(s.ctx)
-		msg := &types.MsgRegisterFeeShare{
+		msg := &feesharetypes.MsgRegisterFeeShare{
 			ContractAddress:   contractAddress,
 			DeployerAddress:   sender.String(),
 			WithdrawerAddress: withdrawer.String(),
@@ -146,8 +147,8 @@ func (s *IntegrationTestSuite) TestDeployerFeeShares() {
 		s.Require().NoError(err)
 	}
 
-	request := func(next []byte, offset, limit uint64, total bool) *types.QueryDeployerFeeSharesRequest {
-		return &types.QueryDeployerFeeSharesRequest{
+	request := func(next []byte, offset, limit uint64, total bool) *feesharetypes.QueryDeployerFeeSharesRequest {
+		return &feesharetypes.QueryDeployerFeeSharesRequest{
 			DeployerAddress: sender.String(),
 			Pagination: &query.PageRequest{
 				Key:        next,
@@ -216,8 +217,8 @@ func (s *IntegrationTestSuite) TestWithdrawerFeeShares() {
 		s.Require().NoError(err)
 	}
 
-	request := func(next []byte, offset, limit uint64, total bool) *types.QueryWithdrawerFeeSharesRequest {
-		return &types.QueryWithdrawerFeeSharesRequest{
+	request := func(next []byte, offset, limit uint64, total bool) *feesharetypes.QueryWithdrawerFeeSharesRequest {
+		return &feesharetypes.QueryWithdrawerFeeSharesRequest{
 			WithdrawerAddress: withdrawer.String(),
 			Pagination: &query.PageRequest{
 				Key:        next,

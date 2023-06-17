@@ -6,6 +6,7 @@ import (
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/CosmosContracts/juno/v16/x/drip/types"
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -138,47 +139,47 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 				DeployerAddress:   "Invalid",
 				WithdrawerAddress: withdrawer.String(),
 			},
-			resp:      &types.MsgRegisterFeeShareResponse{},
+			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
 			shouldErr: true,
 		},
 		{
 			desc: "Invalid withdrawer address",
-			msg: &types.MsgRegisterFeeShare{
+			msg: &feesharetypes.MsgRegisterFeeShare{
 				ContractAddress:   contractAddress,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: "Invalid",
 			},
-			resp:      &types.MsgRegisterFeeShareResponse{},
+			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
 			shouldErr: true,
 		},
 		{
 			desc: "Success",
-			msg: &types.MsgRegisterFeeShare{
+			msg: &feesharetypes.MsgRegisterFeeShare{
 				ContractAddress:   contractAddress,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: withdrawer.String(),
 			},
-			resp:      &types.MsgRegisterFeeShareResponse{},
+			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
 			shouldErr: false,
 		},
 		{
 			desc: "Invalid withdraw address for factory contract",
-			msg: &types.MsgRegisterFeeShare{
+			msg: &feesharetypes.MsgRegisterFeeShare{
 				ContractAddress:   contractAddress2,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: sender.String(),
 			},
-			resp:      &types.MsgRegisterFeeShareResponse{},
+			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
 			shouldErr: true,
 		},
 		{
 			desc: "Success register factory contract to itself",
-			msg: &types.MsgRegisterFeeShare{
+			msg: &feesharetypes.MsgRegisterFeeShare{
 				ContractAddress:   contractAddress2,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: contractAddress2,
 			},
-			resp:      &types.MsgRegisterFeeShareResponse{},
+			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
 			shouldErr: false,
 		},
 	} {
@@ -210,7 +211,7 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 
 	// RegsisFeeShare
 	goCtx := sdk.WrapSDKContext(s.ctx)
-	msg := &types.MsgRegisterFeeShare{
+	msg := &feesharetypes.MsgRegisterFeeShare{
 		ContractAddress:   contractAddress,
 		DeployerAddress:   sender.String(),
 		WithdrawerAddress: withdrawer.String(),
@@ -248,7 +249,7 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 		},
 		{
 			desc: "Invalid - Invalid WithdrawerAddress",
-			msg: &types.MsgUpdateFeeShare{
+			msg: &feesharetypes.MsgUpdateFeeShare{
 				ContractAddress:   contractAddress,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: "Invalid",
@@ -258,7 +259,7 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 		},
 		{
 			desc: "Invalid - Invalid WithdrawerAddress not change",
-			msg: &types.MsgUpdateFeeShare{
+			msg: &feesharetypes.MsgUpdateFeeShare{
 				ContractAddress:   contractAddress,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: withdrawer.String(),
@@ -268,12 +269,12 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 		},
 		{
 			desc: "Success",
-			msg: &types.MsgUpdateFeeShare{
+			msg: &feesharetypes.MsgUpdateFeeShare{
 				ContractAddress:   contractAddress,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: newWithdrawer.String(),
 			},
-			resp:      &types.MsgCancelFeeShareResponse{},
+			resp:      &feesharetypes.MsgCancelFeeShareResponse{},
 			shouldErr: false,
 		},
 	} {
@@ -301,7 +302,7 @@ func (s *IntegrationTestSuite) TestCancelFeeShare() {
 
 	// RegsisFeeShare
 	goCtx := sdk.WrapSDKContext(s.ctx)
-	msg := &types.MsgRegisterFeeShare{
+	msg := &feesharetypes.MsgRegisterFeeShare{
 		ContractAddress:   contractAddress,
 		DeployerAddress:   sender.String(),
 		WithdrawerAddress: withdrawer.String(),
@@ -311,13 +312,13 @@ func (s *IntegrationTestSuite) TestCancelFeeShare() {
 
 	for _, tc := range []struct {
 		desc      string
-		msg       *types.MsgCancelFeeShare
-		resp      *types.MsgCancelFeeShareResponse
+		msg       *feesharetypes.MsgCancelFeeShare
+		resp      *feesharetypes.MsgCancelFeeShareResponse
 		shouldErr bool
 	}{
 		{
 			desc: "Invalid - contract Address",
-			msg: &types.MsgCancelFeeShare{
+			msg: &feesharetypes.MsgCancelFeeShare{
 				ContractAddress: "Invalid",
 				DeployerAddress: sender.String(),
 			},
@@ -326,7 +327,7 @@ func (s *IntegrationTestSuite) TestCancelFeeShare() {
 		},
 		{
 			desc: "Invalid - deployer Address",
-			msg: &types.MsgCancelFeeShare{
+			msg: &feesharetypes.MsgCancelFeeShare{
 				ContractAddress: contractAddress,
 				DeployerAddress: "Invalid",
 			},
@@ -335,11 +336,11 @@ func (s *IntegrationTestSuite) TestCancelFeeShare() {
 		},
 		{
 			desc: "Success",
-			msg: &types.MsgCancelFeeShare{
+			msg: &feesharetypes.MsgCancelFeeShare{
 				ContractAddress: contractAddress,
 				DeployerAddress: sender.String(),
 			},
-			resp:      &types.MsgCancelFeeShareResponse{},
+			resp:      &feesharetypes.MsgCancelFeeShareResponse{},
 			shouldErr: false,
 		},
 	} {
