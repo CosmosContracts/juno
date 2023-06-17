@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
+	tmcli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/stretchr/testify/suite"
-	tmcli "github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/CosmosContracts/juno/v15/x/mint/client/cli"
-	minttypes "github.com/CosmosContracts/juno/v15/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/mint/client/cli"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
@@ -43,7 +43,9 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	genesisState[minttypes.ModuleName] = mintDataBz
 	s.cfg.GenesisState = genesisState
 
-	s.network = network.New(s.T(), s.cfg)
+	baseDir := s.T().TempDir()
+	s.network, err = network.New(s.T(), baseDir, s.cfg)
+	s.Require().NoError(err)
 
 	_, err = s.network.WaitForHeight(1)
 	s.Require().NoError(err)

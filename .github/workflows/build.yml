@@ -1,14 +1,11 @@
 ---
+name: build
+
 on:
   push:
     paths:
       - '**.go'      
       - 'go.sum'
-  pull_request:
-    paths:
-      - '**.go'
-      - 'go.sum'
-name: build
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

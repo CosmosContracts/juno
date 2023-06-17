@@ -3,12 +3,13 @@ package types
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewMinter returns a new Minter object with the given inflation and annual
 // provisions values.
-func NewMinter(inflation, annualProvisions sdk.Dec, phase, startPhaseBlock uint64, targetSupply sdk.Int) Minter {
+func NewMinter(inflation, annualProvisions sdk.Dec, phase, startPhaseBlock uint64, targetSupply math.Int) Minter {
 	return Minter{
 		Inflation:        inflation,
 		AnnualProvisions: annualProvisions,
@@ -72,7 +73,7 @@ func (m Minter) PhaseInflationRate(phase uint64) sdk.Dec {
 }
 
 // NextPhase returns the new phase.
-func (m Minter) NextPhase(_ Params, currentSupply sdk.Int) uint64 {
+func (m Minter) NextPhase(_ Params, currentSupply math.Int) uint64 {
 	nonePhase := m.Phase == 0
 	if nonePhase {
 		return 1
@@ -87,13 +88,13 @@ func (m Minter) NextPhase(_ Params, currentSupply sdk.Int) uint64 {
 
 // NextAnnualProvisions returns the annual provisions based on current total
 // supply and inflation rate.
-func (m Minter) NextAnnualProvisions(_ Params, totalSupply sdk.Int) sdk.Dec {
+func (m Minter) NextAnnualProvisions(_ Params, totalSupply math.Int) sdk.Dec {
 	return m.Inflation.MulInt(totalSupply)
 }
 
 // BlockProvision returns the provisions for a block based on the annual
 // provisions rate.
-func (m Minter) BlockProvision(params Params, totalSupply sdk.Int) sdk.Coin {
+func (m Minter) BlockProvision(params Params, totalSupply math.Int) sdk.Coin {
 	provisionAmt := m.AnnualProvisions.QuoInt(sdk.NewInt(int64(params.BlocksPerYear)))
 
 	// Because of rounding, we might mint too many tokens in this phase, let's limit it

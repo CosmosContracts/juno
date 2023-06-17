@@ -7,7 +7,6 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - depguard
     - dogsled
     - errcheck
     - goconst
@@ -33,3 +32,6 @@ linters-settings:
   gosec:
     excludes:
       - G404
+
+issues:
+  max-issues-per-linter: 0

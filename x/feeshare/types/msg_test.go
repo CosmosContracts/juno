@@ -23,7 +23,7 @@ func TestMsgsTestSuite(t *testing.T) {
 func (suite *MsgsTestSuite) SetupTest() {
 	deployer := "cosmos1"
 	withdraw := "cosmos2"
-	suite.contract = sdk.AccAddress([]byte("cosmos15u3dt79t6sxxa3x3kpkhzsy56edaa5a66wvt3kxmukqjz2sx0hesh45zsv"))
+	suite.contract = sdk.AccAddress([]byte("juno15u3dt79t6sxxa3x3kpkhzsy56edaa5a66wvt3kxmukqjz2sx0hes5sn38g"))
 	suite.deployer = sdk.AccAddress([]byte(deployer))
 	suite.deployerStr = suite.deployer.String()
 	suite.withdrawerStr = sdk.AccAddress([]byte(withdraw)).String()

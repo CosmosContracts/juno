@@ -7,16 +7,6 @@ set -uxe
 export GOPATH=~/go
 export PATH=$PATH:~/go/bin
 
-# Install Juno with pebbledb 
-go mod edit -replace github.com/tendermint/tm-db=github.com/notional-labs/tm-db@136c7b6
-go mod tidy
-go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=pebbledb' -tags pebbledb ./...
-
-# NOTE: ABOVE YOU CAN USE ALTERNATIVE DATABASES, HERE ARE THE EXACT COMMANDS
-# go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb' -tags rocksdb ./...
-# go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=badgerdb' -tags badgerdb ./...
-# go install -ldflags '-w -s -X github.com/cosmos/cosmos-sdk/types.DBBackend=boltdb' -tags boltdb ./...
-
 # Initialize chain.
 junod init test
 
@@ -50,4 +40,4 @@ JUNOD_P2P_SEEDS="$(curl -s https://raw.githubusercontent.com/cosmos/chain-regist
 export JUNOD_P2P_SEEDS
 
 # Start chain.
-junod start --x-crisis-skip-assert-invariants --db_backend pebbledb
+junod start --x-crisis-skip-assert-invariants 

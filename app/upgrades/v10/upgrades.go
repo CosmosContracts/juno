@@ -2,17 +2,17 @@ package v10
 
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v15/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/keepers"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icahosttypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 )
 
 // CreateV10UpgradeHandler makes an upgrade handler for v10 of Juno
@@ -39,8 +39,8 @@ func CreateV10UpgradeHandler(
 				sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
 				sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
 				sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
-				sdk.MsgTypeURL(&govtypes.MsgVote{}),
-				sdk.MsgTypeURL(&govtypes.MsgVoteWeighted{}), // required by quick
+				sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
+				sdk.MsgTypeURL(&govv1beta1.MsgVoteWeighted{}), // required by quick
 				sdk.MsgTypeURL(&authz.MsgExec{}),
 				sdk.MsgTypeURL(&authz.MsgGrant{}),
 				sdk.MsgTypeURL(&authz.MsgRevoke{}),
