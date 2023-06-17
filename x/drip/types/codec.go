@@ -23,7 +23,7 @@ var (
 
 const (
 	// Amino names
-	distributeTokensName = "juno/MsgDistributeTokens"
+	distributeTokensName = "juno/MsgDistributeTokens" //nolint:gosec // these are not hard coded credentials
 )
 
 // NOTE: This is required for the GetSignBytes function
