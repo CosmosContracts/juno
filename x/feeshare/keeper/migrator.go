@@ -4,9 +4,6 @@ import (
 	"github.com/CosmosContracts/juno/v16/x/feeshare/exported"
 	v2 "github.com/CosmosContracts/juno/v16/x/feeshare/migrations/v2"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-  "github.com/cosmos/cosmos-sdk/x/mint/exported"
-
-
 )
 
 // Migrator is a struct for handling in-place state migrations.
