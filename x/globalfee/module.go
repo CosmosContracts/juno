@@ -110,7 +110,7 @@ func (a AppModule) InitGenesis(ctx sdk.Context, marshaler codec.JSONCodec, messa
 	var genesisState types.GenesisState
 	marshaler.MustUnmarshalJSON(message, &genesisState)
 	// a.paramSpace.SetParamSet(ctx, &genesisState.Params)
-	a.keeper.SetParams(ctx, genesisState.Params)
+	_ = a.keeper.SetParams(ctx, genesisState.Params) // note: we may want to have this function return an error in the future.
 	return nil
 }
 
