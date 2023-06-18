@@ -29,6 +29,18 @@ linters:
     - misspell
 
 linters-settings:
+  gci:
+    custom-order: true
+    sections:
+      - standard # Standard section: captures all standard packages.
+      - default # Default section: contains all imports that could not be matched to another section type.
+      - blank # blank imports
+      - dot # dot imports
+      - prefix(github.com/cometbft/cometbft)
+      - prefix(github.com/cosmos)
+      - prefix(cosmossdk.io)
+      - prefix(github.com/cosmos/cosmos-sdk)
+      - prefix(github.com/CosmosContracts/juno)
   gosec:
     excludes:
       - G404
