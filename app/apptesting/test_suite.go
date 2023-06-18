@@ -6,12 +6,17 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	"github.com/cometbft/cometbft/libs/log"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -23,16 +28,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
-	authzcodec "github.com/CosmosContracts/juno/v16/x/tokenfactory/types/authzcodec"
 
 	"github.com/CosmosContracts/juno/v16/app"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	appparams "github.com/CosmosContracts/juno/v16/app/params"
+	authzcodec "github.com/CosmosContracts/juno/v16/x/tokenfactory/types/authzcodec"
 )
 
 type KeeperTestHelper struct {

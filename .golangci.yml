@@ -12,6 +12,7 @@ linters:
     - goconst
     - gocritic
     - gofumpt
+    - gci
     - revive
     - gosec
     - gosimple
