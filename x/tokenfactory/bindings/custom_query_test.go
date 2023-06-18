@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
+	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/stretchr/testify/require"
 
-	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v16/app"

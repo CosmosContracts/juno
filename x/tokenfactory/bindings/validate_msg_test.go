@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	wasmbinding "github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
 	bindings "github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings/types"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestCreateDenom(t *testing.T) {
