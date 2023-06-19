@@ -6,20 +6,21 @@ import (
 	"testing"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/stretchr/testify/require"
+
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/snapshots"
-	"github.com/stretchr/testify/require"
-
-	junoapp "github.com/CosmosContracts/juno/v16/app"
-
-	"github.com/CosmosContracts/juno/v16/x/mint/types"
 	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	junoapp "github.com/CosmosContracts/juno/v16/app"
+	"github.com/CosmosContracts/juno/v16/x/mint/types"
 )
 
 // returns context and an app with updated mint keeper

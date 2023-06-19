@@ -13,23 +13,23 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gorilla/mux"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/gorilla/mux"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
-
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/exported"
-
-	simulation "github.com/CosmosContracts/juno/v16/x/tokenfactory/simulation"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/exported"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
+	simulation "github.com/CosmosContracts/juno/v16/x/tokenfactory/simulation"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 

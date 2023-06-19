@@ -5,21 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v16/x/mint/client/cli"
-	"github.com/CosmosContracts/juno/v16/x/mint/exported"
-	"github.com/CosmosContracts/juno/v16/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v16/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v16/x/mint/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+
+	"github.com/CosmosContracts/juno/v16/x/mint/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/mint/exported"
+	"github.com/CosmosContracts/juno/v16/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v16/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v16/x/mint/types"
 )
 
 var (

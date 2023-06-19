@@ -6,11 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
 	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	apphelpers "github.com/CosmosContracts/juno/v16/app/helpers"
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
+	"github.com/stretchr/testify/require"
+
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto"
@@ -18,6 +17,9 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+
+	"cosmossdk.io/math"
+
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -30,7 +32,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/require"
+
+	apphelpers "github.com/CosmosContracts/juno/v16/app/helpers"
+	appparams "github.com/CosmosContracts/juno/v16/app/params"
 )
 
 // SimAppChainID hardcoded chainID for simulation

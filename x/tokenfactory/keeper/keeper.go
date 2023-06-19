@@ -9,10 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
 type (

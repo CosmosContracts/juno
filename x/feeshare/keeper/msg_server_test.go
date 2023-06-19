@@ -2,12 +2,15 @@ package keeper_test
 
 import (
 	"crypto/sha256"
-	_ "embed"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
+
+	_ "embed"
+
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
 //go:embed testdata/reflect.wasm
