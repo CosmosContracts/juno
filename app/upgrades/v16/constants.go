@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/nft"
 
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
+	globalfeettypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.
@@ -21,6 +22,7 @@ var Upgrade = upgrades.Upgrade{
 		Added: []string{
 			// new module
 			icqtypes.ModuleName,
+			globalfeettypes.ModuleName,
 
 			// v47 module upgrades
 			crisistypes.ModuleName,
