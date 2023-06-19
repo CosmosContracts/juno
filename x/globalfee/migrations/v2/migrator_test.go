@@ -36,11 +36,18 @@ func TestMigrate(t *testing.T) {
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	store := ctx.KVStore(storeKey)
 
-	legacySubspace := newMockSubspace(types.DefaultParams())
+	params := types.Params{
+		MinimumGasPrices: sdk.DecCoins{
+			sdk.NewDecCoinFromDec("ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9", sdk.NewDecWithPrec(3, 3)),
+			sdk.NewDecCoinFromDec("ujuno", sdk.NewDecWithPrec(75, 3)),
+		},
+	}
+
+	legacySubspace := newMockSubspace(params)
 	require.NoError(t, v2.Migrate(ctx, store, legacySubspace, cdc))
 
 	var res types.Params
 	bz := store.Get(v2.ParamsKey)
 	require.NoError(t, cdc.Unmarshal(bz, &res))
-	require.Equal(t, types.DefaultParams(), res)
+	require.Equal(t, params, res)
 }
