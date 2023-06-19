@@ -36,7 +36,10 @@ func TestMigrate(t *testing.T) {
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	store := ctx.KVStore(storeKey)
 
-	legacySubspace := newMockSubspace(types.DefaultParams())
+	legacySubspace := newMockSubspace(types.Params{
+		DenomCreationFee:        nil,
+		DenomCreationGasConsume: 2_000_000,
+	})
 	require.NoError(t, v2.Migrate(ctx, store, legacySubspace, cdc))
 
 	var res types.Params
