@@ -15,9 +15,8 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
-
 	appparams "github.com/CosmosContracts/juno/v16/app/params"
+	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
 	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 

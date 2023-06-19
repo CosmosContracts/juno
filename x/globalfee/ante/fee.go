@@ -9,7 +9,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"

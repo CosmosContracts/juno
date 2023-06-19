@@ -1,9 +1,9 @@
 package keeper
 
 import (
-	"github.com/CosmosContracts/juno/v16/x/feeshare/exported"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/CosmosContracts/juno/v16/x/feeshare/exported"
 	v2 "github.com/CosmosContracts/juno/v16/x/feeshare/migrations/v2"
 )
 

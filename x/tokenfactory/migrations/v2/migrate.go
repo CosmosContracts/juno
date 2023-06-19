@@ -1,10 +1,11 @@
 package v2
 
 import (
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/exported"
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/exported"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 const (

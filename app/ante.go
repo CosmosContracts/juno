@@ -8,7 +8,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
 	errorsmod "cosmossdk.io/errors"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -16,11 +15,11 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	decorators "github.com/CosmosContracts/juno/v16/app/decorators"
 	feeshareante "github.com/CosmosContracts/juno/v16/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
-
 	globalfeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
 	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
 )

@@ -32,14 +32,9 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
 
 	"github.com/CosmosContracts/juno/v16/app"
 	appparams "github.com/CosmosContracts/juno/v16/app/params"
-	authzcodec "github.com/CosmosContracts/juno/v16/x/tokenfactory/types/authzcodec"
 )
 
 type KeeperTestHelper struct {

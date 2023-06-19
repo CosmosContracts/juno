@@ -2,11 +2,6 @@ package keepers
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
-	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
@@ -35,6 +30,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
