@@ -22,8 +22,16 @@ func Migrate(
 	legacySubspace exported.Subspace,
 	cdc codec.BinaryCodec,
 ) error {
-	var currParams types.Params
-	legacySubspace.GetParamSet(ctx, &currParams)
+	// TODO: The following breaks for all modules for some reason except FeeShare.
+	// These params matche our mainnet.
+
+	// var currParams types.Params
+	// legacySubspace.GetParamSet(ctx, &currParams)
+
+	currParams := types.Params{
+		DenomCreationFee:        nil,
+		DenomCreationGasConsume: 2_000_000,
+	}
 
 	if err := currParams.Validate(); err != nil {
 		return err
