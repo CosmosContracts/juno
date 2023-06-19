@@ -1,7 +1,10 @@
 package antetest
 
 import (
+	"github.com/stretchr/testify/suite"
+
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -11,13 +14,11 @@ import (
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/suite"
 
 	"github.com/CosmosContracts/juno/v16/app"
-	gaiafeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
-
 	appparams "github.com/CosmosContracts/juno/v16/app/params"
 	"github.com/CosmosContracts/juno/v16/x/globalfee"
+	gaiafeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
 	globfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 

@@ -8,18 +8,28 @@ import (
 	"strconv"
 	"strings"
 
-	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
-	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
-	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/spf13/cast"
 
-	"github.com/CosmosContracts/juno/v16/app/openapiconsole"
-	"github.com/CosmosContracts/juno/v16/docs"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cometbft/cometbft/libs/log"
 	tmos "github.com/cometbft/cometbft/libs/os"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+
+	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -27,6 +37,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -61,6 +72,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/openapiconsole"
 	upgrades "github.com/CosmosContracts/juno/v16/app/upgrades"
 	v10 "github.com/CosmosContracts/juno/v16/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v16/app/upgrades/v11"
@@ -68,6 +80,7 @@ import (
 	v13 "github.com/CosmosContracts/juno/v16/app/upgrades/v13"
 	v14 "github.com/CosmosContracts/juno/v16/app/upgrades/v14"
 	v16 "github.com/CosmosContracts/juno/v16/app/upgrades/v16"
+	"github.com/CosmosContracts/juno/v16/docs"
 )
 
 const (

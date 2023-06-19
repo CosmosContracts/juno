@@ -5,10 +5,10 @@ import (
 
 	"cosmossdk.io/log"
 
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+
 	"github.com/CosmosContracts/juno/v16/app"
 	"github.com/CosmosContracts/juno/v16/cmd/junod/cmd"
-
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 func main() {

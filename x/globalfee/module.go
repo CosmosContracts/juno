@@ -4,16 +4,19 @@ import (
 	"context"
 	"encoding/json"
 
-	errorsmod "cosmossdk.io/errors"
+	"github.com/gorilla/mux"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
 	abci "github.com/cometbft/cometbft/abci/types"
+
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/gorilla/mux"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
 
 	"github.com/CosmosContracts/juno/v16/x/globalfee/client/cli"
 	"github.com/CosmosContracts/juno/v16/x/globalfee/keeper"

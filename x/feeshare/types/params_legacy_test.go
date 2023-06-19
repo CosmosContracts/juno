@@ -3,9 +3,10 @@ package types
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/stretchr/testify/require"
 )
 
 func TestLegacyParamKeyTable(t *testing.T) {

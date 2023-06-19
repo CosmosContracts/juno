@@ -3,12 +3,14 @@ package keeper
 import (
 	"fmt"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
 	"github.com/cometbft/cometbft/libs/log"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	revtypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 )
 
