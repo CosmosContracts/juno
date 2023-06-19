@@ -3,8 +3,9 @@ package v2
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/mint/exported"
-	"github.com/cosmos/cosmos-sdk/x/mint/types"
+
+	"github.com/CosmosContracts/juno/v16/x/mint/exported"
+	"github.com/CosmosContracts/juno/v16/x/mint/types"
 )
 
 const (
@@ -18,13 +19,24 @@ var ParamsKey = []byte{0x01}
 // and managed by the x/params modules and stores them directly into the x/mint
 // module state.
 func Migrate(
-	ctx sdk.Context,
+	_ sdk.Context,
 	store sdk.KVStore,
-	legacySubspace exported.Subspace,
+	_ exported.Subspace,
 	cdc codec.BinaryCodec,
 ) error {
-	var currParams types.Params
-	legacySubspace.GetParamSet(ctx, &currParams)
+	// var currParams types.Params
+	// legacySubspace.GetParamSet(ctx, &currParams)
+
+	denom, err := sdk.GetBaseDenom()
+	if err != nil {
+		denom = "ujuno"
+	}
+
+	// https://juno-api.reece.sh/cosmos/mint/v1beta1/params
+	currParams := types.Params{
+		MintDenom:     denom,
+		BlocksPerYear: 5048093,
+	}
 
 	if err := currParams.Validate(); err != nil {
 		return err
