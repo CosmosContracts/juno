@@ -2,8 +2,9 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/mint/exported"
 
+	"github.com/CosmosContracts/juno/v16/x/mint/exported"
+	v2 "github.com/CosmosContracts/juno/v16/x/mint/migrations/v2"
 	v3 "github.com/CosmosContracts/juno/v16/x/mint/migrations/v3"
 )
 
@@ -18,6 +19,11 @@ func NewMigrator(k Keeper, ss exported.Subspace) Migrator {
 		keeper:         k,
 		legacySubspace: ss,
 	}
+}
+
+// Deprecated: Migrate1to2 was an old upgrade.
+func (m Migrator) Migrate1to2(ctx sdk.Context) error {
+	return v2.Migrate(ctx, ctx.KVStore(m.keeper.storeKey), m.keeper.cdc)
 }
 
 // Migrate1to2 migrates the x/mint module state from the consensus version 2 to

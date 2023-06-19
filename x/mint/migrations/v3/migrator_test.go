@@ -8,10 +8,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/cosmos/cosmos-sdk/x/mint"
-	"github.com/cosmos/cosmos-sdk/x/mint/exported"
-	v2 "github.com/cosmos/cosmos-sdk/x/mint/migrations/v2"
-	"github.com/cosmos/cosmos-sdk/x/mint/types"
+
+	"github.com/CosmosContracts/juno/v16/x/mint"
+	"github.com/CosmosContracts/juno/v16/x/mint/exported"
+	v3 "github.com/CosmosContracts/juno/v16/x/mint/migrations/v3"
+	"github.com/CosmosContracts/juno/v16/x/mint/types"
 )
 
 type mockSubspace struct {
@@ -30,16 +31,19 @@ func TestMigrate(t *testing.T) {
 	encCfg := moduletestutil.MakeTestEncodingConfig(mint.AppModuleBasic{})
 	cdc := encCfg.Codec
 
-	storeKey := sdk.NewKVStoreKey(v2.ModuleName)
+	storeKey := sdk.NewKVStoreKey(v3.ModuleName)
 	tKey := sdk.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	store := ctx.KVStore(storeKey)
 
-	legacySubspace := newMockSubspace(types.DefaultParams())
-	require.NoError(t, v2.Migrate(ctx, store, legacySubspace, cdc))
+	legacySubspace := newMockSubspace(types.Params{
+		MintDenom:     "ujuno",
+		BlocksPerYear: 5048093,
+	})
+	require.NoError(t, v3.Migrate(ctx, store, legacySubspace, cdc))
 
 	var res types.Params
-	bz := store.Get(v2.ParamsKey)
+	bz := store.Get(v3.ParamsKey)
 	require.NoError(t, cdc.Unmarshal(bz, &res))
 	require.Equal(t, legacySubspace.ps, res)
 }

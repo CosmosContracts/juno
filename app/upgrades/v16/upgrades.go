@@ -1,4 +1,4 @@
-package v15
+package v16
 
 import (
 	"fmt"
@@ -36,9 +36,6 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
-
-// We now charge 2 million gas * gas price to create a denom.
-const NewDenomCreationGasConsume uint64 = 2_000_000
 
 func CreateV16UpgradeHandler(
 	mm *module.Manager,
@@ -90,9 +87,11 @@ func CreateV16UpgradeHandler(
 				keyTable = icahosttypes.ParamKeyTable()
 			case icacontrollertypes.SubModuleName:
 				keyTable = icacontrollertypes.ParamKeyTable()
+
 			// wasm
 			case wasmtypes.ModuleName:
 				keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
+
 			// juno modules
 			case feesharetypes.ModuleName:
 				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
@@ -136,17 +135,6 @@ func CreateV16UpgradeHandler(
 		if err := keepers.GovKeeper.SetParams(ctx, govParams); err != nil {
 			return nil, err
 		}
-
-		// x/TokenFactory
-		// Use denom creation gas consumtion instead of fee for contract developers
-		updatedTf := tokenfactorytypes.Params{
-			DenomCreationFee:        nil,
-			DenomCreationGasConsume: NewDenomCreationGasConsume,
-		}
-		if err := keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf); err != nil {
-			return nil, err
-		}
-		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
 
 		// x/Staking - set minimum commission to 0.050000000000000000
 		stakingParams := keepers.StakingKeeper.GetParams(ctx)
