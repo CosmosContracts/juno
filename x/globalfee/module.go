@@ -30,8 +30,8 @@ var (
 	_ module.AppModule        = AppModule{}
 )
 
-// ConsensusVersion defines the current x/mint module consensus version.
-const ConsensusVersion = 2
+// ConsensusVersion defines the current x/globalfee module consensus version.
+const ConsensusVersion = 1
 
 // AppModuleBasic defines the basic application module used by the wasm module.
 type AppModuleBasic struct {
