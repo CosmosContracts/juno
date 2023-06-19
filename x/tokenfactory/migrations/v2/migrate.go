@@ -17,9 +17,9 @@ var ParamsKey = []byte{0x00}
 // and managed by the x/params modules and stores them directly into the x/tokenfactory
 // module state.
 func Migrate(
-	ctx sdk.Context,
+	_ sdk.Context,
 	store sdk.KVStore,
-	legacySubspace exported.Subspace,
+	_ exported.Subspace,
 	cdc codec.BinaryCodec,
 ) error {
 	// TODO: The following breaks for all modules for some reason except FeeShare.
