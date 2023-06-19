@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/CosmosContracts/juno/v16/app/apptesting"
-
 	v16 "github.com/CosmosContracts/juno/v16/app/upgrades/v16"
 )
 

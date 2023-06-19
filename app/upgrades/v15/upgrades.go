@@ -3,13 +3,12 @@ package v15
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v16/app/keepers"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	"github.com/CosmosContracts/juno/v16/app/keepers"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 // We now charge 2 million gas * gas price to create a denom.

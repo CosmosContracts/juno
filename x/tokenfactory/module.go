@@ -27,6 +27,7 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/exported"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
 	simulation "github.com/CosmosContracts/juno/v16/x/tokenfactory/simulation"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
