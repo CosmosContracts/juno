@@ -1,10 +1,11 @@
 package v14
 
 import (
+	store "github.com/cosmos/cosmos-sdk/store/types"
+
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	"github.com/CosmosContracts/juno/v16/x/globalfee"
 	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
-	store "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.

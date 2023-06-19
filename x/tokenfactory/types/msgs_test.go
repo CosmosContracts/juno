@@ -4,14 +4,15 @@ import (
 	fmt "fmt"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cometbft/cometbft/crypto/ed25519"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/testhelpers"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-
-	"github.com/cometbft/cometbft/crypto/ed25519"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 // Test authz serialize and de-serializes for tokenfactory msg.

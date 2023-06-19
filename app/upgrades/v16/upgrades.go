@@ -3,18 +3,18 @@ package v16
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v16/app/keepers"
-	"github.com/cosmos/cosmos-sdk/baseapp"
-
-	"github.com/CosmosContracts/juno/v16/app/upgrades"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-
+	// External modules
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
+	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	// SDK v47 modules
 	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -26,16 +26,13 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	// External modules
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
-	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
-
+	"github.com/CosmosContracts/juno/v16/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 func CreateV16UpgradeHandler(
