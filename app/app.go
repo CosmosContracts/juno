@@ -69,6 +69,7 @@ import (
 	v12 "github.com/CosmosContracts/juno/v16/app/upgrades/v12"
 	v13 "github.com/CosmosContracts/juno/v16/app/upgrades/v13"
 	v14 "github.com/CosmosContracts/juno/v16/app/upgrades/v14"
+	v15 "github.com/CosmosContracts/juno/v16/app/upgrades/v15"
 	v16 "github.com/CosmosContracts/juno/v16/app/upgrades/v16"
 	"github.com/CosmosContracts/juno/v16/docs"
 	"github.com/CosmosContracts/juno/v16/x/globalfee"
@@ -92,7 +93,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v16.Upgrade}
+	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v15.Upgrade, v16.Upgrade}
 )
 
 // These constants are derived from the above variables.

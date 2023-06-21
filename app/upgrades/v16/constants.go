@@ -1,4 +1,4 @@
-package v15
+package v16
 
 import (
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"

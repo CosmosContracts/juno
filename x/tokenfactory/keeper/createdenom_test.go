@@ -133,7 +133,9 @@ func (suite *KeeperTestSuite) TestCreateDenom() {
 			tokenFactoryKeeper := suite.App.AppKeepers.TokenFactoryKeeper
 			bankKeeper := suite.App.AppKeepers.BankKeeper
 			// Set denom creation fee in params
-			tokenFactoryKeeper.SetParams(suite.Ctx, tc.denomCreationFee)
+			if err := tokenFactoryKeeper.SetParams(suite.Ctx, tc.denomCreationFee); err != nil {
+				suite.Require().NoError(err)
+			}
 			denomCreationFee := tokenFactoryKeeper.GetParams(suite.Ctx).DenomCreationFee
 			suite.Require().Equal(tc.denomCreationFee.DenomCreationFee, denomCreationFee)
 

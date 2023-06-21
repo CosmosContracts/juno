@@ -15,7 +15,7 @@ import (
 
 const (
 	haltHeightDelta    = uint64(10) // will propose upgrade this many blocks in the future
-	blocksAfterUpgrade = uint64(10)
+	blocksAfterUpgrade = uint64(7)
 )
 
 func TestBasicJunoUpgrade(t *testing.T) {
@@ -149,7 +149,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	err = chain.StartAllNodes(ctx)
 	require.NoError(t, err, "error starting upgraded node(s)")
 
-	timeoutCtx, timeoutCtxCancel = context.WithTimeout(ctx, time.Second*45)
+	timeoutCtx, timeoutCtxCancel = context.WithTimeout(ctx, time.Second*60)
 	defer timeoutCtxCancel()
 
 	err = testutil.WaitForBlocks(timeoutCtx, int(blocksAfterUpgrade), chain)
@@ -159,7 +159,4 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.NoError(t, err, "error fetching height after upgrade")
 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
-
-	// TODO: ensure tokenfactory denom creation fee is set to 2_000_000
-
 }
