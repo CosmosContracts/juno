@@ -32,6 +32,7 @@ import (
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
@@ -95,6 +96,8 @@ func CreateV16UpgradeHandler(
 				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
 			case tokenfactorytypes.ModuleName:
 				keyTable = tokenfactorytypes.ParamKeyTable() //nolint:staticcheck
+			case minttypes.ModuleName:
+				keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
 
 			}
 
