@@ -2,6 +2,7 @@ package interchaintest
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -58,7 +59,6 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 			ChainName: chainName,
 			Version:   initialVersion,
 			ChainConfig: ibc.ChainConfig{
-				ModifyGenesis: cosmos.ModifyGenesis(genesisKVs),
 				Images: []ibc.DockerImage{
 					{
 						Repository: JunoE2ERepo,
@@ -66,6 +66,8 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 						UidGid:     JunoImage.UidGid,
 					},
 				},
+				GasPrices:     fmt.Sprintf("0%s", Denom),
+				ModifyGenesis: cosmos.ModifyGenesis(genesisKVs),
 			},
 		},
 	})
