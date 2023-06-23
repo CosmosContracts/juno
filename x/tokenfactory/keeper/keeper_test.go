@@ -8,6 +8,7 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/CosmosContracts/juno/v16/app/apptesting"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
@@ -17,8 +18,9 @@ import (
 type KeeperTestSuite struct {
 	apptesting.KeeperTestHelper
 
-	queryClient types.QueryClient
-	msgServer   types.MsgServer
+	queryClient     types.QueryClient
+	bankQueryClient banktypes.QueryClient
+	msgServer       types.MsgServer
 	// defaultDenom is on the suite, as it depends on the creator test address.
 	defaultDenom string
 }
@@ -37,6 +39,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	}
 
 	suite.queryClient = types.NewQueryClient(suite.QueryHelper)
+	suite.bankQueryClient = banktypes.NewQueryClient(suite.QueryHelper)
 	suite.msgServer = keeper.NewMsgServerImpl(suite.App.AppKeepers.TokenFactoryKeeper)
 }
 

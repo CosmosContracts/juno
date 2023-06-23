@@ -28,6 +28,7 @@ func (ms mockSubspace) GetParamSet(_ sdk.Context, ps exported.ParamSet) {
 }
 
 func TestMigrate(t *testing.T) {
+	// x/param conversion
 	encCfg := moduletestutil.MakeTestEncodingConfig(tokenfactory.AppModuleBasic{})
 	cdc := encCfg.Codec
 
