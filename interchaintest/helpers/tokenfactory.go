@@ -3,6 +3,7 @@ package helpers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -96,7 +97,7 @@ func MintToTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Co
 
 func UpdateTokenFactoryMetadata(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, admin ibc.Wallet, fullDenom, ticker, desc, exponent string) {
 	// junod tx tokenfactory modify-metadata [denom] [ticker-symbol] [description] [exponent]
-	cmd := []string{"junod", "tx", "tokenfactory", "modify-metadata", fullDenom, ticker, desc, exponent,
+	cmd := []string{"junod", "tx", "tokenfactory", "modify-metadata", fullDenom, ticker, fmt.Sprintf("'%s'", desc), exponent,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
