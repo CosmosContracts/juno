@@ -88,7 +88,7 @@ var (
 		GasAdjustment:          2.0,
 		TrustingPeriod:         "112h",
 		NoHostMount:            false,
-		ConfigFileOverrides:    FasterBlockTimesBuilder("500ms"),
+		ConfigFileOverrides:    FasterBlockTimesBuilder("1s"),
 		EncodingConfig:         junoEncoding(),
 		UsingNewGenesisCommand: true,
 		ModifyGenesis:          cosmos.ModifyGenesis(defaultGenesisKV),
