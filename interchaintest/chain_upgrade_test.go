@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -96,6 +97,21 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, chain)
 	chainUser := users[0]
 
+	// create a tokenfactory denom before upgrade (invalid genesis for hard forking due to x/bank validation)
+	emptyFullDenom := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "empty")
+
+	mintedDenom := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "minted")
+	helpers.MintToTokenFactoryDenom(t, ctx, chain, chainUser, chainUser, 100, mintedDenom)
+
+	mintedAndModified := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "mandm")
+	helpers.MintToTokenFactoryDenom(t, ctx, chain, chainUser, chainUser, 100, mintedAndModified)
+	helpers.UpdateTokenFactoryMetadata(t, ctx, chain, chainUser, mintedAndModified, "ticker", "", "6")
+
+	helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, emptyFullDenom)
+	helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, mintedDenom)
+	helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, mintedAndModified)
+
+	// upgrade
 	height, err := chain.Height(ctx)
 	require.NoError(t, err, "error fetching height before submit upgrade proposal")
 
@@ -159,4 +175,13 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.NoError(t, err, "error fetching height after upgrade")
 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
+
+	// Check that the tokenfactory denom's properly migrated
+	helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, emptyFullDenom)
+	helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, mintedDenom)
+	helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, mintedAndModified)
+
+	// Ensure new denoms are created correctly.
+	afterUpgrade := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "post")
+	helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, afterUpgrade)
 }

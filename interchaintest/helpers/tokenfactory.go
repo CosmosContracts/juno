@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -92,6 +94,26 @@ func MintToTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Co
 	require.NoError(t, err)
 }
 
+func UpdateTokenFactoryMetadata(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, admin ibc.Wallet, fullDenom, ticker, desc, exponent string) {
+	// junod tx tokenfactory modify-metadata [denom] [ticker-symbol] [description] [exponent]
+	cmd := []string{"junod", "tx", "tokenfactory", "modify-metadata", fullDenom, ticker, desc, exponent,
+		"--node", chain.GetRPCAddress(),
+		"--home", chain.HomeDir(),
+		"--chain-id", chain.Config().ChainID,
+		"--from", admin.KeyName(),
+		"--keyring-dir", chain.HomeDir(),
+		"--keyring-backend", keyring.BackendTest,
+		"-y",
+	}
+	stdout, _, err := chain.Exec(ctx, cmd, nil)
+	require.NoError(t, err)
+
+	debugOutput(t, string(stdout))
+
+	err = testutil.WaitForBlocks(ctx, 2, chain)
+	require.NoError(t, err)
+}
+
 func TransferTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, currentAdmin ibc.Wallet, newAdminBech32 string, fullDenom string) {
 	cmd := []string{"junod", "tx", "tokenfactory", "change-admin", fullDenom, newAdminBech32,
 		"--node", chain.GetRPCAddress(),
@@ -114,10 +136,6 @@ func TransferTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.
 // Getters
 func GetTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, fullDenom string) string {
 	// $BINARY q tokenfactory denom-authority-metadata $FULL_DENOM
-
-	// tokenfactorytypes.QueryDenomAuthorityMetadataRequest{
-	// 	Denom: fullDenom,
-	// }
 	cmd := []string{"junod", "query", "tokenfactory", "denom-authority-metadata", fullDenom,
 		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
@@ -128,15 +146,29 @@ func GetTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 
 	debugOutput(t, string(stdout))
 
-	// results := &tokenfactorytypes.DenomAuthorityMetadata{}
 	results := &tokenfactorytypes.QueryDenomAuthorityMetadataResponse{}
 	err = json.Unmarshal(stdout, results)
 	require.NoError(t, err)
 
 	t.Log(results)
 
-	// tokenfactorytypes.DenomAuthorityMetadata{
-	// 	Admin: ...,
-	// }
 	return results.AuthorityMetadata.Admin
+}
+
+func GetTokenFactoryDenomMetadata(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, fullDenom string) banktypes.Metadata {
+	cmd := []string{"junod", "query", "bank", "denom-metadata", "--denom", fullDenom,
+		"--node", chain.GetRPCAddress(),
+		"--chain-id", chain.Config().ChainID,
+		"--output", "json",
+	}
+	stdout, _, err := chain.Exec(ctx, cmd, nil)
+	require.NoError(t, err)
+
+	results := &banktypes.QueryDenomMetadataResponse{}
+	err = json.Unmarshal(stdout, results)
+	require.NoError(t, err)
+
+	t.Log(results)
+
+	return results.Metadata
 }
