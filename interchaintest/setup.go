@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
@@ -16,12 +17,28 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
+	ictestuil "github.com/strangelove-ventures/interchaintest/v7/testutil"
 
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 )
+
+func FasterBlockTimesBuilder(blockTime string) ictestuil.Toml {
+	if _, err := time.ParseDuration(blockTime); err != nil {
+		panic(err)
+	}
+
+	tomlCfg := ictestuil.Toml{
+		"consensus": ictestuil.Toml{
+			"timeout_commit":  blockTime,
+			"timeout_propose": blockTime,
+		},
+	}
+
+	return ictestuil.Toml{"config/config.toml": tomlCfg}
+}
 
 var (
 	VotingPeriod     = "15s"
@@ -71,7 +88,7 @@ var (
 		GasAdjustment:          2.0,
 		TrustingPeriod:         "112h",
 		NoHostMount:            false,
-		ConfigFileOverrides:    nil,
+		ConfigFileOverrides:    FasterBlockTimesBuilder("500ms"),
 		EncodingConfig:         junoEncoding(),
 		UsingNewGenesisCommand: true,
 		ModifyGenesis:          cosmos.ModifyGenesis(defaultGenesisKV),

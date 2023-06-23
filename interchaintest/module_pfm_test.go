@@ -48,24 +48,7 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 	)
 
 	// base config which all networks will use as defaults.
-	baseCfg := ibc.ChainConfig{
-		Type:                   "cosmos",
-		Name:                   "juno",
-		ChainID:                "", // change this for each
-		Images:                 []ibc.DockerImage{JunoImage},
-		Bin:                    "junod",
-		Bech32Prefix:           "juno",
-		Denom:                  "ujuno",
-		CoinType:               "118",
-		GasPrices:              "0ujuno",
-		GasAdjustment:          2.0,
-		TrustingPeriod:         "112h",
-		NoHostMount:            false,
-		ConfigFileOverrides:    nil,
-		EncodingConfig:         junoEncoding(),
-		UsingNewGenesisCommand: true,
-		ModifyGenesis:          cosmos.ModifyGenesis(defaultGenesisKV),
-	}
+	baseCfg := junoConfig
 
 	// Set specific chain ids for each so they are their own unique networks
 	baseCfg.ChainID = chainID_A

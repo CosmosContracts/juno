@@ -1,1 +1,4 @@
 build/
+interchaintest/
+.mypy_cache/
+.github/
