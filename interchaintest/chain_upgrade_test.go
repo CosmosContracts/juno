@@ -49,6 +49,19 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 			Key:   "app_state.gov.deposit_params.min_deposit.0.denom",
 			Value: Denom,
 		},
+		// fix skip x/pob
+		{			
+			Key:   "app_state.builder.params.escrow_account_address",
+			Value: "juno10r39fueph9fq7a6lgswu4zdsg8t3gxlq670lt0",
+		},
+		{
+			Key:   "app_state.builder.params.reserve_fee.denom",
+			Value: Denom,
+		},
+		{
+			Key:   "app_state.builder.params.min_bid_increment.denom",
+			Value: Denom,
+		},
 	}
 
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{

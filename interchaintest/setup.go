@@ -27,6 +27,7 @@ var (
 	VotingPeriod     = "15s"
 	MaxDepositPeriod = "10s"
 	Denom            = "ujuno"
+	AccAddr          = "juno10r39fueph9fq7a6lgswu4zdsg8t3gxlq670lt0"
 
 	JunoE2ERepo  = "ghcr.io/cosmoscontracts/juno-e2e"
 	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
@@ -54,6 +55,18 @@ var (
 		},
 		{
 			Key:   "app_state.gov.params.min_deposit.0.denom",
+			Value: Denom,
+		},
+		{
+			Key:   "app_state.builder.params.escrow_account_address",
+			Value: AccAddr,
+		},
+		{
+			Key:   "app_state.builder.params.reserve_fee.denom",
+			Value: Denom,
+		},
+		{
+			Key:   "app_state.builder.params.min_bid_increment.denom",
 			Value: Denom,
 		},
 	}
@@ -94,11 +107,6 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	//github.com/cosmos/cosmos-sdk/types/module/testutil
 
 	return &cfg
-}
-
-// This allows for us to test
-func FundSpecificUsers() {
-
 }
 
 // Base chain, no relaying off this branch (or juno:local if no branch is provided.)
