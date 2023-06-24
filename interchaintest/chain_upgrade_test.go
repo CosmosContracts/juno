@@ -133,8 +133,9 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	modifiedRes := helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, mintedAndModified)
 	require.Equal(t, modifiedRes.DenomUnits[0].Denom, mintedAndModified)
 	require.Equal(t, modifiedRes.Base, mintedAndModified)
-	// require.Equal(t, res.Display, ticker)
-	// require.Equal(t, res.Symbol, ticker)
+	require.Equal(t, modifiedRes.Name, mintedAndModified)
+	require.Equal(t, modifiedRes.Symbol, ticker)
+	require.NotEmpty(t, modifiedRes.Description)
 
 	// upgrade
 	height, err := chain.Height(ctx)
@@ -220,7 +221,10 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	postModified := helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, mintedAndModified)
 	require.Equal(t, postModified, modifiedRes)
 
-	// Ensure new denoms are created correctly.
+	// Ensure after the upgrade, the denoms are properly set with the Denom Metadata.
 	afterUpgrade := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "post")
-	helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, afterUpgrade)
+	newRes := helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, afterUpgrade)
+	require.Equal(t, newRes.Display, afterUpgrade)
+	require.Equal(t, newRes.Name, afterUpgrade)
+	require.Equal(t, newRes.Symbol, afterUpgrade)
 }
