@@ -12,6 +12,11 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/skip-mev/pob/blockbuster"
+	skipabci "github.com/skip-mev/pob/blockbuster/abci"
+	"github.com/skip-mev/pob/blockbuster/lanes/auction"
+	"github.com/skip-mev/pob/blockbuster/lanes/base"
+	"github.com/skip-mev/pob/blockbuster/lanes/free"
 	"github.com/spf13/cast"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -235,12 +240,16 @@ func New(
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 	txConfig := encodingConfig.TxConfig
 
-	bApp := baseapp.NewBaseApp(Name, logger, db, txConfig.TxDecoder(), baseAppOptions...)
+	txDecoder := txConfig.TxDecoder()
+	txEncoder := txConfig.TxEncoder()
+
+	bApp := baseapp.NewBaseApp(Name, logger, db, txDecoder, baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
-	bApp.SetTxEncoder(txConfig.TxEncoder())
+	bApp.SetTxEncoder(txEncoder)
 
+	// Create App
 	app := &App{
 		BaseApp:           bApp,
 		legacyAmino:       legacyAmino,
@@ -262,6 +271,53 @@ func New(
 		wasmOpts,
 	)
 	app.keys = app.AppKeepers.GetKVStoreKey()
+
+	// Set POB's mempool into the app. (x/pob module)
+	config := blockbuster.BaseLaneConfig{
+		Logger:        app.Logger(),
+		TxEncoder:     txEncoder,
+		TxDecoder:     txDecoder,
+		MaxBlockSpace: sdk.ZeroDec(),
+	}
+
+	// Create the lanes.
+	//
+	// NOTE: The lanes are ordered by priority. The first lane is the highest priority
+	// lane and the last lane is the lowest priority lane.
+
+	// Top of block lane allows transactions to bid for inclusion at the top of the next block.
+	tobLane := auction.NewTOBLane(
+		config,
+		0,
+		auction.NewDefaultAuctionFactory(app.txConfig.TxDecoder()),
+	)
+
+	// Free lane allows transactions to be included in the next block for free.
+	freeLane := free.NewFreeLane(
+		config,
+		free.NewDefaultFreeFactory(app.txConfig.TxDecoder()),
+	)
+
+	// Default lane accepts all other transactions.
+	defaultConfig := blockbuster.BaseLaneConfig{
+		Logger:        app.Logger(),
+		TxEncoder:     app.txConfig.TxEncoder(),
+		TxDecoder:     app.txConfig.TxDecoder(),
+		MaxBlockSpace: sdk.ZeroDec(),
+		IgnoreList: []blockbuster.Lane{
+			tobLane,
+			freeLane,
+		},
+	}
+	defaultLane := base.NewDefaultLane(defaultConfig)
+	lanes := []blockbuster.Lane{
+		tobLane,
+		freeLane,
+		defaultLane,
+	}
+
+	mempool := blockbuster.NewMempool(lanes...)
+	app.SetMempool(mempool)
 
 	// load state streaming if enabled
 	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, app.keys); err != nil {
@@ -347,11 +403,41 @@ func New(
 
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
 			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
+
+			BuilderKeeper: app.AppKeepers.BuilderKeeper,
+			TxEncoder:     txEncoder,
+			Mempool:       mempool,
+			TOBLane:       tobLane,
 		},
 	)
 	if err != nil {
 		panic(err)
 	}
+
+	// Set the lane config on the lanes.
+	for _, lane := range lanes {
+		lane.SetAnteHandler(anteHandler)
+	}
+
+	// Set the proposal handlers on the BaseApp along with the custom antehandler.
+	proposalHandlers := skipabci.NewProposalHandler(
+		app.Logger(),
+		txDecoder,
+		mempool,
+	)
+	app.SetPrepareProposal(proposalHandlers.PrepareProposalHandler())
+	app.SetProcessProposal(proposalHandlers.ProcessProposalHandler())
+	app.SetAnteHandler(anteHandler)
+
+	// Set the custom CheckTx handler on BaseApp.
+	checkTxHandler := skipabci.NewCheckTxHandler(
+		app,
+		app.txConfig.TxDecoder(),
+		tobLane,
+		anteHandler,
+		"juno-1", // TODO: umm? How to handle for Uni-6 and localjuno-1???
+	)
+	app.SetCheckTx(checkTxHandler.CheckTx())
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -442,6 +528,19 @@ func (app *App) setPostHandler() {
 	}
 
 	app.SetPostHandler(postHandler)
+}
+
+// CheckTx will check the transaction with the provided checkTxHandler. We override the default
+// handler so that we can verify bid transactions before they are inserted into the mempool.
+// With the POB CheckTx, we can verify the bid transaction and all of the bundled transactions
+// before inserting the bid transaction into the mempool.
+func (app *App) CheckTx(req abci.RequestCheckTx) abci.ResponseCheckTx {
+	return app.AppKeepers.CheckTxHandler(req)
+}
+
+// SetCheckTx sets the checkTxHandler for the app.
+func (app *App) SetCheckTx(handler skipabci.CheckTx) {
+	app.AppKeepers.CheckTxHandler = handler
 }
 
 // Name returns the name of the App

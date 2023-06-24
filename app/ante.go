@@ -3,6 +3,9 @@ package app
 import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/skip-mev/pob/blockbuster"
+	builderante "github.com/skip-mev/pob/x/builder/ante"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
@@ -39,6 +42,11 @@ type HandlerOptions struct {
 	Cdc               codec.BinaryCodec
 	StakingSubspace   paramtypes.Subspace
 
+	BuilderKeeper builderkeeper.Keeper
+	TxEncoder     sdk.TxEncoder
+	Mempool       blockbuster.Mempool
+	TOBLane       builderante.TOBLane
+
 	BypassMinFeeMsgTypes []string
 	GlobalFeeSubspace    paramtypes.Subspace
 }
@@ -59,9 +67,8 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
 
-	sigGasConsumer := options.SigGasConsumer
-	if sigGasConsumer == nil {
-		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
+	if options.SigGasConsumer == nil {
+		options.SigGasConsumer = ante.DefaultSigVerificationGasConsumer
 	}
 
 	anteDecorators := []sdk.AnteDecorator{
@@ -80,10 +87,11 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		ante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
+		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
+		builderante.NewBuilderDecorator(options.BuilderKeeper, options.TxEncoder, options.TOBLane, options.Mempool),
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
