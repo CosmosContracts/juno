@@ -3,6 +3,8 @@ package app
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/skip-mev/pob/x/builder"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
@@ -102,6 +104,7 @@ var ModuleBasics = module.NewBasicManager(
 	globalfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
+	builder.AppModuleBasic{},
 )
 
 func appModules(
@@ -143,6 +146,7 @@ func appModules(
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
+		builder.NewAppModule(appCodec, app.AppKeepers.BuilderKeeper),
 		// IBC modules
 		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -214,6 +218,7 @@ func orderBeginBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		buildertypes.ModuleName,
 	}
 }
 
@@ -249,6 +254,7 @@ func orderEndBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		buildertypes.ModuleName,
 	}
 }
 
@@ -284,5 +290,6 @@ func orderInitBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		buildertypes.ModuleName,
 	}
 }

@@ -1,6 +1,7 @@
 package v16
 
 import (
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
 	store "github.com/cosmos/cosmos-sdk/store/types"
@@ -20,6 +21,7 @@ var Upgrade = upgrades.Upgrade{
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
 			// new module
+			buildertypes.ModuleName,
 			icqtypes.ModuleName,
 
 			// v47 module upgrades

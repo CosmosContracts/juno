@@ -2,6 +2,7 @@ package keepers
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
@@ -50,6 +51,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
 		tokenfactorytypes.StoreKey, feesharetypes.StoreKey,
+		buildertypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)

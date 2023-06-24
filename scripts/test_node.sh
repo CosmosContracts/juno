@@ -66,6 +66,10 @@ from_scratch () {
   update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="ujuno"'  
   # crisis
   update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ujuno","amount": "1000"}'  
+  # skip x/pob (Protocol-Owned Builder)
+  update_test_genesis '.app_state["builder"]["params"]["escrow_account_address"]="juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk"'  
+  update_test_genesis '.app_state["builder"]["params"]["reserve_fee"]["denom"]="ujuno"'  
+  update_test_genesis '.app_state["builder"]["params"]["min_bid_increment"]["denom"]="ujuno"'  
 
   # Custom Modules
   # GlobalFee

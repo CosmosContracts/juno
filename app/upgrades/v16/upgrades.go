@@ -5,6 +5,7 @@ import (
 
 	// External modules
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
@@ -137,6 +138,21 @@ func CreateV16UpgradeHandler(
 		stakingParams := keepers.StakingKeeper.GetParams(ctx)
 		stakingParams.MinCommissionRate = sdk.NewDecWithPrec(5, 2)
 		err = keepers.StakingKeeper.SetParams(ctx, stakingParams)
+		if err != nil {
+			return nil, err
+		}
+
+		// x/pob (SkipMev)
+		err = keepers.BuilderKeeper.SetParams(ctx, buildertypes.Params{
+			MaxBundleSize: 2,
+			// TODO: What address do we want here? Should it be a subDAO (Core-1 for now)?
+			// Worried about community pool because invariance.
+			EscrowAccountAddress:   "juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3",
+			ReserveFee:             sdk.NewCoin(nativeDenom, sdk.NewInt(0)),
+			MinBidIncrement:        sdk.NewCoin(nativeDenom, sdk.NewInt(0)),
+			FrontRunningProtection: true,
+			ProposerFee:            sdk.NewDec(0),
+		})
 		if err != nil {
 			return nil, err
 		}

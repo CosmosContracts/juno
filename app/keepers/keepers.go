@@ -5,6 +5,9 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	skipabci "github.com/skip-mev/pob/blockbuster/abci"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 	"github.com/spf13/cast"
 	icq "github.com/strangelove-ventures/async-icq/v7"
 	icqkeeper "github.com/strangelove-ventures/async-icq/v7/keeper"
@@ -114,6 +117,7 @@ var maccPerms = map[string][]string{
 	ibcfeetypes.ModuleName:         nil,
 	wasm.ModuleName:                {authtypes.Burner},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
+	buildertypes.ModuleName:        nil,
 }
 
 type AppKeepers struct {
@@ -147,6 +151,10 @@ type AppKeepers struct {
 	FeeShareKeeper        feesharekeeper.Keeper
 	ContractKeeper        *wasmkeeper.PermissionedKeeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
+	BuilderKeeper         builderkeeper.Keeper
+
+	// set in app.go on initialization
+	CheckTxHandler skipabci.CheckTx
 
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
@@ -522,6 +530,16 @@ func NewAppKeepers(
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
+		govModAddress,
+	)
+
+	appKeepers.BuilderKeeper = builderkeeper.NewKeeper(
+		appCodec,
+		keys[buildertypes.StoreKey],
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.DistrKeeper,
+		appKeepers.StakingKeeper,
 		govModAddress,
 	)
 
