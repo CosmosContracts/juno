@@ -4,6 +4,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	appparams "github.com/CosmosContracts/juno/v16/app/params"
+
 	"github.com/CosmosContracts/juno/v16/x/globalfee/keeper/exported"
 	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
@@ -29,7 +31,7 @@ func Migrate(
 
 	denom, err := sdk.GetBaseDenom()
 	if err != nil {
-		denom = "ujuno"
+		denom = appparams.BondDenom
 	}
 
 	// https://juno-api.reece.sh/gaia/globalfee/v1beta1/minimum_gas_prices
