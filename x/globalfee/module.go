@@ -137,7 +137,6 @@ func (a AppModule) RegisterServices(cfg module.Configurator) {
 	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
 		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", types.ModuleName, err))
 	}
-
 }
 
 func (a AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
