@@ -8,7 +8,7 @@ import "gaia/globalfee/v1beta1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 
-// Msg defines the x/mint Msg service.
+// Msg defines the x/globalfee Msg service.
 service Msg {
   // UpdateParams defines a governance operation for updating the x/mint module
   // parameters. The authority is hard-coded to the x/gov module account.
