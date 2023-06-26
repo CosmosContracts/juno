@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -435,7 +436,7 @@ func New(
 		app.txConfig.TxDecoder(),
 		tobLane,
 		anteHandler,
-		"juno-1", // TODO: umm? How to handle for Uni-6 and localjuno-1???
+		app.ChainID(),
 	)
 	app.SetCheckTx(checkTxHandler.CheckTx())
 
@@ -688,4 +689,13 @@ func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 // SimulationManager implements the SimulationApp interface
 func (app *App) SimulationManager() *module.SimulationManager {
 	return app.sm
+}
+
+// ChainID gets chainID from private fields of BaseApp
+// Should be removed once SDK 0.50.x is adopted
+// Credit to PersistenceOne team
+// https://github.com/persistenceOne/persistence-sdk/commit/bba8552413fabfc2940b01827bc981ba0e8f79c2#diff-8d1ca8086ee74e8f0490825ba21e7435be4753922192ff691311483aa3e71a0aR299-R305
+func (app *App) ChainID() string {
+	field := reflect.ValueOf(app.BaseApp).Elem().FieldByName("chainID")
+	return field.String()
 }
