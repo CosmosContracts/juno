@@ -3,6 +3,7 @@ package globalfee
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -20,7 +21,6 @@ import (
 
 	"github.com/CosmosContracts/juno/v16/x/globalfee/client/cli"
 	"github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
-	"github.com/CosmosContracts/juno/v16/x/globalfee/keeper/exported"
 	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
@@ -31,7 +31,7 @@ var (
 )
 
 // ConsensusVersion defines the current x/globalfee module consensus version.
-const ConsensusVersion = 1
+const ConsensusVersion = 2
 
 // AppModuleBasic defines the basic application module used by the wasm module.
 type AppModuleBasic struct {
@@ -92,20 +92,20 @@ type AppModule struct {
 
 	keeper keeper.Keeper
 
-	// legacySubspace is used solely for migration of x/params managed parameters
-	legacySubspace exported.Subspace
+	// bondDenom is used solely for migration off of x/params
+	bondDenom string
 }
 
 // NewAppModule constructor
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
-	ss exported.Subspace,
+	debondDenom string,
 ) *AppModule {
 	return &AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		keeper:         keeper,
-		legacySubspace: ss,
+		bondDenom:      debondDenom,
 	}
 }
 
@@ -132,6 +132,12 @@ func (a AppModule) QuerierRoute() string {
 
 func (a AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), NewGrpcQuerier(a.keeper))
+
+	m := keeper.NewMigrator(a.keeper, a.bondDenom)
+	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", types.ModuleName, err))
+	}
+
 }
 
 func (a AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {

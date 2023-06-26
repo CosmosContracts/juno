@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -587,4 +588,19 @@ func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 // SimulationManager implements the SimulationApp interface
 func (app *App) SimulationManager() *module.SimulationManager {
 	return app.sm
+}
+
+// ChainID gets chainID from private fields of BaseApp
+// Should be removed once SDK 0.50.x will be adopted
+func (app *App) ChainID() string {
+	field := reflect.ValueOf(app.BaseApp).Elem().FieldByName("chainID")
+	return field.String()
+}
+
+func (app *App) GetChainBondDenom() string {
+	d := "ujuno"
+	if strings.HasPrefix(app.ChainID(), "uni-") {
+		d = "ujunox"
+	}
+	return d
 }
