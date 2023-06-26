@@ -5,7 +5,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	appparams "github.com/CosmosContracts/juno/v16/app/params"
-
 	"github.com/CosmosContracts/juno/v16/x/globalfee/keeper/exported"
 	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
