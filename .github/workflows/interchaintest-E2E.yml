@@ -1,6 +1,7 @@
 name: ictest E2E
 
 on:
+  pull_request:
   push:
     tags:
       - '**'
