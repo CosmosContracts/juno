@@ -1,0 +1,36 @@
+name: Make runner
+
+on:
+  workflow_call:
+    inputs:
+      make-command:
+        type: string
+        required: true
+        description: 'The make command to run'
+      branch-tag:
+        type: string
+        required: true
+        description: 'The branch tag of the docker image'
+      go-version:
+        type: string
+        required: true
+        description: 'The version of go to use in the job'
+
+
+jobs:
+  run_make:
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+    steps:
+      - name: checkout chain
+        uses: actions/checkout@v2
+
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v4
+        with:
+          go-version: ${{ inputs.go-version }}
+        id: go
+
+      - run: make ${{ inputs.make-command }}
+        env:
+          BRANCH_CI: ${{ inputs.branch-tag }}

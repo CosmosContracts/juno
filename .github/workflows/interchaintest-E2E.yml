@@ -82,159 +82,84 @@ jobs:
       # make juno:branchname here for all needs.build-and-push-image.outputs.branchTag
       # then upload to github. Then download for each as a cache. This way its only built once    
 
-  # TODO: Add reusable job template here, just changing the `make` command for each
-
   test-juno-basic:
     runs-on: ubuntu-latest
     needs: build-and-push-image
-    steps:
-      - name: checkout chain
-        uses: actions/checkout@v2
-
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - run: make ictest-basic
-        env:
-          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-basic
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+      go-version: ${{ env.GO_VERSION }}
 
   test-juno-ibc:
     runs-on: ubuntu-latest
     needs: build-and-push-image
-    steps:
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - name: checkout chain
-        uses: actions/checkout@v2
-
-      - run: make ictest-ibc
-        env:
-          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-ibc
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+      go-version: ${{ env.GO_VERSION }}
 
   test-juno-upgrade:
     runs-on: ubuntu-latest
     needs: build-and-push-image
-    steps:
-      - name: checkout chain
-        uses: actions/checkout@v2
-
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - run: make ictest-upgrade
-        env:
-          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-upgrade
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+      go-version: ${{ env.GO_VERSION }}
 
   test-juno-tokenfactory:
     runs-on: ubuntu-latest
     needs: build-and-push-image
-    steps:
-      - name: checkout chain
-        uses: actions/checkout@v2
-
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - run: make ictest-tokenfactory
-        env:
-          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-tokenfactory
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+      go-version: ${{ env.GO_VERSION }}
 
   test-juno-feeshare:
     runs-on: ubuntu-latest
     needs: build-and-push-image
-    steps:
-      - name: checkout chain
-        uses: actions/checkout@v2
-
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - run: make ictest-feeshare
-        env:
-          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-feeshare
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+      go-version: ${{ env.GO_VERSION }}
 
   test-juno-ibchooks:
     runs-on: ubuntu-latest
     needs: build-and-push-image
-    steps:
-      - name: checkout chain
-        uses: actions/checkout@v2
-
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - run: make ictest-ibchooks
-        env:
-          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
-
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-ibchooks
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+      go-version: ${{ env.GO_VERSION }}
 
   # === UNITY CONTRACT ===
   test-juno-unity-deploy:
     runs-on: ubuntu-latest
     needs: build-and-push-image
-    steps:
-      - name: checkout chain
-        uses: actions/checkout@v2
-
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - run: make ictest-unity-deploy
-        env:
-          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-unity-deploy
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+      go-version: ${{ env.GO_VERSION }}
 
   test-juno-unity-gov:
     runs-on: ubuntu-latest
     needs: build-and-push-image
-    steps:
-      - name: checkout chain
-        uses: actions/checkout@v2
-
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - run: make ictest-unity-gov
-        env:
-          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-unity-gov
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+      go-version: ${{ env.GO_VERSION }}
 
   test-juno-pfm:
     runs-on: ubuntu-latest
     needs: build-and-push-image
-    steps:
-      - name: checkout chain
-        uses: actions/checkout@v2
-
-      - name: Setup Golang with cache
-        uses: magnetikonline/action-golang-cache@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - run: make ictest-pfm
-        env:
-          BRANCH_CI: ${{needs.build-and-push-image.outputs.branchTag}}
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-pfm
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+      go-version: ${{ env.GO_VERSION }}
