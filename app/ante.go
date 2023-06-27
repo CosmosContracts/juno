@@ -15,12 +15,13 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	decorators "github.com/CosmosContracts/juno/v16/app/decorators"
 	feeshareante "github.com/CosmosContracts/juno/v16/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
-	gaiafeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
+	globalfeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
+	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
 )
 
 const maxBypassMinFeeMsgGasUsage = 1_000_000
@@ -37,10 +38,11 @@ type HandlerOptions struct {
 	TxCounterStoreKey storetypes.StoreKey
 	WasmConfig        wasmTypes.WasmConfig
 	Cdc               codec.BinaryCodec
-	StakingSubspace   paramtypes.Subspace
 
 	BypassMinFeeMsgTypes []string
-	GlobalFeeSubspace    paramtypes.Subspace
+
+	GlobalFeeKeeper globalfeekeeper.Keeper
+	StakingKeeper   stakingkeeper.Keeper
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -74,7 +76,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		gaiafeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeSubspace, options.StakingSubspace, maxBypassMinFeeMsgGasUsage),
+		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators

@@ -79,6 +79,8 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v16/x/globalfee"
+	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 	"github.com/CosmosContracts/juno/v16/x/ibchooks"
 	ibchookskeeper "github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
 	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
@@ -114,6 +116,7 @@ var maccPerms = map[string][]string{
 	ibcfeetypes.ModuleName:         nil,
 	wasm.ModuleName:                {authtypes.Burner},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
+	globalfee.ModuleName:           nil,
 }
 
 type AppKeepers struct {
@@ -123,29 +126,31 @@ type AppKeepers struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper         authkeeper.AccountKeeper
-	BankKeeper            bankkeeper.BaseKeeper
-	CapabilityKeeper      *capabilitykeeper.Keeper
-	StakingKeeper         *stakingkeeper.Keeper
-	SlashingKeeper        slashingkeeper.Keeper
-	MintKeeper            mintkeeper.Keeper
-	DistrKeeper           distrkeeper.Keeper
-	GovKeeper             govkeeper.Keeper
-	CrisisKeeper          *crisiskeeper.Keeper
-	UpgradeKeeper         *upgradekeeper.Keeper
-	ParamsKeeper          paramskeeper.Keeper
-	IBCKeeper             *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	ICQKeeper             icqkeeper.Keeper
-	IBCFeeKeeper          ibcfeekeeper.Keeper
-	IBCHooksKeeper        *ibchookskeeper.Keeper
-	PacketForwardKeeper   *packetforwardkeeper.Keeper
-	EvidenceKeeper        evidencekeeper.Keeper
-	TransferKeeper        ibctransferkeeper.Keeper
-	AuthzKeeper           authzkeeper.Keeper
-	FeeGrantKeeper        feegrantkeeper.Keeper
-	NFTKeeper             nftkeeper.Keeper
-	FeeShareKeeper        feesharekeeper.Keeper
-	ContractKeeper        *wasmkeeper.PermissionedKeeper
+	AccountKeeper       authkeeper.AccountKeeper
+	BankKeeper          bankkeeper.BaseKeeper
+	CapabilityKeeper    *capabilitykeeper.Keeper
+	StakingKeeper       *stakingkeeper.Keeper
+	SlashingKeeper      slashingkeeper.Keeper
+	MintKeeper          mintkeeper.Keeper
+	DistrKeeper         distrkeeper.Keeper
+	GovKeeper           govkeeper.Keeper
+	CrisisKeeper        *crisiskeeper.Keeper
+	UpgradeKeeper       *upgradekeeper.Keeper
+	ParamsKeeper        paramskeeper.Keeper
+	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	ICQKeeper           icqkeeper.Keeper
+	IBCFeeKeeper        ibcfeekeeper.Keeper
+	IBCHooksKeeper      *ibchookskeeper.Keeper
+	PacketForwardKeeper *packetforwardkeeper.Keeper
+	EvidenceKeeper      evidencekeeper.Keeper
+	TransferKeeper      ibctransferkeeper.Keeper
+	AuthzKeeper         authzkeeper.Keeper
+	FeeGrantKeeper      feegrantkeeper.Keeper
+	NFTKeeper           nftkeeper.Keeper
+	FeeShareKeeper      feesharekeeper.Keeper
+	GlobalFeeKeeper     globalfeekeeper.Keeper
+	ContractKeeper      *wasmkeeper.PermissionedKeeper
+
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
 	ICAControllerKeeper icacontrollerkeeper.Keeper
@@ -522,6 +527,12 @@ func NewAppKeepers(
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
+		govModAddress,
+	)
+
+	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[globalfeetypes.StoreKey],
 		govModAddress,
 	)
 

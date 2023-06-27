@@ -18,7 +18,6 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
 	"github.com/CosmosContracts/juno/v16/x/mint/client/cli"
-	"github.com/CosmosContracts/juno/v16/x/mint/exported"
 	"github.com/CosmosContracts/juno/v16/x/mint/keeper"
 	"github.com/CosmosContracts/juno/v16/x/mint/simulation"
 	"github.com/CosmosContracts/juno/v16/x/mint/types"
@@ -92,8 +91,8 @@ type AppModule struct {
 	keeper     keeper.Keeper
 	authKeeper types.AccountKeeper
 
-	// legacySubspace is used solely for migration of x/params managed parameters
-	legacySubspace exported.Subspace
+	// bondDenom is used solely for migration off of x/params
+	bondDenom string
 }
 
 // NewAppModule creates a new AppModule object
@@ -101,13 +100,13 @@ func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
 	ak types.AccountKeeper,
-	ss exported.Subspace,
+	bondDenom string,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		keeper:         keeper,
 		authKeeper:     ak,
-		legacySubspace: ss,
+		bondDenom:      bondDenom,
 	}
 }
 
@@ -130,7 +129,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	m := keeper.NewMigrator(am.keeper, am.legacySubspace)
+	m := keeper.NewMigrator(am.keeper, am.bondDenom)
 
 	if err := cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3); err != nil {
 		panic(fmt.Sprintf("failed to migrate x/%s from version 2 to 3: %v", types.ModuleName, err))
