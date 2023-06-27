@@ -30,6 +30,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
@@ -49,7 +50,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		icacontrollertypes.StoreKey, icqtypes.StoreKey,
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
-		tokenfactorytypes.StoreKey, feesharetypes.StoreKey,
+		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, globalfeetypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)

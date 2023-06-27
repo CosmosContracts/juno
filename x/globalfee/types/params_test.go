@@ -10,7 +10,7 @@ import (
 
 func TestDefaultParams(t *testing.T) {
 	p := DefaultParams()
-	require.EqualValues(t, p.MinimumGasPrices, sdk.DecCoins{})
+	require.EqualValues(t, p.MinimumGasPrices, sdk.DecCoins(nil))
 }
 
 func Test_validateParams(t *testing.T) {

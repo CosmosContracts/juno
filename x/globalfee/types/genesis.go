@@ -33,7 +33,7 @@ func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMe
 }
 
 func ValidateGenesis(data GenesisState) error {
-	if err := data.Params.ValidateBasic(); err != nil {
+	if err := data.Params.Validate(); err != nil {
 		return errorsmod.Wrap(err, "globalfee params")
 	}
 

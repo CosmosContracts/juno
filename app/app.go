@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -57,7 +58,6 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
@@ -72,7 +72,6 @@ import (
 	v15 "github.com/CosmosContracts/juno/v16/app/upgrades/v15"
 	v16 "github.com/CosmosContracts/juno/v16/app/upgrades/v16"
 	"github.com/CosmosContracts/juno/v16/docs"
-	"github.com/CosmosContracts/juno/v16/x/globalfee"
 )
 
 const (
@@ -343,10 +342,10 @@ func New(
 			TxCounterStoreKey: app.AppKeepers.GetKey(wasm.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
-			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName),
 
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
-			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
+			GlobalFeeKeeper:      app.AppKeepers.GlobalFeeKeeper,
+			StakingKeeper:        *app.AppKeepers.StakingKeeper,
 		},
 	)
 	if err != nil {
@@ -589,4 +588,19 @@ func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 // SimulationManager implements the SimulationApp interface
 func (app *App) SimulationManager() *module.SimulationManager {
 	return app.sm
+}
+
+// ChainID gets chainID from private fields of BaseApp
+// Should be removed once SDK 0.50.x will be adopted
+func (app *App) ChainID() string {
+	field := reflect.ValueOf(app.BaseApp).Elem().FieldByName("chainID")
+	return field.String()
+}
+
+func (app *App) GetChainBondDenom() string {
+	d := "ujuno"
+	if strings.HasPrefix(app.ChainID(), "uni-") {
+		d = "ujunox"
+	}
+	return d
 }
