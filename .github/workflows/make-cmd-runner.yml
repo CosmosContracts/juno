@@ -11,10 +11,6 @@ on:
         type: string
         required: true
         description: 'The branch tag of the docker image'
-      go-version:
-        type: string
-        required: true
-        description: 'The version of go to use in the job'
 
 
 jobs:
@@ -28,7 +24,7 @@ jobs:
       - name: Setup Golang with cache
         uses: magnetikonline/action-golang-cache@v4
         with:
-          go-version: ${{ inputs.go-version }}
+          go-version: 1.19
         id: go
 
       - run: make ${{ inputs.make-command }}

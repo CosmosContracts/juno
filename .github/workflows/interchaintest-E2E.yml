@@ -88,7 +88,6 @@ jobs:
     with:
       make-command: ictest-basic
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
-      go-version: ${{ env.GO_VERSION }}
 
   test-juno-ibc:
     needs: build-and-push-image
@@ -96,7 +95,6 @@ jobs:
     with:
       make-command: ictest-ibc
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
-      go-version: ${{ env.GO_VERSION }}
 
   test-juno-upgrade:
     needs: build-and-push-image
@@ -104,7 +102,6 @@ jobs:
     with:
       make-command: ictest-upgrade
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
-      go-version: ${{ env.GO_VERSION }}
 
   test-juno-tokenfactory:
     needs: build-and-push-image
@@ -112,7 +109,6 @@ jobs:
     with:
       make-command: ictest-tokenfactory
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
-      go-version: ${{ env.GO_VERSION }}
 
   test-juno-feeshare:
     needs: build-and-push-image
@@ -120,7 +116,6 @@ jobs:
     with:
       make-command: ictest-feeshare
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
-      go-version: ${{ env.GO_VERSION }}
 
   test-juno-ibchooks:
     needs: build-and-push-image
@@ -128,7 +123,6 @@ jobs:
     with:
       make-command: ictest-ibchooks
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
-      go-version: ${{ env.GO_VERSION }}
 
   # === UNITY CONTRACT ===
   test-juno-unity-deploy:
@@ -137,7 +131,6 @@ jobs:
     with:
       make-command: ictest-unity-deploy
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
-      go-version: ${{ env.GO_VERSION }}
 
   test-juno-unity-gov:
     needs: build-and-push-image
@@ -145,7 +138,6 @@ jobs:
     with:
       make-command: ictest-unity-gov
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
-      go-version: ${{ env.GO_VERSION }}
 
   test-juno-pfm:
     needs: build-and-push-image
@@ -153,4 +145,3 @@ jobs:
     with:
       make-command: ictest-pfm
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
-      go-version: ${{ env.GO_VERSION }}
