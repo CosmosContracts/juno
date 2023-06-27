@@ -83,7 +83,6 @@ jobs:
       # then upload to github. Then download for each as a cache. This way its only built once    
 
   test-juno-basic:
-    runs-on: ubuntu-latest
     needs: build-and-push-image
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
@@ -92,7 +91,6 @@ jobs:
       go-version: ${{ env.GO_VERSION }}
 
   test-juno-ibc:
-    runs-on: ubuntu-latest
     needs: build-and-push-image
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
@@ -101,7 +99,6 @@ jobs:
       go-version: ${{ env.GO_VERSION }}
 
   test-juno-upgrade:
-    runs-on: ubuntu-latest
     needs: build-and-push-image
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
@@ -110,7 +107,6 @@ jobs:
       go-version: ${{ env.GO_VERSION }}
 
   test-juno-tokenfactory:
-    runs-on: ubuntu-latest
     needs: build-and-push-image
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
@@ -119,7 +115,6 @@ jobs:
       go-version: ${{ env.GO_VERSION }}
 
   test-juno-feeshare:
-    runs-on: ubuntu-latest
     needs: build-and-push-image
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
@@ -128,7 +123,6 @@ jobs:
       go-version: ${{ env.GO_VERSION }}
 
   test-juno-ibchooks:
-    runs-on: ubuntu-latest
     needs: build-and-push-image
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
@@ -138,7 +132,6 @@ jobs:
 
   # === UNITY CONTRACT ===
   test-juno-unity-deploy:
-    runs-on: ubuntu-latest
     needs: build-and-push-image
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
@@ -147,7 +140,6 @@ jobs:
       go-version: ${{ env.GO_VERSION }}
 
   test-juno-unity-gov:
-    runs-on: ubuntu-latest
     needs: build-and-push-image
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
@@ -156,7 +148,6 @@ jobs:
       go-version: ${{ env.GO_VERSION }}
 
   test-juno-pfm:
-    runs-on: ubuntu-latest
     needs: build-and-push-image
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
