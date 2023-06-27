@@ -22,12 +22,7 @@ func Migrate(
 	_ exported.Subspace,
 	cdc codec.BinaryCodec,
 ) error {
-	// TODO: The following breaks for all modules for some reason except FeeShare.
-	// These params matche our mainnet.
-
-	// var currParams types.Params
-	// legacySubspace.GetParamSet(ctx, &currParams)
-
+	// Migrates mainnet params -> the new keeper params storeKey (from x/params)
 	currParams := types.Params{
 		DenomCreationFee:        nil,
 		DenomCreationGasConsume: 2_000_000,
