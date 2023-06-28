@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
 	// SDK v47 modules
 	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -30,11 +31,19 @@ import (
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
+
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+)
+
+const (
+	// TODO: This is my testing local account, not wolfs. need list from Core-1.
+	WolfsMainnetVestingAccount = "juno1xz599egrd3dhq5vx63mkwja38q5q3th8h3ukjj"
+	// TODO: Replace with the DAO addr
+	Core1SubDAOAddress = "juno1reece3m8g4m3d0qrpj93rnnseudnpzhr0kewyl"
 )
 
 func CreateV16UpgradeHandler(
@@ -144,6 +153,35 @@ func CreateV16UpgradeHandler(
 			return nil, err
 		}
 
+		if err := removeWolfCore1VestingAccountAndReturnToCore1(ctx, keepers, nativeDenom); err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("not implemented")
+
 		return versionMap, err
 	}
+}
+
+func removeWolfCore1VestingAccountAndReturnToCore1(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string) error {
+
+	addr := sdk.MustAccAddressFromBech32(WolfsMainnetVestingAccount)
+
+	// TODO: chain id check for juno-1 only.
+	coin, _ := upgrades.MoveVestingCoinFromVestingAccount(ctx,
+		addr,
+		keepers,
+		Core1SubDAOAddress,
+		bondDenom,
+	)
+
+	// return error
+	return fmt.Errorf("vesting account %s has %v coins", WolfsMainnetVestingAccount, coin)
+
+	// fmt.Printf("Vesting account %s has %s\n", WolfsMainnetVestingAccount, coin.String())
+
+	// if coin.IsZero() {
+	// 	return fmt.Errorf("vesting account %s has no coins", WolfsMainnetVestingAccount)
+	// }
+
+	// return nil
 }
