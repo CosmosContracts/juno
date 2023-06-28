@@ -14,7 +14,8 @@ require (
 	github.com/cometbft/cometbft-db v0.8.0
 	github.com/cosmos/cosmos-sdk v0.47.3
 	github.com/cosmos/gogoproto v1.4.10
-	github.com/cosmos/ibc-go/v7 v7.1.0
+	github.com/cosmos/ibc-go/modules/capability v1.0.0-rc1
+	github.com/cosmos/ibc-go/v7 v7.2.0
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -179,9 +180,10 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
 	// Use strangeloves wasm client fork. Will be in IBC v7.1.x it looks like? or is this v8
-	// https://github.com/strangelove-ventures/ibc-go/commits/feat/wasm-clients
-	// go get github.com/strangelove-ventures/ibc-go/v7@1dc4769e6aa44743394b4d9e13866c0f103e7d8b
-	github.com/cosmos/ibc-go/v7 => github.com/strangelove-ventures/ibc-go/v7 v7.0.0-20230414210327-1dc4769e6aa4
+	// https://github.com/strangelove-ventures/ibc-go/commits/feat/wasm-clients-main
+	// go get github.com/strangelove-ventures/ibc-go/v7@96e9930ab87a171a3ae6ac9717ee25bfda77212b
+	// go get github.com/crodriguezvega/ibc-go/v7@24d07389e19357ff836f59a60b2a5d3897baaa08
+	github.com/cosmos/ibc-go/v7 => github.com/crodriguezvega/ibc-go/v7 v7.0.0-20230626145354-24d07389e193
 
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
@@ -194,4 +196,22 @@ replace (
 	// https://github.com/cosmos/cosmos-sdk/issues/14949
 	// pin the version of goleveldb to v1.0.1-0.20210819022825-2ae1ddf74ef7 required by SDK v47 upgrade guide.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+)
+
+// temp patches for the wasm-08 client.
+replace (
+	// https://github.com/Reecepbcups/wasmd/pull/2
+	// go get github.com/Reecepbcups/wasmd@811c2f34a1f49c2846a5e224e2dc5be266a639af
+	// github.com/CosmWasm/wasmd => /home/reece/Desktop/Programming/Go/wasmd
+	github.com/CosmWasm/wasmd => github.com/Reecepbcups/wasmd v0.0.0-20230628034110-811c2f34a1f4
+
+	// https://github.com/Reecepbcups/async-icq/pull/1
+	// go get github.com/Reecepbcups/async-icq/v7@7f75e87388c2e10df993bc3df8dc2ba984b2d89b
+	// github.com/strangelove-ventures/async-icq/v7 => /home/reece/Desktop/Programming/IBC/async-icq
+	github.com/strangelove-ventures/async-icq/v7 => github.com/Reecepbcups/async-icq/v7 v7.0.0-20230628032712-7f75e87388c2
+
+	// https://github.com/Reecepbcups/packet-forward-middleware/pull/1
+	// go get github.com/Reecepbcups/packet-forward-middleware/v7@2616ed73a2e90ea0dfa061cdcff7bce7f05b8046
+	// github.com/strangelove-ventures/packet-forward-middleware/v7 => /home/reece/Desktop/Programming/Go/packet-forward-middleware
+	github.com/strangelove-ventures/packet-forward-middleware/v7 => github.com/Reecepbcups/packet-forward-middleware/v7 v7.0.0-20230628030438-2616ed73a2e9
 )

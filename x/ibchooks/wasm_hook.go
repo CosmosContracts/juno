@@ -6,7 +6,7 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	ibccapabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -227,7 +227,7 @@ func ValidateAndParseMemo(memo string, receiver string) (isWasmRouted bool, cont
 	return isWasmRouted, contractAddr, msgBytes, nil
 }
 
-func (h WasmHooks) SendPacketOverride(i ICS4Middleware, ctx sdk.Context, chanCap *capabilitytypes.Capability, packet ibcexported.PacketI) error {
+func (h WasmHooks) SendPacketOverride(i ICS4Middleware, ctx sdk.Context, chanCap *ibccapabilitytypes.Capability, packet ibcexported.PacketI) error {
 	height := clienttypes.Height{
 		RevisionNumber: packet.GetTimeoutHeight().GetRevisionHeight(),
 		RevisionHeight: packet.GetTimeoutHeight().GetRevisionHeight(),
