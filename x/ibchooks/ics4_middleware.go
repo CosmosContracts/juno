@@ -3,7 +3,7 @@ package ibchooks
 import (
 	// external libraries
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	capabilityibctypes "github.com/cosmos/ibc-go/modules/capability/types"
 
 	// ibc-go
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
@@ -27,7 +27,7 @@ func NewICS4Middleware(channel porttypes.ICS4Wrapper, hooks Hooks) ICS4Middlewar
 	}
 }
 
-func (i ICS4Middleware) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, _ string, sourceChannel string, timeoutHeight clienttypes.Height, timeoutTimestamp uint64, data []byte) (sequence uint64, err error) {
+func (i ICS4Middleware) SendPacket(ctx sdk.Context, channelCap *capabilityibctypes.Capability, _ string, sourceChannel string, timeoutHeight clienttypes.Height, timeoutTimestamp uint64, data []byte) (sequence uint64, err error) {
 	if hook, ok := i.Hooks.(SendPacketOverrideHooks); ok {
 		return hook.SendPacketOverride(i, ctx, channelCap, sourceChannel, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 	}
@@ -45,7 +45,7 @@ func (i ICS4Middleware) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.
 	return seq, err
 }
 
-func (i ICS4Middleware) WriteAcknowledgement(ctx sdk.Context, chanCap *capabilitytypes.Capability, packet ibcexported.PacketI, ack ibcexported.Acknowledgement) error {
+func (i ICS4Middleware) WriteAcknowledgement(ctx sdk.Context, chanCap *capabilityibctypes.Capability, packet ibcexported.PacketI, ack ibcexported.Acknowledgement) error {
 	if hook, ok := i.Hooks.(WriteAcknowledgementOverrideHooks); ok {
 		return hook.WriteAcknowledgementOverride(i, ctx, chanCap, packet, ack)
 	}
