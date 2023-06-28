@@ -36,7 +36,7 @@ func CreateTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Co
 		"-y",
 	}
 
-	if feeCoin == "" {
+	if feeCoin != "" {
 		cmd = append(cmd, "--fees", feeCoin)
 	}
 
