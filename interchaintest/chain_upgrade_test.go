@@ -99,12 +99,12 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	chainUser := users[0]
 
 	// create a tokenfactory denom before upgrade (invalid genesis for hard forking due to x/bank validation)
-	emptyFullDenom := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "empty")
+	emptyFullDenom := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "empty", "")
 
-	mintedDenom := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "minted")
+	mintedDenom := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "minted", "")
 	helpers.MintToTokenFactoryDenom(t, ctx, chain, chainUser, chainUser, 100, mintedDenom)
 
-	mintedAndModified := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "mandm")
+	mintedAndModified := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "mandm", "")
 	helpers.MintToTokenFactoryDenom(t, ctx, chain, chainUser, chainUser, 100, mintedAndModified)
 
 	ticker, desc, exponent := "TICKER", "desc", "6"
@@ -221,7 +221,8 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	require.Equal(t, postModified, modifiedRes)
 
 	// Ensure after the upgrade, the denoms are properly set with the Denom Metadata.
-	afterUpgrade := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "post")
+	// (Due to migrating hardcoded, we have to set a fee after the upgrade).
+	afterUpgrade := helpers.CreateTokenFactoryDenom(t, ctx, chain, chainUser, "post", "250000"+Denom)
 	newRes := helpers.GetTokenFactoryDenomMetadata(t, ctx, chain, afterUpgrade)
 	require.Equal(t, newRes.Display, afterUpgrade)
 	require.Equal(t, newRes.Name, afterUpgrade)
