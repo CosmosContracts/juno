@@ -3,22 +3,22 @@ package v13
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v16/app/keepers"
-
-	"github.com/CosmosContracts/juno/v16/app/upgrades"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
 	// ICA
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	"github.com/CosmosContracts/juno/v16/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	// types
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 )
 
 func CreateV13UpgradeHandler(
@@ -63,7 +63,9 @@ func CreateV13UpgradeHandler(
 		newTokenFactoryParams := tokenfactorytypes.Params{
 			DenomCreationFee: sdk.NewCoins(sdk.NewCoin(nativeDenom, sdk.NewInt(1000000))),
 		}
-		keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams)
+		if err := keepers.TokenFactoryKeeper.SetParams(ctx, newTokenFactoryParams); err != nil {
+			return nil, err
+		}
 		logger.Info("set tokenfactory params")
 
 		// FeeShare

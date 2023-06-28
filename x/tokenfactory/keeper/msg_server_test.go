@@ -3,10 +3,10 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 // TestMintDenomMsg tests TypeMsgMint message is emitted on a successful mint
@@ -119,7 +119,9 @@ func (suite *KeeperTestSuite) TestCreateDenomMsg() {
 			ctx := suite.Ctx.WithEventManager(sdk.NewEventManager())
 			suite.Require().Equal(0, len(ctx.EventManager().Events()))
 			// Set denom creation fee in params
-			tokenFactoryKeeper.SetParams(suite.Ctx, tc.denomCreationFee)
+			if err := tokenFactoryKeeper.SetParams(suite.Ctx, tc.denomCreationFee); err != nil {
+				suite.Require().NoError(err)
+			}
 			// Test create denom message
 			suite.msgServer.CreateDenom(sdk.WrapSDKContext(ctx), types.NewMsgCreateDenom(suite.TestAccs[0].String(), tc.subdenom)) //nolint:errcheck
 			// Ensure current number and type of event is emitted

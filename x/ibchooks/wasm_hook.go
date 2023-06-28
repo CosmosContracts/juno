@@ -5,20 +5,19 @@ import (
 	"fmt"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
-	ibccapabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	"github.com/CosmosContracts/juno/v16/osmoutils"
-
-	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
+	errorsmod "cosmossdk.io/errors"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v16/osmoutils"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
 	"github.com/CosmosContracts/juno/v16/x/ibchooks/types"
 )
 
@@ -28,13 +27,15 @@ type ContractAck struct {
 }
 
 type WasmHooks struct {
-	ContractKeeper      *wasmkeeper.Keeper
+	WasmKeeper          *wasmkeeper.Keeper
+	ContractKeeper      *wasmkeeper.PermissionedKeeper
 	ibcHooksKeeper      *keeper.Keeper
 	bech32PrefixAccAddr string
 }
 
-func NewWasmHooks(ibcHooksKeeper *keeper.Keeper, contractKeeper *wasmkeeper.Keeper, bech32PrefixAccAddr string) WasmHooks {
+func NewWasmHooks(ibcHooksKeeper *keeper.Keeper, contractKeeper *wasmkeeper.PermissionedKeeper, wasmKeeper *wasmkeeper.Keeper, bech32PrefixAccAddr string) WasmHooks {
 	return WasmHooks{
+		WasmKeeper:          wasmKeeper,
 		ContractKeeper:      contractKeeper,
 		ibcHooksKeeper:      ibcHooksKeeper,
 		bech32PrefixAccAddr: bech32PrefixAccAddr,
@@ -130,7 +131,7 @@ func (h WasmHooks) execWasmMsg(ctx sdk.Context, execMsg *wasmtypes.MsgExecuteCon
 	if err := execMsg.ValidateBasic(); err != nil {
 		return nil, fmt.Errorf(types.ErrBadExecutionMsg, err.Error())
 	}
-	wasmMsgServer := wasmkeeper.NewMsgServerImpl(h.ContractKeeper)
+	wasmMsgServer := wasmkeeper.NewMsgServerImpl(h.WasmKeeper)
 	return wasmMsgServer.ExecuteContract(sdk.WrapSDKContext(ctx), execMsg)
 }
 

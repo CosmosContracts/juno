@@ -1,14 +1,16 @@
 package v16
 
 import (
-	"github.com/CosmosContracts/juno/v16/app/upgrades"
-	store "github.com/cosmos/cosmos-sdk/store/types"
+	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
+	store "github.com/cosmos/cosmos-sdk/store/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
-	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
+
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
+	globalfeettypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.
@@ -21,6 +23,7 @@ var Upgrade = upgrades.Upgrade{
 		Added: []string{
 			// new module
 			icqtypes.ModuleName,
+			globalfeettypes.ModuleName,
 
 			// v47 module upgrades
 			crisistypes.ModuleName,

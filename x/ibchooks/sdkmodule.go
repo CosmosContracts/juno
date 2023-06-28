@@ -3,22 +3,21 @@ package ibchooks
 import (
 	"encoding/json"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v16/x/ibchooks/client/cli"
-	"github.com/CosmosContracts/juno/v16/x/ibchooks/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks/types"
 )
 
 var (

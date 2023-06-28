@@ -3,18 +3,18 @@ package v16
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v16/app/keepers"
-	"github.com/cosmos/cosmos-sdk/baseapp"
-
-	"github.com/CosmosContracts/juno/v16/app/upgrades"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-
+	// External modules
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
+	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	// SDK v47 modules
 	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -26,20 +26,16 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	// External modules
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
-	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
-
+	"github.com/CosmosContracts/juno/v16/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
-
-// We now charge 2 million gas * gas price to create a denom.
-const NewDenomCreationGasConsume uint64 = 2_000_000
 
 func CreateV16UpgradeHandler(
 	mm *module.Manager,
@@ -92,12 +88,21 @@ func CreateV16UpgradeHandler(
 				keyTable = icahosttypes.ParamKeyTable()
 			case icacontrollertypes.SubModuleName:
 				keyTable = icacontrollertypes.ParamKeyTable()
+
 			// wasm
 			case wasmtypes.ModuleName:
 				keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
+
 			// juno modules
 			case feesharetypes.ModuleName:
 				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
+			case tokenfactorytypes.ModuleName:
+				keyTable = tokenfactorytypes.ParamKeyTable() //nolint:staticcheck
+			case minttypes.ModuleName:
+				keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
+			case globalfeetypes.ModuleName:
+				keyTable = globalfeetypes.ParamKeyTable() //nolint:staticcheck
+
 			}
 
 			if !subspace.HasKeyTable() {
@@ -131,15 +136,6 @@ func CreateV16UpgradeHandler(
 		if err := keepers.GovKeeper.SetParams(ctx, govParams); err != nil {
 			return nil, err
 		}
-
-		// x/TokenFactory
-		// Use denom creation gas consumtion instead of fee for contract developers
-		updatedTf := tokenfactorytypes.Params{
-			DenomCreationFee:        nil,
-			DenomCreationGasConsume: NewDenomCreationGasConsume,
-		}
-		keepers.TokenFactoryKeeper.SetParams(ctx, updatedTf)
-		logger.Info(fmt.Sprintf("updated tokenfactory params to %v", updatedTf))
 
 		// x/Staking - set minimum commission to 0.050000000000000000
 		stakingParams := keepers.StakingKeeper.GetParams(ctx)

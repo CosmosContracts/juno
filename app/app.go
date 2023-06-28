@@ -5,21 +5,32 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 
-	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
-	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
-	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/spf13/cast"
 
-	"github.com/CosmosContracts/juno/v16/app/openapiconsole"
-	"github.com/CosmosContracts/juno/v16/docs"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cometbft/cometbft/libs/log"
 	tmos "github.com/cometbft/cometbft/libs/os"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+
+	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -27,6 +38,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -46,31 +58,20 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	"github.com/spf13/cast"
-
-	errorsmod "cosmossdk.io/errors"
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/prometheus/client_golang/prometheus"
-
-	"github.com/CosmosContracts/juno/v16/x/globalfee"
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
+	"github.com/CosmosContracts/juno/v16/app/openapiconsole"
 	upgrades "github.com/CosmosContracts/juno/v16/app/upgrades"
 	v10 "github.com/CosmosContracts/juno/v16/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v16/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v16/app/upgrades/v12"
 	v13 "github.com/CosmosContracts/juno/v16/app/upgrades/v13"
 	v14 "github.com/CosmosContracts/juno/v16/app/upgrades/v14"
+	v15 "github.com/CosmosContracts/juno/v16/app/upgrades/v15"
 	v16 "github.com/CosmosContracts/juno/v16/app/upgrades/v16"
+	"github.com/CosmosContracts/juno/v16/docs"
 )
 
 const (
@@ -91,7 +92,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v16.Upgrade}
+	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v15.Upgrade, v16.Upgrade}
 )
 
 // These constants are derived from the above variables.
@@ -341,10 +342,10 @@ func New(
 			TxCounterStoreKey: app.AppKeepers.GetKey(wasm.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
-			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName),
 
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
-			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
+			GlobalFeeKeeper:      app.AppKeepers.GlobalFeeKeeper,
+			StakingKeeper:        *app.AppKeepers.StakingKeeper,
 		},
 	)
 	if err != nil {
@@ -587,4 +588,19 @@ func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 // SimulationManager implements the SimulationApp interface
 func (app *App) SimulationManager() *module.SimulationManager {
 	return app.sm
+}
+
+// ChainID gets chainID from private fields of BaseApp
+// Should be removed once SDK 0.50.x will be adopted
+func (app *App) ChainID() string {
+	field := reflect.ValueOf(app.BaseApp).Elem().FieldByName("chainID")
+	return field.String()
+}
+
+func (app *App) GetChainBondDenom() string {
+	d := "ujuno"
+	if strings.HasPrefix(app.ChainID(), "uni-") {
+		d = "ujunox"
+	}
+	return d
 }

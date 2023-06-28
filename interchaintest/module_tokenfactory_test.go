@@ -67,7 +67,7 @@ func TestJunoTokenFactory(t *testing.T) {
 
 	// Mint on the contract for the user to ensure mint bindings work.
 	mintMsg := fmt.Sprintf(`{"mint":{"address":"%s","denom":[{"denom":"%s","amount":"31"}]}}`, uaddr2, tfDenom)
-	if err := juno.ExecuteContract(ctx, user.KeyName(), coreTFContract, mintMsg); err != nil {
+	if _, err := juno.ExecuteContract(ctx, user.KeyName(), coreTFContract, mintMsg); err != nil {
 		t.Fatal(err)
 	}
 
