@@ -148,21 +148,3 @@ func CreateV16UpgradeHandler(
 		return versionMap, err
 	}
 }
-
-// Previously planned Faster block time upgrade
-//
-// x/Mint
-// Double blocks per year (from 6 seconds to 3 = 2x blocks per year)
-// mintParams := keepers.MintKeeper.GetParams(ctx)
-// mintParams.BlocksPerYear *= 2
-// keepers.MintKeeper.SetParams(ctx, mintParams)
-// logger.Info(fmt.Sprintf("updated minted blocks per year logic to %v", mintParams))
-//
-// x/Slashing
-// Double slashing window due to double blocks per year
-// slashingParams := keepers.SlashingKeeper.GetParams(ctx)
-// slashingParams.SignedBlocksWindow *= 2
-// err = keepers.SlashingKeeper.SetParams(ctx, slashingParams)
-// if err != nil {
-// 	return nil, err
-// }

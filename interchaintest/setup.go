@@ -91,8 +91,6 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
-	// github.com/cosmos/cosmos-sdk/types/module/testutil
-
 	return &cfg
 }
 

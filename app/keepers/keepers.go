@@ -33,7 +33,6 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	// wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm"
 	wasm08keeper "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
 	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 

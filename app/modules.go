@@ -57,8 +57,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	// packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
-	// packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 	encparams "github.com/CosmosContracts/juno/v16/app/params"
 	feeshare "github.com/CosmosContracts/juno/v16/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"

@@ -14,18 +14,6 @@ import (
 	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
-// type mockSubspace struct {
-// 	ps types.Params
-// }
-
-// func newMockSubspace(ps types.Params) mockSubspace {
-// 	return mockSubspace{ps: ps}
-// }
-
-// func (ms mockSubspace) GetParamSet(_ sdk.Context, ps exported.ParamSet) {
-// 	*ps.(*types.Params) = ms.ps
-// }
-
 func TestMigrateMainnet(t *testing.T) {
 	encCfg := moduletestutil.MakeTestEncodingConfig(globalfee.AppModuleBasic{})
 	cdc := encCfg.Codec
