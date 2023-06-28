@@ -156,7 +156,6 @@ func CreateV16UpgradeHandler(
 		if err := removeWolfCore1VestingAccountAndReturnToCore1(ctx, keepers, nativeDenom); err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("not implemented")
 
 		return versionMap, err
 	}
@@ -167,7 +166,7 @@ func removeWolfCore1VestingAccountAndReturnToCore1(ctx sdk.Context, keepers *kee
 	addr := sdk.MustAccAddressFromBech32(WolfsMainnetVestingAccount)
 
 	// TODO: chain id check for juno-1 only.
-	coin, _ := upgrades.MoveVestingCoinFromVestingAccount(ctx,
+	upgrades.MoveVestingCoinFromVestingAccount(ctx,
 		addr,
 		keepers,
 		Core1SubDAOAddress,
@@ -175,13 +174,6 @@ func removeWolfCore1VestingAccountAndReturnToCore1(ctx sdk.Context, keepers *kee
 	)
 
 	// return error
-	return fmt.Errorf("vesting account %s has %v coins", WolfsMainnetVestingAccount, coin)
-
-	// fmt.Printf("Vesting account %s has %s\n", WolfsMainnetVestingAccount, coin.String())
-
-	// if coin.IsZero() {
-	// 	return fmt.Errorf("vesting account %s has no coins", WolfsMainnetVestingAccount)
-	// }
-
-	// return nil
+	// return fmt.Errorf("completed remove wolf logic,")
+	return nil
 }
