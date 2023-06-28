@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
 	// SDK v47 modules
 	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -31,7 +30,6 @@ import (
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
-
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
@@ -153,10 +151,11 @@ func CreateV16UpgradeHandler(
 			return nil, err
 		}
 
-		// TODO: Mainnet only
-		// if ctx.ChainID() == "juno-1" {}
-		if err := removeWolfCore1VestingAccountAndReturnToCore1(ctx, keepers, nativeDenom); err != nil {
-			return nil, err
+		// Migrate Core-1 vesting account remaining funds -> Core-1
+		if ctx.ChainID() == "juno-1" {
+			if err := removeWolfCore1VestingAccountAndReturnToCore1(ctx, keepers, nativeDenom); err != nil {
+				return nil, err
+			}
 		}
 
 		return versionMap, err
