@@ -13,6 +13,7 @@ import (
 	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
 	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
+	capabilityibckeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	icacontroller "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
@@ -32,11 +33,10 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	// wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm"
+	wasm08keeper "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
+	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 
-	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
-	ibchookskeeper "github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
-	mintkeeper "github.com/CosmosContracts/juno/v16/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -78,22 +78,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	capabilityibckeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-
-	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
-	"github.com/CosmosContracts/juno/v16/x/ibchooks"
-	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 
 	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v16/x/globalfee"
-
-	// wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm"
-	wasm08keeper "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
-	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
+	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v16/x/ibchooks"
+	ibchookskeeper "github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
+	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
+	mintkeeper "github.com/CosmosContracts/juno/v16/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 var (

@@ -17,6 +17,8 @@ import (
 	ibc "github.com/cosmos/ibc-go/v7/modules/core"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+	wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm"
+	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -55,8 +57,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm"
-	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 	// packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
 	// packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 	encparams "github.com/CosmosContracts/juno/v16/app/params"

@@ -3,11 +3,12 @@ package v16
 import (
 	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
+	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
+
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
-	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	globalfeettypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"

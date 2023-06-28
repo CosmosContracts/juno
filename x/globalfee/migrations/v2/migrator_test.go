@@ -10,22 +10,21 @@ import (
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
 	"github.com/CosmosContracts/juno/v16/x/globalfee"
-	"github.com/CosmosContracts/juno/v16/x/globalfee/keeper/exported"
 	v2 "github.com/CosmosContracts/juno/v16/x/globalfee/migrations/v2"
 	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
 )
 
-type mockSubspace struct {
-	ps types.Params
-}
+// type mockSubspace struct {
+// 	ps types.Params
+// }
 
-func newMockSubspace(ps types.Params) mockSubspace {
-	return mockSubspace{ps: ps}
-}
+// func newMockSubspace(ps types.Params) mockSubspace {
+// 	return mockSubspace{ps: ps}
+// }
 
-func (ms mockSubspace) GetParamSet(_ sdk.Context, ps exported.ParamSet) {
-	*ps.(*types.Params) = ms.ps
-}
+// func (ms mockSubspace) GetParamSet(_ sdk.Context, ps exported.ParamSet) {
+// 	*ps.(*types.Params) = ms.ps
+// }
 
 func TestMigrateMainnet(t *testing.T) {
 	encCfg := moduletestutil.MakeTestEncodingConfig(globalfee.AppModuleBasic{})

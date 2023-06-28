@@ -1,14 +1,14 @@
 package ibchooks
 
 import (
-	// external libraries
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilityibctypes "github.com/cosmos/ibc-go/modules/capability/types"
-
 	// ibc-go
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+
+	// external libraries
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var _ porttypes.ICS4Wrapper = &ICS4Middleware{}
