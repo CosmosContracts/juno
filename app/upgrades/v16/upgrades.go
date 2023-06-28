@@ -42,8 +42,8 @@ import (
 const (
 	// TODO: This is my testing local account, not wolfs. need list from Core-1.
 	WolfsMainnetVestingAccount = "juno1xz599egrd3dhq5vx63mkwja38q5q3th8h3ukjj"
-	// TODO: Replace with the DAO addr
-	Core1SubDAOAddress = "juno1reece3m8g4m3d0qrpj93rnnseudnpzhr0kewyl"
+	// Core-1 Mainnet Address
+	Core1SubDAOAddress = "juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3"
 )
 
 func CreateV16UpgradeHandler(
@@ -153,6 +153,8 @@ func CreateV16UpgradeHandler(
 			return nil, err
 		}
 
+		// TODO: Mainnet only
+		// if ctx.ChainID() == "juno-1" {}
 		if err := removeWolfCore1VestingAccountAndReturnToCore1(ctx, keepers, nativeDenom); err != nil {
 			return nil, err
 		}
@@ -162,18 +164,12 @@ func CreateV16UpgradeHandler(
 }
 
 func removeWolfCore1VestingAccountAndReturnToCore1(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string) error {
-
 	addr := sdk.MustAccAddressFromBech32(WolfsMainnetVestingAccount)
 
-	// TODO: chain id check for juno-1 only.
-	upgrades.MoveVestingCoinFromVestingAccount(ctx,
+	return upgrades.MoveVestingCoinFromVestingAccount(ctx,
 		addr,
 		keepers,
 		Core1SubDAOAddress,
 		bondDenom,
 	)
-
-	// return error
-	// return fmt.Errorf("completed remove wolf logic,")
-	return nil
 }
