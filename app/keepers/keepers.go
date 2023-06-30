@@ -6,14 +6,18 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/spf13/cast"
-	icq "github.com/strangelove-ventures/async-icq/v7"
-	icqkeeper "github.com/strangelove-ventures/async-icq/v7/keeper"
-	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
-	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
-	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
-	capabilityibckeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router"
+	packetforwardkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/keeper"
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
+	icq "github.com/cosmos/ibc-apps/modules/async-icq/v7"
+	icqkeeper "github.com/cosmos/ibc-apps/modules/async-icq/v7/keeper"
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
+	ibc_hooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7"
+	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/keeper"
+	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icacontroller "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
@@ -48,8 +52,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
@@ -83,9 +85,6 @@ import (
 	"github.com/CosmosContracts/juno/v16/x/globalfee"
 	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
-	"github.com/CosmosContracts/juno/v16/x/ibchooks"
-	ibchookskeeper "github.com/CosmosContracts/juno/v16/x/ibchooks/keeper"
-	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
 	mintkeeper "github.com/CosmosContracts/juno/v16/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
@@ -131,7 +130,6 @@ type AppKeepers struct {
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.BaseKeeper
 	CapabilityKeeper      *capabilitykeeper.Keeper
-	CapabilityIBCKeeper   *capabilityibckeeper.Keeper
 	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	MintKeeper            mintkeeper.Keeper
@@ -160,20 +158,20 @@ type AppKeepers struct {
 	ICAHostKeeper       icahostkeeper.Keeper
 
 	// make scoped keepers public for test purposes
-	ScopedIBCKeeper           capabilityibckeeper.ScopedKeeper
-	ScopedICQKeeper           capabilityibckeeper.ScopedKeeper
-	ScopedICAControllerKeeper capabilityibckeeper.ScopedKeeper
-	ScopedFeeMockKeeper       capabilityibckeeper.ScopedKeeper
-	ScopedICAHostKeeper       capabilityibckeeper.ScopedKeeper
-	ScopedTransferKeeper      capabilityibckeeper.ScopedKeeper
+	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
+	ScopedICQKeeper           capabilitykeeper.ScopedKeeper
+	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
+	ScopedFeeMockKeeper       capabilitykeeper.ScopedKeeper
+	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
+	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
 
 	WasmKeeper         wasm.Keeper
-	scopedWasmKeeper   capabilityibckeeper.ScopedKeeper
+	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
 	// Middleware wrapper
-	Ics20WasmHooks   *ibchooks.WasmHooks
-	HooksICS4Wrapper ibchooks.ICS4Middleware
+	Ics20WasmHooks   *ibc_hooks.WasmHooks
+	HooksICS4Wrapper ibc_hooks.ICS4Middleware
 }
 
 func NewAppKeepers(
@@ -212,19 +210,13 @@ func NewAppKeepers(
 		appKeepers.memKeys[capabilitytypes.MemStoreKey],
 	)
 
-	appKeepers.CapabilityIBCKeeper = capabilityibckeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[capabilitytypes.StoreKey],
-		appKeepers.memKeys[capabilitytypes.MemStoreKey],
-	)
-
 	// grant capabilities for the ibc and ibc-transfer modules
-	scopedIBCKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(ibcexported.ModuleName)
-	scopedICAControllerKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
-	scopedICAHostKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(icahosttypes.SubModuleName)
-	scopedICQKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(icqtypes.ModuleName)
-	scopedTransferKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	scopedWasmKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(wasm.ModuleName)
+	scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
+	scopedICAControllerKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
+	scopedICAHostKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
+	scopedICQKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
+	scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
+	scopedWasmKeeper := appKeepers.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
 	// add keepers
 	Bech32Prefix := "juno"
@@ -367,9 +359,9 @@ func NewAppKeepers(
 	appKeepers.IBCHooksKeeper = &hooksKeeper
 
 	junoPrefix := sdk.GetConfig().GetBech32AccountAddrPrefix()
-	wasmHooks := ibchooks.NewWasmHooks(appKeepers.IBCHooksKeeper, appKeepers.ContractKeeper, &appKeepers.WasmKeeper, junoPrefix) // The contract keeper needs to be set later // The contract keeper needs to be set later
+	wasmHooks := ibc_hooks.NewWasmHooks(appKeepers.IBCHooksKeeper, &appKeepers.WasmKeeper, junoPrefix) // The contract keeper needs to be set later
 	appKeepers.Ics20WasmHooks = &wasmHooks
-	appKeepers.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
+	appKeepers.HooksICS4Wrapper = ibc_hooks.NewICS4Middleware(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.Ics20WasmHooks,
 	)
@@ -558,7 +550,7 @@ func NewAppKeepers(
 	var transferStack porttypes.IBCModule
 	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper)
 	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
-	transferStack = ibchooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
+	transferStack = ibc_hooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
 	transferStack = packetforward.NewIBCMiddleware(
 		transferStack,
 		appKeepers.PacketForwardKeeper,
@@ -602,9 +594,10 @@ func NewAppKeepers(
 	appKeepers.ScopedICAHostKeeper = scopedICAHostKeeper
 	appKeepers.ScopedICAControllerKeeper = scopedICAControllerKeeper
 
-	// set the contract keeper for the Ics20WasmHooks
 	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
-	appKeepers.Ics20WasmHooks.ContractKeeper = appKeepers.ContractKeeper
+
+	// set the contract keeper for the Ics20WasmHooks
+	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
 
 	return appKeepers
 }
@@ -657,7 +650,7 @@ func (appKeepers *AppKeepers) GetIBCKeeper() *ibckeeper.Keeper {
 }
 
 // GetScopedIBCKeeper implements the TestingApp interface.
-func (appKeepers *AppKeepers) GetScopedIBCKeeper() capabilityibckeeper.ScopedKeeper {
+func (appKeepers *AppKeepers) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 	return appKeepers.ScopedIBCKeeper
 }
 

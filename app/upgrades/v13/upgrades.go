@@ -3,8 +3,7 @@ package v13
 import (
 	"fmt"
 
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
-
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
 	// ICA
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"

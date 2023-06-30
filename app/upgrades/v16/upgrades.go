@@ -5,8 +5,8 @@ import (
 
 	// External modules
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
 
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
