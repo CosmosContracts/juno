@@ -22,3 +22,10 @@ repos:
       entry: ./scripts/git/linter.sh
       require_serial: true
       language: "script"
+
+    - id: markdown-lint
+      name: "markdown linter"
+      files: .*md
+      entry: ./scripts/git/markdown_lint.sh
+      require_serial: true
+      language: "script"
