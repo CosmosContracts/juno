@@ -37,7 +37,7 @@ This upgrade focuses entirely on moving Juno's block times from 6 seconds to 3 s
 
 This update will focus more on upgrading the base layer of the Juno stack, bringing new features and pushing us to the latest versions of the software.
 
-## Features
+## V14 Features
 
 - IBC-Hooks
 - CosmWasm v0.31

@@ -3,7 +3,7 @@
 ## Wasm Hooks
 
 The wasm hook is an IBC middleware which is used to allow ICS-20 token transfers to initiate contract calls.
-This allows cross-chain contract calls, that involve token movement. 
+This allows cross-chain contract calls, that involve token movement.
 This is useful for a variety of usecases.
 One of primary importance is cross-chain swaps, which is an extremely powerful primitive.
 
@@ -31,10 +31,10 @@ type MsgExecuteContract struct {
 
 So we detail where we want to get each of these fields from:
 
-* Sender: We cannot trust the sender of an IBC packet, the counterparty chain has full ability to lie about it. 
+* Sender: We cannot trust the sender of an IBC packet, the counterparty chain has full ability to lie about it.
 We cannot risk this sender being confused for a particular user or module address on Osmosis.
 So we replace the sender with an account to represent the sender prefixed by the channel and a wasm module prefix.
-This is done by setting the sender to `Bech32(Hash("ibc-wasm-hook-intermediary" || channelID || sender))`, where the channelId is the channel id on the local chain. 
+This is done by setting the sender to `Bech32(Hash("ibc-wasm-hook-intermediary" || channelID || sender))`, where the channelId is the channel id on the local chain.
 * Contract: This field should be directly obtained from the ICS-20 packet metadata
 * Msg: This field should be directly obtained from the ICS-20 packet metadata.
 * Funds: This field is set to the amount of funds being sent over in the ICS 20 packet. One detail is that the denom in the packet is the counterparty chains representation of the denom, so we have to translate it to Osmosis' representation.
@@ -58,7 +58,7 @@ msg := MsgExecuteContract{
 So given the details above, we propogate the implied ICS20 packet data structure.
 ICS20 is JSON native, so we use JSON for the memo format.
 
-```json 
+```json
 {
     //... other ibc fields that we don't care about
     "data":{
@@ -118,20 +118,20 @@ In wasm hooks, post packet execution:
 ## Ack callbacks
 
 A contract that sends an IBC transfer, may need to listen for the ACK from that packet. To allow
-contracts to listen on the ack of specific packets, we provide Ack callbacks. 
+contracts to listen on the ack of specific packets, we provide Ack callbacks.
 
 ### Design
 
-The sender of an IBC transfer packet may specify a callback for when the ack of that packet is received in the memo 
-field of the transfer packet. 
+The sender of an IBC transfer packet may specify a callback for when the ack of that packet is received in the memo
+field of the transfer packet.
 
 Crucially, _only_ the IBC packet sender can set the callback.
 
 ### Use case
 
 The crosschain swaps implementation sends an IBC transfer. If the transfer were to fail, we want to allow the sender
-to be able to retrieve their funds (which would otherwise be stuck in the contract). To do this, we allow users to 
-retrieve the funds after the timeout has passed, but without the ack information, we cannot guarantee that the send 
+to be able to retrieve their funds (which would otherwise be stuck in the contract). To do this, we allow users to
+retrieve the funds after the timeout has passed, but without the ack information, we cannot guarantee that the send
 hasn't failed (i.e.: returned an error ack notifying that the receiving change didn't accept it)
 
 ### Implementation
@@ -180,6 +180,6 @@ pub enum SudoMsg {
 }
 ```
 
-# Testing strategy
+## Testing strategy
 
 See go tests.
