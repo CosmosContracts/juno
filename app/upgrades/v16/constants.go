@@ -2,7 +2,6 @@ package v16
 
 import (
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
-
 	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 
 	store "github.com/cosmos/cosmos-sdk/store/types"

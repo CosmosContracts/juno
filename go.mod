@@ -7,8 +7,7 @@ replace (
 	// https://github.com/Reecepbcups/wasmd/pull/2
 	// go get github.com/Reecepbcups/wasmd@811c2f34a1f49c2846a5e224e2dc5be266a639af
 	github.com/CosmWasm/wasmd => github.com/Reecepbcups/wasmd v0.0.0-20230628034110-811c2f34a1f4
-
-	// https://go.dev/ref/mod#go-mod-file-replace
+	
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230630015718-48576f06bd8b
 	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/modules/async-icq/v7 v7.0.0-20230630015718-48576f06bd8b
 
