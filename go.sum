@@ -232,6 +232,10 @@ github.com/Microsoft/go-winio v0.6.0 h1:slsWYD/zyx7lCXoZVlvQrj0hPTM1HI4+v1sIda2y
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
+github.com/Reecepbcups/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230630015718-48576f06bd8b h1:3h7rKPDOXI0AxsdrS4rewzrjEatgpdO1lYbwzQYDMDI=
+github.com/Reecepbcups/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230630015718-48576f06bd8b/go.mod h1:Zt0+TdN4F40t46H5i8bt64qIXpsx4eFSqO3P/p8gEUo=
+github.com/Reecepbcups/ibc-apps/modules/async-icq/v7 v7.0.0-20230630015718-48576f06bd8b h1:dDsAZbtFiRKPBVbskwwnknf0Dl00ZO3BlzP0hQtYFVU=
+github.com/Reecepbcups/ibc-apps/modules/async-icq/v7 v7.0.0-20230630015718-48576f06bd8b/go.mod h1:I7vO9zGudnciPAZWbEhumlLvHJT6W7ysLDCZX4m6o+I=
 github.com/Reecepbcups/wasmd v0.0.0-20230628034110-811c2f34a1f4 h1:EDaFRjcaPpPn+A+5SBKvg/Id9ZkoxwLD0BBBnxV54Ho=
 github.com/Reecepbcups/wasmd v0.0.0-20230628034110-811c2f34a1f4/go.mod h1:2JDDm2p8a19AA72UJFGQdCq1wFNea9XSM0zp1qERlFY=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
@@ -401,10 +405,6 @@ github.com/cosmos/gogoproto v1.4.10 h1:QH/yT8X+c0F4ZDacDv3z+xE3WU1P1Z3wQoLMBRJoK
 github.com/cosmos/gogoproto v1.4.10/go.mod h1:3aAZzeRWpAwr+SS/LLkICX2/kDFyaYVzckBDzygIxek=
 github.com/cosmos/iavl v0.20.0 h1:fTVznVlepH0KK8NyKq8w+U7c2L6jofa27aFX6YGlm38=
 github.com/cosmos/iavl v0.20.0/go.mod h1:WO7FyvaZJoH65+HFOsDir7xU9FWk2w9cHXNW1XHcl7A=
-github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230629164013-34f5e666f806 h1:iFWb/KrnP5jthNZ23l72wqE8nzHJHzoVe22giUfJce8=
-github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230629164013-34f5e666f806/go.mod h1:fctjEnz9xaBFOlmYYPdKL8Hs1Y3GUKilSwsJdqBb5QU=
-github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.0.0-20230629164013-34f5e666f806 h1:QIRbYK2r9Ww8ua8j1S7c4i+cV6AiBLxghIdwZJW14C4=
-github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.0.0-20230629164013-34f5e666f806/go.mod h1:/P6l2bWo2AR3rrsfs0DHuFZO3Imzb93sxFD3ihrIgw4=
 github.com/cosmos/ibc-go/modules/capability v1.0.0-rc1 h1:BvSKnPFKxL+TTSLxGKwJN4x0ndCZj0yfXhSvmsQztSA=
 github.com/cosmos/ibc-go/modules/capability v1.0.0-rc1/go.mod h1:A+CxAQdn2j6ihDTbClpEEBdHthWgAUAcHbRAQPY8sl4=
 github.com/cosmos/ics23/go v0.10.0 h1:iXqLLgp2Lp+EdpIuwXTYIQU+AiHj9mOC2X9ab++bZDM=
