@@ -1,8 +1,9 @@
 package ibchooks
 
 import (
-	capabilityibctypes "github.com/cosmos/ibc-go/modules/capability/types"
+
 	// ibc-go
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
@@ -33,7 +34,7 @@ func (im IBCMiddleware) OnChanOpenInit(
 	connectionHops []string,
 	portID string,
 	channelID string,
-	channelCap *capabilityibctypes.Capability,
+	channelCap *capabilitytypes.Capability,
 	counterparty channeltypes.Counterparty,
 	version string,
 ) (string, error) {
@@ -60,7 +61,7 @@ func (im IBCMiddleware) OnChanOpenTry(
 	connectionHops []string,
 	portID,
 	channelID string,
-	channelCap *capabilityibctypes.Capability,
+	channelCap *capabilitytypes.Capability,
 	counterparty channeltypes.Counterparty,
 	counterpartyVersion string,
 ) (string, error) {
@@ -237,7 +238,7 @@ func (im IBCMiddleware) OnTimeoutPacket(
 // SendPacket implements the ICS4 Wrapper interface
 func (im IBCMiddleware) SendPacket(
 	ctx sdk.Context,
-	chanCap *capabilityibctypes.Capability,
+	chanCap *capabilitytypes.Capability,
 	sourcePort string,
 	sourceChannel string,
 	timeoutHeight clienttypes.Height,
@@ -250,7 +251,7 @@ func (im IBCMiddleware) SendPacket(
 // WriteAcknowledgement implements the ICS4 Wrapper interface
 func (im IBCMiddleware) WriteAcknowledgement(
 	ctx sdk.Context,
-	chanCap *capabilityibctypes.Capability,
+	chanCap *capabilitytypes.Capability,
 	packet ibcexported.PacketI,
 	ack ibcexported.Acknowledgement,
 ) error {

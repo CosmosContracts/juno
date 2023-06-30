@@ -1,7 +1,7 @@
 package v13
 
 import (
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
 
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"

@@ -3,10 +3,10 @@ package app
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	icq "github.com/strangelove-ventures/async-icq/v7"
-	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
-	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router"
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
+	icq "github.com/cosmos/ibc-apps/modules/async-icq/v7"
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
@@ -30,8 +30,6 @@ import (
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/capability"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
@@ -56,6 +54,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/cosmos/ibc-go/modules/capability"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
 	encparams "github.com/CosmosContracts/juno/v16/app/params"
 	feeshare "github.com/CosmosContracts/juno/v16/x/feeshare"

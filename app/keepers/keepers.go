@@ -5,13 +5,13 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router"
+	packetforwardkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/keeper"
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
+	icq "github.com/cosmos/ibc-apps/modules/async-icq/v7"
+	icqkeeper "github.com/cosmos/ibc-apps/modules/async-icq/v7/keeper"
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 	"github.com/spf13/cast"
-	icq "github.com/strangelove-ventures/async-icq/v7"
-	icqkeeper "github.com/strangelove-ventures/async-icq/v7/keeper"
-	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
-	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
-	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v7/router/keeper"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
 
 	capabilityibckeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	icacontroller "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller"
@@ -48,8 +48,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
@@ -77,6 +75,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
 	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
@@ -131,7 +131,6 @@ type AppKeepers struct {
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.BaseKeeper
 	CapabilityKeeper      *capabilitykeeper.Keeper
-	CapabilityIBCKeeper   *capabilityibckeeper.Keeper
 	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	MintKeeper            mintkeeper.Keeper
@@ -212,19 +211,13 @@ func NewAppKeepers(
 		appKeepers.memKeys[capabilitytypes.MemStoreKey],
 	)
 
-	appKeepers.CapabilityIBCKeeper = capabilityibckeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[capabilitytypes.StoreKey],
-		appKeepers.memKeys[capabilitytypes.MemStoreKey],
-	)
-
 	// grant capabilities for the ibc and ibc-transfer modules
-	scopedIBCKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(ibcexported.ModuleName)
-	scopedICAControllerKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
-	scopedICAHostKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(icahosttypes.SubModuleName)
-	scopedICQKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(icqtypes.ModuleName)
-	scopedTransferKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	scopedWasmKeeper := appKeepers.CapabilityIBCKeeper.ScopeToModule(wasm.ModuleName)
+	scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
+	scopedICAControllerKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
+	scopedICAHostKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
+	scopedICQKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
+	scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
+	scopedWasmKeeper := appKeepers.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 
 	// add keepers
 	Bech32Prefix := "juno"
