@@ -7,9 +7,10 @@ replace (
 	// https://github.com/Reecepbcups/wasmd/pull/2
 	// go get github.com/Reecepbcups/wasmd@811c2f34a1f49c2846a5e224e2dc5be266a639af
 	github.com/CosmWasm/wasmd => github.com/Reecepbcups/wasmd v0.0.0-20230628034110-811c2f34a1f4
-	
-	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230630015718-48576f06bd8b
-	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/modules/async-icq/v7 v7.0.0-20230630015718-48576f06bd8b
+
+	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230630023120-6c0cafa50d47
+	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/modules/async-icq/v7 v7.0.0-20230630023120-6c0cafa50d47
+	github.com/cosmos/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20230630023120-6c0cafa50d47
 
 	// Use strangeloves wasm client fork. Will be in IBC v7.x.x or v8?
 	// https://github.com/strangelove-ventures/ibc-go/commits/feat/wasm-clients-main
@@ -31,6 +32,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230629164013-34f5e666f806
 	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.0.0-20230629164013-34f5e666f806
+	github.com/cosmos/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20230629164013-34f5e666f806
 	github.com/cosmos/ibc-go/v7 v7.2.0
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/mux v1.8.0
@@ -51,11 +53,11 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v0.13.0 // indirect
 	cloud.google.com/go/storage v1.29.0 // indirect
-	cosmossdk.io/core v0.5.1 // indirect
+	cosmossdk.io/core v0.6.1 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.3 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
-	github.com/99designs/keyring v1.2.1 // indirect
+	github.com/99designs/keyring v1.2.2 // indirect
 	github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.203 // indirect
@@ -71,7 +73,7 @@ require (
 	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
-	github.com/cosmos/cosmos-proto v1.0.0-beta.2
+	github.com/cosmos/cosmos-proto v1.0.0-beta.3
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/iavl v0.20.0 // indirect
