@@ -4,12 +4,40 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/math"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 )
+
+func getUnVestedCoins(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, bondDenom string) sdk.Coins {
+	var mintAmt math.Int = sdk.ZeroInt()
+
+	for i := range vacc.VestingPeriods {
+		ujunoAmt := vacc.VestingPeriods[i].Amount.AmountOf(bondDenom)
+
+		mintAmt = mintAmt.Add(ujunoAmt)
+	}
+
+	return sdk.NewCoins(sdk.NewCoin(bondDenom, mintAmt))
+}
+
+func clearVestingAccount(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, bondDenom string) {
+	// Finish vesting period now.
+	vacc.EndTime = 0
+	vacc.BaseVestingAccount.EndTime = 0
+
+	for i := range vacc.VestingPeriods {
+		vacc.VestingPeriods[i].Length = 0
+	}
+
+	vacc.VestingPeriods = nil
+	vacc.BaseVestingAccount.DelegatedVesting = sdk.Coins{}
+
+	keepers.AccountKeeper.SetAccount(ctx, vacc)
+}
 
 // Stops a vesting account and returns all tokens back to the Core-1 subdao.
 func MoveVestingCoinFromVestingAccount(ctx sdk.Context, accAddr sdk.AccAddress, keepers *keepers.AppKeepers, core1SubDaoAddress string, bondDenom string) error {
@@ -23,74 +51,46 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, accAddr sdk.AccAddress, 
 		// For e2e testing
 		fmt.Printf("account " + accAddr.String() + " is not a vesting account. This should not run on mainnet.\n")
 		return nil
-		// return fmt.Errorf("account " + accAddr.String() + " is not a vesting account")
 	}
 
 	// Shows locked funds
 	showLockedCoins(vacc, now)
 
-	// var expectedCoins sdk.Coin
+	// Gets all coins which have not been unlocked yet.
+	unvestedCoins := getUnVestedCoins(ctx, vacc, keepers, bondDenom)
 
-	// // account balance, vesting amounts
-	// accBal := keepers.BankKeeper.GetBalance(ctx, accAddr, bondDenom)
-	// vaccBal := vacc.GetVestingCoins(now)
-	// expectedCoins = expectedCoins.Add(accBal).Add(vaccBal...)
+	// Clears the account so all unvested coins are unlocked.
+	clearVestingAccount(ctx, vacc, keepers, bondDenom)
 
-	// Finish vesting period now.
-	vacc.EndTime = 0
-	vacc.BaseVestingAccount.EndTime = 0
-
-	// Since these periods have not yet vested, we are un-vesting and then minting to Core1 for future use.
-	ujunoAmt := 0
-	for i := range vacc.VestingPeriods {
-		vacc.VestingPeriods[i].Length = 0
-		ujunoAmt += int(vacc.VestingPeriods[i].Amount.AmountOf("ujuno").Int64())
-	}
-	vacc.VestingPeriods = nil
-	vacc.BaseVestingAccount.DelegatedVesting = sdk.Coins{}
-
-	keepers.AccountKeeper.SetAccount(ctx, vacc)
-
-	// Set it so any re-delegations are finished.
+	// Finish redeleations.
 	if err := completeAllRedelegations(ctx, keepers, accAddr, now); err != nil {
 		return err
 	}
 
 	// Instant unbond all delegations
-	// TODO: What about rewards?
 	if err := unbondAllAndFinish(ctx, now, keepers, accAddr); err != nil {
 		return err
 	}
 
-	// Get balance
-	accbal := keepers.BankKeeper.GetBalance(ctx, accAddr, bondDenom)
-	fmt.Printf("bal: %v\n", accbal)
-
-	// Send all tokens from balance to the core-1 subdao address
-	if e := keepers.BankKeeper.SendCoins(ctx, accAddr, core1AccAddr, sdk.NewCoins(accbal)); e != nil {
-		return fmt.Errorf("error sending coins: %v", e)
-	}
-
-	// get bal of core1SubDaoAddress
-	core1BalC := keepers.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32(core1SubDaoAddress), bondDenom)
-	fmt.Printf("core1Bal: %v\n", core1BalC)
-
-	// get balance of accAddr
-	accbal = keepers.BankKeeper.GetBalance(ctx, accAddr, bondDenom)
-	fmt.Printf("bal: %v\n", accbal)
-
-	// mint ujunoAmt to core1SubDaoAddress (unvested amounts)
-	tfrAmt := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(int64(ujunoAmt))))
-	if err := keepers.BankKeeper.MintCoins(ctx, minttypes.ModuleName, tfrAmt); err != nil {
+	// Moves the accounts held balance to the subDAO (ex: all unbonded tokens).
+	movedBal, err := migrateBalanceToCore1SubDao(ctx, vacc, keepers, core1AccAddr, bondDenom)
+	if err != nil {
 		return err
 	}
-	// transfer tfrAmt to core1 subdao
-	if err := keepers.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, core1AccAddr, tfrAmt); err != nil {
+	fmt.Printf("movedBal: %v\n", movedBal)
+
+	// mint unvested coins to be transfered.
+	if err := keepers.BankKeeper.MintCoins(ctx, minttypes.ModuleName, unvestedCoins); err != nil {
+		return err
+	}
+
+	// transfer unvested coins back to the to core1 subdao
+	if err := keepers.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, core1AccAddr, unvestedCoins); err != nil {
 		return err
 	}
 
 	// update core1 bal
-	core1BalC = keepers.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32(core1SubDaoAddress), bondDenom)
+	core1BalC := keepers.BankKeeper.GetBalance(ctx, core1AccAddr, bondDenom)
 	fmt.Printf("core1Bal: %v\n", core1BalC)
 
 	// delete vacc
@@ -104,6 +104,22 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, accAddr sdk.AccAddress, 
 
 	// return sdk.Coin{}, fmt.Errorf("not implemented MoveVestingCoinFromVestAccount")
 	return nil
+}
+
+func migrateBalanceToCore1SubDao(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, core1AccAddr sdk.AccAddress, bondDenom string) (sdk.Coin, error) {
+	// Get vesting account balance
+	accbal := keepers.BankKeeper.GetBalance(ctx, vacc.GetAddress(), bondDenom)
+	fmt.Printf("accbal: %v\n", accbal)
+
+	// Send all tokens from balance to the core-1 subdao address
+	if e := keepers.BankKeeper.SendCoins(ctx, vacc.GetAddress(), core1AccAddr, sdk.NewCoins(accbal)); e != nil {
+		return sdk.Coin{}, fmt.Errorf("error sending coins: %v", e)
+	}
+
+	core1BalC := keepers.BankKeeper.GetBalance(ctx, core1AccAddr, bondDenom)
+	fmt.Printf("core1Bal: %v\n", core1BalC)
+
+	return accbal, nil
 }
 
 func completeAllRedelegations(ctx sdk.Context, keepers *keepers.AppKeepers, accAddr sdk.AccAddress, now time.Time) error {
