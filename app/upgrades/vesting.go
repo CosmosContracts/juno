@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/math"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 )
 
 // Stops a vesting account and returns all tokens back to the Core-1 SubDAO.
@@ -28,11 +27,11 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	showLockedCoins(vacc, now)
 
 	// Gets all coins which have not been unlocked yet. (Will be minted to the Core-1 SubDAO later for usage.)
-	unvestedCoins := getUnVestedCoins(ctx, vacc, keepers, bondDenom)
+	unvestedCoins := getUnVestedCoins(vacc, bondDenom)
 
 	// Clears the account so all unvested coins are unlocked & removes any future vesting periods.
 	// (This way we can unbond and transfer all coins)
-	clearVestingAccount(ctx, vacc, keepers, bondDenom)
+	clearVestingAccount(ctx, vacc, keepers)
 
 	// Finish re-deleations.
 	if err := completeAllRedelegations(ctx, keepers, accAddr, now); err != nil {
@@ -51,7 +50,7 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	}
 
 	// Mints unvested tokens to the Core-1 SubDAO for future use.
-	if err := transferUnvestedTokensToCore1SubDao(ctx, keepers, bondDenom, accAddr, core1AccAddr, unvestedCoins); err != nil {
+	if err := transferUnvestedTokensToCore1SubDao(ctx, keepers, bondDenom, core1AccAddr, unvestedCoins); err != nil {
 		return err
 	}
 
@@ -62,8 +61,8 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	return nil
 }
 
-func transferUnvestedTokensToCore1SubDao(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr sdk.AccAddress, core1AccAddr sdk.AccAddress, unvestedCoins sdk.Coins) error {
-	// mint unvested coins to be transfered.
+func transferUnvestedTokensToCore1SubDao(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, core1AccAddr sdk.AccAddress, unvestedCoins sdk.Coins) error {
+	// mint unvested coins to be transferred.
 	if err := keepers.BankKeeper.MintCoins(ctx, minttypes.ModuleName, unvestedCoins); err != nil {
 		return err
 	}
@@ -155,8 +154,8 @@ func showLockedCoins(vacc *authvestingtypes.PeriodicVestingAccount, now time.Tim
 	fmt.Printf("lockedVesting: %v\n", lockedFromVesting)
 }
 
-func getUnVestedCoins(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, bondDenom string) sdk.Coins {
-	var mintAmt math.Int = sdk.ZeroInt()
+func getUnVestedCoins(vacc *authvestingtypes.PeriodicVestingAccount, bondDenom string) sdk.Coins {
+	mintAmt := sdk.ZeroInt()
 
 	for i := range vacc.VestingPeriods {
 		ujunoAmt := vacc.VestingPeriods[i].Amount.AmountOf(bondDenom)
@@ -167,7 +166,7 @@ func getUnVestedCoins(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAcc
 	return sdk.NewCoins(sdk.NewCoin(bondDenom, mintAmt))
 }
 
-func clearVestingAccount(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, bondDenom string) {
+func clearVestingAccount(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers) {
 	// Finish vesting period now.
 	vacc.EndTime = 0
 	vacc.BaseVestingAccount.EndTime = 0
