@@ -12,38 +12,9 @@ import (
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 )
 
-func getUnVestedCoins(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, bondDenom string) sdk.Coins {
-	var mintAmt math.Int = sdk.ZeroInt()
-
-	for i := range vacc.VestingPeriods {
-		ujunoAmt := vacc.VestingPeriods[i].Amount.AmountOf(bondDenom)
-
-		mintAmt = mintAmt.Add(ujunoAmt)
-	}
-
-	return sdk.NewCoins(sdk.NewCoin(bondDenom, mintAmt))
-}
-
-func clearVestingAccount(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, bondDenom string) {
-	// Finish vesting period now.
-	vacc.EndTime = 0
-	vacc.BaseVestingAccount.EndTime = 0
-
-	for i := range vacc.VestingPeriods {
-		vacc.VestingPeriods[i].Length = 0
-	}
-
-	vacc.VestingPeriods = nil
-	vacc.BaseVestingAccount.DelegatedVesting = sdk.Coins{}
-
-	keepers.AccountKeeper.SetAccount(ctx, vacc)
-}
-
-// Stops a vesting account and returns all tokens back to the Core-1 subdao.
-func MoveVestingCoinFromVestingAccount(ctx sdk.Context, accAddr sdk.AccAddress, keepers *keepers.AppKeepers, core1SubDaoAddress string, bondDenom string) error {
+// Stops a vesting account and returns all tokens back to the Core-1 SubDAO.
+func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr sdk.AccAddress, core1AccAddr sdk.AccAddress) error {
 	now := ctx.BlockHeader().Time
-
-	core1AccAddr := sdk.MustAccAddressFromBech32(core1SubDaoAddress)
 
 	stdAcc := keepers.AccountKeeper.GetAccount(ctx, accAddr)
 	vacc, ok := stdAcc.(*authvestingtypes.PeriodicVestingAccount)
@@ -56,13 +27,14 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, accAddr sdk.AccAddress, 
 	// Shows locked funds
 	showLockedCoins(vacc, now)
 
-	// Gets all coins which have not been unlocked yet.
+	// Gets all coins which have not been unlocked yet. (Will be minted to the Core-1 SubDAO later for usage.)
 	unvestedCoins := getUnVestedCoins(ctx, vacc, keepers, bondDenom)
 
-	// Clears the account so all unvested coins are unlocked.
+	// Clears the account so all unvested coins are unlocked & removes any future vesting periods.
+	// (This way we can unbond and transfer all coins)
 	clearVestingAccount(ctx, vacc, keepers, bondDenom)
 
-	// Finish redeleations.
+	// Finish re-deleations.
 	if err := completeAllRedelegations(ctx, keepers, accAddr, now); err != nil {
 		return err
 	}
@@ -72,13 +44,25 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, accAddr sdk.AccAddress, 
 		return err
 	}
 
-	// Moves the accounts held balance to the subDAO (ex: all unbonded tokens).
-	movedBal, err := migrateBalanceToCore1SubDao(ctx, vacc, keepers, core1AccAddr, bondDenom)
+	// Moves the accounts held balance to the SubDAO.
+	_, err := migrateBalanceToCore1SubDao(ctx, vacc, keepers, core1AccAddr, bondDenom)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("movedBal: %v\n", movedBal)
 
+	// Mints unvested tokens to the Core-1 SubDAO for future use.
+	if err := transferUnvestedTokensToCore1SubDao(ctx, keepers, bondDenom, accAddr, core1AccAddr, unvestedCoins); err != nil {
+		return err
+	}
+
+	// TODO: Delete the account, not further actions needed. Any downside to this?
+	keepers.AccountKeeper.RemoveAccount(ctx, vacc)
+
+	// return fmt.Errorf("DEBUGGING: not implemented MoveVestingCoinFromVestAccount")
+	return nil
+}
+
+func transferUnvestedTokensToCore1SubDao(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr sdk.AccAddress, core1AccAddr sdk.AccAddress, unvestedCoins sdk.Coins) error {
 	// mint unvested coins to be transfered.
 	if err := keepers.BankKeeper.MintCoins(ctx, minttypes.ModuleName, unvestedCoins); err != nil {
 		return err
@@ -89,35 +73,23 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, accAddr sdk.AccAddress, 
 		return err
 	}
 
-	// update core1 bal
 	core1BalC := keepers.BankKeeper.GetBalance(ctx, core1AccAddr, bondDenom)
-	fmt.Printf("core1Bal: %v\n", core1BalC)
+	fmt.Printf("Updated Core1 SubDAO Balance: %v\n", core1BalC)
 
-	// delete vacc
-	// keepers.AccountKeeper.RemoveAccount(ctx, vacc)
-
-	return fmt.Errorf("not implemented MoveVestingCoinFromVestAccount")
-
-	// TODO: Delete said account? (no reason to have it or the base account anymore yea? any issues of doing this?)
-	// if so, do we have to remove all the subAccounts first of the vacc/
-	// keepers.AccountKeeper.RemoveAccount(ctx, vacc)
-
-	// return sdk.Coin{}, fmt.Errorf("not implemented MoveVestingCoinFromVestAccount")
 	return nil
 }
 
 func migrateBalanceToCore1SubDao(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, core1AccAddr sdk.AccAddress, bondDenom string) (sdk.Coin, error) {
-	// Get vesting account balance
 	accbal := keepers.BankKeeper.GetBalance(ctx, vacc.GetAddress(), bondDenom)
-	fmt.Printf("accbal: %v\n", accbal)
 
-	// Send all tokens from balance to the core-1 subdao address
 	if e := keepers.BankKeeper.SendCoins(ctx, vacc.GetAddress(), core1AccAddr, sdk.NewCoins(accbal)); e != nil {
 		return sdk.Coin{}, fmt.Errorf("error sending coins: %v", e)
 	}
 
 	core1BalC := keepers.BankKeeper.GetBalance(ctx, core1AccAddr, bondDenom)
-	fmt.Printf("core1Bal: %v\n", core1BalC)
+
+	fmt.Printf("moved %v from %v to %v\n", accbal, vacc.GetAddress(), core1AccAddr)
+	fmt.Printf("New Core1 Bal: %v\n", core1BalC)
 
 	return accbal, nil
 }
@@ -181,4 +153,31 @@ func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeep
 func showLockedCoins(vacc *authvestingtypes.PeriodicVestingAccount, now time.Time) {
 	lockedFromVesting := vacc.LockedCoinsFromVesting(vacc.GetVestingCoins(now))
 	fmt.Printf("lockedVesting: %v\n", lockedFromVesting)
+}
+
+func getUnVestedCoins(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, bondDenom string) sdk.Coins {
+	var mintAmt math.Int = sdk.ZeroInt()
+
+	for i := range vacc.VestingPeriods {
+		ujunoAmt := vacc.VestingPeriods[i].Amount.AmountOf(bondDenom)
+
+		mintAmt = mintAmt.Add(ujunoAmt)
+	}
+
+	return sdk.NewCoins(sdk.NewCoin(bondDenom, mintAmt))
+}
+
+func clearVestingAccount(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, bondDenom string) {
+	// Finish vesting period now.
+	vacc.EndTime = 0
+	vacc.BaseVestingAccount.EndTime = 0
+
+	for i := range vacc.VestingPeriods {
+		vacc.VestingPeriods[i].Length = 0
+	}
+
+	vacc.VestingPeriods = nil
+	vacc.BaseVestingAccount.DelegatedVesting = sdk.Coins{}
+
+	keepers.AccountKeeper.SetAccount(ctx, vacc)
 }

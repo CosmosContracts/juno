@@ -165,12 +165,10 @@ func CreateV16UpgradeHandler(
 }
 
 func removeWolfCore1VestingAccountAndReturnToCore1(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string) error {
-	addr := sdk.MustAccAddressFromBech32(WolfsMainnetVestingAccount)
-
 	return upgrades.MoveVestingCoinFromVestingAccount(ctx,
-		addr,
 		keepers,
-		Core1SubDAOAddress,
 		bondDenom,
+		sdk.MustAccAddressFromBech32(WolfsMainnetVestingAccount),
+		sdk.MustAccAddressFromBech32(Core1SubDAOAddress),
 	)
 }
