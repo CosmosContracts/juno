@@ -54,9 +54,9 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 
 	fmt.Printf("\n\n== Vesting Account Address: %s (%s) ==\n", vacc.GetAddress().String(), name)
 
-	// Gets non-vested coins (These get returned back to Core-1 SubDAO)
+	// Gets non-vested coins (These get returned back to Core-1 SubDAO / a new vesting contract made from)
 	// The SubDAO should increase exactly with this much.
-	unvestedCoins := getStillVestingCoins(vacc, now)
+	unvestedCoins := vacc.GetVestingCoins(now)
 	fmt.Printf("Locked / waiting to vest Coins: %v\n", unvestedCoins)
 
 	// Pre migration balance
@@ -92,58 +92,66 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	// Create a new vesting contract owned by Core-1 (and Juno Governance by proxy)
 	// Wolfs resignation terminates his future vesting.
 	if name != "wolf" {
-		// End Vesting Time (Juno Network launch Oct 1st, 2021. Vested 12 years = 2033)
-		endVestingEpochDate := time.Date(2033, 10, 1, 0, 0, 0, 0, time.UTC)
-		endVestingEpochSeconds := uint64(endVestingEpochDate.Unix())
-		vestingDurationSeconds := endVestingEpochSeconds - uint64(now.Unix())
-
-		owner := core1AccAddr.String()
-		recipient := accAddr.String()
-
-		// TODO: Change address to their preferred recipient address
-		// https://github.com/DA0-DA0/dao-contracts/blob/main/contracts/external/cw-vesting/src/msg.rs#L11
-		msgBz, err := json.Marshal(VestingContract{
-			Owner:                    owner,
-			Recipient:                recipient,
-			Title:                    fmt.Sprintf("%s core-1", name),
-			Description:              "Core-1 Vesting contract",
-			Schedule:                 "saturating_linear",
-			UnbondingDurationSeconds: junoUnbondingSeconds,
-			VestingDurationSeconds:   vestingDurationSeconds,
-			Total:                    strconv.FormatInt(unvestedCoins[0].Amount.Int64(), 10),
-			Denom: Denom{
-				Native: "ujuno",
-			},
-		})
-		if err != nil {
+		if err := newVestingContract(ctx, keepers, core1AccAddr, accAddr, name, unvestedCoins); err != nil {
 			return err
 		}
-
-		fmt.Printf("Moving %v from Core1 to new contract\n", unvestedCoins)
-		fmt.Println(string(msgBz))
-
-		contractAcc, _, err := keepers.ContractKeeper.Instantiate(
-			ctx,
-			uint64(vestingCodeID),
-			core1AccAddr,
-			core1AccAddr,
-			msgBz,
-			fmt.Sprintf("vest_to_%s_%d", recipient, now.Unix()),
-			unvestedCoins,
-		)
-		if err != nil {
-			if strings.HasSuffix(err.Error(), "no such code") {
-				fmt.Printf("No such codeId: %d - skipping (e2e testing, not mainnet)\n", vestingCodeID)
-				return nil
-			}
-
-			return err
-		}
-
-		fmt.Printf("Contract Address: %s for %s with amount %d\n", contractAcc.String(), name, unvestedCoins[0].Amount.Int64())
-
 	}
 
+	return nil
+}
+
+func newVestingContract(ctx sdk.Context, keepers *keepers.AppKeepers, core1AccAddr, accAddr sdk.AccAddress, name string, unvestedCoins sdk.Coins) error {
+	now := ctx.BlockHeader().Time.Unix()
+
+	// End Vesting Time (Juno Network launch Oct 1st, 2021. Vested 12 years = 2033)
+	endVestingEpochDate := time.Date(2033, 10, 1, 0, 0, 0, 0, time.UTC)
+	endVestingEpochSeconds := uint64(endVestingEpochDate.Unix())
+	vestingDurationSeconds := endVestingEpochSeconds - uint64(now)
+
+	owner := core1AccAddr.String()
+	recipient := accAddr.String()
+
+	// TODO: Change address to their preferred recipient address
+	// https://github.com/DA0-DA0/dao-contracts/blob/main/contracts/external/cw-vesting/src/msg.rs#L11
+	msgBz, err := json.Marshal(VestingContract{
+		Owner:                    owner,
+		Recipient:                recipient,
+		Title:                    fmt.Sprintf("%s core-1", name),
+		Description:              "Core-1 Vesting contract",
+		Schedule:                 "saturating_linear",
+		UnbondingDurationSeconds: junoUnbondingSeconds,
+		VestingDurationSeconds:   vestingDurationSeconds,
+		Total:                    strconv.FormatInt(unvestedCoins[0].Amount.Int64(), 10),
+		Denom: Denom{
+			Native: "ujuno",
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Moving %v from Core1 to new contract\n", unvestedCoins)
+	fmt.Println(string(msgBz))
+
+	contractAcc, _, err := keepers.ContractKeeper.Instantiate(
+		ctx,
+		uint64(vestingCodeID),
+		core1AccAddr,
+		core1AccAddr,
+		msgBz,
+		fmt.Sprintf("vest_to_%s_%d", recipient, now),
+		unvestedCoins,
+	)
+	if err != nil {
+		if strings.HasSuffix(err.Error(), "no such code") {
+			fmt.Printf("No such codeId: %d - skipping (e2e testing, not mainnet)\n", vestingCodeID)
+			return nil
+		}
+
+		return err
+	}
+
+	fmt.Printf("Contract Address: %s for %s with amount %d\n", contractAcc.String(), name, unvestedCoins[0].Amount.Int64())
 	return nil
 }
 
@@ -180,7 +188,6 @@ func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom stri
 }
 
 func transferUnvestedTokensToCore1SubDao(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr, core1AccAddr sdk.AccAddress, unvestedCoins sdk.Coins) error {
-	// bank send from acc to core1AccAddr
 	fmt.Printf("Sending Unvested Coins back to Core-1: %v\n", unvestedCoins)
 	if err := keepers.BankKeeper.SendCoins(ctx, accAddr, core1AccAddr, unvestedCoins); err != nil {
 		return err
@@ -251,10 +258,6 @@ func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeep
 	}
 
 	return unbondedAmt, nil
-}
-
-func getStillVestingCoins(vacc *authvestingtypes.PeriodicVestingAccount, now time.Time) sdk.Coins {
-	return vacc.GetVestingCoins(now)
 }
 
 func clearVestingAccount(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, unvestedCoins sdk.Coins) {
