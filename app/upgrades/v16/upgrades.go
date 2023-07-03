@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
 	// SDK v47 modules
 	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -30,6 +31,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
+
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
@@ -45,13 +47,15 @@ const (
 // Core1VestingAccounts TODO: Need to get what address they want it to be under now to withdraw rewards.
 // https://daodao.zone/dao/juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3/members
 var Core1VestingAccounts = map[string]string{
-	"wolf":  "juno1a8u47ggy964tv9trjxfjcldutau5ls705djqyu",
+	"block": "juno17py8gfneaam64vt9kaec0fseqwxvkq0flmsmhg",
 	"dimi":  "juno1s33zct2zhhaf60x4a90cpe9yquw99jj0zen8pt",
 	"jack":  "juno130mdu9a0etmeuw52qfxk73pn0ga6gawk4k539x",
 	"jake":  "juno18qw9ydpewh405w4lvmuhlg9gtaep79vy2gmtr2",
-	"block": "juno17py8gfneaam64vt9kaec0fseqwxvkq0flmsmhg",
 	// TODO: So, can the SubDAO be the owner of the init'ed contract to claim rewards?
 	"multisig": "juno190g5j8aszqhvtg7cprmev8xcxs6csra7xnk3n3",
+	"wolf":     "juno1a8u47ggy964tv9trjxfjcldutau5ls705djqyu",
+
+	// "zlocalexample": "juno1xz599egrd3dhq5vx63mkwja38q5q3th8h3ukjj",
 }
 
 func CreateV16UpgradeHandler(
@@ -163,11 +167,7 @@ func CreateV16UpgradeHandler(
 
 		// Migrate Core-1 vesting account remaining funds -> Core-1
 		if ctx.ChainID() == "juno-1" {
-			// if err := removeWolfCore1VestingAccountAndReturnToCore1(ctx, keepers, nativeDenom); err != nil {
-			// 	return nil, err
-			// }
-
-			// Migrate Core-1 vesting account remaining funds -> Core-1
+			// Migrate Core-1 vesting account remaining funds -> Core-1, then create a new vesting contract for them (if not wolf).
 			if err := migrateCore1VestingAccounts(ctx, keepers, nativeDenom); err != nil {
 				return nil, err
 			}
@@ -179,20 +179,14 @@ func CreateV16UpgradeHandler(
 
 func migrateCore1VestingAccounts(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string) error {
 	for name, vestingAccount := range Core1VestingAccounts {
-		newContract := true
-		if name == "wolf" {
-			newContract = false
-		}
 
-		fmt.Printf("Migrating '%s's vesting account (New Contract: %v)\n", name, newContract)
-
+		// A new vesting contract will not be created if the account name is 'wolf'.
 		if err := upgrades.MoveVestingCoinFromVestingAccount(ctx,
 			keepers,
 			bondDenom,
 			name,
 			sdk.MustAccAddressFromBech32(vestingAccount),
 			sdk.MustAccAddressFromBech32(Core1SubDAOAddress),
-			newContract,
 		); err != nil {
 			return err
 		}

@@ -1,7 +1,9 @@
 package upgrades
 
 import (
+	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -11,7 +13,6 @@ import (
 	authvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 )
 
 const (
@@ -23,8 +24,24 @@ const (
 	junoUnbondingSeconds = 2419200
 )
 
+type VestingContract struct {
+	Owner                    string `json:"owner"`
+	Recipient                string `json:"recipient"`
+	Title                    string `json:"title"`
+	Description              string `json:"description"`
+	Schedule                 string `json:"schedule"`
+	UnbondingDurationSeconds uint64 `json:"unbonding_duration_seconds"`
+	VestingDurationSeconds   uint64 `json:"vesting_duration_seconds"`
+	Total                    string `json:"total"`
+	Denom                    Denom  `json:"denom"`
+}
+
+type Denom struct {
+	Native string `json:"native"`
+}
+
 // Stops a vesting account and returns all tokens back to the Core-1 SubDAO.
-func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, name string, accAddr sdk.AccAddress, core1AccAddr sdk.AccAddress, initNewContract bool) error {
+func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, name string, accAddr sdk.AccAddress, core1AccAddr sdk.AccAddress) error {
 	now := ctx.BlockHeader().Time
 
 	stdAcc := keepers.AccountKeeper.GetAccount(ctx, accAddr)
@@ -35,19 +52,18 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 		return nil
 	}
 
-	fmt.Printf("== Vesting Account Address: %s (%s) ==\n", vacc.GetAddress().String(), name)
+	fmt.Printf("\n\n== Vesting Account Address: %s (%s) ==\n", vacc.GetAddress().String(), name)
 
 	// Gets non-vested coins (These get returned back to Core-1 SubDAO)
 	// The SubDAO should increase exactly with this much.
 	unvestedCoins := getStillVestingCoins(vacc, now)
 	fmt.Printf("Locked / waiting to vest Coins: %v\n", unvestedCoins)
 
-	// Get Core1 and before migration
+	// Pre migration balance
 	core1BeforeBal := keepers.BankKeeper.GetBalance(ctx, core1AccAddr, bondDenom)
 
 	// Clears the account so all all future vesting periods are removed.
-	// Sets it as a standard base account.
-	clearVestingAccount(ctx, vacc, keepers)
+	clearVestingAccount(ctx, vacc, keepers, unvestedCoins)
 
 	// Complete any re-deleations to become standard delegations.
 	if err := completeAllRedelegations(ctx, keepers, accAddr, now); err != nil {
@@ -60,8 +76,11 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 		return err
 	}
 
-	// Moves unvested tokens to the Core-1 SubDAO for future use.
-	if err := transferUnvestedTokensToCore1SubDao(ctx, keepers, bondDenom, core1AccAddr, unvestedCoins); err != nil {
+	// set the vesting account to a base account
+	keepers.AccountKeeper.SetAccount(ctx, vacc.BaseAccount)
+
+	// Moves unvested tokens to the Core-1 SubDAO.
+	if err := transferUnvestedTokensToCore1SubDao(ctx, keepers, bondDenom, accAddr, core1AccAddr, unvestedCoins); err != nil {
 		return err
 	}
 
@@ -71,54 +90,60 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	}
 
 	// Create a new vesting contract owned by Core-1 (and Juno Governance by proxy)
-	if initNewContract {
+	// Wolfs resignation terminates his future vesting.
+	if name != "wolf" {
 		// End Vesting Time (Juno Network launch Oct 1st, 2021. Vested 12 years = 2033)
 		endVestingEpochDate := time.Date(2033, 10, 1, 0, 0, 0, 0, time.UTC)
 		endVestingEpochSeconds := uint64(endVestingEpochDate.Unix())
 		vestingDurationSeconds := endVestingEpochSeconds - uint64(now.Unix())
-
-		// move vestedTokens from Core1 to the new contract we init
-		fmt.Printf("moving %v from core1 to new contract\n", unvestedCoins)
 
 		owner := core1AccAddr.String()
 		recipient := accAddr.String()
 
 		// TODO: Change address to their preferred recipient address
 		// https://github.com/DA0-DA0/dao-contracts/blob/main/contracts/external/cw-vesting/src/msg.rs#L11
-		msg := fmt.Sprintf(`{"owner":"%s","recipient":"%s","title":"%s Core-1 Vesting","description":"Core-1 Vesting contract","schedule":"saturating_linear","unbonding_duration_seconds":%d,"vesting_duration_seconds":%d,"total":"%d","denom":{"native":"ujuno"}}`,
-			owner,
-			recipient,
-			name,
-			junoUnbondingSeconds,
-			vestingDurationSeconds,
-			unvestedCoins[0].Amount.Int64(),
-		)
+		msgBz, err := json.Marshal(VestingContract{
+			Owner:                    owner,
+			Recipient:                recipient,
+			Title:                    fmt.Sprintf("%s core-1", name),
+			Description:              "Core-1 Vesting contract",
+			Schedule:                 "saturating_linear",
+			UnbondingDurationSeconds: junoUnbondingSeconds,
+			VestingDurationSeconds:   vestingDurationSeconds,
+			Total:                    strconv.FormatInt(unvestedCoins[0].Amount.Int64(), 10),
+			Denom: Denom{
+				Native: "ujuno",
+			},
+		})
+		if err != nil {
+			return err
+		}
 
-		fmt.Println(msg)
+		fmt.Printf("Moving %v from Core1 to new contract\n", unvestedCoins)
+		fmt.Println(string(msgBz))
 
 		contractAcc, _, err := keepers.ContractKeeper.Instantiate(
 			ctx,
 			uint64(vestingCodeID),
 			core1AccAddr,
 			core1AccAddr,
-			[]byte(msg),
+			msgBz,
 			fmt.Sprintf("vest_to_%s_%d", recipient, now.Unix()),
 			unvestedCoins,
 		)
 		if err != nil {
 			if strings.HasSuffix(err.Error(), "no such code") {
-				fmt.Println("No such codeId: ", vestingCodeID, " - skipping (e2e testing, not mainnet)")
+				fmt.Printf("No such codeId: %d - skipping (e2e testing, not mainnet)\n", vestingCodeID)
 				return nil
 			}
 
 			return err
 		}
 
-		fmt.Println("Contract Created for:", contractAcc.String(), name, "With uAmount:", unvestedCoins[0].Amount)
+		fmt.Printf("Contract Address: %s for %s with amount %d\n", contractAcc.String(), name, unvestedCoins[0].Amount.Int64())
 
 	}
 
-	// return fmt.Errorf("DEBUGGING: not implemented MoveVestingCoinFromVestAccount")
 	return nil
 }
 
@@ -154,15 +179,10 @@ func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom stri
 	return nil
 }
 
-func transferUnvestedTokensToCore1SubDao(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, core1AccAddr sdk.AccAddress, unvestedCoins sdk.Coins) error {
-	// mint unvested coins to be transferred.
-	fmt.Printf("Minting Unvested Coins back to Core-1: %v\n", unvestedCoins)
-	if err := keepers.BankKeeper.MintCoins(ctx, minttypes.ModuleName, unvestedCoins); err != nil {
-		return err
-	}
-
-	// transfer unvested coins back to the to core1 subdao
-	if err := keepers.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, core1AccAddr, unvestedCoins); err != nil {
+func transferUnvestedTokensToCore1SubDao(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr, core1AccAddr sdk.AccAddress, unvestedCoins sdk.Coins) error {
+	// bank send from acc to core1AccAddr
+	fmt.Printf("Sending Unvested Coins back to Core-1: %v\n", unvestedCoins)
+	if err := keepers.BankKeeper.SendCoins(ctx, accAddr, core1AccAddr, unvestedCoins); err != nil {
 		return err
 	}
 
@@ -237,20 +257,19 @@ func getStillVestingCoins(vacc *authvestingtypes.PeriodicVestingAccount, now tim
 	return vacc.GetVestingCoins(now)
 }
 
-func clearVestingAccount(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers) {
+func clearVestingAccount(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, unvestedCoins sdk.Coins) {
 	// Finish vesting period now.
-	vacc.EndTime = 0
-	vacc.BaseVestingAccount.EndTime = 0
+	vacc.BaseVestingAccount.EndTime = ctx.BlockTime().Unix()
 
 	for i := range vacc.VestingPeriods {
 		vacc.VestingPeriods[i].Length = 0
 	}
 
-	vacc.VestingPeriods = nil
+	vacc.DelegatedFree = unvestedCoins
+	vacc.DelegatedVesting = sdk.Coins{}
+
+	vacc.BaseVestingAccount.DelegatedFree = unvestedCoins
 	vacc.BaseVestingAccount.DelegatedVesting = sdk.Coins{}
-	vacc.BaseVestingAccount.DelegatedFree = sdk.Coins{}
 
 	keepers.AccountKeeper.SetAccount(ctx, vacc)
-	keepers.AccountKeeper.SetAccount(ctx, vacc.BaseAccount)
-	fmt.Println("Vesting Account set to BaseAccount, not more vesting periods.")
 }
