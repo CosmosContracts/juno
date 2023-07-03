@@ -42,8 +42,7 @@ const (
 	Core1SubDAOAddress = "juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3"
 )
 
-// Core1VestingAccounts TODO: Need to get what address they want it to be under now to withdraw rewards.
-// https://daodao.zone/dao/juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3/members
+// Core1VestingAccounts https://daodao.zone/dao/juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3/members
 var Core1VestingAccounts = map[string]string{
 	"block": "juno17py8gfneaam64vt9kaec0fseqwxvkq0flmsmhg",
 	"dimi":  "juno1s33zct2zhhaf60x4a90cpe9yquw99jj0zen8pt",
@@ -163,9 +162,8 @@ func CreateV16UpgradeHandler(
 			return nil, err
 		}
 
-		// Migrate Core-1 vesting account remaining funds -> Core-1
+		// Migrate Core-1 vesting account remaining funds -> Core-1, then create a new vesting contract for them (if not wolf).
 		if ctx.ChainID() == "juno-1" {
-			// Migrate Core-1 vesting account remaining funds -> Core-1, then create a new vesting contract for them (if not wolf).
 			if err := migrateCore1VestingAccounts(ctx, keepers, nativeDenom); err != nil {
 				return nil, err
 			}

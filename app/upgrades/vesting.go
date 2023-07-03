@@ -55,7 +55,6 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	fmt.Printf("\n\n== Vesting Account Address: %s (%s) ==\n", vacc.GetAddress().String(), name)
 
 	// Gets non-vested coins (These get returned back to Core-1 SubDAO / a new vesting contract made from)
-	// The SubDAO should increase exactly with this much.
 	unvestedCoins := vacc.GetVestingCoins(now)
 	fmt.Printf("Locked / waiting to vest Coins: %v\n", unvestedCoins)
 
@@ -70,7 +69,7 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 		return err
 	}
 
-	// Instant unbond all delegations. Returns the amount of tokens (non rewards) which were returned.
+	// Instant unbond all delegations.
 	_, err := unbondAllAndFinish(ctx, now, keepers, accAddr)
 	if err != nil {
 		return err
@@ -111,7 +110,6 @@ func newVestingContract(ctx sdk.Context, keepers *keepers.AppKeepers, core1AccAd
 	owner := core1AccAddr.String()
 	recipient := accAddr.String()
 
-	// TODO: Change address to their preferred recipient address
 	// https://github.com/DA0-DA0/dao-contracts/blob/main/contracts/external/cw-vesting/src/msg.rs#L11
 	msgBz, err := json.Marshal(VestingContract{
 		Owner:                    owner,
@@ -225,7 +223,6 @@ func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeep
 
 	// Unbond all delegations from the account
 	for _, delegation := range keepers.StakingKeeper.GetAllDelegatorDelegations(ctx, accAddr) {
-		// fmt.Printf("delegation: %v\n", delegation)
 		validatorValAddr := delegation.GetValidatorAddr()
 		_, found := keepers.StakingKeeper.GetValidator(ctx, validatorValAddr)
 		if !found {
@@ -240,7 +237,6 @@ func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeep
 
 	// Take all unbonding and complete them.
 	for _, unbondingDelegation := range keepers.StakingKeeper.GetAllUnbondingDelegations(ctx, accAddr) {
-		// fmt.Printf("unbondingDelegation: %v\n", unbondingDelegation)
 		validatorStringAddr := unbondingDelegation.ValidatorAddress
 		validatorValAddr, _ := sdk.ValAddressFromBech32(validatorStringAddr)
 
@@ -261,7 +257,6 @@ func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeep
 }
 
 func clearVestingAccount(ctx sdk.Context, vacc *authvestingtypes.PeriodicVestingAccount, keepers *keepers.AppKeepers, unvestedCoins sdk.Coins) {
-	// Finish vesting period now.
 	vacc.BaseVestingAccount.EndTime = ctx.BlockTime().Unix()
 
 	for i := range vacc.VestingPeriods {
