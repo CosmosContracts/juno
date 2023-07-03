@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
 	// SDK v47 modules
 	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -31,7 +30,6 @@ import (
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
-
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
@@ -44,19 +42,17 @@ const (
 	Core1SubDAOAddress = "juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3"
 )
 
-var (
-	// TODO: Need to get what addres they want it to be under now to withdraw rewards.
-	// https://daodao.zone/dao/juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3/members
-	Core1VestingAccounts = map[string]string{
-		"wolf":  "juno1a8u47ggy964tv9trjxfjcldutau5ls705djqyu",
-		"dimi":  "juno1s33zct2zhhaf60x4a90cpe9yquw99jj0zen8pt",
-		"jack":  "juno130mdu9a0etmeuw52qfxk73pn0ga6gawk4k539x",
-		"jake":  "juno18qw9ydpewh405w4lvmuhlg9gtaep79vy2gmtr2",
-		"block": "juno17py8gfneaam64vt9kaec0fseqwxvkq0flmsmhg",
-		// TODO: So, can the SubDAO be the owner of the init'ed contract to claim rewards?
-		"multisig": "juno190g5j8aszqhvtg7cprmev8xcxs6csra7xnk3n3",
-	}
-)
+// Core1VestingAccounts TODO: Need to get what address they want it to be under now to withdraw rewards.
+// https://daodao.zone/dao/juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3/members
+var Core1VestingAccounts = map[string]string{
+	"wolf":  "juno1a8u47ggy964tv9trjxfjcldutau5ls705djqyu",
+	"dimi":  "juno1s33zct2zhhaf60x4a90cpe9yquw99jj0zen8pt",
+	"jack":  "juno130mdu9a0etmeuw52qfxk73pn0ga6gawk4k539x",
+	"jake":  "juno18qw9ydpewh405w4lvmuhlg9gtaep79vy2gmtr2",
+	"block": "juno17py8gfneaam64vt9kaec0fseqwxvkq0flmsmhg",
+	// TODO: So, can the SubDAO be the owner of the init'ed contract to claim rewards?
+	"multisig": "juno190g5j8aszqhvtg7cprmev8xcxs6csra7xnk3n3",
+}
 
 func CreateV16UpgradeHandler(
 	mm *module.Manager,

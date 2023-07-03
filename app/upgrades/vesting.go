@@ -96,7 +96,7 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 
 		fmt.Println(msg)
 
-		contractAddrHex, _, err := keepers.ContractKeeper.Instantiate(
+		contractAcc, _, err := keepers.ContractKeeper.Instantiate(
 			ctx,
 			uint64(vestingCodeID),
 			core1AccAddr,
@@ -105,7 +105,6 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 			fmt.Sprintf("vest_to_%s_%d", recipient, now.Unix()),
 			unvestedCoins,
 		)
-
 		if err != nil {
 			if strings.HasSuffix(err.Error(), "no such code") {
 				fmt.Println("No such codeId: ", vestingCodeID, " - skipping (e2e testing, not mainnet)")
@@ -115,8 +114,7 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 			return err
 		}
 
-		contractAddrBech32 := sdk.AccAddress(contractAddrHex).String()
-		fmt.Println("Contract Created for:", contractAddrBech32, name, "With uAmount:", unvestedCoins[0].Amount)
+		fmt.Println("Contract Created for:", contractAcc.String(), name, "With uAmount:", unvestedCoins[0].Amount)
 
 	}
 
