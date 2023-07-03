@@ -89,6 +89,8 @@ import (
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 var (
@@ -117,6 +119,7 @@ var maccPerms = map[string][]string{
 	wasm.ModuleName:                {authtypes.Burner},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfee.ModuleName:           nil,
+	buildertypes.ModuleName:        nil,
 }
 
 type AppKeepers struct {
@@ -128,6 +131,7 @@ type AppKeepers struct {
 	// keepers
 	AccountKeeper       authkeeper.AccountKeeper
 	BankKeeper          bankkeeper.BaseKeeper
+	BuildKeeper         builderkeeper.Keeper
 	CapabilityKeeper    *capabilitykeeper.Keeper
 	StakingKeeper       *stakingkeeper.Keeper
 	SlashingKeeper      slashingkeeper.Keeper
@@ -455,6 +459,17 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
+	// Create the Skip Builder Keeper
+	appKeepers.BuildKeeper = builderkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[buildertypes.StoreKey],
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.DistrKeeper,
+		appKeepers.StakingKeeper,
+		govModAddress,
+	)
+
 	wasmDir := filepath.Join(homePath, "data")
 
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
@@ -626,6 +641,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
+	paramsKeeper.Subspace(buildertypes.ModuleName)
 
 	return paramsKeeper
 }

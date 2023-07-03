@@ -30,7 +30,10 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require github.com/google/s2a-go v0.1.3 // indirect
+require (
+	github.com/google/s2a-go v0.1.3 // indirect
+	github.com/skip-mev/pob v1.0.0 // indirect
+)
 
 require (
 	cloud.google.com/go v0.110.0 // indirect

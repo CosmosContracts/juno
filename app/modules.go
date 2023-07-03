@@ -65,6 +65,9 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+
+	buildermodule "github.com/skip-mev/pob/x/builder"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -88,6 +91,7 @@ var ModuleBasics = module.NewBasicManager(
 	vesting.AppModuleBasic{},
 	nftmodule.AppModuleBasic{},
 	consensus.AppModuleBasic{},
+	buildermodule.AppModuleBasic{},
 	// non sdk modules
 	wasm.AppModuleBasic{},
 	ibc.AppModuleBasic{},
@@ -145,6 +149,7 @@ func appModules(
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
+		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
 		// IBC modules
 		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -206,6 +211,7 @@ func orderBeginBlockers() []string {
 		vestingtypes.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
+		buildertypes.ModuleName,
 		// additional modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
@@ -241,6 +247,7 @@ func orderEndBlockers() []string {
 		vestingtypes.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
+		buildertypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
@@ -276,6 +283,7 @@ func orderInitBlockers() []string {
 		feegrant.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
+		buildertypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,

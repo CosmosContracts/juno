@@ -34,6 +34,7 @@ import (
 	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -51,6 +52,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
 		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, globalfeetypes.StoreKey,
+		buildertypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
