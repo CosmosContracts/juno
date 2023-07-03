@@ -32,11 +32,8 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	unvestedCoins := getStillVestingCoins(vacc, now)
 	fmt.Printf("Locked / waiting to vest Coins: %v\n", unvestedCoins)
 
-	// Get Core1 and Vesting account balances before migration
+	// Get Core1 and before migration
 	core1BeforeBal := keepers.BankKeeper.GetBalance(ctx, core1AccAddr, bondDenom)
-	// beforeBal := keepers.BankKeeper.GetBalance(ctx, accAddr, bondDenom) // cant do anything with before block rewards.
-	// fmt.Printf("Core1 SubDAO Balance: %v\n", core1BeforeBal)
-	// fmt.Printf("Vesting Account Balance: %v\n", beforeBal)
 
 	// Clears the account so all all future vesting periods are removed.
 	// Sets it as a standard base account.
@@ -154,7 +151,6 @@ func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeep
 		if err != nil {
 			return math.ZeroInt(), err
 		}
-		// fmt.Printf("time: %s and err:%v\n", time, err)
 	}
 
 	// Take all unbonding and complete them.
