@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
 	// SDK v47 modules
 	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -30,6 +31,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
+
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
@@ -38,8 +40,8 @@ import (
 )
 
 const (
-	// TODO: This is my testing local account, not wolfs. need list from Core-1.
-	WolfsMainnetVestingAccount = "juno1xz599egrd3dhq5vx63mkwja38q5q3th8h3ukjj"
+	// Wolf's periodic vesting account (confirmed with him)
+	WolfsMainnetVestingAccount = "juno1a8u47ggy964tv9trjxfjcldutau5ls705djqyu"
 	// Core-1 Mainnet Address
 	Core1SubDAOAddress = "juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3"
 )
