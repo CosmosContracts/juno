@@ -54,7 +54,6 @@ func CreateV16UpgradeHandler(
 		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
 		keepers.IBCKeeper.ClientKeeper.SetParams(ctx, params)
 
-		// TODO: Our mint, feeshare, globalfee, and tokenfactory module needs to be migrated to v47 for minttypes.ModuleName
 		// https://github.com/cosmos/cosmos-sdk/pull/12363/files
 		// Set param key table for params module migration
 		for _, subspace := range keepers.ParamsKeeper.GetSubspaces() {
