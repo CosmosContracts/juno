@@ -122,7 +122,7 @@ func CreateV16UpgradeHandler(
 		// https://github.com/cosmos/ibc-go/blob/v7.1.0/docs/migrations/v7-to-v7_1.md
 		// explicitly update the IBC 02-client params, adding the localhost client type
 		params := keepers.IBCKeeper.ClientKeeper.GetParams(ctx)
-		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
+		params.AllowedClients = append(params.AllowedClients, exported.Localhost, exported.Wasm)
 		keepers.IBCKeeper.ClientKeeper.SetParams(ctx, params)
 
 		// Interchain Queries
