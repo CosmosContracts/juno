@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
 	// SDK v47 modules
 	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -30,6 +31,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/CosmosContracts/juno/v16/app/upgrades"
+
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
@@ -49,12 +51,6 @@ func CreateV16UpgradeHandler(
 
 		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
-
-		// https://github.com/cosmos/ibc-go/blob/v7.1.0/docs/migrations/v7-to-v7_1.md
-		// explicitly update the IBC 02-client params, adding the localhost client type
-		params := keepers.IBCKeeper.ClientKeeper.GetParams(ctx)
-		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
-		keepers.IBCKeeper.ClientKeeper.SetParams(ctx, params)
 
 		// TODO: Our mint, feeshare, globalfee, and tokenfactory module needs to be migrated to v47 for minttypes.ModuleName
 		// https://github.com/cosmos/cosmos-sdk/pull/12363/files
@@ -123,14 +119,17 @@ func CreateV16UpgradeHandler(
 		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
-		// Anything to do with ConsensusParamsKeeper?
+		// https://github.com/cosmos/ibc-go/blob/v7.1.0/docs/migrations/v7-to-v7_1.md
+		// explicitly update the IBC 02-client params, adding the localhost client type
+		params := keepers.IBCKeeper.ClientKeeper.GetParams(ctx)
+		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
+		keepers.IBCKeeper.ClientKeeper.SetParams(ctx, params)
 
 		// Interchain Queries
 		icqParams := icqtypes.NewParams(true, nil)
 		keepers.ICQKeeper.SetParams(ctx, icqParams)
 
-		// update gov params to use a 20% initial deposit ratio, allowing us to remote the ante handler
-		// TODO: Add test for this
+		// update gov params to use a 20% initial deposit ratio, allowing us to remove the ante handler
 		govParams := keepers.GovKeeper.GetParams(ctx)
 		govParams.MinInitialDepositRatio = sdk.NewDec(20).Quo(sdk.NewDec(100)).String()
 		if err := keepers.GovKeeper.SetParams(ctx, govParams); err != nil {
