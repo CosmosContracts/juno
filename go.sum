@@ -238,8 +238,8 @@ github.com/Reecepbcups/ibc-apps/modules/async-icq/v7 v7.0.0-20230630023120-6c0ca
 github.com/Reecepbcups/ibc-apps/modules/async-icq/v7 v7.0.0-20230630023120-6c0cafa50d47/go.mod h1:I7vO9zGudnciPAZWbEhumlLvHJT6W7ysLDCZX4m6o+I=
 github.com/Reecepbcups/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20230630023120-6c0cafa50d47 h1:uyieaMq+GZ2zkN6D0ePKza7wo9MBwd/eR8EbuUwB6bc=
 github.com/Reecepbcups/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20230630023120-6c0cafa50d47/go.mod h1:6cdz+vJPUWUZJ8m555JQPHFbCC6nzNjpadF2rRinCPI=
-github.com/Reecepbcups/wasmd v0.0.0-20230628034110-811c2f34a1f4 h1:EDaFRjcaPpPn+A+5SBKvg/Id9ZkoxwLD0BBBnxV54Ho=
-github.com/Reecepbcups/wasmd v0.0.0-20230628034110-811c2f34a1f4/go.mod h1:2JDDm2p8a19AA72UJFGQdCq1wFNea9XSM0zp1qERlFY=
+github.com/Reecepbcups/wasmd v0.0.0-20230706205213-59877ba5c75e h1:8Seb1YT6qWv6Hv5YTv7i15FuTasYsDQFTO52MmMDjGw=
+github.com/Reecepbcups/wasmd v0.0.0-20230706205213-59877ba5c75e/go.mod h1:EqAnId2uv8Xw4qkbdp9rAU8ac9csKT5xj41+UnRgwQI=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
@@ -1116,8 +1116,8 @@ github.com/spf13/viper v1.3.2/go.mod h1:ZiWeW+zYFKm7srdB9IoDzzZXaJaI5eL9QjNiN/DM
 github.com/spf13/viper v1.16.0 h1:rGGH0XDZhdUOryiDWjmIvUSWpbNqisK8Wk0Vyefw8hc=
 github.com/spf13/viper v1.16.0/go.mod h1:yg78JgCJcbrQOvV9YLXgkLaZqUidkY9K+Dd1FofRzQg=
 github.com/status-im/keycard-go v0.0.0-20190316090335-8537d3370df4/go.mod h1:RZLeN1LMWmRsyYjvAu+I6Dm9QmlDaIIt+Y+4Kd7Tp+Q=
-github.com/strangelove-ventures/ibc-go/v7 v7.0.0-20230629205643-bf9ec205f108 h1:kReBf0Ra3tK/0q3X3pg1qxvvmTN35Ez00sdRy2vBk6c=
-github.com/strangelove-ventures/ibc-go/v7 v7.0.0-20230629205643-bf9ec205f108/go.mod h1:XpR8vsMeD6IwndDzE11xpuFv/p/YE3HJ1H15r5NJNGk=
+github.com/strangelove-ventures/ibc-go/v7 v7.0.0-20230705230340-d46298f6a7e5 h1:M/sJ8OdfG4WgzJK8QMG07RqOmXN5M/UNhzfyCKzmsxQ=
+github.com/strangelove-ventures/ibc-go/v7 v7.0.0-20230705230340-d46298f6a7e5/go.mod h1:Rx6PaZzuM3bZdvzOZ8AApuuMr7LI8ua9/KRrsShRIrc=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/handy v0.0.0-20190108123426-d5acb3125c2a/go.mod h1:qNTQ5P5JnDBl6z3cMAg/SywNDC5ABu5ApDIw6lUbRmI=
@@ -1853,8 +1853,8 @@ google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQ
 google.golang.org/protobuf v1.27.1/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.28.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 google.golang.org/protobuf v1.28.1/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
-google.golang.org/protobuf v1.30.0 h1:kPPoIgf3TsEvrm0PFe15JQ+570QVxYzEvvHqChK+cng=
-google.golang.org/protobuf v1.30.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
+google.golang.org/protobuf v1.31.0 h1:g0LDEJHgrBl9N9r17Ru3sqWhkIx2NB67okBHPwC7hs8=
+google.golang.org/protobuf v1.31.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

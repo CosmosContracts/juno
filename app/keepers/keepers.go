@@ -313,6 +313,7 @@ func NewAppKeepers(
 		appKeepers.StakingKeeper,
 		appKeepers.UpgradeKeeper,
 		scopedIBCKeeper,
+		govModAddress,
 	)
 
 	appKeepers.FeeGrantKeeper = feegrantkeeper.NewKeeper(
@@ -402,6 +403,7 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		scopedTransferKeeper,
+		govModAddress,
 	)
 
 	appKeepers.PacketForwardKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
@@ -428,6 +430,7 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		scopedICAHostKeeper,
 		bApp.MsgServiceRouter(),
+		govModAddress,
 	)
 
 	// ICA Controller keeper
@@ -436,6 +439,7 @@ func NewAppKeepers(
 		appKeepers.IBCFeeKeeper, // use ics29 fee as ics4Wrapper in middleware stack
 		appKeepers.IBCKeeper.ChannelKeeper, &appKeepers.IBCKeeper.PortKeeper,
 		scopedICAControllerKeeper, bApp.MsgServiceRouter(),
+		govModAddress,
 	)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route

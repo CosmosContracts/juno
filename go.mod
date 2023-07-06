@@ -5,17 +5,17 @@ go 1.20
 // Testnet only patches for the wasm-08 client.
 replace (
 	// https://github.com/Reecepbcups/wasmd/pull/2
-	// go get github.com/Reecepbcups/wasmd@811c2f34a1f49c2846a5e224e2dc5be266a639af
-	github.com/CosmWasm/wasmd => github.com/Reecepbcups/wasmd v0.0.0-20230628034110-811c2f34a1f4
+	// go get github.com/Reecepbcups/wasmd@59877ba5c75e762ab19e1af60c9e97ea68bbacf1
+	github.com/CosmWasm/wasmd => github.com/Reecepbcups/wasmd v0.0.0-20230706205213-59877ba5c75e
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20230630023120-6c0cafa50d47
 	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/modules/async-icq/v7 v7.0.0-20230630023120-6c0cafa50d47
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20230629164013-34f5e666f806 => github.com/Reecepbcups/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20230630023120-6c0cafa50d47
 
-	// Use strangeloves wasm client fork. Will be in IBC v7.x.x or v8?
+	// Use strangeloves wasm client fork. Will be in IBC v7.3.x
 	// https://github.com/strangelove-ventures/ibc-go/commits/feat/wasm-clients-main
-	// go get github.com/strangelove-ventures/ibc-go/v7@bf9ec205f108d10d21ade2b62e35da4d6b66300b
-	github.com/cosmos/ibc-go/v7 => github.com/strangelove-ventures/ibc-go/v7 v7.0.0-20230629205643-bf9ec205f108
+	// go get github.com/strangelove-ventures/ibc-go/v7@d46298f6a7e51651bb16074086d0811a0eb2dbaf
+	github.com/cosmos/ibc-go/v7 => github.com/strangelove-ventures/ibc-go/v7 v7.0.0-20230705230340-d46298f6a7e5
 )
 
 require (
@@ -183,7 +183,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.122.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
+	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
