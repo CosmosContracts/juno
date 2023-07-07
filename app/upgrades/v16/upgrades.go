@@ -48,12 +48,6 @@ func CreateV16UpgradeHandler(
 		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
 		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
 
-		// https://github.com/cosmos/ibc-go/blob/v7.1.0/docs/migrations/v7-to-v7_1.md
-		// explicitly update the IBC 02-client params, adding the localhost client type
-		params := keepers.IBCKeeper.ClientKeeper.GetParams(ctx)
-		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
-		keepers.IBCKeeper.ClientKeeper.SetParams(ctx, params)
-
 		// https://github.com/cosmos/cosmos-sdk/pull/12363/files
 		// Set param key table for params module migration
 		for _, subspace := range keepers.ParamsKeeper.GetSubspaces() {
@@ -121,14 +115,17 @@ func CreateV16UpgradeHandler(
 		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
-		// Anything to do with ConsensusParamsKeeper?
+		// https://github.com/cosmos/ibc-go/blob/v7.1.0/docs/migrations/v7-to-v7_1.md
+		// explicitly update the IBC 02-client params, adding the localhost client type
+		params := keepers.IBCKeeper.ClientKeeper.GetParams(ctx)
+		params.AllowedClients = append(params.AllowedClients, exported.Localhost)
+		keepers.IBCKeeper.ClientKeeper.SetParams(ctx, params)
 
 		// Interchain Queries
 		icqParams := icqtypes.NewParams(true, nil)
 		keepers.ICQKeeper.SetParams(ctx, icqParams)
 
 		// update gov params to use a 20% initial deposit ratio, allowing us to remote the ante handler
-		// TODO: Add test for this
 		govParams := keepers.GovKeeper.GetParams(ctx)
 		govParams.MinInitialDepositRatio = sdk.NewDec(20).Quo(sdk.NewDec(100)).String()
 		if err := keepers.GovKeeper.SetParams(ctx, govParams); err != nil {

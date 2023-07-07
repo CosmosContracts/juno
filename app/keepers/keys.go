@@ -50,7 +50,9 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		icacontrollertypes.StoreKey, icqtypes.StoreKey,
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
-		tokenfactorytypes.StoreKey, feesharetypes.StoreKey, globalfeetypes.StoreKey,
+		tokenfactorytypes.StoreKey,
+		feesharetypes.StoreKey,
+		globalfeetypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
