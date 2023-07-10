@@ -29,7 +29,7 @@ func TestJunoTokenFactory(t *testing.T) {
 	user2 := users[1]
 	uaddr2 := user2.FormattedAddress()
 
-	tfDenom := helpers.CreateTokenFactoryDenom(t, ctx, juno, user, "ictestdenom")
+	tfDenom := helpers.CreateTokenFactoryDenom(t, ctx, juno, user, "ictestdenom", fmt.Sprintf("0%s", Denom))
 	t.Log("tfDenom", tfDenom)
 
 	// mint
