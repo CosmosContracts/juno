@@ -31,3 +31,12 @@ STAKE_TOKEN=ujunox UNSAFE_CORS=true TIMEOUT_COMMIT=1s docker-compose up
 - [Telegram](https://t.me/JunoNetwork)
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
+
+## Attribution
+
+
+We'd like to thank the following teams for their contributions to Juno:
+
+- [EVMOS](https://twitter.com/EvmosOrg) - x/feeshare
+- [tgrade](https://twitter.com/TgradeFinance) - x/globalfee
+- [confio](https://twitter.com/confio_tech) - CosmWasm
