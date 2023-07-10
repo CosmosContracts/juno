@@ -23,7 +23,7 @@ func debugOutput(t *testing.T, stdout string) {
 	}
 }
 
-func CreateTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, subDenomName string) (fullDenom string) {
+func CreateTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, subDenomName, feeCoin string) (fullDenom string) {
 	// TF gas to create cost 2mil, so we set to 2.5 to be safe
 	cmd := []string{"junod", "tx", "tokenfactory", "create-denom", subDenomName,
 		"--node", chain.GetRPCAddress(),
@@ -31,11 +31,15 @@ func CreateTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Co
 		"--chain-id", chain.Config().ChainID,
 		"--from", user.KeyName(),
 		"--gas", "2500000",
-		"--gas-adjustment", "2.0",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
 	}
+
+	if feeCoin != "" {
+		cmd = append(cmd, "--fees", feeCoin)
+	}
+
 	stdout, _, err := chain.Exec(ctx, cmd, nil)
 	require.NoError(t, err)
 

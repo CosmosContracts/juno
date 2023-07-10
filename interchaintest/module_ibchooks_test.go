@@ -115,6 +115,18 @@ func TestJunoIBCHooks(t *testing.T) {
 	channel, err := ibc.GetTransferChannel(ctx, r, eRep, juno.Config().ChainID, juno2.Config().ChainID)
 	require.NoError(t, err)
 
+	err = r.StartRelayer(ctx, eRep, path)
+	require.NoError(t, err)
+
+	t.Cleanup(
+		func() {
+			err := r.StopRelayer(ctx, eRep)
+			if err != nil {
+				t.Logf("an error occured while stopping the relayer: %s", err)
+			}
+		},
+	)
+
 	_, contractAddr := helpers.SetupContract(t, ctx, juno2, juno2User.KeyName(), "contracts/ibchooks_counter.wasm", `{"count":0}`)
 
 	// do an ibc transfer through the memo to the other chain.
@@ -134,8 +146,6 @@ func TestJunoIBCHooks(t *testing.T) {
 	junoHeight, err := juno.Height(ctx)
 	require.NoError(t, err)
 
-	// TODO: Remove when the relayer is fixed
-	r.Flush(ctx, eRep, path, channel.ChannelID)
 	_, err = testutil.PollForAck(ctx, juno, junoHeight-5, junoHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 
@@ -145,8 +155,6 @@ func TestJunoIBCHooks(t *testing.T) {
 	junoHeight, err = juno.Height(ctx)
 	require.NoError(t, err)
 
-	// TODO: Remove when the relayer is fixed
-	r.Flush(ctx, eRep, path, channel.ChannelID)
 	_, err = testutil.PollForAck(ctx, juno, junoHeight-5, junoHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 

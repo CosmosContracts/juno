@@ -32,7 +32,7 @@ var (
 	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
 
 	IBCRelayerImage   = "ghcr.io/cosmos/relayer"
-	IBCRelayerVersion = "justin-localhost-ibc"
+	IBCRelayerVersion = "main"
 
 	junoRepo, junoVersion = GetDockerImageInfo()
 
