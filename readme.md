@@ -39,3 +39,4 @@ We'd like to thank the following teams for their contributions to Juno:
 - [EVMOS](https://twitter.com/EvmosOrg) - x/feeshare
 - [tgrade](https://twitter.com/TgradeFinance) - x/globalfee
 - [confio](https://twitter.com/confio_tech) - CosmWasm
+- [osmosis](https://twitter.com) - Osmosis
