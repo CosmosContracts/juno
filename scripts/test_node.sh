@@ -79,8 +79,7 @@ from_scratch () {
   # FeeShare
   update_test_genesis '.app_state["feeshare"]["params"]["allowed_denoms"]=["ujuno"]'
 
-  # Builder keeper genesis state
-	update_test_genesis '.app_state["builder"]["params"]["escrow_account_address"]="juno1nvnxuuv3fh0q6dmp9wxlhm97nqqffrqxxmreca"'
+  # Builder keeper genesis state	
 	update_test_genesis '.app_state["builder"]["params"]["front_running_protection"]=false'
 	update_test_genesis '.app_state["builder"]["params"]["max_bundle_size"]="4"'
 	update_test_genesis '.app_state["builder"]["params"]["min_bid_increment"]["denom"]="ujuno"'
