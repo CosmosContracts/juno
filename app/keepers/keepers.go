@@ -5,6 +5,8 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 	"github.com/spf13/cast"
 
 	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router"
@@ -88,8 +90,6 @@ import (
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 var (

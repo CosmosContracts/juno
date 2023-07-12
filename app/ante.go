@@ -3,6 +3,8 @@ package app
 import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	builderante "github.com/skip-mev/pob/x/builder/ante"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
@@ -22,8 +24,6 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
 	globalfeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
 	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
-	builderante "github.com/skip-mev/pob/x/builder/ante"
-	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 )
 
 const maxBypassMinFeeMsgGasUsage = 1_000_000

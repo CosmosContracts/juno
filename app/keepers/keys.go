@@ -2,6 +2,7 @@ package keepers
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
@@ -34,7 +35,6 @@ import (
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -54,7 +54,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		tokenfactorytypes.StoreKey,
 		feesharetypes.StoreKey,
 		globalfeetypes.StoreKey,
-    buildertypes.StoreKey,
+		buildertypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
