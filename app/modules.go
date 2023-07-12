@@ -3,6 +3,8 @@ package app
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	buildermodule "github.com/skip-mev/pob/x/builder"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router"
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
@@ -88,6 +90,7 @@ var ModuleBasics = module.NewBasicManager(
 	vesting.AppModuleBasic{},
 	nftmodule.AppModuleBasic{},
 	consensus.AppModuleBasic{},
+	buildermodule.AppModuleBasic{},
 	// non sdk modules
 	wasm.AppModuleBasic{},
 	ibc.AppModuleBasic{},
@@ -145,6 +148,7 @@ func appModules(
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
+		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -206,6 +210,7 @@ func orderBeginBlockers() []string {
 		vestingtypes.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
+		buildertypes.ModuleName,
 		// additional modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
@@ -241,6 +246,7 @@ func orderEndBlockers() []string {
 		vestingtypes.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
+		buildertypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
@@ -276,6 +282,7 @@ func orderInitBlockers() []string {
 		feegrant.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
+		buildertypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,

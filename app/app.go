@@ -13,6 +13,8 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
+	pobabci "github.com/skip-mev/pob/abci"
+	pobmempool "github.com/skip-mev/pob/mempool"
 	"github.com/spf13/cast"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -215,6 +217,9 @@ type App struct {
 
 	// module configurator
 	configurator module.Configurator
+
+	// custom checkTx handler
+	checkTxHandler pobabci.CheckTx
 }
 
 // New returns a reference to an initialized Juno.
@@ -325,6 +330,15 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
+	factory := pobmempool.NewDefaultAuctionFactory(app.txConfig.TxDecoder())
+	mempool := pobmempool.NewAuctionMempool(
+		app.txConfig.TxDecoder(),
+		app.txConfig.TxEncoder(),
+		0,
+		factory,
+	)
+	app.SetMempool(mempool)
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -346,11 +360,35 @@ func New(
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
 			GlobalFeeKeeper:      app.AppKeepers.GlobalFeeKeeper,
 			StakingKeeper:        *app.AppKeepers.StakingKeeper,
+
+			TxEncoder:     app.txConfig.TxEncoder(),
+			BuilderKeeper: app.AppKeepers.BuildKeeper,
+			Mempool:       mempool,
 		},
 	)
 	if err != nil {
 		panic(err)
 	}
+
+	proposalHandlers := pobabci.NewProposalHandler(
+		mempool,
+		app.Logger(),
+		anteHandler,
+		app.txConfig.TxEncoder(),
+		app.txConfig.TxDecoder(),
+	)
+	app.SetPrepareProposal(proposalHandlers.PrepareProposalHandler())
+	app.SetProcessProposal(proposalHandlers.ProcessProposalHandler())
+
+	// Set the custom CheckTx handler on BaseApp.
+	checkTxHandler := pobabci.NewCheckTxHandler(
+		app.BaseApp,
+		app.txConfig.TxDecoder(),
+		mempool,
+		anteHandler,
+		app.ChainID(),
+	)
+	app.SetCheckTx(checkTxHandler.CheckTx())
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -418,6 +456,19 @@ func New(
 	app.sm.RegisterStoreDecoders()
 
 	return app
+}
+
+// CheckTx will check the transaction with the provided checkTxHandler. We override the default
+// handler so that we can verify bid transactions before they are inserted into the mempool.
+// With the POB CheckTx, we can verify the bid transaction and all of the bundled transactions
+// before inserting the bid transaction into the mempool.
+func (app *App) CheckTx(req abci.RequestCheckTx) abci.ResponseCheckTx {
+	return app.checkTxHandler(req)
+}
+
+// SetCheckTx sets the checkTxHandler for the app.
+func (app *App) SetCheckTx(handler pobabci.CheckTx) {
+	app.checkTxHandler = handler
 }
 
 func GetDefaultBypassFeeMessages() []string {

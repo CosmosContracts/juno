@@ -3,8 +3,8 @@ package v16
 import (
 	"fmt"
 
-	// External modules
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
@@ -12,11 +12,13 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
+	// External modules
+	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	// SDK v47 modules
-	// minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
@@ -85,6 +87,11 @@ func CreateV16UpgradeHandler(
 			case wasmtypes.ModuleName:
 				keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
 
+			// POB
+			case buildertypes.ModuleName:
+				// already SDK v47
+				continue
+
 			// juno modules
 			case feesharetypes.ModuleName:
 				keyTable = feesharetypes.ParamKeyTable() //nolint:staticcheck
@@ -94,7 +101,6 @@ func CreateV16UpgradeHandler(
 				keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
 			case globalfeetypes.ModuleName:
 				keyTable = globalfeetypes.ParamKeyTable() //nolint:staticcheck
-
 			}
 
 			if !subspace.HasKeyTable() {
@@ -137,6 +143,21 @@ func CreateV16UpgradeHandler(
 		stakingParams.MinCommissionRate = sdk.NewDecWithPrec(5, 2)
 		err = keepers.StakingKeeper.SetParams(ctx, stakingParams)
 		if err != nil {
+			return nil, err
+		}
+
+		// x/POB
+		pobAddr := keepers.AccountKeeper.GetModuleAddress(buildertypes.ModuleName)
+
+		builderParams := buildertypes.DefaultGenesisState().GetParams()
+		builderParams.EscrowAccountAddress = pobAddr
+		builderParams.MaxBundleSize = 4
+		builderParams.FrontRunningProtection = false
+		builderParams.MinBidIncrement.Denom = nativeDenom
+		builderParams.MinBidIncrement.Amount = math.NewInt(1000000)
+		builderParams.ReserveFee.Denom = nativeDenom
+		builderParams.ReserveFee.Amount = math.NewInt(1000000)
+		if err := keepers.BuildKeeper.SetParams(ctx, builderParams); err != nil {
 			return nil, err
 		}
 
