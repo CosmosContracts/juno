@@ -13,6 +13,8 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
+	pobabci "github.com/skip-mev/pob/abci"
+	pobmempool "github.com/skip-mev/pob/mempool"
 	"github.com/spf13/cast"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -72,9 +74,6 @@ import (
 	v15 "github.com/CosmosContracts/juno/v16/app/upgrades/v15"
 	v16 "github.com/CosmosContracts/juno/v16/app/upgrades/v16"
 	"github.com/CosmosContracts/juno/v16/docs"
-
-	pobabci "github.com/skip-mev/pob/abci"
-	pobmempool "github.com/skip-mev/pob/mempool"
 )
 
 const (

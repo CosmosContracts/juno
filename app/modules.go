@@ -3,6 +3,8 @@ package app
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	buildermodule "github.com/skip-mev/pob/x/builder"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router"
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
@@ -65,9 +67,6 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-
-	buildermodule "github.com/skip-mev/pob/x/builder"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,

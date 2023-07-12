@@ -22,6 +22,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/prometheus/client_golang v1.16.0
+	github.com/skip-mev/pob v1.0.2
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
@@ -31,10 +32,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require (
-	github.com/google/s2a-go v0.1.3 // indirect
-	github.com/skip-mev/pob v1.0.2 // indirect
-)
+require github.com/google/s2a-go v0.1.3 // indirect
 
 require (
 	cloud.google.com/go v0.110.0 // indirect
