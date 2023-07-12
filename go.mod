@@ -33,7 +33,7 @@ require (
 
 require (
 	github.com/google/s2a-go v0.1.3 // indirect
-	github.com/skip-mev/pob v1.0.0 // indirect
+	github.com/skip-mev/pob v1.0.2 // indirect
 )
 
 require (
