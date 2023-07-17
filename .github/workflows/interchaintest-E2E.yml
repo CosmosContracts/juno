@@ -124,6 +124,13 @@ jobs:
       make-command: ictest-ibchooks
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
 
+  test-juno-pob:
+    needs: build-and-push-image
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-pob
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+
   # === UNITY CONTRACT ===
   test-juno-unity-deploy:
     needs: build-and-push-image
