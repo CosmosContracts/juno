@@ -3,7 +3,7 @@ module github.com/CosmosContracts/juno/v16
 go 1.20
 
 require (
-	cosmossdk.io/api v0.3.1
+	cosmossdk.io/api v0.6.1
 	cosmossdk.io/errors v1.0.0
 	cosmossdk.io/log v1.1.0
 	cosmossdk.io/math v1.0.1
