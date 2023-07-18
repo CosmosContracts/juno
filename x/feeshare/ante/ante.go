@@ -1,6 +1,8 @@
 package ante
 
 import (
+	"encoding/json"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	errorsmod "cosmossdk.io/errors"
@@ -101,7 +103,8 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 		}
 	}
 
-	// FeeShare logic payouts for contracts
+	feesPaidOutput := map[string]sdk.Coins{}
+
 	numPairs := len(toPay)
 	if numPairs > 0 {
 		govPercent := params.DeveloperShares
@@ -110,11 +113,24 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 		// pay fees evenly between all withdraw addresses
 		for _, withdrawAddr := range toPay {
 			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, withdrawAddr, splitFees)
+			feesPaidOutput[withdrawAddr.String()] = splitFees
+
 			if err != nil {
 				return errorsmod.Wrapf(feeshare.ErrFeeSharePayment, "failed to pay fees to contract developer: %s", err.Error())
 			}
 		}
 	}
+
+	bz, err := json.Marshal(feesPaidOutput)
+	if err != nil {
+		return errorsmod.Wrapf(feeshare.ErrFeeSharePayment, "failed to marshal feesPaidOutput: %s", err.Error())
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			feeshare.EventTypePayoutFeeShare,
+			sdk.NewAttribute(feeshare.AttributeWithdrawPayouts, string(bz))),
+	)
 
 	return nil
 }
