@@ -16,75 +16,79 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, _ sdk.AccAddress, info *wasmTypes.ContractInfo) bool {
-	// This will allow ANYONE to register FeeShare funds to its own contract if it was created from a factory contract
-	// Note: if there is no admin but a creator made it, then the creator can register it how they wish
-
-	govAddress := k.accountKeeper.GetModuleAddress(govtypes.ModuleName).String()
-
-	creator, err := sdk.AccAddressFromBech32(info.Creator)
-	if err != nil {
-		return false
-	}
-
-	// If the admin is the gov module (ex: some subDAOs, its a factory contract. Allow register to itself)
-	if info.Admin == govAddress {
+func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, msgSender sdk.AccAddress, info *wasmTypes.ContractInfo) bool {
+	// Gov Module Admin
+	govMod := k.accountKeeper.GetModuleAddress(govtypes.ModuleName).String()
+	if info.Admin == govMod {
+		// only register to self.
 		return true
 	}
 
-	isFactoryContract := false
 	if len(info.Admin) == 0 {
-		// if there is no admin & the creator is a contract, then its a factory contract
-		isFactoryContract = k.wasmKeeper.HasContractInfo(ctx, creator)
-	} else {
-		admin, err := sdk.AccAddressFromBech32(info.Admin)
+		// There is no admin. Return if the creator is a contract or normal user.
+		creator, err := sdk.AccAddressFromBech32(info.Creator)
 		if err != nil {
 			return false
 		}
-		// if there is an admin & the admin is a contract, then its a factory contract
-		isFactoryContract = k.wasmKeeper.HasContractInfo(ctx, admin)
+
+		// is factory if creator is a contract.
+		return k.wasmKeeper.HasContractInfo(ctx, creator)
 	}
 
-	return isFactoryContract
+	// There is an admin
+	admin, err := sdk.AccAddressFromBech32(info.Admin)
+	if err != nil {
+		return false
+	}
+	// if the admin is a contract, then it could be a factory contract
+	adminIsContract := k.wasmKeeper.HasContractInfo(ctx, admin)
+
+	// if the admin is a contract and the sender is said contract (EX: DAODAO), allow them to register anywhere.
+	if adminIsContract && admin.String() == msgSender.String() {
+		return false
+	}
+	return true
 }
 
 // GetContractAdminOrCreatorAddress ensures the deployer is the contract's admin OR creator if no admin is set for all msg_server feeshare functions.
 func (k Keeper) GetContractAdminOrCreatorAddress(ctx sdk.Context, contract sdk.AccAddress, deployer string) (sdk.AccAddress, error) {
-	var controllingAccount sdk.AccAddress
-
-	// Ensures deployer String is valid
+	// Ensure the deployer address is valid
 	_, err := sdk.AccAddressFromBech32(deployer)
 	if err != nil {
 		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid deployer address %s", deployer)
 	}
 
+	// Retrieve contract info
 	info := k.wasmKeeper.GetContractInfo(ctx, contract)
 
+	// Check if the contract has an admin
 	if len(info.Admin) == 0 {
-		// no admin, see if they are the creator of the contract
+		// No admin, so check if the deployer is the creator of the contract
 		if info.Creator != deployer {
 			return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "you are not the creator of this contract %s", info.Creator)
 		}
 
-		creatorAddr, err := sdk.AccAddressFromBech32(info.Creator)
+		_, err := sdk.AccAddressFromBech32(info.Creator)
 		if err != nil {
 			return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address %s", info.Creator)
 		}
-		controllingAccount = creatorAddr
-	} else {
-		// Admin is set, so we check if the deployer is the admin
-		if info.Admin != deployer {
-			return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "you are not an admin of this contract %s", deployer)
-		}
 
-		adminAddr, err := sdk.AccAddressFromBech32(info.Admin)
-		if err != nil {
-			return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid admin address %s", info.Admin)
-		}
-		controllingAccount = adminAddr
+		// Deployer is the creator, return the controlling account as the creator's address
+		return sdk.AccAddressFromBech32(info.Creator)
 	}
 
-	return controllingAccount, nil
+	// Admin is set, so check if the deployer is the admin of the contract
+	if info.Admin != deployer {
+		return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "you are not an admin of this contract %s", deployer)
+	}
+
+	// Verify the admin address is valid
+	_, err = sdk.AccAddressFromBech32(info.Admin)
+	if err != nil {
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid admin address %s", info.Admin)
+	}
+
+	return sdk.AccAddressFromBech32(info.Admin)
 }
 
 // RegisterFeeShare registers a contract to receive transaction fees
@@ -116,9 +120,15 @@ func (k Keeper) RegisterFeeShare(
 		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid withdrawer address %s", msg.WithdrawerAddress)
 	}
 
+	// ensure msg.DeployerAddress is  valid
+	msgSender, err := sdk.AccAddressFromBech32(msg.DeployerAddress)
+	if err != nil {
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid deployer address %s", msg.DeployerAddress)
+	}
+
 	var deployer sdk.AccAddress
 
-	if k.GetIfContractWasCreatedFromFactory(ctx, contract, k.wasmKeeper.GetContractInfo(ctx, contract)) {
+	if k.GetIfContractWasCreatedFromFactory(ctx, msgSender, k.wasmKeeper.GetContractInfo(ctx, contract)) {
 		// Anyone is allowed to register a contract to itself if it was created from a factory contract
 		if msg.WithdrawerAddress != msg.ContractAddress {
 			return nil, errorsmod.Wrapf(types.ErrFeeShareInvalidWithdrawer, "withdrawer address must be the same as the contract address if it is from a factory contract withdraw:%s contract:%s", msg.WithdrawerAddress, msg.ContractAddress)

@@ -5,6 +5,7 @@ import (
 
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
@@ -19,7 +20,6 @@ func TestJunoFeeShare(t *testing.T) {
 
 	// Chains
 	juno := chains[0].(*cosmos.CosmosChain)
-	t.Log("juno.GetHostRPCAddress()", juno.GetHostRPCAddress())
 
 	nativeDenom := juno.Config().Denom
 
