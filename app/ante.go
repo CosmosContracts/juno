@@ -3,6 +3,8 @@ package app
 import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	builderante "github.com/skip-mev/pob/x/builder/ante"
+	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
@@ -43,6 +45,10 @@ type HandlerOptions struct {
 
 	GlobalFeeKeeper globalfeekeeper.Keeper
 	StakingKeeper   stakingkeeper.Keeper
+
+	BuilderKeeper builderkeeper.Keeper
+	TxEncoder     sdk.TxEncoder
+	Mempool       builderante.Mempool
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -86,6 +92,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
+		builderante.NewBuilderDecorator(options.BuilderKeeper, options.TxEncoder, options.Mempool),
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil

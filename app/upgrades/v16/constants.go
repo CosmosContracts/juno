@@ -1,7 +1,9 @@
 package v16
 
 import (
-	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
+
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
@@ -20,9 +22,10 @@ var Upgrade = upgrades.Upgrade{
 	CreateUpgradeHandler: CreateV16UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
-			// new module
+			// new modules
 			icqtypes.ModuleName,
 			globalfeettypes.ModuleName,
+			buildertypes.ModuleName,
 
 			// v47 module upgrades
 			crisistypes.ModuleName,

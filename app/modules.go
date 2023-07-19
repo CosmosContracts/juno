@@ -3,11 +3,15 @@ package app
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	icq "github.com/strangelove-ventures/async-icq/v7"
-	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
-	packetforward "github.com/strangelove-ventures/packet-forward-middleware/v7/router"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+	buildermodule "github.com/skip-mev/pob/x/builder"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
+	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router"
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
+	icq "github.com/cosmos/ibc-apps/modules/async-icq/v7"
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
+	ibc_hooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7"
+	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 	ibcfee "github.com/cosmos/ibc-go/v7/modules/apps/29-fee"
@@ -59,8 +63,6 @@ import (
 	feeshare "github.com/CosmosContracts/juno/v16/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v16/x/globalfee"
-	"github.com/CosmosContracts/juno/v16/x/ibchooks"
-	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
 	"github.com/CosmosContracts/juno/v16/x/mint"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
 	"github.com/CosmosContracts/juno/v16/x/tokenfactory"
@@ -88,6 +90,7 @@ var ModuleBasics = module.NewBasicManager(
 	vesting.AppModuleBasic{},
 	nftmodule.AppModuleBasic{},
 	consensus.AppModuleBasic{},
+	buildermodule.AppModuleBasic{},
 	// non sdk modules
 	wasm.AppModuleBasic{},
 	ibc.AppModuleBasic{},
@@ -100,7 +103,7 @@ var ModuleBasics = module.NewBasicManager(
 	tokenfactory.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
-	ibchooks.AppModuleBasic{},
+	ibc_hooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
 )
 
@@ -145,8 +148,9 @@ func appModules(
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
+		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
 		// IBC modules
-		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
+		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
 		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
 	}
@@ -206,6 +210,7 @@ func orderBeginBlockers() []string {
 		vestingtypes.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
+		buildertypes.ModuleName,
 		// additional modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
@@ -241,6 +246,7 @@ func orderEndBlockers() []string {
 		vestingtypes.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
+		buildertypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
@@ -276,6 +282,7 @@ func orderInitBlockers() []string {
 		feegrant.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
+		buildertypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,

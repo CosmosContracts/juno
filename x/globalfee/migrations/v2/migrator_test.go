@@ -49,8 +49,8 @@ func TestMigrateTestnet(t *testing.T) {
 
 	params := types.Params{
 		MinimumGasPrices: sdk.DecCoins{
-			sdk.NewDecCoinFromDec("ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9", sdk.NewDecWithPrec(3, 3)),
-			sdk.NewDecCoinFromDec("ujunox", sdk.NewDecWithPrec(75, 3)),
+			sdk.NewDecCoinFromDec("ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9", sdk.NewDecWithPrec(1, 3)),
+			sdk.NewDecCoinFromDec("ujunox", sdk.NewDecWithPrec(25, 4)),
 		},
 	}
 
