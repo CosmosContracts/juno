@@ -155,10 +155,13 @@ ictest-unity-deploy: rm-testcache
 ictest-unity-gov: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoUnityContractGovSubmit .
 
+ictest-pob: rm-testcache
+	cd interchaintest &&  go test -race -v -run TestJunoPOB .
+
 rm-testcache:
 	go clean -testcache
 
-.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-unity-deploy ictest-unity-gov
+.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-pob
 
 ###############################################################################
 ###                                  heighliner                             ###
