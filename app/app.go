@@ -63,17 +63,18 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v16/app/keepers"
-	"github.com/CosmosContracts/juno/v16/app/openapiconsole"
-	upgrades "github.com/CosmosContracts/juno/v16/app/upgrades"
-	v10 "github.com/CosmosContracts/juno/v16/app/upgrades/v10"
-	v11 "github.com/CosmosContracts/juno/v16/app/upgrades/v11"
-	v12 "github.com/CosmosContracts/juno/v16/app/upgrades/v12"
-	v13 "github.com/CosmosContracts/juno/v16/app/upgrades/v13"
-	v14 "github.com/CosmosContracts/juno/v16/app/upgrades/v14"
-	v15 "github.com/CosmosContracts/juno/v16/app/upgrades/v15"
-	v16 "github.com/CosmosContracts/juno/v16/app/upgrades/v16"
-	"github.com/CosmosContracts/juno/v16/docs"
+	"github.com/CosmosContracts/juno/v17/app/keepers"
+	"github.com/CosmosContracts/juno/v17/app/openapiconsole"
+	upgrades "github.com/CosmosContracts/juno/v17/app/upgrades"
+	v10 "github.com/CosmosContracts/juno/v17/app/upgrades/v10"
+	v11 "github.com/CosmosContracts/juno/v17/app/upgrades/v11"
+	v12 "github.com/CosmosContracts/juno/v17/app/upgrades/v12"
+	v13 "github.com/CosmosContracts/juno/v17/app/upgrades/v13"
+	v14 "github.com/CosmosContracts/juno/v17/app/upgrades/v14"
+	v15 "github.com/CosmosContracts/juno/v17/app/upgrades/v15"
+	v16 "github.com/CosmosContracts/juno/v17/app/upgrades/v16"
+	v17 "github.com/CosmosContracts/juno/v17/app/upgrades/v17"
+	"github.com/CosmosContracts/juno/v17/docs"
 )
 
 const (
@@ -94,7 +95,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v15.Upgrade, v16.Upgrade}
+	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v15.Upgrade, v16.Upgrade, v17.Upgrade}
 )
 
 // These constants are derived from the above variables.

@@ -59,14 +59,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	encparams "github.com/CosmosContracts/juno/v16/app/params"
-	feeshare "github.com/CosmosContracts/juno/v16/x/feeshare"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v16/x/globalfee"
-	"github.com/CosmosContracts/juno/v16/x/mint"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	encparams "github.com/CosmosContracts/juno/v17/app/params"
+	feeshare "github.com/CosmosContracts/juno/v17/x/feeshare"
+	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v17/x/globalfee"
+	"github.com/CosmosContracts/juno/v17/x/mint"
+	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
+	"github.com/CosmosContracts/juno/v17/x/tokenfactory"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,

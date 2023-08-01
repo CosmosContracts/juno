@@ -1,4 +1,4 @@
-package v15
+package v16
 
 import (
 	store "github.com/cosmos/cosmos-sdk/store/types"
@@ -7,10 +7,10 @@ import (
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.
-const UpgradeName = "v15"
+const UpgradeName = "v17"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: CreateV15PatchUpgradeHandler,
+	CreateUpgradeHandler: CreateV17UpgradeHandler,
 	StoreUpgrades:        store.StoreUpgrades{},
 }

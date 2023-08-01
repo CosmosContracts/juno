@@ -80,16 +80,16 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v16/x/globalfee"
-	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
-	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
-	mintkeeper "github.com/CosmosContracts/juno/v16/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v17/x/globalfee"
+	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
+	mintkeeper "github.com/CosmosContracts/juno/v17/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
+	"github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v17/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 var (

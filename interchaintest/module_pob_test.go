@@ -39,7 +39,7 @@ func GetInterchainSpecForPOB() *interchaintest.ChainSpec {
 			Value: "1",
 		},
 	}...))
-	
+
 	return &interchaintest.ChainSpec{
 		Name:          "juno",
 		ChainName:     "juno",
@@ -48,7 +48,6 @@ func GetInterchainSpecForPOB() *interchaintest.ChainSpec {
 		NumValidators: &numVals,
 		NumFullNodes:  &numFull,
 	}
-
 }
 
 func TestJunoPOB(t *testing.T) {

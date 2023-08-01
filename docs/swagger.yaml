@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   title: Juno network
-  version: v15
+  version: v0
 consumes:
   - application/json
 produces:

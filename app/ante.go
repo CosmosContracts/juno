@@ -19,11 +19,11 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	decorators "github.com/CosmosContracts/juno/v16/app/decorators"
-	feeshareante "github.com/CosmosContracts/juno/v16/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
-	globalfeeante "github.com/CosmosContracts/juno/v16/x/globalfee/ante"
-	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
+	decorators "github.com/CosmosContracts/juno/v17/app/decorators"
+	feeshareante "github.com/CosmosContracts/juno/v17/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
+	globalfeeante "github.com/CosmosContracts/juno/v17/x/globalfee/ante"
+	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
 )
 
 const maxBypassMinFeeMsgGasUsage = 1_000_000

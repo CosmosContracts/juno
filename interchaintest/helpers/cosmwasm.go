@@ -4,11 +4,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
 func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string, message string) (codeId, contract string) {
@@ -29,7 +30,8 @@ func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 	// amount is #utoken
 
 	// There has to be a way to do this in ictest?
-	cmd := []string{"junod", "tx", "wasm", "execute", contractAddr, message,
+	cmd := []string{
+		"junod", "tx", "wasm", "execute", contractAddr, message,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
@@ -54,7 +56,8 @@ func ExecuteMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos.CosmosCh
 	// amount is #utoken
 
 	// There has to be a way to do this in ictest?
-	cmd := []string{"junod", "tx", "wasm", "execute", contractAddr, message,
+	cmd := []string{
+		"junod", "tx", "wasm", "execute", contractAddr, message,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,

@@ -31,10 +31,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
+	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {

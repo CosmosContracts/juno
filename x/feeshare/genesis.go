@@ -3,8 +3,8 @@ package feeshare
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
 
 // InitGenesis import module genesis
