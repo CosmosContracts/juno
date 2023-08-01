@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/CosmWasm/wasmd/x/wasm"
+	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	buildermodule "github.com/skip-mev/pob/x/builder"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
@@ -221,7 +221,7 @@ func orderBeginBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
-		wasm.ModuleName,
+		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 	}
 }
@@ -257,7 +257,7 @@ func orderEndBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
-		wasm.ModuleName,
+		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 	}
 }
@@ -293,7 +293,7 @@ func orderInitBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
-		wasm.ModuleName,
+		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 	}
 }

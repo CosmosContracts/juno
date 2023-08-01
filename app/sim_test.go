@@ -6,7 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/require"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -103,13 +104,13 @@ func TestFullAppSimulation(t *testing.T) {
 	appOptions[flags.FlagHome] = DefaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
-	var emptyWasmOption []wasm.Option
+	var emptyWasmOption []wasmkeeper.Option
 	app := New(
 		logger,
 		db,
 		nil,
 		true,
-		wasm.EnableAllProposals,
+		wasmtypes.EnableAllProposals,
 		appOptions,
 		emptyWasmOption,
 		fauxMerkleModeOpt,

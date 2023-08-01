@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
@@ -152,23 +152,23 @@ func SetAddressPrefixes() {
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
 // produce a list of enabled proposals to pass into wasmd app.
-func GetEnabledProposals() []wasm.ProposalType {
+func GetEnabledProposals() []wasmtypes.ProposalType {
 	if EnableSpecificProposals == "" {
 		if ProposalsEnabled == "true" {
-			return wasm.EnableAllProposals
+			return wasmtypes.EnableAllProposals
 		}
-		return wasm.DisableAllProposals
+		return wasmtypes.DisableAllProposals
 	}
 	chunks := strings.Split(EnableSpecificProposals, ",")
-	proposals, err := wasm.ConvertToProposals(chunks)
+	proposals, err := wasmtypes.ConvertToProposals(chunks)
 	if err != nil {
 		panic(err)
 	}
 	return proposals
 }
 
-func GetWasmOpts(appOpts servertypes.AppOptions) []wasm.Option {
-	var wasmOpts []wasm.Option
+func GetWasmOpts(appOpts servertypes.AppOptions) []wasmkeeper.Option {
+	var wasmOpts []wasmkeeper.Option
 	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
@@ -229,9 +229,9 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	enabledProposals []wasm.ProposalType,
+	enabledProposals []wasmtypes.ProposalType,
 	appOpts servertypes.AppOptions,
-	wasmOpts []wasm.Option,
+	wasmOpts []wasmkeeper.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
 	encodingConfig := MakeEncodingConfig()
@@ -354,7 +354,7 @@ func New(
 			IBCKeeper:         app.AppKeepers.IBCKeeper,
 			FeeShareKeeper:    app.AppKeepers.FeeShareKeeper,
 			BankKeeperFork:    app.AppKeepers.BankKeeper, // since we need extra methods
-			TxCounterStoreKey: app.AppKeepers.GetKey(wasm.StoreKey),
+			TxCounterStoreKey: app.AppKeepers.GetKey(wasmtypes.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
 

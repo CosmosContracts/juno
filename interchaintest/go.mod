@@ -16,7 +16,7 @@ replace (
 )
 
 require (
-	github.com/CosmWasm/wasmd v0.40.2
+	github.com/CosmWasm/wasmd v0.41.0
 	github.com/CosmosContracts/juno/v17 v17.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.47.4
 	github.com/cosmos/gogoproto v1.4.10
@@ -49,7 +49,7 @@ require (
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
 	github.com/ChainSafe/go-schnorrkel/1 v0.0.0-00010101000000-000000000000 // indirect
 	github.com/ComposableFi/go-subkey/v2 v2.0.0-tm03420 // indirect
-	github.com/CosmWasm/wasmvm v1.2.4 // indirect
+	github.com/CosmWasm/wasmvm v1.3.0 // indirect
 	github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e // indirect
 	github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec // indirect
 	github.com/Microsoft/go-winio v0.6.0 // indirect

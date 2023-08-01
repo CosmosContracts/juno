@@ -64,8 +64,9 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 						UidGid:     JunoImage.UidGid,
 					},
 				},
-				GasPrices:     fmt.Sprintf("0%s", Denom),
-				ModifyGenesis: cosmos.ModifyGenesis(genesisKVs),
+				GasPrices:              fmt.Sprintf("0%s", Denom),
+				ModifyGenesis:          cosmos.ModifyGenesis(genesisKVs),
+				UsingNewGenesisCommand: true, // SDK v47
 			},
 		},
 	})

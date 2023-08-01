@@ -1,7 +1,7 @@
 package keepers
 
 import (
-	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
@@ -47,7 +47,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 
 		// non sdk store keys
 		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
-		wasm.StoreKey, icahosttypes.StoreKey,
+		wasmtypes.StoreKey, icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey, icqtypes.StoreKey,
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,

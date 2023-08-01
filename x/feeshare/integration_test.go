@@ -5,7 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/require"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -62,7 +63,7 @@ func Setup(t *testing.T, isCheckTx bool) *junoapp.App {
 	return app
 }
 
-func GenApp(t *testing.T, withGenesis bool, opts ...wasm.Option) (*junoapp.App, junoapp.GenesisState) {
+func GenApp(t *testing.T, withGenesis bool, opts ...wasmkeeper.Option) (*junoapp.App, junoapp.GenesisState) {
 	db := dbm.NewMemDB()
 	nodeHome := t.TempDir()
 	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
@@ -78,7 +79,7 @@ func GenApp(t *testing.T, withGenesis bool, opts ...wasm.Option) (*junoapp.App, 
 		db,
 		nil,
 		true,
-		wasm.EnableAllProposals,
+		wasmtypes.EnableAllProposals,
 		simtestutil.EmptyAppOptions{},
 		opts,
 		bam.SetChainID("testing"),

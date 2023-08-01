@@ -2,7 +2,7 @@ package app
 
 import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	builderante "github.com/skip-mev/pob/x/builder/ante"
 	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 
@@ -38,7 +38,7 @@ type HandlerOptions struct {
 	FeeShareKeeper    feesharekeeper.Keeper
 	BankKeeperFork    feeshareante.BankKeeper
 	TxCounterStoreKey storetypes.StoreKey
-	WasmConfig        wasmTypes.WasmConfig
+	WasmConfig        wasmtypes.WasmConfig
 	Cdc               codec.BinaryCodec
 
 	BypassMinFeeMsgTypes []string
