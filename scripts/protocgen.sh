@@ -30,7 +30,7 @@ cd ..
 buf generate
 
 # move proto files to the right places
-cp -r ./github.com/CosmosContracts/x/* x/
+cp -r ./github.com/CosmosContracts/juno/x/* x/
 cp -r ./github.com/cosmos/gaia/x/* x/
 
 

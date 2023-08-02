@@ -1,0 +1,31 @@
+syntax = "proto3";
+package juno.cwmodules.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/cw-modules/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // ContractModules
+  rpc ContractModules(QueryContractModules)
+      returns (QueryContractModulesResponse) {
+    option (google.api.http).get =
+        "/juno/cw-modules/v1/contract_modules";
+  }
+}
+
+// QueryContractModules is the request type for the
+// Query/QueryContractModules RPC method.
+message QueryContractModules {}
+
+// QueryContractModulesResponse is the response type for the
+// Query/ContractModules RPC method.
+message QueryContractModulesResponse {
+  repeated string contract_addresses = 1 [    
+    (gogoproto.jsontag) = "contract_addresses,omitempty",
+    (gogoproto.moretags) = "yaml:\"contract_addresses\""
+  ];
+}

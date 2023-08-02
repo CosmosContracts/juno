@@ -60,6 +60,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	encparams "github.com/CosmosContracts/juno/v16/app/params"
+	cwmodules "github.com/CosmosContracts/juno/v16/x/cw-modules"
+	cwmodulestypes "github.com/CosmosContracts/juno/v16/x/cw-modules/types"
 	feeshare "github.com/CosmosContracts/juno/v16/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v16/x/globalfee"
@@ -105,6 +107,7 @@ var ModuleBasics = module.NewBasicManager(
 	globalfee.AppModuleBasic{},
 	ibc_hooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
+	cwmodules.AppModuleBasic{},
 )
 
 func appModules(
@@ -149,6 +152,7 @@ func appModules(
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
+		cwmodules.NewAppModule(appCodec, app.AppKeepers.CosmWasmModulesKeeper),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -212,6 +216,8 @@ func orderBeginBlockers() []string {
 		consensusparamtypes.ModuleName,
 		buildertypes.ModuleName,
 		// additional modules
+		// TODO: We may want to run cwmodules higher in the list
+		cwmodulestypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -223,6 +229,7 @@ func orderBeginBlockers() []string {
 		globalfee.ModuleName,
 		wasm.ModuleName,
 		ibchookstypes.ModuleName,
+		cwmodulestypes.ModuleName,
 	}
 }
 
@@ -248,6 +255,8 @@ func orderEndBlockers() []string {
 		consensusparamtypes.ModuleName,
 		buildertypes.ModuleName,
 		// additional non simd modules
+		// TODO: May want to run cwmodules higher in the list.
+		cwmodulestypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -284,6 +293,7 @@ func orderInitBlockers() []string {
 		consensusparamtypes.ModuleName,
 		buildertypes.ModuleName,
 		// additional non simd modules
+		cwmodulestypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,

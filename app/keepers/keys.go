@@ -31,6 +31,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	cwmodulestypes "github.com/CosmosContracts/juno/v16/x/cw-modules/types"
 	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
 	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
@@ -55,6 +56,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		feesharetypes.StoreKey,
 		globalfeetypes.StoreKey,
 		buildertypes.StoreKey,
+		cwmodulestypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
