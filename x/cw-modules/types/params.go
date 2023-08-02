@@ -3,7 +3,7 @@ package types
 // DefaultParams returns default parameters
 func DefaultParams() Params {
 	return Params{
-		ContractAddresses: []string{},
+		ContractAddresses: []string{"juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8"},
 	}
 }
 

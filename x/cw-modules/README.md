@@ -1,6 +1,6 @@
 # CosmWasm Modules
 
-A module that allows for smart contracts to execute on begin & end block.
+A module that allows for smart contracts to execute on begin & end blocker.
 
 ## V1
 

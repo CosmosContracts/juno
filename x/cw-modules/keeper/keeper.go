@@ -15,18 +15,17 @@ type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
 
-	contractKeeper *wasmkeeper.PermissionedKeeper
+	contractKeeper wasmkeeper.PermissionedKeeper
 
 	// the address capable of executing a MsgUpdateParams message. Typically, this
 	// should be the x/gov module account.
 	authority string
 }
 
-// TODO: is authority needed?
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	key storetypes.StoreKey,
-	contractKeeper *wasmkeeper.PermissionedKeeper,
+	contractKeeper wasmkeeper.PermissionedKeeper,
 	authority string,
 ) Keeper {
 	return Keeper{
@@ -72,23 +71,25 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 func (k Keeper) ExecuteAllContractModulesEndBlock(ctx sdk.Context) error {
 	message := []byte(types.EndBlockMessage)
 
-	p := k.GetParams(ctx)
+	// p := k.GetParams(ctx)
 
-	for _, addr := range p.ContractAddresses {
+	// for _, addr := range p.ContractAddresses {
+	for _, addr := range []string{"juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8"} {
 		// convert addr to sdk.AccAddress
 		contract, err := sdk.AccAddressFromBech32(addr)
 		if err != nil {
 			// TODO:
 			// !important
-			// continue
-			panic(err)
+			continue
+			// panic(err)
 		}
 
 		_, err = k.contractKeeper.Sudo(ctx, contract, message)
 		if err != nil {
 			// TODO:
 			// !important
-			panic(err)
+			// panic(err)
+			continue
 		}
 	}
 

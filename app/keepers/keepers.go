@@ -537,13 +537,6 @@ func NewAppKeepers(
 		wasmOpts...,
 	)
 
-	appKeepers.CosmWasmModulesKeeper = cwmoduleskeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[cwmodulestypes.StoreKey],
-		appKeepers.ContractKeeper,
-		govModAddress,
-	)
-
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
 		appKeepers.keys[feesharetypes.StoreKey],
 		appCodec,
@@ -619,6 +612,13 @@ func NewAppKeepers(
 	// set the contract keeper for the Ics20WasmHooks
 	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
 	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
+
+	appKeepers.CosmWasmModulesKeeper = cwmoduleskeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[cwmodulestypes.StoreKey],
+		*appKeepers.ContractKeeper,
+		govModAddress,
+	)
 
 	return appKeepers
 }

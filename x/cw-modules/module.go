@@ -23,14 +23,18 @@ import (
 	"github.com/CosmosContracts/juno/v16/x/cw-modules/types"
 )
 
+const (
+	ModuleName = types.ModuleName
+
+	// ConsensusVersion defines the current x/cw-modules module consensus version.
+	ConsensusVersion = 1
+)
+
 var (
 	_ module.AppModuleBasic   = AppModuleBasic{}
 	_ module.AppModuleGenesis = AppModule{}
 	_ module.AppModule        = AppModule{}
 )
-
-// ConsensusVersion defines the current x/cw-modules module consensus version.
-const ConsensusVersion = 1
 
 // AppModuleBasic defines the basic application module used by the wasm module.
 type AppModuleBasic struct {
@@ -133,10 +137,10 @@ func (a AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
 }
 
 func (a AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	// TODO:
 	if err := a.keeper.ExecuteAllContractModulesEndBlock(ctx); err != nil {
 		panic(err)
 	}
-
 	return nil
 }
 

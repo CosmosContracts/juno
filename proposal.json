@@ -1,0 +1,17 @@
+{
+    "messages": [
+        {
+            "@type": "/juno.cwmodules.v1.MsgUpdateParams",
+            "authority": "juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730",
+            "params": {
+                "contract_addresses": [
+                    "juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8"
+                ]
+            }
+        }
+    ],
+    "metadata": "",
+    "deposit": "1000000ujuno",
+    "title": "param change",
+    "summary": "change params"
+}
