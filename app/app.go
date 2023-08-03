@@ -65,7 +65,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v16/app/keepers"
 	"github.com/CosmosContracts/juno/v16/app/openapiconsole"
-	upgrades "github.com/CosmosContracts/juno/v16/app/upgrades"
+	"github.com/CosmosContracts/juno/v16/app/upgrades"
 	v10 "github.com/CosmosContracts/juno/v16/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v16/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v16/app/upgrades/v12"
@@ -616,8 +616,9 @@ func (app *App) setupUpgradeStoreLoaders() {
 
 	for _, upgrade := range Upgrades {
 		if upgradeInfo.Name == upgrade.UpgradeName {
+			storeUpgrades := upgrade.StoreUpgrades
 			app.SetStoreLoader(
-				upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades),
+				upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades),
 			)
 		}
 	}
