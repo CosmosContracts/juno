@@ -6,12 +6,8 @@ on:
     tags:
       - '**'
     branches:
-      - '**'
-    paths:
-      - '**.yml'
-      - '**.go'
-      - '**.mod'
-      - '**.sum'
+      - 'main'
+      - 'master'
 
 permissions:
   contents: read
