@@ -1,6 +1,7 @@
 name: ictest E2E
 
 on:
+  pull_request:
   push:
     tags:
       - '**'
@@ -11,6 +12,10 @@ on:
       - '**.go'
       - '**.mod'
       - '**.sum'
+
+permissions:
+  contents: read
+  packages: write
 
 env:
   REGISTRY: ghcr.io  
