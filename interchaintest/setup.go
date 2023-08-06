@@ -21,6 +21,7 @@ import (
 	"go.uber.org/zap/zaptest"
 
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
@@ -32,7 +33,7 @@ var (
 	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
 
 	IBCRelayerImage   = "ghcr.io/cosmos/relayer"
-	IBCRelayerVersion = "justin-localhost-ibc"
+	IBCRelayerVersion = "main"
 
 	junoRepo, junoVersion = GetDockerImageInfo()
 
@@ -79,6 +80,10 @@ var (
 
 	genesisWalletAmount = int64(10_000_000)
 )
+
+func init() {
+	sdk.GetConfig().SetBech32PrefixForAccount("juno", "juno")
+}
 
 // junoEncoding registers the Juno specific module codecs so that the associated types and msgs
 // will be supported when writing to the blocksdb sqlite database.

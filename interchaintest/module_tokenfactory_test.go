@@ -29,7 +29,7 @@ func TestJunoTokenFactory(t *testing.T) {
 	user2 := users[1]
 	uaddr2 := user2.FormattedAddress()
 
-	tfDenom := helpers.CreateTokenFactoryDenom(t, ctx, juno, user, "ictestdenom")
+	tfDenom := helpers.CreateTokenFactoryDenom(t, ctx, juno, user, "ictestdenom", fmt.Sprintf("0%s", Denom))
 	t.Log("tfDenom", tfDenom)
 
 	// mint
@@ -67,7 +67,7 @@ func TestJunoTokenFactory(t *testing.T) {
 
 	// Mint on the contract for the user to ensure mint bindings work.
 	mintMsg := fmt.Sprintf(`{"mint":{"address":"%s","denom":[{"denom":"%s","amount":"31"}]}}`, uaddr2, tfDenom)
-	if err := juno.ExecuteContract(ctx, user.KeyName(), coreTFContract, mintMsg); err != nil {
+	if _, err := juno.ExecuteContract(ctx, user.KeyName(), coreTFContract, mintMsg); err != nil {
 		t.Fatal(err)
 	}
 

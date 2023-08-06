@@ -2,11 +2,17 @@ package keepers
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
-	driptypes "github.com/CosmosContracts/juno/v16/x/drip/types"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	ibchookstypes "github.com/CosmosContracts/juno/v16/x/ibchooks/types"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
+
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
+	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
+	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -24,13 +30,12 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
-	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
-	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
-	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
-	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v7/router/types"
+
+	driptypes "github.com/CosmosContracts/juno/v16/x/drip/types"
+	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
+	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -47,7 +52,10 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		icacontrollertypes.StoreKey, icqtypes.StoreKey,
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
-		tokenfactorytypes.StoreKey, feesharetypes.StoreKey,
+		tokenfactorytypes.StoreKey,
+		feesharetypes.StoreKey,
+		globalfeetypes.StoreKey,
+		buildertypes.StoreKey,
 		driptypes.StoreKey,
 	)
 

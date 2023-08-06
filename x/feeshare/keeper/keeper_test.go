@@ -4,17 +4,19 @@ import (
 	"testing"
 	"time"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/suite"
-
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/stretchr/testify/suite"
+
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+
 	"github.com/CosmosContracts/juno/v16/app"
 	"github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
 	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
 // BankKeeper defines the expected interface needed to retrieve account balances.

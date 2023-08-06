@@ -3,13 +3,14 @@ package types
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestDefaultParams(t *testing.T) {
 	p := DefaultParams()
-	require.EqualValues(t, p.MinimumGasPrices, sdk.DecCoins{})
+	require.EqualValues(t, p.MinimumGasPrices, sdk.DecCoins(nil))
 }
 
 func Test_validateParams(t *testing.T) {

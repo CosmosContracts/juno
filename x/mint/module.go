@@ -5,20 +5,22 @@ import (
 	"encoding/json"
 	"fmt"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v16/x/mint/client/cli"
-	"github.com/CosmosContracts/juno/v16/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v16/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v16/x/mint/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+
+	"github.com/CosmosContracts/juno/v16/x/mint/client/cli"
+	"github.com/CosmosContracts/juno/v16/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v16/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v16/x/mint/types"
 )
 
 var (
@@ -26,6 +28,8 @@ var (
 	_ module.AppModuleBasic      = AppModuleBasic{}
 	_ module.AppModuleSimulation = AppModule{}
 )
+
+const ConsensusVersion = 3
 
 // AppModuleBasic defines the basic application module used by the mint module.
 type AppModuleBasic struct {
@@ -40,10 +44,14 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterLegacyAminoCodec registers the mint module's types on the given LegacyAmino codec.
-func (AppModuleBasic) RegisterLegacyAminoCodec(_ *codec.LegacyAmino) {}
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	types.RegisterLegacyAminoCodec(cdc)
+}
 
 // RegisterInterfaces registers the module's interface types
-func (b AppModuleBasic) RegisterInterfaces(_ cdctypes.InterfaceRegistry) {}
+func (b AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
+	types.RegisterInterfaces(r)
+}
 
 // DefaultGenesis returns default genesis state as raw bytes for the mint
 // module.
@@ -82,14 +90,23 @@ type AppModule struct {
 
 	keeper     keeper.Keeper
 	authKeeper types.AccountKeeper
+
+	// bondDenom is used solely for migration off of x/params
+	bondDenom string
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak types.AccountKeeper) AppModule {
+func NewAppModule(
+	cdc codec.Codec,
+	keeper keeper.Keeper,
+	ak types.AccountKeeper,
+	bondDenom string,
+) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		keeper:         keeper,
 		authKeeper:     ak,
+		bondDenom:      bondDenom,
 	}
 }
 
@@ -109,12 +126,13 @@ func (AppModule) QuerierRoute() string {
 // RegisterServices registers a gRPC query service to respond to the
 // module-specific gRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	m := keeper.NewMigrator(am.keeper)
+	m := keeper.NewMigrator(am.keeper, am.bondDenom)
 
-	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
-		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", types.ModuleName, err))
+	if err := cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 2 to 3: %v", types.ModuleName, err))
 	}
 }
 
@@ -136,7 +154,9 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 2 }
+func (AppModule) ConsensusVersion() uint64 {
+	return ConsensusVersion
+}
 
 // BeginBlock returns the begin blocker for the mint module.
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {

@@ -3,10 +3,11 @@ package simulation
 import (
 	"math/rand"
 
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
+	appparams "github.com/CosmosContracts/juno/v16/app/params"
+	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 )
 
 func RandDenomCreationFeeParam(r *rand.Rand) sdk.Coins {
