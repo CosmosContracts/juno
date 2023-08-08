@@ -6,22 +6,21 @@ import (
 	"testing"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
-
 	"github.com/docker/docker/client"
-
 	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
-
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
-	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+
+	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 var (
@@ -96,14 +95,13 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
-	//github.com/cosmos/cosmos-sdk/types/module/testutil
+
 
 	return &cfg
 }
 
 // This allows for us to test
 func FundSpecificUsers() {
-
 }
 
 // Base chain, no relaying off this branch (or juno:local if no branch is provided.)

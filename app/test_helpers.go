@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/require"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -33,8 +33,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	apphelpers "github.com/CosmosContracts/juno/v16/app/helpers"
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
+	apphelpers "github.com/CosmosContracts/juno/v17/app/helpers"
+	appparams "github.com/CosmosContracts/juno/v17/app/params"
 )
 
 // SimAppChainID hardcoded chainID for simulation
@@ -136,7 +136,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	return junoApp
 }
 
-func setup(t *testing.T, withGenesis bool, opts ...wasm.Option) (*App, GenesisState) {
+func setup(t *testing.T, withGenesis bool, opts ...wasmkeeper.Option) (*App, GenesisState) {
 	db := dbm.NewMemDB()
 	nodeHome := t.TempDir()
 	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
@@ -156,7 +156,7 @@ func setup(t *testing.T, withGenesis bool, opts ...wasm.Option) (*App, GenesisSt
 		db,
 		nil,
 		true,
-		wasm.EnableAllProposals,
+		wasmtypes.EnableAllProposals,
 		EmptyAppOptions{},
 		opts,
 		bam.SetChainID("testing"),
@@ -264,7 +264,7 @@ func ExecuteRawCustom(t *testing.T, ctx sdk.Context, app *App, contract sdk.AccA
 		coins = sdk.Coins{funds}
 	}
 
-	contractKeeper := keeper.NewDefaultPermissionKeeper(app.AppKeepers.WasmKeeper)
+	contractKeeper := wasmkeeper.NewDefaultPermissionKeeper(app.AppKeepers.WasmKeeper)
 	_, err = contractKeeper.Execute(ctx, contract, sender, oracleBz, coins)
 	return err
 }

@@ -4,16 +4,18 @@ import (
 	"context"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
 func RegisterFeeShare(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract, withdrawAddr string) {
 	// TF gas to create cost 2mil, so we set to 2.5 to be safe
-	cmd := []string{"junod", "tx", "feeshare", "register", contract, withdrawAddr,
+	cmd := []string{
+		"junod", "tx", "feeshare", "register", contract, withdrawAddr,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
