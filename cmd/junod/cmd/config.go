@@ -8,14 +8,14 @@ import (
 	"path/filepath"
 	"text/template"
 
-	tmcli "github.com/cometbft/cometbft/libs/cli"
-
 	"github.com/spf13/cobra"
+	viper "github.com/spf13/viper"
+
+	tmcli "github.com/cometbft/cometbft/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	scconfig "github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	viper "github.com/spf13/viper"
 )
 
 type JunoCustomClient struct {

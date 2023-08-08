@@ -6,20 +6,21 @@ import (
 	"testing"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
-
 	"github.com/docker/docker/client"
-
 	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
-
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
+	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+
+	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 var (
@@ -29,6 +30,9 @@ var (
 
 	JunoE2ERepo  = "ghcr.io/cosmoscontracts/juno-e2e"
 	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
+
+	IBCRelayerImage   = "ghcr.io/cosmos/relayer"
+	IBCRelayerVersion = "main"
 
 	junoRepo, junoVersion = GetDockerImageInfo()
 
@@ -76,24 +80,28 @@ var (
 	genesisWalletAmount = int64(10_000_000)
 )
 
+func init() {
+	sdk.GetConfig().SetBech32PrefixForAccount("juno", "juno")
+}
+
 // junoEncoding registers the Juno specific module codecs so that the associated types and msgs
 // will be supported when writing to the blocksdb sqlite database.
 func junoEncoding() *testutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 
 	// register custom types
+	ibclocalhost.RegisterInterfaces(cfg.InterfaceRegistry)
 	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
-	//github.com/cosmos/cosmos-sdk/types/module/testutil
+
 
 	return &cfg
 }
 
 // This allows for us to test
 func FundSpecificUsers() {
-
 }
 
 // Base chain, no relaying off this branch (or juno:local if no branch is provided.)

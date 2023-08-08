@@ -62,8 +62,8 @@ if ! junod keys show validator $KEYRING; then
 
   # submit a genesis validator tx
   ## Workraround for https://github.com/cosmos/cosmos-sdk/issues/8251
-  (echo "$PASSWORD"; echo "$PASSWORD"; echo "$PASSWORD") | junod gentx validator "250000000$STAKE" --chain-id="$CHAIN_ID" --amount="250000000$STAKE" $KEYRING
+  (echo "$PASSWORD"; echo "$PASSWORD"; echo "$PASSWORD") | junod genesis gentx validator "250000000$STAKE" --chain-id="$CHAIN_ID" --amount="250000000$STAKE" $KEYRING
   ## should be:
-  # (echo "$PASSWORD"; echo "$PASSWORD"; echo "$PASSWORD") | junod gentx validator "250000000$STAKE" --chain-id="$CHAIN_ID"
-  junod collect-gentxs
+  # (echo "$PASSWORD"; echo "$PASSWORD"; echo "$PASSWORD") | junod genesis gentx validator "250000000$STAKE" --chain-id="$CHAIN_ID"
+  junod genesis collect-gentxs
 fi

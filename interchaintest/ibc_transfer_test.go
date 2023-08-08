@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -13,6 +12,8 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
+
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 )
 
 // TestJunoGaiaIBCTransfer spins up a Juno and Gaia network, initializes an IBC connection between them,
@@ -61,7 +62,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	rf := interchaintest.NewBuiltinRelayerFactory(
 		relayerType,
 		zaptest.NewLogger(t),
-		interchaintestrelayer.CustomDockerImage("ghcr.io/cosmos/relayer", "latest", "100:1000"),
+		interchaintestrelayer.CustomDockerImage(IBCRelayerImage, IBCRelayerVersion, "100:1000"),
 		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
 
@@ -127,16 +128,26 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	channel, err := ibc.GetTransferChannel(ctx, r, eRep, juno.Config().ChainID, gaia.Config().ChainID)
 	require.NoError(t, err)
 
-	transferTx, err := juno.SendIBCTransfer(ctx, channel.ChannelID, junoUserAddr, transfer, ibc.TransferOptions{})
-	require.NoError(t, err)
-
 	junoHeight, err := juno.Height(ctx)
 	require.NoError(t, err)
 
+	transferTx, err := juno.SendIBCTransfer(ctx, channel.ChannelID, junoUserAddr, transfer, ibc.TransferOptions{})
+	require.NoError(t, err)
+
+	err = r.StartRelayer(ctx, eRep, path)
+	require.NoError(t, err)
+
+	t.Cleanup(
+		func() {
+			err := r.StopRelayer(ctx, eRep)
+			if err != nil {
+				t.Logf("an error occurred while stopping the relayer: %s", err)
+			}
+		},
+	)
+
 	// Poll for the ack to know the transfer was successful
-	// TODO: Remove after auto transfer is fixed in the relayer
-	r.Flush(ctx, eRep, path, channel.ChannelID)
-	_, err = testutil.PollForAck(ctx, juno, junoHeight-5, junoHeight+50, transferTx.Packet)
+	_, err = testutil.PollForAck(ctx, juno, junoHeight, junoHeight+50, transferTx.Packet)
 	require.NoError(t, err)
 
 	err = testutil.WaitForBlocks(ctx, 10, juno)
@@ -162,15 +173,13 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 		Amount:  transferAmount,
 	}
 
-	transferTx, err = gaia.SendIBCTransfer(ctx, channel.Counterparty.ChannelID, gaiaUserAddr, transfer, ibc.TransferOptions{})
-	require.NoError(t, err)
-
 	gaiaHeight, err := gaia.Height(ctx)
 	require.NoError(t, err)
 
+	transferTx, err = gaia.SendIBCTransfer(ctx, channel.Counterparty.ChannelID, gaiaUserAddr, transfer, ibc.TransferOptions{})
+	require.NoError(t, err)
+
 	// Poll for the ack to know the transfer was successful
-	// TODO: Remove after auto transfer is fixed in the relayer
-	r.Flush(ctx, eRep, path, channel.Counterparty.ChannelID)
 	_, err = testutil.PollForAck(ctx, gaia, gaiaHeight, gaiaHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 

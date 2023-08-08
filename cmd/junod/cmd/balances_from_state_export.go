@@ -1,7 +1,7 @@
 package cmd
 
 // modified from osmosis
-// https://github.com/CosmosContracts/juno/v16/blob/main/cmd/osmosisd/cmd/balances_from_state_export.go
+// https://github.com/CosmosContracts/juno/v17/blob/main/cmd/osmosisd/cmd/balances_from_state_export.go
 
 import (
 	"encoding/csv"
@@ -11,17 +11,20 @@ import (
 	"os"
 	"path/filepath"
 
-	"cosmossdk.io/math"
-	tmjson "github.com/cometbft/cometbft/libs/json"
-	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/spf13/cobra"
 
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
+	tmjson "github.com/cometbft/cometbft/libs/json"
+	tmtypes "github.com/cometbft/cometbft/types"
+
+	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	appparams "github.com/CosmosContracts/juno/v17/app/params"
 )
 
 const (

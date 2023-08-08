@@ -3,12 +3,14 @@ package upgrades
 import (
 	"strings"
 
-	"github.com/CosmosContracts/juno/v16/app/keepers"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	"github.com/CosmosContracts/juno/v17/app/keepers"
 )
 
 // BaseAppParamManager defines an interrace that BaseApp is expected to fullfil

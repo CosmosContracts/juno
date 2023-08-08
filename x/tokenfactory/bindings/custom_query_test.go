@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"testing"
 
+	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/stretchr/testify/require"
 
-	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v16/app"
-	bindings "github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings/types"
+	"github.com/CosmosContracts/juno/v17/app"
+	bindings "github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings/types"
 )
 
 func TestQueryFullDenom(t *testing.T) {

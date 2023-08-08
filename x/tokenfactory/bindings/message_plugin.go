@@ -3,17 +3,19 @@ package bindings
 import (
 	"encoding/json"
 
-	errorsmod "cosmossdk.io/errors"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
+
+	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	bindingstypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings/types"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	bindingstypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings/types"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v17/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 // CustomMessageDecorator returns decorator for custom CosmWasm bindings messages

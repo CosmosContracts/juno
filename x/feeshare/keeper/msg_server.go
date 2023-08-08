@@ -3,13 +3,15 @@ package keeper
 import (
 	"context"
 
+	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
+	"github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
 
 var _ types.MsgServer = &Keeper{}

@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"strings"
 
-	tmcli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v16/x/mint/client/cli"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v17/x/mint/client/cli"
+	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
 )
 
 type IntegrationTestSuite struct {

@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v16/app/apptesting"
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v17/app/apptesting"
+	"github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 func (suite *KeeperTestSuite) TestMsgCreateDenom() {
@@ -30,6 +31,13 @@ func (suite *KeeperTestSuite) TestMsgCreateDenom() {
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(suite.TestAccs[0].String(), queryRes.AuthorityMetadata.Admin)
+
+	// Make sure that the denom is valid from the perspective of x/bank
+	bankQueryRes, err := suite.bankQueryClient.DenomMetadata(suite.Ctx.Context(), &banktypes.QueryDenomMetadataRequest{
+		Denom: res.GetNewTokenDenom(),
+	})
+	suite.Require().NoError(err)
+	suite.Require().NoError(bankQueryRes.Metadata.Validate())
 
 	// Make sure that creation fee was deducted
 	postCreateBalance := bankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], tokenFactoryKeeper.GetParams(suite.Ctx).DenomCreationFee[0].Denom)
@@ -133,7 +141,9 @@ func (suite *KeeperTestSuite) TestCreateDenom() {
 			tokenFactoryKeeper := suite.App.AppKeepers.TokenFactoryKeeper
 			bankKeeper := suite.App.AppKeepers.BankKeeper
 			// Set denom creation fee in params
-			tokenFactoryKeeper.SetParams(suite.Ctx, tc.denomCreationFee)
+			if err := tokenFactoryKeeper.SetParams(suite.Ctx, tc.denomCreationFee); err != nil {
+				suite.Require().NoError(err)
+			}
 			denomCreationFee := tokenFactoryKeeper.GetParams(suite.Ctx).DenomCreationFee
 			suite.Require().Equal(tc.denomCreationFee.DenomCreationFee, denomCreationFee)
 

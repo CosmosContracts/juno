@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -15,6 +14,8 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
+
+	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
 
 // TestJunoIBCHooks ensures the ibc-hooks middleware from osmosis works.
@@ -66,7 +67,7 @@ func TestJunoIBCHooks(t *testing.T) {
 	rf := interchaintest.NewBuiltinRelayerFactory(
 		relayerType,
 		zaptest.NewLogger(t),
-		interchaintestrelayer.CustomDockerImage("ghcr.io/cosmos/relayer", "latest", "100:1000"),
+		interchaintestrelayer.CustomDockerImage(IBCRelayerImage, IBCRelayerVersion, "100:1000"),
 		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
 
@@ -115,6 +116,18 @@ func TestJunoIBCHooks(t *testing.T) {
 	channel, err := ibc.GetTransferChannel(ctx, r, eRep, juno.Config().ChainID, juno2.Config().ChainID)
 	require.NoError(t, err)
 
+	err = r.StartRelayer(ctx, eRep, path)
+	require.NoError(t, err)
+
+	t.Cleanup(
+		func() {
+			err := r.StopRelayer(ctx, eRep)
+			if err != nil {
+				t.Logf("an error occurred while stopping the relayer: %s", err)
+			}
+		},
+	)
+
 	_, contractAddr := helpers.SetupContract(t, ctx, juno2, juno2User.KeyName(), "contracts/ibchooks_counter.wasm", `{"count":0}`)
 
 	// do an ibc transfer through the memo to the other chain.
@@ -134,8 +147,6 @@ func TestJunoIBCHooks(t *testing.T) {
 	junoHeight, err := juno.Height(ctx)
 	require.NoError(t, err)
 
-	// TODO: Remove when the relayer is fixed
-	r.Flush(ctx, eRep, path, channel.ChannelID)
 	_, err = testutil.PollForAck(ctx, juno, junoHeight-5, junoHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 
@@ -145,8 +156,6 @@ func TestJunoIBCHooks(t *testing.T) {
 	junoHeight, err = juno.Height(ctx)
 	require.NoError(t, err)
 
-	// TODO: Remove when the relayer is fixed
-	r.Flush(ctx, eRep, path, channel.ChannelID)
 	_, err = testutil.PollForAck(ctx, juno, junoHeight-5, junoHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 

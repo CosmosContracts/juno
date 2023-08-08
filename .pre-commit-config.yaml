@@ -1,0 +1,31 @@
+# Install:
+# - pip install pre-commit && pre-commit install
+#
+# VSCode Extension:
+# - ext install MarkLarah.pre-commit-vscode
+#
+# On new hooks added here:
+# - pre-commit run --all-files
+
+repos:
+- repo: local  
+  hooks:    
+    - id: go-mod-tidy
+      name: "go mod tidy"
+      files: go.*
+      entry: ./scripts/git/tidy.sh
+      language: "script"
+
+    - id: golangci-lint
+      name: "lint"
+      files: .*go
+      entry: ./scripts/git/linter.sh
+      require_serial: true
+      language: "script"
+
+    - id: markdown-lint
+      name: "markdown linter"
+      files: .*md
+      entry: ./scripts/git/markdown_lint.sh
+      require_serial: true
+      language: "script"

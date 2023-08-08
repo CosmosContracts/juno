@@ -1,10 +1,11 @@
-// this file used from osmosis, ref: https://github.com/CosmosContracts/juno/v16/blob/2ce971f4c6aa85d3ef7ba33d60e0ae74b923ab83/app/keepers/querier.go
+// this file used from osmosis, ref: https://github.com/CosmosContracts/juno/v17/blob/2ce971f4c6aa85d3ef7ba33d60e0ae74b923ab83/app/keepers/querier.go
 // Original Author: https://github.com/nicolaslara
 
 package keepers
 
 import (
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

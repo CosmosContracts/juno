@@ -1,11 +1,12 @@
 package keeper_test
 
 import (
-	"github.com/CosmosContracts/juno/v16/testutil/nullify"
-	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+
+	"github.com/CosmosContracts/juno/v17/testutil/nullify"
+	"github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
 
 func (s *IntegrationTestSuite) TestFeeShares() {

@@ -4,13 +4,15 @@ import (
 	gocontext "context"
 	"testing"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v16/app"
-	"github.com/CosmosContracts/juno/v16/x/mint/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v17/app"
+	"github.com/CosmosContracts/juno/v17/x/mint/types"
 )
 
 type MintTestSuite struct {

@@ -5,21 +5,34 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 
-	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
-	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
-	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
+	wasm "github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/prometheus/client_golang/prometheus"
+	pobabci "github.com/skip-mev/pob/abci"
+	pobmempool "github.com/skip-mev/pob/mempool"
+	"github.com/spf13/cast"
 
-	"github.com/CosmosContracts/juno/v16/app/openapiconsole"
-	"github.com/CosmosContracts/juno/v16/docs"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cometbft/cometbft/libs/log"
 	tmos "github.com/cometbft/cometbft/libs/os"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+
+	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -27,6 +40,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -46,31 +60,21 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	"github.com/spf13/cast"
 
-	errorsmod "cosmossdk.io/errors"
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/prometheus/client_golang/prometheus"
-
-	"github.com/CosmosContracts/juno/v16/x/globalfee"
-
-	"github.com/CosmosContracts/juno/v16/app/keepers"
-	upgrades "github.com/CosmosContracts/juno/v16/app/upgrades"
-	v10 "github.com/CosmosContracts/juno/v16/app/upgrades/v10"
-	v11 "github.com/CosmosContracts/juno/v16/app/upgrades/v11"
-	v12 "github.com/CosmosContracts/juno/v16/app/upgrades/v12"
-	v13 "github.com/CosmosContracts/juno/v16/app/upgrades/v13"
-	v14 "github.com/CosmosContracts/juno/v16/app/upgrades/v14"
-	v16 "github.com/CosmosContracts/juno/v16/app/upgrades/v16"
+	"github.com/CosmosContracts/juno/v17/app/keepers"
+	"github.com/CosmosContracts/juno/v17/app/openapiconsole"
+	upgrades "github.com/CosmosContracts/juno/v17/app/upgrades"
+	v10 "github.com/CosmosContracts/juno/v17/app/upgrades/v10"
+	v11 "github.com/CosmosContracts/juno/v17/app/upgrades/v11"
+	v12 "github.com/CosmosContracts/juno/v17/app/upgrades/v12"
+	v13 "github.com/CosmosContracts/juno/v17/app/upgrades/v13"
+	v14 "github.com/CosmosContracts/juno/v17/app/upgrades/v14"
+	v15 "github.com/CosmosContracts/juno/v17/app/upgrades/v15"
+	v16 "github.com/CosmosContracts/juno/v17/app/upgrades/v16"
+	v17 "github.com/CosmosContracts/juno/v17/app/upgrades/v17"
+	"github.com/CosmosContracts/juno/v17/docs"
 )
 
 const (
@@ -91,7 +95,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v16.Upgrade}
+	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v15.Upgrade, v16.Upgrade, v17.Upgrade}
 )
 
 // These constants are derived from the above variables.
@@ -148,23 +152,23 @@ func SetAddressPrefixes() {
 
 // GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
 // produce a list of enabled proposals to pass into wasmd app.
-func GetEnabledProposals() []wasm.ProposalType {
+func GetEnabledProposals() []wasmtypes.ProposalType {
 	if EnableSpecificProposals == "" {
 		if ProposalsEnabled == "true" {
-			return wasm.EnableAllProposals
+			return wasmtypes.EnableAllProposals
 		}
-		return wasm.DisableAllProposals
+		return wasmtypes.DisableAllProposals
 	}
 	chunks := strings.Split(EnableSpecificProposals, ",")
-	proposals, err := wasm.ConvertToProposals(chunks)
+	proposals, err := wasmtypes.ConvertToProposals(chunks)
 	if err != nil {
 		panic(err)
 	}
 	return proposals
 }
 
-func GetWasmOpts(appOpts servertypes.AppOptions) []wasm.Option {
-	var wasmOpts []wasm.Option
+func GetWasmOpts(appOpts servertypes.AppOptions) []wasmkeeper.Option {
+	var wasmOpts []wasmkeeper.Option
 	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
@@ -214,6 +218,9 @@ type App struct {
 
 	// module configurator
 	configurator module.Configurator
+
+	// custom checkTx handler
+	checkTxHandler pobabci.CheckTx
 }
 
 // New returns a reference to an initialized Juno.
@@ -222,9 +229,9 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	enabledProposals []wasm.ProposalType,
+	enabledProposals []wasmtypes.ProposalType,
 	appOpts servertypes.AppOptions,
-	wasmOpts []wasm.Option,
+	wasmOpts []wasmkeeper.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
 	encodingConfig := MakeEncodingConfig()
@@ -324,6 +331,15 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
+	factory := pobmempool.NewDefaultAuctionFactory(app.txConfig.TxDecoder())
+	mempool := pobmempool.NewAuctionMempool(
+		app.txConfig.TxDecoder(),
+		app.txConfig.TxEncoder(),
+		0,
+		factory,
+	)
+	app.SetMempool(mempool)
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -338,18 +354,42 @@ func New(
 			IBCKeeper:         app.AppKeepers.IBCKeeper,
 			FeeShareKeeper:    app.AppKeepers.FeeShareKeeper,
 			BankKeeperFork:    app.AppKeepers.BankKeeper, // since we need extra methods
-			TxCounterStoreKey: app.AppKeepers.GetKey(wasm.StoreKey),
+			TxCounterStoreKey: app.AppKeepers.GetKey(wasmtypes.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
-			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName),
 
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
-			GlobalFeeSubspace:    app.GetSubspace(globalfee.ModuleName),
+			GlobalFeeKeeper:      app.AppKeepers.GlobalFeeKeeper,
+			StakingKeeper:        *app.AppKeepers.StakingKeeper,
+
+			TxEncoder:     app.txConfig.TxEncoder(),
+			BuilderKeeper: app.AppKeepers.BuildKeeper,
+			Mempool:       mempool,
 		},
 	)
 	if err != nil {
 		panic(err)
 	}
+
+	proposalHandlers := pobabci.NewProposalHandler(
+		mempool,
+		app.Logger(),
+		anteHandler,
+		app.txConfig.TxEncoder(),
+		app.txConfig.TxDecoder(),
+	)
+	app.SetPrepareProposal(proposalHandlers.PrepareProposalHandler())
+	app.SetProcessProposal(proposalHandlers.ProcessProposalHandler())
+
+	// Set the custom CheckTx handler on BaseApp.
+	checkTxHandler := pobabci.NewCheckTxHandler(
+		app.BaseApp,
+		app.txConfig.TxDecoder(),
+		mempool,
+		anteHandler,
+		app.ChainID(),
+	)
+	app.SetCheckTx(checkTxHandler.CheckTx())
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -417,6 +457,19 @@ func New(
 	app.sm.RegisterStoreDecoders()
 
 	return app
+}
+
+// CheckTx will check the transaction with the provided checkTxHandler. We override the default
+// handler so that we can verify bid transactions before they are inserted into the mempool.
+// With the POB CheckTx, we can verify the bid transaction and all of the bundled transactions
+// before inserting the bid transaction into the mempool.
+func (app *App) CheckTx(req abci.RequestCheckTx) abci.ResponseCheckTx {
+	return app.checkTxHandler(req)
+}
+
+// SetCheckTx sets the checkTxHandler for the app.
+func (app *App) SetCheckTx(handler pobabci.CheckTx) {
+	app.checkTxHandler = handler
 }
 
 func GetDefaultBypassFeeMessages() []string {
@@ -564,8 +617,9 @@ func (app *App) setupUpgradeStoreLoaders() {
 
 	for _, upgrade := range Upgrades {
 		if upgradeInfo.Name == upgrade.UpgradeName {
+			storeUpgrades := upgrade.StoreUpgrades
 			app.SetStoreLoader(
-				upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades),
+				upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades),
 			)
 		}
 	}
@@ -587,4 +641,19 @@ func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
 // SimulationManager implements the SimulationApp interface
 func (app *App) SimulationManager() *module.SimulationManager {
 	return app.sm
+}
+
+// ChainID gets chainID from private fields of BaseApp
+// Should be removed once SDK 0.50.x will be adopted
+func (app *App) ChainID() string {
+	field := reflect.ValueOf(app.BaseApp).Elem().FieldByName("chainID")
+	return field.String()
+}
+
+func (app *App) GetChainBondDenom() string {
+	d := "ujuno"
+	if strings.HasPrefix(app.ChainID(), "uni-") {
+		d = "ujunox"
+	}
+	return d
 }

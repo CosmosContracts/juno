@@ -6,11 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
-	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	apphelpers "github.com/CosmosContracts/juno/v16/app/helpers"
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/stretchr/testify/require"
+
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto"
@@ -18,6 +17,9 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+
+	"cosmossdk.io/math"
+
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -30,7 +32,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/require"
+
+	apphelpers "github.com/CosmosContracts/juno/v17/app/helpers"
+	appparams "github.com/CosmosContracts/juno/v17/app/params"
 )
 
 // SimAppChainID hardcoded chainID for simulation
@@ -132,7 +136,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	return junoApp
 }
 
-func setup(t *testing.T, withGenesis bool, opts ...wasm.Option) (*App, GenesisState) {
+func setup(t *testing.T, withGenesis bool, opts ...wasmkeeper.Option) (*App, GenesisState) {
 	db := dbm.NewMemDB()
 	nodeHome := t.TempDir()
 	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
@@ -152,7 +156,7 @@ func setup(t *testing.T, withGenesis bool, opts ...wasm.Option) (*App, GenesisSt
 		db,
 		nil,
 		true,
-		wasm.EnableAllProposals,
+		wasmtypes.EnableAllProposals,
 		EmptyAppOptions{},
 		opts,
 		bam.SetChainID("testing"),
@@ -260,7 +264,7 @@ func ExecuteRawCustom(t *testing.T, ctx sdk.Context, app *App, contract sdk.AccA
 		coins = sdk.Coins{funds}
 	}
 
-	contractKeeper := keeper.NewDefaultPermissionKeeper(app.AppKeepers.WasmKeeper)
+	contractKeeper := wasmkeeper.NewDefaultPermissionKeeper(app.AppKeepers.WasmKeeper)
 	_, err = contractKeeper.Execute(ctx, contract, sender, oracleBz, coins)
 	return err
 }

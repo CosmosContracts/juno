@@ -1,11 +1,12 @@
 package cli
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
-	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+
+	"github.com/CosmosContracts/juno/v17/x/globalfee/types"
 )
 
 func GetQueryCmd() *cobra.Command {

@@ -3,8 +3,9 @@ package ante
 // Used for the Juno ante handler so we can properly send 50% of fees to dAPP developers via fee share module
 
 import (
-	revtypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	revtypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
 
 type BankKeeper interface {

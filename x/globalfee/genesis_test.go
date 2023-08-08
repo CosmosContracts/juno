@@ -4,19 +4,20 @@ import (
 	"testing"
 	"time"
 
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
-	dbm "github.com/cometbft/cometbft-db"
-	"github.com/cometbft/cometbft/libs/log"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cosmos/cosmos-sdk/store"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v16/x/globalfee/types"
+	dbm "github.com/cometbft/cometbft-db"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	appparams "github.com/CosmosContracts/juno/v17/app/params"
+	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
+	"github.com/CosmosContracts/juno/v17/x/globalfee/types"
 )
 
 func TestDefaultGenesis(t *testing.T) {
@@ -94,29 +95,31 @@ func TestInitExportGenesis(t *testing.T) {
 	}
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
-			ctx, encCfg, subspace := setupTestStore(t)
-			m := NewAppModule(subspace)
+			ctx, encCfg, keeper := setupTestStore(t)
+			m := NewAppModule(encCfg.Marshaler, keeper, "stake")
 			m.InitGenesis(ctx, encCfg.Marshaler, []byte(spec.src))
 			gotJSON := m.ExportGenesis(ctx, encCfg.Marshaler)
 			var got types.GenesisState
+			t.Log(got)
 			require.NoError(t, encCfg.Marshaler.UnmarshalJSON(gotJSON, &got))
 			assert.Equal(t, spec.exp, got, string(gotJSON))
 		})
 	}
 }
 
-func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, paramstypes.Subspace) {
+func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, globalfeekeeper.Keeper) {
 	t.Helper()
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db)
 	encCfg := appparams.MakeEncodingConfig()
-	keyParams := sdk.NewKVStoreKey(paramstypes.StoreKey)
-	tkeyParams := sdk.NewTransientStoreKey(paramstypes.TStoreKey)
+	keyParams := sdk.NewKVStoreKey(types.StoreKey)
+	// globalfeeParams := sdk.NewKVStoreKey(types.StoreKey)
+	// tkeyParams := sdk.NewTransientStoreKey(paramstypes.TStoreKey)
 	ms.MountStoreWithDB(keyParams, storetypes.StoreTypeIAVL, db)
-	ms.MountStoreWithDB(tkeyParams, storetypes.StoreTypeTransient, db)
+	// ms.MountStoreWithDB(tkeyParams, storetypes.StoreTypeTransient, db)
 	require.NoError(t, ms.LoadLatestVersion())
 
-	paramsKeeper := paramskeeper.NewKeeper(encCfg.Marshaler, encCfg.Amino, keyParams, tkeyParams)
+	globalfeeKeeper := globalfeekeeper.NewKeeper(encCfg.Marshaler, keyParams, "juno1jv65s3grqf6v6jl3dp4t6c9t9rk99cd83d88wr")
 
 	ctx := sdk.NewContext(ms, tmproto.Header{
 		Height:  1234567,
@@ -124,6 +127,5 @@ func setupTestStore(t *testing.T) (sdk.Context, appparams.EncodingConfig, params
 		ChainID: "testing",
 	}, false, log.NewNopLogger())
 
-	subspace := paramsKeeper.Subspace(ModuleName).WithKeyTable(types.ParamKeyTable())
-	return ctx, encCfg, subspace
+	return ctx, encCfg, globalfeeKeeper
 }

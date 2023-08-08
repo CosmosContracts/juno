@@ -6,11 +6,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v16/app"
-	"github.com/CosmosContracts/juno/v16/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v16/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
+
+	"github.com/CosmosContracts/juno/v17/app"
+	"github.com/CosmosContracts/juno/v17/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v17/x/mint/types"
 )
 
 func TestDecodeStore(t *testing.T) {

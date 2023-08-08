@@ -9,7 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
+	wasmbinding "github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings"
 )
 
 func TestFullDenom(t *testing.T) {
@@ -69,7 +69,9 @@ func TestDenomAdmin(t *testing.T) {
 	// set token creation fee to zero to make testing easier
 	tfParams := app.AppKeepers.TokenFactoryKeeper.GetParams(ctx)
 	tfParams.DenomCreationFee = sdk.NewCoins()
-	app.AppKeepers.TokenFactoryKeeper.SetParams(ctx, tfParams)
+	if err := app.AppKeepers.TokenFactoryKeeper.SetParams(ctx, tfParams); err != nil {
+		t.Fatal(err)
+	}
 
 	// create a subdenom via the token factory
 	admin := sdk.AccAddress([]byte("addr1_______________"))

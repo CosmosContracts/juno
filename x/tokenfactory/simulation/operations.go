@@ -3,14 +3,15 @@ package simulation
 import (
 	"math/rand"
 
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
+
+	appparams "github.com/CosmosContracts/juno/v17/app/params"
+	"github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 // Simulation operation weights constants

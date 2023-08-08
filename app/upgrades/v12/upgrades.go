@@ -1,12 +1,11 @@
 package v12
 
 import (
-	"github.com/CosmosContracts/juno/v16/app/keepers"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	"github.com/CosmosContracts/juno/v17/app/keepers"
 )
 
 func CreateV12UpgradeHandler(

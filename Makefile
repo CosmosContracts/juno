@@ -21,7 +21,6 @@ BFT_VERSION := $(shell go list -m github.com/cometbft/cometbft | sed 's:.* ::') 
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
 BUILDDIR ?= $(CURDIR)/build
-E2E_UPGRADE_VERSION := "v14"
 export GO111MODULE = on
 
 # process build tags
@@ -155,10 +154,13 @@ ictest-unity-deploy: rm-testcache
 ictest-unity-gov: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoUnityContractGovSubmit .
 
+ictest-pob: rm-testcache
+	cd interchaintest &&  go test -race -v -run TestJunoPOB .
+
 rm-testcache:
 	go clean -testcache
 
-.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-unity-deploy ictest-unity-gov
+.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-pob
 
 ###############################################################################
 ###                                  heighliner                             ###

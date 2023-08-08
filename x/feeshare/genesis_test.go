@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v16/app"
-	"github.com/CosmosContracts/juno/v16/x/feeshare"
-	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v17/app"
+	"github.com/CosmosContracts/juno/v17/x/feeshare"
+	"github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
 
 type GenesisTestSuite struct {

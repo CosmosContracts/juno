@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 // ConvertToBaseToken converts a fee amount in a whitelisted fee token to the base fee token amount
@@ -32,6 +32,10 @@ func (k Keeper) createDenomAfterValidation(ctx sdk.Context, creatorAddr string, 
 			Exponent: 0,
 		}},
 		Base: denom,
+		// The following is necessary for x/bank denom validation
+		Display: denom,
+		Name:    denom,
+		Symbol:  denom,
 	}
 
 	k.bankKeeper.SetDenomMetaData(ctx, denomMetaData)
