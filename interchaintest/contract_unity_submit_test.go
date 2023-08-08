@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	cosmosproto "github.com/cosmos/gogoproto/proto"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/stretchr/testify/require"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	cosmosproto "github.com/cosmos/gogoproto/proto"
+
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
 

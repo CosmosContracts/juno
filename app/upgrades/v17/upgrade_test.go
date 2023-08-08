@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/CosmosContracts/juno/v17/app/apptesting"
-	v16 "github.com/CosmosContracts/juno/v17/app/upgrades/v16"
+	v17 "github.com/CosmosContracts/juno/v17/app/upgrades/v17"
 )
 
 type UpgradeTestSuite struct {
@@ -26,5 +26,5 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Setup()
 
 	upgradeHeight := int64(5)
-	s.ConfirmUpgradeSucceeded(v16.UpgradeName, upgradeHeight)
+	s.ConfirmUpgradeSucceeded(v17.UpgradeName, upgradeHeight)
 }
