@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -15,6 +14,8 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
+
+	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
 
 // TestJunoIBCHooks ensures the ibc-hooks middleware from osmosis works.
@@ -122,7 +123,7 @@ func TestJunoIBCHooks(t *testing.T) {
 		func() {
 			err := r.StopRelayer(ctx, eRep)
 			if err != nil {
-				t.Logf("an error occured while stopping the relayer: %s", err)
+				t.Logf("an error occurred while stopping the relayer: %s", err)
 			}
 		},
 	)

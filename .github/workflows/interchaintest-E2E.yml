@@ -1,16 +1,17 @@
 name: ictest E2E
 
 on:
+  pull_request:
   push:
     tags:
       - '**'
     branches:
-      - '**'
-    paths:
-      - '**.yml'
-      - '**.go'
-      - '**.mod'
-      - '**.sum'
+      - 'main'
+      - 'master'
+
+permissions:
+  contents: read
+  packages: write
 
 env:
   REGISTRY: ghcr.io  
@@ -144,4 +145,11 @@ jobs:
     uses: ./.github/workflows/make-cmd-runner.yml
     with:
       make-command: ictest-pfm
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+
+  test-pob:
+    needs: build-and-push-image
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-pob
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}

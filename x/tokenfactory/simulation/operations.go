@@ -10,8 +10,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	appparams "github.com/CosmosContracts/juno/v16/app/params"
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	appparams "github.com/CosmosContracts/juno/v17/app/params"
+	"github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 // Simulation operation weights constants

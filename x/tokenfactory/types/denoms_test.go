@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 func TestDeconstructDenom(t *testing.T) {

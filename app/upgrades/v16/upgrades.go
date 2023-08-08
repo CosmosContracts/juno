@@ -30,13 +30,13 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v16/app/keepers"
-	"github.com/CosmosContracts/juno/v16/app/upgrades"
+	"github.com/CosmosContracts/juno/v17/app/keepers"
+	"github.com/CosmosContracts/juno/v17/app/upgrades"
 	// Juno modules
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
+	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 const (

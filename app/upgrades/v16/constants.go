@@ -10,8 +10,8 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
 
-	"github.com/CosmosContracts/juno/v16/app/upgrades"
-	globalfeettypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v17/app/upgrades"
+	globalfeettypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.

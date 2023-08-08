@@ -5,6 +5,7 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
 	"github.com/spf13/cast"
@@ -80,20 +81,20 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	feesharekeeper "github.com/CosmosContracts/juno/v16/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v16/x/globalfee"
-	globalfeekeeper "github.com/CosmosContracts/juno/v16/x/globalfee/keeper"
-	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
-	mintkeeper "github.com/CosmosContracts/juno/v16/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
-	"github.com/CosmosContracts/juno/v16/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v16/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v17/x/globalfee"
+	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
+	mintkeeper "github.com/CosmosContracts/juno/v17/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
+	"github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v17/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 var (
-	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2"
+	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3"
 
 	tokenFactoryCapabilities = []string{
 		tokenfactorytypes.EnableBurnFrom,
@@ -115,7 +116,7 @@ var maccPerms = map[string][]string{
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:            nil,
 	ibcfeetypes.ModuleName:         nil,
-	wasm.ModuleName:                {authtypes.Burner},
+	wasmtypes.ModuleName:           {authtypes.Burner},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfee.ModuleName:           nil,
 	buildertypes.ModuleName:        nil,
@@ -167,7 +168,7 @@ type AppKeepers struct {
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
 
-	WasmKeeper         wasm.Keeper
+	WasmKeeper         wasmkeeper.Keeper
 	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
@@ -181,9 +182,9 @@ func NewAppKeepers(
 	bApp *baseapp.BaseApp,
 	cdc *codec.LegacyAmino,
 	maccPerms map[string][]string,
-	enabledProposals []wasm.ProposalType,
+	enabledProposals []wasmtypes.ProposalType,
 	appOpts servertypes.AppOptions,
-	wasmOpts []wasm.Option,
+	wasmOpts []wasmkeeper.Option,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -218,7 +219,7 @@ func NewAppKeepers(
 	scopedICAHostKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	scopedICQKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
 	scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	scopedWasmKeeper := appKeepers.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
+	scopedWasmKeeper := appKeepers.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
 
 	// add keepers
 	Bech32Prefix := "juno"
@@ -513,9 +514,9 @@ func NewAppKeepers(
 		})
 	wasmOpts = append(wasmOpts, querierOpts)
 
-	appKeepers.WasmKeeper = wasm.NewKeeper(
+	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[wasm.StoreKey],
+		appKeepers.keys[wasmtypes.StoreKey],
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
@@ -553,7 +554,7 @@ func NewAppKeepers(
 	// register wasm gov proposal types
 	// The gov proposal types can be individually enabled
 	if len(enabledProposals) != 0 {
-		govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(appKeepers.WasmKeeper, enabledProposals))
+		govRouter.AddRoute(wasmtypes.RouterKey, wasm.NewWasmProposalHandler(appKeepers.WasmKeeper, enabledProposals)) //nolint:staticcheck // we still need this despite the deprecation of the gov handler
 	}
 	// Set legacy router for backwards compatibility with gov v1beta1
 	appKeepers.GovKeeper.SetLegacyRouter(govRouter)
@@ -593,7 +594,7 @@ func NewAppKeepers(
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter().
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
-		AddRoute(wasm.ModuleName, wasmStack).
+		AddRoute(wasmtypes.ModuleName, wasmStack).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
 		AddRoute(icahosttypes.SubModuleName, icaHostStack).
 		AddRoute(icqtypes.ModuleName, icqModule)
@@ -639,7 +640,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(globalfee.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)
-	paramsKeeper.Subspace(wasm.ModuleName)
+	paramsKeeper.Subspace(wasmtypes.ModuleName)
 	paramsKeeper.Subspace(buildertypes.ModuleName)
 
 	return paramsKeeper
@@ -667,7 +668,7 @@ func (appKeepers *AppKeepers) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper
 }
 
 // GetWasmKeeper implements the TestingApp interface.
-func (appKeepers *AppKeepers) GetWasmKeeper() wasm.Keeper {
+func (appKeepers *AppKeepers) GetWasmKeeper() wasmkeeper.Keeper {
 	return appKeepers.WasmKeeper
 }
 

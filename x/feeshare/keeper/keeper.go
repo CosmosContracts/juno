@@ -11,7 +11,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	revtypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	revtypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
 
 // Keeper of this module maintains collections of feeshares for contracts
