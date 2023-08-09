@@ -50,13 +50,13 @@ func (suite *MsgsTestSuite) TestMsgDistributeTokensNew() {
 			true,
 		},
 		{
-			"fail - empty sender address",
+			"invalid sender address",
 			suite.amount,
 			"",
 			false,
 		},
 		{
-			"fail - invalid coins",
+			"invalid coins",
 			nil,
 			suite.sender.String(),
 			false,
@@ -69,7 +69,6 @@ func (suite *MsgsTestSuite) TestMsgDistributeTokensNew() {
 			SenderAddress: tc.sender,
 		}
 
-		// todo: how can i test if validation logic is in msg_server..?
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {

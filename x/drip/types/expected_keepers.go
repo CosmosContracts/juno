@@ -1,7 +1,6 @@
 package types
 
 import (
-
 	// "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	acctypes "github.com/cosmos/cosmos-sdk/x/auth/types"

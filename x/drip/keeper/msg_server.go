@@ -3,11 +3,12 @@ package keeper
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	errorsmod "cosmossdk.io/errors"
-	"github.com/CosmosContracts/juno/v16/x/drip/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
+	"github.com/CosmosContracts/juno/v16/x/drip/types"
 )
 
 var _ types.MsgServer = &Keeper{}

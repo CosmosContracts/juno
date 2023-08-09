@@ -1,7 +1,10 @@
 package types
 
 import (
+	fmt "fmt"
+
 	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -33,7 +36,18 @@ func (msg MsgDistributeTokens) Type() string { return TypeMsgDistributeTokens }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgDistributeTokens) ValidateBasic() error {
-	// Validation logic is inside msg_server
+	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
+		return errorsmod.Wrapf(err, "invalid sender address: %s", err.Error())
+	}
+
+	if msg.Amount == nil {
+		return fmt.Errorf("invalid coins: %s", msg.Amount.String())
+	}
+
+	if !msg.Amount.IsValid() {
+		return fmt.Errorf("invalid coins: %s", msg.Amount.String())
+	}
+
 	return nil
 }
 

@@ -2,12 +2,13 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	revtypes "github.com/CosmosContracts/juno/v16/x/drip/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	driptypes "github.com/CosmosContracts/juno/v16/x/drip/types"
 )
 
 // Keeper of this module maintains collections of feeshares for contracts
@@ -16,8 +17,8 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	cdc      codec.BinaryCodec
 
-	bankKeeper    revtypes.BankKeeper
-	accountKeeper revtypes.AccountKeeper
+	bankKeeper    driptypes.BankKeeper
+	accountKeeper driptypes.AccountKeeper
 
 	feeCollectorName string
 	// the address capable of executing a MsgUpdateParams message. Typically, this
@@ -29,8 +30,8 @@ type Keeper struct {
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
-	bk revtypes.BankKeeper,
-	ak revtypes.AccountKeeper,
+	bk driptypes.BankKeeper,
+	ak driptypes.AccountKeeper,
 	feeCollector string,
 	authority string,
 ) Keeper {
