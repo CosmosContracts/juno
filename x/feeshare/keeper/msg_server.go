@@ -40,14 +40,12 @@ func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, msgSender sd
 	if err != nil {
 		return false
 	}
-	// if the admin is a contract, then it could be a factory contract
-	adminIsContract := k.wasmKeeper.HasContractInfo(ctx, admin)
 
-	// if the admin is a contract and the sender is said contract (EX: DAODAO), allow them to register anywhere.
-	if adminIsContract && admin.String() == msgSender.String() {
+	if admin.String() == msgSender.String() {
 		return false
 	}
-	return true
+
+	return k.wasmKeeper.HasContractInfo(ctx, admin)
 }
 
 // GetContractAdminOrCreatorAddress ensures the deployer is the contract's admin OR creator if no admin is set for all msg_server feeshare functions.
