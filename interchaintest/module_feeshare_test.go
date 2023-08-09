@@ -19,7 +19,6 @@ func TestJunoFeeShare(t *testing.T) {
 
 	// Chains
 	juno := chains[0].(*cosmos.CosmosChain)
-	t.Log("juno.GetHostRPCAddress()", juno.GetHostRPCAddress())
 
 	nativeDenom := juno.Config().Denom
 
