@@ -3,9 +3,10 @@ package keeper_test
 import (
 	_ "embed"
 
-	"github.com/CosmosContracts/juno/v16/x/drip/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v16/x/drip/types"
 )
 
 func (s *IntegrationTestSuite) TestDripDistributeTokens() {
@@ -14,7 +15,7 @@ func (s *IntegrationTestSuite) TestDripDistributeTokens() {
 	_ = s.FundAccount(s.ctx, allowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 	_ = s.FundAccount(s.ctx, notAllowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
-	s.app.AppKeepers.DripKeeper.SetParams(s.ctx, types.Params{
+	_ = s.app.AppKeepers.DripKeeper.SetParams(s.ctx, types.Params{
 		EnableDrip: true,
 		AllowedAddresses: []string{
 			allowedSender.String(),
@@ -72,7 +73,6 @@ func (s *IntegrationTestSuite) TestDripDistributeTokens() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-
 			msg := types.MsgDistributeTokens{
 				SenderAddress: tc.senderAddr,
 				Amount:        tc.coins,
@@ -137,7 +137,6 @@ func (s *IntegrationTestSuite) TestUpdateDripParams() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-
 			params := types.Params{
 				EnableDrip:       tc.isEnabled,
 				AllowedAddresses: tc.AllowedAddresses,
