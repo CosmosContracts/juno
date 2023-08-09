@@ -21,6 +21,10 @@ func (k Keeper) DistributeTokens(
 ) (*types.MsgDistributeTokensResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
 	params := k.GetParams(ctx)
 	if !params.EnableDrip {
 		return nil, types.ErrDripDisabled

@@ -40,7 +40,7 @@ func (msg MsgDistributeTokens) ValidateBasic() error {
 		return errorsmod.Wrapf(err, "invalid sender address: %s", err.Error())
 	}
 
-	if msg.Amount == nil {
+	if msg.Amount == nil || msg.Amount.Empty() {
 		return fmt.Errorf("invalid coins: %s", msg.Amount.String())
 	}
 

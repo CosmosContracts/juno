@@ -1,360 +1,153 @@
 package keeper_test
 
 import (
-	"crypto/sha256"
 	_ "embed"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/CosmosContracts/juno/v16/x/drip/types"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-//go:embed testdata/reflect.wasm
-var wasmContract []byte
+func (s *IntegrationTestSuite) TestDripDistributeTokens() {
+	_, _, allowedSender := testdata.KeyTestPubAddr()
+	_, _, notAllowedSender := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, allowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, notAllowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
-func (s *IntegrationTestSuite) StoreCode() {
-	_, _, sender := testdata.KeyTestPubAddr()
-	msg := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
-		m.WASMByteCode = wasmContract
-		m.Sender = sender.String()
+	s.app.AppKeepers.DripKeeper.SetParams(s.ctx, types.Params{
+		EnableDrip: true,
+		AllowedAddresses: []string{
+			allowedSender.String(),
+		},
 	})
-	rsp, err := s.app.MsgServiceRouter().Handler(msg)(s.ctx, msg)
-	s.Require().NoError(err)
-	var result wasmtypes.MsgStoreCodeResponse
-	s.Require().NoError(s.app.AppCodec().Unmarshal(rsp.Data, &result))
-	s.Require().Equal(uint64(1), result.CodeID)
-	expHash := sha256.Sum256(wasmContract)
-	s.Require().Equal(expHash[:], result.Checksum)
-	// and
-	info := s.app.AppKeepers.WasmKeeper.GetCodeInfo(s.ctx, 1)
-	s.Require().NotNil(info)
-	s.Require().Equal(expHash[:], info.CodeHash)
-	s.Require().Equal(sender.String(), info.Creator)
-	s.Require().Equal(wasmtypes.DefaultParams().InstantiateDefaultPermission.With(sender), info.InstantiateConfig)
-}
-
-func (s *IntegrationTestSuite) InstantiateContract(sender string, admin string) string {
-	msgStoreCode := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
-		m.WASMByteCode = wasmContract
-		m.Sender = sender
-	})
-	_, err := s.app.MsgServiceRouter().Handler(msgStoreCode)(s.ctx, msgStoreCode)
-	s.Require().NoError(err)
-
-	msgInstantiate := wasmtypes.MsgInstantiateContractFixture(func(m *wasmtypes.MsgInstantiateContract) {
-		m.Sender = sender
-		m.Admin = admin
-		m.Msg = []byte(`{}`)
-	})
-	resp, err := s.app.MsgServiceRouter().Handler(msgInstantiate)(s.ctx, msgInstantiate)
-	s.Require().NoError(err)
-	var result wasmtypes.MsgInstantiateContractResponse
-	s.Require().NoError(s.app.AppCodec().Unmarshal(resp.Data, &result))
-	contractInfo := s.app.AppKeepers.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(result.Address))
-	s.Require().Equal(contractInfo.CodeID, uint64(1))
-	s.Require().Equal(contractInfo.Admin, admin)
-	s.Require().Equal(contractInfo.Creator, sender)
-
-	return result.Address
-}
-
-func (s *IntegrationTestSuite) TestGetContractAdminOrCreatorAddress() {
-	_, _, sender := testdata.KeyTestPubAddr()
-	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
-	noAdminContractAddress := s.InstantiateContract(sender.String(), "")
-	withAdminContractAddress := s.InstantiateContract(sender.String(), admin.String())
 
 	for _, tc := range []struct {
-		desc            string
-		contractAddress string
-		deployerAddress string
-		shouldErr       bool
+		desc       string
+		senderAddr string
+		coins      sdk.Coins
+		success    bool
 	}{
 		{
-			desc:            "Success - Creator",
-			contractAddress: noAdminContractAddress,
-			deployerAddress: sender.String(),
-			shouldErr:       false,
+			desc:       "Success - Allowed sender with proper funds",
+			senderAddr: allowedSender.String(),
+			coins:      sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1))),
+			success:    true,
 		},
 		{
-			desc:            "Success - Admin",
-			contractAddress: withAdminContractAddress,
-			deployerAddress: admin.String(),
-			shouldErr:       false,
+			desc:       "Fail - Allowed sender no proper funds",
+			senderAddr: allowedSender.String(),
+			coins:      sdk.NewCoins(sdk.NewCoin("notarealtoken", sdk.NewInt(1))),
+			success:    false,
 		},
 		{
-			desc:            "Error - Invalid deployer",
-			contractAddress: noAdminContractAddress,
-			deployerAddress: "Invalid",
-			shouldErr:       true,
+			desc:       "Fail - Allowed sender no tokens",
+			senderAddr: allowedSender.String(),
+			coins:      nil,
+			success:    false,
+		},
+		{
+			desc:       "Fail - Allowed sender empty tokens",
+			senderAddr: allowedSender.String(),
+			coins:      sdk.NewCoins(),
+			success:    false,
+		},
+		{
+			desc:       "Fail - No sender withproper funds",
+			senderAddr: "",
+			coins:      sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1))),
+			success:    false,
+		},
+		{
+			desc:       "Fail - Non Allowed sender proper funds",
+			senderAddr: notAllowedSender.String(),
+			coins:      sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1))),
+			success:    false,
+		},
+		{
+			desc:       "Fail - Non Allowed sender improper funds",
+			senderAddr: notAllowedSender.String(),
+			coins:      sdk.NewCoins(sdk.NewCoin("notarealtoken", sdk.NewInt(1))),
+			success:    false,
 		},
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			if !tc.shouldErr {
-				_, err := s.app.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
-				s.Require().NoError(err)
-			} else {
-				_, err := s.app.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
+
+			msg := types.MsgDistributeTokens{
+				SenderAddress: tc.senderAddr,
+				Amount:        tc.coins,
+			}
+			_, err := s.app.AppKeepers.DripKeeper.DistributeTokens(s.ctx, &msg)
+
+			if !tc.success {
 				s.Require().Error(err)
+			} else {
+				s.Require().NoError(err)
 			}
 		})
 	}
 }
 
-func (s *IntegrationTestSuite) TestRegisterFeeShare() {
-	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
-	contractAddress := s.InstantiateContract(sender.String(), "")
-	contractAddress2 := s.InstantiateContract(contractAddress, contractAddress)
-
-	_, _, withdrawer := testdata.KeyTestPubAddr()
+func (s *IntegrationTestSuite) TestUpdateDripParams() {
+	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr2 := testdata.KeyTestPubAddr()
 
 	for _, tc := range []struct {
-		desc      string
-		msg       *types.MsgRegisterFeeShare
-		resp      *types.MsgRegisterFeeShareResponse
-		shouldErr bool
+		desc             string
+		isEnabled        bool
+		AllowedAddresses []string
+		success          bool
 	}{
 		{
-			desc: "Invalid contract address",
-			msg: &types.MsgRegisterFeeShare{
-				ContractAddress:   "Invalid",
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: withdrawer.String(),
-			},
-			resp:      &types.MsgRegisterFeeShareResponse{},
-			shouldErr: true,
+			desc:             "Success - Valid on",
+			isEnabled:        true,
+			AllowedAddresses: []string{},
+			success:          true,
 		},
 		{
-			desc: "Invalid deployer address",
-			msg: &types.MsgRegisterFeeShare{
-				ContractAddress:   contractAddress,
-				DeployerAddress:   "Invalid",
-				WithdrawerAddress: withdrawer.String(),
-			},
-			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
-			shouldErr: true,
+			desc:             "Success - Valid off",
+			isEnabled:        false,
+			AllowedAddresses: []string{},
+			success:          true,
 		},
 		{
-			desc: "Invalid withdrawer address",
-			msg: &feesharetypes.MsgRegisterFeeShare{
-				ContractAddress:   contractAddress,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: "Invalid",
-			},
-			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
-			shouldErr: true,
+			desc:             "Success - On and 1 allowed address",
+			isEnabled:        true,
+			AllowedAddresses: []string{addr.String()},
+			success:          true,
 		},
 		{
-			desc: "Success",
-			msg: &feesharetypes.MsgRegisterFeeShare{
-				ContractAddress:   contractAddress,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: withdrawer.String(),
-			},
-			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
-			shouldErr: false,
+			desc:             "Fail - On and 2 duplicate addresses",
+			isEnabled:        true,
+			AllowedAddresses: []string{addr.String(), addr.String()},
+			success:          false,
 		},
 		{
-			desc: "Invalid withdraw address for factory contract",
-			msg: &feesharetypes.MsgRegisterFeeShare{
-				ContractAddress:   contractAddress2,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: sender.String(),
-			},
-			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
-			shouldErr: true,
+			desc:             "Success - On and 2 unique",
+			isEnabled:        true,
+			AllowedAddresses: []string{addr.String(), addr2.String()},
+			success:          true,
 		},
 		{
-			desc: "Success register factory contract to itself",
-			msg: &feesharetypes.MsgRegisterFeeShare{
-				ContractAddress:   contractAddress2,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: contractAddress2,
-			},
-			resp:      &feesharetypes.MsgRegisterFeeShareResponse{},
-			shouldErr: false,
+			desc:             "Success - On and 2 duplicate 1 unique",
+			isEnabled:        true,
+			AllowedAddresses: []string{addr.String(), addr2.String(), addr.String()},
+			success:          false,
 		},
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			goCtx := sdk.WrapSDKContext(s.ctx)
-			if !tc.shouldErr {
-				resp, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, tc.msg)
-				s.Require().NoError(err)
-				s.Require().Equal(resp, tc.resp)
-			} else {
-				resp, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, tc.msg)
-				s.Require().Error(err)
-				s.Require().Nil(resp)
+
+			params := types.Params{
+				EnableDrip:       tc.isEnabled,
+				AllowedAddresses: tc.AllowedAddresses,
 			}
-		})
-	}
-}
+			err := s.app.AppKeepers.DripKeeper.SetParams(s.ctx, params)
 
-func (s *IntegrationTestSuite) TestUpdateFeeShare() {
-	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
-	contractAddress := s.InstantiateContract(sender.String(), "")
-	_, _, withdrawer := testdata.KeyTestPubAddr()
-
-	contractAddressNoRegisFeeShare := s.InstantiateContract(sender.String(), "")
-	s.Require().NotEqual(contractAddress, contractAddressNoRegisFeeShare)
-
-	// RegsisFeeShare
-	goCtx := sdk.WrapSDKContext(s.ctx)
-	msg := &feesharetypes.MsgRegisterFeeShare{
-		ContractAddress:   contractAddress,
-		DeployerAddress:   sender.String(),
-		WithdrawerAddress: withdrawer.String(),
-	}
-	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
-	s.Require().NoError(err)
-	_, _, newWithdrawer := testdata.KeyTestPubAddr()
-	s.Require().NotEqual(withdrawer, newWithdrawer)
-
-	for _, tc := range []struct {
-		desc      string
-		msg       *types.MsgUpdateFeeShare
-		resp      *types.MsgCancelFeeShareResponse
-		shouldErr bool
-	}{
-		{
-			desc: "Invalid - contract not regis",
-			msg: &types.MsgUpdateFeeShare{
-				ContractAddress:   contractAddressNoRegisFeeShare,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: newWithdrawer.String(),
-			},
-			resp:      nil,
-			shouldErr: true,
-		},
-		{
-			desc: "Invalid - Invalid DeployerAddress",
-			msg: &types.MsgUpdateFeeShare{
-				ContractAddress:   contractAddress,
-				DeployerAddress:   "Invalid",
-				WithdrawerAddress: newWithdrawer.String(),
-			},
-			resp:      nil,
-			shouldErr: true,
-		},
-		{
-			desc: "Invalid - Invalid WithdrawerAddress",
-			msg: &feesharetypes.MsgUpdateFeeShare{
-				ContractAddress:   contractAddress,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: "Invalid",
-			},
-			resp:      nil,
-			shouldErr: true,
-		},
-		{
-			desc: "Invalid - Invalid WithdrawerAddress not change",
-			msg: &feesharetypes.MsgUpdateFeeShare{
-				ContractAddress:   contractAddress,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: withdrawer.String(),
-			},
-			resp:      nil,
-			shouldErr: true,
-		},
-		{
-			desc: "Success",
-			msg: &feesharetypes.MsgUpdateFeeShare{
-				ContractAddress:   contractAddress,
-				DeployerAddress:   sender.String(),
-				WithdrawerAddress: newWithdrawer.String(),
-			},
-			resp:      &feesharetypes.MsgCancelFeeShareResponse{},
-			shouldErr: false,
-		},
-	} {
-		tc := tc
-		s.Run(tc.desc, func() {
-			goCtx := sdk.WrapSDKContext(s.ctx)
-			if !tc.shouldErr {
-				_, err := s.feeShareMsgServer.UpdateFeeShare(goCtx, tc.msg)
-				s.Require().NoError(err)
-			} else {
-				resp, err := s.feeShareMsgServer.UpdateFeeShare(goCtx, tc.msg)
+			if !tc.success {
 				s.Require().Error(err)
-				s.Require().Nil(resp)
-			}
-		})
-	}
-}
-
-func (s *IntegrationTestSuite) TestCancelFeeShare() {
-	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
-	contractAddress := s.InstantiateContract(sender.String(), "")
-	_, _, withdrawer := testdata.KeyTestPubAddr()
-
-	// RegsisFeeShare
-	goCtx := sdk.WrapSDKContext(s.ctx)
-	msg := &feesharetypes.MsgRegisterFeeShare{
-		ContractAddress:   contractAddress,
-		DeployerAddress:   sender.String(),
-		WithdrawerAddress: withdrawer.String(),
-	}
-	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
-	s.Require().NoError(err)
-
-	for _, tc := range []struct {
-		desc      string
-		msg       *feesharetypes.MsgCancelFeeShare
-		resp      *feesharetypes.MsgCancelFeeShareResponse
-		shouldErr bool
-	}{
-		{
-			desc: "Invalid - contract Address",
-			msg: &feesharetypes.MsgCancelFeeShare{
-				ContractAddress: "Invalid",
-				DeployerAddress: sender.String(),
-			},
-			resp:      nil,
-			shouldErr: true,
-		},
-		{
-			desc: "Invalid - deployer Address",
-			msg: &feesharetypes.MsgCancelFeeShare{
-				ContractAddress: contractAddress,
-				DeployerAddress: "Invalid",
-			},
-			resp:      nil,
-			shouldErr: true,
-		},
-		{
-			desc: "Success",
-			msg: &feesharetypes.MsgCancelFeeShare{
-				ContractAddress: contractAddress,
-				DeployerAddress: sender.String(),
-			},
-			resp:      &feesharetypes.MsgCancelFeeShareResponse{},
-			shouldErr: false,
-		},
-	} {
-		tc := tc
-		s.Run(tc.desc, func() {
-			goCtx := sdk.WrapSDKContext(s.ctx)
-			if !tc.shouldErr {
-				resp, err := s.feeShareMsgServer.CancelFeeShare(goCtx, tc.msg)
-				s.Require().NoError(err)
-				s.Require().Equal(resp, tc.resp)
 			} else {
-				resp, err := s.feeShareMsgServer.CancelFeeShare(goCtx, tc.msg)
-				s.Require().Error(err)
-				s.Require().Equal(resp, tc.resp)
+				s.Require().NoError(err)
 			}
 		})
 	}
