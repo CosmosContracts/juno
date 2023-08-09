@@ -1,260 +1,58 @@
 package keeper_test
 
 import (
-	"github.com/CosmosContracts/juno/v16/testutil/nullify"
 	"github.com/CosmosContracts/juno/v16/x/drip/types"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
 )
 
-func (s *IntegrationTestSuite) TestFeeShares() {
-	s.SetupTest()
-	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+func (s *IntegrationTestSuite) TestDripQueryParams() {
+	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr2 := testdata.KeyTestPubAddr()
 
-	_, _, withdrawer := testdata.KeyTestPubAddr()
-
-	var contractAddressList []string
-	var index uint64
-	for index < 5 {
-		contractAddress := s.InstantiateContract(sender.String(), "")
-		contractAddressList = append(contractAddressList, contractAddress)
-		index++
-	}
-
-	// RegsisFeeShare
-	var feeShares []types.Drip
-	for _, contractAddress := range contractAddressList {
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		msg := &feesharetypes.MsgRegisterFeeShare{
-			ContractAddress:   contractAddress,
-			DeployerAddress:   sender.String(),
-			WithdrawerAddress: withdrawer.String(),
-		}
-
-		feeShare := types.Drip{
-			ContractAddress:   contractAddress,
-			DeployerAddress:   sender.String(),
-			WithdrawerAddress: withdrawer.String(),
-		}
-
-		feeShares = append(feeShares, feeShare)
-
-		_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
-		s.Require().NoError(err)
-	}
-
-	request := func(next []byte, offset, limit uint64, total bool) *feesharetypes.QueryFeeSharesRequest {
-		return &feesharetypes.QueryFeeSharesRequest{
-			Pagination: &query.PageRequest{
-				Key:        next,
-				Offset:     offset,
-				Limit:      limit,
-				CountTotal: total,
+	for _, tc := range []struct {
+		desc     string
+		Expected types.Params
+	}{
+		{
+			desc: "On empty",
+			Expected: types.Params{
+				EnableDrip:       true,
+				AllowedAddresses: []string(nil),
 			},
-		}
-	}
-	s.Run("ByOffset", func() {
-		step := 2
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.FeeShares(goCtx, request(nil, uint64(i), uint64(step), false))
-			s.Require().NoError(err)
-			s.Require().LessOrEqual(len(resp.Drip), step)
-			s.Require().Subset(nullify.Fill(feeShares), nullify.Fill(resp.Drip))
-		}
-	})
-	s.Run("ByKey", func() {
-		step := 2
-		var next []byte
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.FeeShares(goCtx, request(next, 0, uint64(step), false))
-			s.Require().NoError(err)
-			s.Require().LessOrEqual(len(resp.Drip), step)
-			s.Require().Subset(nullify.Fill(feeShares), nullify.Fill(resp.Drip))
-			next = resp.Pagination.NextKey
-		}
-	})
-	s.Run("Total", func() {
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		resp, err := s.queryClient.FeeShares(goCtx, request(nil, 0, 0, true))
-		s.Require().NoError(err)
-		s.Require().Equal(len(feeShares), int(resp.Pagination.Total))
-		s.Require().ElementsMatch(nullify.Fill(feeShares), nullify.Fill(resp.Drip))
-	})
-}
-
-func (s *IntegrationTestSuite) TestFeeShare() {
-	s.SetupTest()
-	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
-	_, _, withdrawer := testdata.KeyTestPubAddr()
-
-	contractAddress := s.InstantiateContract(sender.String(), "")
-	goCtx := sdk.WrapSDKContext(s.ctx)
-	msg := &feesharetypes.MsgRegisterFeeShare{
-		ContractAddress:   contractAddress,
-		DeployerAddress:   sender.String(),
-		WithdrawerAddress: withdrawer.String(),
-	}
-
-	feeShare := types.Drip{
-		ContractAddress:   contractAddress,
-		DeployerAddress:   sender.String(),
-		WithdrawerAddress: withdrawer.String(),
-	}
-	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
-	s.Require().NoError(err)
-
-	req := &feesharetypes.QueryFeeShareRequest{
-		ContractAddress: contractAddress,
-	}
-	goCtx = sdk.WrapSDKContext(s.ctx)
-	resp, err := s.queryClient.FeeShare(goCtx, req)
-	s.Require().NoError(err)
-	s.Require().Equal(resp.Drip, feeShare)
-}
-
-func (s *IntegrationTestSuite) TestDeployerFeeShares() {
-	s.SetupTest()
-	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
-	_, _, withdrawer := testdata.KeyTestPubAddr()
-
-	var contractAddressList []string
-	var index uint64
-	for index < 5 {
-		contractAddress := s.InstantiateContract(sender.String(), "")
-		contractAddressList = append(contractAddressList, contractAddress)
-		index++
-	}
-
-	// RegsisFeeShare
-	for _, contractAddress := range contractAddressList {
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		msg := &feesharetypes.MsgRegisterFeeShare{
-			ContractAddress:   contractAddress,
-			DeployerAddress:   sender.String(),
-			WithdrawerAddress: withdrawer.String(),
-		}
-
-		_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
-		s.Require().NoError(err)
-	}
-
-	request := func(next []byte, offset, limit uint64, total bool) *feesharetypes.QueryDeployerFeeSharesRequest {
-		return &feesharetypes.QueryDeployerFeeSharesRequest{
-			DeployerAddress: sender.String(),
-			Pagination: &query.PageRequest{
-				Key:        next,
-				Offset:     offset,
-				Limit:      limit,
-				CountTotal: total,
+		},
+		{
+			desc: "off empty",
+			Expected: types.Params{
+				EnableDrip:       false,
+				AllowedAddresses: []string(nil),
 			},
-		}
-	}
-	s.Run("ByOffset", func() {
-		step := 2
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.DeployerFeeShares(goCtx, request(nil, uint64(i), uint64(step), false))
-			s.Require().NoError(err)
-			s.Require().LessOrEqual(len(resp.ContractAddresses), step)
-			s.Require().Subset(nullify.Fill(contractAddressList), nullify.Fill(resp.ContractAddresses))
-		}
-	})
-	s.Run("ByKey", func() {
-		step := 2
-		var next []byte
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.DeployerFeeShares(goCtx, request(next, 0, uint64(step), false))
-			s.Require().NoError(err)
-			s.Require().LessOrEqual(len(resp.ContractAddresses), step)
-			s.Require().Subset(nullify.Fill(contractAddressList), nullify.Fill(resp.ContractAddresses))
-			next = resp.Pagination.NextKey
-		}
-	})
-	s.Run("Total", func() {
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		resp, err := s.queryClient.DeployerFeeShares(goCtx, request(nil, 0, 0, true))
-		s.Require().NoError(err)
-		s.Require().Equal(len(contractAddressList), int(resp.Pagination.Total))
-		s.Require().ElementsMatch(nullify.Fill(contractAddressList), nullify.Fill(resp.ContractAddresses))
-	})
-}
-
-func (s *IntegrationTestSuite) TestWithdrawerFeeShares() {
-	s.SetupTest()
-	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
-	_, _, withdrawer := testdata.KeyTestPubAddr()
-
-	var contractAddressList []string
-	var index uint64
-	for index < 5 {
-		contractAddress := s.InstantiateContract(sender.String(), "")
-		contractAddressList = append(contractAddressList, contractAddress)
-		index++
-	}
-
-	// RegsisFeeShare
-	for _, contractAddress := range contractAddressList {
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		msg := &types.MsgRegisterFeeShare{
-			ContractAddress:   contractAddress,
-			DeployerAddress:   sender.String(),
-			WithdrawerAddress: withdrawer.String(),
-		}
-
-		_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
-		s.Require().NoError(err)
-	}
-
-	request := func(next []byte, offset, limit uint64, total bool) *feesharetypes.QueryWithdrawerFeeSharesRequest {
-		return &feesharetypes.QueryWithdrawerFeeSharesRequest{
-			WithdrawerAddress: withdrawer.String(),
-			Pagination: &query.PageRequest{
-				Key:        next,
-				Offset:     offset,
-				Limit:      limit,
-				CountTotal: total,
+		},
+		{
+			desc: "On 1 address",
+			Expected: types.Params{
+				EnableDrip:       true,
+				AllowedAddresses: []string{addr.String()},
 			},
-		}
+		},
+		{
+			desc: "On 2 Unique",
+			Expected: types.Params{
+				EnableDrip:       true,
+				AllowedAddresses: []string{addr.String(), addr2.String()},
+			},
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			// Set the params to what is expected, then query and ensure the query is the same
+			err := s.app.AppKeepers.DripKeeper.SetParams(s.ctx, tc.Expected)
+			s.Require().NoError(err)
+
+			goCtx := sdk.WrapSDKContext(s.ctx)
+			resp, err := s.queryClient.Params(goCtx, &types.QueryParamsRequest{})
+			s.Require().NoError(err)
+			s.Require().Equal(tc.Expected, resp.Params)
+		})
 	}
-	s.Run("ByOffset", func() {
-		step := 2
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.WithdrawerFeeShares(goCtx, request(nil, uint64(i), uint64(step), false))
-			s.Require().NoError(err)
-			s.Require().LessOrEqual(len(resp.ContractAddresses), step)
-			s.Require().Subset(nullify.Fill(contractAddressList), nullify.Fill(resp.ContractAddresses))
-		}
-	})
-	s.Run("ByKey", func() {
-		step := 2
-		var next []byte
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.WithdrawerFeeShares(goCtx, request(next, 0, uint64(step), false))
-			s.Require().NoError(err)
-			s.Require().LessOrEqual(len(resp.ContractAddresses), step)
-			s.Require().Subset(nullify.Fill(contractAddressList), nullify.Fill(resp.ContractAddresses))
-			next = resp.Pagination.NextKey
-		}
-	})
-	s.Run("Total", func() {
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		resp, err := s.queryClient.WithdrawerFeeShares(goCtx, request(nil, 0, 0, true))
-		s.Require().NoError(err)
-		s.Require().Equal(len(contractAddressList), int(resp.Pagination.Total))
-		s.Require().ElementsMatch(nullify.Fill(contractAddressList), nullify.Fill(resp.ContractAddresses))
-	})
 }
