@@ -4,8 +4,6 @@ import (
 	"testing"
 	"time"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/suite"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -31,13 +29,12 @@ type BankKeeper interface {
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	ctx               sdk.Context
-	app               *app.App
-	bankKeeper        BankKeeper
-	accountKeeper     types.AccountKeeper
-	queryClient       types.QueryClient
-	feeShareMsgServer types.MsgServer
-	wasmMsgServer     wasmtypes.MsgServer
+	ctx           sdk.Context
+	app           *app.App
+	bankKeeper    BankKeeper
+	accountKeeper types.AccountKeeper
+	queryClient   types.QueryClient
+	dripMsgServer types.MsgServer
 }
 
 func (s *IntegrationTestSuite) SetupTest() {
@@ -56,8 +53,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 	s.queryClient = types.NewQueryClient(queryHelper)
 	s.bankKeeper = s.app.AppKeepers.BankKeeper
 	s.accountKeeper = s.app.AppKeepers.AccountKeeper
-	s.feeShareMsgServer = s.app.AppKeepers.DripKeeper
-	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl(&s.app.AppKeepers.WasmKeeper)
+	s.dripMsgServer = s.app.AppKeepers.DripKeeper
 }
 
 func (s *IntegrationTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {

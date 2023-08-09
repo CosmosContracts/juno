@@ -36,6 +36,10 @@ func (msg MsgDistributeTokens) Type() string { return TypeMsgDistributeTokens }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgDistributeTokens) ValidateBasic() error {
+	if msg.SenderAddress == "" {
+		return fmt.Errorf("sender address cannot be empty")
+	}
+
 	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
 		return errorsmod.Wrapf(err, "invalid sender address: %s", err.Error())
 	}

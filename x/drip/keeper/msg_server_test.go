@@ -9,7 +9,7 @@ import (
 	"github.com/CosmosContracts/juno/v16/x/drip/types"
 )
 
-func (s *IntegrationTestSuite) TestDripDistributeTokens() {
+func (s *IntegrationTestSuite) TestDripDistributeTokensMsgs() {
 	_, _, allowedSender := testdata.KeyTestPubAddr()
 	_, _, notAllowedSender := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, allowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))

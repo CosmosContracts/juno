@@ -50,7 +50,7 @@ func (suite *MsgsTestSuite) TestMsgDistributeTokensNew() {
 			true,
 		},
 		{
-			"invalid sender address",
+			"sender address cannot be empty",
 			suite.amount,
 			"",
 			false,
