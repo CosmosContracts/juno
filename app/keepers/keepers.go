@@ -559,7 +559,6 @@ func NewAppKeepers(
 		appKeepers.keys[driptypes.StoreKey],
 		appCodec,
 		appKeepers.BankKeeper,
-		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
 		govModAddress,
 	)

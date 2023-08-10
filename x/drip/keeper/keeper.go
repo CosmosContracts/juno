@@ -13,8 +13,7 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	cdc      codec.BinaryCodec
 
-	bankKeeper    driptypes.BankKeeper
-	accountKeeper driptypes.AccountKeeper
+	bankKeeper driptypes.BankKeeper
 
 	feeCollectorName string
 	// the address capable of executing a MsgUpdateParams message. Typically, this
@@ -27,7 +26,6 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
 	bk driptypes.BankKeeper,
-	ak driptypes.AccountKeeper,
 	feeCollector string,
 	authority string,
 ) Keeper {
@@ -35,7 +33,6 @@ func NewKeeper(
 		storeKey:         storeKey,
 		cdc:              cdc,
 		bankKeeper:       bk,
-		accountKeeper:    ak,
 		feeCollectorName: feeCollector,
 		authority:        authority,
 	}

@@ -32,7 +32,6 @@ type IntegrationTestSuite struct {
 	ctx           sdk.Context
 	app           *app.App
 	bankKeeper    BankKeeper
-	accountKeeper types.AccountKeeper
 	queryClient   types.QueryClient
 	dripMsgServer types.MsgServer
 }
@@ -52,7 +51,6 @@ func (s *IntegrationTestSuite) SetupTest() {
 
 	s.queryClient = types.NewQueryClient(queryHelper)
 	s.bankKeeper = s.app.AppKeepers.BankKeeper
-	s.accountKeeper = s.app.AppKeepers.AccountKeeper
 	s.dripMsgServer = s.app.AppKeepers.DripKeeper
 }
 
