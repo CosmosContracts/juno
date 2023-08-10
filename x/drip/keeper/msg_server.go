@@ -14,7 +14,6 @@ import (
 var _ types.MsgServer = &Keeper{}
 
 // DistributeTokens distribute tokens to all stakers at the next block
-// TODO: Impl
 func (k Keeper) DistributeTokens(
 	goCtx context.Context,
 	msg *types.MsgDistributeTokens,

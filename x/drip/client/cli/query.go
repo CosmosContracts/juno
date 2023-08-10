@@ -29,8 +29,7 @@ func GetQueryCmd() *cobra.Command {
 	return feesQueryCmd
 }
 
-// GetCmdQueryParams implements a command to return the current FeeShare
-// parameters.
+// GetCmdQueryParams implements a command to return the current parameters.
 func GetCmdQueryParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",

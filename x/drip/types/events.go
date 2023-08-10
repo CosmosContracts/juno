@@ -1,6 +1,5 @@
 package types
 
-// feeshare events
 const (
 	EventTypeRegisterFeeShare = "register_feeshare"
 	EventTypeCancelFeeShare   = "cancel_feeshare"

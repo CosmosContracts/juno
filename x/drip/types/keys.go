@@ -1,6 +1,5 @@
 package types
 
-// constants
 const (
 	// module name
 	ModuleName = "drip"

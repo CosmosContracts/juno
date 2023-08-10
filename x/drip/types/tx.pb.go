@@ -34,7 +34,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgRegisterFeeShare defines a message that registers a FeeShare
+// MsgDistributeTokens defines a message that registers a Distribution of tokens.
 type MsgDistributeTokens struct {
 	// sender_address is the bech32 address of message sender.
 	SenderAddress string `protobuf:"bytes,1,opt,name=sender_address,json=senderAddress,proto3" json:"sender_address,omitempty"`
@@ -89,7 +89,7 @@ func (m *MsgDistributeTokens) GetAmount() github_com_cosmos_cosmos_sdk_types.Coi
 	return nil
 }
 
-// MsgRegisterFeeShareResponse defines the MsgRegisterFeeShare response type
+// MsgDistributeTokensResponse defines the MsgDistributeTokens response type
 type MsgDistributeTokensResponse struct {
 }
 

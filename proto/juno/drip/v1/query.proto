@@ -22,6 +22,6 @@ message QueryParamsRequest {}
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
-  // params is the returned FeeShare parameter
+  // params is the returned parameter from the module
   Params params = 1 [ (gogoproto.nullable) = false ];
 }

@@ -8,8 +8,7 @@ import (
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 )
 
-// Keeper of this module maintains collections of feeshares for contracts
-// registered to receive transaction fees.
+// Keeper of this module maintains distributing tokens to all stakers.
 type Keeper struct {
 	storeKey storetypes.StoreKey
 	cdc      codec.BinaryCodec
@@ -23,7 +22,7 @@ type Keeper struct {
 	authority string
 }
 
-// NewKeeper creates new instances of the fees Keeper
+// NewKeeper creates new instances of the Keeper
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,

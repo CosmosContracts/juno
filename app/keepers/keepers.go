@@ -654,8 +654,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
-	paramsKeeper.Subspace(driptypes.ModuleName)
-	paramsKeeper.Subspace(buildertypes.ModuleName)
 
 	return paramsKeeper
 }

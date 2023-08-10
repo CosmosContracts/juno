@@ -11,8 +11,7 @@ import (
 	"github.com/CosmosContracts/juno/v17/x/drip/types"
 )
 
-// NewTxCmd returns a root CLI command handler for certain modules/FeeShare
-// transaction commands.
+// NewTxCmd returns a root CLI command handler for certain modules transaction commands.
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
@@ -28,8 +27,7 @@ func NewTxCmd() *cobra.Command {
 	return txCmd
 }
 
-// NewRegisterFeeShare returns a CLI command handler for registering a
-// contract for fee distribution
+// NewDistributeToken returns a CLI command handler for distributing tokens.
 func NewDistributeToken() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "distribute-tokens [amount]",

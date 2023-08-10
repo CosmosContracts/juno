@@ -26,7 +26,7 @@ func GetUnityContractWithdrawalReadyTime(t *testing.T, ctx context.Context, chai
 	return res
 }
 
-// TODO: move to stakingtypes.
+// From stakingtypes.Validator
 type Vals struct {
 	Validators []struct {
 		OperatorAddress string `json:"operator_address"`

@@ -22,7 +22,7 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgRegisterFeeShare defines a message that registers a FeeShare
+// MsgDistributeTokens defines a message that registers a Distribution of tokens.
 message MsgDistributeTokens {
   option (gogoproto.equal) = false;
   // sender_address is the bech32 address of message sender. 
@@ -37,7 +37,7 @@ message MsgDistributeTokens {
   ];
 }
 
-// MsgRegisterFeeShareResponse defines the MsgRegisterFeeShare response type
+// MsgDistributeTokensResponse defines the MsgDistributeTokens response type
 message MsgDistributeTokensResponse {}
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
