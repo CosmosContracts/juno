@@ -418,7 +418,7 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		scopedICQKeeper,
-		NewQuerierWrapper(bApp),
+		bApp.GRPCQueryRouter(),
 	)
 
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
