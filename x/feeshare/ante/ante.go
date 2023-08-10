@@ -1,6 +1,8 @@
 package ante
 
 import (
+	"encoding/json"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	errorsmod "cosmossdk.io/errors"
@@ -9,7 +11,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	feeshare "github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	feeshare "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
 
 // FeeSharePayoutDecorator Run his after we already deduct the fee from the account with
@@ -53,6 +55,11 @@ func FeePayLogic(fees sdk.Coins, govPercent sdk.Dec, numPairs int) sdk.Coins {
 		}
 	}
 	return splitFees
+}
+
+type FeeSharePayoutEventOutput struct {
+	WithdrawAddress sdk.AccAddress `json:"withdraw_address"`
+	FeesPaid        sdk.Coins      `json:"fees_paid"`
 }
 
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
@@ -101,20 +108,37 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 		}
 	}
 
-	// FeeShare logic payouts for contracts
 	numPairs := len(toPay)
+
+	feesPaidOutput := make([]FeeSharePayoutEventOutput, numPairs)
 	if numPairs > 0 {
 		govPercent := params.DeveloperShares
 		splitFees := FeePayLogic(fees, govPercent, numPairs)
 
 		// pay fees evenly between all withdraw addresses
-		for _, withdrawAddr := range toPay {
+		for i, withdrawAddr := range toPay {
 			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, withdrawAddr, splitFees)
+			feesPaidOutput[i] = FeeSharePayoutEventOutput{
+				WithdrawAddress: withdrawAddr,
+				FeesPaid:        splitFees,
+			}
+
 			if err != nil {
 				return errorsmod.Wrapf(feeshare.ErrFeeSharePayment, "failed to pay fees to contract developer: %s", err.Error())
 			}
 		}
 	}
+
+	bz, err := json.Marshal(feesPaidOutput)
+	if err != nil {
+		return errorsmod.Wrapf(feeshare.ErrFeeSharePayment, "failed to marshal feesPaidOutput: %s", err.Error())
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			feeshare.EventTypePayoutFeeShare,
+			sdk.NewAttribute(feeshare.AttributeWithdrawPayouts, string(bz))),
+	)
 
 	return nil
 }

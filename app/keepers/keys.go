@@ -1,7 +1,7 @@
 package keepers
 
 import (
-	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
@@ -31,11 +31,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	driptypes "github.com/CosmosContracts/juno/v16/x/drip/types"
-	feesharetypes "github.com/CosmosContracts/juno/v16/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v16/x/globalfee/types"
-	minttypes "github.com/CosmosContracts/juno/v16/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v16/x/tokenfactory/types"
+	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
+	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
+	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -48,7 +48,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 
 		// non sdk store keys
 		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
-		wasm.StoreKey, icahosttypes.StoreKey,
+		wasmtypes.StoreKey, icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey, icqtypes.StoreKey,
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,

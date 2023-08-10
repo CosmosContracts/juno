@@ -9,8 +9,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v16/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
 
 //go:embed testdata/reflect.wasm
@@ -113,8 +114,14 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 	_, _, sender := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
+	gov := s.accountKeeper.GetModuleAddress(govtypes.ModuleName).String()
+	govContract := s.InstantiateContract(sender.String(), gov)
+
 	contractAddress := s.InstantiateContract(sender.String(), "")
 	contractAddress2 := s.InstantiateContract(contractAddress, contractAddress)
+
+	DAODAO := s.InstantiateContract(sender.String(), "")
+	subContract := s.InstantiateContract(DAODAO, DAODAO)
 
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
@@ -180,6 +187,36 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 				ContractAddress:   contractAddress2,
 				DeployerAddress:   sender.String(),
 				WithdrawerAddress: contractAddress2,
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: false,
+		},
+		{
+			desc: "Invalid register gov contract withdraw address",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   govContract,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: sender.String(),
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: true,
+		},
+		{
+			desc: "Success register gov contract withdraw address to self",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   govContract,
+				DeployerAddress:   sender.String(),
+				WithdrawerAddress: govContract,
+			},
+			resp:      &types.MsgRegisterFeeShareResponse{},
+			shouldErr: false,
+		},
+		{
+			desc: "Success register contract from DAODAO contract as admin",
+			msg: &types.MsgRegisterFeeShare{
+				ContractAddress:   subContract,
+				DeployerAddress:   DAODAO,
+				WithdrawerAddress: DAODAO,
 			},
 			resp:      &types.MsgRegisterFeeShareResponse{},
 			shouldErr: false,

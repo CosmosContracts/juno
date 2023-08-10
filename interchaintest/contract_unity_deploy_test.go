@@ -35,7 +35,7 @@ func TestJunoUnityContractDeploy(t *testing.T) {
 	_, contractAddr := helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/cw_unity_prop.wasm", msg)
 	t.Log("testing Unity contractAddr", contractAddr)
 
-	// Execute to start the withdrawl countdown
+	// Execute to start the withdrawal countdown
 	juno.ExecuteContract(ctx, withdrawUser.KeyName(), contractAddr, `{"start_withdraw":{}}`)
 
 	// make a query with GetUnityContractWithdrawalReadyTime

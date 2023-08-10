@@ -21,7 +21,6 @@ BFT_VERSION := $(shell go list -m github.com/cometbft/cometbft | sed 's:.* ::') 
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
 BUILDDIR ?= $(CURDIR)/build
-E2E_UPGRADE_VERSION := "v14"
 export GO111MODULE = on
 
 # process build tags
