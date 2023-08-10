@@ -158,6 +158,9 @@ ictest-unity-gov: rm-testcache
 ictest-pob: rm-testcache
 	cd interchaintest &&  go test -race -v -run TestJunoPOB .
 
+ictest-drip: rm-testcache
+	cd interchaintest &&  go test -race -v -run TestJunoDrip .
+
 rm-testcache:
 	go clean -testcache
 

@@ -20,8 +20,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
-	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 )
 
 var (
@@ -108,14 +108,16 @@ func FundSpecificUsers() {
 
 // Base chain, no relaying off this branch (or juno:local if no branch is provided.)
 func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
-	// Create chain factory with Juno on this current branch
+	return CreateThisBranchChainWithCustomConfig(t, numVals, numFull, junoConfig)
+}
 
+func CreateThisBranchChainWithCustomConfig(t *testing.T, numVals, numFull int, config ibc.ChainConfig) []ibc.Chain {
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:          "juno",
 			ChainName:     "juno",
 			Version:       junoVersion,
-			ChainConfig:   junoConfig,
+			ChainConfig:   config,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFull,
 		},
