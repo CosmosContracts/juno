@@ -14,10 +14,10 @@ permissions:
   packages: write
 
 env:
-  REGISTRY: ghcr.io  
-  IMAGE_NAME: ${{ github.repository }}-e2e
+  REGISTRY: ghcr.io    
   GO_VERSION: 1.19
-  TAR_PATH: heighliner.tar
+  TAR_PATH: /tmp/juno-docker-image.tar
+  IMAGE_NAME: juno-docker-image
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,26 +27,23 @@ jobs:
   build-docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Build Docker image
-        uses: strangelove-ventures/heighliner-build-action@v0.0.3
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2        
+
+      - name: Build and export
+        uses: docker/build-push-action@v4
         with:
-          registry: "" # empty registry, image only shared for e2e testing
-          tag: local # emulate local environment for consistency in interchaintest cases
-          tar-export-path: ${{ env.TAR_PATH }} # export a tarball that can be uploaded as an artifact for the e2e jobs
-          platform: linux/amd64 # test runner architecture only
-          git-ref: ${{ github.head_ref }} # source code ref
+          context: .
+          tags: juno:local
+          outputs: type=docker,dest=${{ env.TAR_PATH }}
 
-          # Heighliner chains.yaml config
-          chain: juno
-          dockerfile: cosmos
-          build-target: make install
-          binaries: |
-            - /go/bin/junod
-
-      - name: Publish Tarball as Artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: juno-docker-image
+          name: ${{ env.IMAGE_NAME }}
           path: ${{ env.TAR_PATH }}
 
   e2e-tests:
@@ -80,10 +77,10 @@ jobs:
       - name: Download Tarball Artifact
         uses: actions/download-artifact@v3
         with:
-          name: juno-docker-image
+          name: ${{ env.IMAGE_NAME }}
 
       - name: Load Docker Image
-        run: docker image load -i ${{ env.TAR_PATH }}
+        run: docker image load -i ${{ env.TAR_PATH }}        
 
       - name: run test
         run: make ${{ matrix.test }}
