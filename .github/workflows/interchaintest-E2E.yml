@@ -80,7 +80,7 @@ jobs:
           name: ${{ env.IMAGE_NAME }}
 
       - name: Load Docker Image
-        run: docker image load -i ${{ env.TAR_PATH }}        
+        run: docker image load -i ${{ env.IMAGE_NAME }}       
 
       - name: run test
         run: make ${{ matrix.test }}
