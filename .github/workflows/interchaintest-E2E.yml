@@ -78,9 +78,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.IMAGE_NAME }}
+          path: /tmp
 
       - name: Load Docker Image
-        run: docker image load -i ${{ env.IMAGE_NAME }}       
+        run: |
+          docker image load -i ${{ env.TAR_PATH }}
+          docker image ls -a
 
       - name: run test
         run: make ${{ matrix.test }}
