@@ -95,25 +95,19 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
-
-
 	return &cfg
 }
 
-// This allows for us to test
-func FundSpecificUsers() {
-}
-
-// Base chain, no relaying off this branch (or juno:local if no branch is provided.)
-func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
-	// Create chain factory with Juno on this current branch
+func CreateChain(t *testing.T, numVals, numFull int, img ibc.DockerImage) []ibc.Chain {
+	cfg := junoConfig
+	cfg.Images = []ibc.DockerImage{img}
 
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:          "juno",
 			ChainName:     "juno",
-			Version:       junoVersion,
-			ChainConfig:   junoConfig,
+			Version:       img.Version,
+			ChainConfig:   cfg,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFull,
 		},
@@ -125,6 +119,12 @@ func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
 
 	// chain := chains[0].(*cosmos.CosmosChain)
 	return chains
+}
+
+// Base chain, no relaying off this branch (or juno:local if no branch is provided.)
+func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
+	// Create chain factory with Juno on this current branch
+	return CreateChain(t, numVals, numFull, JunoImage)
 }
 
 func BuildInitialChain(t *testing.T, chains []ibc.Chain) (*interchaintest.Interchain, context.Context, *client.Client, string) {
