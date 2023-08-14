@@ -22,8 +22,8 @@ func GetSlashingParams(t *testing.T, ctx context.Context, chain *cosmos.CosmosCh
 
 	debugOutput(t, string(stdout))
 
-	results := slashingtypes.QueryParamsResponse{}
-	err = json.Unmarshal(stdout, &results)
+	results := &slashingtypes.QueryParamsResponse{}
+	err = json.Unmarshal(stdout, results)
 	require.NoError(t, err)
 
 	t.Log(results)

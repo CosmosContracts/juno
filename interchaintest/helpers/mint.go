@@ -22,8 +22,8 @@ func GetMintParams(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain)
 
 	debugOutput(t, string(stdout))
 
-	results := minttypes.QueryParamsResponse{}
-	err = json.Unmarshal(stdout, &results)
+	results := &minttypes.QueryParamsResponse{}
+	err = json.Unmarshal(stdout, results)
 	require.NoError(t, err)
 
 	t.Log(results)
