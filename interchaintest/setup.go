@@ -97,13 +97,16 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	return &cfg
 }
 
-// This allows for us to test
-func FundSpecificUsers() {
+// CreateChain generates a new chain with a custom image (useful for upgrades)
+func CreateChain(t *testing.T, numVals, numFull int, img ibc.DockerImage) []ibc.Chain {
+	cfg := junoConfig
+	cfg.Images = []ibc.DockerImage{img}
+	return CreateThisBranchChainWithCustomConfig(t, numVals, numFull, cfg)
 }
 
-// Base chain, no relaying off this branch (or juno:local if no branch is provided.)
+// CreateThisBranchChain generates this branch's chain (ex: from the commit)
 func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
-	return CreateThisBranchChainWithCustomConfig(t, numVals, numFull, junoConfig)
+	return CreateChain(t, numVals, numFull, JunoImage)
 }
 
 func CreateThisBranchChainWithCustomConfig(t *testing.T, numVals, numFull int, config ibc.ChainConfig) []ibc.Chain {
