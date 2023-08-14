@@ -90,8 +90,14 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
+			// 2 seconds + 1 second tendermint = 3 second blocks
+			timeoutCommit := 2 * time.Second
+
 			customAppTemplate, customAppConfig := initAppConfig()
-			customTMConfig := initTendermintConfig()
+			customTMConfig := initTendermintConfig(timeoutCommit)
+
+			// Force faster block times
+			os.Setenv("JUNOD_CONSENSUS_TIMEOUT_COMMIT", cast.ToString(timeoutCommit))
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
 		},
@@ -104,15 +110,15 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 // initTendermintConfig helps to override default Tendermint Config values.
 // return tmcfg.DefaultConfig if no custom configuration is required for the application.
-func initTendermintConfig() *tmcfg.Config {
+func initTendermintConfig(timeoutCommit time.Duration) *tmcfg.Config {
 	cfg := tmcfg.DefaultConfig()
 
 	// these values put a higher strain on node memory
 	// cfg.P2P.MaxNumInboundPeers = 100
 	// cfg.P2P.MaxNumOutboundPeers = 40
 
-	// 2 seconds + 1 second tendermint = 3 second blocks
-	cfg.Consensus.TimeoutCommit = 2 * time.Second
+	// While this is set, it only applies to new configs.
+	cfg.Consensus.TimeoutCommit = timeoutCommit
 
 	return cfg
 }
