@@ -82,10 +82,10 @@ func preUpgradeChecks(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 
 func postUpgradeChecks(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) {
 	mp := helpers.GetMintParams(t, ctx, chain)
-	require.Equal(t, mp.BlocksPerYear, uint64(6311520*2)) // double default
+	require.Equal(t, mp.BlocksPerYear, uint64(12623040)) // double default
 
 	sp := helpers.GetSlashingParams(t, ctx, chain)
-	require.Equal(t, sp.SignedBlocksWindow, uint64(100*2))
+	require.Equal(t, sp.SignedBlocksWindow, uint64(200))
 }
 
 func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight uint64, upgradeRepo, upgradeBranchVersion string) {

@@ -5,12 +5,19 @@ import (
 	"encoding/json"
 	"testing"
 
-	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/stretchr/testify/require"
 )
 
-func GetMintParams(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) minttypes.Params {
+// minttypes.Params
+type MintParams struct {
+	// type of coin to mint
+	MintDenom string `protobuf:"bytes,1,opt,name=mint_denom,json=mintDenom,proto3" json:"mint_denom,omitempty"`
+	// expected blocks per year
+	BlocksPerYear uint64 `protobuf:"varint,2,opt,name=blocks_per_year,json=blocksPerYear,proto3" json:"blocks_per_year,omitempty" yaml:"blocks_per_year"`
+}
+
+func GetMintParams(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) MintParams {
 	cmd := []string{
 		"junod", "query", "mint", "params",
 		"--node", chain.GetRPCAddress(),
@@ -22,11 +29,11 @@ func GetMintParams(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain)
 
 	debugOutput(t, string(stdout))
 
-	results := &minttypes.QueryParamsResponse{}
+	results := &MintParams{}
 	err = json.Unmarshal(stdout, results)
 	require.NoError(t, err)
 
 	t.Log(results)
 
-	return results.Params
+	return *results
 }
