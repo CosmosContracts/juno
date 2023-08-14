@@ -9,7 +9,6 @@ import (
 
 	"github.com/CosmosContracts/juno/v17/app/keepers"
 	"github.com/CosmosContracts/juno/v17/app/upgrades"
-	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
 )
 
 func CreateV14UpgradeHandler(
@@ -37,11 +36,6 @@ func CreateV14UpgradeHandler(
 			// 0.001 ATOM CHANNEL-1 -> `junod q ibc-transfer denom-trace ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9`
 			sdk.NewDecCoinFromDec("ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9", sdk.NewDecWithPrec(1, 3)),
 		}
-		s, ok := keepers.ParamsKeeper.GetSubspace(globalfeetypes.ModuleName)
-		if !ok {
-			panic("global fee params subspace not found")
-		}
-		s.Set(ctx, globalfeetypes.ParamStoreKeyMinGasPrices, minGasPrices)
 		logger.Info(fmt.Sprintf("upgraded global fee params to %s", minGasPrices))
 
 		return versionMap, err
