@@ -101,7 +101,7 @@ func junoEncoding() *testutil.TestEncodingConfig {
 func CreateChain(t *testing.T, numVals, numFull int, img ibc.DockerImage) []ibc.Chain {
 	cfg := junoConfig
 	cfg.Images = []ibc.DockerImage{img}
-	return CreateThisBranchChainWithCustomConfig(t, numVals, numFull, cfg)
+	return CreateChainWithCustomConfig(t, numVals, numFull, cfg)
 }
 
 // CreateThisBranchChain generates this branch's chain (ex: from the commit)
@@ -109,12 +109,12 @@ func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
 	return CreateChain(t, numVals, numFull, JunoImage)
 }
 
-func CreateThisBranchChainWithCustomConfig(t *testing.T, numVals, numFull int, config ibc.ChainConfig) []ibc.Chain {
+func CreateChainWithCustomConfig(t *testing.T, numVals, numFull int, config ibc.ChainConfig) []ibc.Chain {
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:          "juno",
 			ChainName:     "juno",
-			Version:       junoVersion,
+			Version:       config.Images[0].Version,
 			ChainConfig:   config,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFull,

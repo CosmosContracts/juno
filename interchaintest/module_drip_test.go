@@ -27,7 +27,7 @@ func TestJunoDrip(t *testing.T) {
 		},
 	}...))
 
-	chains := CreateThisBranchChainWithCustomConfig(t, 1, 0, newCfg)
+	chains := CreateChainWithCustomConfig(t, 1, 0, newCfg)
 	ic, ctx, _, _ := BuildInitialChain(t, chains)
 
 	// Chains
