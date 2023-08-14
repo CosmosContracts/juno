@@ -2,7 +2,6 @@ package types
 
 import sdk "github.com/cosmos/cosmos-sdk/types"
 
-// constants
 const (
 	// module name
 	ModuleName = "feeshare"

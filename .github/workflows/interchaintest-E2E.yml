@@ -153,3 +153,10 @@ jobs:
     with:
       make-command: ictest-pob
       branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}
+
+  test-drip:
+    needs: build-and-push-image
+    uses: ./.github/workflows/make-cmd-runner.yml
+    with:
+      make-command: ictest-drip
+      branch-tag: ${{needs.build-and-push-image.outputs.branchTag}}

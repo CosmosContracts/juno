@@ -14,10 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
-	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
 
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
@@ -95,8 +94,6 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
-
-
 	return &cfg
 }
 
@@ -106,14 +103,16 @@ func FundSpecificUsers() {
 
 // Base chain, no relaying off this branch (or juno:local if no branch is provided.)
 func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
-	// Create chain factory with Juno on this current branch
+	return CreateThisBranchChainWithCustomConfig(t, numVals, numFull, junoConfig)
+}
 
+func CreateThisBranchChainWithCustomConfig(t *testing.T, numVals, numFull int, config ibc.ChainConfig) []ibc.Chain {
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:          "juno",
 			ChainName:     "juno",
 			Version:       junoVersion,
-			ChainConfig:   junoConfig,
+			ChainConfig:   config,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFull,
 		},
