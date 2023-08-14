@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/docker/docker/client"
 	"github.com/strangelove-ventures/interchaintest/v7"
@@ -39,6 +40,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 	t.Log(chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName)
 
 	numVals, numNodes := 4, 4
+	// TODO: use PR 788's impl of 'CreateChain' to modify the x/mint genesis to match mainnet.
 	chains := CreateThisBranchChain(t, numVals, numNodes)
 	chain := chains[0].(*cosmos.CosmosChain)
 
@@ -61,8 +63,29 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 
 	ValidatorVoting(t, ctx, chain, proposalID, height, haltHeight)
 
+	preUpgradeChecks(t, ctx, chain)
+
 	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, upgradeBranchVersion)
 
+	postUpgradeChecks(t, ctx, chain)
+
+}
+
+func preUpgradeChecks(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) {
+	mp := helpers.GetMintParams(t, ctx, chain)
+	// mainnet it is 5048093, but we are just ensuring the upgrade applies correctly from default.
+	require.Equal(t, mp.BlocksPerYear, uint64(6311520))
+
+	sp := helpers.GetSlashingParams(t, ctx, chain)
+	require.Equal(t, sp.SignedBlocksWindow, uint64(100))
+}
+
+func postUpgradeChecks(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) {
+	mp := helpers.GetMintParams(t, ctx, chain)
+	require.Equal(t, mp.BlocksPerYear, uint64(6311520*2)) // double default
+
+	sp := helpers.GetSlashingParams(t, ctx, chain)
+	require.Equal(t, sp.SignedBlocksWindow, uint64(100*2))
 }
 
 func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight uint64, upgradeRepo, upgradeBranchVersion string) {
