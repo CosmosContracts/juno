@@ -74,18 +74,18 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBran
 func preUpgradeChecks(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) {
 	mp := helpers.GetMintParams(t, ctx, chain)
 	// mainnet it is 5048093, but we are just ensuring the upgrade applies correctly from default.
-	require.Equal(t, mp.BlocksPerYear, uint64(6311520))
+	require.Equal(t, mp.BlocksPerYear, "6311520")
 
 	sp := helpers.GetSlashingParams(t, ctx, chain)
-	require.Equal(t, sp.SignedBlocksWindow, uint64(100))
+	require.Equal(t, sp.SignedBlocksWindow, "100")
 }
 
 func postUpgradeChecks(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) {
 	mp := helpers.GetMintParams(t, ctx, chain)
-	require.Equal(t, mp.BlocksPerYear, uint64(12623040)) // double default
+	require.Equal(t, mp.BlocksPerYear, "12623040") // double default
 
 	sp := helpers.GetSlashingParams(t, ctx, chain)
-	require.Equal(t, sp.SignedBlocksWindow, uint64(200))
+	require.Equal(t, sp.SignedBlocksWindow, "200")
 }
 
 func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight uint64, upgradeRepo, upgradeBranchVersion string) {
