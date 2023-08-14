@@ -9,12 +9,13 @@ import (
 
 	"github.com/CosmosContracts/juno/v17/app/keepers"
 	"github.com/CosmosContracts/juno/v17/app/upgrades"
+	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 )
 
 func CreateV17UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
-	_ *keepers.AppKeepers,
+	keepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -29,6 +30,11 @@ func CreateV17UpgradeHandler(
 			return nil, err
 		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
+
+		// x/drip
+		if err := keepers.DripKeeper.SetParams(ctx, driptypes.DefaultParams()); err != nil {
+			return nil, err
+		}
 
 		return versionMap, err
 	}
