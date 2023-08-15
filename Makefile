@@ -105,6 +105,11 @@ build:
 test-node:
 	CHAIN_ID="local-1" HOME_DIR="~/.juno1" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
 
+download-deps:
+	@echo "--> caching go deps"
+	@go mod download
+	@cd interchaintest && go mod download
+
 ###############################################################################
 ###                                Testing                                  ###
 ###############################################################################
