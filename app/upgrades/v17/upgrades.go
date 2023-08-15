@@ -9,6 +9,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v17/app/keepers"
 	"github.com/CosmosContracts/juno/v17/app/upgrades"
+	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 )
 
 func CreateV17UpgradeHandler(
@@ -47,6 +48,11 @@ func CreateV17UpgradeHandler(
 			return nil, err
 		}
 		logger.Info(fmt.Sprintf("updated slashing params to %v", slashingParams))
+
+		// x/drip
+		if err := keepers.DripKeeper.SetParams(ctx, driptypes.DefaultParams()); err != nil {
+			return nil, err
+		}
 
 		return versionMap, err
 	}

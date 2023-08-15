@@ -14,10 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
-	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
 
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
@@ -95,25 +94,28 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
-
-
 	return &cfg
 }
 
-// This allows for us to test
-func FundSpecificUsers() {
+// CreateChain generates a new chain with a custom image (useful for upgrades)
+func CreateChain(t *testing.T, numVals, numFull int, img ibc.DockerImage) []ibc.Chain {
+	cfg := junoConfig
+	cfg.Images = []ibc.DockerImage{img}
+	return CreateChainWithCustomConfig(t, numVals, numFull, cfg)
 }
 
-// Base chain, no relaying off this branch (or juno:local if no branch is provided.)
+// CreateThisBranchChain generates this branch's chain (ex: from the commit)
 func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
-	// Create chain factory with Juno on this current branch
+	return CreateChain(t, numVals, numFull, JunoImage)
+}
 
+func CreateChainWithCustomConfig(t *testing.T, numVals, numFull int, config ibc.ChainConfig) []ibc.Chain {
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:          "juno",
 			ChainName:     "juno",
-			Version:       junoVersion,
-			ChainConfig:   junoConfig,
+			Version:       config.Images[0].Version,
+			ChainConfig:   config,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFull,
 		},

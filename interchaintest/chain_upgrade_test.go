@@ -18,29 +18,38 @@ import (
 )
 
 const (
+	chainName   = "juno"
+	upgradeName = "v17"
+
 	haltHeightDelta    = uint64(9) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = uint64(7)
 )
 
+var (
+	// baseChain is the current version of the chain that will be upgraded from
+	baseChain = ibc.DockerImage{
+		Repository: JunoMainRepo,
+		Version:    "v16.0.0",
+		UidGid:     "1025:1025",
+	}
+)
+
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
-	startVersion := "v16.0.0"
-	upgradeName := "v17"
-	CosmosChainUpgradeTest(t, "juno", startVersion, version, repo, upgradeName)
+	CosmosChainUpgradeTest(t, chainName, version, repo, upgradeName)
 }
 
-func CosmosChainUpgradeTest(t *testing.T, chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName string) {
+func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgradeRepo, upgradeName string) {
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}
 
 	t.Parallel()
 
-	t.Log(chainName, initialVersion, upgradeBranchVersion, upgradeRepo, upgradeName)
+	t.Log(chainName, upgradeBranchVersion, upgradeRepo, upgradeName)
 
 	numVals, numNodes := 4, 4
-	// TODO: use PR 788's impl of 'CreateChain' to modify the x/mint genesis to match mainnet.
-	chains := CreateThisBranchChain(t, numVals, numNodes)
+	chains := CreateChain(t, numVals, numNodes, baseChain)
 	chain := chains[0].(*cosmos.CosmosChain)
 
 	ic, ctx, client, _ := BuildInitialChain(t, chains)

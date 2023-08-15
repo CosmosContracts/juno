@@ -8,7 +8,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-// constants
 const (
 	TypeMsgCreateDenom      = "create_denom"
 	TypeMsgMint             = "tf_mint"

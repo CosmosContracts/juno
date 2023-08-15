@@ -4,7 +4,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 )
 
-// errors
 var (
 	ErrFeeShareDisabled              = errorsmod.Register(ModuleName, 1, "feeshare module is disabled by governance")
 	ErrFeeShareAlreadyRegistered     = errorsmod.Register(ModuleName, 2, "feeshare already exists for given contract")

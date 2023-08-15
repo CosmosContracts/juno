@@ -60,6 +60,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	encparams "github.com/CosmosContracts/juno/v17/app/params"
+	"github.com/CosmosContracts/juno/v17/x/drip"
+	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 	feeshare "github.com/CosmosContracts/juno/v17/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v17/x/globalfee"
@@ -101,6 +103,7 @@ var ModuleBasics = module.NewBasicManager(
 	icq.AppModuleBasic{},
 	feegrantmodule.AppModuleBasic{},
 	tokenfactory.AppModuleBasic{},
+	drip.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
 	ibc_hooks.AppModuleBasic{},
@@ -149,6 +152,7 @@ func appModules(
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
+		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -219,6 +223,7 @@ func orderBeginBlockers() []string {
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		driptypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasmtypes.ModuleName,
@@ -255,6 +260,7 @@ func orderEndBlockers() []string {
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		driptypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasmtypes.ModuleName,
@@ -291,6 +297,7 @@ func orderInitBlockers() []string {
 		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		driptypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasmtypes.ModuleName,
