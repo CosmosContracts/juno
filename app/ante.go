@@ -26,7 +26,8 @@ import (
 	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
 )
 
-const maxBypassMinFeeMsgGasUsage = 1_000_000
+// Lower back to 1 mil after https://github.com/cosmos/relayer/issues/1255
+const maxBypassMinFeeMsgGasUsage = 2_000_000
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
 // channel keeper and a BankKeeper with an added method for fee sharing.

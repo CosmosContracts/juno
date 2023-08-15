@@ -481,6 +481,9 @@ func GetDefaultBypassFeeMessages() []string {
 		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeout{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeoutOnClose{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgChannelOpenTry{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgChannelOpenConfirm{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgChannelOpenAck{}),
 	}
 }
 
