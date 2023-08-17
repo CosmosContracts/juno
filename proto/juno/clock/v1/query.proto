@@ -9,21 +9,19 @@ option go_package = "github.com/CosmosContracts/juno/x/clock/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // ContractModules
-  rpc ContractModules(QueryContractModules)
-      returns (QueryContractModulesResponse) {
+  // ClockContracts
+  rpc ClockContracts(QueryClockContracts)
+      returns (QueryClockContractsResponse) {
     option (google.api.http).get =
         "/juno/clock/v1/contracts";
   }
 }
 
-// QueryContractModules is the request type for the
-// Query/QueryContractModules RPC method.
-message QueryContractModules {}
+// QueryClockContracts is the request type to get all contracts.
+message QueryClockContracts {}
 
-// QueryContractModulesResponse is the response type for the
-// Query/ContractModules RPC method.
-message QueryContractModulesResponse {
+// QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
+message QueryClockContractsResponse {
   repeated string contract_addresses = 1 [    
     (gogoproto.jsontag) = "contract_addresses,omitempty",
     (gogoproto.moretags) = "yaml:\"contract_addresses\""

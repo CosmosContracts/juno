@@ -7,6 +7,7 @@ import "cosmos/msg/v1/msg.proto";
 import "juno/clock/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
 
 // Msg defines the Msg service.
 service Msg {
@@ -37,4 +38,3 @@ message MsgUpdateParams {
 //
 // Since: cosmos-sdk 0.47
 message MsgUpdateParamsResponse {}
-  

@@ -8,9 +8,10 @@ import (
 
 // Sudo Message called on the contracts
 const (
-	EndBlockMessage = `{"juno_end_block":{}}`
+	EndBlockSudoMessage = `{"juno_end_block":{}}`
 )
 
+// == MsgUpdateParams ==
 var _ sdk.Msg = &MsgUpdateParams{}
 
 // GetSignBytes implements the LegacyMsg interface.

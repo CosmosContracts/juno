@@ -21,13 +21,13 @@ func NewGrpcQuerier(k keeper.Keeper) GrpcQuerier {
 	}
 }
 
-// ContractModules return contract addresses which are using the clock
-func (g GrpcQuerier) ContractModules(stdCtx context.Context, _ *types.QueryContractModules) (*types.QueryContractModulesResponse, error) {
+// ContractModules returns contract addresses which are using the clock
+func (g GrpcQuerier) ClockContracts(stdCtx context.Context, _ *types.QueryClockContracts) (*types.QueryClockContractsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(stdCtx)
 
 	p := g.keeper.GetParams(ctx)
 
-	return &types.QueryContractModulesResponse{
+	return &types.QueryClockContractsResponse{
 		ContractAddresses: p.ContractAddresses,
 	}, nil
 }

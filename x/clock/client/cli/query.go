@@ -18,18 +18,17 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	queryCmd.AddCommand(
-		GetCmdShowContractModules(),
+		GetCmdShowContracts(),
 	)
 	return queryCmd
 }
 
-func GetCmdShowContractModules() *cobra.Command {
+func GetCmdShowContracts() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "contract-modules",
-		Short:   "Show addresses of all current contract modules",
-		Long:    "Show addresses of all current contract modules",
-		Aliases: []string{"modules", "contracts"},
-		Args:    cobra.ExactArgs(0),
+		Use:   "contracts",
+		Short: "Show addresses of all current contract modules",
+		Long:  "Show addresses of all current contract modules",
+		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -37,10 +36,12 @@ func GetCmdShowContractModules() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			res, err := queryClient.ContractModules(cmd.Context(), &types.QueryContractModules{})
+
+			res, err := queryClient.ClockContracts(cmd.Context(), &types.QueryClockContracts{})
 			if err != nil {
 				return err
 			}
+
 			return clientCtx.PrintProto(res)
 		},
 	}

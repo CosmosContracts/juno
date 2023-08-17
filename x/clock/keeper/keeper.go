@@ -17,7 +17,6 @@ type Keeper struct {
 
 	contractKeeper wasmkeeper.PermissionedKeeper
 
-	// TODO: We could make this a SubDAO? typically gov module.
 	authority string
 }
 

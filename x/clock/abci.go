@@ -15,7 +15,7 @@ import (
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
 
-	message := []byte(types.EndBlockMessage)
+	message := []byte(types.EndBlockSudoMessage)
 
 	p := k.GetParams(ctx)
 
@@ -36,8 +36,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 	}
 
-	// save errorExecs to a KVStore where it increments the last block it errored on.
-	log.Print("Executed all contract modules", " errors ", errorExecs)
-
-	// TODO: Event execute errors? or just leave it.
+	if len(errorExecs) > 0 {
+		log.Printf("[x/clock] Execute Errors: %v", errorExecs)
+	}
 }
