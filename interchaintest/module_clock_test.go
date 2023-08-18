@@ -1,10 +1,17 @@
 package interchaintest
 
 import (
+	"context"
+	"fmt"
 	"testing"
 
+	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
+	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v7/testutil"
+	"github.com/stretchr/testify/require"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
@@ -14,8 +21,6 @@ func TestJunoClock(t *testing.T) {
 	t.Parallel()
 
 	cfg := junoConfig
-	// set allowed address by default to the contract creator
-	// cfg.ModifyGenesis = cosmos.ModifyGenesis(append(defaultGenesisKV, []cosmos.GenesisKV{
 
 	// Base setup
 	chains := CreateChainWithCustomConfig(t, 1, 0, cfg)
@@ -25,21 +30,56 @@ func TestJunoClock(t *testing.T) {
 	juno := chains[0].(*cosmos.CosmosChain)
 
 	// Users
-	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", int64(10_000_000), juno, juno)
+	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", int64(10_000_000_000), juno, juno)
 	user := users[0]
 
 	// Upload & init contract payment to another address
-	_, _ = helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/clock_example.wasm", `{}`)
+	_, contractAddr := helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/clock_example.wasm", `{}`)
 
-	// wait 1 block
-	// query the contractAddress config & see if it increased.
-	// pub struct Config {
-	// 	pub val: u32,
-	// }
+	// Ensure config is 0
+	res := helpers.GetClockContractValue(t, ctx, juno, contractAddr)
+	fmt.Printf("- res: %v\n", res.Data.Val)
+	require.Equal(t, uint32(0), res.Data.Val)
 
-	// TODO: param proposal to add the contract address to the allowed list? or remove it and see if it still increments.
+	// Submit the proposal to add it to the allowed contracts list
+	SubmitParamChangeProp(t, ctx, juno, user, []string{contractAddr})
+
+	// Wait 1 block
+	_ = testutil.WaitForBlocks(ctx, 1, juno)
+
+	// Validate the contract is now auto incrementing from the end blocker
+	res = helpers.GetClockContractValue(t, ctx, juno, contractAddr)
+	fmt.Printf("- res: %v\n", res.Data.Val)
+	require.GreaterOrEqual(t, res.Data.Val, uint32(1))
 
 	t.Cleanup(func() {
 		_ = ic.Close()
 	})
+}
+
+func SubmitParamChangeProp(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contracts []string) string {
+	govAcc := "juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730"
+	updateParams := []cosmosproto.Message{
+		&clocktypes.MsgUpdateParams{
+			Authority: govAcc,
+			Params:    clocktypes.NewParams(contracts),
+		},
+	}
+
+	proposal, err := chain.BuildProposal(updateParams, "Params Add Contract", "params", "ipfs://CID", fmt.Sprintf(`500000000%s`, chain.Config().Denom))
+	require.NoError(t, err, "error building proposal")
+
+	txProp, err := chain.SubmitProposal(ctx, user.KeyName(), proposal)
+	t.Log("txProp", txProp)
+	require.NoError(t, err, "error submitting proposal")
+
+	height, _ := chain.Height(ctx)
+
+	err = chain.VoteOnProposalAllValidators(ctx, txProp.ProposalID, cosmos.ProposalVoteYes)
+	require.NoError(t, err, "failed to submit votes")
+
+	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+haltHeightDelta, txProp.ProposalID, cosmos.ProposalStatusPassed)
+	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
+
+	return txProp.ProposalID
 }

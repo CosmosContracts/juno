@@ -3,8 +3,9 @@ package types
 import (
 	"cosmossdk.io/errors"
 
-	"github.com/CosmosContracts/juno/v17/x/drip/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v17/x/drip/types"
 )
 
 // Sudo Message called on the contracts

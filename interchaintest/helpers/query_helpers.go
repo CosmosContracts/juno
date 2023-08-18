@@ -26,6 +26,13 @@ func GetUnityContractWithdrawalReadyTime(t *testing.T, ctx context.Context, chai
 	return res
 }
 
+func GetClockContractValue(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) ClockContractResponse {
+	var res ClockContractResponse
+	err := chain.QueryContract(ctx, contract, QueryMsg{GetConfig: &struct{}{}}, &res)
+	require.NoError(t, err)
+	return res
+}
+
 // From stakingtypes.Validator
 type Vals struct {
 	Validators []struct {
