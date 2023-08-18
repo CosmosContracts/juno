@@ -11,9 +11,21 @@ import (
 	"github.com/CosmosContracts/juno/v17/x/clock/types"
 )
 
-var _ types.MsgServer = &Keeper{}
+var _ types.MsgServer = &msgServer{}
 
-func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+// msgServer is a wrapper of Keeper.
+type msgServer struct {
+	Keeper
+}
+
+// NewMsgServerImpl returns an implementation of the x/clock MsgServer interface.
+func NewMsgServerImpl(k Keeper) types.MsgServer {
+	return &msgServer{
+		Keeper: k,
+	}
+}
+
+func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	if k.authority != req.Authority {
 		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
 	}

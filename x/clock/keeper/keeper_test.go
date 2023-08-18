@@ -43,7 +43,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 
 	s.queryClient = types.NewQueryClient(queryHelper)
 	s.bankKeeper = s.app.AppKeepers.BankKeeper
-	s.clockMsgServer = s.app.AppKeepers.ClockKeeper
+	s.clockMsgServer = keeper.NewMsgServerImpl(s.app.AppKeepers.ClockKeeper)
 }
 
 func (s *IntegrationTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {

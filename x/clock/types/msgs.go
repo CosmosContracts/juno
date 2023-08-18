@@ -3,9 +3,8 @@ package types
 import (
 	"cosmossdk.io/errors"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/CosmosContracts/juno/v17/x/drip/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Sudo Message called on the contracts
@@ -14,7 +13,7 @@ const (
 )
 
 // == MsgUpdateParams ==
-const TypeMsgUpdateParams = "update_params"
+const TypeMsgUpdateParams = "update_clock_params"
 
 var _ sdk.Msg = &MsgUpdateParams{}
 
@@ -37,7 +36,7 @@ func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 
 // GetSignBytes implements the LegacyMsg interface.
 func (msg MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // GetSigners returns the expected signers for a MsgUpdateParams message.
