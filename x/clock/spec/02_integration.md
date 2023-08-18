@@ -2,9 +2,11 @@
 
 This module does not require any custom bindings. Rather, you must just add the following Sudo message to your contract. If your contract is not whitelisted, you can still upload it to the chain. However, to get it to execute, you must submit a proposal to add your contract to the whitelist.
 
+You can find a basic [cw-clock contract here](https://github.com/Reecepbcups/cw-clock-example)
+
 ## Implementation
 
-Add the following into your Rust Contract:
+Add the following to your Rust Contract:
 
 ```rust
 // msg.rs
