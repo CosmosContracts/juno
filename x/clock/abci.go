@@ -28,12 +28,12 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			continue
 		}
 
-		_, err = k.GetContractKeeper().Sudo(ctx, contract, message)
+		childCtx := ctx.WithGasMeter(sdk.NewGasMeter(types.EndBlockContractGasLimit))
+		_, err = k.GetContractKeeper().Sudo(childCtx, contract, message)
 		if err != nil {
 			errorExecs[idx] = addr
 			continue
 		}
-
 	}
 
 	if len(errorExecs) > 0 {

@@ -8,9 +8,11 @@ import (
 	"github.com/CosmosContracts/juno/v17/x/drip/types"
 )
 
-// Sudo Message called on the contracts
 const (
+	// Sudo Message called on the contracts
 	EndBlockSudoMessage = `{"juno_end_block":{}}`
+	// Gas limit for end block sudo messages
+	EndBlockContractGasLimit = uint64(1_000_000_000_000000)
 )
 
 // == MsgUpdateParams ==
