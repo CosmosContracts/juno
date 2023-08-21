@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	junoburn "github.com/CosmosContracts/juno/v17/x/burn"
 	"github.com/CosmosContracts/juno/v17/x/mint/keeper"
 	"github.com/CosmosContracts/juno/v17/x/mint/types"
 )
@@ -26,8 +27,12 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	params := k.GetParams(ctx)
 	currentBlock := uint64(ctx.BlockHeight())
 
+	// get juno's burn module account
+	acc := k.GetAccountKeeper().GetModuleAccount(ctx, junoburn.ModuleName)
+	totalBurnedAmt := k.GetBalance(ctx, acc.GetAddress(), params.MintDenom)
+
 	// fetch current total supply
-	totalSupply := k.TokenSupply(ctx, params.MintDenom)
+	totalSupply := k.TokenSupply(ctx, params.MintDenom).Sub(totalBurnedAmt)
 
 	// check if we need to change phase
 	nextPhase := minter.NextPhase(params, totalSupply)
