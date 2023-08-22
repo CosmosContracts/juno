@@ -9,7 +9,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -42,32 +41,28 @@ func (m *CustomMessenger) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddre
 	if msg.Custom != nil {
 		// only handle the happy path where this is really creating / minting / swapping ...
 		// leave everything else for the wrapped version
-		var contractMsg bindingstypes.TokenMsg
+		var contractMsg bindingstypes.TokenFactoryMsg
 		if err := json.Unmarshal(msg.Custom, &contractMsg); err != nil {
 			return nil, nil, errorsmod.Wrap(err, "token factory msg")
 		}
-		if contractMsg.Token == nil {
-			return nil, nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "nil token field")
-		}
-		tokenMsg := contractMsg.Token
 
-		if tokenMsg.CreateDenom != nil {
-			return m.createDenom(ctx, contractAddr, tokenMsg.CreateDenom)
+		if contractMsg.CreateDenom != nil {
+			return m.createDenom(ctx, contractAddr, contractMsg.CreateDenom)
 		}
-		if tokenMsg.MintTokens != nil {
-			return m.mintTokens(ctx, contractAddr, tokenMsg.MintTokens)
+		if contractMsg.MintTokens != nil {
+			return m.mintTokens(ctx, contractAddr, contractMsg.MintTokens)
 		}
-		if tokenMsg.ChangeAdmin != nil {
-			return m.changeAdmin(ctx, contractAddr, tokenMsg.ChangeAdmin)
+		if contractMsg.ChangeAdmin != nil {
+			return m.changeAdmin(ctx, contractAddr, contractMsg.ChangeAdmin)
 		}
-		if tokenMsg.BurnTokens != nil {
-			return m.burnTokens(ctx, contractAddr, tokenMsg.BurnTokens)
+		if contractMsg.BurnTokens != nil {
+			return m.burnTokens(ctx, contractAddr, contractMsg.BurnTokens)
 		}
-		if tokenMsg.SetMetadata != nil {
-			return m.setMetadata(ctx, contractAddr, tokenMsg.SetMetadata)
+		if contractMsg.SetMetadata != nil {
+			return m.setMetadata(ctx, contractAddr, contractMsg.SetMetadata)
 		}
-		if tokenMsg.ForceTransfer != nil {
-			return m.forceTransfer(ctx, contractAddr, tokenMsg.ForceTransfer)
+		if contractMsg.ForceTransfer != nil {
+			return m.forceTransfer(ctx, contractAddr, contractMsg.ForceTransfer)
 		}
 	}
 	return m.wrapped.DispatchMsg(ctx, contractAddr, contractIBCPortID, msg)
