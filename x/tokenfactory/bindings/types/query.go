@@ -1,11 +1,7 @@
 package types
 
-type TokenFactoryQuery struct {
-	Token *TokenQuery `json:"token,omitempty"`
-}
-
 // See https://github.com/CosmWasm/token-bindings/blob/main/packages/bindings/src/query.rs
-type TokenQuery struct {
+type TokenFactoryQuery struct {
 	/// Given a subdenom minted by a contract via `OsmosisMsg::MintTokens`,
 	/// returns the full denom as used by `BankMsg::Send`.
 	FullDenom       *FullDenom       `json:"full_denom,omitempty"`

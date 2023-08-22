@@ -35,7 +35,7 @@ func TestCreateDenomMsg(t *testing.T) {
 	require.NoError(t, err)
 
 	// query the denom and see if it matches
-	query := bindings.TokenQuery{
+	query := bindings.TokenFactoryQuery{
 		FullDenom: &bindings.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "SUN",
@@ -88,7 +88,7 @@ func TestMintMsg(t *testing.T) {
 	require.Contains(t, coin.Denom, "factory/")
 
 	// query the denom and see if it matches
-	query := bindings.TokenQuery{
+	query := bindings.TokenFactoryQuery{
 		FullDenom: &bindings.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "SUN",
@@ -110,7 +110,7 @@ func TestMintMsg(t *testing.T) {
 	require.Contains(t, coin.Denom, "factory/")
 
 	// query the denom and see if it matches
-	query = bindings.TokenQuery{
+	query = bindings.TokenFactoryQuery{
 		FullDenom: &bindings.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "SUN",
@@ -146,7 +146,7 @@ func TestMintMsg(t *testing.T) {
 	require.Contains(t, coin.Denom, "factory/")
 
 	// query the denom and see if it matches
-	query = bindings.TokenQuery{
+	query = bindings.TokenFactoryQuery{
 		FullDenom: &bindings.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "MOON",
@@ -163,7 +163,7 @@ func TestMintMsg(t *testing.T) {
 	require.Contains(t, coin.Denom, "factory/")
 
 	// query the denom and see if it matches
-	query = bindings.TokenQuery{
+	query = bindings.TokenFactoryQuery{
 		FullDenom: &bindings.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "SUN",
