@@ -20,10 +20,6 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 		if err := json.Unmarshal(request, &contractQuery); err != nil {
 			return nil, errorsmod.Wrap(err, "osmosis query")
 		}
-		// if contractQuery.Token == nil {
-		// 	return nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "nil token field")
-		// }
-		// tokenQuery := contractQuery.Token
 
 		switch {
 		case contractQuery.FullDenom != nil:
