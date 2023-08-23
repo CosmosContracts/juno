@@ -14,8 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/iqlusioninc/liquidity-staking-module/x/genutil"
+	genutiltypes "github.com/iqlusioninc/liquidity-staking-module/x/genutil/types"
 )
 
 // AddGenesisAccountCmd returns add-genesis-account cobra Command.

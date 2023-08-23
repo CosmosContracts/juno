@@ -17,7 +17,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/staking/keeper"
 
 	decorators "github.com/CosmosContracts/juno/v17/app/decorators"
 	feeshareante "github.com/CosmosContracts/juno/v17/x/feeshare/ante"

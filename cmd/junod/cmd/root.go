@@ -34,7 +34,7 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
-	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	genutilcli "github.com/iqlusioninc/liquidity-staking-module/x/genutil/client/cli"
 
 	"github.com/CosmosContracts/juno/v17/app"
 	"github.com/CosmosContracts/juno/v17/app/params"

@@ -57,8 +57,6 @@ import (
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
@@ -73,13 +71,15 @@ import (
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
-	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	distrkeeper "github.com/iqlusioninc/liquidity-staking-module/x/distribution/keeper"
+	distrtypes "github.com/iqlusioninc/liquidity-staking-module/x/distribution/types"
+	slashingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/slashing/keeper"
+	slashingtypes "github.com/iqlusioninc/liquidity-staking-module/x/slashing/types"
+	stakingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/staking/keeper"
+	stakingtypes "github.com/iqlusioninc/liquidity-staking-module/x/staking/types"
 
 	dripkeeper "github.com/CosmosContracts/juno/v17/x/drip/keeper"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
@@ -249,7 +249,7 @@ func NewAppKeepers(
 		appKeepers.keys[stakingtypes.StoreKey],
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
-		govModAddress,
+		// govModAddress,
 	)
 	appKeepers.MintKeeper = mintkeeper.NewKeeper(
 		appCodec,
@@ -267,7 +267,7 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		stakingKeeper,
 		authtypes.FeeCollectorName,
-		govModAddress,
+		// govModAddress,
 	)
 	appKeepers.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec,

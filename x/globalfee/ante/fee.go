@@ -9,7 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingkeeper "github.com/iqlusioninc/liquidity-staking-module/x/staking/keeper"
 
 	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
 )
