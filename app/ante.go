@@ -24,6 +24,7 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
 	globalfeeante "github.com/CosmosContracts/juno/v17/x/globalfee/ante"
 	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
 // Lower back to 1 mil after https://github.com/cosmos/relayer/issues/1255
@@ -37,7 +38,7 @@ type HandlerOptions struct {
 	GovKeeper         govkeeper.Keeper
 	IBCKeeper         *ibckeeper.Keeper
 	FeeShareKeeper    feesharekeeper.Keeper
-	BankKeeperFork    feeshareante.BankKeeper
+	BankKeeper        bankkeeper.Keeper
 	TxCounterStoreKey storetypes.StoreKey
 	WasmConfig        wasmtypes.WasmConfig
 	Cdc               codec.BinaryCodec
@@ -73,8 +74,29 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
 	}
 
+	// inactive account (brand new, no tokens)
+	// mint tokens (with x/Bank) to the account and set the fee to be valid (for FREE for the user, cost to the chain in the POC) - modify Tx for the fees ONLY
+
+	// tx.GetGas() * minGasprice = the amount of fee to mint them from x/bank
+	// update the Tx Fee Amount of be the amount of fee we minted them from x/bank OR just give them the funds and use that directly or something
+
+	// get account
+	// p := k.GetParams(ctx)
+	// var minGasprice sdk.DecCoins
+	// for _, c := range p.MinimumGasPrices {
+	// 	if c.Denom == "ujuno" {
+	// 		// get that amount
+	// 		amt := c.Amount
+	// 	}
+	// }
+	//
+	// junod tx tokenfactory create-denom joel --gas=2200000 --from carbonator
+
 	anteDecorators := []sdk.AnteDecorator{
+		// check if account exists, if not, mint it tokens and use that as the fee. Then create the account (may be a future ante handler since it has fees now)
+		// GLobalFee query params for minimum fee
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+		// ADD DECORATOR HERE
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
@@ -85,7 +107,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
-		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
+		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

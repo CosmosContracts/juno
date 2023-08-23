@@ -353,7 +353,7 @@ func New(
 			GovKeeper:         app.AppKeepers.GovKeeper,
 			IBCKeeper:         app.AppKeepers.IBCKeeper,
 			FeeShareKeeper:    app.AppKeepers.FeeShareKeeper,
-			BankKeeperFork:    app.AppKeepers.BankKeeper, // since we need extra methods
+			BankKeeper:        app.AppKeepers.BankKeeper,
 			TxCounterStoreKey: app.AppKeepers.GetKey(wasmtypes.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
