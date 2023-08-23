@@ -249,7 +249,7 @@ func NewAppKeepers(
 		appKeepers.keys[stakingtypes.StoreKey],
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
-		// govModAddress,
+		appKeepers.GetSubspace(stakingtypes.ModuleName), // TODO: Remove
 	)
 	appKeepers.MintKeeper = mintkeeper.NewKeeper(
 		appCodec,
@@ -263,6 +263,7 @@ func NewAppKeepers(
 	appKeepers.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[distrtypes.StoreKey],
+		appKeepers.GetSubspace(distrtypes.ModuleName), // TODO: Remove
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		stakingKeeper,
@@ -271,10 +272,10 @@ func NewAppKeepers(
 	)
 	appKeepers.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec,
-		cdc,
+		// cdc,
 		appKeepers.keys[slashingtypes.StoreKey],
 		stakingKeeper,
-		govModAddress,
+		appKeepers.GetSubspace(distrtypes.ModuleName),
 	)
 
 	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
@@ -496,7 +497,8 @@ func NewAppKeepers(
 		"/cosmos.gov.v1beta1.Query/Vote": &govv1.QueryVoteResponse{},
 
 		// distribution
-		"/cosmos.distribution.v1beta1.Query/DelegationRewards": &distrtypes.QueryDelegationRewardsResponse{},
+		// "/cosmos.distribution.v1beta1.Query/DelegationRewards": &distrtypes.QueryDelegationRewardsResponse{},
+		"/cosmos.distribution.v1beta1.Query/DelegationRewards": &distrtypes.QueryDelegationTotalRewardsResponse{},
 
 		// staking
 		"/cosmos.staking.v1beta1.Query/Delegation":          &stakingtypes.QueryDelegationResponse{},
@@ -524,7 +526,8 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
-		distrkeeper.NewQuerier(appKeepers.DistrKeeper),
+		// distrkeeper.NewQuerier(appKeepers.DistrKeeper),
+		appKeepers.DistrKeeper,
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
