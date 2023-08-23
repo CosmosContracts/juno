@@ -96,7 +96,8 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		// check if account exists, if not, mint it tokens and use that as the fee. Then create the account (may be a future ante handler since it has fees now)
 		// GLobalFee query params for minimum fee
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		// ADD DECORATOR HERE
+		// TODO: joel
+		decorators.NewMsgFeePrepayDecorator(),
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
