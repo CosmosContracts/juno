@@ -126,7 +126,11 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// because when nonZeroCoinFeesReq empty, and DenomsSubsetOf check passed,
 		// the tx should already passed before)
 		if !feeCoinsNonZeroDenom.IsAnyGTE(nonZeroCoinFeesReq) {
-			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; got: %s. required: %s", feeCoins, PrettyPrint(combinedFeeRequirement))
+			if len(feeCoins) == 0 {
+				return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "no fees were specified. fees must be provided in one of %s", PrettyPrint(combinedFeeRequirement))
+			}
+
+			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; only got: %s. required: %s", feeCoins, PrettyPrint(combinedFeeRequirement))
 		}
 	}
 
