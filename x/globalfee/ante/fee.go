@@ -1,7 +1,6 @@
 package ante
 
 import (
-	"encoding/json"
 	"errors"
 
 	tmstrings "github.com/cometbft/cometbft/libs/strings"
@@ -89,7 +88,7 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	// if feeCoinsNoZeroDenom=[], DenomsSubsetOf returns true
 	// if feeCoinsNoZeroDenom is not empty, but nonZeroCoinFeesReq empty, return false
 	if !feeCoinsNonZeroDenom.DenomsSubsetOf(nonZeroCoinFeesReq) {
-		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "this fee denom is not accepted; got %s, required: %s", feeCoins, PrettyPrint(combinedFeeRequirement))
+		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "this fee denom is not accepted; got %s, one is required: %s", feeCoins, PrettyPrint(combinedFeeRequirement))
 	}
 
 	// Accept zero fee transactions only if both of the following statements are true:
@@ -127,23 +126,19 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// the tx should already passed before)
 		if !feeCoinsNonZeroDenom.IsAnyGTE(nonZeroCoinFeesReq) {
 			if len(feeCoins) == 0 {
-				return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "no fees were specified. fees must be provided in one of %s", PrettyPrint(combinedFeeRequirement))
+				return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "no fees were specified; one fee must be provided %s", PrettyPrint(combinedFeeRequirement))
 			}
 
-			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; only got: %s. required: %s", feeCoins, PrettyPrint(combinedFeeRequirement))
+			feeDiff := combinedFeeRequirement
+			for _, c := range feeCoins {
+				feeDiff = feeDiff.Sub(c)
+			}
+
+			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; only got: %s. number of coins needed: %s. one is required: %s. ", feeCoins, feeDiff, PrettyPrint(combinedFeeRequirement))
 		}
 	}
 
 	return next(ctx, tx, simulate)
-}
-
-func PrettyPrint(v interface{}) string {
-	b, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		return ""
-	}
-
-	return string(b)
 }
 
 // GetGlobalFee returns the global fees for a given fee tx's gas
