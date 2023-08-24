@@ -43,6 +43,8 @@ type HandlerOptions struct {
 	WasmConfig        wasmtypes.WasmConfig
 	Cdc               codec.BinaryCodec
 
+	// TODO: may need the FeeGrantKeeper here as well if you go down that road
+
 	BypassMinFeeMsgTypes []string
 
 	GlobalFeeKeeper globalfeekeeper.Keeper
@@ -81,23 +83,16 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	// update the Tx Fee Amount of be the amount of fee we minted them from x/bank OR just give them the funds and use that directly or something
 
 	// get account
-	// p := k.GetParams(ctx)
-	// var minGasprice sdk.DecCoins
-	// for _, c := range p.MinimumGasPrices {
-	// 	if c.Denom == "ujuno" {
-	// 		// get that amount
-	// 		amt := c.Amount
-	// 	}
-	// }
-	//
+	// junod q bank balances <bech32>
 	// junod tx tokenfactory create-denom joel --gas=2200000 --from carbonator
+	// junod q tokenfactory denoms-from-creator $(junod keys show carbonator -a)
 
 	anteDecorators := []sdk.AnteDecorator{
 		// check if account exists, if not, mint it tokens and use that as the fee. Then create the account (may be a future ante handler since it has fees now)
 		// GLobalFee query params for minimum fee
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		// TODO: joel
-		decorators.NewMsgFeePrepayDecorator(),
+		decorators.NewMsgFeePrepayDecorator(options.BankKeeper, options.AccountKeeper, options.GlobalFeeKeeper),
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
