@@ -16,13 +16,18 @@ func TestParamsValidate(t *testing.T) {
 	}{
 		{"default", types.DefaultParams(), false},
 		{
-			"valid: no contracts",
-			types.NewParams([]string(nil)),
+			"valid: no contracts, enough gas",
+			types.NewParams([]string(nil), 100_000),
 			false,
 		},
 		{
 			"invalid: address malformed",
-			types.NewParams([]string{"invalid address"}),
+			types.NewParams([]string{"invalid address"}, 100_000),
+			true,
+		},
+		{
+			"invalid: not enough gas",
+			types.NewParams([]string(nil), 1),
 			true,
 		},
 	}

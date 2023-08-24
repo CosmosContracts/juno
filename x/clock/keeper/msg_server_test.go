@@ -57,9 +57,9 @@ func (s *IntegrationTestSuite) TestUpdateClockParams() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			params := types.Params{
-				ContractAddresses: tc.ContractAddresses,
-			}
+			params := types.DefaultParams()
+			params.ContractAddresses = tc.ContractAddresses
+
 			err := s.app.AppKeepers.ClockKeeper.SetParams(s.ctx, params)
 
 			if !tc.success {

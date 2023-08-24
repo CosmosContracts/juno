@@ -42,6 +42,8 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
 
+	defaultParams := types.DefaultParams()
+
 	testCases := []struct {
 		name     string
 		genesis  types.GenesisState
@@ -57,6 +59,7 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 			types.GenesisState{
 				Params: types.Params{
 					ContractAddresses: []string(nil),
+					ContractGasLimit:  defaultParams.ContractGasLimit,
 				},
 			},
 			false,
@@ -66,6 +69,7 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 			types.GenesisState{
 				Params: types.Params{
 					ContractAddresses: []string{"incorrectaddr"},
+					ContractGasLimit:  defaultParams.ContractGasLimit,
 				},
 			},
 			true,
@@ -75,6 +79,7 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 			types.GenesisState{
 				Params: types.Params{
 					ContractAddresses: []string{addr.String(), addr2.String()},
+					ContractGasLimit:  defaultParams.ContractGasLimit,
 				},
 			},
 			false,

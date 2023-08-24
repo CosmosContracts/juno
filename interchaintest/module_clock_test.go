@@ -62,7 +62,7 @@ func SubmitParamChangeProp(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 	updateParams := []cosmosproto.Message{
 		&clocktypes.MsgUpdateParams{
 			Authority: govAcc,
-			Params:    clocktypes.NewParams(contracts),
+			Params:    clocktypes.NewParams(contracts, 1_000_000_000),
 		},
 	}
 

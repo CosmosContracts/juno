@@ -30,3 +30,14 @@ func (q Querier) ClockContracts(stdCtx context.Context, _ *types.QueryClockContr
 		ContractAddresses: p.ContractAddresses,
 	}, nil
 }
+
+// Params returns the total set of clock parameters.
+func (q Querier) Params(stdCtx context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(stdCtx)
+
+	p := q.keeper.GetParams(ctx)
+
+	return &types.QueryParamsResponse{
+		Params: &p,
+	}, nil
+}

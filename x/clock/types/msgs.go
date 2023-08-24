@@ -10,9 +10,7 @@ import (
 
 const (
 	// Sudo Message called on the contracts
-	EndBlockSudoMessage = `{"juno_end_block":{}}`
-	// Gas limit for end block sudo messages
-	EndBlockContractGasLimit = uint64(1_000_000_000_000000)
+	EndBlockSudoMessage = `{"end_block":{}}`
 )
 
 // == MsgUpdateParams ==

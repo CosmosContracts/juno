@@ -19,6 +19,7 @@ func GetQueryCmd() *cobra.Command {
 	}
 	queryCmd.AddCommand(
 		GetCmdShowContracts(),
+		GetCmdParams(),
 	)
 	return queryCmd
 }
@@ -27,7 +28,6 @@ func GetCmdShowContracts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "contracts",
 		Short: "Show addresses of all current contract modules",
-		Long:  "Show addresses of all current contract modules",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -36,8 +36,31 @@ func GetCmdShowContracts() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-
 			res, err := queryClient.ClockContracts(cmd.Context(), &types.QueryClockContracts{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdParams() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "params",
+		Short: "Show all module params",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
 			if err != nil {
 				return err
 			}
