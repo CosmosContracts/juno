@@ -1,6 +1,9 @@
 package ante
 
 import (
+	"encoding/json"
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -17,6 +20,21 @@ func ContainZeroCoins(coins sdk.Coins) bool {
 	}
 
 	return false
+}
+
+// PrettyPrint returns a pretty printed representation of the given coins.
+func PrettyPrint(coins sdk.Coins) string {
+	arr := make([]string, len(coins))
+	for idx, coin := range coins {
+		arr[idx] = fmt.Sprintf("%s%s", coin.Amount.String(), coin.Denom)
+	}
+
+	bz, err := json.MarshalIndent(arr, "", "  ")
+	if err != nil {
+		return ""
+	}
+
+	return string(bz)
 }
 
 // CombinedFeeRequirement returns the global fee and min_gas_price combined and sorted.
