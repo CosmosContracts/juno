@@ -10,7 +10,7 @@ import (
 
 const (
 	// Sudo Message called on the contracts
-	EndBlockSudoMessage = `{"end_block":{}}`
+	EndBlockSudoMessage = `{"clock_end_block":{}}`
 )
 
 // == MsgUpdateParams ==

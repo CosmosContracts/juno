@@ -19,7 +19,7 @@ pub enum SudoMsg {
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn sudo(deps: DepsMut, _env: Env, msg: SudoMsg) -> Result<Response, ContractError> {
     match msg {        
-        SudoMsg::EndBlock { } => {
+        SudoMsg::ClockEndBlock { } => {
             let mut config = CONFIG.load(deps.storage)?;
             config.val += 1;
             CONFIG.save(deps.storage, &config)?;
@@ -39,7 +39,7 @@ If you wish not to have your action performed every block, you can use the `env`
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn sudo(deps: DepsMut, env: Env, msg: SudoMsg) -> Result<Response, ContractError> {
     match msg {        
-        SudoMsg::EndBlock { } => {    
+        SudoMsg::ClockEndBlock { } => {    
             // If the block is not divisible by ten, do nothing.      
             if env.block.height % 10 != 0 {
                 return Ok(Response::new());
