@@ -1,6 +1,7 @@
 package ante
 
 import (
+	"encoding/json"
 	"errors"
 
 	tmstrings "github.com/cometbft/cometbft/libs/strings"
@@ -125,11 +126,20 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// because when nonZeroCoinFeesReq empty, and DenomsSubsetOf check passed,
 		// the tx should already passed before)
 		if !feeCoinsNonZeroDenom.IsAnyGTE(nonZeroCoinFeesReq) {
-			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; got: %s required: %s", feeCoins, combinedFeeRequirement)
+			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; got: %s. required: %s", feeCoins, PrettyPrint(combinedFeeRequirement))
 		}
 	}
 
 	return next(ctx, tx, simulate)
+}
+
+func PrettyPrint(v interface{}) string {
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return ""
+	}
+
+	return string(b)
 }
 
 // GetGlobalFee returns the global fees for a given fee tx's gas
