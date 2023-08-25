@@ -83,6 +83,7 @@ import (
 
 	dripkeeper "github.com/CosmosContracts/juno/v17/x/drip/keeper"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
+	feeprepaytypes "github.com/CosmosContracts/juno/v17/x/feeprepay/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v17/x/globalfee"
@@ -122,6 +123,7 @@ var maccPerms = map[string][]string{
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfee.ModuleName:           nil,
 	buildertypes.ModuleName:        nil,
+	feeprepaytypes.ModuleName:      nil,
 }
 
 type AppKeepers struct {
@@ -692,6 +694,7 @@ func BlockedAddresses() map[string]bool {
 
 	// allow the following addresses to receive funds
 	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(feeprepaytypes.ModuleName).String())
 
 	return modAccAddrs
 }

@@ -22,7 +22,6 @@ import (
 	decorators "github.com/CosmosContracts/juno/v17/app/decorators"
 	feeshareante "github.com/CosmosContracts/juno/v17/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
-	globalfeeante "github.com/CosmosContracts/juno/v17/x/globalfee/ante"
 	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
@@ -91,8 +90,10 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		// check if account exists, if not, mint it tokens and use that as the fee. Then create the account (may be a future ante handler since it has fees now)
 		// GLobalFee query params for minimum fee
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+
 		// TODO: joel
-		decorators.NewMsgFeePrepayDecorator(options.BankKeeper, options.AccountKeeper, options.GlobalFeeKeeper),
+		// decorators.NewMsgFeePrepayDecorator(options.BankKeeper, options.AccountKeeper, options.GlobalFeeKeeper), // may be able to move forward OR merge this with deduct_fee.go
+
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
@@ -101,8 +102,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
+		// globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage), // TODO: Has a minimum fee requrement check. So if 0 fees are passed, but 500 fee is required, it fails.
+		// ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),          // OLD, new is in decorators
+		decorators.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker), // TODO: look into to deduct fee from the module account
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
