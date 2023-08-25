@@ -129,12 +129,7 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 				return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "no fees were specified; one fee must be provided %s", PrettyPrint(combinedFeeRequirement))
 			}
 
-			feeDiff := combinedFeeRequirement
-			for _, c := range feeCoins {
-				feeDiff = feeDiff.Sub(c)
-			}
-
-			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; only got: %s. number of coins needed: %s. one is required: %s. ", feeCoins, feeDiff, PrettyPrint(combinedFeeRequirement))
+			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; only got: %s. one is required: %s. ", feeCoins, PrettyPrint(combinedFeeRequirement))
 		}
 	}
 
