@@ -113,6 +113,8 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		if err != nil {
 			return err
 		}
+	} else {
+		HandleZeroFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 	}
 
 	events := sdk.Events{
@@ -127,8 +129,22 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	return nil
 }
 
+// Handle zero fee transactions for fee prepay module
+func HandleZeroFees(keeper bankkeeper.Keeper, ctx sdk.Context, deductFeesFromAcc types.AccountI, fee sdk.Coins) {
+	ctx.Logger().Error("HandleZeroFees", "Starting", true)
+
+	payment := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewDec(200_000).RoundInt()))
+
+	ctx.Logger().Error("HandleZeroFees", "Payment", payment)
+
+	keeper.SendCoinsFromModuleToAccount(ctx, "feeprepay", deductFeesFromAcc.GetAddress(), payment)
+
+	ctx.Logger().Error("HandleZeroFees", "Ending", true)
+}
+
 // DeductFees deducts fees from the given account.
 func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc types.AccountI, fees sdk.Coins) error {
+
 	if !fees.IsValid() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "invalid fee amount: %s", fees)
 	}
