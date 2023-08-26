@@ -5,6 +5,7 @@ import (
 	"math"
 
 	sdkmath "cosmossdk.io/math"
+	feeprepaytypes "github.com/CosmosContracts/juno/v17/x/feeprepay/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -133,18 +134,18 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 func HandleZeroFees(keeper bankkeeper.Keeper, ctx sdk.Context, deductFeesFromAcc types.AccountI, fee sdk.Coins) {
 	ctx.Logger().Error("HandleZeroFees", "Starting", true)
 
-	payment := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewDec(200_000).RoundInt()))
+	payment := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewDec(500_000).RoundInt()))
 
 	ctx.Logger().Error("HandleZeroFees", "Payment", payment)
 
-	keeper.SendCoinsFromModuleToAccount(ctx, "feeprepay", deductFeesFromAcc.GetAddress(), payment)
+	// keeper.SendCoinsFromModuleToAccount(ctx, "feeprepay", deductFeesFromAcc.GetAddress(), payment)
+	keeper.SendCoinsFromModuleToModule(ctx, feeprepaytypes.ModuleName, types.FeeCollectorName, payment)
 
 	ctx.Logger().Error("HandleZeroFees", "Ending", true)
 }
 
 // DeductFees deducts fees from the given account.
 func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc types.AccountI, fees sdk.Coins) error {
-
 	if !fees.IsValid() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFee, "invalid fee amount: %s", fees)
 	}
@@ -171,7 +172,7 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
-	if ctx.IsCheckTx() {
+	if ctx.IsCheckTx() && !feeTx.GetFee().Empty() {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
 			requiredFees := make(sdk.Coins, len(minGasPrices))
