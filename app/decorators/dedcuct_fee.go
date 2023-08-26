@@ -139,7 +139,12 @@ func HandleZeroFees(keeper bankkeeper.Keeper, ctx sdk.Context, deductFeesFromAcc
 	ctx.Logger().Error("HandleZeroFees", "Payment", payment)
 
 	// keeper.SendCoinsFromModuleToAccount(ctx, "feeprepay", deductFeesFromAcc.GetAddress(), payment)
-	keeper.SendCoinsFromModuleToModule(ctx, feeprepaytypes.ModuleName, types.FeeCollectorName, payment)
+	err := keeper.SendCoinsFromModuleToModule(ctx, feeprepaytypes.ModuleName, types.FeeCollectorName, payment)
+
+	// Handle error
+	if err != nil {
+		ctx.Logger().Error("HandleZeroFees", "Error transfering funds from module to module", err)
+	}
 
 	ctx.Logger().Error("HandleZeroFees", "Ending", true)
 }
