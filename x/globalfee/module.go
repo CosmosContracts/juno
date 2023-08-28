@@ -131,6 +131,7 @@ func (a AppModule) QuerierRoute() string {
 }
 
 func (a AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(a.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), NewGrpcQuerier(a.keeper))
 
 	m := keeper.NewMigrator(a.keeper, a.bondDenom)
