@@ -81,6 +81,8 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	clockkeeper "github.com/CosmosContracts/juno/v17/x/clock/keeper"
+	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
 	dripkeeper "github.com/CosmosContracts/juno/v17/x/drip/keeper"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
@@ -156,6 +158,7 @@ type AppKeepers struct {
 	FeeShareKeeper      feesharekeeper.Keeper
 	GlobalFeeKeeper     globalfeekeeper.Keeper
 	ContractKeeper      *wasmkeeper.PermissionedKeeper
+	ClockKeeper         clockkeeper.Keeper
 
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -539,6 +542,10 @@ func NewAppKeepers(
 		wasmOpts...,
 	)
 
+	// set the contract keeper for the Ics20WasmHooks
+	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
+	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
+
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
 		appKeepers.keys[feesharetypes.StoreKey],
 		appCodec,
@@ -560,6 +567,13 @@ func NewAppKeepers(
 		appCodec,
 		appKeepers.BankKeeper,
 		authtypes.FeeCollectorName,
+		govModAddress,
+	)
+
+	appKeepers.ClockKeeper = clockkeeper.NewKeeper(
+		appKeepers.keys[clocktypes.StoreKey],
+		appCodec,
+		*appKeepers.ContractKeeper,
 		govModAddress,
 	)
 
@@ -618,10 +632,6 @@ func NewAppKeepers(
 	appKeepers.scopedWasmKeeper = scopedWasmKeeper
 	appKeepers.ScopedICAHostKeeper = scopedICAHostKeeper
 	appKeepers.ScopedICAControllerKeeper = scopedICAControllerKeeper
-
-	// set the contract keeper for the Ics20WasmHooks
-	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
-	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
 
 	return appKeepers
 }

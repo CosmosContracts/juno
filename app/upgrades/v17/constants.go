@@ -4,6 +4,7 @@ import (
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/CosmosContracts/juno/v17/app/upgrades"
+	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 )
 
@@ -16,6 +17,7 @@ var Upgrade = upgrades.Upgrade{
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
 			driptypes.ModuleName,
+			clocktypes.ModuleName,
 		},
 	},
 }

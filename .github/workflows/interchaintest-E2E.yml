@@ -69,6 +69,7 @@ jobs:
           - "ictest-unity-gov"
           - "ictest-pob"
           - "ictest-drip"
+          - "ictest-clock"
       fail-fast: false
 
     steps:

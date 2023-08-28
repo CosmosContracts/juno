@@ -76,3 +76,10 @@ type GetCountResponse struct {
 type GetCountObj struct {
 	Count int64 `json:"count"`
 }
+
+type ClockContractResponse struct {
+	Data *ClockContractObj `json:"data"`
+}
+type ClockContractObj struct {
+	Val uint32 `json:"val"`
+}
