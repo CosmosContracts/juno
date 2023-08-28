@@ -31,6 +31,24 @@ func CreateV17UpgradeHandler(
 		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
+		// x/Mint
+		// Double blocks per year (from 6 seconds to 3 = 2x blocks per year)
+		mintParams := keepers.MintKeeper.GetParams(ctx)
+		mintParams.BlocksPerYear *= 2
+		if err = keepers.MintKeeper.SetParams(ctx, mintParams); err != nil {
+			return nil, err
+		}
+		logger.Info(fmt.Sprintf("updated minted blocks per year logic to %v", mintParams))
+
+		// x/Slashing
+		// Double slashing window due to double blocks per year
+		slashingParams := keepers.SlashingKeeper.GetParams(ctx)
+		slashingParams.SignedBlocksWindow *= 2
+		if err := keepers.SlashingKeeper.SetParams(ctx, slashingParams); err != nil {
+			return nil, err
+		}
+		logger.Info(fmt.Sprintf("updated slashing params to %v", slashingParams))
+
 		// x/drip
 		if err := keepers.DripKeeper.SetParams(ctx, driptypes.DefaultParams()); err != nil {
 			return nil, err
