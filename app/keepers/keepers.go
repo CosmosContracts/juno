@@ -82,6 +82,8 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	dripkeeper "github.com/CosmosContracts/juno/v17/x/drip/keeper"
+	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v17/x/globalfee"
@@ -172,6 +174,8 @@ type AppKeepers struct {
 	WasmKeeper         wasmkeeper.Keeper
 	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
+
+	DripKeeper dripkeeper.Keeper
 
 	// Middleware wrapper
 	Ics20WasmHooks   *ibc_hooks.WasmHooks
@@ -419,7 +423,7 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		scopedICQKeeper,
-		NewQuerierWrapper(bApp),
+		bApp.GRPCQueryRouter(),
 	)
 
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
@@ -560,6 +564,14 @@ func NewAppKeepers(
 	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[globalfeetypes.StoreKey],
+		govModAddress,
+	)
+
+	appKeepers.DripKeeper = dripkeeper.NewKeeper(
+		appKeepers.keys[driptypes.StoreKey],
+		appCodec,
+		appKeepers.BankKeeper,
+		authtypes.FeeCollectorName,
 		govModAddress,
 	)
 
@@ -765,7 +777,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
-	paramsKeeper.Subspace(buildertypes.ModuleName)
 
 	return paramsKeeper
 }

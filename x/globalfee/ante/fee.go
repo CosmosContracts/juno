@@ -88,7 +88,7 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	// if feeCoinsNoZeroDenom=[], DenomsSubsetOf returns true
 	// if feeCoinsNoZeroDenom is not empty, but nonZeroCoinFeesReq empty, return false
 	if !feeCoinsNonZeroDenom.DenomsSubsetOf(nonZeroCoinFeesReq) {
-		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "fee is not a subset of required fees; got %s, required: %s", feeCoins, combinedFeeRequirement)
+		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "this fee denom is not accepted; got %s, one is required: %s", feeCoins, PrettyPrint(combinedFeeRequirement))
 	}
 
 	// Accept zero fee transactions only if both of the following statements are true:
@@ -125,7 +125,11 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// because when nonZeroCoinFeesReq empty, and DenomsSubsetOf check passed,
 		// the tx should already passed before)
 		if !feeCoinsNonZeroDenom.IsAnyGTE(nonZeroCoinFeesReq) {
-			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; got: %s required: %s", feeCoins, combinedFeeRequirement)
+			if len(feeCoins) == 0 {
+				return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "no fees were specified; one fee must be provided %s", PrettyPrint(combinedFeeRequirement))
+			}
+
+			return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "insufficient fees; only got: %s. one is required: %s. ", feeCoins, PrettyPrint(combinedFeeRequirement))
 		}
 	}
 

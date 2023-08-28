@@ -51,7 +51,7 @@ func TestJunoTokenFactory(t *testing.T) {
 	}
 
 	// This allows the uaddr here to mint tokens on behalf of the contract. Typically you only allow a contract here, but this is testing.
-	coreInitMsg := fmt.Sprintf(`{"allowed_mint_addresses":["%s"],"denoms":["%s"]}`, uaddr, tfDenom)
+	coreInitMsg := fmt.Sprintf(`{"allowed_mint_addresses":["%s"],"existing_denoms":["%s"]}`, uaddr, tfDenom)
 	_, coreTFContract := helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/tokenfactory_core.wasm", coreInitMsg)
 	t.Log("coreContract", coreTFContract)
 

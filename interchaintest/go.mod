@@ -1,6 +1,6 @@
 module github.com/CosmosContracts/juno/tests/interchaintest
 
-go 1.19
+go 1.20
 
 replace (
 	// interchaintest supports ICS features so we need this for now

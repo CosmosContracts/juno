@@ -70,6 +70,8 @@ from_scratch () {
   # Custom Modules
   # GlobalFee
   update_test_genesis '.app_state["globalfee"]["params"]["minimum_gas_prices"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
+  # Drip
+  update_test_genesis '.app_state["drip"]["params"]["allowed_addresses"]=["juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl","juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk"]'
   
   # TokenFactory
   # update_test_genesis '.app_state["tokenfactory"]["params"]["denom_creation_fee"]=[{"denom":"ujuno","amount":"100"}]'
