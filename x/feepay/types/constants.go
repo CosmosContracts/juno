@@ -2,7 +2,7 @@ package types
 
 const (
 	// module name
-	ModuleName = "feeprepay"
+	ModuleName = "feepay"
 
 	// StoreKey to be used when creating the KVStore
 	StoreKey = ModuleName

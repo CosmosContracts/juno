@@ -1,11 +1,11 @@
-package decorators
+package ante
 
 import (
 	"fmt"
 	"math"
 
 	sdkmath "cosmossdk.io/math"
-	feeprepaytypes "github.com/CosmosContracts/juno/v17/x/feeprepay/types"
+	feeprepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -13,21 +13,22 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
-// if I SEND 0 fees, then charge the module account the actual fee amount (ex: 500ujuno)
-
-// TxFeeChecker check if the provided fee is enough and returns the effective fee and tx priority,
-// the effective fee should be deducted later, and the priority should be returned in abci response.
-// type TxFeeChecker func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error)
-
 // DeductFeeDecorator deducts fees from the first signer of the tx
 // If the first signer does not have the funds to pay for the fees, return with InsufficientFunds error
 // Call next AnteHandler if fees successfully deducted
 // CONTRACT: Tx must implement FeeTx interface to use DeductFeeDecorator
+//
+// Additionally, the Deduct Fee ante is a fork of the SDK's DeductFeeDecorator. This decorator looks for single
+// message transactions with no provided fee. If they correspond to a registered FeePay Contract, the FeePay
+// module will cover the cost of the fee (if the balance permits).
 type DeductFeeDecorator struct {
 	accountKeeper  ante.AccountKeeper
 	bankKeeper     bankkeeper.Keeper
 	feegrantKeeper ante.FeegrantKeeper
-	txFeeChecker   ante.TxFeeChecker
+	// TxFeeChecker check if the provided fee is enough and returns the effective fee and tx priority,
+	// the effective fee should be deducted later, and the priority should be returned in abci response.
+	// type TxFeeChecker func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error)
+	txFeeChecker ante.TxFeeChecker
 }
 
 func NewDeductFeeDecorator(ak ante.AccountKeeper, bk bankkeeper.Keeper, fk ante.FeegrantKeeper, tfc ante.TxFeeChecker) DeductFeeDecorator {

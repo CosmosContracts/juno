@@ -83,7 +83,7 @@ import (
 
 	dripkeeper "github.com/CosmosContracts/juno/v17/x/drip/keeper"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
-	feeprepaytypes "github.com/CosmosContracts/juno/v17/x/feeprepay/types"
+	feeprepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v17/x/globalfee"
