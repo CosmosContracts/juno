@@ -83,7 +83,8 @@ import (
 
 	dripkeeper "github.com/CosmosContracts/juno/v17/x/drip/keeper"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
-	feeprepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
+	feepaykeeper "github.com/CosmosContracts/juno/v17/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v17/x/globalfee"
@@ -123,7 +124,7 @@ var maccPerms = map[string][]string{
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfee.ModuleName:           nil,
 	buildertypes.ModuleName:        nil,
-	feeprepaytypes.ModuleName:      nil,
+	feepaytypes.ModuleName:         nil,
 }
 
 type AppKeepers struct {
@@ -155,6 +156,7 @@ type AppKeepers struct {
 	AuthzKeeper         authzkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	NFTKeeper           nftkeeper.Keeper
+	FeePayKeeper        feepaykeeper.Keeper
 	FeeShareKeeper      feesharekeeper.Keeper
 	GlobalFeeKeeper     globalfeekeeper.Keeper
 	ContractKeeper      *wasmkeeper.PermissionedKeeper
@@ -541,6 +543,16 @@ func NewAppKeepers(
 		wasmOpts...,
 	)
 
+	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
+		appKeepers.keys[feepaytypes.StoreKey],
+		appCodec,
+		appKeepers.BankKeeper,
+		appKeepers.WasmKeeper,
+		appKeepers.AccountKeeper,
+		authtypes.FeeCollectorName,
+		govModAddress,
+	)
+
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
 		appKeepers.keys[feesharetypes.StoreKey],
 		appCodec,
@@ -694,7 +706,7 @@ func BlockedAddresses() map[string]bool {
 
 	// allow the following addresses to receive funds
 	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
-	delete(modAccAddrs, authtypes.NewModuleAddress(feeprepaytypes.ModuleName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(feepaytypes.ModuleName).String())
 
 	return modAccAddrs
 }
