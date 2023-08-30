@@ -61,3 +61,17 @@ func (k Keeper) GetAuthority() string {
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", revtypes.ModuleName))
 }
+
+// Check if a contract is associated with a FeePay contract
+func (k Keeper) IsValidContract(ctx sdk.Context, contractAddr sdk.AccAddress) bool {
+	return true
+}
+
+// FeeShare - how to do a map. store.Get()
+
+// KV
+// -> KVs `string -> []bytes`
+// Store users interactions on a contract -> int
+// "user-interaction" < key
+// "userAddr-contractAddr" -> []byte(1)
+// feeshare.go < how to do kvs

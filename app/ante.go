@@ -21,6 +21,7 @@ import (
 
 	decorators "github.com/CosmosContracts/juno/v17/app/decorators"
 	feepayante "github.com/CosmosContracts/juno/v17/x/feepay/ante"
+	feepaykeeper "github.com/CosmosContracts/juno/v17/x/feepay/keeper"
 	feeshareante "github.com/CosmosContracts/juno/v17/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
 	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
@@ -37,6 +38,7 @@ type HandlerOptions struct {
 
 	GovKeeper         govkeeper.Keeper
 	IBCKeeper         *ibckeeper.Keeper
+	FeePayKeeper      feepaykeeper.Keeper
 	FeeShareKeeper    feesharekeeper.Keeper
 	BankKeeper        bankkeeper.Keeper
 	TxCounterStoreKey storetypes.StoreKey
@@ -87,7 +89,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		// globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage), // TODO: Has a minimum fee requrement check. So if 0 fees are passed, but 500 fee is required, it fails.
 		// ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),          // OLD, new is in decorators
-		feepayante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker), // TODO: look into to deduct fee from the module account
+		feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker), // TODO: look into to deduct fee from the module account
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),

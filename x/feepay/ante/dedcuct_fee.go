@@ -5,7 +5,9 @@ import (
 	"math"
 
 	sdkmath "cosmossdk.io/math"
-	feeprepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	feepaykeeper "github.com/CosmosContracts/juno/v17/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -22,6 +24,7 @@ import (
 // message transactions with no provided fee. If they correspond to a registered FeePay Contract, the FeePay
 // module will cover the cost of the fee (if the balance permits).
 type DeductFeeDecorator struct {
+	feepayKeeper   feepaykeeper.Keeper
 	accountKeeper  ante.AccountKeeper
 	bankKeeper     bankkeeper.Keeper
 	feegrantKeeper ante.FeegrantKeeper
@@ -31,15 +34,16 @@ type DeductFeeDecorator struct {
 	txFeeChecker ante.TxFeeChecker
 }
 
-func NewDeductFeeDecorator(ak ante.AccountKeeper, bk bankkeeper.Keeper, fk ante.FeegrantKeeper, tfc ante.TxFeeChecker) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, tfc ante.TxFeeChecker) DeductFeeDecorator {
 	if tfc == nil {
 		tfc = checkTxFeeWithValidatorMinGasPrices
 	}
 
 	return DeductFeeDecorator{
+		feepayKeeper:   fpk,
 		accountKeeper:  ak,
 		bankKeeper:     bk,
-		feegrantKeeper: fk,
+		feegrantKeeper: fgk,
 		txFeeChecker:   tfc,
 	}
 }
@@ -109,14 +113,20 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		return sdkerrors.ErrUnknownAddress.Wrapf("fee payer address: %s does not exist", deductFeesFrom)
 	}
 
-	// deduct the fees
-	if !fee.IsZero() {
-		err := DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
+	msg := sdkTx.GetMsgs()[0]
+	_, isCWMsg := msg.(*wasmtypes.MsgExecuteContract)
+
+	if fee.IsZero() && len(sdkTx.GetMsgs()) == 1 && isCWMsg {
+		err := HandleZeroFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 		if err != nil {
 			return err
 		}
 	} else {
-		HandleZeroFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
+		// Std sdk route
+		err := DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
+		if err != nil {
+			return err
+		}
 	}
 
 	events := sdk.Events{
@@ -132,7 +142,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 }
 
 // Handle zero fee transactions for fee prepay module
-func HandleZeroFees(keeper bankkeeper.Keeper, ctx sdk.Context, deductFeesFromAcc types.AccountI, fee sdk.Coins) {
+func HandleZeroFees(keeper bankkeeper.Keeper, ctx sdk.Context, deductFeesFromAcc types.AccountI, fee sdk.Coins) error {
 	ctx.Logger().Error("HandleZeroFees", "Starting", true)
 
 	payment := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewDec(500_000).RoundInt()))
@@ -140,14 +150,17 @@ func HandleZeroFees(keeper bankkeeper.Keeper, ctx sdk.Context, deductFeesFromAcc
 	ctx.Logger().Error("HandleZeroFees", "Payment", payment)
 
 	// keeper.SendCoinsFromModuleToAccount(ctx, "feeprepay", deductFeesFromAcc.GetAddress(), payment)
-	err := keeper.SendCoinsFromModuleToModule(ctx, feeprepaytypes.ModuleName, types.FeeCollectorName, payment)
+	err := keeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment)
 
 	// Handle error
 	if err != nil {
 		ctx.Logger().Error("HandleZeroFees", "Error transfering funds from module to module", err)
+		return sdkerrors.ErrInsufficientFunds.Wrapf("error transfering funds from module to module: %s", err)
+		// return nil
 	}
 
 	ctx.Logger().Error("HandleZeroFees", "Ending", true)
+	return nil
 }
 
 // DeductFees deducts fees from the given account.
@@ -178,7 +191,7 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
-	if ctx.IsCheckTx() && !feeTx.GetFee().Empty() {
+	if ctx.IsCheckTx() && (!feeTx.GetFee().Empty() || len(tx.GetMsgs()) > 0) {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
 			requiredFees := make(sdk.Coins, len(minGasPrices))

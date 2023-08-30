@@ -1,0 +1,19 @@
+syntax = "proto3";
+package juno.feepay.v1;
+
+option go_package = "github.com/CosmosContracts/juno/x/feepay/types";
+
+// FeeShare defines an instance that organizes fee distribution conditions for
+// the owner of a given smart contract
+message FeePayContract {  
+  string contract_address = 1;
+  // balance of the contract (ledger balance) uint64
+  // limit per wallet uint64
+  
+}
+
+message FeePayUserUsage {
+  // not used as a Tx, just a storage device
+  string user_address = 1;
+  uint64 num_uses = 2;
+}

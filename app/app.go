@@ -352,6 +352,7 @@ func New(
 
 			GovKeeper:         app.AppKeepers.GovKeeper,
 			IBCKeeper:         app.AppKeepers.IBCKeeper,
+			FeePayKeeper:      app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:    app.AppKeepers.FeeShareKeeper,
 			BankKeeper:        app.AppKeepers.BankKeeper,
 			TxCounterStoreKey: app.AppKeepers.GetKey(wasmtypes.StoreKey),
