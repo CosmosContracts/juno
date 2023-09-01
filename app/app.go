@@ -366,6 +366,7 @@ func New(
 			TxEncoder:     app.txConfig.TxEncoder(),
 			BuilderKeeper: app.AppKeepers.BuildKeeper,
 			Mempool:       mempool,
+			BondDenom:     app.GetChainBondDenom(),
 		},
 	)
 	if err != nil {

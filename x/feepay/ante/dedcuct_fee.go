@@ -35,9 +35,11 @@ type DeductFeeDecorator struct {
 	// the effective fee should be deducted later, and the priority should be returned in abci response.
 	// type TxFeeChecker func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error)
 	txFeeChecker ante.TxFeeChecker
+
+	bondDenom string
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, tfc ante.TxFeeChecker) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, tfc ante.TxFeeChecker, bondDenom string) DeductFeeDecorator {
 	if tfc == nil {
 		tfc = checkTxFeeWithValidatorMinGasPrices
 	}
@@ -49,6 +51,7 @@ func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, 
 		bankKeeper:      bk,
 		feegrantKeeper:  fgk,
 		txFeeChecker:    tfc,
+		bondDenom:       bondDenom,
 	}
 }
 
