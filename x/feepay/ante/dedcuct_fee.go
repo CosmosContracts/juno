@@ -158,22 +158,38 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 		return sdkerrors.ErrInvalidRequest.Wrapf("contract %s is not registered for fee pay", cw.GetContract())
 	}
 
-	// TODO: instead of hardcoding payment, GetGas() * globalFeeParam.GetParams(ctx).MinimumGasPrices of ujuno or ujunox (app.GetDenom() func).
-	// feeTx := tx.(sdk.FeeTx)
-	// gas := feeTx.GetGas()
+	// Get the fee price in the chain denom
+	var feePrice sdk.DecCoin
+	for _, c := range dfd.globalfeeKeeper.GetParams(ctx).MinimumGasPrices {
+		if c.Denom == dfd.bondDenom {
+			feePrice = c
+		}
+	}
 
-	payment := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewDec(500_000).RoundInt()))
+	ctx.Logger().Error("HandleZeroFees", "FeePrice", feePrice)
+
+	// Get the tx gas
+	feeTx := tx.(sdk.FeeTx)
+	gas := sdkmath.LegacyNewDec(int64(feeTx.GetGas()))
+
+	ctx.Logger().Error("HandleZeroFees", "Gas", gas)
+
+	requiredFee := feePrice.Amount.Mul(gas).Ceil().RoundInt()
+
+	ctx.Logger().Error("HandleZeroFees", "RequiredFee", requiredFee)
+
+	// Create an array of coins, storing the required fee
+	payment := sdk.NewCoins(sdk.NewCoin(feePrice.Denom, requiredFee))
 
 	ctx.Logger().Error("HandleZeroFees", "Payment", payment)
 
-	// keeper.SendCoinsFromModuleToAccount(ctx, "feeprepay", deductFeesFromAcc.GetAddress(), payment)
+	// Cover the fees of the transaction, send from FeePay Module to FeeCollector Module
 	err := dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment)
 
-	// Handle error
+	// Throw transfer errors
 	if err != nil {
 		ctx.Logger().Error("HandleZeroFees", "Error transfering funds from module to module", err)
 		return sdkerrors.ErrInsufficientFunds.Wrapf("error transfering funds from module to module: %s", err)
-		// return nil
 	}
 
 	ctx.Logger().Error("HandleZeroFees", "Ending", true)

@@ -93,12 +93,3 @@ func (k Keeper) RegisterContract(ctx sdk.Context, fpc types.FeePayContract) bool
 	// Return true by default (for now)
 	return true
 }
-
-// FeeShare - how to do a map. store.Get()
-
-// KV
-// -> KVs `string -> []bytes`
-// Store users interactions on a contract -> int
-// "user-interaction" < key
-// "userAddr-contractAddr" -> []byte(1)
-// feeshare.go < how to do kvs
