@@ -153,6 +153,20 @@ func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
 	return k.bankKeeper.MintCoins(ctx, types.ModuleName, newCoins)
 }
 
+func (k Keeper) ReduceTargetSupply(ctx sdk.Context, burnCoin sdk.Coin) error {
+	params := k.GetParams(ctx)
+
+	if burnCoin.Denom != params.MintDenom {
+		return fmt.Errorf("tried reducing target supply with non staking token")
+	}
+
+	minter := k.GetMinter(ctx)
+	minter.TargetSupply = minter.TargetSupply.Sub(burnCoin.Amount)
+	k.SetMinter(ctx, minter)
+
+	return nil
+}
+
 // AddCollectedFees implements an alias call to the underlying supply keeper's
 // AddCollectedFees to be used in BeginBlocker.
 func (k Keeper) AddCollectedFees(ctx sdk.Context, fees sdk.Coins) error {

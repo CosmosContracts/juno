@@ -131,6 +131,7 @@ func (suite *KeeperTestSuite) TestMintDenom() {
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
+			tc := tc
 			_, err := suite.msgServer.Mint(sdk.WrapSDKContext(suite.Ctx), &tc.mintMsg)
 			if tc.expectPass {
 				suite.Require().NoError(err)
@@ -207,6 +208,7 @@ func (suite *KeeperTestSuite) TestBurnDenom() {
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
+			tc := tc
 			_, err := suite.msgServer.Burn(sdk.WrapSDKContext(suite.Ctx), &tc.burnMsg)
 			if tc.expectPass {
 				suite.Require().NoError(err)
@@ -281,6 +283,7 @@ func (suite *KeeperTestSuite) TestForceTransferDenom() {
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
+			tc := tc
 			_, err := suite.msgServer.ForceTransfer(sdk.WrapSDKContext(suite.Ctx), &tc.forceTransferMsg)
 			if tc.expectPass {
 				suite.Require().NoError(err)
@@ -506,6 +509,7 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
 			bankKeeper := suite.App.AppKeepers.BankKeeper
+			tc := tc
 			res, err := suite.msgServer.SetDenomMetadata(sdk.WrapSDKContext(suite.Ctx), &tc.msgSetDenomMetadata)
 			if tc.expectedPass {
 				suite.Require().NoError(err)
