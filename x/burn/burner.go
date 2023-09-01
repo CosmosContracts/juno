@@ -3,9 +3,10 @@ package burn
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	mintkeeper "github.com/CosmosContracts/juno/v17/x/mint/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
+	mintkeeper "github.com/CosmosContracts/juno/v17/x/mint/keeper"
 )
 
 // used to override Wasmd's NewBurnCoinMessageHandler
@@ -33,10 +34,11 @@ func (k *BurnerWasmPlugin) BurnCoins(ctx sdk.Context, moduleName string, amt sdk
 
 	// loop the burned coins
 	for _, amount := range amt {
-
 		// if we are burning mint denom, reduce the target staking supply
 		if amount.Denom == params.MintDenom {
-			k.mk.ReduceTargetSupply(ctx, amount)
+			if err := k.mk.ReduceTargetSupply(ctx, amount); err != nil {
+				return err
+			}
 		}
 	}
 

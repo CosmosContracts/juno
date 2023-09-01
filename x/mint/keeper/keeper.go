@@ -157,7 +157,7 @@ func (k Keeper) ReduceTargetSupply(ctx sdk.Context, burnCoin sdk.Coin) error {
 	params := k.GetParams(ctx)
 
 	if burnCoin.Denom != params.MintDenom {
-		return fmt.Errorf("Tried reducing target supply with non staking token")
+		return fmt.Errorf("tried reducing target supply with non staking token")
 	}
 
 	minter := k.GetMinter(ctx)
