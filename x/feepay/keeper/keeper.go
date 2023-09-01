@@ -8,9 +8,11 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	types "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	revtypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
 
@@ -63,7 +65,32 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Check if a contract is associated with a FeePay contract
-func (k Keeper) IsValidContract(ctx sdk.Context, contractAddr sdk.AccAddress) bool {
+func (k Keeper) IsValidContract(ctx sdk.Context, contractAddr string) bool {
+
+	// Get store
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte("contracts"))
+
+	// Get data
+	hasData := store.Has([]byte(contractAddr))
+
+	// Return true if data is not nil
+	return hasData
+}
+
+// Register the contract in the module store
+func (k Keeper) RegisterContract(ctx sdk.Context, fpc types.FeePayContract) bool {
+
+	// Get store
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte("contracts"))
+
+	// Get key/val pair
+	key := []byte(fpc.ContractAddress)
+	bz := k.cdc.MustMarshal(&fpc)
+
+	// Set in store
+	store.Set(key, bz)
+
+	// Return true by default (for now)
 	return true
 }
 

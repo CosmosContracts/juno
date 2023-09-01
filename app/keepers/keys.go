@@ -32,6 +32,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
+	feepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
 	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
@@ -53,6 +54,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
 		tokenfactorytypes.StoreKey,
+		feepaytypes.StoreKey,
 		feesharetypes.StoreKey,
 		globalfeetypes.StoreKey,
 		buildertypes.StoreKey,

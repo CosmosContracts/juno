@@ -9,6 +9,7 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feepaykeeper "github.com/CosmosContracts/juno/v17/x/feepay/keeper"
 	feepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
+	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -25,27 +26,29 @@ import (
 // message transactions with no provided fee. If they correspond to a registered FeePay Contract, the FeePay
 // module will cover the cost of the fee (if the balance permits).
 type DeductFeeDecorator struct {
-	feepayKeeper   feepaykeeper.Keeper
-	accountKeeper  ante.AccountKeeper
-	bankKeeper     bankkeeper.Keeper
-	feegrantKeeper ante.FeegrantKeeper
+	feepayKeeper    feepaykeeper.Keeper
+	globalfeeKeeper globalfeekeeper.Keeper
+	accountKeeper   ante.AccountKeeper
+	bankKeeper      bankkeeper.Keeper
+	feegrantKeeper  ante.FeegrantKeeper
 	// TxFeeChecker check if the provided fee is enough and returns the effective fee and tx priority,
 	// the effective fee should be deducted later, and the priority should be returned in abci response.
 	// type TxFeeChecker func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error)
 	txFeeChecker ante.TxFeeChecker
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, tfc ante.TxFeeChecker) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, tfc ante.TxFeeChecker) DeductFeeDecorator {
 	if tfc == nil {
 		tfc = checkTxFeeWithValidatorMinGasPrices
 	}
 
 	return DeductFeeDecorator{
-		feepayKeeper:   fpk,
-		accountKeeper:  ak,
-		bankKeeper:     bk,
-		feegrantKeeper: fgk,
-		txFeeChecker:   tfc,
+		feepayKeeper:    fpk,
+		globalfeeKeeper: gfk,
+		accountKeeper:   ak,
+		bankKeeper:      bk,
+		feegrantKeeper:  fgk,
+		txFeeChecker:    tfc,
 	}
 }
 
@@ -115,11 +118,8 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		return sdkerrors.ErrUnknownAddress.Wrapf("fee payer address: %s does not exist", deductFeesFrom)
 	}
 
-	msg := sdkTx.GetMsgs()[0]
-	_, isCWMsg := msg.(*wasmtypes.MsgExecuteContract)
-
-	if fee.IsZero() && len(sdkTx.GetMsgs()) == 1 && isCWMsg {
-		err := HandleZeroFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
+	if isValidFeePayTransaction(ctx, sdkTx, fee) {
+		err := dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
 		if err != nil {
 			return err
 		}
@@ -144,15 +144,27 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 }
 
 // Handle zero fee transactions for fee prepay module
-func HandleZeroFees(keeper bankkeeper.Keeper, ctx sdk.Context, deductFeesFromAcc types.AccountI, fee sdk.Coins) error {
+func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc types.AccountI, tx sdk.Tx, fee sdk.Coins) error {
 	ctx.Logger().Error("HandleZeroFees", "Starting", true)
+
+	msg := tx.GetMsgs()[0]
+	cw := msg.(*wasmtypes.MsgExecuteContract)
+
+	// We need to check if it is a valid contract. Utilize the FeePay Keeper for validation
+	if !dfd.feepayKeeper.IsValidContract(ctx, cw.GetContract()) {
+		return sdkerrors.ErrInvalidRequest.Wrapf("contract %s is not registered for fee pay", cw.GetContract())
+	}
+
+	// TODO: instead of hardcoding payment, GetGas() * globalFeeParam.GetParams(ctx).MinimumGasPrices of ujuno or ujunox (app.GetDenom() func).
+	// feeTx := tx.(sdk.FeeTx)
+	// gas := feeTx.GetGas()
 
 	payment := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewDec(500_000).RoundInt()))
 
 	ctx.Logger().Error("HandleZeroFees", "Payment", payment)
 
 	// keeper.SendCoinsFromModuleToAccount(ctx, "feeprepay", deductFeesFromAcc.GetAddress(), payment)
-	err := keeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment)
+	err := dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment)
 
 	// Handle error
 	if err != nil {
@@ -193,7 +205,7 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
-	if ctx.IsCheckTx() && (!feeTx.GetFee().Empty() || len(tx.GetMsgs()) > 0) {
+	if ctx.IsCheckTx() && !isValidFeePayTransaction(ctx, tx, feeTx.GetFee()) {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
 			requiredFees := make(sdk.Coins, len(minGasPrices))
@@ -234,4 +246,24 @@ func getTxPriority(fee sdk.Coins, gas int64) int64 {
 	}
 
 	return priority
+}
+
+// Check if a transaction should be processed as a FeePay transaction.
+// A valid FeePay transaction has no fee, and only 1 message for executing a contract.
+func isValidFeePayTransaction(ctx sdk.Context, tx sdk.Tx, fee sdk.Coins) bool {
+
+	ctx.Logger().Error("FeePayAnte", "IsZero", fee.IsZero(), "Msgs", len(tx.GetMsgs()))
+
+	// Check if fee is zero, and tx has only 1 message for executing a contract
+	if fee.IsZero() && len(tx.GetMsgs()) == 1 {
+		_, ok := (tx.GetMsgs()[0]).(*wasmtypes.MsgExecuteContract)
+
+		ctx.Logger().Error("FeePayAnte", "IsCWExecuteContract", ok)
+
+		return ok
+	}
+
+	// The transaction includes a fee, has more than 1 message, or
+	// has a single message that is not for executing a contract
+	return false
 }

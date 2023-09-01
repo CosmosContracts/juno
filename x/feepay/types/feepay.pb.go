@@ -22,10 +22,15 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// FeeShare defines an instance that organizes fee distribution conditions for
-// the owner of a given smart contract
+// This defines the address, balance, and wallet limit
+// of a fee pay contract.
 type FeePayContract struct {
+	// The address of the contract.
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	// The ledger balance of the contract.
+	Balance uint64 `protobuf:"varint,2,opt,name=balance,proto3" json:"balance,omitempty"`
+	// The number of times a wallet may interact with the contract.
+	Limit uint64 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 }
 
 func (m *FeePayContract) Reset()         { *m = FeePayContract{} }
@@ -68,24 +73,41 @@ func (m *FeePayContract) GetContractAddress() string {
 	return ""
 }
 
-type FeePayUserUsage struct {
-	// not used as a Tx, just a storage device
-	UserAddress string `protobuf:"bytes,1,opt,name=user_address,json=userAddress,proto3" json:"user_address,omitempty"`
-	NumUses     uint64 `protobuf:"varint,2,opt,name=num_uses,json=numUses,proto3" json:"num_uses,omitempty"`
+func (m *FeePayContract) GetBalance() uint64 {
+	if m != nil {
+		return m.Balance
+	}
+	return 0
 }
 
-func (m *FeePayUserUsage) Reset()         { *m = FeePayUserUsage{} }
-func (m *FeePayUserUsage) String() string { return proto.CompactTextString(m) }
-func (*FeePayUserUsage) ProtoMessage()    {}
-func (*FeePayUserUsage) Descriptor() ([]byte, []int) {
+func (m *FeePayContract) GetLimit() uint64 {
+	if m != nil {
+		return m.Limit
+	}
+	return 0
+}
+
+// This object is used to store the number of times a wallet has
+// interacted with a contract.
+type FeePayWalletUsage struct {
+	// The wallet address.
+	WalletAddress string `protobuf:"bytes,1,opt,name=wallet_address,json=walletAddress,proto3" json:"wallet_address,omitempty"`
+	// The number of uses corresponding to a wallet.
+	Uses uint64 `protobuf:"varint,2,opt,name=uses,proto3" json:"uses,omitempty"`
+}
+
+func (m *FeePayWalletUsage) Reset()         { *m = FeePayWalletUsage{} }
+func (m *FeePayWalletUsage) String() string { return proto.CompactTextString(m) }
+func (*FeePayWalletUsage) ProtoMessage()    {}
+func (*FeePayWalletUsage) Descriptor() ([]byte, []int) {
 	return fileDescriptor_14ea6771eacbfed1, []int{1}
 }
-func (m *FeePayUserUsage) XXX_Unmarshal(b []byte) error {
+func (m *FeePayWalletUsage) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *FeePayUserUsage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *FeePayWalletUsage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_FeePayUserUsage.Marshal(b, m, deterministic)
+		return xxx_messageInfo_FeePayWalletUsage.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -95,56 +117,57 @@ func (m *FeePayUserUsage) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *FeePayUserUsage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_FeePayUserUsage.Merge(m, src)
+func (m *FeePayWalletUsage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FeePayWalletUsage.Merge(m, src)
 }
-func (m *FeePayUserUsage) XXX_Size() int {
+func (m *FeePayWalletUsage) XXX_Size() int {
 	return m.Size()
 }
-func (m *FeePayUserUsage) XXX_DiscardUnknown() {
-	xxx_messageInfo_FeePayUserUsage.DiscardUnknown(m)
+func (m *FeePayWalletUsage) XXX_DiscardUnknown() {
+	xxx_messageInfo_FeePayWalletUsage.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_FeePayUserUsage proto.InternalMessageInfo
+var xxx_messageInfo_FeePayWalletUsage proto.InternalMessageInfo
 
-func (m *FeePayUserUsage) GetUserAddress() string {
+func (m *FeePayWalletUsage) GetWalletAddress() string {
 	if m != nil {
-		return m.UserAddress
+		return m.WalletAddress
 	}
 	return ""
 }
 
-func (m *FeePayUserUsage) GetNumUses() uint64 {
+func (m *FeePayWalletUsage) GetUses() uint64 {
 	if m != nil {
-		return m.NumUses
+		return m.Uses
 	}
 	return 0
 }
 
 func init() {
 	proto.RegisterType((*FeePayContract)(nil), "juno.feepay.v1.FeePayContract")
-	proto.RegisterType((*FeePayUserUsage)(nil), "juno.feepay.v1.FeePayUserUsage")
+	proto.RegisterType((*FeePayWalletUsage)(nil), "juno.feepay.v1.FeePayWalletUsage")
 }
 
 func init() { proto.RegisterFile("juno/feepay/v1/feepay.proto", fileDescriptor_14ea6771eacbfed1) }
 
 var fileDescriptor_14ea6771eacbfed1 = []byte{
-	// 226 bytes of a gzipped FileDescriptorProto
+	// 245 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0xce, 0x2a, 0xcd, 0xcb,
 	0xd7, 0x4f, 0x4b, 0x4d, 0x2d, 0x48, 0xac, 0xd4, 0x2f, 0x33, 0x84, 0xb2, 0xf4, 0x0a, 0x8a, 0xf2,
-	0x4b, 0xf2, 0x85, 0xf8, 0x40, 0x92, 0x7a, 0x50, 0xa1, 0x32, 0x43, 0x25, 0x6b, 0x2e, 0x3e, 0xb7,
+	0x4b, 0xf2, 0x85, 0xf8, 0x40, 0x92, 0x7a, 0x50, 0xa1, 0x32, 0x43, 0xa5, 0x6c, 0x2e, 0x3e, 0xb7,
 	0xd4, 0xd4, 0x80, 0xc4, 0x4a, 0xe7, 0xfc, 0xbc, 0x92, 0xa2, 0xc4, 0xe4, 0x12, 0x21, 0x4d, 0x2e,
 	0x81, 0x64, 0x28, 0x3b, 0x3e, 0x31, 0x25, 0xa5, 0x28, 0xb5, 0xb8, 0x58, 0x82, 0x51, 0x81, 0x51,
-	0x83, 0x33, 0x88, 0x1f, 0x26, 0xee, 0x08, 0x11, 0x56, 0xf2, 0xe7, 0xe2, 0x87, 0x68, 0x0e, 0x2d,
-	0x4e, 0x2d, 0x0a, 0x2d, 0x4e, 0x4c, 0x4f, 0x15, 0x52, 0xe4, 0xe2, 0x29, 0x2d, 0x4e, 0x2d, 0x42,
-	0xd3, 0xc9, 0x0d, 0x12, 0x83, 0xea, 0x12, 0x92, 0xe4, 0xe2, 0xc8, 0x2b, 0xcd, 0x8d, 0x2f, 0x2d,
-	0x4e, 0x2d, 0x96, 0x60, 0x52, 0x60, 0xd4, 0x60, 0x09, 0x62, 0xcf, 0x2b, 0xcd, 0x0d, 0x2d, 0x4e,
-	0x2d, 0x76, 0xf2, 0x38, 0xf1, 0x48, 0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18,
-	0x27, 0x3c, 0x96, 0x63, 0xb8, 0xf0, 0x58, 0x8e, 0xe1, 0xc6, 0x63, 0x39, 0x86, 0x28, 0xbd, 0xf4,
-	0xcc, 0x92, 0x8c, 0xd2, 0x24, 0xbd, 0xe4, 0xfc, 0x5c, 0x7d, 0xe7, 0xfc, 0xe2, 0xdc, 0xfc, 0x62,
-	0x98, 0x83, 0x8b, 0xf5, 0xc1, 0xfe, 0xad, 0x80, 0xf9, 0xb8, 0xa4, 0xb2, 0x20, 0xb5, 0x38, 0x89,
-	0x0d, 0xec, 0x5d, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0x68, 0xa5, 0x09, 0x5f, 0x0d, 0x01,
-	0x00, 0x00,
+	0x83, 0x33, 0x88, 0x1f, 0x26, 0xee, 0x08, 0x11, 0x16, 0x92, 0xe0, 0x62, 0x4f, 0x4a, 0xcc, 0x49,
+	0xcc, 0x4b, 0x4e, 0x95, 0x60, 0x52, 0x60, 0xd4, 0x60, 0x09, 0x82, 0x71, 0x85, 0x44, 0xb8, 0x58,
+	0x73, 0x32, 0x73, 0x33, 0x4b, 0x24, 0x98, 0xc1, 0xe2, 0x10, 0x8e, 0x92, 0x1f, 0x97, 0x20, 0xc4,
+	0xb2, 0xf0, 0xc4, 0x9c, 0x9c, 0xd4, 0x92, 0xd0, 0xe2, 0xc4, 0xf4, 0x54, 0x21, 0x55, 0x2e, 0xbe,
+	0x72, 0x30, 0x17, 0xcd, 0x36, 0x5e, 0x88, 0x28, 0xcc, 0x2e, 0x21, 0x2e, 0x96, 0xd2, 0xe2, 0xd4,
+	0x62, 0xa8, 0x45, 0x60, 0xb6, 0x93, 0xc7, 0x89, 0x47, 0x72, 0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e,
+	0x78, 0x24, 0xc7, 0x38, 0xe1, 0xb1, 0x1c, 0xc3, 0x85, 0xc7, 0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31,
+	0x44, 0xe9, 0xa5, 0x67, 0x96, 0x64, 0x94, 0x26, 0xe9, 0x25, 0xe7, 0xe7, 0xea, 0x3b, 0xe7, 0x17,
+	0xe7, 0xe6, 0x17, 0xc3, 0xfc, 0x57, 0xac, 0x0f, 0x0e, 0x9e, 0x0a, 0x58, 0x00, 0x95, 0x54, 0x16,
+	0xa4, 0x16, 0x27, 0xb1, 0x81, 0x43, 0xc7, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff, 0x88, 0xdb, 0x97,
+	0xc5, 0x3c, 0x01, 0x00, 0x00,
 }
 
 func (m *FeePayContract) Marshal() (dAtA []byte, err error) {
@@ -167,6 +190,16 @@ func (m *FeePayContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.Limit != 0 {
+		i = encodeVarintFeepay(dAtA, i, uint64(m.Limit))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.Balance != 0 {
+		i = encodeVarintFeepay(dAtA, i, uint64(m.Balance))
+		i--
+		dAtA[i] = 0x10
+	}
 	if len(m.ContractAddress) > 0 {
 		i -= len(m.ContractAddress)
 		copy(dAtA[i:], m.ContractAddress)
@@ -177,7 +210,7 @@ func (m *FeePayContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *FeePayUserUsage) Marshal() (dAtA []byte, err error) {
+func (m *FeePayWalletUsage) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -187,25 +220,25 @@ func (m *FeePayUserUsage) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *FeePayUserUsage) MarshalTo(dAtA []byte) (int, error) {
+func (m *FeePayWalletUsage) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *FeePayUserUsage) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *FeePayWalletUsage) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.NumUses != 0 {
-		i = encodeVarintFeepay(dAtA, i, uint64(m.NumUses))
+	if m.Uses != 0 {
+		i = encodeVarintFeepay(dAtA, i, uint64(m.Uses))
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.UserAddress) > 0 {
-		i -= len(m.UserAddress)
-		copy(dAtA[i:], m.UserAddress)
-		i = encodeVarintFeepay(dAtA, i, uint64(len(m.UserAddress)))
+	if len(m.WalletAddress) > 0 {
+		i -= len(m.WalletAddress)
+		copy(dAtA[i:], m.WalletAddress)
+		i = encodeVarintFeepay(dAtA, i, uint64(len(m.WalletAddress)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -233,21 +266,27 @@ func (m *FeePayContract) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovFeepay(uint64(l))
 	}
+	if m.Balance != 0 {
+		n += 1 + sovFeepay(uint64(m.Balance))
+	}
+	if m.Limit != 0 {
+		n += 1 + sovFeepay(uint64(m.Limit))
+	}
 	return n
 }
 
-func (m *FeePayUserUsage) Size() (n int) {
+func (m *FeePayWalletUsage) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.UserAddress)
+	l = len(m.WalletAddress)
 	if l > 0 {
 		n += 1 + l + sovFeepay(uint64(l))
 	}
-	if m.NumUses != 0 {
-		n += 1 + sovFeepay(uint64(m.NumUses))
+	if m.Uses != 0 {
+		n += 1 + sovFeepay(uint64(m.Uses))
 	}
 	return n
 }
@@ -319,6 +358,44 @@ func (m *FeePayContract) Unmarshal(dAtA []byte) error {
 			}
 			m.ContractAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Balance", wireType)
+			}
+			m.Balance = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeepay
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Balance |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Limit", wireType)
+			}
+			m.Limit = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeepay
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Limit |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipFeepay(dAtA[iNdEx:])
@@ -340,7 +417,7 @@ func (m *FeePayContract) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *FeePayUserUsage) Unmarshal(dAtA []byte) error {
+func (m *FeePayWalletUsage) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -363,15 +440,15 @@ func (m *FeePayUserUsage) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: FeePayUserUsage: wiretype end group for non-group")
+			return fmt.Errorf("proto: FeePayWalletUsage: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: FeePayUserUsage: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: FeePayWalletUsage: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field UserAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field WalletAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -399,13 +476,13 @@ func (m *FeePayUserUsage) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.UserAddress = string(dAtA[iNdEx:postIndex])
+			m.WalletAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NumUses", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Uses", wireType)
 			}
-			m.NumUses = 0
+			m.Uses = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowFeepay
@@ -415,7 +492,7 @@ func (m *FeePayUserUsage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumUses |= uint64(b&0x7F) << shift
+				m.Uses |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

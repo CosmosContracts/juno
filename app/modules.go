@@ -62,6 +62,8 @@ import (
 	encparams "github.com/CosmosContracts/juno/v17/app/params"
 	"github.com/CosmosContracts/juno/v17/x/drip"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
+	feepay "github.com/CosmosContracts/juno/v17/x/feepay"
+	feepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	feeshare "github.com/CosmosContracts/juno/v17/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v17/x/globalfee"
@@ -104,6 +106,7 @@ var ModuleBasics = module.NewBasicManager(
 	feegrantmodule.AppModuleBasic{},
 	tokenfactory.AppModuleBasic{},
 	drip.AppModuleBasic{},
+	feepay.AppModuleBasic{},
 	feeshare.AppModuleBasic{},
 	globalfee.AppModuleBasic{},
 	ibc_hooks.AppModuleBasic{},
@@ -147,6 +150,7 @@ func appModules(
 		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
 		tokenfactory.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		globalfee.NewAppModule(appCodec, app.AppKeepers.GlobalFeeKeeper, bondDenom),
+		feepay.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(feepaytypes.ModuleName)),
 		feeshare.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(feesharetypes.ModuleName)),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
@@ -187,6 +191,7 @@ func simulationModules(
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
 		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
+		feepay.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(feepaytypes.ModuleName)),
 		feeshare.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(feesharetypes.ModuleName)),
 		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
 	}
@@ -224,6 +229,7 @@ func orderBeginBlockers() []string {
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
+		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasmtypes.ModuleName,
@@ -261,6 +267,7 @@ func orderEndBlockers() []string {
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
+		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasmtypes.ModuleName,
@@ -298,6 +305,7 @@ func orderInitBlockers() []string {
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
+		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
 		globalfee.ModuleName,
 		wasmtypes.ModuleName,

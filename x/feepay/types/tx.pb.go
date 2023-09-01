@@ -31,30 +31,26 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgRegisterFeeShare defines a message that registers a FeeShare
-type MsgRegisterFeeShare struct {
-	// contract_address in bech32 format
-	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
-	// deployer_address is the bech32 address of message sender. It must be the
-	// same the contract's admin address
-	DeployerAddress string `protobuf:"bytes,2,opt,name=deployer_address,json=deployerAddress,proto3" json:"deployer_address,omitempty"`
-	// withdrawer_address is the bech32 address of account receiving the
-	// transaction fees
-	WithdrawerAddress string `protobuf:"bytes,3,opt,name=withdrawer_address,json=withdrawerAddress,proto3" json:"withdrawer_address,omitempty"`
+// The message to register a fee pay contract.
+type MsgRegisterFeePayContract struct {
+	// The wallet address of the sender.
+	SenderAddress string `protobuf:"bytes,1,opt,name=sender_address,json=senderAddress,proto3" json:"sender_address,omitempty"`
+	// The fee pay contract to register.
+	Contract *FeePayContract `protobuf:"bytes,2,opt,name=contract,proto3" json:"contract,omitempty"`
 }
 
-func (m *MsgRegisterFeeShare) Reset()         { *m = MsgRegisterFeeShare{} }
-func (m *MsgRegisterFeeShare) String() string { return proto.CompactTextString(m) }
-func (*MsgRegisterFeeShare) ProtoMessage()    {}
-func (*MsgRegisterFeeShare) Descriptor() ([]byte, []int) {
+func (m *MsgRegisterFeePayContract) Reset()         { *m = MsgRegisterFeePayContract{} }
+func (m *MsgRegisterFeePayContract) String() string { return proto.CompactTextString(m) }
+func (*MsgRegisterFeePayContract) ProtoMessage()    {}
+func (*MsgRegisterFeePayContract) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d739bd30c8846fd5, []int{0}
 }
-func (m *MsgRegisterFeeShare) XXX_Unmarshal(b []byte) error {
+func (m *MsgRegisterFeePayContract) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgRegisterFeeShare) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgRegisterFeePayContract) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgRegisterFeeShare.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgRegisterFeePayContract.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -64,55 +60,48 @@ func (m *MsgRegisterFeeShare) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *MsgRegisterFeeShare) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgRegisterFeeShare.Merge(m, src)
+func (m *MsgRegisterFeePayContract) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRegisterFeePayContract.Merge(m, src)
 }
-func (m *MsgRegisterFeeShare) XXX_Size() int {
+func (m *MsgRegisterFeePayContract) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgRegisterFeeShare) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgRegisterFeeShare.DiscardUnknown(m)
+func (m *MsgRegisterFeePayContract) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRegisterFeePayContract.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgRegisterFeeShare proto.InternalMessageInfo
+var xxx_messageInfo_MsgRegisterFeePayContract proto.InternalMessageInfo
 
-func (m *MsgRegisterFeeShare) GetContractAddress() string {
+func (m *MsgRegisterFeePayContract) GetSenderAddress() string {
 	if m != nil {
-		return m.ContractAddress
+		return m.SenderAddress
 	}
 	return ""
 }
 
-func (m *MsgRegisterFeeShare) GetDeployerAddress() string {
+func (m *MsgRegisterFeePayContract) GetContract() *FeePayContract {
 	if m != nil {
-		return m.DeployerAddress
+		return m.Contract
 	}
-	return ""
+	return nil
 }
 
-func (m *MsgRegisterFeeShare) GetWithdrawerAddress() string {
-	if m != nil {
-		return m.WithdrawerAddress
-	}
-	return ""
+// The response message for registering a fee pay contract.
+type MsgRegisterFeePayContractResponse struct {
 }
 
-// MsgRegisterFeeShareResponse defines the MsgRegisterFeeShare response type
-type MsgRegisterFeeShareResponse struct {
-}
-
-func (m *MsgRegisterFeeShareResponse) Reset()         { *m = MsgRegisterFeeShareResponse{} }
-func (m *MsgRegisterFeeShareResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgRegisterFeeShareResponse) ProtoMessage()    {}
-func (*MsgRegisterFeeShareResponse) Descriptor() ([]byte, []int) {
+func (m *MsgRegisterFeePayContractResponse) Reset()         { *m = MsgRegisterFeePayContractResponse{} }
+func (m *MsgRegisterFeePayContractResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgRegisterFeePayContractResponse) ProtoMessage()    {}
+func (*MsgRegisterFeePayContractResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d739bd30c8846fd5, []int{1}
 }
-func (m *MsgRegisterFeeShareResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgRegisterFeePayContractResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgRegisterFeeShareResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgRegisterFeePayContractResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgRegisterFeeShareResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgRegisterFeePayContractResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -122,17 +111,17 @@ func (m *MsgRegisterFeeShareResponse) XXX_Marshal(b []byte, deterministic bool) 
 		return b[:n], nil
 	}
 }
-func (m *MsgRegisterFeeShareResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgRegisterFeeShareResponse.Merge(m, src)
+func (m *MsgRegisterFeePayContractResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRegisterFeePayContractResponse.Merge(m, src)
 }
-func (m *MsgRegisterFeeShareResponse) XXX_Size() int {
+func (m *MsgRegisterFeePayContractResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgRegisterFeeShareResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgRegisterFeeShareResponse.DiscardUnknown(m)
+func (m *MsgRegisterFeePayContractResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRegisterFeePayContractResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgRegisterFeeShareResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgRegisterFeePayContractResponse proto.InternalMessageInfo
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
 //
@@ -234,8 +223,8 @@ func (m *MsgUpdateParamsResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*MsgRegisterFeeShare)(nil), "juno.feepay.v1.MsgRegisterFeeShare")
-	proto.RegisterType((*MsgRegisterFeeShareResponse)(nil), "juno.feepay.v1.MsgRegisterFeeShareResponse")
+	proto.RegisterType((*MsgRegisterFeePayContract)(nil), "juno.feepay.v1.MsgRegisterFeePayContract")
+	proto.RegisterType((*MsgRegisterFeePayContractResponse)(nil), "juno.feepay.v1.MsgRegisterFeePayContractResponse")
 	proto.RegisterType((*MsgUpdateParams)(nil), "juno.feepay.v1.MsgUpdateParams")
 	proto.RegisterType((*MsgUpdateParamsResponse)(nil), "juno.feepay.v1.MsgUpdateParamsResponse")
 }
@@ -243,37 +232,37 @@ func init() {
 func init() { proto.RegisterFile("juno/feepay/v1/tx.proto", fileDescriptor_d739bd30c8846fd5) }
 
 var fileDescriptor_d739bd30c8846fd5 = []byte{
-	// 474 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xcf, 0x6a, 0x14, 0x41,
-	0x10, 0xc6, 0xa7, 0x93, 0x10, 0x48, 0x2b, 0x49, 0x1c, 0x83, 0x9b, 0x6c, 0xcc, 0xac, 0x4c, 0x0e,
-	0xfe, 0x23, 0xd3, 0x24, 0x8a, 0x87, 0xdc, 0xdc, 0x80, 0x78, 0x59, 0x90, 0x09, 0x82, 0x78, 0x09,
-	0x9d, 0x9d, 0xb2, 0x77, 0x24, 0x33, 0xdd, 0x74, 0xf5, 0x26, 0xd9, 0x6b, 0x6e, 0x9e, 0x14, 0x7c,
-	0x81, 0x3c, 0x82, 0x07, 0x1f, 0x22, 0xc7, 0xa0, 0x17, 0x4f, 0x22, 0xbb, 0x82, 0x82, 0x2f, 0x21,
-	0x33, 0xdd, 0x93, 0x4d, 0x76, 0x17, 0xf4, 0x36, 0x53, 0xdf, 0xaf, 0xbf, 0xfa, 0xba, 0xba, 0x68,
-	0xed, 0x6d, 0x37, 0x97, 0xec, 0x0d, 0x80, 0xe2, 0x3d, 0x76, 0xb8, 0xc9, 0xcc, 0x71, 0xa4, 0xb4,
-	0x34, 0xd2, 0x9f, 0x2f, 0x84, 0xc8, 0x0a, 0xd1, 0xe1, 0x66, 0x7d, 0x49, 0x48, 0x21, 0x4b, 0x89,
-	0x15, 0x5f, 0x96, 0xaa, 0xdf, 0x16, 0x52, 0x8a, 0x03, 0x60, 0x5c, 0xa5, 0x8c, 0xe7, 0xb9, 0x34,
-	0xdc, 0xa4, 0x32, 0x47, 0xa7, 0xd6, 0xda, 0x12, 0x33, 0x89, 0x2c, 0x43, 0x51, 0x78, 0x67, 0x28,
-	0x9c, 0xb0, 0x62, 0x85, 0x3d, 0xeb, 0x67, 0x7f, 0x2a, 0xc7, 0x91, 0x40, 0x02, 0x72, 0xc0, 0xd4,
-	0xa9, 0xe1, 0x29, 0xa1, 0x37, 0x5b, 0x28, 0x62, 0x10, 0x29, 0x1a, 0xd0, 0xcf, 0x00, 0x76, 0x3b,
-	0x5c, 0x83, 0x7f, 0x9f, 0x2e, 0xb6, 0x65, 0x6e, 0x34, 0x6f, 0x9b, 0x3d, 0x9e, 0x24, 0x1a, 0x10,
-	0x97, 0xc9, 0x1d, 0x72, 0x6f, 0x2e, 0x5e, 0xa8, 0xea, 0x4f, 0x6d, 0xb9, 0x40, 0x13, 0x50, 0x07,
-	0xb2, 0x07, 0xfa, 0x02, 0x9d, 0xb2, 0x68, 0x55, 0xaf, 0xd0, 0x0d, 0xea, 0x1f, 0xa5, 0xa6, 0x93,
-	0x68, 0x7e, 0x74, 0x09, 0x9e, 0x2e, 0xe1, 0x1b, 0x43, 0xc5, 0xe1, 0xdb, 0x33, 0xbf, 0x4f, 0x1b,
-	0x5e, 0xb8, 0x46, 0x57, 0x27, 0x24, 0x8c, 0x01, 0x95, 0xcc, 0x11, 0xc2, 0xf7, 0x84, 0x2e, 0xb4,
-	0x50, 0xbc, 0x54, 0x09, 0x37, 0xf0, 0x82, 0x6b, 0x9e, 0xa1, 0xff, 0x84, 0xce, 0xf1, 0xae, 0xe9,
-	0x48, 0x9d, 0x9a, 0x9e, 0x8d, 0xdd, 0x5c, 0xfe, 0xf2, 0x79, 0x63, 0xc9, 0x0d, 0xc6, 0xf9, 0xef,
-	0x1a, 0x9d, 0xe6, 0x22, 0x1e, 0xa2, 0xfe, 0x63, 0x3a, 0xab, 0x4a, 0x87, 0xf2, 0x02, 0xd7, 0xb6,
-	0x6e, 0x45, 0x57, 0x1f, 0x2d, 0xb2, 0xfe, 0xcd, 0x99, 0xb3, 0xef, 0x0d, 0x2f, 0x76, 0xec, 0xf6,
-	0xfc, 0xc9, 0xaf, 0x4f, 0x0f, 0x86, 0x2e, 0xe1, 0x0a, 0xad, 0x8d, 0x04, 0xaa, 0xc2, 0x6e, 0xfd,
-	0x21, 0x74, 0xba, 0x85, 0xc2, 0x7f, 0x47, 0xe8, 0xe2, 0xd8, 0xcc, 0xd7, 0x47, 0xbb, 0x4d, 0xb8,
-	0x76, 0xfd, 0xe1, 0x7f, 0x40, 0x17, 0xb3, 0x59, 0x3f, 0xf9, 0xfa, 0xf3, 0xe3, 0xd4, 0x5a, 0xb8,
-	0xca, 0xc6, 0xb6, 0x92, 0x69, 0x77, 0xc8, 0x7f, 0x45, 0xaf, 0x5f, 0x19, 0x5e, 0x63, 0x42, 0x87,
-	0xcb, 0x40, 0xfd, 0xee, 0x3f, 0x80, 0xaa, 0x7d, 0xf3, 0xf9, 0x59, 0x3f, 0x20, 0xe7, 0xfd, 0x80,
-	0xfc, 0xe8, 0x07, 0xe4, 0xc3, 0x20, 0xf0, 0xce, 0x07, 0x81, 0xf7, 0x6d, 0x10, 0x78, 0xaf, 0x23,
-	0x91, 0x9a, 0x4e, 0x77, 0x3f, 0x6a, 0xcb, 0x8c, 0xed, 0x94, 0x8f, 0xb2, 0xe3, 0xb6, 0x0a, 0x6d,
-	0xd4, 0xe3, 0x2a, 0xac, 0xe9, 0x29, 0xc0, 0xfd, 0xd9, 0x72, 0x5b, 0x1f, 0xfd, 0x0d, 0x00, 0x00,
-	0xff, 0xff, 0x11, 0xc7, 0x08, 0xcc, 0x5e, 0x03, 0x00, 0x00,
+	// 465 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x4f, 0x6b, 0x13, 0x41,
+	0x18, 0xc6, 0x77, 0x62, 0x29, 0x76, 0xd4, 0x08, 0x4b, 0x69, 0xfe, 0x28, 0x9b, 0xba, 0x22, 0xb6,
+	0x8a, 0x3b, 0xa4, 0x8a, 0x87, 0xdc, 0x4c, 0x41, 0xbc, 0x04, 0xca, 0x8a, 0x20, 0x5e, 0xca, 0x34,
+	0x79, 0x9d, 0xae, 0xb8, 0x33, 0xcb, 0xbc, 0x93, 0xd2, 0x5c, 0x8b, 0x37, 0x0f, 0x0a, 0x7e, 0x01,
+	0xaf, 0xde, 0x3c, 0xf8, 0x21, 0x7a, 0x2c, 0x7a, 0xf1, 0x24, 0x92, 0x08, 0xfa, 0x31, 0x24, 0x3b,
+	0xb3, 0xad, 0x59, 0x13, 0xf4, 0xb6, 0xfb, 0x3e, 0xcf, 0x3e, 0xef, 0x8f, 0x67, 0x5f, 0x5a, 0x7b,
+	0x31, 0x94, 0x8a, 0x3d, 0x07, 0xc8, 0xf8, 0x88, 0x1d, 0xb4, 0x99, 0x39, 0x8c, 0x32, 0xad, 0x8c,
+	0xf2, 0xab, 0x53, 0x21, 0xb2, 0x42, 0x74, 0xd0, 0x6e, 0xae, 0x0a, 0x25, 0x54, 0x2e, 0xb1, 0xe9,
+	0x93, 0x75, 0x35, 0xaf, 0x0a, 0xa5, 0xc4, 0x4b, 0x60, 0x3c, 0x4b, 0x18, 0x97, 0x52, 0x19, 0x6e,
+	0x12, 0x25, 0xd1, 0xa9, 0xb5, 0xbe, 0xc2, 0x54, 0x21, 0x4b, 0x51, 0x4c, 0xb3, 0x53, 0x14, 0x4e,
+	0x68, 0x58, 0x61, 0xd7, 0xe6, 0xd9, 0x97, 0x22, 0xb1, 0x04, 0x24, 0x40, 0x02, 0x26, 0x85, 0x7a,
+	0xa5, 0xa4, 0x3a, 0xbe, 0x5c, 0x0c, 0x5f, 0x11, 0xda, 0xe8, 0xa1, 0x88, 0x41, 0x24, 0x68, 0x40,
+	0x3f, 0x04, 0xd8, 0xe1, 0xa3, 0x6d, 0x25, 0x8d, 0xe6, 0x7d, 0xe3, 0xdf, 0xa0, 0x55, 0x04, 0x39,
+	0x00, 0xbd, 0xcb, 0x07, 0x03, 0x0d, 0x88, 0x75, 0xb2, 0x4e, 0x36, 0x56, 0xe2, 0x4b, 0x76, 0xfa,
+	0xc0, 0x0e, 0xfd, 0x0e, 0x3d, 0xdf, 0x77, 0x9f, 0xd4, 0x2b, 0xeb, 0x64, 0xe3, 0xc2, 0x56, 0x10,
+	0xcd, 0x56, 0x11, 0xcd, 0x06, 0xc7, 0xa7, 0xfe, 0xce, 0xd2, 0xaf, 0xf7, 0x2d, 0x2f, 0xbc, 0x4e,
+	0xaf, 0x2d, 0xa4, 0x88, 0x01, 0x33, 0x25, 0x11, 0xc2, 0x37, 0x84, 0x5e, 0xee, 0xa1, 0x78, 0x92,
+	0x0d, 0xb8, 0x81, 0x1d, 0xae, 0x79, 0x8a, 0xfe, 0x7d, 0xba, 0xc2, 0x87, 0x66, 0x5f, 0xe9, 0xc4,
+	0x8c, 0x2c, 0x5c, 0xb7, 0xfe, 0xf9, 0xd3, 0x9d, 0x55, 0xd7, 0x8f, 0x23, 0x7c, 0x6c, 0x74, 0x22,
+	0x45, 0x7c, 0x66, 0xf5, 0xef, 0xd1, 0xe5, 0x2c, 0x4f, 0x70, 0xc0, 0x6b, 0x65, 0x60, 0x9b, 0xdf,
+	0x5d, 0x3a, 0xfe, 0xd6, 0xf2, 0x62, 0xe7, 0xed, 0x54, 0x8f, 0x7e, 0x7e, 0xbc, 0x75, 0x96, 0x12,
+	0x36, 0x68, 0xad, 0x04, 0x54, 0xc0, 0x6e, 0xbd, 0xae, 0xd0, 0x73, 0x3d, 0x14, 0xfe, 0x07, 0x42,
+	0xd7, 0x16, 0xb4, 0xbb, 0x59, 0xde, 0xb9, 0xb0, 0x82, 0x66, 0xfb, 0xbf, 0xad, 0xa7, 0x6d, 0xb5,
+	0x8f, 0xbe, 0xfc, 0x78, 0x57, 0xb9, 0x1d, 0x6e, 0xb2, 0xbf, 0xce, 0x95, 0xe9, 0xf9, 0x40, 0x4f,
+	0xe9, 0xc5, 0x99, 0x72, 0x5b, 0x73, 0xb6, 0xfe, 0x69, 0x68, 0xde, 0xfc, 0x87, 0xa1, 0x80, 0xe9,
+	0x3e, 0x3a, 0x1e, 0x07, 0xe4, 0x64, 0x1c, 0x90, 0xef, 0xe3, 0x80, 0xbc, 0x9d, 0x04, 0xde, 0xc9,
+	0x24, 0xf0, 0xbe, 0x4e, 0x02, 0xef, 0x59, 0x24, 0x12, 0xb3, 0x3f, 0xdc, 0x8b, 0xfa, 0x2a, 0x65,
+	0xdb, 0xf9, 0x4f, 0x2b, 0x70, 0xd0, 0x82, 0x1f, 0x16, 0xe8, 0x66, 0x94, 0x01, 0xee, 0x2d, 0xe7,
+	0x77, 0x7b, 0xf7, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0xdb, 0xd1, 0xc0, 0x0b, 0x85, 0x03, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -289,7 +278,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
 	// RegisterFeeShare registers a new contract for receiving transaction fees
-	RegisterFeeShare(ctx context.Context, in *MsgRegisterFeeShare, opts ...grpc.CallOption) (*MsgRegisterFeeShareResponse, error)
+	RegisterFeePayContract(ctx context.Context, in *MsgRegisterFeePayContract, opts ...grpc.CallOption) (*MsgRegisterFeePayContractResponse, error)
 	// Update the params of the module through gov v1 type.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 }
@@ -302,9 +291,9 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
 }
 
-func (c *msgClient) RegisterFeeShare(ctx context.Context, in *MsgRegisterFeeShare, opts ...grpc.CallOption) (*MsgRegisterFeeShareResponse, error) {
-	out := new(MsgRegisterFeeShareResponse)
-	err := c.cc.Invoke(ctx, "/juno.feepay.v1.Msg/RegisterFeeShare", in, out, opts...)
+func (c *msgClient) RegisterFeePayContract(ctx context.Context, in *MsgRegisterFeePayContract, opts ...grpc.CallOption) (*MsgRegisterFeePayContractResponse, error) {
+	out := new(MsgRegisterFeePayContractResponse)
+	err := c.cc.Invoke(ctx, "/juno.feepay.v1.Msg/RegisterFeePayContract", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -323,7 +312,7 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// RegisterFeeShare registers a new contract for receiving transaction fees
-	RegisterFeeShare(context.Context, *MsgRegisterFeeShare) (*MsgRegisterFeeShareResponse, error)
+	RegisterFeePayContract(context.Context, *MsgRegisterFeePayContract) (*MsgRegisterFeePayContractResponse, error)
 	// Update the params of the module through gov v1 type.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 }
@@ -332,8 +321,8 @@ type MsgServer interface {
 type UnimplementedMsgServer struct {
 }
 
-func (*UnimplementedMsgServer) RegisterFeeShare(ctx context.Context, req *MsgRegisterFeeShare) (*MsgRegisterFeeShareResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RegisterFeeShare not implemented")
+func (*UnimplementedMsgServer) RegisterFeePayContract(ctx context.Context, req *MsgRegisterFeePayContract) (*MsgRegisterFeePayContractResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterFeePayContract not implemented")
 }
 func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
@@ -343,20 +332,20 @@ func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
 }
 
-func _Msg_RegisterFeeShare_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgRegisterFeeShare)
+func _Msg_RegisterFeePayContract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgRegisterFeePayContract)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).RegisterFeeShare(ctx, in)
+		return srv.(MsgServer).RegisterFeePayContract(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/juno.feepay.v1.Msg/RegisterFeeShare",
+		FullMethod: "/juno.feepay.v1.Msg/RegisterFeePayContract",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).RegisterFeeShare(ctx, req.(*MsgRegisterFeeShare))
+		return srv.(MsgServer).RegisterFeePayContract(ctx, req.(*MsgRegisterFeePayContract))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -384,8 +373,8 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "RegisterFeeShare",
-			Handler:    _Msg_RegisterFeeShare_Handler,
+			MethodName: "RegisterFeePayContract",
+			Handler:    _Msg_RegisterFeePayContract_Handler,
 		},
 		{
 			MethodName: "UpdateParams",
@@ -396,7 +385,7 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	Metadata: "juno/feepay/v1/tx.proto",
 }
 
-func (m *MsgRegisterFeeShare) Marshal() (dAtA []byte, err error) {
+func (m *MsgRegisterFeePayContract) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -406,41 +395,39 @@ func (m *MsgRegisterFeeShare) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgRegisterFeeShare) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgRegisterFeePayContract) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgRegisterFeeShare) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgRegisterFeePayContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.WithdrawerAddress) > 0 {
-		i -= len(m.WithdrawerAddress)
-		copy(dAtA[i:], m.WithdrawerAddress)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.WithdrawerAddress)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.DeployerAddress) > 0 {
-		i -= len(m.DeployerAddress)
-		copy(dAtA[i:], m.DeployerAddress)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.DeployerAddress)))
+	if m.Contract != nil {
+		{
+			size, err := m.Contract.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTx(dAtA, i, uint64(size))
+		}
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.ContractAddress) > 0 {
-		i -= len(m.ContractAddress)
-		copy(dAtA[i:], m.ContractAddress)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.ContractAddress)))
+	if len(m.SenderAddress) > 0 {
+		i -= len(m.SenderAddress)
+		copy(dAtA[i:], m.SenderAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.SenderAddress)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgRegisterFeeShareResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgRegisterFeePayContractResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -450,12 +437,12 @@ func (m *MsgRegisterFeeShareResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgRegisterFeeShareResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgRegisterFeePayContractResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgRegisterFeeShareResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgRegisterFeePayContractResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -537,28 +524,24 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *MsgRegisterFeeShare) Size() (n int) {
+func (m *MsgRegisterFeePayContract) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.ContractAddress)
+	l = len(m.SenderAddress)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.DeployerAddress)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.WithdrawerAddress)
-	if l > 0 {
+	if m.Contract != nil {
+		l = m.Contract.Size()
 		n += 1 + l + sovTx(uint64(l))
 	}
 	return n
 }
 
-func (m *MsgRegisterFeeShareResponse) Size() (n int) {
+func (m *MsgRegisterFeePayContractResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -597,7 +580,7 @@ func sovTx(x uint64) (n int) {
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *MsgRegisterFeeShare) Unmarshal(dAtA []byte) error {
+func (m *MsgRegisterFeePayContract) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -620,15 +603,15 @@ func (m *MsgRegisterFeeShare) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgRegisterFeeShare: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgRegisterFeePayContract: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgRegisterFeeShare: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgRegisterFeePayContract: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SenderAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -656,13 +639,13 @@ func (m *MsgRegisterFeeShare) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			m.SenderAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DeployerAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Contract", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -672,55 +655,27 @@ func (m *MsgRegisterFeeShare) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.DeployerAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field WithdrawerAddress", wireType)
+			if m.Contract == nil {
+				m.Contract = &FeePayContract{}
 			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
+			if err := m.Contract.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.WithdrawerAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -743,7 +698,7 @@ func (m *MsgRegisterFeeShare) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgRegisterFeeShareResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgRegisterFeePayContractResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -766,10 +721,10 @@ func (m *MsgRegisterFeeShareResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgRegisterFeeShareResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgRegisterFeePayContractResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgRegisterFeeShareResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgRegisterFeePayContractResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
