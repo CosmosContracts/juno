@@ -12,7 +12,7 @@ Add the following to your Rust Contract:
 // msg.rs
 #[cw_serde]
 pub enum SudoMsg {    
-    EndBlock { },
+    ClockEndBlock { },
 }
 
 // contract.rs
