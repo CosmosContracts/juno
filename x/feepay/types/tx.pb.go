@@ -7,7 +7,10 @@ import (
 	context "context"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -123,6 +126,107 @@ func (m *MsgRegisterFeePayContractResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRegisterFeePayContractResponse proto.InternalMessageInfo
 
+// The message to fund a fee pay contract
+type MsgFundFeePayContract struct {
+	// The wallet address of the sender.
+	SenderAddress string `protobuf:"bytes,1,opt,name=sender_address,json=senderAddress,proto3" json:"sender_address,omitempty"`
+	// The fee pay contract to fund.
+	ContractAddress string `protobuf:"bytes,2,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	// The coins to fund the contract with.
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
+}
+
+func (m *MsgFundFeePayContract) Reset()         { *m = MsgFundFeePayContract{} }
+func (m *MsgFundFeePayContract) String() string { return proto.CompactTextString(m) }
+func (*MsgFundFeePayContract) ProtoMessage()    {}
+func (*MsgFundFeePayContract) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d739bd30c8846fd5, []int{2}
+}
+func (m *MsgFundFeePayContract) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgFundFeePayContract) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgFundFeePayContract.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgFundFeePayContract) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgFundFeePayContract.Merge(m, src)
+}
+func (m *MsgFundFeePayContract) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgFundFeePayContract) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgFundFeePayContract.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgFundFeePayContract proto.InternalMessageInfo
+
+func (m *MsgFundFeePayContract) GetSenderAddress() string {
+	if m != nil {
+		return m.SenderAddress
+	}
+	return ""
+}
+
+func (m *MsgFundFeePayContract) GetContractAddress() string {
+	if m != nil {
+		return m.ContractAddress
+	}
+	return ""
+}
+
+func (m *MsgFundFeePayContract) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.Amount
+	}
+	return nil
+}
+
+// The response message for funding a fee pay contract.
+type MsgFundFeePayContractResponse struct {
+}
+
+func (m *MsgFundFeePayContractResponse) Reset()         { *m = MsgFundFeePayContractResponse{} }
+func (m *MsgFundFeePayContractResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgFundFeePayContractResponse) ProtoMessage()    {}
+func (*MsgFundFeePayContractResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d739bd30c8846fd5, []int{3}
+}
+func (m *MsgFundFeePayContractResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgFundFeePayContractResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgFundFeePayContractResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgFundFeePayContractResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgFundFeePayContractResponse.Merge(m, src)
+}
+func (m *MsgFundFeePayContractResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgFundFeePayContractResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgFundFeePayContractResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgFundFeePayContractResponse proto.InternalMessageInfo
+
 // MsgUpdateParams is the Msg/UpdateParams request type.
 //
 // Since: cosmos-sdk 0.47
@@ -139,7 +243,7 @@ func (m *MsgUpdateParams) Reset()         { *m = MsgUpdateParams{} }
 func (m *MsgUpdateParams) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateParams) ProtoMessage()    {}
 func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d739bd30c8846fd5, []int{2}
+	return fileDescriptor_d739bd30c8846fd5, []int{4}
 }
 func (m *MsgUpdateParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -193,7 +297,7 @@ func (m *MsgUpdateParamsResponse) Reset()         { *m = MsgUpdateParamsResponse
 func (m *MsgUpdateParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateParamsResponse) ProtoMessage()    {}
 func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d739bd30c8846fd5, []int{3}
+	return fileDescriptor_d739bd30c8846fd5, []int{5}
 }
 func (m *MsgUpdateParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -225,6 +329,8 @@ var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 func init() {
 	proto.RegisterType((*MsgRegisterFeePayContract)(nil), "juno.feepay.v1.MsgRegisterFeePayContract")
 	proto.RegisterType((*MsgRegisterFeePayContractResponse)(nil), "juno.feepay.v1.MsgRegisterFeePayContractResponse")
+	proto.RegisterType((*MsgFundFeePayContract)(nil), "juno.feepay.v1.MsgFundFeePayContract")
+	proto.RegisterType((*MsgFundFeePayContractResponse)(nil), "juno.feepay.v1.MsgFundFeePayContractResponse")
 	proto.RegisterType((*MsgUpdateParams)(nil), "juno.feepay.v1.MsgUpdateParams")
 	proto.RegisterType((*MsgUpdateParamsResponse)(nil), "juno.feepay.v1.MsgUpdateParamsResponse")
 }
@@ -232,37 +338,47 @@ func init() {
 func init() { proto.RegisterFile("juno/feepay/v1/tx.proto", fileDescriptor_d739bd30c8846fd5) }
 
 var fileDescriptor_d739bd30c8846fd5 = []byte{
-	// 465 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x4f, 0x6b, 0x13, 0x41,
-	0x18, 0xc6, 0x77, 0x62, 0x29, 0x76, 0xd4, 0x08, 0x4b, 0x69, 0xfe, 0x28, 0x9b, 0xba, 0x22, 0xb6,
-	0x8a, 0x3b, 0xa4, 0x8a, 0x87, 0xdc, 0x4c, 0x41, 0xbc, 0x04, 0xca, 0x8a, 0x20, 0x5e, 0xca, 0x34,
-	0x79, 0x9d, 0xae, 0xb8, 0x33, 0xcb, 0xbc, 0x93, 0xd2, 0x5c, 0x8b, 0x37, 0x0f, 0x0a, 0x7e, 0x01,
-	0xaf, 0xde, 0x3c, 0xf8, 0x21, 0x7a, 0x2c, 0x7a, 0xf1, 0x24, 0x92, 0x08, 0xfa, 0x31, 0x24, 0x3b,
-	0xb3, 0xad, 0x59, 0x13, 0xf4, 0xb6, 0xfb, 0x3e, 0xcf, 0x3e, 0xef, 0x8f, 0x67, 0x5f, 0x5a, 0x7b,
-	0x31, 0x94, 0x8a, 0x3d, 0x07, 0xc8, 0xf8, 0x88, 0x1d, 0xb4, 0x99, 0x39, 0x8c, 0x32, 0xad, 0x8c,
-	0xf2, 0xab, 0x53, 0x21, 0xb2, 0x42, 0x74, 0xd0, 0x6e, 0xae, 0x0a, 0x25, 0x54, 0x2e, 0xb1, 0xe9,
-	0x93, 0x75, 0x35, 0xaf, 0x0a, 0xa5, 0xc4, 0x4b, 0x60, 0x3c, 0x4b, 0x18, 0x97, 0x52, 0x19, 0x6e,
-	0x12, 0x25, 0xd1, 0xa9, 0xb5, 0xbe, 0xc2, 0x54, 0x21, 0x4b, 0x51, 0x4c, 0xb3, 0x53, 0x14, 0x4e,
-	0x68, 0x58, 0x61, 0xd7, 0xe6, 0xd9, 0x97, 0x22, 0xb1, 0x04, 0x24, 0x40, 0x02, 0x26, 0x85, 0x7a,
-	0xa5, 0xa4, 0x3a, 0xbe, 0x5c, 0x0c, 0x5f, 0x11, 0xda, 0xe8, 0xa1, 0x88, 0x41, 0x24, 0x68, 0x40,
-	0x3f, 0x04, 0xd8, 0xe1, 0xa3, 0x6d, 0x25, 0x8d, 0xe6, 0x7d, 0xe3, 0xdf, 0xa0, 0x55, 0x04, 0x39,
-	0x00, 0xbd, 0xcb, 0x07, 0x03, 0x0d, 0x88, 0x75, 0xb2, 0x4e, 0x36, 0x56, 0xe2, 0x4b, 0x76, 0xfa,
-	0xc0, 0x0e, 0xfd, 0x0e, 0x3d, 0xdf, 0x77, 0x9f, 0xd4, 0x2b, 0xeb, 0x64, 0xe3, 0xc2, 0x56, 0x10,
-	0xcd, 0x56, 0x11, 0xcd, 0x06, 0xc7, 0xa7, 0xfe, 0xce, 0xd2, 0xaf, 0xf7, 0x2d, 0x2f, 0xbc, 0x4e,
-	0xaf, 0x2d, 0xa4, 0x88, 0x01, 0x33, 0x25, 0x11, 0xc2, 0x37, 0x84, 0x5e, 0xee, 0xa1, 0x78, 0x92,
-	0x0d, 0xb8, 0x81, 0x1d, 0xae, 0x79, 0x8a, 0xfe, 0x7d, 0xba, 0xc2, 0x87, 0x66, 0x5f, 0xe9, 0xc4,
-	0x8c, 0x2c, 0x5c, 0xb7, 0xfe, 0xf9, 0xd3, 0x9d, 0x55, 0xd7, 0x8f, 0x23, 0x7c, 0x6c, 0x74, 0x22,
-	0x45, 0x7c, 0x66, 0xf5, 0xef, 0xd1, 0xe5, 0x2c, 0x4f, 0x70, 0xc0, 0x6b, 0x65, 0x60, 0x9b, 0xdf,
-	0x5d, 0x3a, 0xfe, 0xd6, 0xf2, 0x62, 0xe7, 0xed, 0x54, 0x8f, 0x7e, 0x7e, 0xbc, 0x75, 0x96, 0x12,
-	0x36, 0x68, 0xad, 0x04, 0x54, 0xc0, 0x6e, 0xbd, 0xae, 0xd0, 0x73, 0x3d, 0x14, 0xfe, 0x07, 0x42,
-	0xd7, 0x16, 0xb4, 0xbb, 0x59, 0xde, 0xb9, 0xb0, 0x82, 0x66, 0xfb, 0xbf, 0xad, 0xa7, 0x6d, 0xb5,
-	0x8f, 0xbe, 0xfc, 0x78, 0x57, 0xb9, 0x1d, 0x6e, 0xb2, 0xbf, 0xce, 0x95, 0xe9, 0xf9, 0x40, 0x4f,
-	0xe9, 0xc5, 0x99, 0x72, 0x5b, 0x73, 0xb6, 0xfe, 0x69, 0x68, 0xde, 0xfc, 0x87, 0xa1, 0x80, 0xe9,
-	0x3e, 0x3a, 0x1e, 0x07, 0xe4, 0x64, 0x1c, 0x90, 0xef, 0xe3, 0x80, 0xbc, 0x9d, 0x04, 0xde, 0xc9,
-	0x24, 0xf0, 0xbe, 0x4e, 0x02, 0xef, 0x59, 0x24, 0x12, 0xb3, 0x3f, 0xdc, 0x8b, 0xfa, 0x2a, 0x65,
-	0xdb, 0xf9, 0x4f, 0x2b, 0x70, 0xd0, 0x82, 0x1f, 0x16, 0xe8, 0x66, 0x94, 0x01, 0xee, 0x2d, 0xe7,
-	0x77, 0x7b, 0xf7, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0xdb, 0xd1, 0xc0, 0x0b, 0x85, 0x03, 0x00,
-	0x00,
+	// 628 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x94, 0x4d, 0x4f, 0x13, 0x41,
+	0x18, 0xc7, 0x3b, 0x94, 0x10, 0x19, 0x10, 0x74, 0x83, 0xd0, 0x56, 0xdd, 0xe2, 0x1a, 0x42, 0xc1,
+	0x74, 0x27, 0x8b, 0xc6, 0x03, 0x37, 0x4b, 0x42, 0xbc, 0x34, 0x21, 0x6b, 0x4c, 0x8c, 0x17, 0x32,
+	0xdd, 0x1d, 0x86, 0x55, 0x76, 0x66, 0xb3, 0x33, 0x25, 0xec, 0x95, 0x78, 0xd7, 0xc4, 0x93, 0x9e,
+	0xbc, 0xf9, 0x72, 0xe2, 0xe0, 0x87, 0xe0, 0x48, 0xf4, 0xe2, 0x49, 0x0d, 0x35, 0xa9, 0xf1, 0x53,
+	0x98, 0xdd, 0x9d, 0x2d, 0xb4, 0xdd, 0x46, 0xe2, 0xa5, 0x2f, 0xcf, 0xff, 0xbf, 0xcf, 0xf3, 0x7b,
+	0x5e, 0x5a, 0xb8, 0xf0, 0xac, 0xcd, 0x38, 0xda, 0x21, 0x24, 0xc0, 0x11, 0xda, 0xb7, 0x90, 0x3c,
+	0x30, 0x83, 0x90, 0x4b, 0xae, 0xcd, 0xc4, 0x82, 0x99, 0x0a, 0xe6, 0xbe, 0x55, 0x99, 0xa3, 0x9c,
+	0xf2, 0x44, 0x42, 0xf1, 0xa7, 0xd4, 0x55, 0xb9, 0x41, 0x39, 0xa7, 0x7b, 0x04, 0xe1, 0xc0, 0x43,
+	0x98, 0x31, 0x2e, 0xb1, 0xf4, 0x38, 0x13, 0x4a, 0xbd, 0x8a, 0x7d, 0x8f, 0x71, 0x94, 0xbc, 0xaa,
+	0xd0, 0x82, 0xc3, 0x85, 0xcf, 0x05, 0xf2, 0x05, 0x8d, 0xcb, 0xf9, 0x82, 0x2a, 0x41, 0x57, 0x42,
+	0x0b, 0x0b, 0x82, 0xf6, 0xad, 0x16, 0x91, 0xd8, 0x42, 0x0e, 0xf7, 0x98, 0xd2, 0xcb, 0xa9, 0xbe,
+	0x9d, 0x22, 0xa4, 0x5f, 0x32, 0x88, 0x81, 0x1e, 0x28, 0x61, 0x44, 0x78, 0x99, 0x7a, 0x7d, 0x40,
+	0x55, 0x2d, 0x25, 0xa2, 0xf1, 0x02, 0xc0, 0x72, 0x53, 0x50, 0x9b, 0x50, 0x4f, 0x48, 0x12, 0x6e,
+	0x12, 0xb2, 0x85, 0xa3, 0x0d, 0xce, 0x64, 0x88, 0x1d, 0xa9, 0x2d, 0xc1, 0x19, 0x41, 0x98, 0x4b,
+	0xc2, 0x6d, 0xec, 0xba, 0x21, 0x11, 0xa2, 0x04, 0x16, 0x41, 0x6d, 0xd2, 0xbe, 0x9c, 0x46, 0x1f,
+	0xa4, 0x41, 0x6d, 0x1d, 0x5e, 0x72, 0xd4, 0x23, 0xa5, 0xb1, 0x45, 0x50, 0x9b, 0x5a, 0xd3, 0xcd,
+	0xfe, 0xe9, 0x99, 0xfd, 0x89, 0xed, 0x9e, 0x7f, 0x7d, 0xfc, 0xf7, 0xbb, 0x6a, 0xc1, 0xb8, 0x0d,
+	0x6f, 0x8d, 0xa4, 0xb0, 0x89, 0x08, 0x38, 0x13, 0xc4, 0xf8, 0x03, 0xe0, 0xb5, 0xa6, 0xa0, 0x9b,
+	0x6d, 0xe6, 0xfe, 0x1f, 0xe7, 0x0a, 0xbc, 0x92, 0xd5, 0xed, 0x19, 0xc7, 0x12, 0xe3, 0x6c, 0x16,
+	0xcf, 0xac, 0x11, 0x9c, 0xc0, 0x3e, 0x6f, 0x33, 0x59, 0x2a, 0x2e, 0x16, 0x6b, 0x53, 0x6b, 0x65,
+	0x53, 0x4d, 0x3c, 0x5e, 0x8f, 0xa9, 0xd6, 0x63, 0x6e, 0x70, 0x8f, 0x35, 0x36, 0x8f, 0xbf, 0x57,
+	0x0b, 0x9f, 0x7e, 0x54, 0x6b, 0xd4, 0x93, 0xbb, 0xed, 0x96, 0xe9, 0x70, 0x5f, 0xad, 0x47, 0xbd,
+	0xd5, 0x85, 0xfb, 0x1c, 0xc9, 0x28, 0x20, 0x22, 0x79, 0x40, 0xbc, 0xed, 0x1e, 0xad, 0x4e, 0xef,
+	0x11, 0x8a, 0x9d, 0x68, 0x3b, 0x5e, 0xb0, 0xf8, 0xd0, 0x3d, 0x5a, 0x05, 0xb6, 0x2a, 0xa8, 0x26,
+	0x52, 0x85, 0x37, 0x73, 0x7b, 0xed, 0x4d, 0xe3, 0x25, 0x80, 0xb3, 0x4d, 0x41, 0x1f, 0x07, 0x2e,
+	0x96, 0x64, 0x0b, 0x87, 0xd8, 0x17, 0xda, 0x7d, 0x38, 0x89, 0xdb, 0x72, 0x97, 0x87, 0x9e, 0x8c,
+	0xd2, 0x11, 0x34, 0x4a, 0x5f, 0x3e, 0xd7, 0xe7, 0x14, 0xbb, 0x6a, 0xee, 0x91, 0x0c, 0x3d, 0x46,
+	0xed, 0x33, 0xab, 0x76, 0x0f, 0x4e, 0x04, 0x49, 0x06, 0xb5, 0xbe, 0xf9, 0xc1, 0xf5, 0xa5, 0xf9,
+	0x1b, 0xe3, 0x71, 0xab, 0xb6, 0xf2, 0xae, 0xcf, 0x1c, 0x76, 0x8f, 0x56, 0xcf, 0xb2, 0x18, 0x65,
+	0xb8, 0x30, 0x00, 0x94, 0xc1, 0xae, 0xbd, 0x2f, 0xc2, 0x62, 0x53, 0x50, 0xed, 0x23, 0x80, 0xf3,
+	0x23, 0x6e, 0x6d, 0x65, 0xb0, 0xe6, 0xc8, 0x83, 0xa8, 0x58, 0x17, 0xb6, 0xf6, 0xa6, 0x65, 0x1d,
+	0x7e, 0xfd, 0xf5, 0x7a, 0xec, 0x8e, 0xb1, 0x82, 0x86, 0x7e, 0xef, 0x28, 0xcc, 0x07, 0x7a, 0x03,
+	0xa0, 0x96, 0x77, 0x6b, 0x39, 0xc5, 0x87, 0x6d, 0x95, 0xfa, 0x85, 0x6c, 0x3d, 0xbe, 0x7a, 0xc2,
+	0xb7, 0x6c, 0x2c, 0xe5, 0xf0, 0xed, 0x0c, 0x43, 0x3c, 0x81, 0xd3, 0x7d, 0x8b, 0xaf, 0xe6, 0x54,
+	0x3b, 0x6f, 0xa8, 0x2c, 0xff, 0xc3, 0x90, 0x81, 0x34, 0x1e, 0x1e, 0x9f, 0xea, 0xe0, 0xe4, 0x54,
+	0x07, 0x3f, 0x4f, 0x75, 0xf0, 0xaa, 0xa3, 0x17, 0x4e, 0x3a, 0x7a, 0xe1, 0x5b, 0x47, 0x2f, 0x3c,
+	0x35, 0xcf, 0xdd, 0xf7, 0x46, 0x72, 0x50, 0x19, 0x8e, 0x48, 0xa1, 0x0f, 0x32, 0xec, 0xe4, 0xd6,
+	0x5b, 0x13, 0xc9, 0x3f, 0xcc, 0xdd, 0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x93, 0x1a, 0x53, 0xb8,
+	0x62, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -279,6 +395,8 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// RegisterFeeShare registers a new contract for receiving transaction fees
 	RegisterFeePayContract(ctx context.Context, in *MsgRegisterFeePayContract, opts ...grpc.CallOption) (*MsgRegisterFeePayContractResponse, error)
+	// Fund a fee pay contract
+	FundFeePayContract(ctx context.Context, in *MsgFundFeePayContract, opts ...grpc.CallOption) (*MsgFundFeePayContractResponse, error)
 	// Update the params of the module through gov v1 type.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 }
@@ -300,6 +418,15 @@ func (c *msgClient) RegisterFeePayContract(ctx context.Context, in *MsgRegisterF
 	return out, nil
 }
 
+func (c *msgClient) FundFeePayContract(ctx context.Context, in *MsgFundFeePayContract, opts ...grpc.CallOption) (*MsgFundFeePayContractResponse, error) {
+	out := new(MsgFundFeePayContractResponse)
+	err := c.cc.Invoke(ctx, "/juno.feepay.v1.Msg/FundFeePayContract", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error) {
 	out := new(MsgUpdateParamsResponse)
 	err := c.cc.Invoke(ctx, "/juno.feepay.v1.Msg/UpdateParams", in, out, opts...)
@@ -313,6 +440,8 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 type MsgServer interface {
 	// RegisterFeeShare registers a new contract for receiving transaction fees
 	RegisterFeePayContract(context.Context, *MsgRegisterFeePayContract) (*MsgRegisterFeePayContractResponse, error)
+	// Fund a fee pay contract
+	FundFeePayContract(context.Context, *MsgFundFeePayContract) (*MsgFundFeePayContractResponse, error)
 	// Update the params of the module through gov v1 type.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 }
@@ -323,6 +452,9 @@ type UnimplementedMsgServer struct {
 
 func (*UnimplementedMsgServer) RegisterFeePayContract(ctx context.Context, req *MsgRegisterFeePayContract) (*MsgRegisterFeePayContractResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterFeePayContract not implemented")
+}
+func (*UnimplementedMsgServer) FundFeePayContract(ctx context.Context, req *MsgFundFeePayContract) (*MsgFundFeePayContractResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FundFeePayContract not implemented")
 }
 func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
@@ -346,6 +478,24 @@ func _Msg_RegisterFeePayContract_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MsgServer).RegisterFeePayContract(ctx, req.(*MsgRegisterFeePayContract))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_FundFeePayContract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgFundFeePayContract)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).FundFeePayContract(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/juno.feepay.v1.Msg/FundFeePayContract",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).FundFeePayContract(ctx, req.(*MsgFundFeePayContract))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -375,6 +525,10 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterFeePayContract",
 			Handler:    _Msg_RegisterFeePayContract_Handler,
+		},
+		{
+			MethodName: "FundFeePayContract",
+			Handler:    _Msg_FundFeePayContract_Handler,
 		},
 		{
 			MethodName: "UpdateParams",
@@ -443,6 +597,80 @@ func (m *MsgRegisterFeePayContractResponse) MarshalTo(dAtA []byte) (int, error) 
 }
 
 func (m *MsgRegisterFeePayContractResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgFundFeePayContract) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgFundFeePayContract) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgFundFeePayContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Amount) > 0 {
+		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.SenderAddress) > 0 {
+		i -= len(m.SenderAddress)
+		copy(dAtA[i:], m.SenderAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.SenderAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgFundFeePayContractResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgFundFeePayContractResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgFundFeePayContractResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -542,6 +770,38 @@ func (m *MsgRegisterFeePayContract) Size() (n int) {
 }
 
 func (m *MsgRegisterFeePayContractResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgFundFeePayContract) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.SenderAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Amount) > 0 {
+		for _, e := range m.Amount {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgFundFeePayContractResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -725,6 +985,204 @@ func (m *MsgRegisterFeePayContractResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgRegisterFeePayContractResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgFundFeePayContract) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgFundFeePayContract: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgFundFeePayContract: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SenderAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SenderAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Amount = append(m.Amount, types.Coin{})
+			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgFundFeePayContractResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgFundFeePayContractResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgFundFeePayContractResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

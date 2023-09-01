@@ -3,7 +3,9 @@ package juno.feepay.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 import "juno/feepay/v1/genesis.proto";
 import "juno/feepay/v1/feepay.proto";
@@ -16,6 +18,12 @@ service Msg {
   rpc RegisterFeePayContract(MsgRegisterFeePayContract)
       returns (MsgRegisterFeePayContractResponse) {
     option (google.api.http).post = "/juno/feepay/v1/tx/registerFeePayContract";
+  };
+
+  // Fund a fee pay contract
+  rpc FundFeePayContract(MsgFundFeePayContract)
+      returns (MsgFundFeePayContractResponse) {
+    option (google.api.http).post = "/juno/feepay/v1/tx/fundFeePayContract";
   };
   
   // Update the params of the module through gov v1 type.
@@ -35,6 +43,28 @@ message MsgRegisterFeePayContract {
 
 // The response message for registering a fee pay contract.
 message MsgRegisterFeePayContractResponse {}
+
+// The message to fund a fee pay contract
+message MsgFundFeePayContract {
+  option (gogoproto.equal) = false;
+
+  // The wallet address of the sender.
+  string sender_address = 1;
+
+  // The fee pay contract to fund.
+  string contract_address = 2;
+
+  // The coins to fund the contract with.
+  repeated cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (amino.encoding)         = "legacy_coins",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// The response message for funding a fee pay contract.
+message MsgFundFeePayContractResponse {}
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
 //

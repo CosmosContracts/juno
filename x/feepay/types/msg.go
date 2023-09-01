@@ -6,11 +6,13 @@ import (
 
 var (
 	_ sdk.Msg = &MsgRegisterFeePayContract{}
+	_ sdk.Msg = &MsgFundFeePayContract{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 const (
 	TypeMsgRegisterFeePayContract = "register_feepay_contract"
+	TypeMsgFundFeePayContract     = "fund_feepay_contract"
 	TypeMsgUpdateParams           = "msg_update_params"
 )
 
@@ -32,6 +34,28 @@ func (msg *MsgRegisterFeePayContract) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgRegisterFeePayContract) GetSigners() []sdk.AccAddress {
+	from, _ := sdk.AccAddressFromBech32(msg.SenderAddress)
+	return []sdk.AccAddress{from}
+}
+
+// Route returns the name of the module
+func (msg MsgFundFeePayContract) Route() string { return RouterKey }
+
+// Type returns the the action
+func (msg MsgFundFeePayContract) Type() string { return TypeMsgFundFeePayContract }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgFundFeePayContract) ValidateBasic() error {
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgFundFeePayContract) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgFundFeePayContract) GetSigners() []sdk.AccAddress {
 	from, _ := sdk.AccAddressFromBech32(msg.SenderAddress)
 	return []sdk.AccAddress{from}
 }

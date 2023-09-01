@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v17/x/feepay/types"
 )
@@ -61,6 +62,50 @@ func NewRegisterFeePayContract() *cobra.Command {
 			msg := &types.MsgRegisterFeePayContract{
 				SenderAddress: deployer_address.String(),
 				Contract:      fpc,
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewRegisterFeeShare returns a CLI command handler for
+// funding a fee pay contract.
+func NewFundFeePayContract() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "fund [contract_bech32] [ujuno]",
+		Short: "Send funds to a registered fee pay contract.",
+		Long:  "Send funds to a registered fee pay contract.",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			sender_address := cliCtx.GetFromAddress()
+			contract_address := args[0]
+			ujuno_string := args[1]
+			ujuno, err := strconv.ParseUint(ujuno_string, 10, 64)
+
+			if err != nil {
+				return err
+			}
+
+			// TODO: GET REFERENCE TO DENOM
+			amount := sdk.NewCoin(cliCtx.Denom, ujuno)
+
+			msg := &types.MsgFundFeePayContract{
+				SenderAddress:   sender_address.String(),
+				ContractAddress: contract_address,
+				Amount:          amount,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

@@ -25,6 +25,7 @@ var (
 const (
 	// Amino names
 	registerFeePayContract = "juno/MsgRegisterFeePayContract"
+	FundFeePayContract     = "juno/MsgFundFeePayContract"
 	updateFeeShareParams   = "juno/MsgFeePayUpdateParams"
 )
 
@@ -45,6 +46,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgRegisterFeePayContract{},
+		&MsgFundFeePayContract{},
 		&MsgUpdateParams{},
 	)
 
@@ -56,5 +58,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 // Amino JSON serialization and EIP-712 compatibility.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRegisterFeePayContract{}, registerFeePayContract, nil)
+	cdc.RegisterConcrete(&MsgFundFeePayContract{}, FundFeePayContract, nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateFeeShareParams, nil)
 }

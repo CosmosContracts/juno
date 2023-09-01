@@ -19,6 +19,14 @@ func (k Keeper) RegisterFeePayContract(goCtx context.Context, msg *types.MsgRegi
 	return &types.MsgRegisterFeePayContractResponse{}, nil
 }
 
+// FundFeePayContract funds a contract with the given amount of tokens.
+func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeePayContract) (*types.MsgFundFeePayContractResponse, error) {
+
+	// TODO: IMPLEMENT
+
+	return nil, nil
+}
+
 func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	if k.authority != req.Authority {
 		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
