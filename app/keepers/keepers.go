@@ -525,7 +525,7 @@ func NewAppKeepers(
 	// 	return wasmkeeper.NewBurnCoinMessageHandler(customBurner)
 	// })
 
-	junoBurnerPlugin := junoburn.NewBurnerPlugin(appKeepers.BankKeeper)
+	junoBurnerPlugin := junoburn.NewBurnerPlugin(appKeepers.BankKeeper, appKeepers.MintKeeper)
 	burnOverride := wasmkeeper.WithMessageHandler(wasmkeeper.NewBurnCoinMessageHandler(junoBurnerPlugin))
 	wasmOpts = append(wasmOpts, burnOverride)
 
