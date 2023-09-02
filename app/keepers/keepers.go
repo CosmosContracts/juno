@@ -1,6 +1,7 @@
 package keepers
 
 import (
+	"math"
 	"path/filepath"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -344,6 +345,10 @@ func NewAppKeepers(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
 
+	// Update the max metadata length to be >255
+	govConfig := govtypes.DefaultConfig()
+	govConfig.MaxMetadataLen = math.MaxUint64
+
 	govKeeper := govkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[govtypes.StoreKey],
@@ -351,7 +356,7 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
 		bApp.MsgServiceRouter(),
-		govtypes.DefaultConfig(),
+		govConfig,
 		govModAddress,
 	)
 	appKeepers.GovKeeper = *govKeeper.SetHooks(
