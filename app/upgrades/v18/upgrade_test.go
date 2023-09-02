@@ -33,10 +33,8 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	postUpgradeChecks(s)
 }
 
-func preUpgradeChecks(s *UpgradeTestSuite) {
-
+func preUpgradeChecks(_ *UpgradeTestSuite) {
 }
 
-func postUpgradeChecks(s *UpgradeTestSuite) {
-
+func postUpgradeChecks(_ *UpgradeTestSuite) {
 }
