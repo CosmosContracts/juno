@@ -44,7 +44,7 @@ func CreateUniAUpgradeHandler(
 
 		// set blocks per year to be very high
 		mp := keepers.MintKeeper.GetParams(ctx)
-		mp.BlocksPerYear = 100_000_000 * 1e6
+		mp.BlocksPerYear = 1_000_000_000_000
 		if err := keepers.MintKeeper.SetParams(ctx, mp); err != nil {
 			return nil, err
 		}

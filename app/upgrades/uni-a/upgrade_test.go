@@ -43,7 +43,7 @@ func preUpgradeChecks(s *UpgradeTestSuite) {
 func postUpgradeChecks(s *UpgradeTestSuite) {
 	bal := getAccBalance(s, unia.ReeceBech32)
 	// 100m tokens
-	s.Require().Equal(bal, sdk.NewCoins(sdk.NewCoin("ujunox", sdk.NewInt(100_000_000*1e6))))
+	s.Require().Equal(bal, sdk.NewCoins(sdk.NewCoin("ujunox", sdk.NewInt(100_000_000*1_000_000))))
 }
 
 func getAccBalance(s *UpgradeTestSuite, bech32 string) sdk.Coins {
