@@ -1,0 +1,26 @@
+syntax = "proto3";
+package juno.stakinghooks.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "juno/stakinghooks/v1/genesis.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/juno-staking-hooks/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/juno/clock/v1/params";
+  }
+}
+
+
+// QueryParams is the request type to get all module params.
+message QueryParamsRequest {}
+
+// QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.jsontag) = "params", (gogoproto.moretags) = "yaml:\"params\""];
+}

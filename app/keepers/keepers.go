@@ -90,6 +90,8 @@ import (
 	"github.com/CosmosContracts/juno/v17/x/globalfee"
 	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
 	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
+	junostakinghookskeeper "github.com/CosmosContracts/juno/v17/x/juno-staking-hooks/keeper"
+	junostakinghookstypes "github.com/CosmosContracts/juno/v17/x/juno-staking-hooks/types"
 	mintkeeper "github.com/CosmosContracts/juno/v17/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
 	"github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings"
@@ -159,6 +161,7 @@ type AppKeepers struct {
 	GlobalFeeKeeper     globalfeekeeper.Keeper
 	ContractKeeper      *wasmkeeper.PermissionedKeeper
 	ClockKeeper         clockkeeper.Keeper
+	JunoStakingHooks    junostakinghookskeeper.Keeper
 
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -305,14 +308,6 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	// register the staking hooks
-	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
-	stakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(appKeepers.DistrKeeper.Hooks(),
-			appKeepers.SlashingKeeper.Hooks()),
-	)
-	appKeepers.StakingKeeper = stakingKeeper
-
 	// ... other modules keepers
 
 	// Create IBC Keeper
@@ -320,7 +315,7 @@ func NewAppKeepers(
 		appCodec,
 		appKeepers.keys[ibcexported.StoreKey],
 		appKeepers.GetSubspace(ibcexported.ModuleName),
-		appKeepers.StakingKeeper,
+		stakingKeeper,
 		appKeepers.UpgradeKeeper,
 		scopedIBCKeeper,
 	)
@@ -349,7 +344,7 @@ func NewAppKeepers(
 		appKeepers.keys[govtypes.StoreKey],
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
-		appKeepers.StakingKeeper,
+		stakingKeeper,
 		bApp.MsgServiceRouter(),
 		govtypes.DefaultConfig(),
 		govModAddress,
@@ -450,7 +445,7 @@ func NewAppKeepers(
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
-		appCodec, appKeepers.keys[evidencetypes.StoreKey], appKeepers.StakingKeeper, appKeepers.SlashingKeeper,
+		appCodec, appKeepers.keys[evidencetypes.StoreKey], stakingKeeper, appKeepers.SlashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	appKeepers.EvidenceKeeper = *evidenceKeeper
@@ -473,7 +468,7 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,
-		appKeepers.StakingKeeper,
+		stakingKeeper,
 		govModAddress,
 	)
 
@@ -526,7 +521,7 @@ func NewAppKeepers(
 		appKeepers.keys[wasmtypes.StoreKey],
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
-		appKeepers.StakingKeeper,
+		stakingKeeper,
 		distrkeeper.NewQuerier(appKeepers.DistrKeeper),
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
@@ -576,6 +571,26 @@ func NewAppKeepers(
 		*appKeepers.ContractKeeper,
 		govModAddress,
 	)
+
+	appKeepers.JunoStakingHooks = junostakinghookskeeper.NewKeeper(
+		appKeepers.keys[junostakinghookstypes.StoreKey],
+		appCodec,
+		stakingKeeper,
+		*appKeepers.ContractKeeper,
+		govModAddress,
+	)
+
+	// register the staking hooks
+	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
+	// this must be at the end so JunoStakingHooks can use the contractKeeper
+	stakingKeeper.SetHooks(
+		stakingtypes.NewMultiStakingHooks(
+			appKeepers.DistrKeeper.Hooks(),
+			appKeepers.SlashingKeeper.Hooks(),
+			appKeepers.JunoStakingHooks.Hooks(),
+		),
+	)
+	appKeepers.StakingKeeper = stakingKeeper
 
 	// register wasm gov proposal types
 	// The gov proposal types can be individually enabled

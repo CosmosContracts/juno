@@ -67,6 +67,7 @@ import (
 	feeshare "github.com/CosmosContracts/juno/v17/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v17/x/globalfee"
+	junostakinghooks "github.com/CosmosContracts/juno/v17/x/juno-staking-hooks"
 	"github.com/CosmosContracts/juno/v17/x/mint"
 	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
 	"github.com/CosmosContracts/juno/v17/x/tokenfactory"
@@ -111,6 +112,7 @@ var ModuleBasics = module.NewBasicManager(
 	ibc_hooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
 	clock.AppModuleBasic{},
+	junostakinghooks.AppModuleBasic{},
 )
 
 func appModules(
@@ -157,6 +159,7 @@ func appModules(
 		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
 		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
 		clock.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
+		junostakinghooks.NewAppModule(appCodec, app.AppKeepers.JunoStakingHooks),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -233,6 +236,7 @@ func orderBeginBlockers() []string {
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
+		junostakinghooks.ModuleName,
 	}
 }
 
@@ -271,6 +275,7 @@ func orderEndBlockers() []string {
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
+		junostakinghooks.ModuleName,
 	}
 }
 
@@ -309,5 +314,6 @@ func orderInitBlockers() []string {
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
+		junostakinghooks.ModuleName,
 	}
 }
