@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v17/x/cw-staking-hooks/types"
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 )
 
 var _ types.MsgServer = &msgServer{}
@@ -18,7 +18,7 @@ type msgServer struct {
 	Keeper
 }
 
-// NewMsgServerImpl returns an implementation of the x/cw-staking-hooks MsgServer interface.
+// NewMsgServerImpl returns an implementation of the x/cw-hooks MsgServer interface.
 func NewMsgServerImpl(k Keeper) types.MsgServer {
 	return &msgServer{
 		Keeper: k,

@@ -1,13 +1,13 @@
 syntax = "proto3";
-package juno.cwstakinghooks.v1;
+package juno.cwhooks.v1;
 
 import "cosmos/msg/v1/msg.proto";
-import "juno/cwstakinghooks/v1/genesis.proto";
+import "juno/cwhooks/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 import "amino/amino.proto";
 
-option go_package = "github.com/CosmosContracts/juno/x/cw-staking-hooks/types";
+option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
 
 // Msg defines the Msg service.
 service Msg {

@@ -6,7 +6,7 @@ This module does not require any custom bindings. Rather, you must just add the 
 junod tx register juno-hooks
 ```
 
-You can find a basic [cw-staking-hooks contract here](https://github.com/Reecepbcups/cw-cw-staking-hooks-example)
+You can find a basic [cw-hooks contract here](https://github.com/Reecepbcups/cw-cw-hooks-example)
 
 ## Implementation
 

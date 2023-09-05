@@ -38,7 +38,7 @@ func (h Hooks) sendMsgToAll(ctx sdk.Context, msgBz []byte) error {
 		return nil
 	}
 
-	// ctx.GasMeter().ConsumeGas(100_000, "cw-staking-hooks: AfterValidatorCreated")
+	// ctx.GasMeter().ConsumeGas(100_000, "cw-hooks: AfterValidatorCreated")
 	return nil
 }
 

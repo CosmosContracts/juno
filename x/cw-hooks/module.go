@@ -1,4 +1,4 @@
-package cwstakinghooks
+package cwhooks
 
 import (
 	"context"
@@ -18,15 +18,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v17/x/cw-staking-hooks/client/cli"
-	"github.com/CosmosContracts/juno/v17/x/cw-staking-hooks/keeper"
-	"github.com/CosmosContracts/juno/v17/x/cw-staking-hooks/types"
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/client/cli"
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/keeper"
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 )
 
 const (
 	ModuleName = types.ModuleName
 
-	// ConsensusVersion defines the current x/cw-staking-hooks module consensus version.
+	// ConsensusVersion defines the current x/cw-hooks module consensus version.
 	ConsensusVersion = 1
 )
 

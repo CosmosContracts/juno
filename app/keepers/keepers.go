@@ -83,8 +83,8 @@ import (
 
 	clockkeeper "github.com/CosmosContracts/juno/v17/x/clock/keeper"
 	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
-	cwstakinghookskeeper "github.com/CosmosContracts/juno/v17/x/cw-staking-hooks/keeper"
-	cwstakinghookstypes "github.com/CosmosContracts/juno/v17/x/cw-staking-hooks/types"
+	cwhookskeeper "github.com/CosmosContracts/juno/v17/x/cw-hooks/keeper"
+	cwhookstypes "github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 	dripkeeper "github.com/CosmosContracts/juno/v17/x/drip/keeper"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
@@ -161,7 +161,7 @@ type AppKeepers struct {
 	GlobalFeeKeeper     globalfeekeeper.Keeper
 	ContractKeeper      *wasmkeeper.PermissionedKeeper
 	ClockKeeper         clockkeeper.Keeper
-	JunoStakingHooks    cwstakinghookskeeper.Keeper
+	JunoStakingHooks    cwhookskeeper.Keeper
 
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -572,8 +572,8 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	appKeepers.JunoStakingHooks = cwstakinghookskeeper.NewKeeper(
-		appKeepers.keys[cwstakinghookstypes.StoreKey],
+	appKeepers.JunoStakingHooks = cwhookskeeper.NewKeeper(
+		appKeepers.keys[cwhookstypes.StoreKey],
 		appCodec,
 		stakingKeeper,
 		*appKeepers.ContractKeeper,

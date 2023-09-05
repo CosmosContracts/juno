@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types" // TODO: temp
 
-	"github.com/CosmosContracts/juno/v17/x/cw-staking-hooks/types"
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 )
 
 // Keeper of the juno staking keeper store
@@ -38,12 +38,12 @@ func NewKeeper(
 	}
 }
 
-// GetAuthority returns the x/cw-staking-hooks module's authority.
+// GetAuthority returns the x/cw-hooks module's authority.
 func (k Keeper) GetAuthority() string {
 	return k.authority
 }
 
-// SetParams sets the x/cw-staking-hooks module parameters.
+// SetParams sets the x/cw-hooks module parameters.
 func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
 	if err := p.Validate(); err != nil {
 		return err
@@ -56,7 +56,7 @@ func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
 	return nil
 }
 
-// GetParams returns the current x/cw-staking-hooks module parameters.
+// GetParams returns the current x/cw-hooks module parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamsKey)

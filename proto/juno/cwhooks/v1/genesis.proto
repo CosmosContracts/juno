@@ -1,10 +1,10 @@
 syntax = "proto3";
-package juno.cwstakinghooks.v1;
+package juno.cwhooks.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/CosmosContracts/juno/x/cw-staking-hooks/types";
+option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
 
 // GenesisState - initial state of module
 message GenesisState {
