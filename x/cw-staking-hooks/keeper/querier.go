@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v17/x/juno-staking-hooks/types"
+	"github.com/CosmosContracts/juno/v17/x/cw-staking-hooks/types"
 )
 
 var _ types.QueryServer = &Querier{}

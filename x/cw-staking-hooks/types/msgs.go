@@ -14,7 +14,6 @@ var _ sdk.Msg = &MsgUpdateParams{}
 // NewMsgUpdateParams creates new instance of MsgUpdateParams
 func NewMsgUpdateParams(
 	sender sdk.Address,
-	contracts []string,
 ) *MsgUpdateParams {
 	return &MsgUpdateParams{
 		Authority: sender.String(),

@@ -1,12 +1,12 @@
 syntax = "proto3";
-package juno.stakinghooks.v1;
+package juno.cwstakinghooks.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/v1beta1/coin.proto";
-import "juno/stakinghooks/v1/genesis.proto";
+import "juno/cwstakinghooks/v1/genesis.proto";
 
-option go_package = "github.com/CosmosContracts/juno/x/juno-staking-hooks/types";
+option go_package = "github.com/CosmosContracts/juno/x/cw-staking-hooks/types";
 
 // Query defines the gRPC querier service.
 service Query {

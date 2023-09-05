@@ -62,12 +62,12 @@ import (
 	encparams "github.com/CosmosContracts/juno/v17/app/params"
 	"github.com/CosmosContracts/juno/v17/x/clock"
 	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
+	cwstakinghooks "github.com/CosmosContracts/juno/v17/x/cw-staking-hooks"
 	"github.com/CosmosContracts/juno/v17/x/drip"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 	feeshare "github.com/CosmosContracts/juno/v17/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v17/x/globalfee"
-	junostakinghooks "github.com/CosmosContracts/juno/v17/x/juno-staking-hooks"
 	"github.com/CosmosContracts/juno/v17/x/mint"
 	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
 	"github.com/CosmosContracts/juno/v17/x/tokenfactory"
@@ -112,7 +112,7 @@ var ModuleBasics = module.NewBasicManager(
 	ibc_hooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
 	clock.AppModuleBasic{},
-	junostakinghooks.AppModuleBasic{},
+	cwstakinghooks.AppModuleBasic{},
 )
 
 func appModules(
@@ -159,7 +159,7 @@ func appModules(
 		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
 		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
 		clock.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
-		junostakinghooks.NewAppModule(appCodec, app.AppKeepers.JunoStakingHooks),
+		cwstakinghooks.NewAppModule(appCodec, app.AppKeepers.JunoStakingHooks),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -236,7 +236,7 @@ func orderBeginBlockers() []string {
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
-		junostakinghooks.ModuleName,
+		cwstakinghooks.ModuleName,
 	}
 }
 
@@ -275,7 +275,7 @@ func orderEndBlockers() []string {
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
-		junostakinghooks.ModuleName,
+		cwstakinghooks.ModuleName,
 	}
 }
 
@@ -314,6 +314,6 @@ func orderInitBlockers() []string {
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
-		junostakinghooks.ModuleName,
+		cwstakinghooks.ModuleName,
 	}
 }

@@ -8,15 +8,11 @@ func DefaultParams() Params {
 }
 
 // NewParams creates a new Params object
-func NewParams(
-	contracts []string,
-	contractGasLimit uint64,
-) Params {
+func NewParams() Params {
 	return Params{}
 }
 
 // Validate performs basic validation.
 func (p Params) Validate() error {
-
 	return nil
 }

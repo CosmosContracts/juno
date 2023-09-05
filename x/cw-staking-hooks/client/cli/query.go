@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/CosmosContracts/juno/v17/x/juno-staking-hooks/types"
+	"github.com/CosmosContracts/juno/v17/x/cw-staking-hooks/types"
 )
 
 func GetQueryCmd() *cobra.Command {

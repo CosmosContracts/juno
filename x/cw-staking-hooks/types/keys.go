@@ -3,7 +3,7 @@ package types
 var ParamsKey = []byte{0x00}
 
 const (
-	ModuleName = "juno-staking-hooks"
+	ModuleName = "cw-staking-hooks"
 
 	StoreKey = ModuleName
 
