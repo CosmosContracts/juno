@@ -159,7 +159,7 @@ func appModules(
 		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
 		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
 		clock.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
-		cwhooks.NewAppModule(appCodec, app.AppKeepers.JunoStakingHooks),
+		cwhooks.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),

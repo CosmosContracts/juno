@@ -11,18 +11,18 @@ import (
 // skipUntilHeight allows us to skip gentxs.
 const skipUntilHeight = 2
 
-type Hooks struct {
+type StakingHooks struct {
 	k Keeper
 }
 
-var _ stakingtypes.StakingHooks = Hooks{}
+var _ stakingtypes.StakingHooks = StakingHooks{}
 
 // Create new distribution hooks
-func (k Keeper) Hooks() Hooks {
-	return Hooks{k: k}
+func (k Keeper) StakingHooks() StakingHooks {
+	return StakingHooks{k: k}
 }
 
-func (h Hooks) sendMsgToAll(ctx sdk.Context, msgBz []byte) error {
+func (h StakingHooks) sendMsgToAll(ctx sdk.Context, msgBz []byte) error {
 	// on errors return nil, if in a loop continue.
 
 	// TODO: add this in the keeper, anyone can register it.
@@ -43,7 +43,7 @@ func (h Hooks) sendMsgToAll(ctx sdk.Context, msgBz []byte) error {
 }
 
 // initialize validator distribution record
-func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) error {
+func (h StakingHooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
@@ -62,7 +62,7 @@ func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) er
 }
 
 // AfterValidatorRemoved performs clean up after a validator is removed
-func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
+func (h StakingHooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
@@ -81,7 +81,7 @@ func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, valAddr
 }
 
 // increment period
-func (h Hooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+func (h StakingHooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
@@ -100,7 +100,7 @@ func (h Hooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, 
 }
 
 // withdraw delegation rewards (which also increments period)
-func (h Hooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+func (h StakingHooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
@@ -119,7 +119,7 @@ func (h Hooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAd
 }
 
 // create new delegation period record
-func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+func (h StakingHooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	// h.k.initializeDelegation(ctx, valAddr, delAddr)
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
@@ -139,7 +139,7 @@ func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, 
 }
 
 // record the slash event
-func (h Hooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) error {
+func (h StakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
@@ -156,7 +156,7 @@ func (h Hooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, f
 	return h.sendMsgToAll(ctx, msgBz)
 }
 
-func (h Hooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) error {
+func (h StakingHooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
@@ -173,7 +173,7 @@ func (h Hooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) 
 	return h.sendMsgToAll(ctx, msgBz)
 }
 
-func (h Hooks) AfterValidatorBonded(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
+func (h StakingHooks) AfterValidatorBonded(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
@@ -190,7 +190,7 @@ func (h Hooks) AfterValidatorBonded(ctx sdk.Context, _ sdk.ConsAddress, valAddr 
 	return h.sendMsgToAll(ctx, msgBz)
 }
 
-func (h Hooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
+func (h StakingHooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
@@ -207,7 +207,7 @@ func (h Hooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAddress, 
 	return h.sendMsgToAll(ctx, msgBz)
 }
 
-func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
@@ -224,7 +224,7 @@ func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, 
 	return h.sendMsgToAll(ctx, msgBz)
 }
 
-func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
+func (h StakingHooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
 	// idk what this is / does. Need to look into
 	return nil
 }

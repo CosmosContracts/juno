@@ -161,7 +161,7 @@ type AppKeepers struct {
 	GlobalFeeKeeper     globalfeekeeper.Keeper
 	ContractKeeper      *wasmkeeper.PermissionedKeeper
 	ClockKeeper         clockkeeper.Keeper
-	JunoStakingHooks    cwhookskeeper.Keeper
+	CWHooksKeeper       cwhookskeeper.Keeper
 
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -348,11 +348,6 @@ func NewAppKeepers(
 		bApp.MsgServiceRouter(),
 		govtypes.DefaultConfig(),
 		govModAddress,
-	)
-	appKeepers.GovKeeper = *govKeeper.SetHooks(
-		govtypes.NewMultiGovHooks(
-		// register governance hooks
-		),
 	)
 
 	appKeepers.NFTKeeper = nftkeeper.NewKeeper(keys[nftkeeper.StoreKey], appCodec, appKeepers.AccountKeeper, appKeepers.BankKeeper)
@@ -572,10 +567,11 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	appKeepers.JunoStakingHooks = cwhookskeeper.NewKeeper(
+	appKeepers.CWHooksKeeper = cwhookskeeper.NewKeeper(
 		appKeepers.keys[cwhookstypes.StoreKey],
 		appCodec,
 		stakingKeeper,
+		appKeepers.GovKeeper,
 		*appKeepers.ContractKeeper,
 		govModAddress,
 	)
@@ -587,10 +583,16 @@ func NewAppKeepers(
 		stakingtypes.NewMultiStakingHooks(
 			appKeepers.DistrKeeper.Hooks(),
 			appKeepers.SlashingKeeper.Hooks(),
-			appKeepers.JunoStakingHooks.Hooks(),
+			appKeepers.CWHooksKeeper.StakingHooks(),
 		),
 	)
 	appKeepers.StakingKeeper = stakingKeeper
+
+	appKeepers.GovKeeper = *govKeeper.SetHooks(
+		govtypes.NewMultiGovHooks(
+			appKeepers.CWHooksKeeper.GovHooks(),
+		),
+	)
 
 	// register wasm gov proposal types
 	// The gov proposal types can be individually enabled
