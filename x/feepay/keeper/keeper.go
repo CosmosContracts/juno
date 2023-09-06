@@ -27,6 +27,7 @@ type Keeper struct {
 	accountKeeper revtypes.AccountKeeper
 
 	feeCollectorName string
+	bondDenom        string
 
 	// the address capable of executing a MsgUpdateParams message. Typically, this
 	// should be the x/gov module account.
@@ -41,8 +42,10 @@ func NewKeeper(
 	wk wasmkeeper.Keeper,
 	ak revtypes.AccountKeeper,
 	feeCollector string,
+	bondDenom string,
 	authority string,
 ) Keeper {
+	panic(bondDenom)
 	return Keeper{
 		storeKey:         storeKey,
 		cdc:              cdc,
@@ -50,6 +53,7 @@ func NewKeeper(
 		wasmKeeper:       wk,
 		accountKeeper:    ak,
 		feeCollectorName: feeCollector,
+		bondDenom:        bondDenom,
 		authority:        authority,
 	}
 }

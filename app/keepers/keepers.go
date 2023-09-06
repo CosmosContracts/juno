@@ -193,6 +193,7 @@ func NewAppKeepers(
 	enabledProposals []wasmtypes.ProposalType,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
+	bondDenom string,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -550,6 +551,7 @@ func NewAppKeepers(
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
+		bondDenom,
 		govModAddress,
 	)
 

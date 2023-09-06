@@ -265,6 +265,7 @@ func New(
 		enabledProposals,
 		appOpts,
 		wasmOpts,
+		app.GetChainBondDenom(),
 	)
 	app.keys = app.AppKeepers.GetKVStoreKey()
 
