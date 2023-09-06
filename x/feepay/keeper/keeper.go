@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"errors"
 	"fmt"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -12,6 +13,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	errorsmod "cosmossdk.io/errors"
 	types "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	revtypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 )
@@ -45,7 +47,6 @@ func NewKeeper(
 	bondDenom string,
 	authority string,
 ) Keeper {
-	panic(bondDenom)
 	return Keeper{
 		storeKey:         storeKey,
 		cdc:              cdc,
@@ -69,39 +70,60 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Check if a contract is associated with a FeePay contract
-func (k Keeper) IsValidContract(ctx sdk.Context, contractAddr string) bool {
-
-	// Get store
+func (k Keeper) IsValidContract(ctx sdk.Context, contractAddr string) error {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte("contracts"))
 
-	// Get data
 	hasData := store.Has([]byte(contractAddr))
 
-	// Return true if data is not nil
-	return hasData
+	if hasData {
+		return nil
+	} else {
+		return errorsmod.Wrapf(errors.New("invalid contract address"), "contract %s not registered", contractAddr)
+	}
 }
 
 // Register the contract in the module store
-func (k Keeper) RegisterContract(ctx sdk.Context, fpc *types.FeePayContract) bool {
+func (k Keeper) RegisterContract(ctx sdk.Context, fpc *types.FeePayContract) error {
 
 	// Return false because the contract was already registered
-	if k.IsValidContract(ctx, fpc.ContractAddress) {
-		return false
+	if err := k.IsValidContract(ctx, fpc.ContractAddress); err != nil {
+		return err
 	}
 
 	// Register the new fee pay contract in the KV store
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte("contracts"))
 	key := []byte(fpc.ContractAddress)
-	bz := k.cdc.MustMarshal(&fpc)
+	bz := k.cdc.MustMarshal(fpc)
+
 	store.Set(key, bz)
-	return true
+	return nil
 }
 
-func (k Keeper) FundContract(ctx sdk.Context, mfc *types.MsgFundFeePayContract) bool {
+// Fund an existing fee pay contract
+func (k Keeper) FundContract(ctx sdk.Context, mfc *types.MsgFundFeePayContract) error {
 
 	// Return false because the contract was already registered
-	if !k.IsValidContract(ctx, mfc.ContractAddress) {
-		return false
+	if err := k.IsValidContract(ctx, mfc.ContractAddress); err != nil {
+		return err
+	}
+
+	// Only transfer the bond denom
+	var transferCoin sdk.Coin
+	for _, c := range mfc.Amount {
+		if c.Denom == k.bondDenom {
+			transferCoin = c
+		}
+	}
+
+	// Confirm the sender has enough funds to fund the contract
+	addr, err := sdk.AccAddressFromBech32(mfc.SenderAddress)
+	if err != nil {
+		return err
+	}
+
+	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, addr, types.ModuleName, sdk.NewCoins(transferCoin))
+	if err != nil {
+		return err
 	}
 
 	// Get existing fee pay contract from store
@@ -112,14 +134,10 @@ func (k Keeper) FundContract(ctx sdk.Context, mfc *types.MsgFundFeePayContract) 
 	var fpc types.FeePayContract
 	k.cdc.MustUnmarshal(bz, &fpc)
 
-	// Increment the fpc balance with the correct denom, ignore all others
-	for _, c := range mfc.Amount {
-		if c.Denom == PUT_DENOM_HERE {
-			fpc.Balance += c.Amount.Uint64()
-		}
-	}
+	// Increment the fpc balance
+	fpc.Balance += transferCoin.Amount.Uint64()
 
 	// Update the balance in KV store, return success
 	store.Set(key, k.cdc.MustMarshal(&fpc))
-	return true
+	return nil
 }

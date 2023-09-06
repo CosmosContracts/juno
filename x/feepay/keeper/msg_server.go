@@ -15,19 +15,13 @@ var _ types.MsgServer = &Keeper{}
 
 func (k Keeper) RegisterFeePayContract(goCtx context.Context, msg *types.MsgRegisterFeePayContract) (*types.MsgRegisterFeePayContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	k.RegisterContract(ctx, *msg.Contract)
-	return &types.MsgRegisterFeePayContractResponse{}, nil
+	return &types.MsgRegisterFeePayContractResponse{}, k.RegisterContract(ctx, msg.Contract)
 }
 
 // FundFeePayContract funds a contract with the given amount of tokens.
 func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeePayContract) (*types.MsgFundFeePayContractResponse, error) {
-
-	// TODO: IMPLEMENT
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	ctx.Logger().Error("FundFeePay", "Balance", msg.Amount)
-
-	return &types.MsgFundFeePayContractResponse{}, nil
+	return &types.MsgFundFeePayContractResponse{}, k.FundContract(ctx, msg)
 }
 
 func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {

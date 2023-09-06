@@ -154,7 +154,7 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	cw := msg.(*wasmtypes.MsgExecuteContract)
 
 	// We need to check if it is a valid contract. Utilize the FeePay Keeper for validation
-	if !dfd.feepayKeeper.IsValidContract(ctx, cw.GetContract()) {
+	if err := dfd.feepayKeeper.IsValidContract(ctx, cw.GetContract()); err != nil {
 		return sdkerrors.ErrInvalidRequest.Wrapf("contract %s is not registered for fee pay", cw.GetContract())
 	}
 
