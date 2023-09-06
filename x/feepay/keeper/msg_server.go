@@ -23,8 +23,11 @@ func (k Keeper) RegisterFeePayContract(goCtx context.Context, msg *types.MsgRegi
 func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeePayContract) (*types.MsgFundFeePayContractResponse, error) {
 
 	// TODO: IMPLEMENT
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	return nil, nil
+	ctx.Logger().Error("FundFeePay", "Balance", msg.Amount)
+
+	return &types.MsgFundFeePayContractResponse{}, nil
 }
 
 func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {

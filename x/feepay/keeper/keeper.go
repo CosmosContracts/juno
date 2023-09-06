@@ -78,18 +78,44 @@ func (k Keeper) IsValidContract(ctx sdk.Context, contractAddr string) bool {
 }
 
 // Register the contract in the module store
-func (k Keeper) RegisterContract(ctx sdk.Context, fpc types.FeePayContract) bool {
+func (k Keeper) RegisterContract(ctx sdk.Context, fpc *types.FeePayContract) bool {
 
-	// Get store
+	// Return false because the contract was already registered
+	if k.IsValidContract(ctx, fpc.ContractAddress) {
+		return false
+	}
+
+	// Register the new fee pay contract in the KV store
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte("contracts"))
-
-	// Get key/val pair
 	key := []byte(fpc.ContractAddress)
 	bz := k.cdc.MustMarshal(&fpc)
-
-	// Set in store
 	store.Set(key, bz)
+	return true
+}
 
-	// Return true by default (for now)
+func (k Keeper) FundContract(ctx sdk.Context, mfc *types.MsgFundFeePayContract) bool {
+
+	// Return false because the contract was already registered
+	if !k.IsValidContract(ctx, mfc.ContractAddress) {
+		return false
+	}
+
+	// Get existing fee pay contract from store
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte("contracts"))
+	key := []byte(mfc.ContractAddress)
+	bz := store.Get(key)
+
+	var fpc types.FeePayContract
+	k.cdc.MustUnmarshal(bz, &fpc)
+
+	// Increment the fpc balance with the correct denom, ignore all others
+	for _, c := range mfc.Amount {
+		if c.Denom == PUT_DENOM_HERE {
+			fpc.Balance += c.Amount.Uint64()
+		}
+	}
+
+	// Update the balance in KV store, return success
+	store.Set(key, k.cdc.MustMarshal(&fpc))
 	return true
 }

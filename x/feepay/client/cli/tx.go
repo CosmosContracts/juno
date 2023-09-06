@@ -26,6 +26,7 @@ func NewTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		NewRegisterFeePayContract(),
+		NewFundFeePayContract(),
 	)
 	return txCmd
 }
@@ -80,7 +81,7 @@ func NewRegisterFeePayContract() *cobra.Command {
 // funding a fee pay contract.
 func NewFundFeePayContract() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "fund [contract_bech32] [ujuno]",
+		Use:   "fund [contract_bech32] [amount]",
 		Short: "Send funds to a registered fee pay contract.",
 		Long:  "Send funds to a registered fee pay contract.",
 		Args:  cobra.ExactArgs(2),
@@ -92,15 +93,10 @@ func NewFundFeePayContract() *cobra.Command {
 
 			sender_address := cliCtx.GetFromAddress()
 			contract_address := args[0]
-			ujuno_string := args[1]
-			ujuno, err := strconv.ParseUint(ujuno_string, 10, 64)
-
+			amount, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return err
 			}
-
-			// TODO: GET REFERENCE TO DENOM
-			amount := sdk.NewCoin(cliCtx.Denom, ujuno)
 
 			msg := &types.MsgFundFeePayContract{
 				SenderAddress:   sender_address.String(),
