@@ -3,34 +3,32 @@ package v16
 import (
 	"fmt"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
 	log "github.com/cometbft/cometbft/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/CosmosContracts/juno/v17/app/keepers"
 	"github.com/CosmosContracts/juno/v17/app/upgrades"
 	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
-var (
-	// Verify the following with:
-	// - https://daodao.zone/dao/<ADDRESS>
-	subDaos = []string{
-		"juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3", // core-1
-		"juno1q7ufzamrmwfw4w35azzkcxd5l44vy8zngm9ufcgryk2dt8clqznsp88lhd", // HackJuno
-		"juno1xz54y0ktew0dcm00f9vjw0p7x29pa4j5p9rwq6zerkytugzg27qs4shxnt", // Growth Fund
-		"juno1rw92sps9q4mm7ll3x9apnunlckchmn3v7cttchsf48dcdyajzj2sajfxcn", // Delegations
-		"juno15zw5zt2pepx8n8675dz3k3yscdu94d24yhqqz00uzyx7ydf2vfmswz6nzw", // Communications
-	}
-)
+// Verify the following with:
+// - https://daodao.zone/dao/<ADDRESS>
+var subDaos = []string{
+	"juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3", // core-1
+	"juno1q7ufzamrmwfw4w35azzkcxd5l44vy8zngm9ufcgryk2dt8clqznsp88lhd", // HackJuno
+	"juno1xz54y0ktew0dcm00f9vjw0p7x29pa4j5p9rwq6zerkytugzg27qs4shxnt", // Growth Fund
+	"juno1rw92sps9q4mm7ll3x9apnunlckchmn3v7cttchsf48dcdyajzj2sajfxcn", // Delegations
+	"juno15zw5zt2pepx8n8675dz3k3yscdu94d24yhqqz00uzyx7ydf2vfmswz6nzw", // Communications
+}
 
 func CreateV17UpgradeHandler(
 	mm *module.Manager,
@@ -82,14 +80,16 @@ func CreateV17UpgradeHandler(
 		// This function migrates all DAOs owned by the chain from the distribution module address -> the gov module.
 		// While they chains till owns it, technically it makes more sense to store them in the gov account.
 		if ctx.ChainID() == "juno-1" {
-			migrateChainOwnedSubDaos(ctx, logger, keepers.AccountKeeper, &keepers.WasmKeeper, keepers.ContractKeeper)
+			if err := migrateChainOwnedSubDaos(ctx, logger, keepers.AccountKeeper, keepers.ContractKeeper); err != nil {
+				return nil, err
+			}
 		}
 
 		return versionMap, err
 	}
 }
 
-func migrateChainOwnedSubDaos(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper, wk *wasmkeeper.Keeper, ck *wasmkeeper.PermissionedKeeper) error {
+func migrateChainOwnedSubDaos(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper, ck *wasmkeeper.PermissionedKeeper) error {
 	logger.Info("migrating chain owned sub-daos")
 
 	distrAddr := ak.GetModuleAddress(distrtypes.ModuleName)
