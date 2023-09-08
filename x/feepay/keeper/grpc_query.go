@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v17/x/feepay/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
 )
 
 var _ types.QueryServer = Querier{}
@@ -37,16 +36,11 @@ func (q Querier) FeePayContracts(ctx context.Context, req *types.QueryFeePayCont
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
-	contracts, err := q.Keeper.GetAllContracts(sdkCtx)
+	res, err := q.Keeper.GetAllContracts(sdkCtx, req)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.QueryFeePayContractsResponse{
-		Contracts: contracts,
-		Pagination: &query.PageResponse{
-			Total: 3,
-		},
-	}, nil
+	return res, nil
 }

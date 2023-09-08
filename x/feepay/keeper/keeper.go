@@ -17,6 +17,8 @@ import (
 	types "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	revtypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
+	"github.com/cosmos/cosmos-sdk/types/query"
 )
 
 const (
@@ -135,20 +137,35 @@ func (k Keeper) UpdateContractBalance(ctx sdk.Context, contractAddress string, n
 }
 
 // Get all registered fee pay contracts
-func (k Keeper) GetAllContracts(ctx sdk.Context) ([]types.FeePayContract, error) {
+func (k Keeper) GetAllContracts(ctx sdk.Context, req *types.QueryFeePayContracts) (*types.QueryFeePayContractsResponse, error) {
+
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
 
-	var contracts []types.FeePayContract
-	iterator := sdk.KVStorePrefixIterator(store, nil)
+	results, pageRes, err := query.GenericFilteredPaginate(
+		k.cdc,
+		store,
+		req.Pagination,
+		func(key []byte, value *types.FeePayContract) (*types.FeePayContract, error) {
+			return value, nil
+		},
+		func() *types.FeePayContract {
+			return &types.FeePayContract{}
+		},
+	)
 
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var contract types.FeePayContract
-		k.cdc.MustUnmarshal(iterator.Value(), &contract)
-		contracts = append(contracts, contract)
+	if err != nil {
+		return nil, err
 	}
 
-	return contracts, nil
+	var contracts []types.FeePayContract
+	for _, contract := range results {
+		contracts = append(contracts, *contract)
+	}
+
+	return &types.QueryFeePayContractsResponse{
+		Contracts:  contracts,
+		Pagination: pageRes,
+	}, nil
 }
 
 // Register the contract in the module store
