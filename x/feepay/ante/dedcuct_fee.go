@@ -154,8 +154,8 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	cw := msg.(*wasmtypes.MsgExecuteContract)
 
 	// We need to check if it is a valid contract. Utilize the FeePay Keeper for validation
-	if err := dfd.feepayKeeper.IsValidContract(ctx, cw.GetContract()); err != nil {
-		return sdkerrors.ErrInvalidRequest.Wrapf("contract %s is not registered for fee pay", cw.GetContract())
+	if !dfd.feepayKeeper.IsRegisteredContract(ctx, cw.GetContract()) {
+		return feepaytypes.ErrContractNotRegistered
 	}
 
 	// Get the fee price in the chain denom
