@@ -9,89 +9,41 @@ import "google/api/annotations.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/feepay/types";
 
-// // Query defines the gRPC querier service.
-// service Query {
-//   // FeeShares retrieves all registered FeeShares
-//   rpc FeePrepays(QueryFeeSharesRequest) returns (QueryFeeSharesResponse) {
-//     option (google.api.http).get = "/juno/feepay/v1/feepay";
-//   }
+// Query defines the gRPC querier service.
+service Query {
+    // FeePayContract queries a single fee pay contract by address
+    rpc FeePayContract(QueryFeePayContract) returns (QueryFeePayContractResponse) {
+        option (google.api.http).get = "/juno/feepay/v1/feepay/{contract_address}";
+    }
 
-//   // Params retrieves the FeeShare module params
-//   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-//     option (google.api.http).get = "/juno/feeshare/v1/params";
-//   }
-// }
+    // Retrieve all fee pay contracts
+    rpc FeePayContracts(QueryFeePayContracts) returns (QueryFeePayContractsResponse) {
+        option (google.api.http).get = "/juno/feepay/v1/feepay";
+    }
+}
 
-// // QueryFeeSharesRequest is the request type for the Query/FeeShares RPC method.
-// message QueryFeeSharesRequest {
-//   // pagination defines an optional pagination for the request.
-//   cosmos.base.query.v1beta1.PageRequest pagination = 1;
-// }
+// QueryFeePayContract retrieves a single fee pay contract
+message QueryFeePayContract {
+    // contract_address defines the address of the fee pay contract
+    string contract_address = 1;
+}
 
-// // QueryFeeSharesResponse is the response type for the Query/FeeShares RPC
-// // method.
-// message QueryFeeSharesResponse {
-//   // FeeShare is a slice of all stored Reveneue
-//   repeated FeeShare feeshare = 1 [ (gogoproto.nullable) = false ];
-//   // pagination defines the pagination in the response.
-//   cosmos.base.query.v1beta1.PageResponse pagination = 2;
-// }
+// QueryFeePayContractResponse defines the response for retrieving a single fee pay contract
+message QueryFeePayContractResponse {
+    // contract defines the fee pay contract
+    FeePayContract contract = 1;
+}
 
-// // QueryFeeShareRequest is the request type for the Query/FeeShare RPC method.
-// message QueryFeeShareRequest {
-//   // contract_address of a registered contract in bech32 format
-//   string contract_address = 1;
-// }
+// Message for querying a list of fee pay contracts
+message QueryFeePayContracts {
+  // Pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
 
-// // QueryFeeShareResponse is the response type for the Query/FeeShare RPC method.
-// message QueryFeeShareResponse {
-//   // FeeShare is a stored Reveneue for the queried contract
-//   FeeShare feeshare = 1 [ (gogoproto.nullable) = false ];
-// }
-
-// // QueryParamsRequest is the request type for the Query/Params RPC method.
-// message QueryParamsRequest {}
-
-// // QueryParamsResponse is the response type for the Query/Params RPC method.
-// message QueryParamsResponse {
-//   // params is the returned FeeShare parameter
-//   Params params = 1 [ (gogoproto.nullable) = false ];
-// }
-
-// // QueryDeployerFeeSharesRequest is the request type for the
-// // Query/DeployerFeeShares RPC method.
-// message QueryDeployerFeeSharesRequest {
-//   // deployer_address in bech32 format
-//   string deployer_address = 1;
-//   // pagination defines an optional pagination for the request.
-//   cosmos.base.query.v1beta1.PageRequest pagination = 2;
-// }
-
-// // QueryDeployerFeeSharesResponse is the response type for the
-// // Query/DeployerFeeShares RPC method.
-// message QueryDeployerFeeSharesResponse {
-//   // contract_addresses is the slice of registered contract addresses for a
-//   // deployer
-//   repeated string contract_addresses = 1;
-//   // pagination defines the pagination in the response.
-//   cosmos.base.query.v1beta1.PageResponse pagination = 2;
-// }
-
-// // QueryWithdrawerFeeSharesRequest is the request type for the
-// // Query/WithdrawerFeeShares RPC method.
-// message QueryWithdrawerFeeSharesRequest {
-//   // withdrawer_address in bech32 format
-//   string withdrawer_address = 1;
-//   // pagination defines an optional pagination for the request.
-//   cosmos.base.query.v1beta1.PageRequest pagination = 2;
-// }
-
-// // QueryWithdrawerFeeSharesResponse is the response type for the
-// // Query/WithdrawerFeeShares RPC method.
-// message QueryWithdrawerFeeSharesResponse {
-//   // contract_addresses is the slice of registered contract addresses for a
-//   // withdrawer
-//   repeated string contract_addresses = 1;
-//   // pagination defines the pagination in the response.
-//   cosmos.base.query.v1beta1.PageResponse pagination = 2;
-// }
+// The response for querying all fee pay contracts
+message QueryFeePayContractsResponse {
+  // A slice of all the stored fee pay contracts
+  repeated FeePayContract contracts = 1 [ (gogoproto.nullable) = false ];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

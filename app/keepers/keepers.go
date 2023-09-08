@@ -547,7 +547,7 @@ func NewAppKeepers(
 	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
 		appKeepers.keys[feepaytypes.StoreKey],
 		appCodec,
-		appKeepers.BankKeeper,
+		&appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
@@ -715,10 +715,5 @@ func BlockedAddresses() map[string]bool {
 
 // GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {
-	dupMaccPerms := make(map[string][]string)
-	for k, v := range maccPerms {
-		dupMaccPerms[k] = v
-	}
-
-	return dupMaccPerms
+	return maccPerms
 }
