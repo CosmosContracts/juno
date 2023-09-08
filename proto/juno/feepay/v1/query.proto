@@ -20,6 +20,11 @@ service Query {
     rpc FeePayContracts(QueryFeePayContracts) returns (QueryFeePayContractsResponse) {
         option (google.api.http).get = "/juno/feepay/v1/feepay";
     }
+
+    // Retrieve the number of uses on a fee pay contract by wallet
+    rpc FeePayContractUses(QueryFeePayContractUses) returns (QueryFeePayContractUsesResponse) {
+        option (google.api.http).get = "/juno/feepay/v1/feepay/{contract_address}/uses/{wallet_address}";
+    }
 }
 
 // QueryFeePayContract retrieves a single fee pay contract
@@ -46,4 +51,18 @@ message QueryFeePayContractsResponse {
   repeated FeePayContract contracts = 1 [ (gogoproto.nullable) = false ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// Message for querying the number of uses on a fee pay contract by wallet
+message QueryFeePayContractUses {
+      // The contract address.
+  string contract_address = 1;
+  // The wallet address.
+  string wallet_address = 2;
+}
+
+// The response for querying the number of uses on a fee pay contract by wallet
+message QueryFeePayContractUsesResponse {
+  // The number of uses on the fee pay contract by wallet
+  uint64 uses = 1;
 }

@@ -59,7 +59,7 @@ func NewRegisterFeePayContract() *cobra.Command {
 			fpc := &types.FeePayContract{
 				ContractAddress: contract_address,
 				Balance:         uint64(0),
-				Limit:           dec_limit,
+				WalletLimit:     dec_limit,
 			}
 
 			msg := &types.MsgRegisterFeePayContract{

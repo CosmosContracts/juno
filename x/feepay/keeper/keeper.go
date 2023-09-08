@@ -147,7 +147,7 @@ func (k Keeper) RegisterContract(ctx sdk.Context, fpc *types.FeePayContract) err
 	}
 
 	// Register the new fee pay contract in the KV store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte("contracts"))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
 	key := []byte(fpc.ContractAddress)
 	bz := k.cdc.MustMarshal(fpc)
 
@@ -229,4 +229,98 @@ func (k Keeper) FundContract(ctx sdk.Context, mfc *types.MsgFundFeePayContract) 
 
 	ctx.Logger().Error("Funded contract", "New Details", fpc)
 	return nil
+}
+
+// Get the funds associated with a contract
+func (k Keeper) GetContractFunds(ctx sdk.Context, contractAddress string) (uint64, error) {
+	contract, err := k.GetContract(ctx, contractAddress)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return contract.Balance, nil
+}
+
+// Check if a contract can cover the fees of a transaction
+func (k Keeper) CanContractCoverFee(ctx sdk.Context, contractAddress string, fee uint64) bool {
+
+	funds, err := k.GetContractFunds(ctx, contractAddress)
+
+	// Check if contract exists in KV store
+	if err != nil {
+		return false
+	}
+
+	// Check for enough funds
+	if funds < fee {
+		return false
+	}
+
+	return true
+}
+
+// Get the number of times a wallet has interacted with a fee pay contract (err only if contract not registered)
+func (k Keeper) GetContractUses(ctx sdk.Context, contractAddress string, walletAddress string) (uint64, error) {
+
+	if !k.IsRegisteredContract(ctx, contractAddress) {
+		return 0, types.ErrContractNotRegistered
+	}
+
+	// Get usage from store
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContractUses))
+	key := []byte(contractAddress + "-" + walletAddress)
+	bz := store.Get(key)
+
+	var walletUsage types.FeePayWalletUsage
+	if err := k.cdc.Unmarshal(bz, &walletUsage); err != nil {
+		return 0, err
+	}
+
+	return walletUsage.Uses, nil
+}
+
+// Set the number of times a wallet has interacted with a fee pay contract
+func (k Keeper) SetContractUses(ctx sdk.Context, contractAddress string, walletAddress string, uses uint64) error {
+
+	if !k.IsRegisteredContract(ctx, contractAddress) {
+		return types.ErrContractNotRegistered
+	}
+
+	// Get store for updating usage
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContractUses))
+	key := []byte(contractAddress + "-" + walletAddress)
+	bz, err := k.cdc.Marshal(&types.FeePayWalletUsage{
+		ContractAddress: contractAddress,
+		WalletAddress:   walletAddress,
+		Uses:            uses,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	store.Set(key, bz)
+	return nil
+}
+
+// Check if a wallet exceeded usage limit (defaults to true if contract not registered)
+func (k Keeper) HasWalletExceededUsageLimit(ctx sdk.Context, contractAddress string, walletAddress string) bool {
+
+	contract, err := k.GetContract(ctx, contractAddress)
+
+	// Check if contract exists in KV store
+	if err != nil {
+		return true
+	}
+
+	// Get account uses
+	uses, err := k.GetContractUses(ctx, contractAddress, walletAddress)
+
+	if err != nil {
+		return true
+	}
+
+	// Return if the wallet has used the contract too many times
+	return uses >= contract.WalletLimit
 }

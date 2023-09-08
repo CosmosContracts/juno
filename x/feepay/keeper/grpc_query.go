@@ -44,3 +44,15 @@ func (q Querier) FeePayContracts(ctx context.Context, req *types.QueryFeePayCont
 
 	return res, nil
 }
+
+// FeePayContractUses implements types.QueryServer.
+func (q Querier) FeePayContractUses(ctx context.Context, req *types.QueryFeePayContractUses) (*types.QueryFeePayContractUsesResponse, error) {
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	uses, err := q.Keeper.GetContractUses(sdkCtx, req.ContractAddress, req.WalletAddress)
+
+	return &types.QueryFeePayContractUsesResponse{
+		Uses: uses,
+	}, err
+}
