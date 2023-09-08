@@ -3,8 +3,15 @@ package v16
 import (
 	"fmt"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
+	log "github.com/cometbft/cometbft/libs/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/CosmosContracts/juno/v17/app/keepers"
@@ -12,6 +19,16 @@ import (
 	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
 	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
 )
+
+// Verify the following with:
+// - https://daodao.zone/dao/<ADDRESS>
+var subDaos = []string{
+	"juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3", // core-1
+	"juno1q7ufzamrmwfw4w35azzkcxd5l44vy8zngm9ufcgryk2dt8clqznsp88lhd", // HackJuno
+	"juno1xz54y0ktew0dcm00f9vjw0p7x29pa4j5p9rwq6zerkytugzg27qs4shxnt", // Growth Fund
+	"juno1rw92sps9q4mm7ll3x9apnunlckchmn3v7cttchsf48dcdyajzj2sajfxcn", // Delegations
+	"juno15zw5zt2pepx8n8675dz3k3yscdu94d24yhqqz00uzyx7ydf2vfmswz6nzw", // Communications
+}
 
 func CreateV17UpgradeHandler(
 	mm *module.Manager,
@@ -60,6 +77,37 @@ func CreateV17UpgradeHandler(
 			return nil, err
 		}
 
+		// This function migrates all DAOs owned by the chain from the distribution module address -> the gov module.
+		// While the chain still owns it, technically it makes more sense to store them in the gov account.
+		if ctx.ChainID() == "juno-1" {
+			if err := migrateChainOwnedSubDaos(ctx, logger, keepers.AccountKeeper, keepers.ContractKeeper); err != nil {
+				return nil, err
+			}
+		}
+
 		return versionMap, err
 	}
+}
+
+func migrateChainOwnedSubDaos(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper, ck *wasmkeeper.PermissionedKeeper) error {
+	logger.Info("migrating chain owned sub-daos")
+
+	govAcc := ak.GetModuleAddress(govtypes.ModuleName)
+	distrAddr := ak.GetModuleAddress(distrtypes.ModuleName)
+
+	for _, dao := range subDaos {
+		dao := dao
+		logger.Info("migrating " + dao + " to the gov module")
+
+		cAddr := sdk.MustAccAddressFromBech32(dao)
+
+		// The dist module calls this to update its admin since its the admin currently.
+		newAdmin := govAcc
+		if err := ck.UpdateContractAdmin(ctx, cAddr, distrAddr, newAdmin); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
 }
