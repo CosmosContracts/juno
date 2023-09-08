@@ -78,7 +78,7 @@ func CreateV17UpgradeHandler(
 		}
 
 		// This function migrates all DAOs owned by the chain from the distribution module address -> the gov module.
-		// While they chains till owns it, technically it makes more sense to store them in the gov account.
+		// While the chain still owns it, technically it makes more sense to store them in the gov account.
 		if ctx.ChainID() == "juno-1" {
 			if err := migrateChainOwnedSubDaos(ctx, logger, keepers.AccountKeeper, keepers.ContractKeeper); err != nil {
 				return nil, err
