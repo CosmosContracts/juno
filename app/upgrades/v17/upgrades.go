@@ -92,24 +92,17 @@ func CreateV17UpgradeHandler(
 func migrateChainOwnedSubDaos(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper, ck *wasmkeeper.PermissionedKeeper) error {
 	logger.Info("migrating chain owned sub-daos")
 
+	govAcc := ak.GetModuleAddress(govtypes.ModuleName)
 	distrAddr := ak.GetModuleAddress(distrtypes.ModuleName)
-
-	govAddr := ak.GetModuleAddress(govtypes.ModuleName)
-	govBech32, err := sdk.AccAddressFromBech32(govAddr.String())
-	if err != nil {
-		return err
-	}
 
 	for _, dao := range subDaos {
 		dao := dao
+		logger.Info("migrating " + dao + " to the gov module")
 
-		cAddr, err := sdk.AccAddressFromBech32(dao)
-		if err != nil {
-			return err
-		}
+		cAddr := sdk.MustAccAddressFromBech32(dao)
 
 		// The dist module calls this to update its admin since its the admin currently.
-		newAdmin := govBech32
+		newAdmin := govAcc
 		if err := ck.UpdateContractAdmin(ctx, cAddr, distrAddr, newAdmin); err != nil {
 			return err
 		}
