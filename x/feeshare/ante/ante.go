@@ -64,8 +64,7 @@ type FeeSharePayoutEventOutput struct {
 }
 
 func addNewFeeSharePayoutsForMsg(ctx sdk.Context, fsk FeeShareKeeper, toPay *[]sdk.AccAddress, m sdk.Msg) error {
-	switch msg := m.(type) {
-	case *wasmtypes.MsgExecuteContract:
+	if msg, ok := m.(*wasmtypes.MsgExecuteContract); ok {
 		contractAddr, err := sdk.AccAddressFromBech32(msg.Contract)
 		if err != nil {
 			return err
@@ -93,7 +92,7 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 	// Get valid withdraw addresses from contracts
 	toPay := make([]sdk.AccAddress, 0)
 
-	// validAuthz checks if the msg is an authz exec msg and if so, call tghe validExecuteMsg for each
+	// validAuthz checks if the msg is an authz exec msg and if so, call the validExecuteMsg for each
 	// inner msg. If it is a CosmWasm execute message, that logic runs for nested functions.
 	validAuthz := func(execMsg *authz.MsgExec) error {
 		for _, v := range execMsg.Msgs {
