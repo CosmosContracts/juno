@@ -148,8 +148,6 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 
 // Handle zero fee transactions for fee prepay module
 func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc types.AccountI, tx sdk.Tx, fee sdk.Coins) error {
-	ctx.Logger().Error("HandleZeroFees", "Starting", true)
-
 	msg := tx.GetMsgs()[0]
 	cw := msg.(*wasmtypes.MsgExecuteContract)
 
@@ -178,14 +176,20 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 
 	ctx.Logger().Error("HandleZeroFees", "RequiredFee", requiredFee)
 
+	// Get the fee pay contract
+	feepayContract, err := dfd.feepayKeeper.GetContract(ctx, cw.GetContract())
+	if err != nil {
+		return err
+	}
+
 	// Check if wallet exceeded usage limit on contract
 	if dfd.feepayKeeper.HasWalletExceededUsageLimit(ctx, cw.GetContract(), deductFeesFromAcc.GetAddress().String()) {
-		return feepaytypes.ErrWalletExceededUsageLimit
+		return errorsmod.Wrapf(feepaytypes.ErrWalletExceededUsageLimit, "wallet has exceeded usage limit (%d)", feepayContract.WalletLimit)
 	}
 
 	// Check if the contract has enough funds to cover the fee
 	if !dfd.feepayKeeper.CanContractCoverFee(ctx, cw.GetContract(), requiredFee.Uint64()) {
-		return feepaytypes.ErrContractNotEnoughFunds
+		return errorsmod.Wrapf(feepaytypes.ErrContractNotEnoughFunds, "contract has insufficient funds; expected: %d, got: %d", requiredFee.Uint64(), feepayContract.Balance)
 	}
 
 	// Create an array of coins, storing the required fee
@@ -194,18 +198,12 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	ctx.Logger().Error("HandleZeroFees", "Payment", payment)
 
 	// Cover the fees of the transaction, send from FeePay Module to FeeCollector Module
-	err := dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment)
+	err = dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment)
 	if err != nil {
-		ctx.Logger().Error("HandleZeroFees", "Error transfering funds from module to module", err)
-		return sdkerrors.ErrInsufficientFunds.Wrapf("error transfering funds from module to module: %s", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, "error transfering funds from FeePay to FeeCollector; %s", err)
 	}
 
-	// Deduct the fees from the contract
-	feepayContract, err := dfd.feepayKeeper.GetContract(ctx, cw.GetContract())
-	if err != nil {
-		return err
-	}
-
+	// Deduct the fee from the contract balance
 	dfd.feepayKeeper.UpdateContractBalance(ctx, cw.GetContract(), feepayContract.Balance-requiredFee.Uint64())
 
 	// Increment wallet usage
@@ -217,8 +215,6 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	if err := dfd.feepayKeeper.SetContractUses(ctx, cw.GetContract(), deductFeesFromAcc.GetAddress().String(), uses+1); err != nil {
 		return err
 	}
-
-	ctx.Logger().Error("HandleZeroFees", "Ending", true)
 	return nil
 }
 
