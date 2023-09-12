@@ -38,7 +38,7 @@ sleep 3
 # sleep 3
 
 # Fund the contract
-junod tx feepay fund juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 100ujuno --gas=200000 --fees=5000ujuno --home /home/joel/.juno1 --chain-id local-1 --keyring-backend=test -y --from juno1
+junod tx feepay fund juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 1000000ujuno --gas=200000 --fees=5000ujuno --home /home/joel/.juno1 --chain-id local-1 --keyring-backend=test -y --from juno1
 
 sleep 3
 

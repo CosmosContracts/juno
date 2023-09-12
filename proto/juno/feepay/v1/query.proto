@@ -25,6 +25,11 @@ service Query {
     rpc FeePayContractUses(QueryFeePayContractUses) returns (QueryFeePayContractUsesResponse) {
         option (google.api.http).get = "/juno/feepay/v1/feepay/{contract_address}/uses/{wallet_address}";
     }
+
+    // Query if sender is eligible for fee pay contract interaction
+    rpc FeePayWalletIsEligible(QueryFeePayWalletIsEligible) returns (QueryFeePayWalletIsEligibleResponse) {
+        option (google.api.http).get = "/juno/feepay/v1/feepay/{contract_address}/eligible/{wallet_address}";
+    }
 }
 
 // QueryFeePayContract retrieves a single fee pay contract
@@ -55,7 +60,7 @@ message QueryFeePayContractsResponse {
 
 // Message for querying the number of uses on a fee pay contract by wallet
 message QueryFeePayContractUses {
-      // The contract address.
+  // The contract address.
   string contract_address = 1;
   // The wallet address.
   string wallet_address = 2;
@@ -65,4 +70,20 @@ message QueryFeePayContractUses {
 message QueryFeePayContractUsesResponse {
   // The number of uses on the fee pay contract by wallet
   uint64 uses = 1;
+}
+
+// Message for querying if a wallet is eligible for fee pay contract interactions
+message QueryFeePayWalletIsEligible {
+  // The contract address.
+  string contract_address = 1;
+  // The wallet address.
+  string wallet_address = 2;
+}
+
+// The response for querying if a wallet is eligible for fee pay contract interactions
+message QueryFeePayWalletIsEligibleResponse {
+  // The eligibility of the wallet for fee pay contract interactions
+  bool eligible = 1;
+  // The reason (if any) for the wallet being ineligible for fee pay contract interactions
+  string reason = 2;
 }

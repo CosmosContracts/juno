@@ -139,19 +139,34 @@ func (k Keeper) GetAllContracts(ctx sdk.Context, req *types.QueryFeePayContracts
 }
 
 // Register the contract in the module store
-func (k Keeper) RegisterContract(ctx sdk.Context, fpc *types.FeePayContract) error {
+func (k Keeper) RegisterContract(ctx sdk.Context, rfp *types.MsgRegisterFeePayContract) error {
 
 	// Return false because the contract was already registered
-	if k.IsRegisteredContract(ctx, fpc.ContractAddress) {
+	if k.IsRegisteredContract(ctx, rfp.Contract.ContractAddress) {
 		return types.ErrContractAlreadyRegistered
+	}
+
+	// Check if sender is the owner of the cw contract
+	contractAddr, err := sdk.AccAddressFromBech32(rfp.Contract.ContractAddress)
+	if err != nil {
+		return err
+	}
+
+	// Get the contract owner
+	contractInfo := k.wasmKeeper.GetContractInfo(ctx, contractAddr)
+
+	// Check if the sender is first the admin & then the creator (if no admin exists)
+	adminExists := len(contractInfo.Admin) > 0
+	if adminExists && contractInfo.Admin != rfp.SenderAddress {
+		return types.ErrContractNotAdmin
+	} else if !adminExists && contractInfo.Creator != rfp.SenderAddress {
+		return types.ErrContractNotCreator
 	}
 
 	// Register the new fee pay contract in the KV store
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
-	key := []byte(fpc.ContractAddress)
-	bz := k.cdc.MustMarshal(fpc)
-
-	ctx.Logger().Error("Registering contract", "Key", key, "Value", bz)
+	key := []byte(rfp.Contract.ContractAddress)
+	bz := k.cdc.MustMarshal(rfp.Contract)
 
 	store.Set(key, bz)
 	return nil
@@ -185,8 +200,6 @@ func (k Keeper) UpdateContractBalance(ctx sdk.Context, contractAddress string, n
 
 // Fund an existing fee pay contract
 func (k Keeper) FundContract(ctx sdk.Context, mfc *types.MsgFundFeePayContract) error {
-	ctx.Logger().Error("Funding contract", "Contract", mfc.ContractAddress)
-
 	// Check if the contract is registered
 	if !k.IsRegisteredContract(ctx, mfc.ContractAddress) {
 		return types.ErrContractNotRegistered
@@ -200,22 +213,15 @@ func (k Keeper) FundContract(ctx sdk.Context, mfc *types.MsgFundFeePayContract) 
 		}
 	}
 
-	ctx.Logger().Error("Funding contract", "Amount", transferCoin)
-
 	// Confirm the sender has enough funds to fund the contract
 	addr, err := sdk.AccAddressFromBech32(mfc.SenderAddress)
 	if err != nil {
 		return err
 	}
 
-	ctx.Logger().Error("Funding contract", "Address", addr)
-
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, addr, types.ModuleName, sdk.NewCoins(transferCoin)); err != nil {
-		ctx.Logger().Error("Funding contract", "Error", err)
 		return err
 	}
-
-	ctx.Logger().Error("Funding contract", "Sent Coins", true)
 
 	// Get existing fee pay contract from store
 	fpc, err := k.GetContract(ctx, mfc.ContractAddress)
@@ -226,8 +232,6 @@ func (k Keeper) FundContract(ctx sdk.Context, mfc *types.MsgFundFeePayContract) 
 	// Increment the fpc balance
 	fpc.Balance += transferCoin.Amount.Uint64()
 	k.UpdateContractBalance(ctx, mfc.ContractAddress, fpc.Balance)
-
-	ctx.Logger().Error("Funded contract", "New Details", fpc)
 	return nil
 }
 
@@ -323,4 +327,27 @@ func (k Keeper) HasWalletExceededUsageLimit(ctx sdk.Context, contractAddress str
 
 	// Return if the wallet has used the contract too many times
 	return uses >= contract.WalletLimit
+}
+
+// Check if a wallet is eligible to interact with a contract
+func (k Keeper) IsWalletEligible(ctx sdk.Context, contractAddress string, walletAddress string) (bool, string) {
+
+	// Check if contract is registered
+	if !k.IsRegisteredContract(ctx, contractAddress) {
+		return false, types.ErrContractNotRegistered.Error()
+	}
+
+	// Check if wallet has exceeded usage limit
+	if k.HasWalletExceededUsageLimit(ctx, contractAddress, walletAddress) {
+		return false, types.ErrWalletExceededUsageLimit.Error()
+	}
+
+	// Check if contract has enough funds
+	funds, err := k.GetContractFunds(ctx, contractAddress)
+
+	if err != nil || funds <= 0 {
+		return false, types.ErrContractNotEnoughFunds.Error()
+	}
+
+	return true, ""
 }

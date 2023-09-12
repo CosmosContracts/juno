@@ -10,4 +10,6 @@ var (
 	ErrContractRegisterNotAdmin  = errorsmod.Register(ModuleName, 3, "this address is not the contract admin, cannot register")
 	ErrContractNotEnoughFunds    = errorsmod.Register(ModuleName, 4, "contract does not have enough funds")
 	ErrWalletExceededUsageLimit  = errorsmod.Register(ModuleName, 5, "wallet exceeded usage limit")
+	ErrContractNotAdmin          = errorsmod.Register(ModuleName, 6, "sender is not the contract admin")
+	ErrContractNotCreator        = errorsmod.Register(ModuleName, 7, "sender is not the contract creator")
 )

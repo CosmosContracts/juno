@@ -56,3 +56,16 @@ func (q Querier) FeePayContractUses(ctx context.Context, req *types.QueryFeePayC
 		Uses: uses,
 	}, err
 }
+
+// FeePayContractEligible implements types.QueryServer.
+func (q Querier) FeePayWalletIsEligible(ctx context.Context, req *types.QueryFeePayWalletIsEligible) (*types.QueryFeePayWalletIsEligibleResponse, error) {
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	eligible, reason := q.Keeper.IsWalletEligible(sdkCtx, req.ContractAddress, req.WalletAddress)
+
+	return &types.QueryFeePayWalletIsEligibleResponse{
+		Eligible: eligible,
+		Reason:   reason,
+	}, nil
+}

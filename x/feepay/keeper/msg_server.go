@@ -16,7 +16,7 @@ var _ types.MsgServer = &Keeper{}
 // Register a new fee pay contract.
 func (k Keeper) RegisterFeePayContract(goCtx context.Context, msg *types.MsgRegisterFeePayContract) (*types.MsgRegisterFeePayContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	return &types.MsgRegisterFeePayContractResponse{}, k.RegisterContract(ctx, msg.Contract)
+	return &types.MsgRegisterFeePayContractResponse{}, k.RegisterContract(ctx, msg)
 }
 
 // FundFeePayContract funds a contract with the given amount of tokens.

@@ -26,6 +26,7 @@ func NewQueryCmd() *cobra.Command {
 		NewQueryFeePayContract(),
 		NewQueryFeePayContracts(),
 		NewQueryFeePayContractUsage(),
+		NewQueryWalletIsEligible(),
 	)
 
 	return feepayQueryCmd
@@ -122,6 +123,41 @@ func NewQueryFeePayContractUsage() *cobra.Command {
 			}
 
 			res, err := queryClient.FeePayContractUses(context.Background(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// Query if a wallet is eligible
+func NewQueryWalletIsEligible() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "eligible [contract_address] [wallet_address]",
+		Short: "Query if a wallet is eligible to interact with a FeePay contract",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			contractAddress := args[0]
+			walletAddress := args[1]
+
+			req := &types.QueryFeePayWalletIsEligible{
+				ContractAddress: contractAddress,
+				WalletAddress:   walletAddress,
+			}
+
+			res, err := queryClient.FeePayWalletIsEligible(context.Background(), req)
 			if err != nil {
 				return err
 			}
