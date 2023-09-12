@@ -20,7 +20,7 @@ func (k Keeper) GovHooks() GovHooks {
 }
 
 type Proposal struct {
-	ProposalId uint64 `json:"proposal_id"`
+	ProposalID uint64 `json:"proposal_id"`
 	Proposer   string `json:"proposer"`
 	Status     uint   `json:"status"`
 	SubmitTime string `json:"submit_time"`
@@ -31,7 +31,7 @@ type Proposal struct {
 
 func NewProposal(prop v1.Proposal) Proposal {
 	return Proposal{
-		ProposalId: prop.Id,
+		ProposalID: prop.Id,
 		Proposer:   prop.Proposer,
 		Status:     uint(prop.Status),
 		SubmitTime: strconv.Itoa(prop.SubmitTime.Second()),
@@ -42,14 +42,14 @@ func NewProposal(prop v1.Proposal) Proposal {
 }
 
 type Vote struct {
-	ProposalId   uint64                   `json:"proposal_id"`
+	ProposalID   uint64                   `json:"proposal_id"`
 	VoterAddress string                   `json:"voter_address"`
 	VoteOption   []*v1.WeightedVoteOption `json:"vote_option"` // TODO: Can we read this in cw? [{"option":1,"weight":"1.00"}]
 }
 
 func NewVote(vote v1.Vote) Vote {
 	return Vote{
-		ProposalId:   vote.ProposalId,
+		ProposalID:   vote.ProposalId,
 		VoterAddress: vote.Voter,
 		VoteOption:   vote.Options,
 	}
@@ -72,24 +72,19 @@ type SudoAfterProposalVotingPeriodEnded struct {
 }
 
 // TODO: move this to the keeper, and either caLL it with "staking" or "gov" using module type names?
-func (h GovHooks) sendMsgToAll(ctx sdk.Context, msgBz []byte) error {
+func (h GovHooks) sendMsgToAll(ctx sdk.Context, msgBz []byte) {
 	// on errors return nil, if in a loop continue.
 
 	// TODO: add this in the keeper, anyone can register it.
 	// iter all contracts here
-	contract, err := sdk.AccAddressFromBech32("juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8")
-	if err != nil {
-		return nil
-	}
+	contract, _ := sdk.AccAddressFromBech32("juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8")
 
 	// 100k/250k gas limit?
 	gasLimitCtx := ctx.WithGasMeter(sdk.NewGasMeter(100_000))
-	if _, err = h.k.contractKeeper.Sudo(gasLimitCtx, contract, msgBz); err != nil {
-		return nil
-	}
+	_, _ = h.k.contractKeeper.Sudo(gasLimitCtx, contract, msgBz)
 
 	// ctx.GasMeter().ConsumeGas(100_000, "cw-hooks: AfterValidatorCreated")
-	return nil
+	// return nil
 }
 
 func (h GovHooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
@@ -108,7 +103,7 @@ func (h GovHooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 	h.sendMsgToAll(ctx, msgBz)
 }
 
-func (h GovHooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, depositorAddr sdk.AccAddress) {
+func (h GovHooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
 	prop, found := h.k.govKeeper.GetProposal(ctx, proposalID)
 	if !found {
 		return
@@ -140,7 +135,7 @@ func (h GovHooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAdd
 	h.sendMsgToAll(ctx, msgBz)
 }
 
-func (h GovHooks) AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64) {
+func (h GovHooks) AfterProposalFailedMinDeposit(_ sdk.Context, _ uint64) {
 }
 
 func (h GovHooks) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64) {
