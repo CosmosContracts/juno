@@ -20,6 +20,12 @@ service Msg {
     option (google.api.http).post = "/juno/feepay/v1/tx/registerFeePayContract";
   };
 
+  // UnregisterFeeShare unregisters a contract for receiving transaction fees
+  rpc UnregisterFeePayContract(MsgUnregisterFeePayContract)
+      returns (MsgUnregisterFeePayContractResponse) {
+    option (google.api.http).post = "/juno/feepay/v1/tx/unregisterFeePayContract";
+  };
+
   // Fund a fee pay contract
   rpc FundFeePayContract(MsgFundFeePayContract)
       returns (MsgFundFeePayContractResponse) {
@@ -43,6 +49,20 @@ message MsgRegisterFeePayContract {
 
 // The response message for registering a fee pay contract.
 message MsgRegisterFeePayContractResponse {}
+
+// The message to unregister a fee pay contract.
+message MsgUnregisterFeePayContract {
+  option (gogoproto.equal) = false;
+
+  // The wallet address of the sender.
+  string sender_address = 1;
+
+  // The fee pay contract address.
+  string contract_address = 2;
+}
+
+// The response message for unregistering a fee pay contract.
+message MsgUnregisterFeePayContractResponse {}
 
 // The message to fund a fee pay contract
 message MsgFundFeePayContract {

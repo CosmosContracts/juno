@@ -550,7 +550,6 @@ func NewAppKeepers(
 		&appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
-		authtypes.FeeCollectorName,
 		bondDenom,
 		govModAddress,
 	)

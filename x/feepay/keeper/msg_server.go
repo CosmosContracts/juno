@@ -19,6 +19,11 @@ func (k Keeper) RegisterFeePayContract(goCtx context.Context, msg *types.MsgRegi
 	return &types.MsgRegisterFeePayContractResponse{}, k.RegisterContract(ctx, msg)
 }
 
+func (k Keeper) UnregisterFeePayContract(goCtx context.Context, msg *types.MsgUnregisterFeePayContract) (*types.MsgUnregisterFeePayContractResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	return &types.MsgUnregisterFeePayContractResponse{}, k.UnregisterContract(ctx, msg)
+}
+
 // FundFeePayContract funds a contract with the given amount of tokens.
 func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeePayContract) (*types.MsgFundFeePayContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)

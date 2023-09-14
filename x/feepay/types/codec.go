@@ -24,9 +24,10 @@ var (
 
 const (
 	// Amino names
-	registerFeePayContract = "juno/MsgRegisterFeePayContract"
-	fundFeePayContract     = "juno/MsgFundFeePayContract"
-	updateFeeShareParams   = "juno/MsgFeePayUpdateParams"
+	registerFeePayContract   = "juno/MsgRegisterFeePayContract"
+	unregisterFeePayContract = "juno/MsgUnregisterFeePayContract"
+	fundFeePayContract       = "juno/MsgFundFeePayContract"
+	updateFeeShareParams     = "juno/MsgFeePayUpdateParams"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -46,6 +47,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgRegisterFeePayContract{},
+		&MsgUnregisterFeePayContract{},
 		&MsgFundFeePayContract{},
 		&MsgUpdateParams{},
 	)
@@ -58,6 +60,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 // Amino JSON serialization and EIP-712 compatibility.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRegisterFeePayContract{}, registerFeePayContract, nil)
+	cdc.RegisterConcrete(&MsgUnregisterFeePayContract{}, unregisterFeePayContract, nil)
 	cdc.RegisterConcrete(&MsgFundFeePayContract{}, fundFeePayContract, nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateFeeShareParams, nil)
 }

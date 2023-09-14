@@ -34,8 +34,7 @@ type Keeper struct {
 	wasmKeeper    wasmkeeper.Keeper
 	accountKeeper revtypes.AccountKeeper
 
-	feeCollectorName string
-	bondDenom        string
+	bondDenom string
 
 	// the address capable of executing a MsgUpdateParams message. Typically, this
 	// should be the x/gov module account.
@@ -49,19 +48,17 @@ func NewKeeper(
 	bk *bankkeeper.BaseKeeper,
 	wk wasmkeeper.Keeper,
 	ak revtypes.AccountKeeper,
-	feeCollector string,
 	bondDenom string,
 	authority string,
 ) Keeper {
 	return Keeper{
-		storeKey:         storeKey,
-		cdc:              cdc,
-		bankKeeper:       bk,
-		wasmKeeper:       wk,
-		accountKeeper:    ak,
-		feeCollectorName: feeCollector,
-		bondDenom:        bondDenom,
-		authority:        authority,
+		storeKey:      storeKey,
+		cdc:           cdc,
+		bankKeeper:    bk,
+		wasmKeeper:    wk,
+		accountKeeper: ak,
+		bondDenom:     bondDenom,
+		authority:     authority,
 	}
 }
 
@@ -169,6 +166,80 @@ func (k Keeper) RegisterContract(ctx sdk.Context, rfp *types.MsgRegisterFeePayCo
 	bz := k.cdc.MustMarshal(rfp.Contract)
 
 	store.Set(key, bz)
+	return nil
+}
+
+// Unregister contract (loop through usage store & remove all usage entries for contract)
+func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeePayContract) error {
+
+	// Return false because the contract was already registered
+	if !k.IsRegisteredContract(ctx, rfp.ContractAddress) {
+		return types.ErrContractNotRegistered
+	}
+
+	ctx.Logger().Error("*", "Registered", true)
+
+	// Get fee pay contract
+	contract, err := k.GetContract(ctx, rfp.ContractAddress)
+	if err != nil {
+		return err
+	}
+
+	ctx.Logger().Error("*", "Got contract obj", contract)
+
+	// Get contract address
+	contractAddr, err := sdk.AccAddressFromBech32(rfp.ContractAddress)
+	if err != nil {
+		return err
+	}
+
+	ctx.Logger().Error("*", "Got address", contractAddr)
+
+	// Get the contract info
+	contractInfo := k.wasmKeeper.GetContractInfo(ctx, contractAddr)
+
+	ctx.Logger().Error("*", "Got contract info", contractInfo)
+
+	// Check if sender is the contract owner
+	if contractInfo.Creator != rfp.SenderAddress {
+		return types.ErrContractNotCreator
+	}
+
+	// Remove contract from KV store
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
+	store.Delete([]byte(rfp.ContractAddress))
+
+	ctx.Logger().Error("*", "Deleted contract", true)
+
+	// Remove all usage entries for contract
+	store = prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContractUses))
+	iterator := sdk.KVStorePrefixIterator(store, []byte(rfp.ContractAddress))
+
+	for ; iterator.Valid(); iterator.Next() {
+		store.Delete(iterator.Key())
+	}
+
+	ctx.Logger().Error("*", "Deleted contract usages", true)
+
+	// Transfer funds back to contract owner
+	coins := sdk.NewCoins(sdk.NewCoin(k.bondDenom, sdk.NewIntFromUint64(contract.Balance)))
+
+	// Find admin or creator
+	var refundAddr string
+	if len(contractInfo.Admin) > 0 {
+		refundAddr = contractInfo.Admin
+	} else {
+		refundAddr = contractInfo.Creator
+	}
+
+	ctx.Logger().Error("*", "Sent coins", coins)
+	ctx.Logger().Error("*", "Refund to", refundAddr)
+
+	// TODO: FIX THE FOLLOWING LINE FROM CRASHING THE TX
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(refundAddr), coins); err != nil {
+		return err
+	}
+
 	return nil
 }
 
