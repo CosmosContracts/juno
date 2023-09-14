@@ -86,7 +86,7 @@ func NewUnregisterFeePayContract() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "unregister [contract_bech32]",
 		Short: "Unregister a contract for fee pay.",
-		Long:  "Unregister a contract for fee pay. All remaining funds will return to the contract creator.",
+		Long:  "Unregister a contract for fee pay. All remaining funds will return to the contract admin or the creator (as a fallback).",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -94,11 +94,11 @@ func NewUnregisterFeePayContract() *cobra.Command {
 				return err
 			}
 
-			deployer_address := cliCtx.GetFromAddress()
+			sender_address := cliCtx.GetFromAddress()
 			contract_address := args[0]
 
 			msg := &types.MsgUnregisterFeePayContract{
-				SenderAddress:   deployer_address.String(),
+				SenderAddress:   sender_address.String(),
 				ContractAddress: contract_address,
 			}
 

@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	"github.com/cometbft/cometbft/libs/log"
@@ -177,15 +178,11 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 		return types.ErrContractNotRegistered
 	}
 
-	ctx.Logger().Error("*", "Registered", true)
-
 	// Get fee pay contract
 	contract, err := k.GetContract(ctx, rfp.ContractAddress)
 	if err != nil {
 		return err
 	}
-
-	ctx.Logger().Error("*", "Got contract obj", contract)
 
 	// Get contract address
 	contractAddr, err := sdk.AccAddressFromBech32(rfp.ContractAddress)
@@ -193,12 +190,8 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 		return err
 	}
 
-	ctx.Logger().Error("*", "Got address", contractAddr)
-
 	// Get the contract info
 	contractInfo := k.wasmKeeper.GetContractInfo(ctx, contractAddr)
-
-	ctx.Logger().Error("*", "Got contract info", contractInfo)
 
 	// Check if sender is the contract owner
 	if contractInfo.Creator != rfp.SenderAddress {
@@ -209,8 +202,6 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
 	store.Delete([]byte(rfp.ContractAddress))
 
-	ctx.Logger().Error("*", "Deleted contract", true)
-
 	// Remove all usage entries for contract
 	store = prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContractUses))
 	iterator := sdk.KVStorePrefixIterator(store, []byte(rfp.ContractAddress))
@@ -219,24 +210,19 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 		store.Delete(iterator.Key())
 	}
 
-	ctx.Logger().Error("*", "Deleted contract usages", true)
-
 	// Transfer funds back to contract owner
-	coins := sdk.NewCoins(sdk.NewCoin(k.bondDenom, sdk.NewIntFromUint64(contract.Balance)))
+	coins := sdk.NewCoins(sdk.NewCoin(k.bondDenom, math.NewIntFromUint64(contract.Balance)))
 
 	// Find admin or creator
 	var refundAddr string
-	if len(contractInfo.Admin) > 0 {
+	if contractInfo.Admin != "" {
 		refundAddr = contractInfo.Admin
 	} else {
 		refundAddr = contractInfo.Creator
 	}
 
-	ctx.Logger().Error("*", "Sent coins", coins)
-	ctx.Logger().Error("*", "Refund to", refundAddr)
-
-	// TODO: FIX THE FOLLOWING LINE FROM CRASHING THE TX
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(refundAddr), coins); err != nil {
+	// Send coins from the FeePay module to the refund address
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.MustAccAddressFromBech32(refundAddr), coins); err != nil {
 		return err
 	}
 
