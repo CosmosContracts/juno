@@ -84,6 +84,11 @@ func (k Keeper) IsRegisteredContract(ctx sdk.Context, contractAddr string) bool 
 // Get a contract from KV store
 func (k Keeper) GetContract(ctx sdk.Context, contractAddress string) (*types.FeePayContract, error) {
 
+	// Check if address is valid
+	if _, err := sdk.AccAddressFromBech32(contractAddress); err != nil {
+		return nil, types.ErrInvalidAddress
+	}
+
 	// Return nil, contract not registered
 	if !k.IsRegisteredContract(ctx, contractAddress) {
 		return nil, types.ErrContractNotRegistered
@@ -324,6 +329,15 @@ func (k Keeper) CanContractCoverFee(ctx sdk.Context, contractAddress string, fee
 // Get the number of times a wallet has interacted with a fee pay contract (err only if contract not registered)
 func (k Keeper) GetContractUses(ctx sdk.Context, contractAddress string, walletAddress string) (uint64, error) {
 
+	// Check if wallet & contract address are valid
+	if _, err := sdk.AccAddressFromBech32(contractAddress); err != nil {
+		return 0, types.ErrInvalidAddress.GRPCStatus().Err()
+	}
+
+	if _, err := sdk.AccAddressFromBech32(walletAddress); err != nil {
+		return 0, types.ErrInvalidAddress
+	}
+
 	if !k.IsRegisteredContract(ctx, contractAddress) {
 		return 0, types.ErrContractNotRegistered
 	}
@@ -388,6 +402,15 @@ func (k Keeper) HasWalletExceededUsageLimit(ctx sdk.Context, contractAddress str
 
 // Check if a wallet is eligible to interact with a contract
 func (k Keeper) IsWalletEligible(ctx sdk.Context, contractAddress string, walletAddress string) (bool, string) {
+
+	// Check if wallet & contract address are valid
+	if _, err := sdk.AccAddressFromBech32(contractAddress); err != nil {
+		return false, types.ErrInvalidAddress.Error()
+	}
+
+	if _, err := sdk.AccAddressFromBech32(walletAddress); err != nil {
+		return false, types.ErrInvalidAddress.Error()
+	}
 
 	// Check if contract is registered
 	if !k.IsRegisteredContract(ctx, contractAddress) {
