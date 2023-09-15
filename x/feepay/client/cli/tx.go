@@ -51,8 +51,6 @@ func NewRegisterFeePayContract() *cobra.Command {
 			wallet_limit := args[1]
 			dec_limit, err := strconv.ParseUint(wallet_limit, 10, 64)
 
-			// todo bech32 validation
-
 			if err != nil {
 				return err
 			}

@@ -12,4 +12,6 @@ var (
 	ErrWalletExceededUsageLimit  = errorsmod.Register(ModuleName, 5, "wallet exceeded usage limit")
 	ErrContractNotAdmin          = errorsmod.Register(ModuleName, 6, "sender is not the contract admin")
 	ErrContractNotCreator        = errorsmod.Register(ModuleName, 7, "sender is not the contract creator")
+	ErrInvalidWalletLimit        = errorsmod.Register(ModuleName, 8, "invalid wallet limit; must be between 0 and 1,000,000")
+	ErrInvalidJunoFundAmount     = errorsmod.Register(ModuleName, 9, "fee pay contracts only accept juno funds")
 )

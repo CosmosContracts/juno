@@ -26,6 +26,18 @@ func (msg MsgRegisterFeePayContract) Type() string { return TypeMsgRegisterFeePa
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgRegisterFeePayContract) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
+		return err
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.Contract.ContractAddress); err != nil {
+		return err
+	}
+
+	if msg.Contract.WalletLimit < 0 || msg.Contract.WalletLimit > 1_000_000 {
+		return ErrInvalidWalletLimit
+	}
+
 	return nil
 }
 
@@ -48,6 +60,15 @@ func (msg MsgUnregisterFeePayContract) Type() string { return TypeMsgUnregisterF
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUnregisterFeePayContract) ValidateBasic() error {
+
+	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
+		return err
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -70,6 +91,19 @@ func (msg MsgFundFeePayContract) Type() string { return TypeMsgFundFeePayContrac
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgFundFeePayContract) ValidateBasic() error {
+
+	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
+		return err
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return err
+	}
+
+	if len(msg.Amount) != 1 {
+		return ErrInvalidJunoFundAmount
+	}
+
 	return nil
 }
 
