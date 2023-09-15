@@ -34,7 +34,7 @@ func (msg MsgRegisterFeePayContract) ValidateBasic() error {
 		return err
 	}
 
-	if msg.Contract.WalletLimit < 0 || msg.Contract.WalletLimit > 1_000_000 {
+	if msg.Contract.WalletLimit < 1 || msg.Contract.WalletLimit > 1_000_000 {
 		return ErrInvalidWalletLimit
 	}
 
