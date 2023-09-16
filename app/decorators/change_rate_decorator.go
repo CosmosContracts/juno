@@ -1,10 +1,13 @@
 package decorators
 
 import (
+	"encoding/json"
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -17,11 +20,12 @@ const (
 // that create validators and exceed the max change rate of 5%.
 type MsgChangeRateDecorator struct {
 	sk                      stakingkeeper.Keeper
+	cdc                     codec.BinaryCodec
 	maxCommissionChangeRate sdk.Dec
 }
 
 // Create new Change Rate Decorator
-func NewChangeRateDecorator(sk stakingkeeper.Keeper) MsgChangeRateDecorator {
+func NewChangeRateDecorator(sk stakingkeeper.Keeper, cdc codec.BinaryCodec) MsgChangeRateDecorator {
 
 	rate, err := sdk.NewDecFromStr(MaxChangeRate)
 	if err != nil {
@@ -30,6 +34,7 @@ func NewChangeRateDecorator(sk stakingkeeper.Keeper) MsgChangeRateDecorator {
 
 	return MsgChangeRateDecorator{
 		sk:                      sk,
+		cdc:                     cdc,
 		maxCommissionChangeRate: rate,
 	}
 }
@@ -51,6 +56,28 @@ func (mcr MsgChangeRateDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 // Check if a tx's messages exceed a validator's max change rate
 func (mcr MsgChangeRateDecorator) hasInvalidCommissionRateMsgs(ctx sdk.Context, msgs []sdk.Msg) error {
 	for _, msg := range msgs {
+
+		// Check if an authz message, loop through all inner messages, and recursively call this function
+		if execMsg, ok := msg.(*authz.MsgExec); ok {
+
+			ctx.Logger().Error("MsgChangeRateDecorator", "Authz", execMsg.Msgs)
+
+			// Unmarshal the inner messages
+			var msgs []sdk.Msg
+			for _, v := range execMsg.Msgs {
+				var innerMsg sdk.Msg
+				if err := json.Unmarshal(v.Value, &innerMsg); err != nil {
+					return fmt.Errorf("cannot unmarshal authz exec msgs")
+				}
+				msgs = append(msgs, innerMsg)
+			}
+
+			// Recursively call this function with the inner messages
+			err := mcr.hasInvalidCommissionRateMsgs(ctx, msgs)
+			if err != nil {
+				return err
+			}
+		}
 
 		// Check for create validator messages
 		if msg, ok := msg.(*stakingtypes.MsgCreateValidator); ok && mcr.isInvalidCreateMessage(msg) {
@@ -82,8 +109,13 @@ func (mcr MsgChangeRateDecorator) isInvalidEditMessage(ctx sdk.Context, msg *sta
 		return nil
 	}
 
+	bech32Addr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return fmt.Errorf("invalid validator address")
+	}
+
 	// Get validator info, if exists
-	valInfo, found := mcr.sk.GetValidator(ctx, sdk.ValAddress(msg.ValidatorAddress))
+	valInfo, found := mcr.sk.GetValidator(ctx, sdk.ValAddress(bech32Addr))
 	if !found {
 		return fmt.Errorf("validator not found")
 	}
