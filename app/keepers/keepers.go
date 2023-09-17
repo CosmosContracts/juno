@@ -119,11 +119,11 @@ var maccPerms = map[string][]string{
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:            nil,
 	ibcfeetypes.ModuleName:         nil,
-	wasmtypes.ModuleName:           {authtypes.Burner},
+	wasmtypes.ModuleName:           {},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfee.ModuleName:           nil,
 	buildertypes.ModuleName:        nil,
-	junoburn.ModuleName:            nil,
+	junoburn.ModuleName:            {authtypes.Burner},
 }
 
 type AppKeepers struct {

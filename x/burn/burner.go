@@ -22,9 +22,9 @@ func NewBurnerPlugin(bk bankkeeper.Keeper, mk mintkeeper.Keeper) *BurnerWasmPlug
 	return &BurnerWasmPlugin{bk: bk, mk: mk}
 }
 
-func (k *BurnerWasmPlugin) BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
+func (k *BurnerWasmPlugin) BurnCoins(ctx sdk.Context, _ string, amt sdk.Coins) error {
 	// first, try to burn the coins on bank module
-	err := k.bk.BurnCoins(ctx, moduleName, amt)
+	err := k.bk.BurnCoins(ctx, ModuleName, amt)
 	if err != nil {
 		return err
 	}
