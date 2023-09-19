@@ -15,7 +15,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v17/app/keepers"
+	"github.com/CosmosContracts/juno/v18/app/keepers"
 )
 
 // CreateV10UpgradeHandler makes an upgrade handler for v10 of Juno
