@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 
-	"github.com/CosmosContracts/juno/v17/x/clock/types"
+	"github.com/CosmosContracts/juno/v18/x/clock/types"
 )
 
 func (s *IntegrationTestSuite) TestUpdateClockParams() {

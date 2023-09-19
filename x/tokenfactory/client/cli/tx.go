@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v18/x/tokenfactory/types"
 )
 
 // GetTxCmd returns the transaction commands for this module
