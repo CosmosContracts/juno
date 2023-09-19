@@ -41,7 +41,7 @@ message QueryFeePayContract {
 // QueryFeePayContractResponse defines the response for retrieving a single fee pay contract
 message QueryFeePayContractResponse {
     // contract defines the fee pay contract
-    FeePayContract contract = 1;
+    FeePayContract fee_pay_contract = 1;
 }
 
 // Message for querying a list of fee pay contracts
@@ -53,7 +53,7 @@ message QueryFeePayContracts {
 // The response for querying all fee pay contracts
 message QueryFeePayContractsResponse {
   // A slice of all the stored fee pay contracts
-  repeated FeePayContract contracts = 1 [ (gogoproto.nullable) = false ];
+  repeated FeePayContract fee_pay_contracts = 1 [ (gogoproto.nullable) = false ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -84,6 +84,4 @@ message QueryFeePayWalletIsEligible {
 message QueryFeePayWalletIsEligibleResponse {
   // The eligibility of the wallet for fee pay contract interactions
   bool eligible = 1;
-  // The reason (if any) for the wallet being ineligible for fee pay contract interactions
-  string reason = 2;
 }

@@ -139,7 +139,7 @@ func NewQueryFeePayContractUsage() *cobra.Command {
 // Query if a wallet is eligible
 func NewQueryWalletIsEligible() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "eligible [contract_address] [wallet_address]",
+		Use:   "is-eligible [contract_address] [wallet_address]",
 		Short: "Query if a wallet is eligible to interact with a FeePay contract",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {

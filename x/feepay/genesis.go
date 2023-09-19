@@ -13,7 +13,7 @@ func InitGenesis(
 	k keeper.Keeper,
 	data types.GenesisState,
 ) {
-
+	// TODO: impl, just remember that ParamsKey is going to be nil?
 }
 
 // ExportGenesis export module state

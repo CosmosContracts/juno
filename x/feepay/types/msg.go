@@ -30,11 +30,11 @@ func (msg MsgRegisterFeePayContract) ValidateBasic() error {
 		return err
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.Contract.ContractAddress); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.FeePayContract.ContractAddress); err != nil {
 		return err
 	}
 
-	if msg.Contract.WalletLimit < 1 || msg.Contract.WalletLimit > 1_000_000 {
+	if msg.FeePayContract.WalletLimit > 1_000_000 {
 		return ErrInvalidWalletLimit
 	}
 

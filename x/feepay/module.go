@@ -1,6 +1,7 @@
 package feepay
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -21,7 +22,6 @@ import (
 	"github.com/CosmosContracts/juno/v17/x/feepay/client/cli"
 	"github.com/CosmosContracts/juno/v17/x/feepay/keeper"
 	"github.com/CosmosContracts/juno/v17/x/feepay/types"
-	"github.com/CosmosContracts/juno/v17/x/mint/exported"
 )
 
 // type check to ensure the interface is properly implemented
@@ -32,7 +32,7 @@ var (
 )
 
 // ConsensusVersion defines the current x/feepay module consensus version.
-const ConsensusVersion = 2
+const ConsensusVersion = 1
 
 // AppModuleBasic type for the fees module
 type AppModuleBasic struct{}
@@ -82,11 +82,9 @@ func (AppModuleBasic) RegisterRESTRoutes(_ client.Context, _ *mux.Router) {}
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the fees
 // module.
 func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *runtime.ServeMux) {
-
-	// TODO: UNCOMMENT FOR QUERIES
-	// if err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(c)); err != nil {
-	// 	panic(err)
-	// }
+	if err := types.RegisterQueryHandlerClient(context.Background(), serveMux, types.NewQueryClient(c)); err != nil {
+		panic(err)
+	}
 }
 
 // GetTxCmd returns the root tx command for the fees module.
@@ -106,22 +104,17 @@ type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
 	ak     authkeeper.AccountKeeper
-
-	// legacySubspace is used solely for migration of x/params managed parameters
-	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a new AppModule Object
 func NewAppModule(
 	k keeper.Keeper,
 	ak authkeeper.AccountKeeper,
-	ss exported.Subspace,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
 		ak:             ak,
-		legacySubspace: ss,
 	}
 }
 

@@ -28,6 +28,7 @@ func NewTxCmd() *cobra.Command {
 		NewRegisterFeePayContract(),
 		NewUnregisterFeePayContract(),
 		NewFundFeePayContract(),
+		// TODO: update wallet limit for usage. (0 = disabled)
 	)
 	return txCmd
 }
@@ -38,7 +39,6 @@ func NewRegisterFeePayContract() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register [contract_bech32] [wallet_limit]",
 		Short: "Register a contract for fee pay. Only the contract admin can register a contract.",
-		Long:  "Register a contract for fee pay. Only the contract admin can register a contract.",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx, err := client.GetClientTxContext(cmd)
@@ -62,8 +62,8 @@ func NewRegisterFeePayContract() *cobra.Command {
 			}
 
 			msg := &types.MsgRegisterFeePayContract{
-				SenderAddress: deployer_address.String(),
-				Contract:      fpc,
+				SenderAddress:  deployer_address.String(),
+				FeePayContract: fpc,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

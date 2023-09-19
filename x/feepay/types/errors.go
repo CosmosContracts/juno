@@ -15,4 +15,5 @@ var (
 	ErrInvalidWalletLimit        = errorsmod.Register(ModuleName, 8, "invalid wallet limit; must be between 0 and 1,000,000")
 	ErrInvalidJunoFundAmount     = errorsmod.Register(ModuleName, 9, "fee pay contracts only accept juno funds")
 	ErrInvalidAddress            = errorsmod.Register(ModuleName, 10, "invalid bech32 address")
+	ErrInvalidCWContract         = errorsmod.Register(ModuleName, 11, "invalid CosmWasm contract")
 )

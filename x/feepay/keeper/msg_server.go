@@ -27,7 +27,17 @@ func (k Keeper) UnregisterFeePayContract(goCtx context.Context, msg *types.MsgUn
 // FundFeePayContract funds a contract with the given amount of tokens.
 func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeePayContract) (*types.MsgFundFeePayContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	return &types.MsgFundFeePayContractResponse{}, k.FundContract(ctx, msg)
+
+	// Get the contract
+	contract, err := k.GetContract(ctx, msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	// Sender address (already validated in msg.go)
+	senderAddr := sdk.MustAccAddressFromBech32(msg.SenderAddress)
+
+	return &types.MsgFundFeePayContractResponse{}, k.FundContract(ctx, contract, senderAddr, msg.Amount)
 }
 
 func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {

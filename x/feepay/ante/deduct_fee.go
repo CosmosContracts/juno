@@ -36,6 +36,7 @@ type DeductFeeDecorator struct {
 	// type TxFeeChecker func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error)
 	txFeeChecker ante.TxFeeChecker
 
+	// TODO: test this.
 	bondDenom string
 }
 
@@ -58,7 +59,6 @@ func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, 
 func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
-		// return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 	}
 
@@ -151,9 +151,10 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	msg := tx.GetMsgs()[0]
 	cw := msg.(*wasmtypes.MsgExecuteContract)
 
-	// We need to check if it is a valid contract. Utilize the FeePay Keeper for validation
-	if !dfd.feepayKeeper.IsRegisteredContract(ctx, cw.GetContract()) {
-		return feepaytypes.ErrContractNotRegistered
+	// Get the fee pay contract
+	feepayContract, err := dfd.feepayKeeper.GetContract(ctx, cw.GetContract())
+	if err != nil {
+		return errorsmod.Wrapf(err, "error getting contract %s", cw.GetContract())
 	}
 
 	// Get the fee price in the chain denom
@@ -176,19 +177,14 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 
 	ctx.Logger().Error("HandleZeroFees", "RequiredFee", requiredFee)
 
-	// Get the fee pay contract
-	feepayContract, err := dfd.feepayKeeper.GetContract(ctx, cw.GetContract())
-	if err != nil {
-		return err
-	}
-
 	// Check if wallet exceeded usage limit on contract
-	if dfd.feepayKeeper.HasWalletExceededUsageLimit(ctx, cw.GetContract(), deductFeesFromAcc.GetAddress().String()) {
+	accBech32 := deductFeesFromAcc.GetAddress().String()
+	if dfd.feepayKeeper.HasWalletExceededUsageLimit(ctx, feepayContract, accBech32) {
 		return errorsmod.Wrapf(feepaytypes.ErrWalletExceededUsageLimit, "wallet has exceeded usage limit (%d)", feepayContract.WalletLimit)
 	}
 
 	// Check if the contract has enough funds to cover the fee
-	if !dfd.feepayKeeper.CanContractCoverFee(ctx, cw.GetContract(), requiredFee.Uint64()) {
+	if !dfd.feepayKeeper.CanContractCoverFee(ctx, feepayContract, requiredFee.Uint64()) {
 		return errorsmod.Wrapf(feepaytypes.ErrContractNotEnoughFunds, "contract has insufficient funds; expected: %d, got: %d", requiredFee.Uint64(), feepayContract.Balance)
 	}
 
@@ -198,23 +194,16 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	ctx.Logger().Error("HandleZeroFees", "Payment", payment)
 
 	// Cover the fees of the transaction, send from FeePay Module to FeeCollector Module
-	err = dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment)
-	if err != nil {
+	if err := dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment); err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, "error transfering funds from FeePay to FeeCollector; %s", err)
 	}
 
 	// Deduct the fee from the contract balance
-	dfd.feepayKeeper.UpdateContractBalance(ctx, cw.GetContract(), feepayContract.Balance-requiredFee.Uint64())
+	dfd.feepayKeeper.SetContractBalance(ctx, feepayContract, feepayContract.Balance-requiredFee.Uint64())
 
 	// Increment wallet usage
-	uses, err := dfd.feepayKeeper.GetContractUses(ctx, cw.GetContract(), deductFeesFromAcc.GetAddress().String())
-	if err != nil {
-		return err
-	}
+	dfd.feepayKeeper.IncrementContractUses(ctx, feepayContract, accBech32, 1)
 
-	if err := dfd.feepayKeeper.SetContractUses(ctx, cw.GetContract(), deductFeesFromAcc.GetAddress().String(), uses+1); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -224,7 +213,6 @@ func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc types.AccountI
 		return errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "invalid fee amount: %s", fees)
 	}
 
-	// TODO: if 0 fees are sent, then the module account needs to pay it. (prepay module) ELSE have the standard user
 	err := bankKeeper.SendCoinsFromAccountToModule(ctx, acc.GetAddress(), types.FeeCollectorName, fees)
 	if err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
@@ -234,6 +222,7 @@ func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc types.AccountI
 }
 
 // from the SDK pulled out
+// TODO: modify this in part with globalfee for bypasses with ibc, force set 0? need an override in the event of DOS attacks
 func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
@@ -246,6 +235,7 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
+	// TODO: see if we can remove, since we do call this twice.
 	if ctx.IsCheckTx() && !isValidFeePayTransaction(ctx, tx, feeTx.GetFee()) {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
@@ -292,15 +282,11 @@ func getTxPriority(fee sdk.Coins, gas int64) int64 {
 // Check if a transaction should be processed as a FeePay transaction.
 // A valid FeePay transaction has no fee, and only 1 message for executing a contract.
 func isValidFeePayTransaction(ctx sdk.Context, tx sdk.Tx, fee sdk.Coins) bool {
-
-	ctx.Logger().Error("FeePayAnte", "IsZero", fee.IsZero(), "Msgs", len(tx.GetMsgs()))
+	// TODO: Future allow for multiple msgs.
 
 	// Check if fee is zero, and tx has only 1 message for executing a contract
 	if fee.IsZero() && len(tx.GetMsgs()) == 1 {
 		_, ok := (tx.GetMsgs()[0]).(*wasmtypes.MsgExecuteContract)
-
-		ctx.Logger().Error("FeePayAnte", "IsCWExecuteContract", ok)
-
 		return ok
 	}
 
