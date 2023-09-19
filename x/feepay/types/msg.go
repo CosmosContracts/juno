@@ -8,14 +8,16 @@ var (
 	_ sdk.Msg = &MsgRegisterFeePayContract{}
 	_ sdk.Msg = &MsgUnregisterFeePayContract{}
 	_ sdk.Msg = &MsgFundFeePayContract{}
+	_ sdk.Msg = &MsgUpdateFeePayContractWalletLimit{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 const (
-	TypeMsgRegisterFeePayContract   = "register_feepay_contract"
-	TypeMsgUnregisterFeePayContract = "unregister_feepay_contract"
-	TypeMsgFundFeePayContract       = "fund_feepay_contract"
-	TypeMsgUpdateParams             = "msg_update_params"
+	TypeMsgRegisterFeePayContract          = "register_feepay_contract"
+	TypeMsgUnregisterFeePayContract        = "unregister_feepay_contract"
+	TypeMsgFundFeePayContract              = "fund_feepay_contract"
+	TypeMsgUpdateFeePayContractWalletLimit = "update_feepay_contract_wallet_limit"
+	TypeMsgUpdateParams                    = "msg_update_params"
 )
 
 // Route returns the name of the module
@@ -119,6 +121,43 @@ func (msg MsgFundFeePayContract) GetSigners() []sdk.AccAddress {
 }
 
 // Route returns the name of the module
+func (msg MsgUpdateFeePayContractWalletLimit) Route() string { return RouterKey }
+
+// Type returns the the action
+func (msg MsgUpdateFeePayContractWalletLimit) Type() string {
+	return TypeMsgUpdateFeePayContractWalletLimit
+}
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgUpdateFeePayContractWalletLimit) ValidateBasic() error {
+
+	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
+		return err
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return err
+	}
+
+	if msg.WalletLimit > 1_000_000 {
+		return ErrInvalidWalletLimit
+	}
+
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgUpdateFeePayContractWalletLimit) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgUpdateFeePayContractWalletLimit) GetSigners() []sdk.AccAddress {
+	from, _ := sdk.AccAddressFromBech32(msg.SenderAddress)
+	return []sdk.AccAddress{from}
+}
+
+// Route returns the name of the module
 func (msg MsgUpdateParams) Route() string { return RouterKey }
 
 // Type returns the the action
@@ -126,7 +165,6 @@ func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
-	// TODO: LATER
 	return nil
 }
 

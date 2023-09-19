@@ -43,3 +43,11 @@ junod tx feepay fund juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skj
 sleep 3
 
 junod q feepay contract juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 --home /home/joel/.juno1 --chain-id local-1
+
+sleep 3
+
+junod tx feepay update-wallet-limit juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 5 --gas=200000 --fees=5000ujuno --home /home/joel/.juno1 --chain-id local-1 --keyring-backend=test --from juno1 -y
+
+sleep 3 
+
+junod q feepay contract juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 --home /home/joel/.juno1 --chain-id local-1

@@ -255,6 +255,34 @@ func (k Keeper) HasWalletExceededUsageLimit(ctx sdk.Context, fpc *types.FeePayCo
 	return uses >= fpc.WalletLimit
 }
 
+// Update the wallet limit of an existing fee pay contract
+func (k Keeper) UpdateContractWalletLimit(ctx sdk.Context, fpc *types.FeePayContract, senderAddress string, walletLimit uint64) error {
+
+	// Check if a cw contract
+	contractAddr, err := sdk.AccAddressFromBech32(fpc.ContractAddress)
+	if err != nil {
+		return err
+	}
+
+	if ok := k.wasmKeeper.HasContractInfo(ctx, contractAddr); !ok {
+		return types.ErrInvalidCWContract
+	}
+
+	// Get the contract info & ensure sender is the manager
+	contractInfo := k.wasmKeeper.GetContractInfo(ctx, contractAddr)
+
+	if ok, err := k.IsContractManager(senderAddress, contractInfo); !ok {
+		return err
+	}
+
+	// Update the store with the new limit
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
+	fpc.WalletLimit = walletLimit
+	store.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
+
+	return nil
+}
+
 // Check if a wallet is eligible to interact with a contract
 func (k Keeper) IsWalletEligible(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string) (bool, error) {
 

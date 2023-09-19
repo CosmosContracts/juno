@@ -28,7 +28,7 @@ func NewTxCmd() *cobra.Command {
 		NewRegisterFeePayContract(),
 		NewUnregisterFeePayContract(),
 		NewFundFeePayContract(),
-		// TODO: update wallet limit for usage. (0 = disabled)
+		NewUpdateFeePayContractWalletLimit(),
 	)
 	return txCmd
 }
@@ -137,6 +137,47 @@ func NewFundFeePayContract() *cobra.Command {
 				SenderAddress:   sender_address.String(),
 				ContractAddress: contract_address,
 				Amount:          amount,
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewUpdateFeePayContractWalletLimit returns a CLI command handler for
+// updating the wallet limit of a fee pay contract.
+func NewUpdateFeePayContractWalletLimit() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-wallet-limit [contract_bech32] [wallet_limit]",
+		Short: "Update the wallet limit of a fee pay contract.",
+		Long:  "Update the wallet limit of a fee pay contract.",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			sender_address := cliCtx.GetFromAddress()
+			contract_address := args[0]
+			wallet_limit := args[1]
+			dec_limit, err := strconv.ParseUint(wallet_limit, 10, 64)
+
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgUpdateFeePayContractWalletLimit{
+				SenderAddress:   sender_address.String(),
+				ContractAddress: contract_address,
+				WalletLimit:     dec_limit,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

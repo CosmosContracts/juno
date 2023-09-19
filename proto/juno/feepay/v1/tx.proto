@@ -31,6 +31,12 @@ service Msg {
       returns (MsgFundFeePayContractResponse) {
     option (google.api.http).post = "/juno/feepay/v1/tx/fundFeePayContract";
   };
+
+  // Update a fee pay contract wallet limit
+  rpc UpdateFeePayContractWalletLimit(MsgUpdateFeePayContractWalletLimit)
+      returns (MsgUpdateFeePayContractWalletLimitResponse) {
+    option (google.api.http).post = "/juno/feepay/v1/tx/updateFeePayContractWalletLimit";
+  };
   
   // Update the params of the module through gov v1 type.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -85,6 +91,23 @@ message MsgFundFeePayContract {
 
 // The response message for funding a fee pay contract.
 message MsgFundFeePayContractResponse {}
+
+// The message to update a fee pay contract wallet limit.
+message MsgUpdateFeePayContractWalletLimit {
+  option (gogoproto.equal) = false;
+
+  // The wallet address of the sender.
+  string sender_address = 1;
+
+  // The fee pay contract to fund.
+  string contract_address = 2;
+  
+  // The new wallet limit.
+  uint64 wallet_limit = 3;
+}
+
+// The response message for updating a fee pay contract wallet limit.
+message MsgUpdateFeePayContractWalletLimitResponse {}
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
 //

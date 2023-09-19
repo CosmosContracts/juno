@@ -40,6 +40,20 @@ func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeeP
 	return &types.MsgFundFeePayContractResponse{}, k.FundContract(ctx, contract, senderAddr, msg.Amount)
 }
 
+// Update the wallet limit of a fee pay contract.
+func (k Keeper) UpdateFeePayContractWalletLimit(goCtx context.Context, msg *types.MsgUpdateFeePayContractWalletLimit) (*types.MsgUpdateFeePayContractWalletLimitResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get the contract
+	contract, err := k.GetContract(ctx, msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgUpdateFeePayContractWalletLimitResponse{}, k.UpdateContractWalletLimit(ctx, contract, msg.SenderAddress, msg.WalletLimit)
+}
+
+// UpdateParams updates the parameters of the module.
 func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	if k.authority != req.Authority {
 		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
