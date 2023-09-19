@@ -24,6 +24,12 @@ service Query {
       returns (QueryAnnualProvisionsResponse) {
     option (google.api.http).get = "/cosmos/mint/v1beta1/annual_provisions";
   }
+
+  // TargetSupply current target supply for this phase value.
+  rpc TargetSupply(QueryTargetSupplyRequest)
+      returns (QueryTargetSupplyResponse) {
+    option (google.api.http).get = "/cosmos/mint/v1beta1/target_supply";
+  }
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -58,6 +64,20 @@ message QueryAnnualProvisionsResponse {
   // annual_provisions is the current minting annual provisions value.
   bytes annual_provisions = 1 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryTargetSupplyRequest is the request type for the
+// Query/TargetSupply RPC method.
+message QueryTargetSupplyRequest {}
+
+// QueryTargetSupplyResponse is the response type for the
+// Query/TargetSupply RPC method.
+message QueryTargetSupplyResponse {
+  // target_supply is the target supply for this phase value.
+  bytes target_supply = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = false
   ];
 }

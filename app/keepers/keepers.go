@@ -1,6 +1,7 @@
 package keepers
 
 import (
+	"math"
 	"path/filepath"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -81,24 +82,24 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	clockkeeper "github.com/CosmosContracts/juno/v17/x/clock/keeper"
-	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
-	dripkeeper "github.com/CosmosContracts/juno/v17/x/drip/keeper"
-	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
-	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v17/x/globalfee"
-	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
-	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
-	mintkeeper "github.com/CosmosContracts/juno/v17/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
-	"github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v17/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
+	clockkeeper "github.com/CosmosContracts/juno/v18/x/clock/keeper"
+	clocktypes "github.com/CosmosContracts/juno/v18/x/clock/types"
+	dripkeeper "github.com/CosmosContracts/juno/v18/x/drip/keeper"
+	driptypes "github.com/CosmosContracts/juno/v18/x/drip/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v18/x/globalfee"
+	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v18/x/globalfee/types"
+	mintkeeper "github.com/CosmosContracts/juno/v18/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v18/x/mint/types"
+	"github.com/CosmosContracts/juno/v18/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v18/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v18/x/tokenfactory/types"
 )
 
 var (
-	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3"
+	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3,cosmwasm_1_4"
 
 	tokenFactoryCapabilities = []string{
 		tokenfactorytypes.EnableBurnFrom,
@@ -344,6 +345,10 @@ func NewAppKeepers(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
 
+	// Update the max metadata length to be >255
+	govConfig := govtypes.DefaultConfig()
+	govConfig.MaxMetadataLen = math.MaxUint64
+
 	govKeeper := govkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[govtypes.StoreKey],
@@ -351,7 +356,7 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
 		bApp.MsgServiceRouter(),
-		govtypes.DefaultConfig(),
+		govConfig,
 		govModAddress,
 	)
 	appKeepers.GovKeeper = *govKeeper.SetHooks(

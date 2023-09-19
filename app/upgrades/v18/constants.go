@@ -1,24 +1,18 @@
-package v14
+package v18
 
 import (
-	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
-
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/CosmosContracts/juno/v18/app/upgrades"
-	"github.com/CosmosContracts/juno/v18/x/globalfee"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.
-const UpgradeName = "v14"
+const UpgradeName = "v18"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: CreateV14UpgradeHandler,
+	CreateUpgradeHandler: CreateV18UpgradeHandler,
 	StoreUpgrades: store.StoreUpgrades{
-		Added: []string{
-			globalfee.ModuleName,
-			ibchookstypes.StoreKey,
-		},
+		Added: []string{},
 	},
 }

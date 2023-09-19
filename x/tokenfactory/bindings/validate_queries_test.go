@@ -9,7 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings"
+	wasmbinding "github.com/CosmosContracts/juno/v18/x/tokenfactory/bindings"
 )
 
 func TestFullDenom(t *testing.T) {
