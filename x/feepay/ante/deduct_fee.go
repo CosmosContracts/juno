@@ -148,6 +148,12 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 
 // Handle zero fee transactions for fee prepay module
 func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc types.AccountI, tx sdk.Tx, fee sdk.Coins) error {
+
+	// Prevent FeePay Tx from occuring when module is disabled
+	if !dfd.feepayKeeper.GetParams(ctx).EnableFeepay {
+		return feepaytypes.ErrFeePayDisabled
+	}
+
 	msg := tx.GetMsgs()[0]
 	cw := msg.(*wasmtypes.MsgExecuteContract)
 
