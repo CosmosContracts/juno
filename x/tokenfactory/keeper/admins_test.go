@@ -510,7 +510,6 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
 			tc := tc
 			bankKeeper := suite.App.AppKeepers.BankKeeper
-			tc := tc
 			res, err := suite.msgServer.SetDenomMetadata(sdk.WrapSDKContext(suite.Ctx), &tc.msgSetDenomMetadata)
 			if tc.expectedPass {
 				suite.Require().NoError(err)
