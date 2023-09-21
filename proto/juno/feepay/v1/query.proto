@@ -30,6 +30,11 @@ service Query {
     rpc FeePayWalletIsEligible(QueryFeePayWalletIsEligible) returns (QueryFeePayWalletIsEligibleResponse) {
         option (google.api.http).get = "/juno/feepay/v1/feepay/{contract_address}/eligible/{wallet_address}";
     }
+
+    // Params retrieves the FeePay module params
+    rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+      option (google.api.http).get = "/juno/feepay/v1/params";
+    }
 }
 
 // QueryFeePayContract retrieves a single fee pay contract
@@ -84,4 +89,13 @@ message QueryFeePayWalletIsEligible {
 message QueryFeePayWalletIsEligibleResponse {
   // The eligibility of the wallet for fee pay contract interactions
   bool eligible = 1;
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params is the returned Feepay parameter
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }

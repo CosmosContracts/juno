@@ -16,9 +16,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
-const (
-	StoreKeyContracts    = "contracts"
-	StoreKeyContractUses = "contract-uses"
+var (
+	StoreKeyContracts    = []byte("contracts")
+	StoreKeyContractUses = []byte("contract-uses")
 )
 
 // Keeper of this module maintains collections of feeshares for contracts

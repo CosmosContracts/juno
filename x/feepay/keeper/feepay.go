@@ -11,7 +11,7 @@ import (
 
 // Check if a contract is registered as a fee pay contract
 func (k Keeper) IsContractRegistered(ctx sdk.Context, contractAddr string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
 	return store.Has([]byte(contractAddr))
 }
 
@@ -23,7 +23,7 @@ func (k Keeper) GetContract(ctx sdk.Context, contractAddress string) (*types.Fee
 		return nil, types.ErrContractNotRegistered
 	}
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
 
 	key := []byte(contractAddress)
 	bz := store.Get(key)
@@ -37,9 +37,9 @@ func (k Keeper) GetContract(ctx sdk.Context, contractAddress string) (*types.Fee
 }
 
 // Get all registered fee pay contracts
-func (k Keeper) GetAllContracts(ctx sdk.Context, pag *query.PageRequest) (*types.QueryFeePayContractsResponse, error) {
+func (k Keeper) GetContracts(ctx sdk.Context, pag *query.PageRequest) (*types.QueryFeePayContractsResponse, error) {
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
 
 	// Filter and paginate all contracts
 	results, pageRes, err := query.GenericFilteredPaginate(
@@ -70,6 +70,24 @@ func (k Keeper) GetAllContracts(ctx sdk.Context, pag *query.PageRequest) (*types
 	}, nil
 }
 
+// GetAllContracts returns all the registered FeePay contracts.
+func (k Keeper) GetAllContracts(ctx sdk.Context) []types.FeePayContract {
+	contracts := []types.FeePayContract{}
+
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, StoreKeyContracts)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var c types.FeePayContract
+		k.cdc.MustUnmarshal(iterator.Value(), &c)
+
+		contracts = append(contracts, c)
+	}
+
+	return contracts
+}
+
 // Register the contract in the module store
 func (k Keeper) RegisterContract(ctx sdk.Context, rfp *types.MsgRegisterFeePayContract) error {
 
@@ -96,13 +114,16 @@ func (k Keeper) RegisterContract(ctx sdk.Context, rfp *types.MsgRegisterFeePayCo
 		return err
 	}
 
-	// Register the new fee pay contract in the KV store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
-	key := []byte(rfp.FeePayContract.ContractAddress)
-	bz := k.cdc.MustMarshal(rfp.FeePayContract)
-
-	store.Set(key, bz)
+	k.SetFeePayContract(ctx, *rfp.FeePayContract)
 	return nil
+}
+
+// Set a contract in the KV Store
+func (k Keeper) SetFeePayContract(ctx sdk.Context, feepay types.FeePayContract) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
+	key := []byte(feepay.ContractAddress)
+	bz := k.cdc.MustMarshal(&feepay)
+	store.Set(key, bz)
 }
 
 // Unregister contract (loop through usage store & remove all usage entries for contract)
@@ -134,11 +155,11 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 	}
 
 	// Remove contract from KV store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
 	store.Delete([]byte(rfp.ContractAddress))
 
 	// Remove all usage entries for contract
-	store = prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContractUses))
+	store = prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContractUses)
 	iterator := sdk.KVStorePrefixIterator(store, []byte(rfp.ContractAddress))
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -168,7 +189,7 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 func (k Keeper) SetContractBalance(ctx sdk.Context, fpc *types.FeePayContract, newBalance uint64) {
 
 	// Get the existing contract in KV store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
 
 	// Set new balance and save to KV store
 	fpc.Balance = newBalance
@@ -205,7 +226,7 @@ func (k Keeper) CanContractCoverFee(ctx sdk.Context, fpc *types.FeePayContract, 
 func (k Keeper) GetContractUses(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string) (uint64, error) {
 
 	// Get usage from store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContractUses))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContractUses)
 	key := []byte(fpc.ContractAddress + "-" + walletAddress)
 	bz := store.Get(key)
 
@@ -226,7 +247,7 @@ func (k Keeper) IncrementContractUses(ctx sdk.Context, fpc *types.FeePayContract
 	}
 
 	// Get store, key, & value for setting usage
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContractUses))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContractUses)
 	key := []byte(fpc.ContractAddress + "-" + walletAddress)
 	bz, err := k.cdc.Marshal(&types.FeePayWalletUsage{
 		ContractAddress: fpc.ContractAddress,
@@ -276,7 +297,7 @@ func (k Keeper) UpdateContractWalletLimit(ctx sdk.Context, fpc *types.FeePayCont
 	}
 
 	// Update the store with the new limit
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(StoreKeyContracts))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
 	fpc.WalletLimit = walletLimit
 	store.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
 

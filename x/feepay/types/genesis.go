@@ -8,10 +8,15 @@ func NewGenesisState(params Params, feecontract []FeePayContract) GenesisState {
 	}
 }
 
-// DefaultGenesisState sets default evm genesis state with empty accounts and
+// DefaultGenesisState sets default genesis state with empty accounts and
 // default params and chain config values.
 func DefaultGenesisState() *GenesisState {
-	return &GenesisState{}
+	return &GenesisState{
+		Params: Params{
+			EnableFeepay: true,
+		},
+		FeeContract: []FeePayContract{},
+	}
 }
 
 // Validate performs basic genesis state validation returning an error upon any

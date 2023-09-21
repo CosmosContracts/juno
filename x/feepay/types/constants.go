@@ -1,6 +1,10 @@
 package types
 
 const (
+	prefixParamsKey = iota + 1
+)
+
+const (
 	// module name
 	ModuleName = "feepay"
 
@@ -9,4 +13,8 @@ const (
 
 	// RouterKey to be used for message routing
 	RouterKey = ModuleName
+)
+
+var (
+	ParamsKey = []byte{prefixParamsKey}
 )

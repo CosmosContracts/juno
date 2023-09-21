@@ -41,7 +41,7 @@ func (q Querier) FeePayContracts(ctx context.Context, req *types.QueryFeePayCont
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
-	res, err := q.Keeper.GetAllContracts(sdkCtx, req.Pagination)
+	res, err := q.Keeper.GetContracts(sdkCtx, req.Pagination)
 
 	if err != nil {
 		return nil, err
@@ -101,4 +101,14 @@ func (q Querier) FeePayWalletIsEligible(ctx context.Context, req *types.QueryFee
 	return &types.QueryFeePayWalletIsEligibleResponse{
 		Eligible: isEligible,
 	}, err
+}
+
+// Params returns the feepay module params
+func (q Querier) Params(
+	c context.Context,
+	_ *types.QueryParamsRequest,
+) (*types.QueryParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	params := q.GetParams(ctx)
+	return &types.QueryParamsResponse{Params: params}, nil
 }
