@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	mintkeeper "github.com/CosmosContracts/juno/v17/x/mint/keeper"
+	mintkeeper "github.com/CosmosContracts/juno/v18/x/mint/keeper"
 )
 
 // used to override Wasmd's NewBurnCoinMessageHandler
