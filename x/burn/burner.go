@@ -46,6 +46,5 @@ func (k *BurnerWasmPlugin) BurnCoins(ctx sdk.Context, _ string, amt sdk.Coins) e
 }
 
 func (k *BurnerWasmPlugin) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, _ string, amt sdk.Coins) error {
-	// we override the default send to instead sent to the "junoburn" module. Then we subtract that from the x/mint module in its query
 	return k.bk.SendCoinsFromAccountToModule(ctx, senderAddr, ModuleName, amt)
 }
