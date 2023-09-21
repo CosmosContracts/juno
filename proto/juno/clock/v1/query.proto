@@ -1,0 +1,42 @@
+syntax = "proto3";
+package juno.clock.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "juno/clock/v1/genesis.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/clock/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // ClockContracts
+  rpc ClockContracts(QueryClockContracts)
+      returns (QueryClockContractsResponse) {
+    option (google.api.http).get =
+        "/juno/clock/v1/contracts";
+  }
+  // Params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/juno/clock/v1/params";
+  }
+}
+
+// QueryClockContracts is the request type to get all contracts.
+message QueryClockContracts {}
+
+// QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
+message QueryClockContractsResponse {
+  repeated string contract_addresses = 1 [    
+    (gogoproto.jsontag) = "contract_addresses,omitempty",
+    (gogoproto.moretags) = "yaml:\"contract_addresses\""
+  ];
+}
+
+// QueryParams is the request type to get all module params.
+message QueryParamsRequest {}
+
+// QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.jsontag) = "params", (gogoproto.moretags) = "yaml:\"params\""];
+}

@@ -15,8 +15,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosContracts/juno/v17/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v17/x/mint/types"
+	"github.com/CosmosContracts/juno/v18/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v18/x/mint/types"
 )
 
 // TestRandomizedGenState tests the normal scenario of applying RandomizedGenState.
@@ -76,8 +76,8 @@ func TestRandomizedGenState1(t *testing.T) {
 			}, "assignment to entry in nil map"},
 	}
 
-	for _, tc := range tests {
-		tc := tc
-		require.Panicsf(t, func() { simulation.RandomizedGenState(&tc.simState) }, tc.panicMsg)
+	for _, tt := range tests {
+		tt := tt
+		require.Panicsf(t, func() { simulation.RandomizedGenState(&tt.simState) }, tt.panicMsg)
 	}
 }

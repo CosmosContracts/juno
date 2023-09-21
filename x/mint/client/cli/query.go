@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/CosmosContracts/juno/v17/x/mint/types"
+	"github.com/CosmosContracts/juno/v18/x/mint/types"
 )
 
 // GetQueryCmd returns the cli query commands for the minting module.
@@ -25,6 +25,7 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryParams(),
 		GetCmdQueryInflation(),
 		GetCmdQueryAnnualProvisions(),
+		GetCmqQueryTargetSupply(),
 	)
 
 	return mintingQueryCmd
@@ -109,6 +110,34 @@ func GetCmdQueryAnnualProvisions() *cobra.Command {
 			}
 
 			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.AnnualProvisions))
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmqQueryTargetSupply implements a command to return the current target supply value.
+func GetCmqQueryTargetSupply() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "target-supply",
+		Short: "Query the current target supply for this phase value",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryTargetSupplyRequest{}
+			res, err := queryClient.TargetSupply(cmd.Context(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.TargetSupply))
 		},
 	}
 

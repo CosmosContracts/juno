@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v18/x/tokenfactory/types"
 )
 
 func (suite *KeeperTestSuite) TestAdminMsgs() {
@@ -508,6 +508,7 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
+			tc := tc
 			bankKeeper := suite.App.AppKeepers.BankKeeper
 			tc := tc
 			res, err := suite.msgServer.SetDenomMetadata(sdk.WrapSDKContext(suite.Ctx), &tc.msgSetDenomMetadata)
