@@ -2,7 +2,8 @@ module github.com/CosmosContracts/juno/v18
 
 go 1.21
 
-toolchain go1.21.0
+// heighliner does not like.
+// toolchain go1.21.0
 
 require (
 	cosmossdk.io/api v0.3.1
