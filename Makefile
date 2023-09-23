@@ -160,6 +160,9 @@ ictest-pob: rm-testcache
 ictest-drip: rm-testcache
 	cd interchaintest &&  go test -race -v -run TestJunoDrip .
 
+ictest-burn: rm-testcache
+	cd interchaintest &&  go test -race -v -run TestJunoBurnModule .
+
 ictest-clock: rm-testcache
 	cd interchaintest &&  go test -race -v -run TestJunoClock .
 

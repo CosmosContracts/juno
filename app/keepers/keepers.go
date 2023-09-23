@@ -82,6 +82,7 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	junoburn "github.com/CosmosContracts/juno/v18/x/burn"
 	clockkeeper "github.com/CosmosContracts/juno/v18/x/clock/keeper"
 	clocktypes "github.com/CosmosContracts/juno/v18/x/clock/types"
 	dripkeeper "github.com/CosmosContracts/juno/v18/x/drip/keeper"
@@ -121,10 +122,11 @@ var maccPerms = map[string][]string{
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:            nil,
 	ibcfeetypes.ModuleName:         nil,
-	wasmtypes.ModuleName:           {authtypes.Burner},
+	wasmtypes.ModuleName:           {},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfee.ModuleName:           nil,
 	buildertypes.ModuleName:        nil,
+	junoburn.ModuleName:            {authtypes.Burner},
 }
 
 type AppKeepers struct {
@@ -525,6 +527,10 @@ func NewAppKeepers(
 			Stargate: wasmkeeper.AcceptListStargateQuerier(accepted, bApp.GRPCQueryRouter(), appCodec),
 		})
 	wasmOpts = append(wasmOpts, querierOpts)
+
+	junoBurnerPlugin := junoburn.NewBurnerPlugin(appKeepers.BankKeeper, appKeepers.MintKeeper)
+	burnOverride := wasmkeeper.WithMessageHandler(wasmkeeper.NewBurnCoinMessageHandler(junoBurnerPlugin))
+	wasmOpts = append(wasmOpts, burnOverride)
 
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
