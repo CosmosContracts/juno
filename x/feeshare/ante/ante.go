@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -20,12 +21,14 @@ import (
 type FeeSharePayoutDecorator struct {
 	bankKeeper     BankKeeper
 	feesharekeeper FeeShareKeeper
+	cdc            codec.BinaryCodec
 }
 
-func NewFeeSharePayoutDecorator(bk BankKeeper, fs FeeShareKeeper) FeeSharePayoutDecorator {
+func NewFeeSharePayoutDecorator(bk BankKeeper, fs FeeShareKeeper, cdc codec.BinaryCodec) FeeSharePayoutDecorator {
 	return FeeSharePayoutDecorator{
 		bankKeeper:     bk,
 		feesharekeeper: fs,
+		cdc:            cdc,
 	}
 }
 
@@ -35,7 +38,7 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 	}
 
-	err = FeeSharePayout(ctx, fsd.bankKeeper, feeTx.GetFee(), fsd.feesharekeeper, tx.GetMsgs())
+	err = fsd.FeeSharePayout(ctx, fsd.bankKeeper, feeTx.GetFee(), fsd.feesharekeeper, tx.GetMsgs())
 	if err != nil {
 		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
 	}
@@ -83,7 +86,7 @@ func addNewFeeSharePayoutsForMsg(ctx sdk.Context, fsk FeeShareKeeper, toPay *[]s
 
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
-func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, fsk FeeShareKeeper, msgs []sdk.Msg) error {
+func (fsd FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, fsk FeeShareKeeper, msgs []sdk.Msg) error {
 	params := fsk.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil
@@ -94,10 +97,10 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 
 	// validAuthz checks if the msg is an authz exec msg and if so, call the validExecuteMsg for each
 	// inner msg. If it is a CosmWasm execute message, that logic runs for nested functions.
-	validAuthz := func(execMsg *authz.MsgExec) error {
+	validAuthz := func(cdc codec.BinaryCodec, execMsg *authz.MsgExec) error {
 		for _, v := range execMsg.Msgs {
 			var innerMsg sdk.Msg
-			if err := json.Unmarshal(v.Value, &innerMsg); err != nil {
+			if err := cdc.UnpackAny(v, &innerMsg); err != nil {
 				return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
 			}
 
@@ -112,7 +115,7 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 
 	for _, m := range msgs {
 		if msg, ok := m.(*authz.MsgExec); ok {
-			if err := validAuthz(msg); err != nil {
+			if err := validAuthz(fsd.cdc, msg); err != nil {
 				return err
 			}
 			continue
