@@ -24,14 +24,15 @@ To update the authorized address is possible to create an onchain new proposal. 
       "params": {
        "contract_addresses": [
         "juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8"
-       ]
+       ],
+       "contract_gas_limit": "1000000"
       }
      }
     ],
     "metadata": "{\"title\": \"Allow a new contract to use the x/clock module for our features\", \"authors\": [\"Reece\"], \"summary\": \"If this proposal passes juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 will be added to the authorized addresses of the clock module\", \"details\": \"If this proposal passes juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 will be added to the authorized addresses of the clock module\", \"proposal_forum_url\": \"https://commonwealth.im/juno/discussion/9697-juno-protocol-level-defi-incentives\", \"vote_option_context\": \"yes\"}",
     "deposit": "1000000ujuno",
     "title": "Allow a new contract to use the x/clock module for our features",
-    "summary": "If this proposal passes juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 will be allowed to use the x/clock module to perform XYZ actions",
+    "summary": "If this proposal passes juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 will be allowed to use the x/clock module to perform XYZ actions"
 }
 ```
 
