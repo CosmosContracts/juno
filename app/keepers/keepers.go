@@ -572,6 +572,7 @@ func NewAppKeepers(
 		appCodec,
 		stakingKeeper,
 		appKeepers.GovKeeper,
+		appKeepers.WasmKeeper,
 		*appKeepers.ContractKeeper,
 		govModAddress,
 	)

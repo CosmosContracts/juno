@@ -22,26 +22,6 @@ func (k Keeper) StakingHooks() StakingHooks {
 	return StakingHooks{k: k}
 }
 
-func (h StakingHooks) sendMsgToAll(ctx sdk.Context, msgBz []byte) error {
-	// on errors return nil, if in a loop continue.
-
-	// TODO: add this in the keeper, anyone can register it.
-	// iter all contracts here
-	contract, err := sdk.AccAddressFromBech32("juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8")
-	if err != nil {
-		return nil
-	}
-
-	// 100k/250k gas limit?
-	gasLimitCtx := ctx.WithGasMeter(sdk.NewGasMeter(100_000))
-	if _, err = h.k.contractKeeper.Sudo(gasLimitCtx, contract, msgBz); err != nil {
-		return nil
-	}
-
-	// ctx.GasMeter().ConsumeGas(100_000, "cw-hooks: AfterValidatorCreated")
-	return nil
-}
-
 // initialize validator distribution record
 func (h StakingHooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) error {
 	if ctx.BlockHeight() <= skipUntilHeight {
@@ -58,7 +38,7 @@ func (h StakingHooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddr
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 // AfterValidatorRemoved performs clean up after a validator is removed
@@ -77,7 +57,7 @@ func (h StakingHooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, 
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 // increment period
@@ -96,7 +76,7 @@ func (h StakingHooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAd
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 // withdraw delegation rewards (which also increments period)
@@ -115,7 +95,7 @@ func (h StakingHooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sd
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 // create new delegation period record
@@ -135,7 +115,7 @@ func (h StakingHooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAd
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 // record the slash event
@@ -153,7 +133,7 @@ func (h StakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAdd
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 func (h StakingHooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) error {
@@ -170,7 +150,7 @@ func (h StakingHooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAd
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 func (h StakingHooks) AfterValidatorBonded(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
@@ -187,7 +167,7 @@ func (h StakingHooks) AfterValidatorBonded(ctx sdk.Context, _ sdk.ConsAddress, v
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 func (h StakingHooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
@@ -204,7 +184,7 @@ func (h StakingHooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAd
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
@@ -221,7 +201,7 @@ func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAd
 		return nil
 	}
 
-	return h.sendMsgToAll(ctx, msgBz)
+	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
 }
 
 func (h StakingHooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {

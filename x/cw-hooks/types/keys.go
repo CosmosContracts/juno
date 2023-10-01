@@ -11,3 +11,8 @@ const (
 
 	RouterKey = ModuleName
 )
+
+var (
+	KeyPrefixStakingRegister = []byte{0x01}
+	KeyPrefixGovRegister     = []byte{0x02}
+)

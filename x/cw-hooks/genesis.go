@@ -13,7 +13,9 @@ import (
 // NewGenesisState - Create a new genesis state
 func NewGenesisState(params types.Params) *types.GenesisState {
 	return &types.GenesisState{
-		Params: params,
+		Params:                   params,
+		StakingContractAddresses: []string{},
+		GovContractAddresses:     []string{},
 	}
 }
 
@@ -51,11 +53,32 @@ func InitGenesis(
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
 	}
+
+	for _, v := range data.StakingContractAddresses {
+		if _, err := sdk.AccAddressFromBech32(v); err != nil {
+			panic(err)
+		}
+
+		k.SetStakingContract(ctx, types.Contract{
+			ContractAddress: v,
+		})
+	}
+
+	// TODO: gov
 }
 
 // ExportGenesis export module state
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+	stakingContracts := k.GetAllStakingContract(ctx)
+
 	return &types.GenesisState{
 		Params: k.GetParams(ctx),
+		StakingContractAddresses: func() []string {
+			addresses := make([]string, len(stakingContracts))
+			for i, v := range stakingContracts {
+				addresses[i] = v.GetContractAddress()
+			}
+			return addresses
+		}(),
 	}
 }

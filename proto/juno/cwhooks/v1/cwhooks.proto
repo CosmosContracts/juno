@@ -1,0 +1,12 @@
+syntax = "proto3";
+package juno.cwhooks.v1;
+
+option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
+
+// Contract is the proto definition of a contract that can be registered for the hooks
+message Contract {
+  // contract_address
+  string contract_address = 1;
+  // register_address
+  string register_address = 2;
+}

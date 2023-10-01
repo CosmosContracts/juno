@@ -37,3 +37,35 @@ func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }
+
+func (k msgServer) RegisterStaking(goCtx context.Context, req *types.MsgRegisterStaking) (*types.MsgRegisterStakingResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// TODO: (GetWasmKeeper should be a pointer)
+	// contract, err := sdk.AccAddressFromBech32(req.Contract.ContractAddress)
+	// if err != nil {
+	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
+	// }
+
+	// sender, err := sdk.AccAddressFromBech32(req.Contract.RegisterAddress)
+	// if err != nil {
+	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
+	// }
+
+	// if k.IsStakingContractRegistered(ctx, contract) {
+	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "staking contract already registered")
+	// }
+
+	// contractInfo := k.GetWasmKeeper().GetContractInfo(ctx, contract)
+
+	// // TODO: validate this / move to its own function
+	// if contractInfo.Creator != "" && contractInfo.Creator != sender.String() {
+	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract creator")
+	// } else if contractInfo.Admin != "" && contractInfo.Admin != sender.String() {
+	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract admin")
+	// }
+
+	k.SetStakingContract(ctx, req.Contract)
+
+	return &types.MsgRegisterStakingResponse{}, nil
+}

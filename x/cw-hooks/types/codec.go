@@ -30,8 +30,9 @@ func init() {
 
 // RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(Params{}, "juno/x/jsh/Params", nil)
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "juno/x/jsh/MsgUpdateParams")
+	cdc.RegisterConcrete(Params{}, "cwhooks/Params", nil)
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "cwhooks/MsgUpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgRegisterStaking{}, "cwhooks/MsgRegisterStaking")
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

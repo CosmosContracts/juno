@@ -12,7 +12,12 @@ option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
 service Query {
   // Params
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/juno/clock/v1/params";
+    option (google.api.http).get = "/juno/cwhooks/v1/params";
+  }
+
+  // StakingContracts
+  rpc StakingContracts(QueryStakingContractsRequest) returns (QueryStakingContractsResponse) {
+    option (google.api.http).get = "/juno/cwhooks/v1/staking_contracts";
   }
 }
 
@@ -23,4 +28,13 @@ message QueryParamsRequest {}
 // QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
 message QueryParamsResponse {
   Params params = 1 [(gogoproto.jsontag) = "params", (gogoproto.moretags) = "yaml:\"params\""];
+}
+
+// TODO: This should be paginated
+// QueryStakingContractsRequest
+message QueryStakingContractsRequest {}
+
+// QueryStakingContractsResponse
+message QueryStakingContractsResponse {
+  repeated string contracts = 1 [(gogoproto.jsontag) = "contracts", (gogoproto.moretags) = "yaml:\"contracts\""];
 }

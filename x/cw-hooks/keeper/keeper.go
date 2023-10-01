@@ -19,6 +19,7 @@ type Keeper struct {
 
 	stakingKeeper  slashingtypes.StakingKeeper
 	govKeeper      govkeeper.Keeper
+	wk             *wasmkeeper.Keeper
 	contractKeeper wasmkeeper.PermissionedKeeper
 
 	authority string
@@ -29,6 +30,7 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	stakingKeeper slashingtypes.StakingKeeper,
 	govKeeper govkeeper.Keeper,
+	wasmkeeper *wasmkeeper.Keeper,
 	contractKeeper wasmkeeper.PermissionedKeeper,
 	authority string,
 ) Keeper {
@@ -39,6 +41,7 @@ func NewKeeper(
 		govKeeper:      govKeeper,
 		contractKeeper: contractKeeper,
 		authority:      authority,
+		wk:             wasmkeeper,
 	}
 }
 
@@ -75,6 +78,10 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 // GetContractKeeper returns the x/wasm module's contract keeper.
 func (k Keeper) GetContractKeeper() wasmkeeper.PermissionedKeeper {
 	return k.contractKeeper
+}
+
+func (k Keeper) GetWasmKeeper() *wasmkeeper.Keeper {
+	return k.wk
 }
 
 func (k Keeper) GetStakingKeeper() slashingtypes.StakingKeeper {

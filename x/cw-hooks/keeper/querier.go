@@ -30,3 +30,18 @@ func (q Querier) Params(stdCtx context.Context, _ *types.QueryParamsRequest) (*t
 		Params: &p,
 	}, nil
 }
+
+func (q Querier) StakingContracts(stdCtx context.Context, _ *types.QueryStakingContractsRequest) (*types.QueryStakingContractsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(stdCtx)
+
+	c := q.keeper.GetAllStakingContract(ctx)
+
+	p := make([]string, len(c))
+	for i, v := range c {
+		p[i] = v.GetContractAddress()
+	}
+
+	return &types.QueryStakingContractsResponse{
+		Contracts: p,
+	}, nil
+}

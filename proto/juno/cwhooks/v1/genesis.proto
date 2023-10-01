@@ -13,6 +13,18 @@ message GenesisState {
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "params,omitempty"
   ];
+
+  // staking_contract_addresses
+  repeated string staking_contract_addresses = 2 [
+    (gogoproto.jsontag) = "staking_contract_addresses,omitempty",
+    (gogoproto.moretags) = "yaml:\"staking_contract_addresses\""
+  ];
+
+  // gov_contract_addresses
+  repeated string gov_contract_addresses = 3 [
+    (gogoproto.jsontag) = "gov_contract_addresses,omitempty",
+    (gogoproto.moretags) = "yaml:\"gov_contract_addresses\""
+  ];
 }
 
 // Params defines the set of module parameters.
