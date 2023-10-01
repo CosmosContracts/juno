@@ -4,12 +4,14 @@ package types
 
 // DefaultParams returns default parameters
 func DefaultParams() Params {
-	return Params{}
+	return NewParams(250_000)
 }
 
 // NewParams creates a new Params object
-func NewParams() Params {
-	return Params{}
+func NewParams(contractGasLimit uint64) Params {
+	return Params{
+		ContractGasLimit: contractGasLimit,
+	}
 }
 
 // Validate performs basic validation.

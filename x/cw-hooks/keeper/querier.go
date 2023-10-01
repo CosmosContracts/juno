@@ -34,14 +34,15 @@ func (q Querier) Params(stdCtx context.Context, _ *types.QueryParamsRequest) (*t
 func (q Querier) StakingContracts(stdCtx context.Context, _ *types.QueryStakingContractsRequest) (*types.QueryStakingContractsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(stdCtx)
 
-	c := q.keeper.GetAllStakingContract(ctx)
-
-	p := make([]string, len(c))
-	for i, v := range c {
-		p[i] = v.GetContractAddress()
-	}
-
 	return &types.QueryStakingContractsResponse{
-		Contracts: p,
+		Contracts: q.keeper.GetAllContractsBech32(ctx, types.KeyPrefixStaking),
+	}, nil
+}
+
+func (q Querier) GovernanceContracts(stdCtx context.Context, _ *types.QueryGovernanceContractsRequest) (*types.QueryGovernanceContractsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(stdCtx)
+
+	return &types.QueryGovernanceContractsResponse{
+		Contracts: q.keeper.GetAllContractsBech32(ctx, types.KeyPrefixGov),
 	}, nil
 }

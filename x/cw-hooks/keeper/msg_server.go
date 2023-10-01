@@ -6,6 +6,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
@@ -41,20 +42,32 @@ func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 func (k msgServer) RegisterStaking(goCtx context.Context, req *types.MsgRegisterStaking) (*types.MsgRegisterStakingResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO: (GetWasmKeeper should be a pointer)
-	// contract, err := sdk.AccAddressFromBech32(req.Contract.ContractAddress)
-	// if err != nil {
-	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
-	// }
+	if err := k.handleContractRegister(ctx, req.ContractAddress, types.KeyPrefixStaking, "staking"); err != nil {
+		return nil, err
+	}
 
-	// sender, err := sdk.AccAddressFromBech32(req.Contract.RegisterAddress)
-	// if err != nil {
-	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
-	// }
+	return &types.MsgRegisterStakingResponse{}, nil
+}
 
-	// if k.IsStakingContractRegistered(ctx, contract) {
-	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "staking contract already registered")
-	// }
+func (k msgServer) RegisterGovernance(goCtx context.Context, req *types.MsgRegisterGovernance) (*types.MsgRegisterGovernanceResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if err := k.handleContractRegister(ctx, req.ContractAddress, types.KeyPrefixGov, "governance"); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgRegisterGovernanceResponse{}, nil
+}
+
+func (k msgServer) handleContractRegister(ctx sdk.Context, contractAddr string, keyPrefix []byte, prefixModuleName string) error {
+	contract, err := sdk.AccAddressFromBech32(contractAddr)
+	if err != nil {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
+	}
+
+	if k.IsContractRegistered(ctx, keyPrefix, contract) {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "contract already registered for %s", prefixModuleName)
+	}
 
 	// contractInfo := k.GetWasmKeeper().GetContractInfo(ctx, contract)
 
@@ -65,7 +78,7 @@ func (k msgServer) RegisterStaking(goCtx context.Context, req *types.MsgRegister
 	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract admin")
 	// }
 
-	k.SetStakingContract(ctx, req.Contract)
+	k.SetContract(ctx, keyPrefix, contract)
 
-	return &types.MsgRegisterStakingResponse{}, nil
+	return nil
 }

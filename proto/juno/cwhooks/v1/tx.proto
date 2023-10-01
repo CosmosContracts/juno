@@ -3,7 +3,6 @@ package juno.cwhooks.v1;
 
 import "cosmos/msg/v1/msg.proto";
 import "juno/cwhooks/v1/genesis.proto";
-import "juno/cwhooks/v1/cwhooks.proto";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 import "amino/amino.proto";
@@ -20,6 +19,9 @@ service Msg {
 
   // RegisterStaking.
   rpc RegisterStaking(MsgRegisterStaking) returns (MsgRegisterStakingResponse);
+
+  // RegisterGovernance.
+  rpc RegisterGovernance(MsgRegisterGovernance) returns (MsgRegisterGovernanceResponse);
 }
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
@@ -48,8 +50,22 @@ message MsgUpdateParamsResponse {}
 message MsgRegisterStaking {
   option (gogoproto.equal) = false;
 
-  Contract contract = 1 [(gogoproto.nullable) = false];
+  string contract_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  string register_address = 2;
 }
 
 // MsgRegisterStakingResponse
 message MsgRegisterStakingResponse {}
+
+// MsgRegisterGovernance
+message MsgRegisterGovernance {
+  option (gogoproto.equal) = false;
+
+  string contract_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  string register_address = 2;
+}
+
+// MsgRegisterGovernanceResponse
+message MsgRegisterGovernanceResponse {}

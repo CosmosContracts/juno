@@ -33,12 +33,15 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(Params{}, "cwhooks/Params", nil)
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "cwhooks/MsgUpdateParams")
 	legacy.RegisterAminoMsg(cdc, &MsgRegisterStaking{}, "cwhooks/MsgRegisterStaking")
+	legacy.RegisterAminoMsg(cdc, &MsgRegisterGovernance{}, "cwhooks/MsgRegisterGovernance")
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgUpdateParams{},
+		&MsgRegisterGovernance{},
+		&MsgRegisterStaking{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

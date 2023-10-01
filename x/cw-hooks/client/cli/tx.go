@@ -21,6 +21,7 @@ func NewTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		NewRegisterStaking(),
+		NewRegisterGovernance(),
 	)
 	return txCmd
 }
@@ -41,10 +42,40 @@ func NewRegisterStaking() *cobra.Command {
 			contract := args[0]
 
 			msg := &types.MsgRegisterStaking{
-				Contract: types.Contract{
-					ContractAddress: contract,
-					RegisterAddress: deployer.String(),
-				},
+				ContractAddress: contract,
+				RegisterAddress: deployer.String(),
+			}
+
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func NewRegisterGovernance() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "register-governance [contract_bech32]",
+		Short: "Register a contract for governance sudo message updates",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			deployer := cliCtx.GetFromAddress()
+
+			contract := args[0]
+
+			msg := &types.MsgRegisterGovernance{
+				ContractAddress: contract,
+				RegisterAddress: deployer.String(),
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

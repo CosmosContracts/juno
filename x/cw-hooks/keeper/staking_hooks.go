@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -38,7 +39,7 @@ func (h StakingHooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddr
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 // AfterValidatorRemoved performs clean up after a validator is removed
@@ -57,7 +58,7 @@ func (h StakingHooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, 
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 // increment period
@@ -76,7 +77,7 @@ func (h StakingHooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAd
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 // withdraw delegation rewards (which also increments period)
@@ -95,7 +96,7 @@ func (h StakingHooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sd
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 // create new delegation period record
@@ -115,7 +116,7 @@ func (h StakingHooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAd
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 // record the slash event
@@ -133,7 +134,7 @@ func (h StakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAdd
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 func (h StakingHooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) error {
@@ -150,7 +151,7 @@ func (h StakingHooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAd
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 func (h StakingHooks) AfterValidatorBonded(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
@@ -167,7 +168,7 @@ func (h StakingHooks) AfterValidatorBonded(ctx sdk.Context, _ sdk.ConsAddress, v
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 func (h StakingHooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
@@ -184,7 +185,7 @@ func (h StakingHooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAd
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
@@ -201,7 +202,7 @@ func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAd
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnStakingContracts(ctx, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
 func (h StakingHooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {

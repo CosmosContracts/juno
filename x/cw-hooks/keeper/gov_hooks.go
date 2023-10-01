@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"strconv"
 
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -71,22 +72,6 @@ type SudoAfterProposalVotingPeriodEnded struct {
 	AfterProposalVotingPeriodEnded string `json:"after_proposal_voting_period_ended"`
 }
 
-// TODO: move this to the keeper, and either caLL it with "staking" or "gov" using module type names?
-func (h GovHooks) sendMsgToAll(ctx sdk.Context, msgBz []byte) {
-	// on errors return nil, if in a loop continue.
-
-	// TODO: add this in the keeper, anyone can register it.
-	// iter all contracts here
-	contract, _ := sdk.AccAddressFromBech32("juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8")
-
-	// 100k/250k gas limit?
-	gasLimitCtx := ctx.WithGasMeter(sdk.NewGasMeter(100_000))
-	_, _ = h.k.contractKeeper.Sudo(gasLimitCtx, contract, msgBz)
-
-	// ctx.GasMeter().ConsumeGas(100_000, "cw-hooks: AfterValidatorCreated")
-	// return nil
-}
-
 func (h GovHooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 	prop, found := h.k.govKeeper.GetProposal(ctx, proposalID)
 	if !found {
@@ -100,7 +85,7 @@ func (h GovHooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 		return
 	}
 
-	h.sendMsgToAll(ctx, msgBz)
+	h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz)
 }
 
 func (h GovHooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
@@ -116,7 +101,7 @@ func (h GovHooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk
 		return
 	}
 
-	h.sendMsgToAll(ctx, msgBz)
+	h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz)
 }
 
 func (h GovHooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
@@ -132,7 +117,7 @@ func (h GovHooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAdd
 		return
 	}
 
-	h.sendMsgToAll(ctx, msgBz)
+	h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz)
 }
 
 func (h GovHooks) AfterProposalFailedMinDeposit(_ sdk.Context, _ uint64) {
@@ -146,5 +131,5 @@ func (h GovHooks) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uin
 		return
 	}
 
-	h.sendMsgToAll(ctx, msgBz)
+	h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz)
 }

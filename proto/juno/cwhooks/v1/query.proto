@@ -19,6 +19,11 @@ service Query {
   rpc StakingContracts(QueryStakingContractsRequest) returns (QueryStakingContractsResponse) {
     option (google.api.http).get = "/juno/cwhooks/v1/staking_contracts";
   }
+
+  // GovernanceContracts
+  rpc GovernanceContracts(QueryGovernanceContractsRequest) returns (QueryGovernanceContractsResponse) {
+    option (google.api.http).get = "/juno/cwhooks/v1/governance_contracts";
+  }
 }
 
 
@@ -30,11 +35,20 @@ message QueryParamsResponse {
   Params params = 1 [(gogoproto.jsontag) = "params", (gogoproto.moretags) = "yaml:\"params\""];
 }
 
-// TODO: This should be paginated
+// TODO: These should be paginated
+
 // QueryStakingContractsRequest
 message QueryStakingContractsRequest {}
 
 // QueryStakingContractsResponse
 message QueryStakingContractsResponse {
+  repeated string contracts = 1 [(gogoproto.jsontag) = "contracts", (gogoproto.moretags) = "yaml:\"contracts\""];
+}
+
+// QueryStakingContractsRequest
+message QueryGovernanceContractsRequest {}
+
+// QueryGovernanceContractsResponse
+message QueryGovernanceContractsResponse {
   repeated string contracts = 1 [(gogoproto.jsontag) = "contracts", (gogoproto.moretags) = "yaml:\"contracts\""];
 }

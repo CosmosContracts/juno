@@ -13,6 +13,6 @@ const (
 )
 
 var (
-	KeyPrefixStakingRegister = []byte{0x01}
-	KeyPrefixGovRegister     = []byte{0x02}
+	KeyPrefixStaking = []byte{0x01}
+	KeyPrefixGov     = []byte{0x02}
 )
