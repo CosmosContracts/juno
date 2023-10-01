@@ -13,7 +13,7 @@ type Validator struct {
 	Commission       string `json:"commission"`
 	ValidatorTokens  string `json:"validator_tokens"`
 	BondedTokens     string `json:"bonded_tokens"`
-	BondStatus       uint   `json:"bond_status"`
+	BondStatus       string `json:"bond_status"`
 }
 
 func NewValidator(val stakingtypes.ValidatorI) *Validator {
@@ -23,7 +23,7 @@ func NewValidator(val stakingtypes.ValidatorI) *Validator {
 		Commission:       val.GetCommission().String(),
 		ValidatorTokens:  val.GetTokens().String(),
 		BondedTokens:     val.GetBondedTokens().String(),
-		BondStatus:       uint(val.GetStatus()),
+		BondStatus:       val.GetStatus().String(),
 	}
 }
 
@@ -69,7 +69,7 @@ type SudoMsgAfterValidatorModified struct {
 }
 
 type SudoMsgAfterValidatorBeginUnbonding struct {
-	AfterValidatorBeginUnbonding *Validator `json:"after_validator_modified"`
+	AfterValidatorBeginUnbonding *Validator `json:"after_validator_begin_unbonding"`
 }
 type SudoMsgAfterValidatorBonded struct {
 	AfterValidatorBonded *Validator `json:"after_validator_bonded"`
@@ -78,7 +78,7 @@ type SudoMsgAfterValidatorRemoved struct {
 	AfterValidatorRemoved *Validator `json:"after_validator_removed"`
 }
 type SudoMsgBeforeValidatorSlashed struct {
-	BeforeValidatorSlashed *ValidatorSlashed `json:"before_validator_slash"`
+	BeforeValidatorSlashed *ValidatorSlashed `json:"before_validator_slashed"`
 }
 type SudoMsgBeforeDelegationSharesModified struct {
 	BeforeDelegationSharesModified *Delegation `json:"before_delegation_modified"`
@@ -91,4 +91,7 @@ type SudoMsgAfterDelegationModified struct {
 }
 type SudoMsgBeforeDelegationRemoved struct {
 	BeforeDelegationRemoved *Delegation `json:"before_delegation_removed"`
+}
+type SudoMsgAfterUnbondingInitiated struct {
+	AfterUnbondingInitiated uint64 `json:"after_unbonding_initiated"`
 }

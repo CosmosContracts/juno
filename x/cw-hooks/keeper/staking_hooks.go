@@ -9,6 +9,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+// TODO: return nil on unmarshal or err?
+
 // skipUntilHeight allows us to skip gentxs.
 const skipUntilHeight = 2
 
@@ -29,8 +31,11 @@ func (h StakingHooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddr
 		return nil
 	}
 
-	val := h.k.stakingKeeper.Validator(ctx, valAddr)
+	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	fmt.Println("VALIDATOR_CREATED: ", val)
+	if val == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterValidatorCreated{
 		AfterValidatorCreated: NewValidator(val),
@@ -48,8 +53,11 @@ func (h StakingHooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, 
 		return nil
 	}
 
-	val := h.k.stakingKeeper.Validator(ctx, valAddr)
+	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	fmt.Println("AfterValidatorRemoved: ", val)
+	if val == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterValidatorRemoved{
 		AfterValidatorRemoved: NewValidator(val),
@@ -67,8 +75,11 @@ func (h StakingHooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAd
 		return nil
 	}
 
-	del := h.k.stakingKeeper.Delegation(ctx, delAddr, valAddr)
+	del := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
 	fmt.Println("BeforeDelegationCreated: ", del)
+	if del == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgBeforeDelegationCreated{
 		BeforeDelegationCreated: NewDelegation(del),
@@ -86,8 +97,11 @@ func (h StakingHooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sd
 		return nil
 	}
 
-	del := h.k.stakingKeeper.Delegation(ctx, delAddr, valAddr)
+	del := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
 	fmt.Println("BeforeDelegationSharesModified: ", del)
+	if del == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgBeforeDelegationSharesModified{
 		BeforeDelegationSharesModified: NewDelegation(del),
@@ -106,8 +120,11 @@ func (h StakingHooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAd
 		return nil
 	}
 
-	del := h.k.stakingKeeper.Delegation(ctx, delAddr, valAddr)
+	del := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
 	fmt.Println("BeforeDelegationSharesModified: ", del)
+	if del == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterDelegationModified{
 		AfterDelegationModified: NewDelegation(del),
@@ -124,8 +141,11 @@ func (h StakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAdd
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
-	val := h.k.stakingKeeper.Validator(ctx, valAddr)
+	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	fmt.Println("BeforeValidatorSlashed: ", val, fraction)
+	if val == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgBeforeValidatorSlashed{
 		BeforeValidatorSlashed: NewValidatorSlashed(val, fraction),
@@ -141,8 +161,11 @@ func (h StakingHooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAd
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
-	val := h.k.stakingKeeper.Validator(ctx, valAddr)
+	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	fmt.Println("BeforeValidatorModified: ", val)
+	if val == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgBeforeValidatorModified{
 		BeforeValidatorModified: NewValidator(val),
@@ -158,8 +181,11 @@ func (h StakingHooks) AfterValidatorBonded(ctx sdk.Context, _ sdk.ConsAddress, v
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
-	val := h.k.stakingKeeper.Validator(ctx, valAddr)
+	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	fmt.Println("AfterValidatorBonded: ", val)
+	if val == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterValidatorBonded{
 		AfterValidatorBonded: NewValidator(val),
@@ -175,8 +201,11 @@ func (h StakingHooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAd
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
-	val := h.k.stakingKeeper.Validator(ctx, valAddr)
+	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	fmt.Println("AfterValidatorBeginUnbonding: ", val)
+	if val == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterValidatorBeginUnbonding{
 		AfterValidatorBeginUnbonding: NewValidator(val),
@@ -192,8 +221,11 @@ func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAd
 	if ctx.BlockHeight() <= skipUntilHeight {
 		return nil
 	}
-	del := h.k.stakingKeeper.Delegation(ctx, delAddr, valAddr)
+	del := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
 	fmt.Println("BeforeDelegationRemoved: ", del)
+	if del == nil {
+		return nil
+	}
 
 	msgBz, err := json.Marshal(SudoMsgBeforeDelegationRemoved{
 		BeforeDelegationRemoved: NewDelegation(del),
@@ -205,7 +237,19 @@ func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAd
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
-func (h StakingHooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
-	// idk what this is / does. Need to look into
-	return nil
+func (h StakingHooks) AfterUnbondingInitiated(ctx sdk.Context, amt uint64) error {
+	if ctx.BlockHeight() <= skipUntilHeight {
+		return nil
+	}
+
+	fmt.Println("AfterUnbondingInitiated: ", amt)
+
+	msgBz, err := json.Marshal(SudoMsgAfterUnbondingInitiated{
+		AfterUnbondingInitiated: amt,
+	})
+	if err != nil {
+		return nil
+	}
+
+	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }

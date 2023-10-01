@@ -1,18 +1,20 @@
 package keeper
 
 import (
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (k Keeper) SetContract(ctx sdk.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), keyPrefix)
-	store.Set(contractAddr, []byte{})
+	store.Set(contractAddr.Bytes(), []byte{})
 }
 
 func (k Keeper) IsContractRegistered(ctx sdk.Context, keyPrefix []byte, contractAddr sdk.AccAddress) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), keyPrefix)
-	return store.Has(contractAddr)
+	return store.Has(contractAddr.Bytes())
 }
 
 func (k Keeper) IterateContracts(
@@ -25,7 +27,7 @@ func (k Keeper) IterateContracts(
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		keyAddr := iterator.Key()
+		keyAddr := iterator.Key()[len(keyPrefix):]
 		addr := sdk.AccAddress(keyAddr)
 
 		if handlerFn(addr) {
@@ -46,7 +48,9 @@ func (k Keeper) GetAllContractsBech32(ctx sdk.Context, keyPrefix []byte) []strin
 
 	list := make([]string, 0, len(contracts))
 	for _, c := range contracts {
-		list = append(list, c.String())
+
+		c := sdk.MustBech32ifyAddressBytes("juno", c.Bytes())
+		list = append(list, c)
 	}
 	return list
 }
@@ -59,9 +63,10 @@ func (k Keeper) DeleteContract(ctx sdk.Context, keyPrefix []byte, contractAddr s
 func (k Keeper) ExecuteMessageOnContracts(ctx sdk.Context, keyPrefix []byte, msgBz []byte) error {
 	p := k.GetParams(ctx)
 
-	for _, cAddr := range k.GetAllContracts(ctx, keyPrefix) {
+	for _, c := range k.GetAllContracts(ctx, keyPrefix) {
 		gasLimitCtx := ctx.WithGasMeter(sdk.NewGasMeter(p.ContractGasLimit))
-		if _, err := k.contractKeeper.Sudo(gasLimitCtx, cAddr.Bytes(), msgBz); err != nil {
+		if _, err := k.GetContractKeeper().Sudo(gasLimitCtx, sdk.AccAddress(c.Bytes()), msgBz); err != nil {
+			fmt.Println("ExecuteMessageOnContracts error: ", err)
 			return err
 		}
 	}
