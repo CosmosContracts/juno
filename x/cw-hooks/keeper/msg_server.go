@@ -65,13 +65,15 @@ func (k msgServer) handleContractRegister(ctx sdk.Context, contractAddr string, 
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
 	}
 
+	// if k.GetWasmKeeper().HasContractInfo(ctx, contract) {
+	// 	return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "this contract is not found in the wasm module store")
+	// }
+
 	if k.IsContractRegistered(ctx, keyPrefix, contract) {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "contract already registered for %s", prefixModuleName)
 	}
 
 	// contractInfo := k.GetWasmKeeper().GetContractInfo(ctx, contract)
-
-	// // TODO: validate this / move to its own function
 	// if contractInfo.Creator != "" && contractInfo.Creator != sender.String() {
 	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract creator")
 	// } else if contractInfo.Admin != "" && contractInfo.Admin != sender.String() {

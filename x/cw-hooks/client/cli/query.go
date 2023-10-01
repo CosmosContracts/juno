@@ -20,6 +20,7 @@ func GetQueryCmd() *cobra.Command {
 	queryCmd.AddCommand(
 		GetCmdParams(),
 		GetStakingContracts(),
+		GetGovernanceContracts(),
 	)
 	return queryCmd
 }
@@ -61,6 +62,30 @@ func GetStakingContracts() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 			res, err := queryClient.StakingContracts(cmd.Context(), &types.QueryStakingContractsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetGovernanceContracts() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "governance-contracts",
+		Short: "Show all governance contracts",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.GovernanceContracts(cmd.Context(), &types.QueryGovernanceContractsRequest{})
 			if err != nil {
 				return err
 			}
