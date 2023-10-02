@@ -12,9 +12,42 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Register
 func RegisterCwHooksStaking(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
+	cwHooksCmd(t, ctx, chain, user, "register-staking", contractAddr)
+}
+func RegisterCwHooksGovernance(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
+	cwHooksCmd(t, ctx, chain, user, "register-governance", contractAddr)
+}
+
+// UnRegister
+func UnregisterCwHooksStaking(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
+	cwHooksCmd(t, ctx, chain, user, "unregister-staking", contractAddr)
+}
+func UnregisterCwHooksGovernance(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
+	cwHooksCmd(t, ctx, chain, user, "unregister-governance", contractAddr)
+}
+
+// Get Contracts
+func GetCwHooksStakingContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) []string {
+	return getContracts(t, ctx, chain, "staking-contracts")
+}
+func GetCwHooksGovernanceContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) []string {
+	return getContracts(t, ctx, chain, "governance-contracts")
+}
+
+// Contract specific
+func GetCwStakingHookLastDelegationChange(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string, uaddr string) GetCwHooksDelegationResponse {
+	var res GetCwHooksDelegationResponse
+	err := SmartQueryString(t, ctx, chain, contract, `{"last_delegation_change":{}}`, &res)
+	require.NoError(t, err)
+	return res
+}
+
+// helpers
+func cwHooksCmd(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, registerModule, contractAddr string) {
 	cmd := []string{
-		"junod", "tx", "cw-hooks", "register-staking", contractAddr,
+		"junod", "tx", "cw-hooks", registerModule, contractAddr,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
@@ -34,15 +67,14 @@ func RegisterCwHooksStaking(t *testing.T, ctx context.Context, chain *cosmos.Cos
 	}
 }
 
-func GetCwHooksStakingContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) []string {
+func getContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, subCmd string) []string {
 	cmd := []string{
-		"junod", "query", "cw-hooks", "staking-contracts",
+		"junod", "query", "cw-hooks", subCmd,
 		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
 	}
 
-	// This query does not return a type, just prints the string.
 	stdout, _, err := chain.Exec(ctx, cmd, nil)
 	require.NoError(t, err)
 
