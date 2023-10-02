@@ -2,12 +2,14 @@ package keeper
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 
-	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 )
 
 type GovHooks struct {
@@ -85,7 +87,10 @@ func (h GovHooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 		return
 	}
 
-	h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz)
+	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
+		fmt.Println("AfterProposalSubmission: ", err)
+		return
+	}
 }
 
 func (h GovHooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
@@ -101,7 +106,10 @@ func (h GovHooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk
 		return
 	}
 
-	h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz)
+	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
+		fmt.Println("AfterProposalDeposit: ", err)
+		return
+	}
 }
 
 func (h GovHooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
@@ -117,7 +125,10 @@ func (h GovHooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAdd
 		return
 	}
 
-	h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz)
+	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
+		fmt.Println("AfterProposalVote: ", err)
+		return
+	}
 }
 
 func (h GovHooks) AfterProposalFailedMinDeposit(_ sdk.Context, _ uint64) {
@@ -131,5 +142,8 @@ func (h GovHooks) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uin
 		return
 	}
 
-	h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz)
+	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
+		fmt.Println("AfterProposalVotingPeriodEnded: ", err)
+		return
+	}
 }

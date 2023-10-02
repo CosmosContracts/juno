@@ -3,13 +3,13 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
-
 	_ "embed"
 
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 )
 
 // TODO: TestContractDelete/Unregister (and that it only applies to 1, both both)
@@ -130,7 +130,8 @@ func (s *IntegrationTestSuite) TestContractExecution() {
 	fmt.Println(val)
 
 	// == Delegate Tokens ==
-	s.stakingKeeper.Delegate(s.ctx, sender, sdk.NewInt(1), stakingtypes.Bonded, val, false)
+	_, err = s.stakingKeeper.Delegate(s.ctx, sender, sdk.NewInt(1), stakingtypes.Bonded, val, false)
+	s.Require().NoError(err)
 
 	// query the contract to get the last modified shares (delegation)
 	v, err := s.wasmKeeper.QuerySmart(s.ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_delegation_change":{}}`))
@@ -149,5 +150,4 @@ func (s *IntegrationTestSuite) TestContractExecution() {
 	v, err = s.wasmKeeper.QuerySmart(s.ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_validator_slash":{}}`))
 	fmt.Println(string(v))
 	s.Require().NoError(err)
-
 }

@@ -1,11 +1,13 @@
 package cli
 
 import (
-	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
+	"github.com/spf13/cobra"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/spf13/cobra"
+
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 )
 
 // NewTxCmd returns a root CLI command handler for modules

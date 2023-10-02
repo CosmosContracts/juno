@@ -31,7 +31,7 @@ func (q Querier) Params(stdCtx context.Context, _ *types.QueryParamsRequest) (*t
 	}, nil
 }
 
-func (q Querier) StakingContracts(stdCtx context.Context, req *types.QueryStakingContractsRequest) (*types.QueryStakingContractsResponse, error) {
+func (q Querier) StakingContracts(stdCtx context.Context, _ *types.QueryStakingContractsRequest) (*types.QueryStakingContractsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(stdCtx)
 
 	return &types.QueryStakingContractsResponse{

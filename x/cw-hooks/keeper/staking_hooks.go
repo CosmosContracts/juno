@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 )
 
 // TODO: return nil on unmarshal or err?

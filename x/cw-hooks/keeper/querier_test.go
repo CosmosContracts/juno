@@ -57,4 +57,3 @@ func (s *IntegrationTestSuite) TestContracts() {
 	s.Require().NoError(err)
 	s.Require().LessOrEqual(len(resp2.Contracts), len(governance))
 }
-

@@ -43,6 +43,7 @@ func (k Keeper) GetAllContracts(ctx sdk.Context, keyPrefix []byte) (list []sdk.A
 	})
 	return
 }
+
 func (k Keeper) GetAllContractsBech32(ctx sdk.Context, keyPrefix []byte) []string {
 	contracts := k.GetAllContracts(ctx, keyPrefix)
 
