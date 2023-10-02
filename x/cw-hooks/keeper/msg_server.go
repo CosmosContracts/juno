@@ -42,7 +42,7 @@ func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 func (k msgServer) RegisterStaking(goCtx context.Context, req *types.MsgRegisterStaking) (*types.MsgRegisterStakingResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if err := k.handleContractRegister(ctx, req.ContractAddress, types.KeyPrefixStaking, "staking"); err != nil {
+	if err := k.handleContractRegister(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixStaking, "staking"); err != nil {
 		return nil, err
 	}
 
@@ -52,33 +52,29 @@ func (k msgServer) RegisterStaking(goCtx context.Context, req *types.MsgRegister
 func (k msgServer) RegisterGovernance(goCtx context.Context, req *types.MsgRegisterGovernance) (*types.MsgRegisterGovernanceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if err := k.handleContractRegister(ctx, req.ContractAddress, types.KeyPrefixGov, "governance"); err != nil {
+	if err := k.handleContractRegister(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixGov, "governance"); err != nil {
 		return nil, err
 	}
 
 	return &types.MsgRegisterGovernanceResponse{}, nil
 }
 
-func (k msgServer) handleContractRegister(ctx sdk.Context, contractAddr string, keyPrefix []byte, prefixModuleName string) error {
+func (k msgServer) handleContractRegister(ctx sdk.Context, sender, contractAddr string, keyPrefix []byte, prefixModuleName string) error {
 	contract, err := sdk.AccAddressFromBech32(contractAddr)
 	if err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
 	}
 
-	// if k.GetWasmKeeper().HasContractInfo(ctx, contract) {
-	// 	return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "this contract is not found in the wasm module store")
-	// }
-
 	if k.IsContractRegistered(ctx, keyPrefix, contract) {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "contract already registered for %s", prefixModuleName)
 	}
 
-	// contractInfo := k.GetWasmKeeper().GetContractInfo(ctx, contract)
-	// if contractInfo.Creator != "" && contractInfo.Creator != sender.String() {
-	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract creator")
-	// } else if contractInfo.Admin != "" && contractInfo.Admin != sender.String() {
-	// 	return nil, errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract admin")
-	// }
+	contractInfo := k.GetWasmKeeper().GetContractInfo(ctx, contract)
+	if contractInfo.Creator != "" && contractInfo.Creator != sender {
+		return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract creator")
+	} else if contractInfo.Admin != "" && contractInfo.Admin != sender {
+		return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract admin")
+	}
 
 	k.SetContract(ctx, keyPrefix, contract)
 

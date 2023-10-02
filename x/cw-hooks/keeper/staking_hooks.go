@@ -237,19 +237,6 @@ func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAd
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
-func (h StakingHooks) AfterUnbondingInitiated(ctx sdk.Context, amt uint64) error {
-	if ctx.BlockHeight() <= skipUntilHeight {
-		return nil
-	}
-
-	fmt.Println("AfterUnbondingInitiated: ", amt)
-
-	msgBz, err := json.Marshal(SudoMsgAfterUnbondingInitiated{
-		AfterUnbondingInitiated: amt,
-	})
-	if err != nil {
-		return nil
-	}
-
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+func (h StakingHooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
+	return nil
 }
