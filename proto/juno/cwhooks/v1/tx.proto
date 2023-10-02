@@ -20,8 +20,14 @@ service Msg {
   // RegisterStaking.
   rpc RegisterStaking(MsgRegisterStaking) returns (MsgRegisterStakingResponse);
 
+  // UnregisterStaking.
+  rpc UnregisterStaking(MsgUnregisterStaking) returns (MsgUnregisterStakingResponse);
+
   // RegisterGovernance.
   rpc RegisterGovernance(MsgRegisterGovernance) returns (MsgRegisterGovernanceResponse);
+
+  // UnregisterGovernance.
+  rpc UnregisterGovernance(MsgUnregisterGovernance) returns (MsgUnregisterGovernanceResponse);
 }
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
@@ -69,3 +75,29 @@ message MsgRegisterGovernance {
 
 // MsgRegisterGovernanceResponse
 message MsgRegisterGovernanceResponse {}
+
+
+// MsgUnregisterGovernance
+message MsgUnregisterGovernance {
+  option (gogoproto.equal) = false;
+
+  string contract_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  string register_address = 2;
+}
+
+// MsgUnregisterGovernanceResponse
+message MsgUnregisterGovernanceResponse {}
+
+
+// MsgUnregisterStaking
+message MsgUnregisterStaking {
+  option (gogoproto.equal) = false;
+
+  string contract_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  string register_address = 2;
+}
+
+// MsgUnregisterStakingResponse
+message MsgUnregisterStakingResponse {}

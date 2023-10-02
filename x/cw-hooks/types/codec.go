@@ -34,6 +34,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "cwhooks/MsgUpdateParams")
 	legacy.RegisterAminoMsg(cdc, &MsgRegisterStaking{}, "cwhooks/MsgRegisterStaking")
 	legacy.RegisterAminoMsg(cdc, &MsgRegisterGovernance{}, "cwhooks/MsgRegisterGovernance")
+	legacy.RegisterAminoMsg(cdc, &MsgUnregisterGovernance{}, "cwhooks/MsgUnregisterGovernance")
+	legacy.RegisterAminoMsg(cdc, &MsgUnregisterStaking{}, "cwhooks/MsgUnregisterStaking")
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

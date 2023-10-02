@@ -11,7 +11,6 @@ const TypeMsgUpdateParams = "update_clock_params"
 
 var _ sdk.Msg = &MsgUpdateParams{}
 
-// NewMsgUpdateParams creates new instance of MsgUpdateParams
 func NewMsgUpdateParams(
 	sender sdk.Address,
 ) *MsgUpdateParams {
@@ -52,7 +51,6 @@ const TypeMsgRegisterStaking = "register_staking"
 
 var _ sdk.Msg = &MsgRegisterStaking{}
 
-// NewMsgUpdateParams creates new instance of MsgUpdateParams
 func NewMsgRegisterStaking(
 	sender sdk.Address,
 	contract sdk.Address,
@@ -90,7 +88,6 @@ const TypeMsgRegisterGovernance = "register_governance"
 
 var _ sdk.Msg = &MsgRegisterGovernance{}
 
-// NewMsgUpdateParams creates new instance of MsgUpdateParams
 func NewMsgRegisterGovernance(
 	sender sdk.Address,
 	contract sdk.Address,
@@ -120,5 +117,79 @@ func (msg *MsgRegisterGovernance) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data.
 func (msg *MsgRegisterGovernance) ValidateBasic() error {
+	return nil
+}
+
+// == TypeMsgUnregisterGovernance ==
+const TypeMsgUnregisterGovernance = "unregister_governance"
+
+var _ sdk.Msg = &MsgUnregisterGovernance{}
+
+func NewMsgUnregisterGovernance(
+	sender sdk.Address,
+	contract sdk.Address,
+) *MsgUnregisterGovernance {
+	return &MsgUnregisterGovernance{
+		ContractAddress: contract.String(),
+		RegisterAddress: sender.String(),
+	}
+}
+
+// Route returns the name of the module
+func (msg MsgUnregisterGovernance) Route() string { return RouterKey }
+
+// Type returns the the action
+func (msg MsgUnregisterGovernance) Type() string { return TypeMsgUnregisterGovernance }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (msg MsgUnregisterGovernance) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+}
+
+// GetSigners returns the expected signers for a MsgUpdateParams message.
+func (msg *MsgUnregisterGovernance) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.RegisterAddress)
+	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic does a sanity check on the provided data.
+func (msg *MsgUnregisterGovernance) ValidateBasic() error {
+	return nil
+}
+
+// == TypeMsgUnregisterStaking ==
+const TypeMsgUnregisterStaking = "unregister_staking"
+
+var _ sdk.Msg = &MsgUnregisterStaking{}
+
+func NewMsgUnregisterStaking(
+	sender sdk.Address,
+	contract sdk.Address,
+) *MsgUnregisterStaking {
+	return &MsgUnregisterStaking{
+		ContractAddress: contract.String(),
+		RegisterAddress: sender.String(),
+	}
+}
+
+// Route returns the name of the module
+func (msg MsgUnregisterStaking) Route() string { return RouterKey }
+
+// Type returns the the action
+func (msg MsgUnregisterStaking) Type() string { return TypeMsgUnregisterStaking }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (msg MsgUnregisterStaking) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+}
+
+// GetSigners returns the expected signers for a MsgUpdateParams message.
+func (msg *MsgUnregisterStaking) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.RegisterAddress)
+	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic does a sanity check on the provided data.
+func (msg *MsgUnregisterStaking) ValidateBasic() error {
 	return nil
 }

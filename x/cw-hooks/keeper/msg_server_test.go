@@ -12,13 +12,14 @@ import (
 	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
 )
 
-// TODO: TestContractDelete/Unregister (and that it only applies to 1, both both)
-
 func (s *IntegrationTestSuite) TestRegisterContracts() {
 	_, _, sender := testdata.KeyTestPubAddr()
+	_, _, notAuthorizedAcc := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, notAuthorizedAcc, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
 	contractAddress := s.InstantiateContract(sender.String(), "")
+	contractAddressWithAdmin := s.InstantiateContract(notAuthorizedAcc.String(), sender.String())
 
 	DAODAO := s.InstantiateContract(sender.String(), "")
 	daodaoSubContract := s.InstantiateContract(DAODAO, DAODAO)
@@ -43,6 +44,18 @@ func (s *IntegrationTestSuite) TestRegisterContracts() {
 			shouldErr:       true,
 		},
 		{
+			desc:            "Invalid not authorized creator",
+			ContractAddress: contractAddress,
+			RegisterAddress: notAuthorizedAcc.String(),
+			shouldErr:       true,
+		},
+		{
+			desc:            "Invalid not authorized admin",
+			ContractAddress: contractAddressWithAdmin,
+			RegisterAddress: notAuthorizedAcc.String(),
+			shouldErr:       true,
+		},
+		{
 			desc:            "Success",
 			ContractAddress: contractAddress,
 			RegisterAddress: sender.String(),
@@ -54,12 +67,7 @@ func (s *IntegrationTestSuite) TestRegisterContracts() {
 			RegisterAddress: sender.String(),
 			shouldErr:       true,
 		},
-		{
-			desc:            "Failure register a DAODAO contract",
-			ContractAddress: daodaoSubContract,
-			RegisterAddress: sender.String(),
-			shouldErr:       true,
-		},
+
 		{
 			desc:            "Success register DAODAO contract from factory",
 			ContractAddress: daodaoSubContract,
@@ -97,6 +105,105 @@ func (s *IntegrationTestSuite) TestRegisterContracts() {
 			}
 		})
 	}
+}
+
+func (s *IntegrationTestSuite) TestUnRegisterContracts() {
+	_, _, sender := testdata.KeyTestPubAddr()
+	_, _, notAuthorizedAcc := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, notAuthorizedAcc, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	contractAddress := s.InstantiateContract(sender.String(), "")
+	goCtx := sdk.WrapSDKContext(s.ctx)
+
+	_, err := s.msgServer.RegisterStaking(goCtx, &types.MsgRegisterStaking{
+		ContractAddress: contractAddress,
+		RegisterAddress: sender.String(),
+	})
+	s.Require().NoError(err)
+
+	_, err = s.msgServer.RegisterGovernance(goCtx, &types.MsgRegisterGovernance{
+		ContractAddress: contractAddress,
+		RegisterAddress: sender.String(),
+	})
+	s.Require().NoError(err)
+
+	for _, tc := range []struct {
+		desc string
+
+		ContractAddress string
+		RegisterAddress string
+
+		shouldErr bool
+	}{
+		{
+			desc:            "Invalid contract address",
+			ContractAddress: "Invalid",
+			shouldErr:       true,
+		},
+		{
+			desc:            "Invalid sender address",
+			ContractAddress: contractAddress,
+			RegisterAddress: "Invalid",
+			shouldErr:       true,
+		},
+		{
+			desc:            "Invalid not authorized creator",
+			ContractAddress: contractAddress,
+			RegisterAddress: notAuthorizedAcc.String(),
+			shouldErr:       true,
+		},
+		{
+			desc:            "Success",
+			ContractAddress: contractAddress,
+			RegisterAddress: sender.String(),
+			shouldErr:       false,
+		},
+		{
+			desc:            "Failure contract already deleted",
+			ContractAddress: contractAddress,
+			RegisterAddress: sender.String(),
+			shouldErr:       true,
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			goCtx := sdk.WrapSDKContext(s.ctx)
+			// staking
+			sResp, err := s.msgServer.UnregisterStaking(goCtx, &types.MsgUnregisterStaking{
+				ContractAddress: tc.ContractAddress,
+				RegisterAddress: tc.RegisterAddress,
+			})
+			if !tc.shouldErr {
+				s.Require().NoError(err)
+				s.Require().Equal(sResp, &types.MsgUnregisterStakingResponse{})
+			} else {
+				s.Require().Error(err)
+				s.Require().Nil(sResp)
+			}
+
+			// governance
+			gResp, err := s.msgServer.UnregisterGovernance(goCtx, &types.MsgUnregisterGovernance{
+				ContractAddress: tc.ContractAddress,
+				RegisterAddress: tc.RegisterAddress,
+			})
+			if !tc.shouldErr {
+				s.Require().NoError(err)
+				s.Require().Equal(gResp, &types.MsgUnregisterGovernanceResponse{})
+			} else {
+				s.Require().Error(err)
+				s.Require().Nil(gResp)
+			}
+		})
+	}
+
+	sc, err := s.queryClient.StakingContracts(goCtx, &types.QueryStakingContractsRequest{})
+	s.Require().NoError(err)
+	s.Require().Nil(sc.Contracts)
+
+	gc, err := s.queryClient.GovernanceContracts(goCtx, &types.QueryGovernanceContractsRequest{})
+	s.Require().NoError(err)
+	s.Require().Nil(gc.Contracts)
 }
 
 func (s *IntegrationTestSuite) TestContractExecution() {

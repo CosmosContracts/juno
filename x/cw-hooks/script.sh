@@ -16,6 +16,9 @@ addr=$(junod q tx $txhash --output=json --node=http://localhost:26657 | jq -r .l
 junod tx cw-hooks register-staking $addr $FLAGS
 junod q cw-hooks staking-contracts
 
+# junod tx cw-hooks unregister-staking $addr $FLAGS
+# junod q cw-hooks staking-contracts
+
 # get config
 junod q wasm contract-state smart $addr '{"get_config":{}}' --node=http://localhost:26657
 
