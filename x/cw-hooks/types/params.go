@@ -1,7 +1,5 @@
 package types
 
-// TODO:
-
 // DefaultParams returns default parameters
 func DefaultParams() Params {
 	return NewParams(250_000)

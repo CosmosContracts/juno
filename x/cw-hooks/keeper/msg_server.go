@@ -80,6 +80,10 @@ func (k msgServer) UnregisterStaking(goCtx context.Context, req *types.MsgUnregi
 }
 
 func (k msgServer) isContractSenderAuthorized(ctx sdk.Context, sender string, contract sdk.AccAddress) error {
+	if ok := k.GetWasmKeeper().HasContractInfo(ctx, contract); !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "contract does not exist: %s", contract)
+	}
+
 	contractInfo := k.GetWasmKeeper().GetContractInfo(ctx, contract)
 
 	if contractInfo.Creator != "" && contractInfo.Creator != sender {
