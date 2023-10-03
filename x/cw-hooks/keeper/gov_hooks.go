@@ -47,7 +47,7 @@ func NewProposal(prop v1.Proposal) Proposal {
 type Vote struct {
 	ProposalID   uint64                   `json:"proposal_id"`
 	VoterAddress string                   `json:"voter_address"`
-	VoteOption   []*v1.WeightedVoteOption `json:"vote_option"` // TODO: Can we read this in cw? [{"option":1,"weight":"1.00"}]
+	VoteOption   []*v1.WeightedVoteOption `json:"vote_option"`
 }
 
 func NewVote(vote v1.Vote) Vote {

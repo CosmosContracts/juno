@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
-// TODO: Upstream this to interchaintest
 func SmartQueryString(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contractAddr, queryMsg string, res interface{}) error {
 	var jsonMap map[string]interface{}
 	if err := json.Unmarshal([]byte(queryMsg), &jsonMap); err != nil {

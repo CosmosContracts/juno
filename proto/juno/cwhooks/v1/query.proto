@@ -35,8 +35,6 @@ message QueryParamsResponse {
   Params params = 1 [(gogoproto.jsontag) = "params", (gogoproto.moretags) = "yaml:\"params\""];
 }
 
-// TODO: These should be paginated
-
 // QueryStakingContractsRequest
 message QueryStakingContractsRequest {}
 

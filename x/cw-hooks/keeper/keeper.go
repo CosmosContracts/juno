@@ -11,7 +11,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types" // TODO: temp
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
 	"github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
 )

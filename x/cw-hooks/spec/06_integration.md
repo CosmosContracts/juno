@@ -157,4 +157,42 @@ pub fn sudo(deps: DepsMut, _env: Env, msg: SudoMsg) -> Result<Response, Contract
 
 ## Governance
 
-- TODO:
+```rust
+use cosmwasm_schema::cw_serde;
+
+pub struct VoteOption {
+    pub option: String,
+    pub weight: String,
+}
+
+#[cw_serde]
+pub enum SudoMsg {    
+    // Validators
+    AfterProposalSubmission {
+        proposal_id: String,
+        proposer: String,
+        status: String,
+        submit_time: String,
+        metadata: String,
+        title: String,
+        summary: String,
+    },    
+    AfterProposalDeposit {
+        proposal_id: String,
+        proposer: String,
+        status: String,
+        submit_time: String,
+        metadata: String,
+        title: String,
+        summary: String,
+    },
+    AfterProposalVote {
+        proposal_id: String,
+        voter_address: String,
+        vote_option: Vec<VoteOption>,
+    },
+    AfterProposalVotingPeriodEnded {
+        proposal_id: String,
+    },
+}
+```

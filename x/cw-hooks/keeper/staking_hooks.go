@@ -9,8 +9,6 @@ import (
 	"github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
 )
 
-// TODO: return nil on unmarshal or err?
-
 // skipUntilHeight allows us to skip gentxs.
 const skipUntilHeight = 2
 
@@ -33,7 +31,6 @@ func (h StakingHooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddr
 
 	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	h.k.Logger(ctx).Debug("AfterValidatorCreated: ", val)
-
 	if val == nil {
 		return nil
 	}

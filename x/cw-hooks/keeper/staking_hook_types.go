@@ -7,7 +7,6 @@ import (
 
 // Validator.
 type Validator struct {
-	// TODO: What else?
 	Moniker          string `json:"moniker"`
 	ValidatorAddress string `json:"validator_address"`
 	Commission       string `json:"commission"`
