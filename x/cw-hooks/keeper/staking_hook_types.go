@@ -5,7 +5,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// Validator.
 type Validator struct {
 	Moniker          string `json:"moniker"`
 	ValidatorAddress string `json:"validator_address"`
@@ -26,7 +25,6 @@ func NewValidator(val stakingtypes.ValidatorI) *Validator {
 	}
 }
 
-// ValidatorSlashed.
 type ValidatorSlashed struct {
 	Moniker          string `json:"moniker"`
 	ValidatorAddress string `json:"validator_address"`
@@ -41,7 +39,6 @@ func NewValidatorSlashed(val stakingtypes.ValidatorI, fraction sdk.Dec) *Validat
 	}
 }
 
-// Delegation.
 type Delegation struct {
 	ValidatorAddress string `json:"validator_address"`
 	DelegatorAddress string `json:"delegator_address"`

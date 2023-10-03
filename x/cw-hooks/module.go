@@ -26,7 +26,6 @@ import (
 const (
 	ModuleName = types.ModuleName
 
-	// ConsensusVersion defines the current x/cw-hooks module consensus version.
 	ConsensusVersion = 1
 )
 

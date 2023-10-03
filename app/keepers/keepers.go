@@ -590,7 +590,7 @@ func NewAppKeepers(
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
-	// this must be at the end so JunoStakingHooks can use the contractKeeper
+	// this must be at the end so CWHooksKeeper can use the contractKeeper
 	stakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(
 			appKeepers.DistrKeeper.Hooks(),

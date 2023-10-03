@@ -6,8 +6,25 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+type CwHooks interface {
+	GetContractAddress() string
+	GetRegisterAddress() string
+}
+
+func Validate(message CwHooks) error {
+	if _, err := sdk.AccAddressFromBech32(message.GetRegisterAddress()); err != nil {
+		return errors.Wrap(err, "invalid register address")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(message.GetContractAddress()); err != nil {
+		return errors.Wrap(err, "invalid contract address")
+	}
+
+	return nil
+}
+
 // == MsgUpdateParams ==
-const TypeMsgUpdateParams = "update_clock_params"
+const TypeMsgUpdateParams = "update_hook_params"
 
 var _ sdk.Msg = &MsgUpdateParams{}
 
@@ -80,7 +97,7 @@ func (msg *MsgRegisterStaking) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data.
 func (msg *MsgRegisterStaking) ValidateBasic() error {
-	return nil
+	return Validate(msg)
 }
 
 // == TypeMsgRegisterGovernance ==
@@ -117,7 +134,7 @@ func (msg *MsgRegisterGovernance) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data.
 func (msg *MsgRegisterGovernance) ValidateBasic() error {
-	return nil
+	return Validate(msg)
 }
 
 // == TypeMsgUnregisterGovernance ==
@@ -154,7 +171,7 @@ func (msg *MsgUnregisterGovernance) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data.
 func (msg *MsgUnregisterGovernance) ValidateBasic() error {
-	return nil
+	return Validate(msg)
 }
 
 // == TypeMsgUnregisterStaking ==
@@ -191,5 +208,5 @@ func (msg *MsgUnregisterStaking) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data.
 func (msg *MsgUnregisterStaking) ValidateBasic() error {
-	return nil
+	return Validate(msg)
 }

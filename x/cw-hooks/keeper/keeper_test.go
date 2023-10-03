@@ -8,6 +8,7 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/stretchr/testify/suite"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -28,21 +29,12 @@ var _ = embed.FS{}
 //go:embed contract/juno_staking_hooks_example.wasm
 var wasmContract []byte
 
-// BankKeeper defines the expected interface needed to retrieve account balances.
-type BankKeeper interface {
-	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
-	SendCoins(ctx sdk.Context, fromAddr, toAddr sdk.AccAddress, amt sdk.Coins) error
-	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
-	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
-	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
-}
-
 type IntegrationTestSuite struct {
 	suite.Suite
 
 	ctx           sdk.Context
 	app           *app.App
-	bankKeeper    BankKeeper
+	bankKeeper    bankkeeper.Keeper
 	stakingKeeper stakingkeeper.Keeper
 	queryClient   types.QueryClient
 	msgServer     types.MsgServer

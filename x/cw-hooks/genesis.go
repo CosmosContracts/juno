@@ -37,6 +37,18 @@ func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMe
 }
 
 func ValidateGenesis(data types.GenesisState) error {
+	for _, v := range data.StakingContractAddresses {
+		if _, err := sdk.AccAddressFromBech32(v); err != nil {
+			return err
+		}
+	}
+
+	for _, v := range data.GovContractAddresses {
+		if _, err := sdk.AccAddressFromBech32(v); err != nil {
+			return err
+		}
+	}
+
 	return data.Params.Validate()
 }
 
