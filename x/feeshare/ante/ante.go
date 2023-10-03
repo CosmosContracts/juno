@@ -10,8 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	feeshare "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	feeshare "github.com/CosmosContracts/juno/v18/x/feeshare/types"
 )
 
 // FeeSharePayoutDecorator Run his after we already deduct the fee from the account with
@@ -62,29 +63,63 @@ type FeeSharePayoutEventOutput struct {
 	FeesPaid        sdk.Coins      `json:"fees_paid"`
 }
 
+func addNewFeeSharePayoutsForMsg(ctx sdk.Context, fsk FeeShareKeeper, toPay *[]sdk.AccAddress, m sdk.Msg) error {
+	if msg, ok := m.(*wasmtypes.MsgExecuteContract); ok {
+		contractAddr, err := sdk.AccAddressFromBech32(msg.Contract)
+		if err != nil {
+			return err
+		}
+
+		shareData, _ := fsk.GetFeeShare(ctx, contractAddr)
+
+		withdrawAddr := shareData.GetWithdrawerAddr()
+		if withdrawAddr != nil && !withdrawAddr.Empty() {
+			*toPay = append(*toPay, withdrawAddr)
+		}
+	}
+
+	return nil
+}
+
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
-func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, revKeeper FeeShareKeeper, msgs []sdk.Msg) error {
-	params := revKeeper.GetParams(ctx)
+func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, fsk FeeShareKeeper, msgs []sdk.Msg) error {
+	params := fsk.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil
 	}
 
 	// Get valid withdraw addresses from contracts
 	toPay := make([]sdk.AccAddress, 0)
-	for _, msg := range msgs {
-		if _, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
-			contractAddr, err := sdk.AccAddressFromBech32(msg.(*wasmtypes.MsgExecuteContract).Contract)
+
+	// validAuthz checks if the msg is an authz exec msg and if so, call the validExecuteMsg for each
+	// inner msg. If it is a CosmWasm execute message, that logic runs for nested functions.
+	validAuthz := func(execMsg *authz.MsgExec) error {
+		for _, v := range execMsg.Msgs {
+			var innerMsg sdk.Msg
+			if err := json.Unmarshal(v.Value, &innerMsg); err != nil {
+				return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
+			}
+
+			err := addNewFeeSharePayoutsForMsg(ctx, fsk, &toPay, innerMsg)
 			if err != nil {
 				return err
 			}
+		}
 
-			shareData, _ := revKeeper.GetFeeShare(ctx, contractAddr)
+		return nil
+	}
 
-			withdrawAddr := shareData.GetWithdrawerAddr()
-			if withdrawAddr != nil && !withdrawAddr.Empty() {
-				toPay = append(toPay, withdrawAddr)
+	for _, m := range msgs {
+		if msg, ok := m.(*authz.MsgExec); ok {
+			if err := validAuthz(msg); err != nil {
+				return err
 			}
+			continue
+		}
+
+		if err := addNewFeeSharePayoutsForMsg(ctx, fsk, &toPay, m); err != nil {
+			return err
 		}
 	}
 
