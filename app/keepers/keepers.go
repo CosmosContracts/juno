@@ -582,7 +582,7 @@ func NewAppKeepers(
 		appKeepers.keys[cwhookstypes.StoreKey],
 		appCodec,
 		stakingKeeper,
-		appKeepers.GovKeeper,
+		*govKeeper,
 		appKeepers.WasmKeeper,
 		*appKeepers.ContractKeeper,
 		govModAddress,
