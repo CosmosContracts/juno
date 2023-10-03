@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
 
 	"github.com/cometbft/cometbft/libs/log"
 
@@ -13,6 +12,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types" // TODO: temp
+
+	"github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
 )
 
 type Keeper struct {

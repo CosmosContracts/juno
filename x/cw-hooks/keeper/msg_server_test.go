@@ -252,6 +252,6 @@ func (s *IntegrationTestSuite) TestContractExecution() {
 
 	s.stakingKeeper.Slash(s.ctx, cons, s.ctx.BlockHeight(), 1, sdk.NewDecWithPrec(5, 1))
 
-	v, err = s.wasmKeeper.QuerySmart(s.ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_validator_slash":{}}`))
+	_, err = s.wasmKeeper.QuerySmart(s.ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_validator_slash":{}}`))
 	s.Require().NoError(err)
 }
