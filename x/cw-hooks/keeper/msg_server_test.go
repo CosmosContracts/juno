@@ -233,8 +233,6 @@ func (s *IntegrationTestSuite) TestContractExecution() {
 	s.Require().Contains(resp.Contracts, c.ContractAddress)
 
 	val := s.stakingKeeper.GetValidators(s.ctx, 1)[0]
-	// print val
-	fmt.Println(val)
 
 	// == Delegate Tokens ==
 	_, err = s.stakingKeeper.Delegate(s.ctx, sender, sdk.NewInt(1), stakingtypes.Bonded, val, false)
@@ -255,6 +253,5 @@ func (s *IntegrationTestSuite) TestContractExecution() {
 	s.stakingKeeper.Slash(s.ctx, cons, s.ctx.BlockHeight(), 1, sdk.NewDecWithPrec(5, 1))
 
 	v, err = s.wasmKeeper.QuerySmart(s.ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_validator_slash":{}}`))
-	fmt.Println(string(v))
 	s.Require().NoError(err)
 }

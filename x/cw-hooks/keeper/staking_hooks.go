@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"encoding/json"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -33,7 +32,8 @@ func (h StakingHooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddr
 	}
 
 	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
-	fmt.Println("VALIDATOR_CREATED: ", val)
+	h.k.Logger(ctx).Debug("AfterValidatorCreated: ", val)
+
 	if val == nil {
 		return nil
 	}
@@ -55,7 +55,7 @@ func (h StakingHooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, 
 	}
 
 	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
-	fmt.Println("AfterValidatorRemoved: ", val)
+	h.k.Logger(ctx).Debug("AfterValidatorRemoved: ", val)
 	if val == nil {
 		return nil
 	}
@@ -77,7 +77,7 @@ func (h StakingHooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAd
 	}
 
 	del := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
-	fmt.Println("BeforeDelegationCreated: ", del)
+	h.k.Logger(ctx).Debug("BeforeDelegationCreated: ", del)
 	if del == nil {
 		return nil
 	}
@@ -99,7 +99,7 @@ func (h StakingHooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sd
 	}
 
 	del := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
-	fmt.Println("BeforeDelegationSharesModified: ", del)
+	h.k.Logger(ctx).Debug("BeforeDelegationSharesModified: ", del)
 	if del == nil {
 		return nil
 	}
@@ -122,7 +122,7 @@ func (h StakingHooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAd
 	}
 
 	del := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
-	fmt.Println("BeforeDelegationSharesModified: ", del)
+	h.k.Logger(ctx).Debug("BeforeDelegationSharesModified: ", del)
 	if del == nil {
 		return nil
 	}
@@ -143,7 +143,7 @@ func (h StakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAdd
 		return nil
 	}
 	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
-	fmt.Println("BeforeValidatorSlashed: ", val, fraction)
+	h.k.Logger(ctx).Debug("BeforeValidatorSlashed: ", val, fraction)
 	if val == nil {
 		return nil
 	}
@@ -163,7 +163,7 @@ func (h StakingHooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAd
 		return nil
 	}
 	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
-	fmt.Println("BeforeValidatorModified: ", val)
+	h.k.Logger(ctx).Debug("BeforeValidatorModified: ", val)
 	if val == nil {
 		return nil
 	}
@@ -183,7 +183,7 @@ func (h StakingHooks) AfterValidatorBonded(ctx sdk.Context, _ sdk.ConsAddress, v
 		return nil
 	}
 	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
-	fmt.Println("AfterValidatorBonded: ", val)
+	h.k.Logger(ctx).Debug("AfterValidatorBonded: ", val)
 	if val == nil {
 		return nil
 	}
@@ -203,7 +203,7 @@ func (h StakingHooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAd
 		return nil
 	}
 	val := h.k.GetStakingKeeper().Validator(ctx, valAddr)
-	fmt.Println("AfterValidatorBeginUnbonding: ", val)
+	h.k.Logger(ctx).Debug("AfterValidatorBeginUnbonding: ", val)
 	if val == nil {
 		return nil
 	}
@@ -223,7 +223,7 @@ func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAd
 		return nil
 	}
 	del := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
-	fmt.Println("BeforeDelegationRemoved: ", del)
+	h.k.Logger(ctx).Debug("BeforeDelegationRemoved: ", del)
 	if del == nil {
 		return nil
 	}

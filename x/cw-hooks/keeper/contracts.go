@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -49,9 +47,7 @@ func (k Keeper) GetAllContractsBech32(ctx sdk.Context, keyPrefix []byte) []strin
 
 	list := make([]string, 0, len(contracts))
 	for _, c := range contracts {
-
-		c := sdk.MustBech32ifyAddressBytes("juno", c.Bytes())
-		list = append(list, c)
+		list = append(list, c.String())
 	}
 	return list
 }
@@ -66,8 +62,9 @@ func (k Keeper) ExecuteMessageOnContracts(ctx sdk.Context, keyPrefix []byte, msg
 
 	for _, c := range k.GetAllContracts(ctx, keyPrefix) {
 		gasLimitCtx := ctx.WithGasMeter(sdk.NewGasMeter(p.ContractGasLimit))
-		if _, err := k.GetContractKeeper().Sudo(gasLimitCtx, sdk.AccAddress(c.Bytes()), msgBz); err != nil {
-			fmt.Println("ExecuteMessageOnContracts error: ", err)
+		addr := sdk.AccAddress(c.Bytes())
+		if _, err := k.GetContractKeeper().Sudo(gasLimitCtx, addr, msgBz); err != nil {
+			k.Logger(ctx).Error("ExecuteMessageOnContracts err", err, "contract", addr.String())
 			return err
 		}
 	}
