@@ -11,17 +11,17 @@ import (
 )
 
 // NewGenesisState - Create a new genesis state
-func NewGenesisState(params types.Params) *types.GenesisState {
+func NewGenesisState(params types.Params, stakingContracts, govContracts []string) *types.GenesisState {
 	return &types.GenesisState{
 		Params:                   params,
-		StakingContractAddresses: []string{},
-		GovContractAddresses:     []string{},
+		StakingContractAddresses: stakingContracts,
+		GovContractAddresses:     govContracts,
 	}
 }
 
 // DefaultGenesisState - Return a default genesis state
 func DefaultGenesisState() *types.GenesisState {
-	return NewGenesisState(types.DefaultParams())
+	return NewGenesisState(types.DefaultParams(), []string{}, []string{})
 }
 
 // GetGenesisStateFromAppState returns x/auth GenesisState given raw application

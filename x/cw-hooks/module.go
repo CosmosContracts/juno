@@ -110,13 +110,12 @@ func NewAppModule(
 func (a AppModule) InitGenesis(ctx sdk.Context, marshaler codec.JSONCodec, message json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	marshaler.MustUnmarshalJSON(message, &genesisState)
-	_ = a.keeper.SetParams(ctx, genesisState.Params)
+	InitGenesis(ctx, a.keeper, genesisState)
 	return nil
 }
 
 func (a AppModule) ExportGenesis(ctx sdk.Context, marshaler codec.JSONCodec) json.RawMessage {
-	params := a.keeper.GetParams(ctx)
-	genState := NewGenesisState(params)
+	genState := ExportGenesis(ctx, a.keeper)
 	return marshaler.MustMarshalJSON(genState)
 }
 
