@@ -32,8 +32,8 @@ func CreateV18UpgradeHandler(
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
 		// x/cw-hooks
-		gas_limit := uint64(250_000)
-		if err := k.CWHooksKeeper.SetParams(ctx, cwhookstypes.NewParams(gas_limit)); err != nil {
+		gasLimit := uint64(250_000)
+		if err := k.CWHooksKeeper.SetParams(ctx, cwhookstypes.NewParams(gasLimit)); err != nil {
 			return nil, err
 		}
 

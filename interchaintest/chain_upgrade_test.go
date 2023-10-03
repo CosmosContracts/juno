@@ -19,7 +19,7 @@ import (
 
 const (
 	chainName   = "juno"
-	upgradeName = "v17"
+	upgradeName = "v18"
 
 	haltHeightDelta    = uint64(9) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = uint64(7)
