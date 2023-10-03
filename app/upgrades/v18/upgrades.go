@@ -9,12 +9,13 @@ import (
 
 	"github.com/CosmosContracts/juno/v18/app/keepers"
 	"github.com/CosmosContracts/juno/v18/app/upgrades"
+	cwhookstypes "github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
 )
 
 func CreateV18UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
-	_ *keepers.AppKeepers,
+	k *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -29,6 +30,12 @@ func CreateV18UpgradeHandler(
 			return nil, err
 		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
+
+		// x/cw-hooks
+		gas_limit := uint64(250_000)
+		if err := k.CWHooksKeeper.SetParams(ctx, cwhookstypes.NewParams(gas_limit)); err != nil {
+			return nil, err
+		}
 
 		return versionMap, err
 	}

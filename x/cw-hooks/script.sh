@@ -1,7 +1,7 @@
-export JUNOD_NODE="tcp://localhost:26657"
 
 # upload the smart contract, then create a validator. Confirm it works
 
+export JUNOD_NODE="tcp://localhost:26657"
 FLAGS="--from=juno1 --gas=2500000 --fees=50000ujuno --node=http://localhost:26657 --yes --keyring-backend=test --home $HOME/.juno1 --chain-id=local-1 --output=json"
 
 junod tx wasm store ./keeper/contract/juno_staking_hooks_example.wasm $FLAGS
@@ -28,3 +28,5 @@ junod q wasm contract-state smart $addr '{"last_delegation_change":{}}' --node=h
 
 # create validator
 junod tx staking create-validator --amount 1ujuno --commission-rate="0.05" --commission-max-rate="1.0" --commission-max-change-rate="1.0" --moniker="test123" --from=juno2 --pubkey=$(junod tendermint show-validator --home $HOME/.juno) --min-self-delegation="1" --gas=1000000 --fees=50000ujuno --node=http://localhost:26657 --yes --keyring-backend=test --home $HOME/.juno1 --chain-id=local-1 --output=json
+
+# junod export --output-document=$HOME/Desktop/export.json --home=$HOME/.juno1

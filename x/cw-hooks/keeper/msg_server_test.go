@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmosContracts/juno/v17/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
 )
 
 func (s *IntegrationTestSuite) TestRegisterContracts() {
