@@ -1,6 +1,8 @@
 package app
 
 import (
+	"os"
+
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	builderante "github.com/skip-mev/pob/x/builder/ante"
@@ -86,15 +88,25 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage),
 		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
-		// SetPubKeyDecorator must be called before all signature verification decorators
-		ante.NewSetPubKeyDecorator(options.AccountKeeper),
-		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		ante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
-		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+	}
+
+	_, found := os.LookupEnv("CHAIN_BYPASS_SIGNATURE_VERIFICATION")
+	if !found {
+		// useful for testing to execute as other accounts
+		anteDecorators = append(anteDecorators, []sdk.AnteDecorator{
+			// SetPubKeyDecorator must be called before all signature verification decorators
+			ante.NewSetPubKeyDecorator(options.AccountKeeper),
+			ante.NewValidateSigCountDecorator(options.AccountKeeper),
+			ante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
+			ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+			ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		}...)
+	}
+
+	anteDecorators = append(anteDecorators, []sdk.AnteDecorator{
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		builderante.NewBuilderDecorator(options.BuilderKeeper, options.TxEncoder, options.Mempool),
-	}
+	}...)
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
 }
