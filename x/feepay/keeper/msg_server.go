@@ -34,8 +34,12 @@ func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeeP
 		return nil, err
 	}
 
-	// Sender address (already validated in msg.go)
-	senderAddr := sdk.MustAccAddressFromBech32(msg.SenderAddress)
+	// Validate sender address
+	senderAddr, err := sdk.AccAddressFromBech32(msg.SenderAddress)
+
+	if err != nil {
+		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid sender address: %s", msg.SenderAddress)
+	}
 
 	return &types.MsgFundFeePayContractResponse{}, k.FundContract(ctx, contract, senderAddr, msg.Amount)
 }
@@ -48,6 +52,10 @@ func (k Keeper) UpdateFeePayContractWalletLimit(goCtx context.Context, msg *type
 	contract, err := k.GetContract(ctx, msg.ContractAddress)
 	if err != nil {
 		return nil, err
+	}
+
+	if msg.WalletLimit > 1_000_000 {
+		return nil, errorsmod.Wrapf(types.ErrInvalidWalletLimit, "invalid wallet limit: %d", msg.WalletLimit)
 	}
 
 	return &types.MsgUpdateFeePayContractWalletLimitResponse{}, k.UpdateContractWalletLimit(ctx, contract, msg.SenderAddress, msg.WalletLimit)

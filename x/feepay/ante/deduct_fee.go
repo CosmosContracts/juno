@@ -171,17 +171,11 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 		}
 	}
 
-	ctx.Logger().Error("HandleZeroFees", "FeePrice", feePrice)
-
 	// Get the tx gas
 	feeTx := tx.(sdk.FeeTx)
 	gas := sdkmath.LegacyNewDec(int64(feeTx.GetGas()))
 
-	ctx.Logger().Error("HandleZeroFees", "Gas", gas)
-
 	requiredFee := feePrice.Amount.Mul(gas).Ceil().RoundInt()
-
-	ctx.Logger().Error("HandleZeroFees", "RequiredFee", requiredFee)
 
 	// Check if wallet exceeded usage limit on contract
 	accBech32 := deductFeesFromAcc.GetAddress().String()
@@ -196,8 +190,6 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 
 	// Create an array of coins, storing the required fee
 	payment := sdk.NewCoins(sdk.NewCoin(feePrice.Denom, requiredFee))
-
-	ctx.Logger().Error("HandleZeroFees", "Payment", payment)
 
 	// Cover the fees of the transaction, send from FeePay Module to FeeCollector Module
 	if err := dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment); err != nil {

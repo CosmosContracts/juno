@@ -23,47 +23,51 @@ func (s *IntegrationTestSuite) TestRegisterFeePayContract() {
 	for _, tc := range []struct {
 		desc            string
 		contractAddress string
-		deployerAddress string
+		senderAddress   string
 		shouldErr       bool
 	}{
 		{
 			desc:            "Success - Creator",
 			contractAddress: noAdminContractAddress,
-			deployerAddress: sender.String(),
+			senderAddress:   sender.String(),
 			shouldErr:       false,
+		},
+		{
+			desc:            "Fail - Already Registered Contract",
+			contractAddress: noAdminContractAddress,
+			senderAddress:   sender.String(),
+			shouldErr:       true,
 		},
 		{
 			desc:            "Success - Admin",
 			contractAddress: withAdminContractAddress,
-			deployerAddress: admin.String(),
+			senderAddress:   admin.String(),
 			shouldErr:       false,
 		},
 		{
-			desc:            "Error - contract already registered",
+			desc:            "Error - Contract Already Registered",
 			contractAddress: withAdminContractAddress,
-			deployerAddress: admin.String(),
+			senderAddress:   admin.String(),
 			shouldErr:       true,
 		},
 		{
-			desc:            "Error - Invalid deployer",
+			desc:            "Error - Invalid Sender",
 			contractAddress: tContract,
-			deployerAddress: "Invalid",
+			senderAddress:   "Invalid",
 			shouldErr:       true,
 		},
 		{
-			desc:            "Error - Invalid contract",
+			desc:            "Error - Invalid Contract",
 			contractAddress: "Invalid",
-			deployerAddress: admin.String(),
+			senderAddress:   admin.String(),
 			shouldErr:       true,
 		},
 	} {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-
-			// TODO: test setting balances & wallet limit work in another test with the querier.
-			err := s.app.AppKeepers.FeePayKeeper.RegisterContract(s.ctx, &types.MsgRegisterFeePayContract{
-				SenderAddress: tc.deployerAddress,
+			_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
+				SenderAddress: tc.senderAddress,
 				FeePayContract: &types.FeePayContract{
 					ContractAddress: tc.contractAddress,
 					WalletLimit:     1,
@@ -79,10 +83,98 @@ func (s *IntegrationTestSuite) TestRegisterFeePayContract() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestUnRegisterFeePayContract() {
+func (s *IntegrationTestSuite) TestUnregisterFeePayContract() {
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	creatorContract := s.InstantiateContract(sender.String(), "")
+	adminContract := s.InstantiateContract(sender.String(), admin.String())
+
+	_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
+		SenderAddress: sender.String(),
+		FeePayContract: &types.FeePayContract{
+			ContractAddress: creatorContract,
+			WalletLimit:     1,
+		},
+	})
+	s.Require().NoError(err)
+
+	_, err = s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
+		SenderAddress: admin.String(),
+		FeePayContract: &types.FeePayContract{
+			ContractAddress: adminContract,
+			WalletLimit:     0,
+		},
+	})
+	s.Require().NoError(err)
+
+	for _, tc := range []struct {
+		desc            string
+		contractAddress string
+		senderAddress   string
+		shouldErr       bool
+	}{
+		{
+			desc:            "Fail - Invalid Contract Address",
+			contractAddress: "Invalid",
+			senderAddress:   sender.String(),
+			shouldErr:       true,
+		},
+		{
+			desc:            "Fail - Invalid Sender Address",
+			contractAddress: creatorContract,
+			senderAddress:   "Invalid",
+			shouldErr:       true,
+		},
+		{
+			desc:            "Success - Unregister Creator Contract as Creator",
+			contractAddress: creatorContract,
+			senderAddress:   sender.String(),
+			shouldErr:       false,
+		},
+		{
+			desc:            "Fail - Unregister Admin Contract As Creator",
+			contractAddress: adminContract,
+			senderAddress:   sender.String(),
+			shouldErr:       true,
+		},
+		{
+			desc:            "Success - Unregister Admin Contract As Admin",
+			contractAddress: adminContract,
+			senderAddress:   admin.String(),
+			shouldErr:       false,
+		},
+		{
+			desc:            "Fail - Already Unregistered",
+			contractAddress: creatorContract,
+			senderAddress:   sender.String(),
+			shouldErr:       true,
+		},
+	} {
+		tc := tc
+
+		s.Run(tc.desc, func() {
+			_, err := s.app.AppKeepers.FeePayKeeper.UnregisterFeePayContract(s.ctx, &types.MsgUnregisterFeePayContract{
+				SenderAddress:   tc.senderAddress,
+				ContractAddress: tc.contractAddress,
+			})
+
+			if tc.shouldErr {
+				s.Require().Error(err)
+			} else {
+				s.Require().NoError(err)
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestFundFeePayContract() {
+	_, _, sender := testdata.KeyTestPubAddr()
+	_, _, admin := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(100_000_000))))
 	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
 	contract := s.InstantiateContract(sender.String(), "")
@@ -99,29 +191,54 @@ func (s *IntegrationTestSuite) TestUnRegisterFeePayContract() {
 	for _, tc := range []struct {
 		desc            string
 		contractAddress string
-		deployerAddress string
+		senderAddress   string
+		amount          sdk.Coins
 		shouldErr       bool
 	}{
 		{
-			desc:            "Fail - invalid address",
-			contractAddress: contract,
-			deployerAddress: "Invalid",
+			desc:            "Fail - Invalid Contract Address",
+			contractAddress: "Invalid",
+			senderAddress:   sender.String(),
+			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1_000_000))),
 			shouldErr:       true,
 		},
-		// TODO: non creator, non admin, etc
 		{
-			desc:            "Success - unregister",
+			desc:            "Fail - Invalid Sender Address",
 			contractAddress: contract,
-			deployerAddress: sender.String(),
+			senderAddress:   "Invalid",
+			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1_000_000))),
+			shouldErr:       true,
+		},
+		{
+			desc:            "Fail - Invalid Funds",
+			contractAddress: contract,
+			senderAddress:   sender.String(),
+			amount:          sdk.NewCoins(sdk.NewCoin("invalid-denom", sdk.NewInt(1_000_000))),
+			shouldErr:       true,
+		},
+		{
+			desc:            "Fail - Wallet Not Enough Funds",
+			contractAddress: contract,
+			senderAddress:   sender.String(),
+			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(100_000_000_000))),
+			shouldErr:       true,
+		},
+		{
+			desc:            "Success - Contract Funded",
+			contractAddress: contract,
+			senderAddress:   sender.String(),
+			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1_000_000))),
 			shouldErr:       false,
 		},
 	} {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-			err := s.app.AppKeepers.FeePayKeeper.UnregisterContract(s.ctx, &types.MsgUnregisterFeePayContract{
-				SenderAddress:   tc.deployerAddress,
+
+			_, err := s.app.AppKeepers.FeePayKeeper.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
+				SenderAddress:   tc.senderAddress,
 				ContractAddress: tc.contractAddress,
+				Amount:          tc.amount,
 			})
 
 			if tc.shouldErr {
@@ -133,300 +250,105 @@ func (s *IntegrationTestSuite) TestUnRegisterFeePayContract() {
 	}
 }
 
-// TODO: FundFeePayContract, UpdateFeePayContractWalletLimit
-// UpdateParams? (Prob better to do in e2e)
-// querier test
-// genesis_test
-// E2E test with interchaintest (both end of week) also handle the ante test. Fees etc.
+func (s *IntegrationTestSuite) TestUpdateFeePayContractWalletLimit() {
+	_, _, sender := testdata.KeyTestPubAddr()
+	_, _, admin := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
-// ---
+	creatorContract := s.InstantiateContract(sender.String(), "")
+	adminContract := s.InstantiateContract(sender.String(), admin.String())
 
-// OLD Examples from feeshare
-// func (s *IntegrationTestSuite) TestRegisterFeeShare() {
-// 	_, _, sender := testdata.KeyTestPubAddr()
-// 	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
+		SenderAddress: sender.String(),
+		FeePayContract: &types.FeePayContract{
+			ContractAddress: creatorContract,
+			WalletLimit:     1,
+		},
+	})
+	s.Require().NoError(err)
 
-// 	gov := s.accountKeeper.GetModuleAddress(govtypes.ModuleName).String()
-// 	govContract := s.InstantiateContract(sender.String(), gov)
+	_, err = s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
+		SenderAddress: admin.String(),
+		FeePayContract: &types.FeePayContract{
+			ContractAddress: adminContract,
+			WalletLimit:     0,
+		},
+	})
+	s.Require().NoError(err)
 
-// 	contractAddress := s.InstantiateContract(sender.String(), "")
-// 	contractAddress2 := s.InstantiateContract(contractAddress, contractAddress)
+	for _, tc := range []struct {
+		desc            string
+		contractAddress string
+		senderAddress   string
+		walletLimit     uint64
+		shouldErr       bool
+	}{
+		{
+			desc:            "Success - Update Admin Contract As Admin",
+			contractAddress: adminContract,
+			senderAddress:   admin.String(),
+			walletLimit:     10,
+			shouldErr:       false,
+		},
+		{
+			desc:            "Fail - Update Admin Contract As Creator",
+			contractAddress: adminContract,
+			senderAddress:   sender.String(),
+			walletLimit:     150,
+			shouldErr:       true,
+		},
+		{
+			desc:            "Success - Update Admin Contract As Admin (lower bounds)",
+			contractAddress: adminContract,
+			senderAddress:   admin.String(),
+			walletLimit:     0,
+			shouldErr:       false,
+		},
+		{
+			desc:            "Success - Update Admin Contract As Admin (upper bounds)",
+			contractAddress: adminContract,
+			senderAddress:   admin.String(),
+			walletLimit:     1_000_000,
+			shouldErr:       false,
+		},
+		{
+			desc:            "Fail - Update Admin Contract As Admin (out of bounds)",
+			contractAddress: adminContract,
+			senderAddress:   admin.String(),
+			walletLimit:     1_000_001,
+			shouldErr:       true,
+		},
+		{
+			desc:            "Fail - Update Creator Contract As Non Creator",
+			contractAddress: creatorContract,
+			senderAddress:   admin.String(),
+			walletLimit:     1,
+			shouldErr:       true,
+		},
+		{
+			desc:            "Success - Update Creator Contract As Creator",
+			contractAddress: creatorContract,
+			senderAddress:   sender.String(),
+			walletLimit:     21,
+			shouldErr:       false,
+		},
+	} {
+		tc := tc
 
-// 	DAODAO := s.InstantiateContract(sender.String(), "")
-// 	subContract := s.InstantiateContract(DAODAO, DAODAO)
+		s.Run(tc.desc, func() {
 
-// 	_, _, withdrawer := testdata.KeyTestPubAddr()
+			_, err := s.app.AppKeepers.FeePayKeeper.UpdateFeePayContractWalletLimit(s.ctx, &types.MsgUpdateFeePayContractWalletLimit{
+				SenderAddress:   tc.senderAddress,
+				ContractAddress: tc.contractAddress,
+				WalletLimit:     tc.walletLimit,
+			})
 
-// 	for _, tc := range []struct {
-// 		desc      string
-// 		msg       *types.MsgRegisterFeeShare
-// 		resp      *types.MsgRegisterFeeShareResponse
-// 		shouldErr bool
-// 	}{
-// 		{
-// 			desc: "Invalid contract address",
-// 			msg: &types.MsgRegisterFeeShare{
-// 				ContractAddress:   "Invalid",
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: withdrawer.String(),
-// 			},
-// 			resp:      &types.MsgRegisterFeeShareResponse{},
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Invalid deployer address",
-// 			msg: &types.MsgRegisterFeeShare{
-// 				ContractAddress:   contractAddress,
-// 				DeployerAddress:   "Invalid",
-// 				WithdrawerAddress: withdrawer.String(),
-// 			},
-// 			resp:      &types.MsgRegisterFeeShareResponse{},
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Invalid withdrawer address",
-// 			msg: &types.MsgRegisterFeeShare{
-// 				ContractAddress:   contractAddress,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: "Invalid",
-// 			},
-// 			resp:      &types.MsgRegisterFeeShareResponse{},
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Success",
-// 			msg: &types.MsgRegisterFeeShare{
-// 				ContractAddress:   contractAddress,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: withdrawer.String(),
-// 			},
-// 			resp:      &types.MsgRegisterFeeShareResponse{},
-// 			shouldErr: false,
-// 		},
-// 		{
-// 			desc: "Invalid withdraw address for factory contract",
-// 			msg: &types.MsgRegisterFeeShare{
-// 				ContractAddress:   contractAddress2,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: sender.String(),
-// 			},
-// 			resp:      &types.MsgRegisterFeeShareResponse{},
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Success register factory contract to itself",
-// 			msg: &types.MsgRegisterFeeShare{
-// 				ContractAddress:   contractAddress2,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: contractAddress2,
-// 			},
-// 			resp:      &types.MsgRegisterFeeShareResponse{},
-// 			shouldErr: false,
-// 		},
-// 		{
-// 			desc: "Invalid register gov contract withdraw address",
-// 			msg: &types.MsgRegisterFeeShare{
-// 				ContractAddress:   govContract,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: sender.String(),
-// 			},
-// 			resp:      &types.MsgRegisterFeeShareResponse{},
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Success register gov contract withdraw address to self",
-// 			msg: &types.MsgRegisterFeeShare{
-// 				ContractAddress:   govContract,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: govContract,
-// 			},
-// 			resp:      &types.MsgRegisterFeeShareResponse{},
-// 			shouldErr: false,
-// 		},
-// 		{
-// 			desc: "Success register contract from DAODAO contract as admin",
-// 			msg: &types.MsgRegisterFeeShare{
-// 				ContractAddress:   subContract,
-// 				DeployerAddress:   DAODAO,
-// 				WithdrawerAddress: DAODAO,
-// 			},
-// 			resp:      &types.MsgRegisterFeeShareResponse{},
-// 			shouldErr: false,
-// 		},
-// 	} {
-// 		tc := tc
-// 		s.Run(tc.desc, func() {
-// 			goCtx := sdk.WrapSDKContext(s.ctx)
-// 			if !tc.shouldErr {
-// 				resp, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, tc.msg)
-// 				s.Require().NoError(err)
-// 				s.Require().Equal(resp, tc.resp)
-// 			} else {
-// 				resp, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, tc.msg)
-// 				s.Require().Error(err)
-// 				s.Require().Nil(resp)
-// 			}
-// 		})
-// 	}
-// }
-
-// func (s *IntegrationTestSuite) TestUpdateFeeShare() {
-// 	_, _, sender := testdata.KeyTestPubAddr()
-// 	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
-// 	contractAddress := s.InstantiateContract(sender.String(), "")
-// 	_, _, withdrawer := testdata.KeyTestPubAddr()
-
-// 	contractAddressNoRegisFeeShare := s.InstantiateContract(sender.String(), "")
-// 	s.Require().NotEqual(contractAddress, contractAddressNoRegisFeeShare)
-
-// 	// RegsisFeeShare
-// 	goCtx := sdk.WrapSDKContext(s.ctx)
-// 	msg := &types.MsgRegisterFeeShare{
-// 		ContractAddress:   contractAddress,
-// 		DeployerAddress:   sender.String(),
-// 		WithdrawerAddress: withdrawer.String(),
-// 	}
-// 	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
-// 	s.Require().NoError(err)
-// 	_, _, newWithdrawer := testdata.KeyTestPubAddr()
-// 	s.Require().NotEqual(withdrawer, newWithdrawer)
-
-// 	for _, tc := range []struct {
-// 		desc      string
-// 		msg       *types.MsgUpdateFeeShare
-// 		resp      *types.MsgCancelFeeShareResponse
-// 		shouldErr bool
-// 	}{
-// 		{
-// 			desc: "Invalid - contract not regis",
-// 			msg: &types.MsgUpdateFeeShare{
-// 				ContractAddress:   contractAddressNoRegisFeeShare,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: newWithdrawer.String(),
-// 			},
-// 			resp:      nil,
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Invalid - Invalid DeployerAddress",
-// 			msg: &types.MsgUpdateFeeShare{
-// 				ContractAddress:   contractAddress,
-// 				DeployerAddress:   "Invalid",
-// 				WithdrawerAddress: newWithdrawer.String(),
-// 			},
-// 			resp:      nil,
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Invalid - Invalid WithdrawerAddress",
-// 			msg: &types.MsgUpdateFeeShare{
-// 				ContractAddress:   contractAddress,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: "Invalid",
-// 			},
-// 			resp:      nil,
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Invalid - Invalid WithdrawerAddress not change",
-// 			msg: &types.MsgUpdateFeeShare{
-// 				ContractAddress:   contractAddress,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: withdrawer.String(),
-// 			},
-// 			resp:      nil,
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Success",
-// 			msg: &types.MsgUpdateFeeShare{
-// 				ContractAddress:   contractAddress,
-// 				DeployerAddress:   sender.String(),
-// 				WithdrawerAddress: newWithdrawer.String(),
-// 			},
-// 			resp:      &types.MsgCancelFeeShareResponse{},
-// 			shouldErr: false,
-// 		},
-// 	} {
-// 		tc := tc
-// 		s.Run(tc.desc, func() {
-// 			goCtx := sdk.WrapSDKContext(s.ctx)
-// 			if !tc.shouldErr {
-// 				_, err := s.feeShareMsgServer.UpdateFeeShare(goCtx, tc.msg)
-// 				s.Require().NoError(err)
-// 			} else {
-// 				resp, err := s.feeShareMsgServer.UpdateFeeShare(goCtx, tc.msg)
-// 				s.Require().Error(err)
-// 				s.Require().Nil(resp)
-// 			}
-// 		})
-// 	}
-// }
-
-// func (s *IntegrationTestSuite) TestCancelFeeShare() {
-// 	_, _, sender := testdata.KeyTestPubAddr()
-// 	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-
-// 	contractAddress := s.InstantiateContract(sender.String(), "")
-// 	_, _, withdrawer := testdata.KeyTestPubAddr()
-
-// 	// RegsisFeeShare
-// 	goCtx := sdk.WrapSDKContext(s.ctx)
-// 	msg := &types.MsgRegisterFeeShare{
-// 		ContractAddress:   contractAddress,
-// 		DeployerAddress:   sender.String(),
-// 		WithdrawerAddress: withdrawer.String(),
-// 	}
-// 	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
-// 	s.Require().NoError(err)
-
-// 	for _, tc := range []struct {
-// 		desc      string
-// 		msg       *types.MsgCancelFeeShare
-// 		resp      *types.MsgCancelFeeShareResponse
-// 		shouldErr bool
-// 	}{
-// 		{
-// 			desc: "Invalid - contract Address",
-// 			msg: &types.MsgCancelFeeShare{
-// 				ContractAddress: "Invalid",
-// 				DeployerAddress: sender.String(),
-// 			},
-// 			resp:      nil,
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Invalid - deployer Address",
-// 			msg: &types.MsgCancelFeeShare{
-// 				ContractAddress: contractAddress,
-// 				DeployerAddress: "Invalid",
-// 			},
-// 			resp:      nil,
-// 			shouldErr: true,
-// 		},
-// 		{
-// 			desc: "Success",
-// 			msg: &types.MsgCancelFeeShare{
-// 				ContractAddress: contractAddress,
-// 				DeployerAddress: sender.String(),
-// 			},
-// 			resp:      &types.MsgCancelFeeShareResponse{},
-// 			shouldErr: false,
-// 		},
-// 	} {
-// 		tc := tc
-// 		s.Run(tc.desc, func() {
-// 			goCtx := sdk.WrapSDKContext(s.ctx)
-// 			if !tc.shouldErr {
-// 				resp, err := s.feeShareMsgServer.CancelFeeShare(goCtx, tc.msg)
-// 				s.Require().NoError(err)
-// 				s.Require().Equal(resp, tc.resp)
-// 			} else {
-// 				resp, err := s.feeShareMsgServer.CancelFeeShare(goCtx, tc.msg)
-// 				s.Require().Error(err)
-// 				s.Require().Equal(resp, tc.resp)
-// 			}
-// 		})
-// 	}
-// }
+			if tc.shouldErr {
+				s.Require().Error(err)
+			} else {
+				s.Require().NoError(err)
+			}
+		})
+	}
+}

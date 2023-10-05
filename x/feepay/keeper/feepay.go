@@ -166,7 +166,7 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 		store.Delete(iterator.Key())
 	}
 
-	// Transfer funds back to contract owner
+	// Calculate coins to refund
 	coins := sdk.NewCoins(sdk.NewCoin(k.bondDenom, math.NewIntFromUint64(contract.Balance)))
 
 	// Default refund address to admin, fallback to creator
@@ -207,8 +207,13 @@ func (k Keeper) FundContract(ctx sdk.Context, fpc *types.FeePayContract, senderA
 		}
 	}
 
+	// Ensure the transfer coin was set
+	if transferCoin == (sdk.Coin{}) {
+		return types.ErrInvalidJunoFundAmount.Wrapf("contract must be funded with '%s'", k.bondDenom)
+	}
+
 	// Transfer from sender to module
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, sdk.NewCoins(transferCoin)); err != nil {
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, coins); err != nil {
 		return err
 	}
 
