@@ -90,9 +90,8 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
 	}
 
-	_, found := os.LookupEnv("CHAIN_BYPASS_SIGNATURE_VERIFICATION")
-	if !found {
-		// useful for testing to execute as other accounts
+	// useful for testing to execute as other accounts
+	if os.Getenv("BYPASS_CHAIN_SIGNATURE_VERIFICATION") != "" {
 		anteDecorators = append(anteDecorators, []sdk.AnteDecorator{
 			// SetPubKeyDecorator must be called before all signature verification decorators
 			ante.NewSetPubKeyDecorator(options.AccountKeeper),

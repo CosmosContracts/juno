@@ -2,17 +2,10 @@
 # Run this script to quickly install, setup, and run the current version of juno without docker.
 #
 # Example:
-# CHAIN_ID="local-1" HOME_DIR="~/.juno1" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
+# BYPASS_CHAIN_SIGNATURE_VERIFICATION=true CHAIN_ID="local-1" HOME_DIR="~/.juno1" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
 # CHAIN_ID="local-2" HOME_DIR="~/.juno2" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
 #
 # To use unoptomized wasm files up to ~5mb, add: MAX_WASM_SIZE=5000000
-
-# junod tx bank send juno1 juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl 1ujuno --chain-id local-1 --fees=500juno--generate-only
-# then we can just modify the sequence number (any unique) and run transactions for any chain account.
-
-# CHAIN_BYPASS_SIGNATURE_VERIFICATION=true CHAIN_ID="local-1" HOME_DIR="~/.juno1" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
-# even though the following pub key is incorrect, it is not actually checked in the ante
-# {"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk","to_address":"juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl","amount":[{"denom":"ujuno","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[{"public_key":{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"mode_info":{"single":{"mode":"SIGN_MODE_DIRECT"}},"sequence":"1"}],"fee":{"amount":[{"denom":"ujuno","amount":"500"}],"gas_limit":"200000","payer":"","granter":""},"tip":null},"signatures":["NNy9gGF7LOnIjpV51ud/gmwAO8sCNd4DraaKAxP98hgVbSmlXfqaY2SFqifqtvj9wICkT5T22EsZ27a7yg3v4g=="]}
 
 export KEY="juno1"
 export KEY2="juno2"
