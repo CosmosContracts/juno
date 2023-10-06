@@ -38,7 +38,12 @@ func (s *IntegrationTestSuite) TestQueryContract() {
 
 		// Ensure no error and response exists
 		s.Require().NoError(err)
-		s.Require().NotNil(res)
+		s.Require().Equal(res, &types.QueryFeePayContractResponse{
+			FeePayContract: &types.FeePayContract{
+				ContractAddress: contractAddr,
+				WalletLimit:     1,
+			},
+		})
 	})
 }
 
@@ -71,7 +76,12 @@ func (s *IntegrationTestSuite) TestQueryContracts() {
 
 		// Ensure no error and response exists
 		s.Require().NoError(err)
-		s.Require().NotNil(res)
+		s.Require().Equal(res, &types.QueryFeePayContractResponse{
+			FeePayContract: &types.FeePayContract{
+				ContractAddress: contractAddr,
+				WalletLimit:     1,
+			},
+		})
 
 		// Append to lists
 		contractAddressList = append(contractAddressList, contractAddr)
@@ -169,7 +179,6 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 
 		// Should error, contract should have no funds
 		s.Require().NoError(err)
-		s.Require().NotNil(res)
 		s.Require().True(res.Eligible)
 	})
 
@@ -220,7 +229,6 @@ func (s *IntegrationTestSuite) TestQueryUses() {
 
 		// Ensure no error and response is false, contract should have no funds
 		s.Require().NoError(err)
-		s.Require().NotNil(res)
 		s.Require().Equal(uint64(0), res.Uses)
 	})
 }
