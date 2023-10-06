@@ -50,7 +50,6 @@ func (s *IntegrationTestSuite) SetupTest() {
 
 	s.queryClient = types.NewQueryClient(queryHelper)
 	s.bankKeeper = s.app.AppKeepers.BankKeeper
-	// s.accountKeeper = s.app.AppKeepers.AccountKeeper
 	s.msgServer = s.app.AppKeepers.FeePayKeeper
 	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl(&s.app.AppKeepers.WasmKeeper)
 }
