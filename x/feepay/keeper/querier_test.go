@@ -20,15 +20,7 @@ func (s *IntegrationTestSuite) TestQueryContract() {
 	// Instantiate the contractAddr
 	contractAddr := s.InstantiateContract(sender.String(), "")
 
-	// Register the fee pay contract
-	_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
-		SenderAddress: sender.String(),
-		FeePayContract: &types.FeePayContract{
-			ContractAddress: contractAddr,
-			WalletLimit:     1,
-		},
-	})
-	s.Require().NoError(err)
+	s.registerFeePayContract(sender.String(), contractAddr, 1)
 
 	s.Run("QueryContract", func() {
 		// Query for the contract
@@ -60,14 +52,7 @@ func (s *IntegrationTestSuite) TestQueryContracts() {
 		contractAddr := s.InstantiateContract(sender.String(), "")
 
 		// Register the fee pay contract
-		_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
-			SenderAddress: sender.String(),
-			FeePayContract: &types.FeePayContract{
-				ContractAddress: contractAddr,
-				WalletLimit:     1,
-			},
-		})
-		s.Require().NoError(err)
+		s.registerFeePayContract(sender.String(), contractAddr, 1)
 
 		// Query for the contract
 		res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContract{
@@ -135,21 +120,13 @@ func (s *IntegrationTestSuite) TestQueryContracts() {
 func (s *IntegrationTestSuite) TestQueryEligibility() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(100_000_000))))
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdk.NewInt(100_000_000))))
 
 	// Instantiate the contractAddr
 	contractAddr := s.InstantiateContract(sender.String(), "")
 
 	// Register the fee pay contract
-	_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
-		SenderAddress: sender.String(),
-		FeePayContract: &types.FeePayContract{
-			ContractAddress: contractAddr,
-			WalletLimit:     1,
-		},
-	})
-	s.Require().NoError(err)
+	s.registerFeePayContract(sender.String(), contractAddr, 1)
 
 	s.Run("QueryEligibilityNoFunds", func() {
 		// Query for the contract
@@ -164,11 +141,12 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 	})
 
 	// Add funds
-	_, err = s.app.AppKeepers.FeePayKeeper.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
+	_, err := s.app.AppKeepers.FeePayKeeper.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
 		SenderAddress:   sender.String(),
 		ContractAddress: contractAddr,
 		Amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1_000_000))),
 	})
+	s.Require().NoError(err)
 
 	s.Run("QueryEligibilityWithFunds", func() {
 		// Query for the contract
@@ -188,6 +166,7 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 		ContractAddress: contractAddr,
 		WalletLimit:     0,
 	})
+	s.Require().NoError(err)
 
 	s.Run("QueryEligibilityWithLimit", func() {
 		// Query for the contract
@@ -211,14 +190,7 @@ func (s *IntegrationTestSuite) TestQueryUses() {
 	contractAddr := s.InstantiateContract(sender.String(), "")
 
 	// Register the fee pay contract
-	_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
-		SenderAddress: sender.String(),
-		FeePayContract: &types.FeePayContract{
-			ContractAddress: contractAddr,
-			WalletLimit:     1,
-		},
-	})
-	s.Require().NoError(err)
+	s.registerFeePayContract(sender.String(), contractAddr, 1)
 
 	s.Run("QueryUses", func() {
 		// Query for the contract
