@@ -164,11 +164,15 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	}
 
 	// Get the fee price in the chain denom
-	var feePrice sdk.DecCoin
+	var feePrice sdk.DecCoin = sdk.DecCoin{}
 	for _, c := range dfd.globalfeeKeeper.GetParams(ctx).MinimumGasPrices {
 		if c.Denom == dfd.bondDenom {
 			feePrice = c
 		}
+	}
+
+	if feePrice == (sdk.DecCoin{}) {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidCoins, "fee price not found for denom %s in globalfee keeper", dfd.bondDenom)
 	}
 
 	// Get the tx gas
