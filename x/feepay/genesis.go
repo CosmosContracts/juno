@@ -17,7 +17,7 @@ func InitGenesis(
 		panic(err)
 	}
 
-	for _, feepay := range data.FeeContract {
+	for _, feepay := range data.FeePayContracts {
 		// TODO: future, add all wallet interactions for exports?
 		k.SetFeePayContract(ctx, feepay)
 	}
@@ -26,10 +26,10 @@ func InitGenesis(
 // ExportGenesis export module state
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	params := k.GetParams(ctx)
-	contract := k.GetAllContracts(ctx)
+	contracts := k.GetAllContracts(ctx)
 
 	return &types.GenesisState{
-		Params:      params,
-		FeeContract: contract,
+		Params:          params,
+		FeePayContracts: contracts,
 	}
 }

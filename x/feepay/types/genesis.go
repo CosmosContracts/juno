@@ -1,10 +1,12 @@
 package types
 
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
 // NewGenesisState creates a new genesis state.
-func NewGenesisState(params Params, feecontract []FeePayContract) GenesisState {
+func NewGenesisState(params Params, feePayContracts []FeePayContract) GenesisState {
 	return GenesisState{
-		Params:      params,
-		FeeContract: feecontract,
+		Params:          params,
+		FeePayContracts: feePayContracts,
 	}
 }
 
@@ -15,12 +17,23 @@ func DefaultGenesisState() *GenesisState {
 		Params: Params{
 			EnableFeepay: true,
 		},
-		FeeContract: []FeePayContract{},
+		FeePayContracts: []FeePayContract{},
 	}
 }
 
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
+	// Loop through all fee pay contracts and validate they
+	// have a valid bech32 address
+	for _, contract := range gs.FeePayContracts {
+
+		_, err := sdk.AccAddressFromBech32(contract.ContractAddress)
+
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

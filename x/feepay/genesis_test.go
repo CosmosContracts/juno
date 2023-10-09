@@ -42,14 +42,12 @@ func (suite *GenesisTestSuite) SetupTest() {
 
 func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 	testCases := []struct {
-		name     string
-		genesis  types.GenesisState
-		expPanic bool
+		name    string
+		genesis types.GenesisState
 	}{
 		{
 			"Default Genesis - FeePay Enabled",
 			suite.genesis,
-			false,
 		},
 		{
 			"Custom Genesis - FeePay Disabled",
@@ -58,7 +56,6 @@ func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 					EnableFeepay: false,
 				},
 			},
-			false,
 		},
 	}
 
@@ -66,18 +63,12 @@ func (suite *GenesisTestSuite) TestFeeShareInitGenesis() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			if tc.expPanic {
-				suite.Require().Panics(func() {
-					feepay.InitGenesis(suite.ctx, suite.app.AppKeepers.FeePayKeeper, tc.genesis)
-				})
-			} else {
-				suite.Require().NotPanics(func() {
-					feepay.InitGenesis(suite.ctx, suite.app.AppKeepers.FeePayKeeper, tc.genesis)
-				})
+			suite.Require().NotPanics(func() {
+				feepay.InitGenesis(suite.ctx, suite.app.AppKeepers.FeePayKeeper, tc.genesis)
+			})
 
-				params := suite.app.AppKeepers.FeePayKeeper.GetParams(suite.ctx)
-				suite.Require().Equal(tc.genesis.Params, params)
-			}
+			params := suite.app.AppKeepers.FeePayKeeper.GetParams(suite.ctx)
+			suite.Require().Equal(tc.genesis.Params, params)
 		})
 	}
 }
