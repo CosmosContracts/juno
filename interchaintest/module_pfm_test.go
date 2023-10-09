@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -201,7 +202,7 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 	// Get original account balances
 	userA, userB, userC, userD := users[0], users[1], users[2], users[3]
 
-	const transferAmount int64 = 100000
+	var transferAmount math.Int = math.NewInt(100_000)
 
 	// Compose the prefixed denoms and ibc denom for asserting balances
 	firstHopDenom := transfertypes.GetPrefixedDenom(baChan.PortID, baChan.ChannelID, chainA.Config().Denom)
@@ -274,7 +275,7 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 		chainDBalance, err := chainD.GetBalance(ctx, userD.FormattedAddress(), thirdHopIBCDenom)
 		require.NoError(t, err)
 
-		require.Equal(t, userFunds-transferAmount, chainABalance)
+		require.Equal(t, userFunds-transferAmount.Int64(), chainABalance)
 		require.Equal(t, int64(0), chainBBalance)
 		require.Equal(t, int64(0), chainCBalance)
 		require.Equal(t, transferAmount, chainDBalance)

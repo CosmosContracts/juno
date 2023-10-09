@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -118,7 +119,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	require.Equal(t, genesisWalletAmount, gaiaOrigBal)
 
 	// Compose an IBC transfer and send from Juno -> Gaia
-	const transferAmount = int64(1_000)
+	var transferAmount = math.NewInt(1_000)
 	transfer := ibc.WalletAmount{
 		Address: gaiaUserAddr,
 		Denom:   juno.Config().Denom,
@@ -160,7 +161,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	// Assert that the funds are no longer present in user acc on Juno and are in the user acc on Gaia
 	junoUpdateBal, err := juno.GetBalance(ctx, junoUserAddr, juno.Config().Denom)
 	require.NoError(t, err)
-	require.Equal(t, junoOrigBal-transferAmount, junoUpdateBal)
+	require.Equal(t, junoOrigBal.Sub(transferAmount), junoUpdateBal)
 
 	gaiaUpdateBal, err := gaia.GetBalance(ctx, gaiaUserAddr, junoIBCDenom)
 	require.NoError(t, err)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
@@ -41,7 +42,7 @@ func TestJunoUnityContractGovSubmit(t *testing.T) {
 	t.Log("testing Unity contractAddr", contractAddr)
 
 	// send 2JUNO funds to the contract from user
-	juno.SendFunds(ctx, user.KeyName(), ibc.WalletAmount{Address: contractAddr, Denom: nativeDenom, Amount: 2000000})
+	juno.SendFunds(ctx, user.KeyName(), ibc.WalletAmount{Address: contractAddr, Denom: nativeDenom, Amount: math.NewInt(2000000)})
 
 	height, err := juno.Height(ctx)
 	require.NoError(t, err, "error fetching height")

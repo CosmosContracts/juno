@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -134,7 +135,7 @@ func TestJunoIBCHooks(t *testing.T) {
 	transfer := ibc.WalletAmount{
 		Address: contractAddr,
 		Denom:   juno.Config().Denom,
-		Amount:  int64(1),
+		Amount:  math.NewInt(1),
 	}
 
 	memo := ibc.TransferOptions{

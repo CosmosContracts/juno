@@ -9,6 +9,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+// TODO: This is archived for now becuase:
+// /home/reece/.gvm/pkgsets/go1.21/global/pkg/mod/github.com/skip-mev/pob/tests/integration@v0.1.0/chain_setup.go:242:9: cannot use balance (variable of type "cosmossdk.io/math".Int) as int64 value in return statement
+
 var (
 	numVals = 4
 	numFull = 0
