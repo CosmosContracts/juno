@@ -18,6 +18,7 @@ import (
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
 
+	feepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
@@ -93,6 +94,7 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
+	feepaytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
 	return &cfg
 }

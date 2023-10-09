@@ -160,6 +160,9 @@ ictest-pob: rm-testcache
 ictest-drip: rm-testcache
 	cd interchaintest &&  go test -race -v -run TestJunoDrip .
 
+ictest-feepay: rm-testcache
+	cd interchaintest &&  go test -race -v -run TestJunoFeePay .
+
 rm-testcache:
 	go clean -testcache
 
