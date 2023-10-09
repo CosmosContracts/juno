@@ -13,7 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
-func RegisterFeePay(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string, walletLimit uint) {
+func RegisterFeePay(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string, walletLimit int) {
 	cmd := []string{
 		"junod", "tx", "feepay", "register", contract, fmt.Sprintf("%d", walletLimit),
 		"--node", chain.GetRPCAddress(),
@@ -74,7 +74,3 @@ func UpdateFeePayWalletLimit(t *testing.T, ctx context.Context, chain *cosmos.Co
 	err = testutil.WaitForBlocks(ctx, 2, chain)
 	require.NoError(t, err)
 }
-
-// TODO:
-// {"fee_pay_contract":{"contract_address":"juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8","balance":"1000000","wallet_limit":"5"}}
-// feepay contract juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8

@@ -2,11 +2,13 @@ package interchaintest
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/testutil"
+	"github.com/stretchr/testify/require"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
@@ -17,6 +19,15 @@ func TestJunoFeePay(t *testing.T) {
 
 	cfg := junoConfig
 	cfg.GasPrices = "0.0025ujuno"
+
+	// 0.002500000000000000
+	coin := sdk.NewDecCoinFromDec(cfg.Denom, sdk.NewDecWithPrec(25, 4))
+	cfg.ModifyGenesis = cosmos.ModifyGenesis(append(defaultGenesisKV, []cosmos.GenesisKV{
+		{
+			Key:   "app_state.globalfee.params.minimum_gas_prices",
+			Value: sdk.DecCoins{coin},
+		},
+	}...))
 
 	// Base setup
 	chains := CreateChainWithCustomConfig(t, 1, 0, cfg)
@@ -44,34 +55,43 @@ func TestJunoFeePay(t *testing.T) {
 	}
 
 	// Register contract for 0 fee usage (x amount of times)
-	helpers.RegisterFeePay(t, ctx, juno, admin, contractAddr, 5)
-	helpers.FundFeePayContract(t, ctx, juno, admin, contractAddr, "1000000"+nativeDenom)
+	limit := 5
+	balance := 1_000_000
+	helpers.RegisterFeePay(t, ctx, juno, admin, contractAddr, limit)
+	helpers.FundFeePayContract(t, ctx, juno, admin, contractAddr, strconv.Itoa(balance)+nativeDenom)
+
+	beforeContract := helpers.GetFeePayContract(t, ctx, juno, contractAddr)
+	t.Log("beforeContract", beforeContract)
+	require.Equal(t, beforeContract.FeePayContract.Balance, strconv.Itoa(balance))
+	require.Equal(t, beforeContract.FeePayContract.WalletLimit, strconv.Itoa(int(limit)))
 
 	// execute against it from another account with enough fees (standard Tx)
 	txHash, err := juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "500"+nativeDenom)
-	if err != nil {
-		// TODO:
-		t.Log(err)
-	}
+	require.NoError(t, err)
 	fmt.Println("txHash", txHash)
+
+	beforeBal, err := juno.GetBalance(ctx, user.FormattedAddress(), nativeDenom)
+	require.NoError(t, err)
 
 	// execute against it from another account and have the dev pay it
 	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
-	if err != nil {
-		// TODO:
-		t.Log(err)
-	}
+	require.NoError(t, err)
 	fmt.Println("txHash", txHash)
 
-	// validate their balance did not go down, and that the contract did infact increase +=1
-	// if balance, err := juno.GetBalance(ctx, feeRcvAddr, nativeDenom); err != nil {
-	// 	t.Fatal(err)
-	// } else if balance != 0 {
-	// 	t.Fatal("balance not 0")
-	// }
+	afterBal, err := juno.GetBalance(ctx, user.FormattedAddress(), nativeDenom)
+	require.NoError(t, err)
 
-	// wait blocks
-	testutil.WaitForBlocks(ctx, 200, juno)
+	// validate users balance did not change
+	require.Equal(t, beforeBal, afterBal)
+
+	// validate the contract balance went down
+	afterContract := helpers.GetFeePayContract(t, ctx, juno, contractAddr)
+	t.Log("afterContract", afterContract)
+	require.Equal(t, afterContract.FeePayContract.Balance, strconv.Itoa(balance-500))
+
+	uses := helpers.GetFeePayUses(t, ctx, juno, contractAddr, user.FormattedAddress())
+	t.Log("uses", uses)
+	require.Equal(t, uses.Uses, "1")
 
 	t.Cleanup(func() {
 		_ = ic.Close()
