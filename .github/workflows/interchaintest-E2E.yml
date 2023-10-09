@@ -59,6 +59,7 @@ jobs:
         # names of `make` commands to run tests
         test:
           - "ictest-basic"
+          - "ictest-statesync"
           - "ictest-ibchooks"
           - "ictest-tokenfactory"
           - "ictest-feeshare"
