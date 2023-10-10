@@ -163,6 +163,9 @@ ictest-drip: rm-testcache
 ictest-burn: rm-testcache
 	cd interchaintest &&  go test -race -v -run TestJunoBurnModule .
 
+ictest-cwhooks: rm-testcache
+	cd interchaintest &&  go test -race -v -run TestJunoCwHooks .
+
 ictest-clock: rm-testcache
 	cd interchaintest &&  go test -race -v -run TestJunoClock .
 

@@ -70,6 +70,7 @@ jobs:
           - "ictest-pob"
           - "ictest-drip"
           - "ictest-burn"
+          - "ictest-cwhooks"
           - "ictest-clock"
       fail-fast: false
 
