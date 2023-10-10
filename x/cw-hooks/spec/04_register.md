@@ -4,13 +4,13 @@ See [Integration](./06_integration.md)) for all events emitted by the chain.
 
 ## Staking Events
 
-> `junod tx cw-hooks register-staking [contract_bech32] --from [admin|creator]`
+> `junod tx cw-hooks register staking [contract_bech32] --from [admin|creator]`
 
 *Registers the contract to receive staking events (fire and forget)*
 
 ## Governance Events
 
-> `junod tx cw-hooks register-governance [contract_bech32] --from [admin|creator]`
+> `junod tx cw-hooks register governance [contract_bech32] --from [admin|creator]`
 
 *Registers the contract to receive governance events (fire and forget)*
 

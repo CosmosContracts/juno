@@ -14,18 +14,18 @@ import (
 
 // Register
 func RegisterCwHooksStaking(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
-	cwHooksCmd(t, ctx, chain, user, "register-staking", contractAddr)
+	cwHooksCmd(t, ctx, chain, user, "register", "staking", contractAddr)
 }
 func RegisterCwHooksGovernance(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
-	cwHooksCmd(t, ctx, chain, user, "register-governance", contractAddr)
+	cwHooksCmd(t, ctx, chain, user, "register", "governance", contractAddr)
 }
 
 // UnRegister
 func UnregisterCwHooksStaking(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
-	cwHooksCmd(t, ctx, chain, user, "unregister-staking", contractAddr)
+	cwHooksCmd(t, ctx, chain, user, "unregister", "staking", contractAddr)
 }
 func UnregisterCwHooksGovernance(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
-	cwHooksCmd(t, ctx, chain, user, "unregister-governance", contractAddr)
+	cwHooksCmd(t, ctx, chain, user, "unregister", "governance", contractAddr)
 }
 
 // Get Contracts
@@ -45,9 +45,9 @@ func GetCwStakingHookLastDelegationChange(t *testing.T, ctx context.Context, cha
 }
 
 // helpers
-func cwHooksCmd(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, registerModule, contractAddr string) {
+func cwHooksCmd(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, command, module, contractAddr string) {
 	cmd := []string{
-		"junod", "tx", "cw-hooks", registerModule, contractAddr,
+		"junod", "tx", "cw-hooks", command, module, contractAddr,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,

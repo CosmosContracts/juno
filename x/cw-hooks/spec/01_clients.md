@@ -18,12 +18,10 @@ junod query cw-hooks params
 
 ### Transactions
 
-| Command         | Subcommand | Description                                            |
-| :-------------- | :--------- | :----------------------------------------------------- |
-| `tx` `cw-hooks` | `register-governance`   | Register a contract for gov events        |
-| `tx` `cw-hooks` | `unregister-governance` | Unregister a contract from gov events     |
-| `tx` `cw-hooks` | `register-staking`      | Register a contract for staking events    |
-| `tx` `cw-hooks` | `unregister-staking`    | Unregister a contract from staking events |
+| Command         | Subcommand   | Description                           |
+| :-------------- | :----------- | :------------------------------------ |
+| `tx` `cw-hooks` | `register`   | Register a contract for events        |
+| `tx` `cw-hooks` | `unregister` | Unregister a contract from events     |
 
 ## gRPC Queries
 
