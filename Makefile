@@ -124,6 +124,9 @@ benchmark:
 ictest-basic: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoStart .
 
+ictest-statesync: rm-testcache
+	cd interchaintest && go test -race -v -run TestJunoStateSync .
+
 ictest-ibchooks: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoIBCHooks .
 
