@@ -20,6 +20,7 @@ import (
 
 	feepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
 	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
 )
 
@@ -95,6 +96,7 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	feepaytypes.RegisterInterfaces(cfg.InterfaceRegistry)
+	globalfeetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 
 	return &cfg
 }

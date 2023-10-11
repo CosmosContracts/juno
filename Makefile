@@ -136,6 +136,9 @@ ictest-feeshare: rm-testcache
 ictest-pfm: rm-testcache
 	cd interchaintest && go test -race -v -run TestPacketForwardMiddlewareRouter .
 
+ictest-globalfee: rm-testcache
+	cd interchaintest && go test -race -v -run TestJunoGlobalFee .
+
 # Executes a basic chain upgrade test via interchaintest
 ictest-upgrade: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .

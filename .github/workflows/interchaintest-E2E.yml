@@ -63,6 +63,7 @@ jobs:
           - "ictest-tokenfactory"
           - "ictest-feeshare"
           - "ictest-pfm"
+          - "ictest-globalfee"
           - "ictest-upgrade"
           - "ictest-ibc"
           - "ictest-unity-deploy"
