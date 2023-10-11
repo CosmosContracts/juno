@@ -58,6 +58,10 @@ var (
 			Key:   "app_state.gov.params.min_deposit.0.denom",
 			Value: Denom,
 		},
+		{
+			Key:   "app_state.feepay.params.enable_feepay",
+			Value: false,
+		},
 	}
 
 	junoConfig = ibc.ChainConfig{

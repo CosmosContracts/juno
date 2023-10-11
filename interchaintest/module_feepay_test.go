@@ -27,6 +27,11 @@ func TestJunoFeePay(t *testing.T) {
 			Key:   "app_state.globalfee.params.minimum_gas_prices",
 			Value: sdk.DecCoins{coin},
 		},
+		{
+			// override default impl.
+			Key:   "app_state.feepay.params.enable_feepay",
+			Value: true,
+		},
 	}...))
 
 	// Base setup
