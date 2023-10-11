@@ -10,6 +10,7 @@ import (
 	"github.com/CosmosContracts/juno/v18/app/keepers"
 	"github.com/CosmosContracts/juno/v18/app/upgrades"
 	cwhookstypes "github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
+	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
 )
 
 func CreateV18UpgradeHandler(
@@ -36,6 +37,11 @@ func CreateV18UpgradeHandler(
 		if err := k.CWHooksKeeper.SetParams(ctx, cwhookstypes.NewParams(gasLimit)); err != nil {
 			return nil, err
 		}
+
+		// x/feepay
+		k.FeePayKeeper.SetParams(ctx, feepaytypes.Params{
+			EnableFeepay: true,
+		})
 
 		return versionMap, err
 	}
