@@ -124,7 +124,9 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		return sdkerrors.ErrUnknownAddress.Wrapf("fee payer address: %s does not exist", deductFeesFrom)
 	}
 
-	if isValidFeePayTransaction(sdkTx, fee) {
+	isFeePayEnabled := dfd.feepayKeeper.GetParams(ctx).EnableFeepay
+
+	if isFeePayEnabled && isValidFeePayTransaction(sdkTx, fee) {
 		err := dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
 		if err != nil {
 			return err
@@ -151,11 +153,6 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 
 // Handle zero fee transactions for fee prepay module
 func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc types.AccountI, tx sdk.Tx, _ sdk.Coins) error {
-	// Prevent FeePay Tx from occurring when module is disabled
-	if !dfd.feepayKeeper.GetParams(ctx).EnableFeepay {
-		return feepaytypes.ErrFeePayDisabled
-	}
-
 	msg := tx.GetMsgs()[0]
 	cw := msg.(*wasmtypes.MsgExecuteContract)
 
@@ -242,6 +239,7 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
 	// TODO: see if we can remove, since we do call this twice.
+	// TODO: Validate feepay is enabled here?
 	if ctx.IsCheckTx() && !isValidFeePayTransaction(tx, feeTx.GetFee()) {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
@@ -289,6 +287,8 @@ func getTxPriority(fee sdk.Coins, gas int64) int64 {
 // A valid FeePay transaction has no fee, and only 1 message for executing a contract.
 func isValidFeePayTransaction(tx sdk.Tx, fee sdk.Coins) bool {
 	// TODO: Future allow for multiple msgs.
+
+	// TODO: and ofc validate that the FeePay is enabled
 
 	// Check if fee is zero, and tx has only 1 message for executing a contract
 	if fee.IsZero() && len(tx.GetMsgs()) == 1 {

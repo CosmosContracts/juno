@@ -39,9 +39,11 @@ func CreateV18UpgradeHandler(
 		}
 
 		// x/feepay
-		k.FeePayKeeper.SetParams(ctx, feepaytypes.Params{
+		if err := k.FeePayKeeper.SetParams(ctx, feepaytypes.Params{
 			EnableFeepay: true,
-		})
+		}); err != nil {
+			return nil, err
+		}
 
 		return versionMap, err
 	}
