@@ -32,6 +32,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	clocktypes "github.com/CosmosContracts/juno/v18/x/clock/types"
+	cwhookstypes "github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
 	driptypes "github.com/CosmosContracts/juno/v18/x/drip/types"
 	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v18/x/globalfee/types"
@@ -59,6 +60,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		buildertypes.StoreKey,
 		driptypes.StoreKey,
 		clocktypes.StoreKey,
+		cwhookstypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)

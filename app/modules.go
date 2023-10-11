@@ -62,6 +62,7 @@ import (
 	encparams "github.com/CosmosContracts/juno/v18/app/params"
 	"github.com/CosmosContracts/juno/v18/x/clock"
 	clocktypes "github.com/CosmosContracts/juno/v18/x/clock/types"
+	cwhooks "github.com/CosmosContracts/juno/v18/x/cw-hooks"
 	"github.com/CosmosContracts/juno/v18/x/drip"
 	driptypes "github.com/CosmosContracts/juno/v18/x/drip/types"
 	feeshare "github.com/CosmosContracts/juno/v18/x/feeshare"
@@ -111,6 +112,7 @@ var ModuleBasics = module.NewBasicManager(
 	ibc_hooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
 	clock.AppModuleBasic{},
+	cwhooks.AppModuleBasic{},
 )
 
 func appModules(
@@ -157,6 +159,7 @@ func appModules(
 		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
 		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
 		clock.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
+		cwhooks.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -233,6 +236,7 @@ func orderBeginBlockers() []string {
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
+		cwhooks.ModuleName,
 	}
 }
 
@@ -271,6 +275,7 @@ func orderEndBlockers() []string {
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
+		cwhooks.ModuleName,
 	}
 }
 
@@ -309,5 +314,6 @@ func orderInitBlockers() []string {
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
+		cwhooks.ModuleName,
 	}
 }

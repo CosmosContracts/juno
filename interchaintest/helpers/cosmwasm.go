@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
@@ -11,6 +12,15 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
+
+func SmartQueryString(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contractAddr, queryMsg string, res interface{}) error {
+	var jsonMap map[string]interface{}
+	if err := json.Unmarshal([]byte(queryMsg), &jsonMap); err != nil {
+		t.Fatal(err)
+	}
+	err := chain.QueryContract(ctx, contractAddr, jsonMap, &res)
+	return err
+}
 
 func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string, message string) (codeId, contract string) {
 	codeId, err := chain.StoreContract(ctx, keyname, fileLoc)

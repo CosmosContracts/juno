@@ -59,6 +59,7 @@ jobs:
         # names of `make` commands to run tests
         test:
           - "ictest-basic"
+          - "ictest-statesync"
           - "ictest-ibchooks"
           - "ictest-tokenfactory"
           - "ictest-feeshare"
@@ -70,6 +71,7 @@ jobs:
           - "ictest-pob"
           - "ictest-drip"
           - "ictest-burn"
+          - "ictest-cwhooks"
           - "ictest-clock"
       fail-fast: false
 
