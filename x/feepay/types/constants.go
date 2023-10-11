@@ -15,6 +15,4 @@ const (
 	RouterKey = ModuleName
 )
 
-var (
-	ParamsKey = []byte{prefixParamsKey}
-)
+var ParamsKey = []byte{prefixParamsKey}

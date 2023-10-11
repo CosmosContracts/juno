@@ -16,6 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
@@ -25,7 +26,6 @@ import (
 	feeshareante "github.com/CosmosContracts/juno/v18/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
 	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
 // Lower back to 1 mil after https://github.com/cosmos/relayer/issues/1255
@@ -89,7 +89,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		// globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage), // TODO: Has a minimum fee requrement check. So if 0 fees are passed, but 500 fee is required, it fails.
+		// globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage), // TODO: Has a minimum fee requirement check. So if 0 fees are passed, but 500 fee is required, it fails.
 		feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.GlobalFeeKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker, options.BondDenom),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators

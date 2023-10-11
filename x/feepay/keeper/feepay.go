@@ -1,12 +1,15 @@
 package keeper
 
 import (
-	"cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v18/x/feepay/types"
+
+	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+
+	"github.com/CosmosContracts/juno/v18/x/feepay/types"
 )
 
 // Check if a contract is registered as a fee pay contract
@@ -17,7 +20,6 @@ func (k Keeper) IsContractRegistered(ctx sdk.Context, contractAddr string) bool 
 
 // Get a contract from KV store
 func (k Keeper) GetContract(ctx sdk.Context, contractAddress string) (*types.FeePayContract, error) {
-
 	// Return nil, contract not registered
 	if !k.IsContractRegistered(ctx, contractAddress) {
 		return nil, types.ErrContractNotRegistered
@@ -38,7 +40,6 @@ func (k Keeper) GetContract(ctx sdk.Context, contractAddress string) (*types.Fee
 
 // Get all registered fee pay contracts
 func (k Keeper) GetContracts(ctx sdk.Context, pag *query.PageRequest) (*types.QueryFeePayContractsResponse, error) {
-
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
 
 	// Filter and paginate all contracts
@@ -53,7 +54,6 @@ func (k Keeper) GetContracts(ctx sdk.Context, pag *query.PageRequest) (*types.Qu
 			return &types.FeePayContract{}
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,6 @@ func (k Keeper) GetAllContracts(ctx sdk.Context) []types.FeePayContract {
 
 // Register the contract in the module store
 func (k Keeper) RegisterContract(ctx sdk.Context, rfp *types.MsgRegisterFeePayContract) error {
-
 	// Return false because the contract was already registered
 	if k.IsContractRegistered(ctx, rfp.FeePayContract.ContractAddress) {
 		return types.ErrContractAlreadyRegistered
@@ -128,7 +127,6 @@ func (k Keeper) SetFeePayContract(ctx sdk.Context, feepay types.FeePayContract) 
 
 // Unregister contract (loop through usage store & remove all usage entries for contract)
 func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeePayContract) error {
-
 	// Get fee pay contract
 	contract, err := k.GetContract(ctx, rfp.ContractAddress)
 	if err != nil {
@@ -178,16 +176,11 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 	}
 
 	// Send coins from the FeePay module to the refund address
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.MustAccAddressFromBech32(refundAddr), coins); err != nil {
-		return err
-	}
-
-	return nil
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.MustAccAddressFromBech32(refundAddr), coins)
 }
 
 // Set the contract balance in the KV store
 func (k Keeper) SetContractBalance(ctx sdk.Context, fpc *types.FeePayContract, newBalance uint64) {
-
 	// Get the existing contract in KV store
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
 
@@ -198,7 +191,6 @@ func (k Keeper) SetContractBalance(ctx sdk.Context, fpc *types.FeePayContract, n
 
 // Fund an existing fee pay contract
 func (k Keeper) FundContract(ctx sdk.Context, fpc *types.FeePayContract, senderAddr sdk.AccAddress, coins sdk.Coins) error {
-
 	// Only transfer the bond denom
 	var transferCoin sdk.Coin
 	for _, c := range coins {
@@ -223,13 +215,12 @@ func (k Keeper) FundContract(ctx sdk.Context, fpc *types.FeePayContract, senderA
 }
 
 // Check if a fee pay contract has a balance greater than or equal to the fee
-func (k Keeper) CanContractCoverFee(ctx sdk.Context, fpc *types.FeePayContract, fee uint64) bool {
+func (k Keeper) CanContractCoverFee(fpc *types.FeePayContract, fee uint64) bool {
 	return fpc.Balance >= fee
 }
 
 // Get the number of times a wallet has interacted with a fee pay contract (err only if contract not registered)
 func (k Keeper) GetContractUses(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string) (uint64, error) {
-
 	// Get usage from store
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContractUses)
 	key := []byte(fpc.ContractAddress + "-" + walletAddress)
@@ -245,7 +236,6 @@ func (k Keeper) GetContractUses(ctx sdk.Context, fpc *types.FeePayContract, wall
 
 // Set the number of times a wallet has interacted with a fee pay contract
 func (k Keeper) IncrementContractUses(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string, increment uint64) error {
-
 	uses, err := k.GetContractUses(ctx, fpc, walletAddress)
 	if err != nil {
 		return err
@@ -259,7 +249,6 @@ func (k Keeper) IncrementContractUses(ctx sdk.Context, fpc *types.FeePayContract
 		WalletAddress:   walletAddress,
 		Uses:            uses + increment,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -270,7 +259,6 @@ func (k Keeper) IncrementContractUses(ctx sdk.Context, fpc *types.FeePayContract
 
 // Check if a wallet exceeded usage limit (defaults to true if contract not registered)
 func (k Keeper) HasWalletExceededUsageLimit(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string) bool {
-
 	// Get account uses
 	uses, err := k.GetContractUses(ctx, fpc, walletAddress)
 	if err != nil {
@@ -283,7 +271,6 @@ func (k Keeper) HasWalletExceededUsageLimit(ctx sdk.Context, fpc *types.FeePayCo
 
 // Update the wallet limit of an existing fee pay contract
 func (k Keeper) UpdateContractWalletLimit(ctx sdk.Context, fpc *types.FeePayContract, senderAddress string, walletLimit uint64) error {
-
 	// Check if a cw contract
 	contractAddr, err := sdk.AccAddressFromBech32(fpc.ContractAddress)
 	if err != nil {
@@ -311,7 +298,6 @@ func (k Keeper) UpdateContractWalletLimit(ctx sdk.Context, fpc *types.FeePayCont
 
 // Check if a wallet is eligible to interact with a contract
 func (k Keeper) IsWalletEligible(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string) (bool, error) {
-
 	// Check if wallet has exceeded usage limit
 	if k.HasWalletExceededUsageLimit(ctx, fpc, walletAddress) {
 		return false, types.ErrWalletExceededUsageLimit

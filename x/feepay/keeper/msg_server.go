@@ -36,7 +36,6 @@ func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeeP
 
 	// Validate sender address
 	senderAddr, err := sdk.AccAddressFromBech32(msg.SenderAddress)
-
 	if err != nil {
 		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid sender address: %s", msg.SenderAddress)
 	}

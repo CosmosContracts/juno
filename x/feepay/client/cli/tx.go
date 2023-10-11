@@ -46,23 +46,22 @@ func NewRegisterFeePayContract() *cobra.Command {
 				return err
 			}
 
-			deployer_address := cliCtx.GetFromAddress()
-			contract_address := args[0]
-			wallet_limit := args[1]
-			dec_limit, err := strconv.ParseUint(wallet_limit, 10, 64)
-
+			deployerAddress := cliCtx.GetFromAddress()
+			contractAddress := args[0]
+			walletLimit := args[1]
+			decLimit, err := strconv.ParseUint(walletLimit, 10, 64)
 			if err != nil {
 				return err
 			}
 
 			fpc := &types.FeePayContract{
-				ContractAddress: contract_address,
+				ContractAddress: contractAddress,
 				Balance:         uint64(0),
-				WalletLimit:     dec_limit,
+				WalletLimit:     decLimit,
 			}
 
 			msg := &types.MsgRegisterFeePayContract{
-				SenderAddress:  deployer_address.String(),
+				SenderAddress:  deployerAddress.String(),
 				FeePayContract: fpc,
 			}
 
@@ -92,12 +91,12 @@ func NewUnregisterFeePayContract() *cobra.Command {
 				return err
 			}
 
-			sender_address := cliCtx.GetFromAddress()
-			contract_address := args[0]
+			senderAddress := cliCtx.GetFromAddress()
+			contractAddress := args[0]
 
 			msg := &types.MsgUnregisterFeePayContract{
-				SenderAddress:   sender_address.String(),
-				ContractAddress: contract_address,
+				SenderAddress:   senderAddress.String(),
+				ContractAddress: contractAddress,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {
@@ -126,16 +125,16 @@ func NewFundFeePayContract() *cobra.Command {
 				return err
 			}
 
-			sender_address := cliCtx.GetFromAddress()
-			contract_address := args[0]
+			senderAddress := cliCtx.GetFromAddress()
+			contractAddress := args[0]
 			amount, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return err
 			}
 
 			msg := &types.MsgFundFeePayContract{
-				SenderAddress:   sender_address.String(),
-				ContractAddress: contract_address,
+				SenderAddress:   senderAddress.String(),
+				ContractAddress: contractAddress,
 				Amount:          amount,
 			}
 
@@ -165,19 +164,18 @@ func NewUpdateFeePayContractWalletLimit() *cobra.Command {
 				return err
 			}
 
-			sender_address := cliCtx.GetFromAddress()
-			contract_address := args[0]
-			wallet_limit := args[1]
-			dec_limit, err := strconv.ParseUint(wallet_limit, 10, 64)
-
+			senderAddress := cliCtx.GetFromAddress()
+			contractAddress := args[0]
+			walletLimit := args[1]
+			decLimit, err := strconv.ParseUint(walletLimit, 10, 64)
 			if err != nil {
 				return err
 			}
 
 			msg := &types.MsgUpdateFeePayContractWalletLimit{
-				SenderAddress:   sender_address.String(),
-				ContractAddress: contract_address,
-				WalletLimit:     dec_limit,
+				SenderAddress:   senderAddress.String(),
+				ContractAddress: contractAddress,
+				WalletLimit:     decLimit,
 			}
 
 			if err := msg.ValidateBasic(); err != nil {

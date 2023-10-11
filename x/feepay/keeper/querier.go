@@ -38,11 +38,9 @@ func (q Querier) FeePayContract(ctx context.Context, req *types.QueryFeePayContr
 
 // FeePayContracts implements types.QueryServer.
 func (q Querier) FeePayContracts(ctx context.Context, req *types.QueryFeePayContracts) (*types.QueryFeePayContractsResponse, error) {
-
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	res, err := q.Keeper.GetContracts(sdkCtx, req.Pagination)
-
 	if err != nil {
 		return nil, err
 	}

@@ -211,7 +211,6 @@ func (s *IntegrationTestSuite) TestFundFeePayContract() {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-
 			_, err := s.app.AppKeepers.FeePayKeeper.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
 				SenderAddress:   tc.senderAddress,
 				ContractAddress: tc.contractAddress,
@@ -299,7 +298,6 @@ func (s *IntegrationTestSuite) TestUpdateFeePayContractWalletLimit() {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-
 			_, err := s.app.AppKeepers.FeePayKeeper.UpdateFeePayContractWalletLimit(s.ctx, &types.MsgUpdateFeePayContractWalletLimit{
 				SenderAddress:   tc.senderAddress,
 				ContractAddress: tc.contractAddress,

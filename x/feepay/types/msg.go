@@ -62,7 +62,6 @@ func (msg MsgUnregisterFeePayContract) Type() string { return TypeMsgUnregisterF
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUnregisterFeePayContract) ValidateBasic() error {
-
 	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
 		return err
 	}
@@ -93,7 +92,6 @@ func (msg MsgFundFeePayContract) Type() string { return TypeMsgFundFeePayContrac
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgFundFeePayContract) ValidateBasic() error {
-
 	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
 		return err
 	}
@@ -130,7 +128,6 @@ func (msg MsgUpdateFeePayContractWalletLimit) Type() string {
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUpdateFeePayContractWalletLimit) ValidateBasic() error {
-
 	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
 		return err
 	}
@@ -164,17 +161,17 @@ func (msg MsgUpdateParams) Route() string { return RouterKey }
 func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 
 // ValidateBasic does a sanity check on the provided data.
-func (m *MsgUpdateParams) ValidateBasic() error {
+func (msg *MsgUpdateParams) ValidateBasic() error {
 	return nil
 }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+func (msg MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }
 
 // GetSigners returns the expected signers for a MsgUpdateParams message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(m.Authority)
+func (msg *MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
 	return []sdk.AccAddress{addr}
 }

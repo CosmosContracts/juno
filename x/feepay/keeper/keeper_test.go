@@ -7,7 +7,6 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/stretchr/testify/suite"
 
 	_ "embed"
@@ -15,13 +14,14 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
 	"github.com/CosmosContracts/juno/v18/app"
 	"github.com/CosmosContracts/juno/v18/x/feepay/keeper"
 	"github.com/CosmosContracts/juno/v18/x/feepay/types"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 )
 
 type IntegrationTestSuite struct {

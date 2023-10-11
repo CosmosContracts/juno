@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"math"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
-	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
+	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
+	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx
@@ -104,7 +107,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	// if feegranter set deduct fee from feegranter account.
 	// this works with only when feegrant enabled.
 	if feeGranter != nil {
-		if &dfd.feegrantKeeper == nil {
+		if dfd.feegrantKeeper == nil {
 			return sdkerrors.ErrInvalidRequest.Wrap("fee grants are not enabled")
 		} else if !feeGranter.Equals(feePayer) {
 			err := dfd.feegrantKeeper.UseGrantedFees(ctx, feeGranter, feePayer, fee, sdkTx.GetMsgs())
@@ -121,7 +124,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		return sdkerrors.ErrUnknownAddress.Wrapf("fee payer address: %s does not exist", deductFeesFrom)
 	}
 
-	if isValidFeePayTransaction(ctx, sdkTx, fee) {
+	if isValidFeePayTransaction(sdkTx, fee) {
 		err := dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
 		if err != nil {
 			return err
@@ -147,9 +150,8 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 }
 
 // Handle zero fee transactions for fee prepay module
-func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc types.AccountI, tx sdk.Tx, fee sdk.Coins) error {
-
-	// Prevent FeePay Tx from occuring when module is disabled
+func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc types.AccountI, tx sdk.Tx, _ sdk.Coins) error {
+	// Prevent FeePay Tx from occurring when module is disabled
 	if !dfd.feepayKeeper.GetParams(ctx).EnableFeepay {
 		return feepaytypes.ErrFeePayDisabled
 	}
@@ -164,7 +166,7 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	}
 
 	// Get the fee price in the chain denom
-	var feePrice sdk.DecCoin = sdk.DecCoin{}
+	feePrice := sdk.DecCoin{}
 	for _, c := range dfd.globalfeeKeeper.GetParams(ctx).MinimumGasPrices {
 		if c.Denom == dfd.bondDenom {
 			feePrice = c
@@ -188,7 +190,7 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	}
 
 	// Check if the contract has enough funds to cover the fee
-	if !dfd.feepayKeeper.CanContractCoverFee(ctx, feepayContract, requiredFee.Uint64()) {
+	if !dfd.feepayKeeper.CanContractCoverFee(feepayContract, requiredFee.Uint64()) {
 		return errorsmod.Wrapf(feepaytypes.ErrContractNotEnoughFunds, "contract has insufficient funds; expected: %d, got: %d", requiredFee.Uint64(), feepayContract.Balance)
 	}
 
@@ -197,14 +199,16 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 
 	// Cover the fees of the transaction, send from FeePay Module to FeeCollector Module
 	if err := dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feepaytypes.ModuleName, types.FeeCollectorName, payment); err != nil {
-		return errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, "error transfering funds from FeePay to FeeCollector; %s", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, "error transferring funds from FeePay to FeeCollector; %s", err)
 	}
 
 	// Deduct the fee from the contract balance
 	dfd.feepayKeeper.SetContractBalance(ctx, feepayContract, feepayContract.Balance-requiredFee.Uint64())
 
 	// Increment wallet usage
-	dfd.feepayKeeper.IncrementContractUses(ctx, feepayContract, accBech32, 1)
+	if err := dfd.feepayKeeper.IncrementContractUses(ctx, feepayContract, accBech32, 1); err != nil {
+		return errorsmod.Wrapf(err, "error incrementing contract uses")
+	}
 
 	return nil
 }
@@ -238,7 +242,7 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
 	// TODO: see if we can remove, since we do call this twice.
-	if ctx.IsCheckTx() && !isValidFeePayTransaction(ctx, tx, feeTx.GetFee()) {
+	if ctx.IsCheckTx() && !isValidFeePayTransaction(tx, feeTx.GetFee()) {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
 			requiredFees := make(sdk.Coins, len(minGasPrices))
@@ -283,7 +287,7 @@ func getTxPriority(fee sdk.Coins, gas int64) int64 {
 
 // Check if a transaction should be processed as a FeePay transaction.
 // A valid FeePay transaction has no fee, and only 1 message for executing a contract.
-func isValidFeePayTransaction(ctx sdk.Context, tx sdk.Tx, fee sdk.Coins) bool {
+func isValidFeePayTransaction(tx sdk.Tx, fee sdk.Coins) bool {
 	// TODO: Future allow for multiple msgs.
 
 	// Check if fee is zero, and tx has only 1 message for executing a contract

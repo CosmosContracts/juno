@@ -27,10 +27,7 @@ func (gs GenesisState) Validate() error {
 	// Loop through all fee pay contracts and validate they
 	// have a valid bech32 address
 	for _, contract := range gs.FeePayContracts {
-
-		_, err := sdk.AccAddressFromBech32(contract.ContractAddress)
-
-		if err != nil {
+		if _, err := sdk.AccAddressFromBech32(contract.ContractAddress); err != nil {
 			return err
 		}
 	}
