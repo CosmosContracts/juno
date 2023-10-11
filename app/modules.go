@@ -59,18 +59,21 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	encparams "github.com/CosmosContracts/juno/v17/app/params"
-	"github.com/CosmosContracts/juno/v17/x/drip"
-	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
-	feepay "github.com/CosmosContracts/juno/v17/x/feepay"
-	feepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
-	feeshare "github.com/CosmosContracts/juno/v17/x/feeshare"
-	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v17/x/globalfee"
-	"github.com/CosmosContracts/juno/v17/x/mint"
-	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
-	"github.com/CosmosContracts/juno/v17/x/tokenfactory"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
+	encparams "github.com/CosmosContracts/juno/v18/app/params"
+	"github.com/CosmosContracts/juno/v18/x/clock"
+	clocktypes "github.com/CosmosContracts/juno/v18/x/clock/types"
+	cwhooks "github.com/CosmosContracts/juno/v18/x/cw-hooks"
+	"github.com/CosmosContracts/juno/v18/x/drip"
+	driptypes "github.com/CosmosContracts/juno/v18/x/drip/types"
+	feepay "github.com/CosmosContracts/juno/v18/x/feepay"
+	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
+	feeshare "github.com/CosmosContracts/juno/v18/x/feeshare"
+	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v18/x/globalfee"
+	"github.com/CosmosContracts/juno/v18/x/mint"
+	minttypes "github.com/CosmosContracts/juno/v18/x/mint/types"
+	"github.com/CosmosContracts/juno/v18/x/tokenfactory"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v18/x/tokenfactory/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -111,6 +114,8 @@ var ModuleBasics = module.NewBasicManager(
 	globalfee.AppModuleBasic{},
 	ibc_hooks.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
+	clock.AppModuleBasic{},
+	cwhooks.AppModuleBasic{},
 )
 
 func appModules(
@@ -157,6 +162,8 @@ func appModules(
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
 		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
+		clock.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
+		cwhooks.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -234,6 +241,8 @@ func orderBeginBlockers() []string {
 		globalfee.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
+		clocktypes.ModuleName,
+		cwhooks.ModuleName,
 	}
 }
 
@@ -272,6 +281,8 @@ func orderEndBlockers() []string {
 		globalfee.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
+		clocktypes.ModuleName,
+		cwhooks.ModuleName,
 	}
 }
 
@@ -310,5 +321,7 @@ func orderInitBlockers() []string {
 		globalfee.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
+		clocktypes.ModuleName,
+		cwhooks.ModuleName,
 	}
 }

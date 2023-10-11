@@ -14,7 +14,7 @@ permissions:
   packages: write
 
 env:
-  GO_VERSION: 1.20.7
+  GO_VERSION: 1.21.0
   TAR_PATH: /tmp/juno-docker-image.tar
   IMAGE_NAME: juno-docker-image
 
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Go ${{ env.GO_VERSION }}
         uses: actions/setup-go@v4
@@ -36,10 +36,10 @@ jobs:
           cache-dependency-path: interchaintest/go.sum
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and export
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           tags: juno:local
@@ -59,6 +59,7 @@ jobs:
         # names of `make` commands to run tests
         test:
           - "ictest-basic"
+          - "ictest-statesync"
           - "ictest-ibchooks"
           - "ictest-tokenfactory"
           - "ictest-feeshare"
@@ -70,6 +71,9 @@ jobs:
           - "ictest-unity-gov"
           - "ictest-pob"
           - "ictest-drip"
+          - "ictest-burn"
+          - "ictest-cwhooks"
+          - "ictest-clock"
       fail-fast: false
 
     steps:
@@ -80,7 +84,7 @@ jobs:
           cache-dependency-path: interchaintest/go.sum
 
       - name: checkout chain
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Tarball Artifact
         uses: actions/download-artifact@v3

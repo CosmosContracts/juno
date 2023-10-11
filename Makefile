@@ -124,6 +124,9 @@ benchmark:
 ictest-basic: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoStart .
 
+ictest-statesync: rm-testcache
+	cd interchaintest && go test -race -v -run TestJunoStateSync .
+
 ictest-ibchooks: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoIBCHooks .
 
@@ -165,6 +168,15 @@ ictest-drip: rm-testcache
 
 ictest-feepay: rm-testcache
 	cd interchaintest &&  go test -race -v -run TestJunoFeePay .
+
+ictest-burn: rm-testcache
+	cd interchaintest &&  go test -race -v -run TestJunoBurnModule .
+
+ictest-cwhooks: rm-testcache
+	cd interchaintest &&  go test -race -v -run TestJunoCwHooks .
+
+ictest-clock: rm-testcache
+	cd interchaintest &&  go test -race -v -run TestJunoClock .
 
 rm-testcache:
 	go clean -testcache

@@ -19,7 +19,7 @@ import (
 
 const (
 	chainName   = "juno"
-	upgradeName = "v17"
+	upgradeName = "v18"
 
 	haltHeightDelta    = uint64(9) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = uint64(7)
@@ -29,7 +29,7 @@ var (
 	// baseChain is the current version of the chain that will be upgraded from
 	baseChain = ibc.DockerImage{
 		Repository: JunoMainRepo,
-		Version:    "v16.0.0",
+		Version:    "v17.0.0",
 		UidGid:     "1025:1025",
 	}
 )
@@ -127,7 +127,6 @@ func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 }
 
 func SubmitUpgradeProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, upgradeName string, haltHeight uint64) string {
-	// TODO Return proposal id
 	upgradeMsg := []cosmosproto.Message{
 		&upgradetypes.MsgSoftwareUpgrade{
 			// gGov Module account

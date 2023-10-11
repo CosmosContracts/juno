@@ -19,12 +19,12 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	decorators "github.com/CosmosContracts/juno/v17/app/decorators"
-	feepayante "github.com/CosmosContracts/juno/v17/x/feepay/ante"
-	feepaykeeper "github.com/CosmosContracts/juno/v17/x/feepay/keeper"
-	feeshareante "github.com/CosmosContracts/juno/v17/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
-	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
+	decorators "github.com/CosmosContracts/juno/v18/app/decorators"
+	feepayante "github.com/CosmosContracts/juno/v18/x/feepay/ante"
+	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
+	feeshareante "github.com/CosmosContracts/juno/v18/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
+	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 

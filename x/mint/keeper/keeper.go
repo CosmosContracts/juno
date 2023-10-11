@@ -11,7 +11,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v17/x/mint/types"
+	"github.com/CosmosContracts/juno/v18/x/mint/types"
 )
 
 // Keeper of the mint store
@@ -19,6 +19,7 @@ type Keeper struct {
 	cdc              codec.BinaryCodec
 	storeKey         storetypes.StoreKey
 	stakingKeeper    types.StakingKeeper
+	accountKeeper    types.AccountKeeper
 	bankKeeper       types.BankKeeper
 	feeCollectorName string
 
@@ -47,6 +48,7 @@ func NewKeeper(
 		storeKey:         key,
 		stakingKeeper:    sk,
 		bankKeeper:       bk,
+		accountKeeper:    ak,
 		feeCollectorName: feeCollectorName,
 		authority:        authority,
 	}
@@ -110,6 +112,10 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 	return p
 }
 
+func (k Keeper) GetAccountKeeper() types.AccountKeeper {
+	return k.accountKeeper
+}
+
 // ______________________________________________________________________
 
 // StakingTokenSupply implements an alias call to the underlying staking keeper's
@@ -122,6 +128,12 @@ func (k Keeper) StakingTokenSupply(ctx sdk.Context) math.Int {
 // TokenSupply to be used in BeginBlocker.
 func (k Keeper) TokenSupply(ctx sdk.Context, denom string) math.Int {
 	return k.bankKeeper.GetSupply(ctx, denom).Amount
+}
+
+// GetBalance implements an alias call to the underlying bank keeper's
+// GetBalance to be used in BeginBlocker.
+func (k Keeper) GetBalance(ctx sdk.Context, address sdk.AccAddress, denom string) math.Int {
+	return k.bankKeeper.GetBalance(ctx, address, denom).Amount
 }
 
 // BondedRatio implements an alias call to the underlying staking keeper's
@@ -139,6 +151,20 @@ func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
 	}
 
 	return k.bankKeeper.MintCoins(ctx, types.ModuleName, newCoins)
+}
+
+func (k Keeper) ReduceTargetSupply(ctx sdk.Context, burnCoin sdk.Coin) error {
+	params := k.GetParams(ctx)
+
+	if burnCoin.Denom != params.MintDenom {
+		return fmt.Errorf("tried reducing target supply with non staking token")
+	}
+
+	minter := k.GetMinter(ctx)
+	minter.TargetSupply = minter.TargetSupply.Sub(burnCoin.Amount)
+	k.SetMinter(ctx, minter)
+
+	return nil
 }
 
 // AddCollectedFees implements an alias call to the underlying supply keeper's
