@@ -18,9 +18,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	"github.com/CosmosContracts/juno/v17/app"
-	"github.com/CosmosContracts/juno/v17/x/feepay/keeper"
-	"github.com/CosmosContracts/juno/v17/x/feepay/types"
+	"github.com/CosmosContracts/juno/v18/app"
+	"github.com/CosmosContracts/juno/v18/x/feepay/keeper"
+	"github.com/CosmosContracts/juno/v18/x/feepay/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 )
 

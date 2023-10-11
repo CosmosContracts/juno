@@ -3,7 +3,7 @@ package keeper
 import (
 	"cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v17/x/feepay/types"
+	"github.com/CosmosContracts/juno/v18/x/feepay/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"

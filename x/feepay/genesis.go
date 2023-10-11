@@ -3,8 +3,8 @@ package feepay
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v17/x/feepay/keeper"
-	"github.com/CosmosContracts/juno/v17/x/feepay/types"
+	"github.com/CosmosContracts/juno/v18/x/feepay/keeper"
+	"github.com/CosmosContracts/juno/v18/x/feepay/types"
 )
 
 // InitGenesis import module genesis

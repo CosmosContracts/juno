@@ -11,8 +11,8 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	feepaytypes "github.com/CosmosContracts/juno/v17/x/feepay/types"
-	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
+	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
