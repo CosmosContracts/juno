@@ -222,8 +222,8 @@ github.com/ComposableFi/go-subkey/v2 v2.0.0-tm03420 h1:oknQF/iIhf5lVjbwjsVDzDByu
 github.com/ComposableFi/go-subkey/v2 v2.0.0-tm03420/go.mod h1:KYkiMX5AbOlXXYfxkrYPrRPV6EbVUALTQh5ptUOJzu8=
 github.com/CosmWasm/wasmd v0.41.0 h1:fmwxSbwb50zZDcBaayYFRLIaSFca+EFld1WOaQi49jg=
 github.com/CosmWasm/wasmd v0.41.0/go.mod h1:0Sds1q2IsPaTN1gHa3BNOYcUFgtGvxH7CXEXPgoihns=
-github.com/CosmWasm/wasmvm v1.4.0 h1:84I3MlvvzcOo2z+ed0ztPi7eeDNk6/sYuK76uyXP1nI=
-github.com/CosmWasm/wasmvm v1.4.0/go.mod h1:vW/E3h8j9xBQs9bCoijDuawKo9kCtxOaS8N8J7KFtkc=
+github.com/CosmWasm/wasmvm v1.3.0 h1:x12X4bKlUPS7TT9QQP45+fJo2sp30GEbiSSgb9jsec8=
+github.com/CosmWasm/wasmvm v1.3.0/go.mod h1:vW/E3h8j9xBQs9bCoijDuawKo9kCtxOaS8N8J7KFtkc=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e h1:ahyvB3q25YnZWly5Gq1ekg6jcmWaGj/vG/MhF4aisoc=
 github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e/go.mod h1:kGUqhHd//musdITWjFvNTHn90WG9bMLBEPQZ17Cmlpw=
@@ -368,8 +368,8 @@ github.com/cosmos/gogogateway v1.2.0/go.mod h1:iQpLkGWxYcnCdz5iAdLcRBSw3h7NXeOkZ
 github.com/cosmos/gogoproto v1.4.2/go.mod h1:cLxOsn1ljAHSV527CHOtaIP91kK6cCrZETRBrkzItWU=
 github.com/cosmos/gogoproto v1.4.10 h1:QH/yT8X+c0F4ZDacDv3z+xE3WU1P1Z3wQoLMBRJoKuI=
 github.com/cosmos/gogoproto v1.4.10/go.mod h1:3aAZzeRWpAwr+SS/LLkICX2/kDFyaYVzckBDzygIxek=
-github.com/cosmos/iavl v0.20.0 h1:fTVznVlepH0KK8NyKq8w+U7c2L6jofa27aFX6YGlm38=
-github.com/cosmos/iavl v0.20.0/go.mod h1:WO7FyvaZJoH65+HFOsDir7xU9FWk2w9cHXNW1XHcl7A=
+github.com/cosmos/iavl v0.20.1 h1:rM1kqeG3/HBT85vsZdoSNsehciqUQPWrR4BYmqE2+zg=
+github.com/cosmos/iavl v0.20.1/go.mod h1:WO7FyvaZJoH65+HFOsDir7xU9FWk2w9cHXNW1XHcl7A=
 github.com/cosmos/ibc-go/v7 v7.3.0 h1:QtGeVMi/3JeLWuvEuC60sBHpAF40Oenx/y+bP8+wRRw=
 github.com/cosmos/ibc-go/v7 v7.3.0/go.mod h1:mUmaHFXpXrEdcxfdXyau+utZf14pGKVUiXwYftRZZfQ=
 github.com/cosmos/ics23/go v0.10.0 h1:iXqLLgp2Lp+EdpIuwXTYIQU+AiHj9mOC2X9ab++bZDM=
