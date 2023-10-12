@@ -116,7 +116,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 
 	gaiaOrigBal, err := gaia.GetBalance(ctx, gaiaUserAddr, gaia.Config().Denom)
 	require.NoError(t, err)
-	require.Equal(t, genesisWalletAmount, gaiaOrigBal)
+	require.Equal(t, genesisWalletAmount, gaiaOrigBal.Int64())
 
 	// Compose an IBC transfer and send from Juno -> Gaia
 	var transferAmount = math.NewInt(1_000)
@@ -191,5 +191,5 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 
 	gaiaUpdateBal, err = gaia.GetBalance(ctx, gaiaUserAddr, junoIBCDenom)
 	require.NoError(t, err)
-	require.Equal(t, int64(0), gaiaUpdateBal)
+	require.Equal(t, int64(0), gaiaUpdateBal.Int64())
 }
