@@ -88,6 +88,9 @@ var (
 
 func init() {
 	sdk.GetConfig().SetBech32PrefixForAccount("juno", "juno")
+	sdk.GetConfig().SetBech32PrefixForValidator("junovaloper", "juno")
+	sdk.GetConfig().SetBech32PrefixForConsensusNode("junovalcons", "juno")
+	sdk.GetConfig().SetCoinType(118)
 }
 
 // junoEncoding registers the Juno specific module codecs so that the associated types and msgs

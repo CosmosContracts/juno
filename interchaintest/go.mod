@@ -18,12 +18,12 @@ replace (
 )
 
 require (
-	// github.com/skip-mev/pob/tests/integration v0.1.0 // TODO: does not return a math.Int (update ictest on their end)
 	github.com/CosmosContracts/juno/v18 v18.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.47.5
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.3.0
 	github.com/docker/docker v24.0.5+incompatible
+	github.com/skip-mev/pob/tests/integration v0.2.1
 	github.com/strangelove-ventures/interchaintest/v7 v7.0.0-20231009173908-4e98e35e363e
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.25.0
@@ -143,7 +143,6 @@ require (
 	github.com/hashicorp/go-getter v1.7.1 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
-	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -188,7 +187,6 @@ require (
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
-	github.com/opencontainers/runc v1.1.5 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
 	github.com/petermattis/goid v0.0.0-20230518223814-80aa455d8761 // indirect
@@ -206,6 +204,7 @@ require (
 	github.com/rs/cors v1.8.3 // indirect
 	github.com/rs/zerolog v1.30.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
+	github.com/skip-mev/pob v1.0.4 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
