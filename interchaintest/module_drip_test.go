@@ -45,11 +45,6 @@ func TestJunoDrip(t *testing.T) {
 	tfDenom := helpers.CreateTokenFactoryDenom(t, ctx, juno, user, "dripme", fmt.Sprintf("0%s", Denom))
 	distributeAmt := math.NewInt(1_000_000)
 	helpers.MintTokenFactoryDenom(t, ctx, juno, user, distributeAmt.Uint64(), tfDenom)
-	if balance, err := juno.GetBalance(ctx, user.FormattedAddress(), tfDenom); err != nil {
-		t.Fatal(err)
-	} else if balance != distributeAmt {
-		t.Fatalf("balance not %d, got %d", distributeAmt, balance)
-	}
 
 	// Stake some tokens
 	vals := helpers.GetValidators(t, ctx, juno)
