@@ -25,6 +25,7 @@ import (
 	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
 	feeshareante "github.com/CosmosContracts/juno/v18/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
+	globalfeeante "github.com/CosmosContracts/juno/v18/x/globalfee/ante"
 	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
 )
 
@@ -89,7 +90,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		// globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage), // TODO: Has a minimum fee requirement check. So if 0 fees are passed, but 500 fee is required, it fails.
+		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage),
 		feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.GlobalFeeKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker, options.BondDenom),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators

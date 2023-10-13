@@ -238,8 +238,6 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
-	// TODO: see if we can remove, since we do call this twice.
-	// TODO: Validate feepay is enabled here?
 	if ctx.IsCheckTx() && !isValidFeePayTransaction(tx, feeTx.GetFee()) {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
@@ -283,12 +281,13 @@ func getTxPriority(fee sdk.Coins, gas int64) int64 {
 	return priority
 }
 
-// Check if a transaction should be processed as a FeePay transaction.
-// A valid FeePay transaction has no fee, and only 1 message for executing a contract.
+// Check if a transaction should be processed as a FeePay transaction. Ensure that
+// the Fee Pay module is enabled before calling this function. A valid FeePay transaction
+// has no fee, and only 1 message for executing a contract.
 func isValidFeePayTransaction(tx sdk.Tx, fee sdk.Coins) bool {
 	// TODO: Future allow for multiple msgs.
 
-	// TODO: and ofc validate that the FeePay is enabled
+	// TODO: Move to a new file to share with global fee, also check if FeePay is enabled
 
 	// Check if fee is zero, and tx has only 1 message for executing a contract
 	if fee.IsZero() && len(tx.GetMsgs()) == 1 {

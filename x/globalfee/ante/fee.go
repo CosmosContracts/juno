@@ -12,6 +12,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
+
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // FeeWithBypassDecorator checks if the transaction's fee is at least as large
@@ -50,8 +52,15 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must implement the sdk.FeeTx interface")
 	}
 
+	isValidFeePayTx := false
+
+	// TODO: Create helper function shared between FeePay and this, also check if FeePay is enabled
+	if feeTx.GetFee().IsZero() && len(tx.GetMsgs()) == 1 {
+		_, isValidFeePayTx = (tx.GetMsgs()[0]).(*wasmtypes.MsgExecuteContract)
+	}
+
 	// Only check for minimum fees and global fee if the execution mode is CheckTx
-	if !ctx.IsCheckTx() || simulate {
+	if !ctx.IsCheckTx() || simulate || isValidFeePayTx {
 		return next(ctx, tx, simulate)
 	}
 
