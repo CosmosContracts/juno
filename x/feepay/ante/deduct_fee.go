@@ -131,7 +131,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		if err != nil {
 			return err
 		}
-	} else {
+	} else if !fee.IsZero() {
 		// Std sdk route
 		err := DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 		if err != nil {
