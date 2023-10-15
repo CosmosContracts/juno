@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
+	feepayhelpers "github.com/CosmosContracts/juno/v18/x/feepay/helpers"
 	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
 	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
 	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
@@ -34,27 +35,16 @@ type DeductFeeDecorator struct {
 	accountKeeper   ante.AccountKeeper
 	bankKeeper      bankkeeper.Keeper
 	feegrantKeeper  ante.FeegrantKeeper
-	// TxFeeChecker check if the provided fee is enough and returns the effective fee and tx priority,
-	// the effective fee should be deducted later, and the priority should be returned in abci response.
-	// type TxFeeChecker func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error)
-	txFeeChecker ante.TxFeeChecker
-
-	// TODO: test this.
-	bondDenom string
+	bondDenom       string
 }
 
 func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, tfc ante.TxFeeChecker, bondDenom string) DeductFeeDecorator {
-	if tfc == nil {
-		tfc = checkTxFeeWithValidatorMinGasPrices
-	}
-
 	return DeductFeeDecorator{
 		feepayKeeper:    fpk,
 		globalfeeKeeper: gfk,
 		accountKeeper:   ak,
 		bankKeeper:      bk,
 		feegrantKeeper:  fgk,
-		txFeeChecker:    tfc,
 		bondDenom:       bondDenom,
 	}
 }
@@ -76,7 +66,7 @@ func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 
 	fee := feeTx.GetFee()
 	if !simulate {
-		fee, priority, err = dfd.txFeeChecker(ctx, tx)
+		fee, priority, err = dfd.checkTxFeeWithValidatorMinGasPrices(ctx, tx)
 		if err != nil {
 			return ctx, err
 		}
@@ -124,9 +114,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		return sdkerrors.ErrUnknownAddress.Wrapf("fee payer address: %s does not exist", deductFeesFrom)
 	}
 
-	isFeePayEnabled := dfd.feepayKeeper.GetParams(ctx).EnableFeepay
-
-	if isFeePayEnabled && isValidFeePayTransaction(sdkTx, fee) {
+	if feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, sdkTx, fee) {
 		err := dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
 		if err != nil {
 			return err
@@ -225,8 +213,7 @@ func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc types.AccountI
 }
 
 // from the SDK pulled out
-// TODO: modify this in part with globalfee for bypasses with ibc, force set 0? need an override in the event of DOS attacks
-func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
+func (dfd DeductFeeDecorator) checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
 		return nil, 0, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
@@ -238,7 +225,7 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
-	if ctx.IsCheckTx() && !isValidFeePayTransaction(tx, feeTx.GetFee()) {
+	if ctx.IsCheckTx() && !feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, tx, feeTx.GetFee()) {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
 			requiredFees := make(sdk.Coins, len(minGasPrices))
@@ -279,23 +266,4 @@ func getTxPriority(fee sdk.Coins, gas int64) int64 {
 	}
 
 	return priority
-}
-
-// Check if a transaction should be processed as a FeePay transaction. Ensure that
-// the Fee Pay module is enabled before calling this function. A valid FeePay transaction
-// has no fee, and only 1 message for executing a contract.
-func isValidFeePayTransaction(tx sdk.Tx, fee sdk.Coins) bool {
-	// TODO: Future allow for multiple msgs.
-
-	// TODO: Move to a new file to share with global fee, also check if FeePay is enabled
-
-	// Check if fee is zero, and tx has only 1 message for executing a contract
-	if fee.IsZero() && len(tx.GetMsgs()) == 1 {
-		_, ok := (tx.GetMsgs()[0]).(*wasmtypes.MsgExecuteContract)
-		return ok
-	}
-
-	// The transaction includes a fee, has more than 1 message, or
-	// has a single message that is not for executing a contract
-	return false
 }

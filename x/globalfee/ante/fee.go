@@ -13,7 +13,8 @@ import (
 
 	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	feepayhelpers "github.com/CosmosContracts/juno/v18/x/feepay/helpers"
+	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
 )
 
 // FeeWithBypassDecorator checks if the transaction's fee is at least as large
@@ -33,14 +34,16 @@ type FeeDecorator struct {
 	BypassMinFeeMsgTypes            []string
 	GlobalFeeKeeper                 globalfeekeeper.Keeper
 	StakingKeeper                   stakingkeeper.Keeper
+	FeePayKeeper                    feepaykeeper.Keeper
 	MaxTotalBypassMinFeeMsgGasUsage uint64
 }
 
-func NewFeeDecorator(bypassMsgTypes []string, gfk globalfeekeeper.Keeper, sk stakingkeeper.Keeper, maxTotalBypassMinFeeMsgGasUsage uint64) FeeDecorator {
+func NewFeeDecorator(bypassMsgTypes []string, gfk globalfeekeeper.Keeper, sk stakingkeeper.Keeper, fpk feepaykeeper.Keeper, maxTotalBypassMinFeeMsgGasUsage uint64) FeeDecorator {
 	return FeeDecorator{
 		BypassMinFeeMsgTypes:            bypassMsgTypes,
 		GlobalFeeKeeper:                 gfk,
 		StakingKeeper:                   sk,
+		FeePayKeeper:                    fpk,
 		MaxTotalBypassMinFeeMsgGasUsage: maxTotalBypassMinFeeMsgGasUsage,
 	}
 }
@@ -52,12 +55,8 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must implement the sdk.FeeTx interface")
 	}
 
-	isValidFeePayTx := false
-
-	// TODO: Create helper function shared between FeePay and this, also check if FeePay is enabled
-	if feeTx.GetFee().IsZero() && len(tx.GetMsgs()) == 1 {
-		_, isValidFeePayTx = (tx.GetMsgs()[0]).(*wasmtypes.MsgExecuteContract)
-	}
+	// Check if the tx is a FeePay transaction
+	isValidFeePayTx := feepayhelpers.IsValidFeePayTransaction(ctx, mfd.FeePayKeeper, tx, feeTx.GetFee())
 
 	// Only check for minimum fees and global fee if the execution mode is CheckTx
 	if !ctx.IsCheckTx() || simulate || isValidFeePayTx {
