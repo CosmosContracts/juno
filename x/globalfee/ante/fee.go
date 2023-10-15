@@ -3,6 +3,8 @@ package ante
 import (
 	"errors"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	tmstrings "github.com/cometbft/cometbft/libs/strings"
 
 	errorsmod "cosmossdk.io/errors"
@@ -12,8 +14,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
-
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // FeeWithBypassDecorator checks if the transaction's fee is at least as large
