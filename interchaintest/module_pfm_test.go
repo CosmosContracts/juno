@@ -275,10 +275,10 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 		chainDBalance, err := chainD.GetBalance(ctx, userD.FormattedAddress(), thirdHopIBCDenom)
 		require.NoError(t, err)
 
-		require.Equal(t, userFunds-transferAmount.Int64(), chainABalance)
-		require.Equal(t, int64(0), chainBBalance)
-		require.Equal(t, int64(0), chainCBalance)
-		require.Equal(t, transferAmount, chainDBalance)
+		require.Equal(t, userFunds-transferAmount.Int64(), chainABalance.Int64())
+		require.Equal(t, int64(0), chainBBalance.Int64())
+		require.Equal(t, int64(0), chainCBalance.Int64())
+		require.Equal(t, transferAmount.Int64(), chainDBalance.Int64())
 
 		firstHopEscrowBalance, err := chainA.GetBalance(ctx, firstHopEscrowAccount, chainA.Config().Denom)
 		require.NoError(t, err)
@@ -289,8 +289,8 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 		thirdHopEscrowBalance, err := chainC.GetBalance(ctx, thirdHopEscrowAccount, secondHopIBCDenom)
 		require.NoError(t, err)
 
-		require.Equal(t, transferAmount, firstHopEscrowBalance)
-		require.Equal(t, transferAmount, secondHopEscrowBalance)
-		require.Equal(t, transferAmount, thirdHopEscrowBalance)
+		require.Equal(t, transferAmount.Int64(), firstHopEscrowBalance.Int64())
+		require.Equal(t, transferAmount.Int64(), secondHopEscrowBalance.Int64())
+		require.Equal(t, transferAmount.Int64(), thirdHopEscrowBalance.Int64())
 	})
 }

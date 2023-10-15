@@ -18,6 +18,8 @@ replace (
 )
 
 require (
+	cosmossdk.io/math v1.1.2
+	github.com/CosmWasm/wasmd v0.41.0
 	github.com/CosmosContracts/juno/v18 v18.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.47.5
 	github.com/cosmos/gogoproto v1.4.10
@@ -27,13 +29,6 @@ require (
 	github.com/strangelove-ventures/interchaintest/v7 v7.0.0-20231009173908-4e98e35e363e
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.25.0
-
-)
-
-require (
-	cosmossdk.io/math v1.1.2
-	github.com/CosmWasm/wasmd v0.41.0
-	golang.org/x/sync v0.3.0
 )
 
 require (
@@ -230,6 +225,7 @@ require (
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
+	golang.org/x/sync v0.3.0
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/term v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
