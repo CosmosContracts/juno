@@ -1,11 +1,11 @@
 package helpers
 
 import (
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
-
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // Check if a transaction should be processed as a FeePay transaction. Ensure that
@@ -14,7 +14,6 @@ import (
 //
 // TODO: Future allow for multiple msgs.
 func IsValidFeePayTransaction(ctx sdk.Context, feePayKeeper feepaykeeper.Keeper, tx sdk.Tx, fee sdk.Coins) bool {
-
 	// Defaults to false
 	isValid := false
 

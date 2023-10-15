@@ -11,10 +11,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
-
 	feepayhelpers "github.com/CosmosContracts/juno/v18/x/feepay/helpers"
 	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
+	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
 )
 
 // FeeWithBypassDecorator checks if the transaction's fee is at least as large
