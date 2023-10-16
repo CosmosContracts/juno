@@ -116,11 +116,12 @@ func (s *IntegrationTestSuite) InstantiateContract(sender string, admin string) 
 }
 
 // Helper method for quickly registering a fee pay contract
-func (s *IntegrationTestSuite) registerFeePayContract(senderAddress string, contractAddress string, walletLimit uint64) {
+func (s *IntegrationTestSuite) registerFeePayContract(senderAddress string, contractAddress string, balance uint64, walletLimit uint64) {
 	_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
 		SenderAddress: senderAddress,
 		FeePayContract: &types.FeePayContract{
 			ContractAddress: contractAddress,
+			Balance:         balance,
 			WalletLimit:     walletLimit,
 		},
 	})
