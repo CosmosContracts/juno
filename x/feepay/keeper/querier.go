@@ -30,6 +30,9 @@ func (q Querier) FeePayContract(ctx context.Context, req *types.QueryFeePayContr
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	contract, err := q.Keeper.GetContract(sdkCtx, req.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.QueryFeePayContractResponse{
 		FeePayContract: contract,
@@ -68,6 +71,9 @@ func (q Querier) FeePayContractUses(ctx context.Context, req *types.QueryFeePayC
 	}
 
 	uses, err := q.Keeper.GetContractUses(sdkCtx, fpc, req.WalletAddress)
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.QueryFeePayContractUsesResponse{
 		Uses: uses,
@@ -95,6 +101,9 @@ func (q Querier) FeePayWalletIsEligible(ctx context.Context, req *types.QueryFee
 
 	// Return if wallet is eligible
 	isEligible, err := q.Keeper.IsWalletEligible(sdkCtx, fpc, req.WalletAddress)
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.QueryFeePayWalletIsEligibleResponse{
 		Eligible: isEligible,
