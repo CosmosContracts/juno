@@ -2,9 +2,12 @@ package types
 
 import (
 	errorsmod "cosmossdk.io/errors"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var (
+	ErrInvalidAddress            = sdkerrors.ErrInvalidAddress
 	ErrContractNotRegistered     = errorsmod.Register(ModuleName, 1, "contract not registered")
 	ErrContractAlreadyRegistered = errorsmod.Register(ModuleName, 2, "contract already registered")
 	ErrContractRegisterNotAdmin  = errorsmod.Register(ModuleName, 3, "this address is not the contract admin, cannot register")
@@ -14,7 +17,6 @@ var (
 	ErrContractNotCreator        = errorsmod.Register(ModuleName, 7, "sender is not the contract creator")
 	ErrInvalidWalletLimit        = errorsmod.Register(ModuleName, 8, "invalid wallet limit; must be between 0 and 1,000,000")
 	ErrInvalidJunoFundAmount     = errorsmod.Register(ModuleName, 9, "fee pay contracts only accept juno funds")
-	ErrInvalidAddress            = errorsmod.Register(ModuleName, 10, "invalid bech32 address")
-	ErrInvalidCWContract         = errorsmod.Register(ModuleName, 11, "invalid CosmWasm contract")
-	ErrFeePayDisabled            = errorsmod.Register(ModuleName, 12, "the FeePay module is disabled")
+	ErrInvalidCWContract         = errorsmod.Register(ModuleName, 10, "invalid CosmWasm contract")
+	ErrFeePayDisabled            = errorsmod.Register(ModuleName, 11, "the FeePay module is disabled")
 )
