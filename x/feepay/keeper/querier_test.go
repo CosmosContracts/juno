@@ -17,7 +17,7 @@ func (s *IntegrationTestSuite) TestQueryContract() {
 	// Instantiate the contractAddr
 	contractAddr := s.InstantiateContract(sender.String(), "")
 
-	s.registerFeePayContract(sender.String(), contractAddr, 1)
+	s.registerFeePayContract(sender.String(), contractAddr, 0, 1)
 
 	s.Run("QueryContract", func() {
 		// Query for the contract
@@ -36,6 +36,44 @@ func (s *IntegrationTestSuite) TestQueryContract() {
 	})
 }
 
+// Test that when a Fee Pay contract is registered, the balance is always 0.
+func (s *IntegrationTestSuite) TestQueryContractBalance() {
+	// Get & fund creator
+	_, _, sender := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	s.Run("QueryContract", func() {
+
+		for _, bal := range []struct {
+			balance uint64
+		}{
+			{balance: 0},
+			{balance: 1_000_000},
+		} {
+			bal := bal
+
+			// Instantiate the contractAddr
+			contractAddr := s.InstantiateContract(sender.String(), "")
+			s.registerFeePayContract(sender.String(), contractAddr, bal.balance, 1)
+
+			// Query for the contract
+			res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContract{
+				ContractAddress: contractAddr,
+			})
+
+			// Ensure no error and response exists
+			s.Require().NoError(err)
+			s.Require().Equal(res, &types.QueryFeePayContractResponse{
+				FeePayContract: &types.FeePayContract{
+					ContractAddress: contractAddr,
+					Balance:         0,
+					WalletLimit:     1,
+				},
+			})
+		}
+	})
+}
+
 func (s *IntegrationTestSuite) TestQueryContracts() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
@@ -49,7 +87,7 @@ func (s *IntegrationTestSuite) TestQueryContracts() {
 		contractAddr := s.InstantiateContract(sender.String(), "")
 
 		// Register the fee pay contract
-		s.registerFeePayContract(sender.String(), contractAddr, 1)
+		s.registerFeePayContract(sender.String(), contractAddr, 0, 1)
 
 		// Query for the contract
 		res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContract{
@@ -123,7 +161,7 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 	contractAddr := s.InstantiateContract(sender.String(), "")
 
 	// Register the fee pay contract
-	s.registerFeePayContract(sender.String(), contractAddr, 1)
+	s.registerFeePayContract(sender.String(), contractAddr, 0, 1)
 
 	s.Run("QueryEligibilityNoFunds", func() {
 		// Query for the contract
@@ -187,7 +225,7 @@ func (s *IntegrationTestSuite) TestQueryUses() {
 	contractAddr := s.InstantiateContract(sender.String(), "")
 
 	// Register the fee pay contract
-	s.registerFeePayContract(sender.String(), contractAddr, 1)
+	s.registerFeePayContract(sender.String(), contractAddr, 0, 1)
 
 	s.Run("QueryUses", func() {
 		// Query for the contract

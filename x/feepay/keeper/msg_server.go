@@ -16,6 +16,8 @@ var _ types.MsgServer = &Keeper{}
 // Register a new fee pay contract.
 func (k Keeper) RegisterFeePayContract(goCtx context.Context, msg *types.MsgRegisterFeePayContract) (*types.MsgRegisterFeePayContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	// Prevent client from overriding initial contract balance of zero
+	msg.FeePayContract.Balance = uint64(0)
 	return &types.MsgRegisterFeePayContractResponse{}, k.RegisterContract(ctx, msg)
 }
 

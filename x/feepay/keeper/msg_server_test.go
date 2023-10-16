@@ -92,8 +92,8 @@ func (s *IntegrationTestSuite) TestUnregisterFeePayContract() {
 	creatorContract := s.InstantiateContract(sender.String(), "")
 	adminContract := s.InstantiateContract(sender.String(), admin.String())
 
-	s.registerFeePayContract(sender.String(), creatorContract, 1)
-	s.registerFeePayContract(admin.String(), adminContract, 0)
+	s.registerFeePayContract(sender.String(), creatorContract, 0, 1)
+	s.registerFeePayContract(admin.String(), adminContract, 0, 0)
 
 	for _, tc := range []struct {
 		desc            string
@@ -163,7 +163,7 @@ func (s *IntegrationTestSuite) TestFundFeePayContract() {
 
 	contract := s.InstantiateContract(sender.String(), "")
 
-	s.registerFeePayContract(sender.String(), contract, 1)
+	s.registerFeePayContract(sender.String(), contract, 0, 1)
 
 	for _, tc := range []struct {
 		desc            string
@@ -235,8 +235,8 @@ func (s *IntegrationTestSuite) TestUpdateFeePayContractWalletLimit() {
 	creatorContract := s.InstantiateContract(sender.String(), "")
 	adminContract := s.InstantiateContract(sender.String(), admin.String())
 
-	s.registerFeePayContract(sender.String(), creatorContract, 1)
-	s.registerFeePayContract(admin.String(), adminContract, 0)
+	s.registerFeePayContract(sender.String(), creatorContract, 0, 1)
+	s.registerFeePayContract(admin.String(), adminContract, 0, 0)
 
 	for _, tc := range []struct {
 		desc            string
