@@ -8,9 +8,9 @@ import (
 	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
 )
 
-// Check if a transaction should be processed as a FeePay transaction. Ensure that
-// the Fee Pay module is enabled before calling this function. A valid FeePay transaction
-// has no fee, and only 1 message for executing a contract.
+// Check if a transaction should be processed as a FeePay transaction.
+// A valid FeePay transaction has no fee and only 1 message which
+// executes a CW contract.
 //
 // TODO: Future allow for multiple msgs.
 func IsValidFeePayTransaction(ctx sdk.Context, feePayKeeper feepaykeeper.Keeper, tx sdk.Tx, fee sdk.Coins) bool {
