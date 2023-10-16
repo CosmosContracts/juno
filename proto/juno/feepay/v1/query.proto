@@ -13,22 +13,22 @@ option go_package = "github.com/CosmosContracts/juno/x/feepay/types";
 service Query {
     // FeePayContract queries a single fee pay contract by address
     rpc FeePayContract(QueryFeePayContract) returns (QueryFeePayContractResponse) {
-        option (google.api.http).get = "/juno/feepay/v1/feepay/{contract_address}";
+        option (google.api.http).get = "/juno/feepay/v1/contract/{contract_address}";
     }
 
     // Retrieve all fee pay contracts
     rpc FeePayContracts(QueryFeePayContracts) returns (QueryFeePayContractsResponse) {
-        option (google.api.http).get = "/juno/feepay/v1/feepay";
+        option (google.api.http).get = "/juno/feepay/v1/all_contracts";
     }
 
     // Retrieve the number of uses on a fee pay contract by wallet
     rpc FeePayContractUses(QueryFeePayContractUses) returns (QueryFeePayContractUsesResponse) {
-        option (google.api.http).get = "/juno/feepay/v1/feepay/{contract_address}/uses/{wallet_address}";
+        option (google.api.http).get = "/juno/feepay/v1/contract/{contract_address}/uses/{wallet_address}";
     }
 
     // Query if sender is eligible for fee pay contract interaction
     rpc FeePayWalletIsEligible(QueryFeePayWalletIsEligible) returns (QueryFeePayWalletIsEligibleResponse) {
-        option (google.api.http).get = "/juno/feepay/v1/feepay/{contract_address}/eligible/{wallet_address}";
+        option (google.api.http).get = "/juno/feepay/v1/contract/{contract_address}/eligible/{wallet_address}";
     }
 
     // Params retrieves the FeePay module params
