@@ -43,7 +43,6 @@ func (s *IntegrationTestSuite) TestQueryContractBalance() {
 	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
 
 	s.Run("QueryContract", func() {
-
 		for _, bal := range []struct {
 			balance uint64
 		}{

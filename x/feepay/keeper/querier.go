@@ -36,7 +36,7 @@ func (q Querier) FeePayContract(ctx context.Context, req *types.QueryFeePayContr
 
 	return &types.QueryFeePayContractResponse{
 		FeePayContract: contract,
-	}, err
+	}, nil
 }
 
 // FeePayContracts implements types.QueryServer.
@@ -77,7 +77,7 @@ func (q Querier) FeePayContractUses(ctx context.Context, req *types.QueryFeePayC
 
 	return &types.QueryFeePayContractUsesResponse{
 		Uses: uses,
-	}, err
+	}, nil
 }
 
 // FeePayContractEligible implements types.QueryServer.
@@ -107,7 +107,7 @@ func (q Querier) FeePayWalletIsEligible(ctx context.Context, req *types.QueryFee
 
 	return &types.QueryFeePayWalletIsEligibleResponse{
 		Eligible: isEligible,
-	}, err
+	}, nil
 }
 
 // Params returns the feepay module params
