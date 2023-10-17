@@ -170,9 +170,9 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 			WalletAddress:   sender.String(),
 		})
 
-		// Should error, contract should have no funds
-		s.Require().Error(err)
-		s.Require().Nil(res)
+		// Should not error, user has not exceeded limit
+		s.Require().NoError(err)
+		s.Require().True(res.Eligible)
 	})
 
 	// Add funds
@@ -190,7 +190,7 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 			WalletAddress:   sender.String(),
 		})
 
-		// Should error, contract should have no funds
+		// Should not error, user has not exceeded limit
 		s.Require().NoError(err)
 		s.Require().True(res.Eligible)
 	})

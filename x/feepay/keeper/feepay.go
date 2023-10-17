@@ -303,11 +303,6 @@ func (k Keeper) IsWalletEligible(ctx sdk.Context, fpc *types.FeePayContract, wal
 		return false, types.ErrWalletExceededUsageLimit
 	}
 
-	// Check if contract has enough funds
-	if fpc.Balance == 0 {
-		return true, types.ErrContractNotEnoughFunds
-	}
-
 	return true, nil
 }
 
