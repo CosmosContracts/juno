@@ -38,7 +38,7 @@ type DeductFeeDecorator struct {
 	bondDenom       string
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, tfc ante.TxFeeChecker, bondDenom string) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, bondDenom string) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		feepayKeeper:    fpk,
 		globalfeeKeeper: gfk,
