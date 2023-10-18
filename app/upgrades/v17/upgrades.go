@@ -3,9 +3,9 @@ package v17
 import (
 	"fmt"
 
-	log "github.com/cometbft/cometbft/libs/log"
-
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
+	log "github.com/cometbft/cometbft/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
