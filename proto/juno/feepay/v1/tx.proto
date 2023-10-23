@@ -17,25 +17,25 @@ service Msg {
   // RegisterFeeShare registers a new contract for receiving transaction fees
   rpc RegisterFeePayContract(MsgRegisterFeePayContract)
       returns (MsgRegisterFeePayContractResponse) {
-    option (google.api.http).post = "/juno/feepay/v1/tx/registerFeePayContract";
+    option (google.api.http).post = "/juno/feepay/v1/tx/register";
   };
 
   // UnregisterFeeShare unregisters a contract for receiving transaction fees
   rpc UnregisterFeePayContract(MsgUnregisterFeePayContract)
       returns (MsgUnregisterFeePayContractResponse) {
-    option (google.api.http).post = "/juno/feepay/v1/tx/unregisterFeePayContract";
+    option (google.api.http).post = "/juno/feepay/v1/tx/unregister";
   };
 
   // Fund a fee pay contract
   rpc FundFeePayContract(MsgFundFeePayContract)
       returns (MsgFundFeePayContractResponse) {
-    option (google.api.http).post = "/juno/feepay/v1/tx/fundFeePayContract";
+    option (google.api.http).post = "/juno/feepay/v1/tx/fund";
   };
 
   // Update a fee pay contract wallet limit
   rpc UpdateFeePayContractWalletLimit(MsgUpdateFeePayContractWalletLimit)
       returns (MsgUpdateFeePayContractWalletLimitResponse) {
-    option (google.api.http).post = "/juno/feepay/v1/tx/updateFeePayContractWalletLimit";
+    option (google.api.http).post = "/juno/feepay/v1/tx/update_wallet_limit";
   };
   
   // Update the params of the module through gov v1 type.
