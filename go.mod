@@ -20,7 +20,7 @@ require (
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0
 	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.0.0
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20230803181732-7c8f814d3b79
-	github.com/cosmos/ibc-go/v7 v7.3.0
+	github.com/cosmos/ibc-go/v7 v7.3.1
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
