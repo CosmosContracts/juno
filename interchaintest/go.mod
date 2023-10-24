@@ -25,13 +25,16 @@ require (
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.3.1
 	github.com/docker/docker v24.0.5+incompatible
-	github.com/skip-mev/pob/tests/integration v0.1.0
+	// github.com/skip-mev/pob/tests/integration v0.1.0
 	github.com/strangelove-ventures/interchaintest/v7 v7.0.0-20231018200122-b988aa9a3a4b
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.25.0
 )
 
-require github.com/cosmos/ibc-go/modules/capability v1.0.0-rc1 // indirect
+require (
+	github.com/cosmos/ibc-go/modules/capability v1.0.0-rc1 // indirect
+	github.com/opencontainers/runc v1.1.5 // indirect
+)
 
 require (
 	cloud.google.com/go v0.110.4 // indirect
@@ -200,7 +203,6 @@ require (
 	github.com/rs/cors v1.8.3 // indirect
 	github.com/rs/zerolog v1.30.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
-	github.com/skip-mev/pob v1.0.4 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
