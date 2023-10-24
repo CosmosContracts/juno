@@ -166,7 +166,7 @@ type AppKeepers struct {
 	FeePayKeeper        feepaykeeper.Keeper
 	FeeShareKeeper      feesharekeeper.Keeper
 	GlobalFeeKeeper     globalfeekeeper.Keeper
-	ContractKeeper      *wasmkeeper.PermissionedKeeper
+	ContractKeeper      wasmtypes.ContractOpsKeeper
 	ClockKeeper         clockkeeper.Keeper
 	CWHooksKeeper       cwhookskeeper.Keeper
 
@@ -199,7 +199,6 @@ func NewAppKeepers(
 	bApp *baseapp.BaseApp,
 	cdc *codec.LegacyAmino,
 	maccPerms map[string][]string,
-	enabledProposals []wasmtypes.ProposalType,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
 	bondDenom string,
@@ -399,7 +398,7 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.HooksICS4Wrapper,
 	)
 
 	// Create Transfer Keepers
@@ -559,7 +558,7 @@ func NewAppKeepers(
 	)
 
 	// set the contract keeper for the Ics20WasmHooks
-	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
+	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(&appKeepers.WasmKeeper)
 	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
 
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
@@ -589,7 +588,7 @@ func NewAppKeepers(
 	appKeepers.ClockKeeper = clockkeeper.NewKeeper(
 		appKeepers.keys[clocktypes.StoreKey],
 		appCodec,
-		*appKeepers.ContractKeeper,
+		appKeepers.ContractKeeper,
 		govModAddress,
 	)
 
@@ -599,7 +598,7 @@ func NewAppKeepers(
 		stakingKeeper,
 		*govKeeper,
 		appKeepers.WasmKeeper,
-		*appKeepers.ContractKeeper,
+		appKeepers.ContractKeeper,
 		govModAddress,
 	)
 
@@ -621,11 +620,6 @@ func NewAppKeepers(
 		),
 	)
 
-	// register wasm gov proposal types
-	// The gov proposal types can be individually enabled
-	if len(enabledProposals) != 0 {
-		govRouter.AddRoute(wasmtypes.RouterKey, wasm.NewWasmProposalHandler(appKeepers.WasmKeeper, enabledProposals)) //nolint:staticcheck // we still need this despite the deprecation of the gov handler
-	}
 	// Set legacy router for backwards compatibility with gov v1beta1
 	appKeepers.GovKeeper.SetLegacyRouter(govRouter)
 

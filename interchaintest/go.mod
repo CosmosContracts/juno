@@ -19,14 +19,14 @@ replace (
 
 require (
 	cosmossdk.io/math v1.1.2
-	github.com/CosmWasm/wasmd v0.41.0
+	github.com/CosmWasm/wasmd v0.43.0
 	github.com/CosmosContracts/juno/v18 v18.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.47.5
 	github.com/cosmos/gogoproto v1.4.10
-	github.com/cosmos/ibc-go/v7 v7.3.0
-	github.com/docker/docker v24.0.5+incompatible
-	github.com/skip-mev/pob/tests/integration v0.2.1
-	github.com/strangelove-ventures/interchaintest/v7 v7.0.0-20231009173908-4e98e35e363e
+	github.com/cosmos/ibc-go/v7 v7.3.1
+	github.com/docker/docker v24.0.4+incompatible
+	github.com/skip-mev/pob/tests/integration v0.1.0
+	github.com/strangelove-ventures/interchaintest/v7 v7.0.0-20230721183422-fb937bb0e165
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.25.0
 )
@@ -50,7 +50,7 @@ require (
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
 	github.com/ChainSafe/go-schnorrkel/1 v0.0.0-00010101000000-000000000000 // indirect
 	github.com/ComposableFi/go-subkey/v2 v2.0.0-tm03420 // indirect
-	github.com/CosmWasm/wasmvm v1.3.0 // indirect
+	github.com/CosmWasm/wasmvm v1.4.1 // indirect
 	github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e // indirect
 	github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec // indirect
 	github.com/Microsoft/go-winio v0.6.0 // indirect
@@ -80,7 +80,6 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/iavl v0.20.1 // indirect
-	github.com/cosmos/ibc-go/modules/capability v1.0.0-rc1 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.0 // indirect
 	github.com/cosmos/rosetta-sdk-go v0.10.0 // indirect
