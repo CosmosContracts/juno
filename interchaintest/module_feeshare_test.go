@@ -34,7 +34,7 @@ func TestJunoFeeShare(t *testing.T) {
 	helpers.RegisterFeeShare(t, ctx, juno, user, contractAddr, feeRcvAddr)
 	if balance, err := juno.GetBalance(ctx, feeRcvAddr, nativeDenom); err != nil {
 		t.Fatal(err)
-	} else if balance != 0 {
+	} else if balance.Int64() != 0 {
 		t.Fatal("balance not 0")
 	}
 
@@ -44,7 +44,7 @@ func TestJunoFeeShare(t *testing.T) {
 	// check balance of nativeDenom now
 	if balance, err := juno.GetBalance(ctx, feeRcvAddr, nativeDenom); err != nil {
 		t.Fatal(err)
-	} else if balance != 5000 {
+	} else if balance.Int64() != 5000 {
 		t.Fatal("balance not 5,000. it is ", balance, nativeDenom)
 	}
 

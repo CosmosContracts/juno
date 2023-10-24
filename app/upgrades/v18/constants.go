@@ -5,6 +5,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v18/app/upgrades"
 	cwhooks "github.com/CosmosContracts/juno/v18/x/cw-hooks"
+	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.
@@ -16,6 +17,7 @@ var Upgrade = upgrades.Upgrade{
 	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
 			cwhooks.ModuleName,
+			feepaytypes.ModuleName,
 		},
 	},
 }

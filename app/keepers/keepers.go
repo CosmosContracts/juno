@@ -89,6 +89,8 @@ import (
 	cwhookstypes "github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
 	dripkeeper "github.com/CosmosContracts/juno/v18/x/drip/keeper"
 	driptypes "github.com/CosmosContracts/juno/v18/x/drip/types"
+	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v18/x/globalfee"
@@ -128,6 +130,7 @@ var maccPerms = map[string][]string{
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfee.ModuleName:           nil,
 	buildertypes.ModuleName:        nil,
+	feepaytypes.ModuleName:         nil,
 	junoburn.ModuleName:            {authtypes.Burner},
 }
 
@@ -160,6 +163,7 @@ type AppKeepers struct {
 	AuthzKeeper         authzkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	NFTKeeper           nftkeeper.Keeper
+	FeePayKeeper        feepaykeeper.Keeper
 	FeeShareKeeper      feesharekeeper.Keeper
 	GlobalFeeKeeper     globalfeekeeper.Keeper
 	ContractKeeper      wasmtypes.ContractOpsKeeper
@@ -197,6 +201,7 @@ func NewAppKeepers(
 	maccPerms map[string][]string,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
+	bondDenom string,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -542,6 +547,16 @@ func NewAppKeepers(
 		wasmOpts...,
 	)
 
+	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
+		appKeepers.keys[feepaytypes.StoreKey],
+		appCodec,
+		&appKeepers.BankKeeper,
+		appKeepers.WasmKeeper,
+		appKeepers.AccountKeeper,
+		bondDenom,
+		govModAddress,
+	)
+
 	// set the contract keeper for the Ics20WasmHooks
 	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(&appKeepers.WasmKeeper)
 	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
@@ -725,16 +740,12 @@ func BlockedAddresses() map[string]bool {
 
 	// allow the following addresses to receive funds
 	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(feepaytypes.ModuleName).String())
 
 	return modAccAddrs
 }
 
 // GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {
-	dupMaccPerms := make(map[string][]string)
-	for k, v := range maccPerms {
-		dupMaccPerms[k] = v
-	}
-
-	return dupMaccPerms
+	return maccPerms
 }

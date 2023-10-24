@@ -257,6 +257,7 @@ func New(
 		keepers.GetMaccPerms(),
 		appOpts,
 		wasmOpts,
+		app.GetChainBondDenom(),
 	)
 	app.keys = app.AppKeepers.GetKVStoreKey()
 
@@ -344,8 +345,9 @@ func New(
 
 			GovKeeper:         app.AppKeepers.GovKeeper,
 			IBCKeeper:         app.AppKeepers.IBCKeeper,
+			FeePayKeeper:      app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:    app.AppKeepers.FeeShareKeeper,
-			BankKeeperFork:    app.AppKeepers.BankKeeper, // since we need extra methods
+			BankKeeper:        app.AppKeepers.BankKeeper,
 			TxCounterStoreKey: app.AppKeepers.GetKey(wasmtypes.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
@@ -357,6 +359,7 @@ func New(
 			TxEncoder:     app.txConfig.TxEncoder(),
 			BuilderKeeper: app.AppKeepers.BuildKeeper,
 			Mempool:       mempool,
+			BondDenom:     app.GetChainBondDenom(),
 		},
 	)
 	if err != nil {
