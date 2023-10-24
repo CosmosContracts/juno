@@ -313,7 +313,6 @@ func (ac appCreator) newApp(
 		db,
 		traceStore,
 		loadLatest,
-		app.GetEnabledProposals(),
 		appOpts,
 		wasmOpts,
 		baseappOptions...,
@@ -343,7 +342,6 @@ func (ac appCreator) appExport(
 		db,
 		traceStore,
 		loadLatest,
-		app.GetEnabledProposals(),
 		appOpts,
 		emptyWasmOpts,
 	)

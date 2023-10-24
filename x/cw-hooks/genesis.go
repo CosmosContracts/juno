@@ -67,19 +67,21 @@ func InitGenesis(
 	}
 
 	for _, v := range data.StakingContractAddresses {
-		if accAddr, err := sdk.AccAddressFromBech32(v); err != nil {
+		accAddr, err := sdk.AccAddressFromBech32(v)
+		if err != nil {
 			panic(err)
-		} else {
-			k.SetContract(ctx, types.KeyPrefixStaking, accAddr)
 		}
+
+		k.SetContract(ctx, types.KeyPrefixStaking, accAddr)
 	}
 
 	for _, v := range data.GovContractAddresses {
-		if accAddr, err := sdk.AccAddressFromBech32(v); err != nil {
+		accAddr, err := sdk.AccAddressFromBech32(v)
+		if err != nil {
 			panic(err)
-		} else {
-			k.SetContract(ctx, types.KeyPrefixGov, accAddr)
 		}
+
+		k.SetContract(ctx, types.KeyPrefixGov, accAddr)
 	}
 }
 

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/require"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -156,7 +155,6 @@ func setup(t *testing.T, withGenesis bool, opts ...wasmkeeper.Option) (*App, Gen
 		db,
 		nil,
 		true,
-		wasmtypes.EnableAllProposals,
 		EmptyAppOptions{},
 		opts,
 		bam.SetChainID("testing"),

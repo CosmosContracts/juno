@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/docker/docker/client"
 	"github.com/strangelove-ventures/interchaintest/v7"
@@ -72,6 +73,9 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	ValidatorVoting(t, ctx, chain, proposalID, height, haltHeight)
 
 	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, upgradeBranchVersion)
+
+	// Post Upgrade: Conformance Validation
+	junoconformance.ConformanceCosmWasm(t, ctx, chain, chainUser)
 }
 
 func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight uint64, upgradeRepo, upgradeBranchVersion string) {
