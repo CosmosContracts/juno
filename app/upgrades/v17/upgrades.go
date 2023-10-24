@@ -3,7 +3,7 @@ package v17
 import (
 	"fmt"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	log "github.com/cometbft/cometbft/libs/log"
 
@@ -89,7 +89,7 @@ func CreateV17UpgradeHandler(
 	}
 }
 
-func migrateChainOwnedSubDaos(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper, ck *wasmkeeper.PermissionedKeeper) error {
+func migrateChainOwnedSubDaos(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper, ck wasmtypes.ContractOpsKeeper) error {
 	logger.Info("migrating chain owned sub-daos")
 
 	govAcc := ak.GetModuleAddress(govtypes.ModuleName)

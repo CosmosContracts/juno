@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"github.com/cometbft/cometbft/libs/log"
 
@@ -23,7 +24,7 @@ type Keeper struct {
 	stakingKeeper  slashingtypes.StakingKeeper
 	govKeeper      govkeeper.Keeper
 	wk             wasmkeeper.Keeper
-	contractKeeper wasmkeeper.PermissionedKeeper
+	contractKeeper wasmtypes.ContractOpsKeeper
 
 	authority string
 }
@@ -34,7 +35,7 @@ func NewKeeper(
 	stakingKeeper slashingtypes.StakingKeeper,
 	govKeeper govkeeper.Keeper,
 	wasmkeeper wasmkeeper.Keeper,
-	contractKeeper wasmkeeper.PermissionedKeeper,
+	contractKeeper wasmtypes.ContractOpsKeeper,
 	authority string,
 ) Keeper {
 	return Keeper{
@@ -54,7 +55,7 @@ func (k Keeper) GetAuthority() string {
 }
 
 // GetContractKeeper returns the x/wasm module's contract keeper.
-func (k Keeper) GetContractKeeper() wasmkeeper.PermissionedKeeper {
+func (k Keeper) GetContractKeeper() wasmtypes.ContractOpsKeeper {
 	return k.contractKeeper
 }
 

@@ -488,7 +488,10 @@ func GetDefaultBypassFeeMessages() []string {
 		// IBC
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgCreateClient{}),
 		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgSubmitMisbehaviour{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgUpgradeClient{}),
 		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeout{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeoutOnClose{}),

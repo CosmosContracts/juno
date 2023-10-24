@@ -162,7 +162,7 @@ type AppKeepers struct {
 	NFTKeeper           nftkeeper.Keeper
 	FeeShareKeeper      feesharekeeper.Keeper
 	GlobalFeeKeeper     globalfeekeeper.Keeper
-	ContractKeeper      *wasmkeeper.PermissionedKeeper
+	ContractKeeper      wasmtypes.ContractOpsKeeper
 	ClockKeeper         clockkeeper.Keeper
 	CWHooksKeeper       cwhookskeeper.Keeper
 
@@ -394,7 +394,7 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.HooksICS4Wrapper,
 	)
 
 	// Create Transfer Keepers
@@ -544,7 +544,7 @@ func NewAppKeepers(
 	)
 
 	// set the contract keeper for the Ics20WasmHooks
-	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
+	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(&appKeepers.WasmKeeper)
 	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
 
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
@@ -574,7 +574,7 @@ func NewAppKeepers(
 	appKeepers.ClockKeeper = clockkeeper.NewKeeper(
 		appKeepers.keys[clocktypes.StoreKey],
 		appCodec,
-		*appKeepers.ContractKeeper,
+		appKeepers.ContractKeeper,
 		govModAddress,
 	)
 
@@ -584,7 +584,7 @@ func NewAppKeepers(
 		stakingKeeper,
 		*govKeeper,
 		appKeepers.WasmKeeper,
-		*appKeepers.ContractKeeper,
+		appKeepers.ContractKeeper,
 		govModAddress,
 	)
 
