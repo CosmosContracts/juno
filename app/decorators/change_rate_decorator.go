@@ -115,7 +115,7 @@ func (mcr MsgChangeRateDecorator) isInvalidEditMessage(ctx sdk.Context, msg *sta
 	}
 
 	// Get validator info, if exists
-	valInfo, found := mcr.sk.GetValidator(ctx, sdk.ValAddress(bech32Addr))
+	valInfo, found := mcr.sk.GetValidator(ctx, bech32Addr)
 	if !found {
 		return fmt.Errorf("validator not found")
 	}
