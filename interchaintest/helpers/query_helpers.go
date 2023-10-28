@@ -94,3 +94,92 @@ func GetValidators(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain)
 
 	return res
 }
+
+// FeePay
+
+type FeePayUses struct {
+	Uses string `json:"uses"`
+}
+
+func GetFeePayUses(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract, wallet string) FeePayUses {
+	var res FeePayUses
+
+	cmd := []string{"junod", "query", "feepay", "uses", contract, wallet,
+		"--node", chain.GetRPCAddress(),
+		"--chain-id", chain.Config().ChainID,
+		"--output", "json",
+	}
+
+	stdout, _, err := chain.Exec(ctx, cmd, nil)
+	require.NoError(t, err)
+
+	fmt.Println(string(stdout))
+
+	if err := json.Unmarshal(stdout, &res); err != nil {
+		t.Fatal(err)
+	}
+
+	return res
+}
+
+type FeePayContracts struct {
+	FeePayContracts []struct {
+		ContractAddress string `json:"contract_address"`
+		Balance         string `json:"balance"`
+		WalletLimit     string `json:"wallet_limit"`
+	} `json:"fee_pay_contracts"`
+	Pagination struct {
+		NextKey any    `json:"next_key"`
+		Total   string `json:"total"`
+	} `json:"pagination"`
+}
+
+func GetFeePayContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) FeePayContracts {
+	var res FeePayContracts
+
+	cmd := []string{"junod", "query", "feepay", "contracts",
+		"--node", chain.GetRPCAddress(),
+		"--chain-id", chain.Config().ChainID,
+		"--output", "json",
+	}
+
+	stdout, _, err := chain.Exec(ctx, cmd, nil)
+	require.NoError(t, err)
+
+	fmt.Println(string(stdout))
+
+	if err := json.Unmarshal(stdout, &res); err != nil {
+		t.Fatal(err)
+	}
+
+	return res
+}
+
+type FeePayContract struct {
+	FeePayContract struct {
+		ContractAddress string `json:"contract_address"`
+		Balance         string `json:"balance"`
+		WalletLimit     string `json:"wallet_limit"`
+	} `json:"fee_pay_contract"`
+}
+
+func GetFeePayContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) FeePayContract {
+	var res FeePayContract
+
+	cmd := []string{"junod", "query", "feepay", "contract", contract,
+		"--node", chain.GetRPCAddress(),
+		"--chain-id", chain.Config().ChainID,
+		"--output", "json",
+	}
+
+	stdout, _, err := chain.Exec(ctx, cmd, nil)
+	require.NoError(t, err)
+
+	fmt.Println(string(stdout))
+
+	if err := json.Unmarshal(stdout, &res); err != nil {
+		t.Fatal(err)
+	}
+
+	return res
+}

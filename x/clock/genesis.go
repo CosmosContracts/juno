@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v17/x/clock/keeper"
-	"github.com/CosmosContracts/juno/v17/x/clock/types"
+	"github.com/CosmosContracts/juno/v18/x/clock/keeper"
+	"github.com/CosmosContracts/juno/v18/x/clock/types"
 )
 
 // NewGenesisState - Create a new genesis state

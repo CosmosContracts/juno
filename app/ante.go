@@ -16,14 +16,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	decorators "github.com/CosmosContracts/juno/v17/app/decorators"
-	feeshareante "github.com/CosmosContracts/juno/v17/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
-	globalfeeante "github.com/CosmosContracts/juno/v17/x/globalfee/ante"
-	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
+	decorators "github.com/CosmosContracts/juno/v18/app/decorators"
+	feepayante "github.com/CosmosContracts/juno/v18/x/feepay/ante"
+	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
+	feeshareante "github.com/CosmosContracts/juno/v18/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
+	globalfeeante "github.com/CosmosContracts/juno/v18/x/globalfee/ante"
+	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
 )
 
 // Lower back to 1 mil after https://github.com/cosmos/relayer/issues/1255
@@ -36,8 +39,9 @@ type HandlerOptions struct {
 
 	GovKeeper         govkeeper.Keeper
 	IBCKeeper         *ibckeeper.Keeper
+	FeePayKeeper      feepaykeeper.Keeper
 	FeeShareKeeper    feesharekeeper.Keeper
-	BankKeeperFork    feeshareante.BankKeeper
+	BankKeeper        bankkeeper.Keeper
 	TxCounterStoreKey storetypes.StoreKey
 	WasmConfig        wasmtypes.WasmConfig
 	Cdc               codec.BinaryCodec
@@ -50,6 +54,8 @@ type HandlerOptions struct {
 	BuilderKeeper builderkeeper.Keeper
 	TxEncoder     sdk.TxEncoder
 	Mempool       builderante.Mempool
+
+	BondDenom string
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -74,6 +80,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 
 	anteDecorators := []sdk.AnteDecorator{
+		// GLobalFee query params for minimum fee
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
@@ -84,9 +91,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
-		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
+		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, options.FeePayKeeper, maxBypassMinFeeMsgGasUsage),
+		feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.GlobalFeeKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.BondDenom),
+		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

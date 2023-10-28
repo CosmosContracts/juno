@@ -7,7 +7,6 @@ import (
 	"time"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/require"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -33,8 +32,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	apphelpers "github.com/CosmosContracts/juno/v17/app/helpers"
-	appparams "github.com/CosmosContracts/juno/v17/app/params"
+	apphelpers "github.com/CosmosContracts/juno/v18/app/helpers"
+	appparams "github.com/CosmosContracts/juno/v18/app/params"
 )
 
 // SimAppChainID hardcoded chainID for simulation
@@ -156,7 +155,6 @@ func setup(t *testing.T, withGenesis bool, opts ...wasmkeeper.Option) (*App, Gen
 		db,
 		nil,
 		true,
-		wasmtypes.EnableAllProposals,
 		EmptyAppOptions{},
 		opts,
 		bam.SetChainID("testing"),

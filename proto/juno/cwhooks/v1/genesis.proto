@@ -1,0 +1,37 @@
+syntax = "proto3";
+package juno.cwhooks.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
+
+// GenesisState - initial state of module
+message GenesisState {
+  // Params of this module
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag) = "params,omitempty"
+  ];
+
+  // staking_contract_addresses
+  repeated string staking_contract_addresses = 2 [
+    (gogoproto.jsontag) = "staking_contract_addresses,omitempty",
+    (gogoproto.moretags) = "yaml:\"staking_contract_addresses\""
+  ];
+
+  // gov_contract_addresses
+  repeated string gov_contract_addresses = 3 [
+    (gogoproto.jsontag) = "gov_contract_addresses,omitempty",
+    (gogoproto.moretags) = "yaml:\"gov_contract_addresses\""
+  ];
+}
+
+// Params defines the set of module parameters.
+message Params {
+  // contract_gas_limit is the contract call gas limit
+  uint64 contract_gas_limit = 1 [
+    (gogoproto.jsontag) = "contract_gas_limit,omitempty",
+    (gogoproto.moretags) = "yaml:\"contract_gas_limit\""
+  ];
+}

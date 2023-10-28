@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/docker/docker/client"
 	"github.com/strangelove-ventures/interchaintest/v7"
@@ -19,7 +20,7 @@ import (
 
 const (
 	chainName   = "juno"
-	upgradeName = "v17"
+	upgradeName = "v18"
 
 	haltHeightDelta    = uint64(9) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = uint64(7)
@@ -29,7 +30,7 @@ var (
 	// baseChain is the current version of the chain that will be upgraded from
 	baseChain = ibc.DockerImage{
 		Repository: JunoMainRepo,
-		Version:    "v16.0.0",
+		Version:    "v17.0.0",
 		UidGid:     "1025:1025",
 	}
 )
@@ -48,8 +49,27 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 
 	t.Log(chainName, upgradeBranchVersion, upgradeRepo, upgradeName)
 
-	numVals, numNodes := 4, 4
-	chains := CreateChain(t, numVals, numNodes, baseChain)
+	previousVersionGenesis := []cosmos.GenesisKV{
+		{
+			Key:   "app_state.gov.params.voting_period",
+			Value: VotingPeriod,
+		},
+		{
+			Key:   "app_state.gov.params.max_deposit_period",
+			Value: MaxDepositPeriod,
+		},
+		{
+			Key:   "app_state.gov.params.min_deposit.0.denom",
+			Value: Denom,
+		},
+	}
+
+	cfg := junoConfig
+	cfg.ModifyGenesis = cosmos.ModifyGenesis(previousVersionGenesis)
+	cfg.Images = []ibc.DockerImage{baseChain}
+
+	numVals, numNodes := 4, 0
+	chains := CreateChainWithCustomConfig(t, numVals, numNodes, cfg)
 	chain := chains[0].(*cosmos.CosmosChain)
 
 	ic, ctx, client, _ := BuildInitialChain(t, chains)
@@ -72,6 +92,10 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	ValidatorVoting(t, ctx, chain, proposalID, height, haltHeight)
 
 	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, upgradeBranchVersion)
+
+	// Post Upgrade: Conformance Validation
+	junoconformance.ConformanceCosmWasm(t, ctx, chain, chainUser)
+	// TODO: ibc conformance test
 }
 
 func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight uint64, upgradeRepo, upgradeBranchVersion string) {
@@ -127,7 +151,6 @@ func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 }
 
 func SubmitUpgradeProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, upgradeName string, haltHeight uint64) string {
-	// TODO Return proposal id
 	upgradeMsg := []cosmosproto.Message{
 		&upgradetypes.MsgSoftwareUpgrade{
 			// gGov Module account

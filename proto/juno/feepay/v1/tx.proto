@@ -1,0 +1,131 @@
+syntax = "proto3";
+package juno.feepay.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+import "juno/feepay/v1/genesis.proto";
+import "juno/feepay/v1/feepay.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/feepay/types";
+
+// Msg defines the fees Msg service.
+service Msg {
+  // RegisterFeeShare registers a new contract for receiving transaction fees
+  rpc RegisterFeePayContract(MsgRegisterFeePayContract)
+      returns (MsgRegisterFeePayContractResponse) {
+    option (google.api.http).post = "/juno/feepay/v1/tx/register";
+  };
+
+  // UnregisterFeeShare unregisters a contract for receiving transaction fees
+  rpc UnregisterFeePayContract(MsgUnregisterFeePayContract)
+      returns (MsgUnregisterFeePayContractResponse) {
+    option (google.api.http).post = "/juno/feepay/v1/tx/unregister";
+  };
+
+  // Fund a fee pay contract
+  rpc FundFeePayContract(MsgFundFeePayContract)
+      returns (MsgFundFeePayContractResponse) {
+    option (google.api.http).post = "/juno/feepay/v1/tx/fund";
+  };
+
+  // Update a fee pay contract wallet limit
+  rpc UpdateFeePayContractWalletLimit(MsgUpdateFeePayContractWalletLimit)
+      returns (MsgUpdateFeePayContractWalletLimitResponse) {
+    option (google.api.http).post = "/juno/feepay/v1/tx/update_wallet_limit";
+  };
+  
+  // Update the params of the module through gov v1 type.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}
+
+// The message to register a fee pay contract.
+message MsgRegisterFeePayContract {
+  option (gogoproto.equal) = false;
+
+  // The wallet address of the sender.
+  string sender_address = 1;
+
+  // The fee pay contract to register.
+  FeePayContract fee_pay_contract = 2;
+}
+
+// The response message for registering a fee pay contract.
+message MsgRegisterFeePayContractResponse {}
+
+// The message to unregister a fee pay contract.
+message MsgUnregisterFeePayContract {
+  option (gogoproto.equal) = false;
+
+  // The wallet address of the sender.
+  string sender_address = 1;
+
+  // The fee pay contract address.
+  string contract_address = 2;
+}
+
+// The response message for unregistering a fee pay contract.
+message MsgUnregisterFeePayContractResponse {}
+
+// The message to fund a fee pay contract
+message MsgFundFeePayContract {
+  option (gogoproto.equal) = false;
+
+  // The wallet address of the sender.
+  string sender_address = 1;
+
+  // The fee pay contract to fund.
+  string contract_address = 2;
+
+  // The coins to fund the contract with.
+  repeated cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (amino.encoding)         = "legacy_coins",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// The response message for funding a fee pay contract.
+message MsgFundFeePayContractResponse {}
+
+// The message to update a fee pay contract wallet limit.
+message MsgUpdateFeePayContractWalletLimit {
+  option (gogoproto.equal) = false;
+
+  // The wallet address of the sender.
+  string sender_address = 1;
+
+  // The fee pay contract to fund.
+  string contract_address = 2;
+  
+  // The new wallet limit.
+  uint64 wallet_limit = 3;
+}
+
+// The response message for updating a fee pay contract wallet limit.
+message MsgUpdateFeePayContractWalletLimitResponse {}
+
+// MsgUpdateParams is the Msg/UpdateParams request type.
+//
+// Since: cosmos-sdk 0.47
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";  
+
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // params defines the x/feepay parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+//
+// Since: cosmos-sdk 0.47
+message MsgUpdateParamsResponse {}

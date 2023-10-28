@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v17/x/tokenfactory/exported"
-	v2 "github.com/CosmosContracts/juno/v17/x/tokenfactory/migrations/v2"
+	"github.com/CosmosContracts/juno/v18/x/tokenfactory/exported"
+	v2 "github.com/CosmosContracts/juno/v18/x/tokenfactory/migrations/v2"
 )
 
 // Migrator is a struct for handling in-place state migrations.
@@ -34,13 +34,14 @@ func (m Migrator) Migrate1to2(ctx sdk.Context) error {
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
 		denom := string(iter.Value())
-		if denomMetadata, err := m.keeper.bankKeeper.GetDenomMetaData(ctx, denom); !err {
+		denomMetadata, err := m.keeper.bankKeeper.GetDenomMetaData(ctx, denom)
+		if err {
 			panic(fmt.Errorf("denom %s does not exist", denom))
-		} else {
-			fmt.Printf("Migrating denom: %s\n", denom)
-			m.SetMetadata(&denomMetadata)
-			m.keeper.bankKeeper.SetDenomMetaData(ctx, denomMetadata)
 		}
+
+		fmt.Printf("Migrating denom: %s\n", denom)
+		m.SetMetadata(&denomMetadata)
+		m.keeper.bankKeeper.SetDenomMetaData(ctx, denomMetadata)
 
 	}
 

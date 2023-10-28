@@ -3,7 +3,7 @@ package v17
 import (
 	"fmt"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	log "github.com/cometbft/cometbft/libs/log"
 
@@ -14,10 +14,10 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v17/app/keepers"
-	"github.com/CosmosContracts/juno/v17/app/upgrades"
-	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
-	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
+	"github.com/CosmosContracts/juno/v18/app/keepers"
+	"github.com/CosmosContracts/juno/v18/app/upgrades"
+	clocktypes "github.com/CosmosContracts/juno/v18/x/clock/types"
+	driptypes "github.com/CosmosContracts/juno/v18/x/drip/types"
 )
 
 // Verify the following with:
@@ -89,7 +89,7 @@ func CreateV17UpgradeHandler(
 	}
 }
 
-func migrateChainOwnedSubDaos(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper, ck *wasmkeeper.PermissionedKeeper) error {
+func migrateChainOwnedSubDaos(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper, ck wasmtypes.ContractOpsKeeper) error {
 	logger.Info("migrating chain owned sub-daos")
 
 	govAcc := ak.GetModuleAddress(govtypes.ModuleName)

@@ -37,8 +37,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"github.com/CosmosContracts/juno/v17/app"
-	"github.com/CosmosContracts/juno/v17/app/params"
+	"github.com/CosmosContracts/juno/v18/app"
+	"github.com/CosmosContracts/juno/v18/app/params"
 )
 
 // NewRootCmd creates a new root command for junod. It is called once in the
@@ -313,7 +313,6 @@ func (ac appCreator) newApp(
 		db,
 		traceStore,
 		loadLatest,
-		app.GetEnabledProposals(),
 		appOpts,
 		wasmOpts,
 		baseappOptions...,
@@ -343,7 +342,6 @@ func (ac appCreator) appExport(
 		db,
 		traceStore,
 		loadLatest,
-		app.GetEnabledProposals(),
 		appOpts,
 		emptyWasmOpts,
 	)

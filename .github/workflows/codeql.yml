@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GO_VERSION: 1.20.7
+  GO_VERSION: 1.21.0
 
 jobs:
   analyze:
@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}

@@ -12,7 +12,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/testutil"
 
-	"github.com/CosmosContracts/juno/v17/x/mint/types"
+	"github.com/CosmosContracts/juno/v18/x/mint/types"
 )
 
 func TestItCreatesModuleAccountOnInitBlock(t *testing.T) {

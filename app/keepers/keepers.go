@@ -1,6 +1,7 @@
 package keepers
 
 import (
+	"math"
 	"path/filepath"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -81,24 +82,29 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	clockkeeper "github.com/CosmosContracts/juno/v17/x/clock/keeper"
-	clocktypes "github.com/CosmosContracts/juno/v17/x/clock/types"
-	dripkeeper "github.com/CosmosContracts/juno/v17/x/drip/keeper"
-	driptypes "github.com/CosmosContracts/juno/v17/x/drip/types"
-	feesharekeeper "github.com/CosmosContracts/juno/v17/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v17/x/globalfee"
-	globalfeekeeper "github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
-	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
-	mintkeeper "github.com/CosmosContracts/juno/v17/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
-	"github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v17/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
+	junoburn "github.com/CosmosContracts/juno/v18/x/burn"
+	clockkeeper "github.com/CosmosContracts/juno/v18/x/clock/keeper"
+	clocktypes "github.com/CosmosContracts/juno/v18/x/clock/types"
+	cwhookskeeper "github.com/CosmosContracts/juno/v18/x/cw-hooks/keeper"
+	cwhookstypes "github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
+	dripkeeper "github.com/CosmosContracts/juno/v18/x/drip/keeper"
+	driptypes "github.com/CosmosContracts/juno/v18/x/drip/types"
+	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v18/x/globalfee"
+	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v18/x/globalfee/types"
+	mintkeeper "github.com/CosmosContracts/juno/v18/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v18/x/mint/types"
+	"github.com/CosmosContracts/juno/v18/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v18/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v18/x/tokenfactory/types"
 )
 
 var (
-	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3"
+	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3,cosmwasm_1_4"
 
 	tokenFactoryCapabilities = []string{
 		tokenfactorytypes.EnableBurnFrom,
@@ -120,10 +126,12 @@ var maccPerms = map[string][]string{
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:            nil,
 	ibcfeetypes.ModuleName:         nil,
-	wasmtypes.ModuleName:           {authtypes.Burner},
+	wasmtypes.ModuleName:           {},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfee.ModuleName:           nil,
 	buildertypes.ModuleName:        nil,
+	feepaytypes.ModuleName:         nil,
+	junoburn.ModuleName:            {authtypes.Burner},
 }
 
 type AppKeepers struct {
@@ -155,10 +163,12 @@ type AppKeepers struct {
 	AuthzKeeper         authzkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	NFTKeeper           nftkeeper.Keeper
+	FeePayKeeper        feepaykeeper.Keeper
 	FeeShareKeeper      feesharekeeper.Keeper
 	GlobalFeeKeeper     globalfeekeeper.Keeper
-	ContractKeeper      *wasmkeeper.PermissionedKeeper
+	ContractKeeper      wasmtypes.ContractOpsKeeper
 	ClockKeeper         clockkeeper.Keeper
+	CWHooksKeeper       cwhookskeeper.Keeper
 
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -189,9 +199,9 @@ func NewAppKeepers(
 	bApp *baseapp.BaseApp,
 	cdc *codec.LegacyAmino,
 	maccPerms map[string][]string,
-	enabledProposals []wasmtypes.ProposalType,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
+	bondDenom string,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -305,14 +315,6 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	// register the staking hooks
-	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
-	stakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(appKeepers.DistrKeeper.Hooks(),
-			appKeepers.SlashingKeeper.Hooks()),
-	)
-	appKeepers.StakingKeeper = stakingKeeper
-
 	// ... other modules keepers
 
 	// Create IBC Keeper
@@ -320,7 +322,7 @@ func NewAppKeepers(
 		appCodec,
 		appKeepers.keys[ibcexported.StoreKey],
 		appKeepers.GetSubspace(ibcexported.ModuleName),
-		appKeepers.StakingKeeper,
+		stakingKeeper,
 		appKeepers.UpgradeKeeper,
 		scopedIBCKeeper,
 	)
@@ -344,20 +346,19 @@ func NewAppKeepers(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
 
+	// Update the max metadata length to be >255
+	govConfig := govtypes.DefaultConfig()
+	govConfig.MaxMetadataLen = math.MaxUint64
+
 	govKeeper := govkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[govtypes.StoreKey],
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
-		appKeepers.StakingKeeper,
+		stakingKeeper,
 		bApp.MsgServiceRouter(),
-		govtypes.DefaultConfig(),
+		govConfig,
 		govModAddress,
-	)
-	appKeepers.GovKeeper = *govKeeper.SetHooks(
-		govtypes.NewMultiGovHooks(
-		// register governance hooks
-		),
 	)
 
 	appKeepers.NFTKeeper = nftkeeper.NewKeeper(keys[nftkeeper.StoreKey], appCodec, appKeepers.AccountKeeper, appKeepers.BankKeeper)
@@ -397,7 +398,7 @@ func NewAppKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.HooksICS4Wrapper,
 	)
 
 	// Create Transfer Keepers
@@ -450,7 +451,7 @@ func NewAppKeepers(
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
-		appCodec, appKeepers.keys[evidencetypes.StoreKey], appKeepers.StakingKeeper, appKeepers.SlashingKeeper,
+		appCodec, appKeepers.keys[evidencetypes.StoreKey], stakingKeeper, appKeepers.SlashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	appKeepers.EvidenceKeeper = *evidenceKeeper
@@ -473,7 +474,7 @@ func NewAppKeepers(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,
-		appKeepers.StakingKeeper,
+		stakingKeeper,
 		govModAddress,
 	)
 
@@ -521,12 +522,16 @@ func NewAppKeepers(
 		})
 	wasmOpts = append(wasmOpts, querierOpts)
 
+	junoBurnerPlugin := junoburn.NewBurnerPlugin(appKeepers.BankKeeper, appKeepers.MintKeeper)
+	burnOverride := wasmkeeper.WithMessageHandler(wasmkeeper.NewBurnCoinMessageHandler(junoBurnerPlugin))
+	wasmOpts = append(wasmOpts, burnOverride)
+
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[wasmtypes.StoreKey],
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
-		appKeepers.StakingKeeper,
+		stakingKeeper,
 		distrkeeper.NewQuerier(appKeepers.DistrKeeper),
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
@@ -542,8 +547,18 @@ func NewAppKeepers(
 		wasmOpts...,
 	)
 
+	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
+		appKeepers.keys[feepaytypes.StoreKey],
+		appCodec,
+		&appKeepers.BankKeeper,
+		appKeepers.WasmKeeper,
+		appKeepers.AccountKeeper,
+		bondDenom,
+		govModAddress,
+	)
+
 	// set the contract keeper for the Ics20WasmHooks
-	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
+	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(&appKeepers.WasmKeeper)
 	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
 
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
@@ -573,15 +588,38 @@ func NewAppKeepers(
 	appKeepers.ClockKeeper = clockkeeper.NewKeeper(
 		appKeepers.keys[clocktypes.StoreKey],
 		appCodec,
-		*appKeepers.ContractKeeper,
+		appKeepers.ContractKeeper,
 		govModAddress,
 	)
 
-	// register wasm gov proposal types
-	// The gov proposal types can be individually enabled
-	if len(enabledProposals) != 0 {
-		govRouter.AddRoute(wasmtypes.RouterKey, wasm.NewWasmProposalHandler(appKeepers.WasmKeeper, enabledProposals)) //nolint:staticcheck // we still need this despite the deprecation of the gov handler
-	}
+	appKeepers.CWHooksKeeper = cwhookskeeper.NewKeeper(
+		appKeepers.keys[cwhookstypes.StoreKey],
+		appCodec,
+		stakingKeeper,
+		*govKeeper,
+		appKeepers.WasmKeeper,
+		appKeepers.ContractKeeper,
+		govModAddress,
+	)
+
+	// register the staking hooks
+	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
+	// this must be at the end so CWHooksKeeper can use the contractKeeper
+	stakingKeeper.SetHooks(
+		stakingtypes.NewMultiStakingHooks(
+			appKeepers.DistrKeeper.Hooks(),
+			appKeepers.SlashingKeeper.Hooks(),
+			appKeepers.CWHooksKeeper.StakingHooks(),
+		),
+	)
+	appKeepers.StakingKeeper = stakingKeeper
+
+	appKeepers.GovKeeper = *govKeeper.SetHooks(
+		govtypes.NewMultiGovHooks(
+			appKeepers.CWHooksKeeper.GovHooks(),
+		),
+	)
+
 	// Set legacy router for backwards compatibility with gov v1beta1
 	appKeepers.GovKeeper.SetLegacyRouter(govRouter)
 
@@ -702,16 +740,12 @@ func BlockedAddresses() map[string]bool {
 
 	// allow the following addresses to receive funds
 	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	delete(modAccAddrs, authtypes.NewModuleAddress(feepaytypes.ModuleName).String())
 
 	return modAccAddrs
 }
 
 // GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {
-	dupMaccPerms := make(map[string][]string)
-	for k, v := range maccPerms {
-		dupMaccPerms[k] = v
-	}
-
-	return dupMaccPerms
+	return maccPerms
 }

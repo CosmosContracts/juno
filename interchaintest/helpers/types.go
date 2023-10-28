@@ -83,3 +83,13 @@ type ClockContractResponse struct {
 type ClockContractObj struct {
 	Val uint32 `json:"val"`
 }
+
+type GetCwHooksDelegationResponse struct {
+	// {"data":{"validator_address":"%s","delegator_address":"%s","shares":"%s"}}
+	Data *GetDelegationObj `json:"data"`
+}
+type GetDelegationObj struct {
+	ValidatorAddress string `json:"validator_address"`
+	DelegatorAddress string `json:"delegator_address"`
+	Shares           string `json:"shares"`
+}

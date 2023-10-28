@@ -63,18 +63,19 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v17/app/keepers"
-	"github.com/CosmosContracts/juno/v17/app/openapiconsole"
-	upgrades "github.com/CosmosContracts/juno/v17/app/upgrades"
-	v10 "github.com/CosmosContracts/juno/v17/app/upgrades/v10"
-	v11 "github.com/CosmosContracts/juno/v17/app/upgrades/v11"
-	v12 "github.com/CosmosContracts/juno/v17/app/upgrades/v12"
-	v13 "github.com/CosmosContracts/juno/v17/app/upgrades/v13"
-	v14 "github.com/CosmosContracts/juno/v17/app/upgrades/v14"
-	v15 "github.com/CosmosContracts/juno/v17/app/upgrades/v15"
-	v16 "github.com/CosmosContracts/juno/v17/app/upgrades/v16"
-	v17 "github.com/CosmosContracts/juno/v17/app/upgrades/v17"
-	"github.com/CosmosContracts/juno/v17/docs"
+	"github.com/CosmosContracts/juno/v18/app/keepers"
+	"github.com/CosmosContracts/juno/v18/app/openapiconsole"
+	upgrades "github.com/CosmosContracts/juno/v18/app/upgrades"
+	v10 "github.com/CosmosContracts/juno/v18/app/upgrades/v10"
+	v11 "github.com/CosmosContracts/juno/v18/app/upgrades/v11"
+	v12 "github.com/CosmosContracts/juno/v18/app/upgrades/v12"
+	v13 "github.com/CosmosContracts/juno/v18/app/upgrades/v13"
+	v14 "github.com/CosmosContracts/juno/v18/app/upgrades/v14"
+	v15 "github.com/CosmosContracts/juno/v18/app/upgrades/v15"
+	v16 "github.com/CosmosContracts/juno/v18/app/upgrades/v16"
+	v17 "github.com/CosmosContracts/juno/v18/app/upgrades/v17"
+	v18 "github.com/CosmosContracts/juno/v18/app/upgrades/v18"
+	"github.com/CosmosContracts/juno/v18/docs"
 )
 
 const (
@@ -95,7 +96,17 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v15.Upgrade, v16.Upgrade, v17.Upgrade}
+	Upgrades = []upgrades.Upgrade{
+		v10.Upgrade,
+		v11.Upgrade,
+		v12.Upgrade,
+		v13.Upgrade,
+		v14.Upgrade,
+		v15.Upgrade,
+		v16.Upgrade,
+		v17.Upgrade,
+		v18.Upgrade,
+	}
 )
 
 // These constants are derived from the above variables.
@@ -148,23 +159,6 @@ func SetAddressPrefixes() {
 
 		return nil
 	})
-}
-
-// GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
-// produce a list of enabled proposals to pass into wasmd app.
-func GetEnabledProposals() []wasmtypes.ProposalType {
-	if EnableSpecificProposals == "" {
-		if ProposalsEnabled == "true" {
-			return wasmtypes.EnableAllProposals
-		}
-		return wasmtypes.DisableAllProposals
-	}
-	chunks := strings.Split(EnableSpecificProposals, ",")
-	proposals, err := wasmtypes.ConvertToProposals(chunks)
-	if err != nil {
-		panic(err)
-	}
-	return proposals
 }
 
 func GetWasmOpts(appOpts servertypes.AppOptions) []wasmkeeper.Option {
@@ -229,7 +223,6 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	enabledProposals []wasmtypes.ProposalType,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
@@ -262,9 +255,9 @@ func New(
 		bApp,
 		legacyAmino,
 		keepers.GetMaccPerms(),
-		enabledProposals,
 		appOpts,
 		wasmOpts,
+		app.GetChainBondDenom(),
 	)
 	app.keys = app.AppKeepers.GetKVStoreKey()
 
@@ -352,8 +345,9 @@ func New(
 
 			GovKeeper:         app.AppKeepers.GovKeeper,
 			IBCKeeper:         app.AppKeepers.IBCKeeper,
+			FeePayKeeper:      app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:    app.AppKeepers.FeeShareKeeper,
-			BankKeeperFork:    app.AppKeepers.BankKeeper, // since we need extra methods
+			BankKeeper:        app.AppKeepers.BankKeeper,
 			TxCounterStoreKey: app.AppKeepers.GetKey(wasmtypes.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
@@ -365,6 +359,7 @@ func New(
 			TxEncoder:     app.txConfig.TxEncoder(),
 			BuilderKeeper: app.AppKeepers.BuildKeeper,
 			Mempool:       mempool,
+			BondDenom:     app.GetChainBondDenom(),
 		},
 	)
 	if err != nil {
@@ -477,7 +472,10 @@ func GetDefaultBypassFeeMessages() []string {
 		// IBC
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgCreateClient{}),
 		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgSubmitMisbehaviour{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgUpgradeClient{}),
 		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeout{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeoutOnClose{}),
