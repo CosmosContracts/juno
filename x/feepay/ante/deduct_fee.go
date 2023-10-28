@@ -114,12 +114,12 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		return sdkerrors.ErrUnknownAddress.Wrapf("fee payer address: %s does not exist", deductFeesFrom)
 	}
 
-	if feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, sdkTx, fee) {
+	if fee.IsZero() && feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, sdkTx, fee) {
 		err := dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
 		if err != nil {
 			return err
 		}
-	} else if !fee.IsZero() {
+	} else {
 		// Std sdk route
 		err := DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 		if err != nil {
