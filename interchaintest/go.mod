@@ -24,7 +24,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.47.5
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.3.1
-	github.com/docker/docker v24.0.5+incompatible
+	github.com/docker/docker v24.0.7+incompatible
 	// github.com/skip-mev/pob/tests/integration v0.1.0
 	github.com/strangelove-ventures/interchaintest/v7 v7.0.0-20231018200122-b988aa9a3a4b
 	github.com/stretchr/testify v1.8.4
