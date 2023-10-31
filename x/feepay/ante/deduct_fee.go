@@ -36,9 +36,10 @@ type DeductFeeDecorator struct {
 	bankKeeper      bankkeeper.Keeper
 	feegrantKeeper  ante.FeegrantKeeper
 	bondDenom       string
+	isFeePayTx      *bool
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, bondDenom string) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, bondDenom string, isFeePayTx *bool) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		feepayKeeper:    fpk,
 		globalfeeKeeper: gfk,
@@ -46,10 +47,12 @@ func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, 
 		bankKeeper:      bk,
 		feegrantKeeper:  fgk,
 		bondDenom:       bondDenom,
+		isFeePayTx:      isFeePayTx,
 	}
 }
 
 func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
@@ -63,6 +66,9 @@ func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 		priority int64
 		err      error
 	)
+
+	// Reset the isFeePay flag on each tx
+	*dfd.isFeePayTx = feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, feeTx)
 
 	fee := feeTx.GetFee()
 	if !simulate {
@@ -114,16 +120,33 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		return sdkerrors.ErrUnknownAddress.Wrapf("fee payer address: %s does not exist", deductFeesFrom)
 	}
 
-	if feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, sdkTx, fee) {
-		err := dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
-		if err != nil {
-			return err
+	// Define errors per route
+	var feePayErr error = nil
+	var sdkErr error = nil
+
+	// First try to handle FeePay transactions, if error, try the std sdk route.
+	// If not a FeePay transaction, default to the std sdk route.
+	if *dfd.isFeePayTx {
+		// If the fee pay route fails, try the std sdk route
+		if feePayErr = dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee); feePayErr != nil {
+
+			// Flag the tx to be processed by GlobalFee
+			*dfd.isFeePayTx = false
+
+			sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 		}
 	} else {
 		// Std sdk route
-		err := DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
-		if err != nil {
-			return err
+		sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
+	}
+
+	// If no fee pay error exists, the tx processed successfully. If
+	// a sdk error is present, return all errors.
+	if sdkErr != nil {
+		if feePayErr != nil {
+			return errorsmod.Wrapf(feepaytypes.ErrDeductFees, "error deducting fees; fee pay error: %s, sdk error: %s", feePayErr, sdkErr)
+		} else {
+			return sdkErr
 		}
 	}
 
@@ -225,7 +248,7 @@ func (dfd DeductFeeDecorator) checkTxFeeWithValidatorMinGasPrices(ctx sdk.Contex
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
-	if ctx.IsCheckTx() && !feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, tx, feeTx.GetFee()) {
+	if ctx.IsCheckTx() && !*dfd.isFeePayTx {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
 			requiredFees := make(sdk.Coins, len(minGasPrices))
