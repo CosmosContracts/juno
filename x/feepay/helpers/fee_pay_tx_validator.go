@@ -22,10 +22,8 @@ func IsValidFeePayTransaction(ctx sdk.Context, feePayKeeper feepaykeeper.Keeper,
 
 	// Check if fee is zero, and tx has only 1 message for executing a contract
 	if isEnabled && feeTx.GetFee().IsZero() && len(feeTx.GetMsgs()) == 1 {
-
 		// Check if the message is a CW contract execution
 		if cw, ok := (feeTx.GetMsgs()[0]).(*wasmtypes.MsgExecuteContract); ok {
-
 			// Check if the contract is registered
 			if _, err := feePayKeeper.GetContract(ctx, cw.Contract); err == nil {
 				isValid = true

@@ -52,7 +52,6 @@ func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, 
 }
 
 func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
-
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
@@ -121,15 +120,16 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	}
 
 	// Define errors per route
-	var feePayErr error = nil
-	var sdkErr error = nil
+	var feePayErr error
+	var sdkErr error
 
 	// First try to handle FeePay transactions, if error, try the std sdk route.
 	// If not a FeePay transaction, default to the std sdk route.
 	if *dfd.isFeePayTx {
-		// If the fee pay route fails, try the std sdk route
-		if feePayErr = dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee); feePayErr != nil {
 
+		// If the fee pay route fails, try the std sdk route
+		feePayErr = dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
+		if feePayErr != nil {
 			// Flag the tx to be processed by GlobalFee
 			*dfd.isFeePayTx = false
 
@@ -145,9 +145,8 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	if sdkErr != nil {
 		if feePayErr != nil {
 			return errorsmod.Wrapf(feepaytypes.ErrDeductFees, "error deducting fees; fee pay error: %s, sdk error: %s", feePayErr, sdkErr)
-		} else {
-			return sdkErr
 		}
+		return sdkErr
 	}
 
 	events := sdk.Events{
