@@ -5,10 +5,11 @@ import (
 	"strconv"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
@@ -97,6 +98,57 @@ func TestJunoFeePay(t *testing.T) {
 	uses := helpers.GetFeePayUses(t, ctx, juno, contractAddr, user.FormattedAddress())
 	t.Log("uses", uses)
 	require.Equal(t, uses.Uses, "1")
+
+	// Instantiate a new contract
+	contractAddr, err = juno.InstantiateContract(ctx, admin.KeyName(), codeId, `{"count":0}`, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Test a contract that is uploaded and not registered - with fees
+	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "500"+nativeDenom)
+	require.NoError(t, err)
+	fmt.Println("txHash", txHash)
+
+	// Fail - Test a contract that is uploaded and not registered - without fees
+	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
+	require.Error(t, err)
+	fmt.Println("txHash", txHash)
+
+	// Register the new contract with a limit of 1, fund contract
+	helpers.RegisterFeePay(t, ctx, juno, admin, contractAddr, 1)
+	helpers.FundFeePayContract(t, ctx, juno, admin, contractAddr, strconv.Itoa(balance)+nativeDenom)
+
+	// Test the registered contract - with fees
+	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "500"+nativeDenom)
+	require.NoError(t, err)
+	fmt.Println("txHash", txHash)
+
+	// Before balance - should be the same as after balance (feepay covers fee)
+	beforeBal, err = juno.GetBalance(ctx, user.FormattedAddress(), nativeDenom)
+	require.NoError(t, err)
+
+	// Test the registered contract - without providing fees
+	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
+	require.NoError(t, err)
+	fmt.Println("txHash", txHash)
+
+	// After balance
+	afterBal, err = juno.GetBalance(ctx, user.FormattedAddress(), nativeDenom)
+	require.NoError(t, err)
+
+	// Validate users balance did not change
+	require.Equal(t, beforeBal, afterBal)
+
+	// Fail - Test the registered contract - without fees, exceeded wallet limit
+	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
+	require.Error(t, err)
+	fmt.Println("txHash", txHash)
+
+	// Test the registered contract - without fees, but specified gas
+	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--gas", "200000")
+	require.NoError(t, err)
+	fmt.Println("txHash", txHash)
 
 	t.Cleanup(func() {
 		_ = ic.Close()
