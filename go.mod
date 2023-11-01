@@ -12,7 +12,7 @@ require (
 	cosmossdk.io/math v1.1.2
 	cosmossdk.io/tools/rosetta v0.2.1
 	github.com/CosmWasm/wasmd v0.43.0
-	github.com/CosmWasm/wasmvm v1.4.1
+	github.com/CosmWasm/wasmvm v1.5.0
 	github.com/cometbft/cometbft v0.37.2
 	github.com/cometbft/cometbft-db v0.8.0
 	github.com/cosmos/cosmos-sdk v0.47.5
