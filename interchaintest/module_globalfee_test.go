@@ -51,8 +51,7 @@ func TestJunoGlobalFee(t *testing.T) {
 
 	// fail: send 1 token to the receiver, no fee provided.
 	std := bankSendWithFees(t, ctx, juno, sender, receiver, "1"+nativeDenom, "0"+nativeDenom, 200000)
-	// require.Contains(t, std, "no fees were specified")
-	require.Contains(t, std, "insufficient fees")
+	require.Contains(t, std, "no fees were specified")
 
 	// fail: not enough fees
 	std = bankSendWithFees(t, ctx, juno, sender, receiver, "1"+nativeDenom, "1"+nativeDenom, 200000)
@@ -60,8 +59,7 @@ func TestJunoGlobalFee(t *testing.T) {
 
 	// fail: wrong fee token
 	std = bankSendWithFees(t, ctx, juno, sender, receiver, "1"+nativeDenom, "1NOTATOKEN", 200000)
-	// require.Contains(t, std, "fee denom is not accepted")
-	require.Contains(t, std, "insufficient fees")
+	require.Contains(t, std, "fee denom is not accepted")
 
 	// success: send with enough fee (200k gas * 0.003 = 600)
 	std = bankSendWithFees(t, ctx, juno, sender, receiver, "2"+nativeDenom, "600"+nativeDenom, 200000)

@@ -141,6 +141,7 @@ func TestJunoFeePay(t *testing.T) {
 	require.Equal(t, beforeBal, afterBal)
 
 	// Fail - Test the registered contract - without fees, exceeded wallet limit
+	// Test the fallback sdk route is triggered when the FeePay Tx fails
 	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
 	require.Error(t, err)
 	fmt.Println("txHash", txHash)

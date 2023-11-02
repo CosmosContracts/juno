@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	feepayhelpers "github.com/CosmosContracts/juno/v18/x/feepay/helpers"
 	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
 	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
 	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
@@ -37,9 +36,10 @@ type DeductFeeDecorator struct {
 	feegrantKeeper  ante.FeegrantKeeper
 	bondDenom       string
 	isFeePayTx      *bool
+	runGlobalFee    *bool
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, bondDenom string, isFeePayTx *bool) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, bondDenom string, isFeePayTx *bool, runGlobalFee *bool) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		feepayKeeper:    fpk,
 		globalfeeKeeper: gfk,
@@ -48,6 +48,7 @@ func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, 
 		feegrantKeeper:  fgk,
 		bondDenom:       bondDenom,
 		isFeePayTx:      isFeePayTx,
+		runGlobalFee:    runGlobalFee,
 	}
 }
 
@@ -65,9 +66,6 @@ func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 		priority int64
 		err      error
 	)
-
-	// Reset the isFeePay flag on each tx
-	*dfd.isFeePayTx = feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, feeTx)
 
 	fee := feeTx.GetFee()
 	if !simulate {
@@ -126,16 +124,18 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	// First try to handle FeePay transactions, if error, try the std sdk route.
 	// If not a FeePay transaction, default to the std sdk route.
 	if *dfd.isFeePayTx {
-
 		// If the fee pay route fails, try the std sdk route
 		feePayErr = dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
 		if feePayErr != nil {
 			// Flag the tx to be processed by GlobalFee
 			*dfd.isFeePayTx = false
 
+			// call GlobalFee handler here
 			sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
+			*dfd.runGlobalFee = true
 		}
-	} else {
+		// caught in globalfee
+	} else if !fee.IsZero() {
 		// Std sdk route
 		sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 	}
