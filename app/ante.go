@@ -80,9 +80,14 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 
 	// Flag for determining if the tx is a FeePay transaction. This flag
-	// is used to communicate between the FeePay Ante and the Global Fee ante.
+	// is used to communicate between the FeePay decorator and the GlobalFee decorator.
 	isFeePayTx := false
-	runGlobalFee := false
+
+	// Define FeePay and Global Fee decorators. These decorators are called in different orders based on the type of
+	// transaction. The FeePay decorator is called first for FeePay transactions, and the GlobalFee decorator is called
+	// first for all other transactions. See the FeeRouteDecorator for more details.
+	fpd := feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.GlobalFeeKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.BondDenom, &isFeePayTx)
+	gfd := globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage, &isFeePayTx)
 
 	anteDecorators := []sdk.AnteDecorator{
 		// GLobalFee query params for minimum fee
@@ -96,10 +101,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 
-		feepayante.NewIsFeePayTxDecorator(options.FeePayKeeper, &isFeePayTx),
-		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage, &isFeePayTx, &runGlobalFee),
-		feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.GlobalFeeKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.BondDenom, &isFeePayTx, &runGlobalFee),
-		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage, &isFeePayTx, &runGlobalFee),
+		// Fee route decorator calls FeePay and Global Fee decorators in different orders
+		// depending on the type of incoming tx.
+		feepayante.NewFeeRouteDecorator(options.FeePayKeeper, &fpd, &gfd, &isFeePayTx),
 
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators

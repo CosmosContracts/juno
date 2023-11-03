@@ -105,12 +105,12 @@ func TestJunoFeePay(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Test a contract that is uploaded and not registered - with fees
+	// Succeed - Test a regular CW contract with fees, regular sdk logic handles Tx
 	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "500"+nativeDenom)
 	require.NoError(t, err)
 	fmt.Println("txHash", txHash)
 
-	// Fail - Test a contract that is uploaded and not registered - without fees
+	// Fail - Testing an unregistered contract with no fees, FeePay Tx logic will fail it due to not being registered
 	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
 	require.Error(t, err)
 	fmt.Println("txHash", txHash)
@@ -120,15 +120,18 @@ func TestJunoFeePay(t *testing.T) {
 	helpers.FundFeePayContract(t, ctx, juno, admin, contractAddr, strconv.Itoa(balance)+nativeDenom)
 
 	// Test the registered contract - with fees
+	// Will succeed, routed through normal sdk because a fee was provided
 	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "500"+nativeDenom)
 	require.NoError(t, err)
 	fmt.Println("txHash", txHash)
 
 	// Before balance - should be the same as after balance (feepay covers fee)
+	// Calculated before interacting with a registered contract to ensure the
+	// contract covers the fee.
 	beforeBal, err = juno.GetBalance(ctx, user.FormattedAddress(), nativeDenom)
 	require.NoError(t, err)
 
-	// Test the registered contract - without providing fees
+	// Test the registered FeePay contract - without providing fees
 	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
 	require.NoError(t, err)
 	fmt.Println("txHash", txHash)
@@ -140,13 +143,14 @@ func TestJunoFeePay(t *testing.T) {
 	// Validate users balance did not change
 	require.Equal(t, beforeBal, afterBal)
 
-	// Fail - Test the registered contract - without fees, exceeded wallet limit
 	// Test the fallback sdk route is triggered when the FeePay Tx fails
+	// Fail - Test the registered contract - without fees, exceeded wallet limit
 	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
 	require.Error(t, err)
 	fmt.Println("txHash", txHash)
 
 	// Test the registered contract - without fees, but specified gas
+	// Tx should succeed, because it uses the sdk fallback route
 	txHash, err = juno.ExecuteContract(ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--gas", "200000")
 	require.NoError(t, err)
 	fmt.Println("txHash", txHash)

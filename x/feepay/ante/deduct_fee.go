@@ -36,10 +36,9 @@ type DeductFeeDecorator struct {
 	feegrantKeeper  ante.FeegrantKeeper
 	bondDenom       string
 	isFeePayTx      *bool
-	runGlobalFee    *bool
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, bondDenom string, isFeePayTx *bool, runGlobalFee *bool) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, bondDenom string, isFeePayTx *bool) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		feepayKeeper:    fpk,
 		globalfeeKeeper: gfk,
@@ -48,7 +47,6 @@ func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, 
 		feegrantKeeper:  fgk,
 		bondDenom:       bondDenom,
 		isFeePayTx:      isFeePayTx,
-		runGlobalFee:    runGlobalFee,
 	}
 }
 
@@ -132,7 +130,6 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 
 			// call GlobalFee handler here
 			sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
-			*dfd.runGlobalFee = true
 		}
 		// caught in globalfee
 	} else if !fee.IsZero() {

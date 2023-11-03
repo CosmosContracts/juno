@@ -33,17 +33,15 @@ type FeeDecorator struct {
 	StakingKeeper                   stakingkeeper.Keeper
 	MaxTotalBypassMinFeeMsgGasUsage uint64
 	IsFeePayTx                      *bool
-	RunGlobalFee                    *bool
 }
 
-func NewFeeDecorator(bypassMsgTypes []string, gfk globalfeekeeper.Keeper, sk stakingkeeper.Keeper, maxTotalBypassMinFeeMsgGasUsage uint64, isFeePayTx *bool, runGlobalFee *bool) FeeDecorator {
+func NewFeeDecorator(bypassMsgTypes []string, gfk globalfeekeeper.Keeper, sk stakingkeeper.Keeper, maxTotalBypassMinFeeMsgGasUsage uint64, isFeePayTx *bool) FeeDecorator {
 	return FeeDecorator{
 		BypassMinFeeMsgTypes:            bypassMsgTypes,
 		GlobalFeeKeeper:                 gfk,
 		StakingKeeper:                   sk,
 		MaxTotalBypassMinFeeMsgGasUsage: maxTotalBypassMinFeeMsgGasUsage,
 		IsFeePayTx:                      isFeePayTx,
-		RunGlobalFee:                    runGlobalFee,
 	}
 }
 
@@ -55,11 +53,9 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// Call next handler if the execution mode is CheckTx, simulation, or if the tx is a fee pay tx
-	if !ctx.IsCheckTx() || simulate || (*mfd.IsFeePayTx && !*mfd.RunGlobalFee) {
+	if !ctx.IsCheckTx() || simulate || *mfd.IsFeePayTx {
 		return next(ctx, tx, simulate)
 	}
-
-	*mfd.RunGlobalFee = false
 
 	// Sort fee tx's coins, zero coins in feeCoins are already removed
 	feeCoins := feeTx.GetFee().Sort()
