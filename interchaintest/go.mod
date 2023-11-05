@@ -2,7 +2,7 @@ module github.com/CosmosContracts/juno/tests/interchaintest
 
 go 1.21
 
-toolchain go1.21.0
+// toolchain go1.21.0
 
 replace (
 	// interchaintest supports ICS features so we need this for now

@@ -19,4 +19,5 @@ var (
 	ErrInvalidJunoFundAmount     = errorsmod.Register(ModuleName, 9, "fee pay contracts only accept juno funds")
 	ErrInvalidCWContract         = errorsmod.Register(ModuleName, 10, "invalid CosmWasm contract")
 	ErrFeePayDisabled            = errorsmod.Register(ModuleName, 11, "the FeePay module is disabled")
+	ErrDeductFees                = errorsmod.Register(ModuleName, 12, "error deducting fees")
 )
