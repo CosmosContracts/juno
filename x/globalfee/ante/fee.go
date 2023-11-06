@@ -11,8 +11,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	feepayhelpers "github.com/CosmosContracts/juno/v18/x/feepay/helpers"
-	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
 	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
 )
 
@@ -33,17 +31,17 @@ type FeeDecorator struct {
 	BypassMinFeeMsgTypes            []string
 	GlobalFeeKeeper                 globalfeekeeper.Keeper
 	StakingKeeper                   stakingkeeper.Keeper
-	FeePayKeeper                    feepaykeeper.Keeper
 	MaxTotalBypassMinFeeMsgGasUsage uint64
+	IsFeePayTx                      *bool
 }
 
-func NewFeeDecorator(bypassMsgTypes []string, gfk globalfeekeeper.Keeper, sk stakingkeeper.Keeper, fpk feepaykeeper.Keeper, maxTotalBypassMinFeeMsgGasUsage uint64) FeeDecorator {
+func NewFeeDecorator(bypassMsgTypes []string, gfk globalfeekeeper.Keeper, sk stakingkeeper.Keeper, maxTotalBypassMinFeeMsgGasUsage uint64, isFeePayTx *bool) FeeDecorator {
 	return FeeDecorator{
 		BypassMinFeeMsgTypes:            bypassMsgTypes,
 		GlobalFeeKeeper:                 gfk,
 		StakingKeeper:                   sk,
-		FeePayKeeper:                    fpk,
 		MaxTotalBypassMinFeeMsgGasUsage: maxTotalBypassMinFeeMsgGasUsage,
+		IsFeePayTx:                      isFeePayTx,
 	}
 }
 
@@ -54,11 +52,8 @@ func (mfd FeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must implement the sdk.FeeTx interface")
 	}
 
-	// Check if the tx is a FeePay transaction
-	isValidFeePayTx := feepayhelpers.IsValidFeePayTransaction(ctx, mfd.FeePayKeeper, tx, feeTx.GetFee())
-
-	// Only check for minimum fees and global fee if the execution mode is CheckTx
-	if !ctx.IsCheckTx() || simulate || isValidFeePayTx {
+	// Call next handler if the execution mode is CheckTx, simulation, or if the tx is a fee pay tx
+	if !ctx.IsCheckTx() || simulate || *mfd.IsFeePayTx {
 		return next(ctx, tx, simulate)
 	}
 
