@@ -1,6 +1,7 @@
 package decorators_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -55,48 +56,24 @@ func TestAnteTestSuite(t *testing.T) {
 
 func (s *AnteTestSuite) TestAnteCreateValidator() {
 
-	testCases := []struct {
-		name          string
-		maxChangeRate string
-		expPass       bool
-	}{
-		{
-			name:          "success - maxChangeRate < 5%",
-			maxChangeRate: "0.01",
-			expPass:       true,
-		},
-		{
-			name:          "success - maxChangeRate = 5%",
-			maxChangeRate: "0.05",
-			expPass:       true,
-		},
-		{
-			name:          "fail - maxChangeRate > 5%",
-			maxChangeRate: "0.06",
-			expPass:       false,
-		},
-		{
-			name:          "fail - maxChangeRate = 5.1%",
-			maxChangeRate: "0.051",
-			expPass:       false,
-		},
-	}
+	// Loop through all possible change rates
+	for i := 0; i <= 100; i++ {
 
-	for _, tc := range testCases {
-		tc := tc
+		// Calculate change rate
+		maxChangeRate := getChangeRate(i)
 
 		// Create change rate decorator
 		ante := decorators.NewChangeRateDecorator(s.stakingKeeper)
 
 		// Create validator params
-		_, msg, err := createValidatorMsg(tc.maxChangeRate)
+		_, msg, err := createValidatorMsg(maxChangeRate)
 		s.Require().NoError(err)
 
 		// Submit the creation tx
 		_, err = ante.AnteHandle(s.ctx, NewMockTx(msg), false, EmptyAnte)
 
 		// Check if the error is expected
-		if tc.expPass {
+		if i <= 5 {
 			s.Require().NoError(err)
 		} else {
 			s.Require().Error(err)
@@ -106,36 +83,11 @@ func (s *AnteTestSuite) TestAnteCreateValidator() {
 }
 
 func (s *AnteTestSuite) TestAnteEditValidator() {
+	// Loop through all possible change rates
+	for i := 0; i <= 100; i++ {
 
-	testCases := []struct {
-		name          string
-		maxChangeRate string
-		expPass       bool
-	}{
-		{
-			name:          "success - maxChangeRate < 5%",
-			maxChangeRate: "0.01",
-			expPass:       true,
-		},
-		{
-			name:          "success - maxChangeRate = 5%",
-			maxChangeRate: "0.05",
-			expPass:       true,
-		},
-		{
-			name:          "fail - maxChangeRate > 5%",
-			maxChangeRate: "0.06",
-			expPass:       false,
-		},
-		{
-			name:          "fail - maxChangeRate = 5.1%",
-			maxChangeRate: "0.051",
-			expPass:       false,
-		},
-	}
-
-	for _, tc := range testCases {
-		tc := tc
+		// Calculate change rate
+		maxChangeRate := getChangeRate(i)
 
 		// Create change rate decorator
 		ante := decorators.NewChangeRateDecorator(s.stakingKeeper)
@@ -163,7 +115,7 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 		// Edit validator params
 		valAddr := sdk.ValAddress(valPub.Address())
 		description := stakingtypes.NewDescription("test_moniker", "", "", "", "")
-		newRate := math.LegacyMustNewDecFromStr(tc.maxChangeRate)
+		newRate := math.LegacyMustNewDecFromStr(maxChangeRate)
 		minDelegation := sdk.OneInt()
 
 		// Edit existing validator msg
@@ -178,13 +130,27 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 		_, err = ante.AnteHandle(s.ctx, NewMockTx(editMsg), false, EmptyAnte)
 
 		// Check if the error is expected
-		if tc.expPass {
+		if i <= 5 {
 			s.Require().NoError(err)
 		} else {
 			s.Require().Error(err)
 			s.Require().Contains(err.Error(), "commission rate cannot change by more than")
 		}
 	}
+}
+
+// Convert an integer to a percentage, formatted as a string
+// Example: 5 -> "0.05", 10 -> "0.1"
+func getChangeRate(i int) string {
+	maxChangeRate := "0."
+
+	if i < 10 {
+		maxChangeRate += fmt.Sprint("0", i)
+	} else {
+		maxChangeRate += fmt.Sprint(i)
+	}
+
+	return maxChangeRate
 }
 
 // A helper function for getting a validator create msg
