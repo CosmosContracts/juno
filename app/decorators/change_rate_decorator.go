@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -19,13 +18,12 @@ const (
 // MsgChangeRateDecorator defines the AnteHandler that filters & prevents messages
 // that create validators and exceed the max change rate of 5%.
 type MsgChangeRateDecorator struct {
-	sk                      stakingkeeper.Keeper
-	cdc                     codec.BinaryCodec
+	sk                      *stakingkeeper.Keeper
 	maxCommissionChangeRate sdk.Dec
 }
 
 // Create new Change Rate Decorator
-func NewChangeRateDecorator(sk stakingkeeper.Keeper, cdc codec.BinaryCodec) MsgChangeRateDecorator {
+func NewChangeRateDecorator(sk *stakingkeeper.Keeper) MsgChangeRateDecorator {
 
 	rate, err := sdk.NewDecFromStr(MaxChangeRate)
 	if err != nil {
@@ -34,7 +32,6 @@ func NewChangeRateDecorator(sk stakingkeeper.Keeper, cdc codec.BinaryCodec) MsgC
 
 	return MsgChangeRateDecorator{
 		sk:                      sk,
-		cdc:                     cdc,
 		maxCommissionChangeRate: rate,
 	}
 }
@@ -42,8 +39,6 @@ func NewChangeRateDecorator(sk stakingkeeper.Keeper, cdc codec.BinaryCodec) MsgC
 // The AnteHandle checks for transactions that exceed the max change rate of 5% on the
 // creation of a validator.
 func (mcr MsgChangeRateDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
-
-	ctx.Logger().Error("MsgChangeRateDecorator", "Called", true)
 
 	err := mcr.hasInvalidCommissionRateMsgs(ctx, tx.GetMsgs())
 	if err != nil {

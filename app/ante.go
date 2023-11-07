@@ -96,7 +96,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		decorators.MsgFilterDecorator{},
-		decorators.NewChangeRateDecorator(options.StakingKeeper, options.Cdc),
+		decorators.NewChangeRateDecorator(&options.StakingKeeper),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
