@@ -5,21 +5,22 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
-	"github.com/CosmosContracts/juno/v18/app"
 	"github.com/stretchr/testify/suite"
-
-	decorators "github.com/CosmosContracts/juno/v18/app/decorators"
-	appparams "github.com/CosmosContracts/juno/v18/app/params"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	protov2 "google.golang.org/protobuf/proto"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 
+	"cosmossdk.io/math"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	protov2 "google.golang.org/protobuf/proto"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/CosmosContracts/juno/v18/app"
+	decorators "github.com/CosmosContracts/juno/v18/app/decorators"
+	appparams "github.com/CosmosContracts/juno/v18/app/params"
 )
 
 // Define an empty ante handle
@@ -55,7 +56,6 @@ func TestAnteTestSuite(t *testing.T) {
 }
 
 func (s *AnteTestSuite) TestAnteCreateValidator() {
-
 	// Loop through all possible change rates
 	for i := 0; i <= 100; i++ {
 
@@ -180,12 +180,6 @@ func createValidatorMsg(maxChangeRate string) (cryptotypes.PubKey, *stakingtypes
 
 	// Return generated pub address, creation msg, and err
 	return valPub, msg, err
-}
-
-func setBlockHeader(ctx sdk.Context, height uint64) sdk.Context {
-	h := ctx.BlockHeader()
-	h.Height = int64(height)
-	return ctx.WithBlockHeader(h)
 }
 
 type MockTx struct {

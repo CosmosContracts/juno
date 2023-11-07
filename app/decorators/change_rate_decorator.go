@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -24,7 +23,6 @@ type MsgChangeRateDecorator struct {
 
 // Create new Change Rate Decorator
 func NewChangeRateDecorator(sk *stakingkeeper.Keeper) MsgChangeRateDecorator {
-
 	rate, err := sdk.NewDecFromStr(MaxChangeRate)
 	if err != nil {
 		panic(err)
@@ -39,7 +37,6 @@ func NewChangeRateDecorator(sk *stakingkeeper.Keeper) MsgChangeRateDecorator {
 // The AnteHandle checks for transactions that exceed the max change rate of 5% on the
 // creation of a validator.
 func (mcr MsgChangeRateDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
-
 	err := mcr.hasInvalidCommissionRateMsgs(ctx, tx.GetMsgs())
 	if err != nil {
 		return ctx, err
@@ -98,7 +95,6 @@ func (mcr MsgChangeRateDecorator) isInvalidCreateMessage(msg *stakingtypes.MsgCr
 
 // Check if the edit validator message is invalid
 func (mcr MsgChangeRateDecorator) isInvalidEditMessage(ctx sdk.Context, msg *stakingtypes.MsgEditValidator) error {
-
 	// Skip if the commission rate is not being modified
 	if msg.CommissionRate == nil {
 		return nil
