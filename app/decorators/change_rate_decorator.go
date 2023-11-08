@@ -51,8 +51,6 @@ func (mcr MsgChangeRateDecorator) hasInvalidCommissionRateMsgs(ctx sdk.Context, 
 		// Check if an authz message, loop through all inner messages, and recursively call this function
 		if execMsg, ok := msg.(*authz.MsgExec); ok {
 
-			ctx.Logger().Error("MsgChangeRateDecorator", "Authz", execMsg.Msgs)
-
 			msgs, err := execMsg.GetMessages()
 			if err != nil {
 				return err
