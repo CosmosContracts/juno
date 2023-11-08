@@ -1,7 +1,6 @@
 package decorators
 
 import (
-	"encoding/json"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -54,18 +53,13 @@ func (mcr MsgChangeRateDecorator) hasInvalidCommissionRateMsgs(ctx sdk.Context, 
 
 			ctx.Logger().Error("MsgChangeRateDecorator", "Authz", execMsg.Msgs)
 
-			// Unmarshal the inner messages
-			var msgs []sdk.Msg
-			for _, v := range execMsg.Msgs {
-				var innerMsg sdk.Msg
-				if err := json.Unmarshal(v.Value, &innerMsg); err != nil {
-					return fmt.Errorf("cannot unmarshal authz exec msgs")
-				}
-				msgs = append(msgs, innerMsg)
+			msgs, err := execMsg.GetMessages()
+			if err != nil {
+				return err
 			}
 
 			// Recursively call this function with the inner messages
-			err := mcr.hasInvalidCommissionRateMsgs(ctx, msgs)
+			err = mcr.hasInvalidCommissionRateMsgs(ctx, msgs)
 			if err != nil {
 				return err
 			}
