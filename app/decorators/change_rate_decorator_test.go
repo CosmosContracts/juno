@@ -63,7 +63,7 @@ func (s *AnteTestSuite) TestAnteCreateValidator() {
 	grantee := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
 
 	// Loop through all possible change rates
-	for i := 0; i <= 0; i++ {
+	for i := 0; i <= 100; i++ {
 
 		// Calculate change rate
 		maxChangeRate := getChangeRate(i)
