@@ -4,23 +4,23 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/suite"
-
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	protov2 "google.golang.org/protobuf/proto"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/CosmosContracts/juno/v18/app"
-	ante "github.com/CosmosContracts/juno/v18/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+
+	"github.com/CosmosContracts/juno/v18/app"
+	ante "github.com/CosmosContracts/juno/v18/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
 )
 
 // Define an empty ante handle
@@ -237,7 +237,8 @@ type MockTx struct {
 
 func NewMockTx(feePayer sdk.AccAddress, msgs ...sdk.Msg) MockTx {
 	return MockTx{
-		msgs: msgs,
+		feePayer: feePayer,
+		msgs:     msgs,
 	}
 }
 
