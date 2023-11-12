@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
@@ -137,8 +136,6 @@ func ExecuteAuthzExecMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	fmt.Println(string(res))
 
 	// Write output to file
 	err = node.WriteFile(ctx, res, filePath)
