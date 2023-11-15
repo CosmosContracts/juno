@@ -1,0 +1,21 @@
+syntax = "proto3";
+package juno.feepay.v1;
+
+import "juno/feepay/v1/feepay.proto";
+import "gogoproto/gogo.proto";
+option go_package = "github.com/CosmosContracts/juno/x/feepay/types";
+
+// GenesisState defines the module's genesis state.
+message GenesisState {
+  // params are the feepay module parameters
+  Params params = 1 [ (gogoproto.nullable) = false ];
+
+  // fee_pay_contracts are the feepay module contracts
+  repeated FeePayContract fee_pay_contracts = 2 [ (gogoproto.nullable) = false ];
+}
+
+// Params defines the feepay module params
+message Params {
+  // enable_feepay defines a parameter to enable the feepay module
+  bool enable_feepay = 1;
+}

@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/require"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -110,7 +109,6 @@ func TestFullAppSimulation(t *testing.T) {
 		db,
 		nil,
 		true,
-		wasmtypes.EnableAllProposals,
 		appOptions,
 		emptyWasmOption,
 		fauxMerkleModeOpt,

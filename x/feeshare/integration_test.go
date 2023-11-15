@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/require"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -79,7 +78,6 @@ func GenApp(t *testing.T, withGenesis bool, opts ...wasmkeeper.Option) (*junoapp
 		db,
 		nil,
 		true,
-		wasmtypes.EnableAllProposals,
 		simtestutil.EmptyAppOptions{},
 		opts,
 		bam.SetChainID("testing"),

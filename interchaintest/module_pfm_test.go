@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -51,22 +52,21 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 
 	// base config which all networks will use as defaults.
 	baseCfg := ibc.ChainConfig{
-		Type:                   "cosmos",
-		Name:                   "juno",
-		ChainID:                "", // change this for each
-		Images:                 []ibc.DockerImage{JunoImage},
-		Bin:                    "junod",
-		Bech32Prefix:           "juno",
-		Denom:                  "ujuno",
-		CoinType:               "118",
-		GasPrices:              "0ujuno",
-		GasAdjustment:          2.0,
-		TrustingPeriod:         "112h",
-		NoHostMount:            false,
-		ConfigFileOverrides:    nil,
-		EncodingConfig:         junoEncoding(),
-		UsingNewGenesisCommand: true,
-		ModifyGenesis:          cosmos.ModifyGenesis(defaultGenesisKV),
+		Type:                "cosmos",
+		Name:                "juno",
+		ChainID:             "", // change this for each
+		Images:              []ibc.DockerImage{JunoImage},
+		Bin:                 "junod",
+		Bech32Prefix:        "juno",
+		Denom:               "ujuno",
+		CoinType:            "118",
+		GasPrices:           "0ujuno",
+		GasAdjustment:       2.0,
+		TrustingPeriod:      "112h",
+		NoHostMount:         false,
+		ConfigFileOverrides: nil,
+		EncodingConfig:      junoEncoding(),
+		ModifyGenesis:       cosmos.ModifyGenesis(defaultGenesisKV),
 	}
 
 	// Set specific chain ids for each so they are their own unique networks
@@ -201,7 +201,7 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 	// Get original account balances
 	userA, userB, userC, userD := users[0], users[1], users[2], users[3]
 
-	const transferAmount int64 = 100000
+	var transferAmount math.Int = math.NewInt(100_000)
 
 	// Compose the prefixed denoms and ibc denom for asserting balances
 	firstHopDenom := transfertypes.GetPrefixedDenom(baChan.PortID, baChan.ChannelID, chainA.Config().Denom)
@@ -274,10 +274,10 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 		chainDBalance, err := chainD.GetBalance(ctx, userD.FormattedAddress(), thirdHopIBCDenom)
 		require.NoError(t, err)
 
-		require.Equal(t, userFunds-transferAmount, chainABalance)
-		require.Equal(t, int64(0), chainBBalance)
-		require.Equal(t, int64(0), chainCBalance)
-		require.Equal(t, transferAmount, chainDBalance)
+		require.Equal(t, userFunds-transferAmount.Int64(), chainABalance.Int64())
+		require.Equal(t, int64(0), chainBBalance.Int64())
+		require.Equal(t, int64(0), chainCBalance.Int64())
+		require.Equal(t, transferAmount.Int64(), chainDBalance.Int64())
 
 		firstHopEscrowBalance, err := chainA.GetBalance(ctx, firstHopEscrowAccount, chainA.Config().Denom)
 		require.NoError(t, err)
@@ -288,8 +288,8 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 		thirdHopEscrowBalance, err := chainC.GetBalance(ctx, thirdHopEscrowAccount, secondHopIBCDenom)
 		require.NoError(t, err)
 
-		require.Equal(t, transferAmount, firstHopEscrowBalance)
-		require.Equal(t, transferAmount, secondHopEscrowBalance)
-		require.Equal(t, transferAmount, thirdHopEscrowBalance)
+		require.Equal(t, transferAmount.Int64(), firstHopEscrowBalance.Int64())
+		require.Equal(t, transferAmount.Int64(), secondHopEscrowBalance.Int64())
+		require.Equal(t, transferAmount.Int64(), thirdHopEscrowBalance.Int64())
 	})
 }

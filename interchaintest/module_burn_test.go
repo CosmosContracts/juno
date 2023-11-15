@@ -52,7 +52,7 @@ func TestJunoBurnModule(t *testing.T) {
 
 	// Verify the funds were sent, and burned.
 	fmt.Println(balance, updatedBal)
-	assert.Equal(t, burnAmt, balance-updatedBal, fmt.Sprintf("balance should be %d less than updated balance", burnAmt))
+	assert.Equal(t, burnAmt, balance.Sub(updatedBal).Int64(), fmt.Sprintf("balance should be %d less than updated balance", burnAmt))
 
 	t.Cleanup(func() {
 		_ = ic.Close()

@@ -8,3 +8,4 @@ A list of the contracts here which are pre-compiled in other repos.
 > ibchooks_counter.wasm -> <https://github.com/osmosis-labs/osmosis/blob/64393a14e18b2562d72a3892eec716197a3716c7/tests/ibc-hooks/bytecode/counter.wasm>
 > cw_testburn.wasm -> <https://github.com/Reecepbcups/cw-testburn>
 > clock_example.wasm -> <https://github.com/Reecepbcups/cw-clock-example>
+> juno_staking_hooks_example.wasm -> <https://github.com/Reecepbcups/cw-juno-staking-hooks-example>

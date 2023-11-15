@@ -1,7 +1,7 @@
 package app
 
 import (
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 const (
@@ -12,14 +12,14 @@ const (
 )
 
 // JunoGasRegisterConfig is defaults plus a custom compile amount
-func JunoGasRegisterConfig() wasmkeeper.WasmGasRegisterConfig {
-	gasConfig := wasmkeeper.DefaultGasRegisterConfig()
+func JunoGasRegisterConfig() wasmtypes.WasmGasRegisterConfig {
+	gasConfig := wasmtypes.DefaultGasRegisterConfig()
 	gasConfig.InstanceCost = DefaultJunoInstanceCost
 	gasConfig.CompileCost = DefaultJunoCompileCost
 
 	return gasConfig
 }
 
-func NewJunoWasmGasRegister() wasmkeeper.WasmGasRegister {
-	return wasmkeeper.NewWasmGasRegister(JunoGasRegisterConfig())
+func NewJunoWasmGasRegister() wasmtypes.WasmGasRegister {
+	return wasmtypes.NewWasmGasRegister(JunoGasRegisterConfig())
 }

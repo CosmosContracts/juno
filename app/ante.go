@@ -16,10 +16,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	decorators "github.com/CosmosContracts/juno/v18/app/decorators"
+	feepayante "github.com/CosmosContracts/juno/v18/x/feepay/ante"
+	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
 	feeshareante "github.com/CosmosContracts/juno/v18/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
 	globalfeeante "github.com/CosmosContracts/juno/v18/x/globalfee/ante"
@@ -36,8 +39,9 @@ type HandlerOptions struct {
 
 	GovKeeper         govkeeper.Keeper
 	IBCKeeper         *ibckeeper.Keeper
+	FeePayKeeper      feepaykeeper.Keeper
 	FeeShareKeeper    feesharekeeper.Keeper
-	BankKeeperFork    feeshareante.BankKeeper
+	BankKeeper        bankkeeper.Keeper
 	TxCounterStoreKey storetypes.StoreKey
 	WasmConfig        wasmtypes.WasmConfig
 	Cdc               codec.BinaryCodec
@@ -50,6 +54,8 @@ type HandlerOptions struct {
 	BuilderKeeper builderkeeper.Keeper
 	TxEncoder     sdk.TxEncoder
 	Mempool       builderante.Mempool
+
+	BondDenom string
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -73,7 +79,18 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
 	}
 
+	// Flag for determining if the tx is a FeePay transaction. This flag
+	// is used to communicate between the FeePay decorator and the GlobalFee decorator.
+	isFeePayTx := false
+
+	// Define FeePay and Global Fee decorators. These decorators are called in different orders based on the type of
+	// transaction. The FeePay decorator is called first for FeePay transactions, and the GlobalFee decorator is called
+	// first for all other transactions. See the FeeRouteDecorator for more details.
+	fpd := feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.GlobalFeeKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.BondDenom, &isFeePayTx)
+	gfd := globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage, &isFeePayTx)
+
 	anteDecorators := []sdk.AnteDecorator{
+		// GLobalFee query params for minimum fee
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
@@ -83,9 +100,12 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
-		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeperFork, options.FeeShareKeeper),
+
+		// Fee route decorator calls FeePay and Global Fee decorators in different orders
+		// depending on the type of incoming tx.
+		feepayante.NewFeeRouteDecorator(options.FeePayKeeper, &fpd, &gfd, &isFeePayTx),
+
+		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

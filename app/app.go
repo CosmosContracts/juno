@@ -66,6 +66,7 @@ import (
 	"github.com/CosmosContracts/juno/v18/app/keepers"
 	"github.com/CosmosContracts/juno/v18/app/openapiconsole"
 	upgrades "github.com/CosmosContracts/juno/v18/app/upgrades"
+	testnetV18alpha2 "github.com/CosmosContracts/juno/v18/app/upgrades/testnet/v18.0.0-alpha.2"
 	v10 "github.com/CosmosContracts/juno/v18/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v18/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v18/app/upgrades/v12"
@@ -97,6 +98,9 @@ var (
 	EnableSpecificProposals = ""
 
 	Upgrades = []upgrades.Upgrade{
+		// testnet
+		testnetV18alpha2.Upgrade,
+
 		v10.Upgrade,
 		v11.Upgrade,
 		v12.Upgrade,
@@ -161,23 +165,6 @@ func SetAddressPrefixes() {
 	})
 }
 
-// GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
-// produce a list of enabled proposals to pass into wasmd app.
-func GetEnabledProposals() []wasmtypes.ProposalType {
-	if EnableSpecificProposals == "" {
-		if ProposalsEnabled == "true" {
-			return wasmtypes.EnableAllProposals
-		}
-		return wasmtypes.DisableAllProposals
-	}
-	chunks := strings.Split(EnableSpecificProposals, ",")
-	proposals, err := wasmtypes.ConvertToProposals(chunks)
-	if err != nil {
-		panic(err)
-	}
-	return proposals
-}
-
 func GetWasmOpts(appOpts servertypes.AppOptions) []wasmkeeper.Option {
 	var wasmOpts []wasmkeeper.Option
 	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
@@ -240,7 +227,6 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	enabledProposals []wasmtypes.ProposalType,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
@@ -273,9 +259,9 @@ func New(
 		bApp,
 		legacyAmino,
 		keepers.GetMaccPerms(),
-		enabledProposals,
 		appOpts,
 		wasmOpts,
+		app.GetChainBondDenom(),
 	)
 	app.keys = app.AppKeepers.GetKVStoreKey()
 
@@ -363,8 +349,9 @@ func New(
 
 			GovKeeper:         app.AppKeepers.GovKeeper,
 			IBCKeeper:         app.AppKeepers.IBCKeeper,
+			FeePayKeeper:      app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:    app.AppKeepers.FeeShareKeeper,
-			BankKeeperFork:    app.AppKeepers.BankKeeper, // since we need extra methods
+			BankKeeper:        app.AppKeepers.BankKeeper,
 			TxCounterStoreKey: app.AppKeepers.GetKey(wasmtypes.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
@@ -376,6 +363,7 @@ func New(
 			TxEncoder:     app.txConfig.TxEncoder(),
 			BuilderKeeper: app.AppKeepers.BuildKeeper,
 			Mempool:       mempool,
+			BondDenom:     app.GetChainBondDenom(),
 		},
 	)
 	if err != nil {
@@ -488,7 +476,10 @@ func GetDefaultBypassFeeMessages() []string {
 		// IBC
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgCreateClient{}),
 		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgSubmitMisbehaviour{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgUpgradeClient{}),
 		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeout{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeoutOnClose{}),

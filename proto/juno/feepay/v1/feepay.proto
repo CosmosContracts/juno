@@ -1,0 +1,26 @@
+syntax = "proto3";
+package juno.feepay.v1;
+
+option go_package = "github.com/CosmosContracts/juno/x/feepay/types";
+
+// This defines the address, balance, and wallet limit
+// of a fee pay contract.
+message FeePayContract {  
+  // The address of the contract.
+  string contract_address = 1;
+  // The ledger balance of the contract.
+  uint64 balance = 2;
+  // The number of times a wallet may interact with the contract.
+  uint64 wallet_limit = 3;
+}
+
+// This object is used to store the number of times a wallet has
+// interacted with a contract.
+message FeePayWalletUsage {
+  // The contract address.
+  string contract_address = 1;
+  // The wallet address.
+  string wallet_address = 2;
+  // The number of uses corresponding to a wallet.
+  uint64 uses = 3;
+}
