@@ -222,10 +222,10 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d h1:nalkkPQcITbvhmL4+C4cKA87NW0tfm3Kl9VXRoPywFg=
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d/go.mod h1:URdX5+vg25ts3aCh8H5IFZybJYKWhJHYMTnf+ULtoC4=
-github.com/CosmWasm/wasmd v0.43.0 h1:4xQAiNf6Ej+TuYe4PXwrtVJ9C+xyFrbsdqHH/kU9Vxk=
-github.com/CosmWasm/wasmd v0.43.0/go.mod h1:gpri8YvkRErBz+qDme5jOThGZmSlHfyN532bWibXOl4=
-github.com/CosmWasm/wasmvm v1.4.1 h1:YgodVlBrXa2HJZzOXjWDH0EIRwQzK3zuA73dDPRRLS4=
-github.com/CosmWasm/wasmvm v1.4.1/go.mod h1:fXB+m2gyh4v9839zlIXdMZGeLAxqUdYdFQqYsTha2hc=
+github.com/CosmWasm/wasmd v0.45.0 h1:9zBqrturKJwC2kVsfHvbrA++EN0PS7UTXCffCGbg6JI=
+github.com/CosmWasm/wasmd v0.45.0/go.mod h1:RnSAiqbNIZu4QhO+0pd7qGZgnYAMBPGmXpzTADag944=
+github.com/CosmWasm/wasmvm v1.5.0 h1:3hKeT9SfwfLhxTGKH3vXaKFzBz1yuvP8SlfwfQXbQfw=
+github.com/CosmWasm/wasmvm v1.5.0/go.mod h1:fXB+m2gyh4v9839zlIXdMZGeLAxqUdYdFQqYsTha2hc=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/zstd v1.5.0/go.mod h1:g4AWEaM3yOg3HYfnJ3YIawPnVdXJh9QME85blwSAmyw=
@@ -1872,8 +1872,8 @@ google.golang.org/grpc v1.48.0/go.mod h1:vN9eftEi1UMyUsIF80+uQXhHjbXYbm0uXoFCACu
 google.golang.org/grpc v1.49.0/go.mod h1:ZgQEeidpAuNRZ8iRrlBKXZQP1ghovWIVhdJRyCDK+GI=
 google.golang.org/grpc v1.50.0/go.mod h1:ZgQEeidpAuNRZ8iRrlBKXZQP1ghovWIVhdJRyCDK+GI=
 google.golang.org/grpc v1.50.1/go.mod h1:ZgQEeidpAuNRZ8iRrlBKXZQP1ghovWIVhdJRyCDK+GI=
-google.golang.org/grpc v1.58.1 h1:OL+Vz23DTtrrldqHK49FUOPHyY75rvFqJfXC84NYW58=
-google.golang.org/grpc v1.58.1/go.mod h1:tgX3ZQDlNJGU96V6yHh1T/JeoBQ2TXdr43YbYSsCJk0=
+google.golang.org/grpc v1.58.3 h1:BjnpXut1btbtgN/6sp+brB2Kbm2LjNXnidYujAVbSoQ=
+google.golang.org/grpc v1.58.3/go.mod h1:tgX3ZQDlNJGU96V6yHh1T/JeoBQ2TXdr43YbYSsCJk0=
 google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0/go.mod h1:6Kw0yEErY5E/yWrBtf03jp27GLLJujG4z/JK95pnjjw=
 google.golang.org/protobuf v0.0.0-20200109180630-ec00e32a8dfd/go.mod h1:DFci5gLYBciE7Vtevhsrf46CRTquxDuWsQurQQe4oz8=
 google.golang.org/protobuf v0.0.0-20200221191635-4d8936d0db64/go.mod h1:kwYJMbMJ01Woi6D6+Kah6886xMZcty6N08ah7+eCXa0=
