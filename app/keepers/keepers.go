@@ -523,8 +523,16 @@ func NewAppKeepers(
 	wasmOpts = append(wasmOpts, querierOpts)
 
 	junoBurnerPlugin := junoburn.NewBurnerPlugin(appKeepers.BankKeeper, appKeepers.MintKeeper)
-	burnOverride := wasmkeeper.WithMessageHandler(wasmkeeper.NewBurnCoinMessageHandler(junoBurnerPlugin))
-	wasmOpts = append(wasmOpts, burnOverride)
+
+	// ref: https://github.com/CosmWasm/wasmd/issues/1735
+	burnMessageHandler := wasmkeeper.WithMessageHandlerDecorator(func(nested wasmkeeper.Messenger) wasmkeeper.Messenger {
+		return wasmkeeper.NewMessageHandlerChain(
+			wasmkeeper.NewBurnCoinMessageHandler(junoBurnerPlugin),
+			nested,
+		)
+	})
+
+	wasmOpts = append(wasmOpts, burnMessageHandler)
 
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
