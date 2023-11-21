@@ -10,6 +10,8 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
@@ -91,4 +93,39 @@ func ExecuteMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos.CosmosCh
 	if err := testutil.WaitForBlocks(ctx, 2, chain); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func ExecuteMsgWithFeeReturn(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr, amount, feeCoin, message string) (*sdk.TxResponse, error) {
+	// amount is #utoken
+
+	// There has to be a way to do this in ictest? (there is, use node.ExecTx)
+	cmd := []string{
+		"wasm", "execute", contractAddr, message,
+		"--output", "json",
+		"--node", chain.GetRPCAddress(),
+		"--home", chain.HomeDir(),
+		"--gas", "500000",
+		"--fees", feeCoin,
+		"--keyring-dir", chain.HomeDir(),
+	}
+
+	if amount != "" {
+		cmd = append(cmd, "--amount", amount)
+	}
+
+	node := chain.GetNode()
+
+	txHash, err := node.ExecTx(ctx, user.KeyName(), cmd...)
+	if err != nil {
+		return nil, err
+	}
+
+	// convert stdout into a TxResponse
+	txRes, err := chain.GetTransaction(txHash)
+
+	if err := testutil.WaitForBlocks(ctx, 2, chain); err != nil {
+		t.Fatal(err)
+	}
+
+	return txRes, err
 }
