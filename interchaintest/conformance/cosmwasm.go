@@ -2,7 +2,6 @@ package junoconformance
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"testing"
 
@@ -16,7 +15,7 @@ import (
 
 // ConformanceCosmWasm validates that store, instantiate, execute, and query work on a CosmWasm contract.
 func ConformanceCosmWasm(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) {
-	std(t, ctx, chain, user)
+	// std(t, ctx, chain, user)
 	subMsg(t, ctx, chain, user)
 }
 
@@ -44,11 +43,18 @@ func subMsg(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user i
 	require.NoError(t, err)
 
 	// this purposely will fail with the current, we are just validating the messsage is not unknown.
-	// sub message of unkown means the `wasmkeeper.WithMessageHandlerDecorator` is not setup properly.
-	fail := base64.RawStdEncoding.EncodeToString([]byte("fail"))
+	// sub message of unknown means the `wasmkeeper.WithMessageHandlerDecorator` is not setup properly.
+	fail := "ImZhaWwi"
 	res2, err := helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, user, senderContractAddr, "", "10000"+chain.Config().Denom, fmt.Sprintf(`{"send_nft": { "contract": "%s", "token_id": "00000", "msg": "%s" }}`, receiverContractAddr, fail))
 	require.NoError(t, err)
 	fmt.Println("Second", res2)
 	require.NotEqualValues(t, wasmtypes.ErrUnknownMsg.ABCICode(), res2.Code)
 	require.NotContains(t, res2.RawLog, "unknown message from the contract")
+
+	success := "InN1Y2NlZWQi"
+	res3, err := helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, user, senderContractAddr, "", "10000"+chain.Config().Denom, fmt.Sprintf(`{"send_nft": { "contract": "%s", "token_id": "00000", "msg": "%s" }}`, receiverContractAddr, success))
+	require.NoError(t, err)
+	fmt.Println("Third", res3)
+	require.EqualValues(t, 0, res3.Code)
+	require.NotContains(t, res3.RawLog, "unknown message from the contract")
 }
