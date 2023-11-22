@@ -9,3 +9,6 @@ A list of the contracts here which are pre-compiled in other repos.
 > cw_testburn.wasm -> <https://github.com/Reecepbcups/cw-testburn>
 > clock_example.wasm -> <https://github.com/Reecepbcups/cw-clock-example>
 > juno_staking_hooks_example.wasm -> <https://github.com/Reecepbcups/cw-juno-staking-hooks-example>
+
+> cw721_base      - https://github.com/CosmWasm/cw-nfts/releases/download/v0.17.0/cw721_base.wasm
+> cw721-receiver  - https://github.com/CosmWasm/cw-nfts/pull/144
