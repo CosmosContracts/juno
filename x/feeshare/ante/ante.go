@@ -35,7 +35,7 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 	}
 
-	err = FeeSharePayout(ctx, fsd.bankKeeper, feeTx.GetFee(), fsd.feesharekeeper, tx.GetMsgs())
+	err = fsd.FeeSharePayout(ctx, fsd.bankKeeper, feeTx.GetFee(), fsd.feesharekeeper, tx.GetMsgs())
 	if err != nil {
 		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
 	}
@@ -63,19 +63,42 @@ type FeeSharePayoutEventOutput struct {
 	FeesPaid        sdk.Coins      `json:"fees_paid"`
 }
 
-func addNewFeeSharePayoutsForMsg(ctx sdk.Context, fsk FeeShareKeeper, toPay *[]sdk.AccAddress, m sdk.Msg) error {
-	if msg, ok := m.(*wasmtypes.MsgExecuteContract); ok {
-		contractAddr, err := sdk.AccAddressFromBech32(msg.Contract)
-		if err != nil {
-			return err
+// Loop through all messages and add the withdraw address to the list of addresses to pay
+// if the contract opted-in to fee sharing
+func addNewFeeSharePayoutsForMsgs(ctx sdk.Context, fsk FeeShareKeeper, toPay *[]sdk.AccAddress, msgs []sdk.Msg) error {
+	for _, msg := range msgs {
+
+		// Check if an authz message, loop through all inner messages, and recursively call this function
+		if authzMsg, ok := msg.(*authz.MsgExec); ok {
+
+			innerMsgs, err := authzMsg.GetMessages()
+			if err != nil {
+				return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
+			}
+
+			// Recursively call this function with the inner messages
+			err = addNewFeeSharePayoutsForMsgs(ctx, fsk, toPay, innerMsgs)
+			if err != nil {
+				return err
+			}
 		}
 
-		shareData, _ := fsk.GetFeeShare(ctx, contractAddr)
+		// If an execute contract message, check if the contract opted-in to fee sharing,
+		// and if so, add the withdraw address to the list of addresses to pay
+		if execContractMsg, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
+			contractAddr, err := sdk.AccAddressFromBech32(execContractMsg.Contract)
+			if err != nil {
+				return err
+			}
 
-		withdrawAddr := shareData.GetWithdrawerAddr()
-		if withdrawAddr != nil && !withdrawAddr.Empty() {
-			*toPay = append(*toPay, withdrawAddr)
+			shareData, _ := fsk.GetFeeShare(ctx, contractAddr)
+
+			withdrawAddr := shareData.GetWithdrawerAddr()
+			if withdrawAddr != nil && !withdrawAddr.Empty() {
+				*toPay = append(*toPay, withdrawAddr)
+			}
 		}
+
 	}
 
 	return nil
@@ -83,7 +106,7 @@ func addNewFeeSharePayoutsForMsg(ctx sdk.Context, fsk FeeShareKeeper, toPay *[]s
 
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
-func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, fsk FeeShareKeeper, msgs []sdk.Msg) error {
+func (fsd FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, fsk FeeShareKeeper, msgs []sdk.Msg) error {
 	params := fsk.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil
@@ -92,35 +115,10 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 	// Get valid withdraw addresses from contracts
 	toPay := make([]sdk.AccAddress, 0)
 
-	// validAuthz checks if the msg is an authz exec msg and if so, call the validExecuteMsg for each
-	// inner msg. If it is a CosmWasm execute message, that logic runs for nested functions.
-	validAuthz := func(execMsg *authz.MsgExec) error {
-		for _, v := range execMsg.Msgs {
-			var innerMsg sdk.Msg
-			if err := json.Unmarshal(v.Value, &innerMsg); err != nil {
-				return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
-			}
-
-			err := addNewFeeSharePayoutsForMsg(ctx, fsk, &toPay, innerMsg)
-			if err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}
-
-	for _, m := range msgs {
-		if msg, ok := m.(*authz.MsgExec); ok {
-			if err := validAuthz(msg); err != nil {
-				return err
-			}
-			continue
-		}
-
-		if err := addNewFeeSharePayoutsForMsg(ctx, fsk, &toPay, m); err != nil {
-			return err
-		}
+	// Add fee share payouts for each msg
+	err := addNewFeeSharePayoutsForMsgs(ctx, fsk, &toPay, msgs)
+	if err != nil {
+		return err
 	}
 
 	// Do nothing if no one needs payment
