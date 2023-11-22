@@ -16,6 +16,18 @@ service Query {
     option (google.api.http).get =
         "/juno/clock/v1/contracts";
   }
+  // Jailed Clock Contracts
+  rpc JailedClockContracts(QueryJailedClockContracts)
+      returns (QueryJailedClockContractsResponse) {
+    option (google.api.http).get =
+        "/juno/clock/v1/contracts/jailed";
+  }
+  // ClockContract
+  rpc ClockContract(QueryClockContract)
+      returns (QueryClockContractResponse) {
+    option (google.api.http).get =
+        "/juno/clock/v1/contracts/{contract_address}";
+  }
   // Params
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/juno/clock/v1/params";
@@ -31,6 +43,31 @@ message QueryClockContractsResponse {
     (gogoproto.jsontag) = "contract_addresses,omitempty",
     (gogoproto.moretags) = "yaml:\"contract_addresses\""
   ];
+}
+
+// QueryJailedClockContracts is the request type to get all jailed contracts.
+message QueryJailedClockContracts {}
+
+// QueryJailedClockContractsResponse is the response type for the Query/JailedClockContracts RPC method.
+message QueryJailedClockContractsResponse {
+  repeated string jailed_contract_addresses = 1 [    
+    (gogoproto.jsontag) = "contract_addresses,omitempty",
+    (gogoproto.moretags) = "yaml:\"contract_addresses\""
+  ];
+}
+
+// QueryClockContract is the request type to get a single contract.
+message QueryClockContract {
+  // contract_address is the address of the contract to query.
+  string contract_address = 1;
+}
+
+// QueryClockContractResponse is the response type for the Query/ClockContract RPC method.
+message QueryClockContractResponse {
+  // contract is the contract with the given address.
+  string contract_address = 1;
+  // is_jailed is the jailed status of the contract.
+  bool is_jailed = 2;
 }
 
 // QueryParams is the request type to get all module params.
