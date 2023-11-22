@@ -128,14 +128,13 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 
 		// Edit validator params
 		valAddr := sdk.ValAddress(valPub.Address())
-		description := stakingtypes.NewDescription("test_moniker", "", "", "", "")
 		newRate := math.LegacyMustNewDecFromStr(maxChangeRate)
 		minDelegation := sdk.OneInt()
 
 		// Edit existing validator msg
 		editMsg := stakingtypes.NewMsgEditValidator(
 			valAddr,
-			description,
+			createMsg.Description,
 			&newRate,
 			&minDelegation,
 		)
@@ -159,15 +158,11 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 // Convert an integer to a percentage, formatted as a string
 // Example: 5 -> "0.05", 10 -> "0.1"
 func getChangeRate(i int) string {
-	maxChangeRate := "0."
-
-	if i < 10 {
-		maxChangeRate += fmt.Sprint("0", i)
-	} else {
-		maxChangeRate += fmt.Sprint(i)
+	if i >= 100 {
+		return "1.00"
 	}
 
-	return maxChangeRate
+	return fmt.Sprintf("0.%02d", i)
 }
 
 // A helper function for getting a validator create msg
