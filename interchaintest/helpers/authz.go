@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -11,16 +12,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func ExecuteAuthzGrantMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, granter ibc.Wallet, grantee ibc.Wallet, contractAddr, amount, feeCoin, message string) {
+func ExecuteAuthzGrantMsg(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, granter ibc.Wallet, grantee ibc.Wallet, msgType string) {
+	if !strings.HasPrefix(msgType, "/") {
+		msgType = "/" + msgType
+	}
+
 	cmd := []string{
 		"junod", "tx", "authz", "grant", grantee.FormattedAddress(), "generic",
-		"--msg-type", "/cosmos.authz.v1beta1.MsgExec",
+		"--msg-type", msgType,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
 		"--from", granter.KeyName(),
 		"--gas", "500000",
-		"--fees", feeCoin,
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",

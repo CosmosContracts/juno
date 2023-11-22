@@ -51,7 +51,7 @@ func TestJunoFeeShare(t *testing.T) {
 
 	// Test authz message execution:
 	// Grant contract execute permission to grantee
-	helpers.ExecuteAuthzGrantMsgWithFee(t, ctx, juno, granter, grantee, contractAddr, "", "10000"+nativeDenom, `{"increment":{}}`)
+	helpers.ExecuteAuthzGrantMsg(t, ctx, juno, granter, grantee, "/cosmos.authz.v1beta1.MsgExec")
 
 	// Execute authz msg as grantee
 	helpers.ExecuteAuthzExecMsgWithFee(t, ctx, juno, grantee, contractAddr, "", "10000"+nativeDenom, `{"increment":{}}`)
