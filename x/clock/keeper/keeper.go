@@ -3,6 +3,8 @@ package keeper
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,6 +17,7 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	cdc      codec.BinaryCodec
 
+	wasmKeeper     wasmkeeper.Keeper
 	contractKeeper wasmtypes.ContractOpsKeeper
 
 	authority string
@@ -23,12 +26,14 @@ type Keeper struct {
 func NewKeeper(
 	key storetypes.StoreKey,
 	cdc codec.BinaryCodec,
+	wasmKeeper wasmkeeper.Keeper,
 	contractKeeper wasmtypes.ContractOpsKeeper,
 	authority string,
 ) Keeper {
 	return Keeper{
 		cdc:            cdc,
 		storeKey:       key,
+		wasmKeeper:     wasmKeeper,
 		contractKeeper: contractKeeper,
 		authority:      authority,
 	}
