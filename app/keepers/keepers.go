@@ -104,7 +104,7 @@ import (
 )
 
 var (
-	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3,cosmwasm_1_4"
+	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3,cosmwasm_1_4,cosmwasm_1_5"
 
 	tokenFactoryCapabilities = []string{
 		tokenfactorytypes.EnableBurnFrom,
@@ -523,8 +523,16 @@ func NewAppKeepers(
 	wasmOpts = append(wasmOpts, querierOpts)
 
 	junoBurnerPlugin := junoburn.NewBurnerPlugin(appKeepers.BankKeeper, appKeepers.MintKeeper)
-	burnOverride := wasmkeeper.WithMessageHandler(wasmkeeper.NewBurnCoinMessageHandler(junoBurnerPlugin))
-	wasmOpts = append(wasmOpts, burnOverride)
+
+	// ref: https://github.com/CosmWasm/wasmd/issues/1735
+	burnMessageHandler := wasmkeeper.WithMessageHandlerDecorator(func(nested wasmkeeper.Messenger) wasmkeeper.Messenger {
+		return wasmkeeper.NewMessageHandlerChain(
+			wasmkeeper.NewBurnCoinMessageHandler(junoBurnerPlugin),
+			nested,
+		)
+	})
+
+	wasmOpts = append(wasmOpts, burnMessageHandler)
 
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,

@@ -67,6 +67,8 @@ import (
 	"github.com/CosmosContracts/juno/v18/app/openapiconsole"
 	upgrades "github.com/CosmosContracts/juno/v18/app/upgrades"
 	testnetV18alpha2 "github.com/CosmosContracts/juno/v18/app/upgrades/testnet/v18.0.0-alpha.2"
+	testnetV18alpha3 "github.com/CosmosContracts/juno/v18/app/upgrades/testnet/v18.0.0-alpha.3"
+	testnetV18alpha4 "github.com/CosmosContracts/juno/v18/app/upgrades/testnet/v18.0.0-alpha.4"
 	v10 "github.com/CosmosContracts/juno/v18/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v18/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v18/app/upgrades/v12"
@@ -100,6 +102,8 @@ var (
 	Upgrades = []upgrades.Upgrade{
 		// testnet
 		testnetV18alpha2.Upgrade,
+		testnetV18alpha3.Upgrade,
+		testnetV18alpha4.Upgrade,
 
 		v10.Upgrade,
 		v11.Upgrade,
