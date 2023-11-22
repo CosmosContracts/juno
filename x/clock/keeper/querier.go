@@ -24,11 +24,41 @@ func NewQuerier(k Keeper) Querier {
 func (q Querier) ClockContracts(stdCtx context.Context, _ *types.QueryClockContracts) (*types.QueryClockContractsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(stdCtx)
 
-	p := q.keeper.GetParams(ctx)
+	contracts := q.keeper.GetAllContracts(ctx, false)
 
 	return &types.QueryClockContractsResponse{
-		ContractAddresses: p.ContractAddresses,
+		ContractAddresses: contracts,
 	}, nil
+}
+
+// JailedClockContracts returns contract addresses which have been jailed for erroring
+func (q Querier) JailedClockContracts(stdCtx context.Context, _ *types.QueryJailedClockContracts) (*types.QueryJailedClockContractsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(stdCtx)
+
+	contracts := q.keeper.GetAllContracts(ctx, true)
+
+	return &types.QueryJailedClockContractsResponse{
+		JailedContractAddresses: contracts,
+	}, nil
+}
+
+// ClockContract returns the clock contract information
+func (q Querier) ClockContract(stdCtx context.Context, req *types.QueryClockContract) (*types.QueryClockContractResponse, error) {
+	ctx := sdk.UnwrapSDKContext(stdCtx)
+
+	// Check if the contract is jailed or unjailed
+	isUnjailed := q.keeper.IsClockContract(ctx, req.ContractAddress, false)
+	isJailed := q.keeper.IsClockContract(ctx, req.ContractAddress, true)
+
+	// Return the registered contract or an error if it doesn't exist
+	if isUnjailed || isJailed {
+		return &types.QueryClockContractResponse{
+			ContractAddress: req.ContractAddress,
+			IsJailed:        isJailed,
+		}, nil
+	} else {
+		return nil, types.ErrContractNotRegistered
+	}
 }
 
 // Params returns the total set of clock parameters.

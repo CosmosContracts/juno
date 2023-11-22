@@ -596,6 +596,7 @@ func NewAppKeepers(
 	appKeepers.ClockKeeper = clockkeeper.NewKeeper(
 		appKeepers.keys[clocktypes.StoreKey],
 		appCodec,
+		appKeepers.WasmKeeper,
 		appKeepers.ContractKeeper,
 		govModAddress,
 	)

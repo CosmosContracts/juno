@@ -400,13 +400,13 @@ func RegisterMsgHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 }
 
 var (
-	pattern_Msg_RegisterFeePayContract_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"juno", "feepay", "v1", "tx", "registerFeePayContract"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Msg_RegisterFeePayContract_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"juno", "feepay", "v1", "tx", "register"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Msg_UnregisterFeePayContract_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"juno", "feepay", "v1", "tx", "unregisterFeePayContract"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Msg_UnregisterFeePayContract_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"juno", "feepay", "v1", "tx", "unregister"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Msg_FundFeePayContract_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"juno", "feepay", "v1", "tx", "fundFeePayContract"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Msg_FundFeePayContract_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"juno", "feepay", "v1", "tx", "fund"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Msg_UpdateFeePayContractWalletLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"juno", "feepay", "v1", "tx", "updateFeePayContractWalletLimit"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Msg_UpdateFeePayContractWalletLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"juno", "feepay", "v1", "tx", "update_wallet_limit"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

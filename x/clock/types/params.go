@@ -18,11 +18,13 @@ func DefaultParams() Params {
 // NewParams creates a new Params object
 func NewParams(
 	contracts []string,
+	jailedContracts []string,
 	contractGasLimit uint64,
 ) Params {
 	return Params{
-		ContractAddresses: contracts,
-		ContractGasLimit:  contractGasLimit,
+		ContractAddresses:       contracts,
+		JailedContractAddresses: jailedContracts,
+		ContractGasLimit:        contractGasLimit,
 	}
 }
 

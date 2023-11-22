@@ -34,6 +34,8 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			errorExecs[idx] = addr
 			continue
 		}
+
+		// TODO: JAIL CONTRACT ON ERROR
 	}
 
 	if len(errorExecs) > 0 {

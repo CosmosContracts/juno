@@ -4,8 +4,6 @@ import (
 	"cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/CosmosContracts/juno/v18/x/drip/types"
 )
 
 const (
@@ -14,9 +12,97 @@ const (
 )
 
 // == MsgUpdateParams ==
-const TypeMsgUpdateParams = "update_clock_params"
+const (
+	TypeMsgRegisterFeePayContract   = "register_clock_contract"
+	TypeMsgUnregisterFeePayContract = "unregister_clock_contract"
+	TypeMsgUnjailFeePayContract     = "unjail_clock_contract"
+	TypeMsgUpdateParams             = "update_clock_params"
+)
 
-var _ sdk.Msg = &MsgUpdateParams{}
+var (
+	_ sdk.Msg = &MsgRegisterClockContract{}
+	_ sdk.Msg = &MsgUnregisterClockContract{}
+	_ sdk.Msg = &MsgUnjailClockContract{}
+	_ sdk.Msg = &MsgUpdateParams{}
+)
+
+// Route returns the name of the module
+func (msg MsgRegisterClockContract) Route() string { return RouterKey }
+
+// Type returns the the action
+func (msg MsgRegisterClockContract) Type() string { return TypeMsgRegisterFeePayContract }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgRegisterClockContract) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgRegisterClockContract) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgRegisterClockContract) GetSigners() []sdk.AccAddress {
+	from, _ := sdk.AccAddressFromBech32(msg.SenderAddress)
+	return []sdk.AccAddress{from}
+}
+
+// Route returns the name of the module
+func (msg MsgUnregisterClockContract) Route() string { return RouterKey }
+
+// Type returns the the action
+func (msg MsgUnregisterClockContract) Type() string { return TypeMsgRegisterFeePayContract }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgUnregisterClockContract) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgUnregisterClockContract) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgUnregisterClockContract) GetSigners() []sdk.AccAddress {
+	from, _ := sdk.AccAddressFromBech32(msg.SenderAddress)
+	return []sdk.AccAddress{from}
+}
+
+// Route returns the name of the module
+func (msg MsgUnjailClockContract) Route() string { return RouterKey }
+
+// Type returns the the action
+func (msg MsgUnjailClockContract) Type() string { return TypeMsgRegisterFeePayContract }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgUnjailClockContract) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgUnjailClockContract) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgUnjailClockContract) GetSigners() []sdk.AccAddress {
+	from, _ := sdk.AccAddressFromBech32(msg.SenderAddress)
+	return []sdk.AccAddress{from}
+}
 
 // NewMsgUpdateParams creates new instance of MsgUpdateParams
 func NewMsgUpdateParams(
@@ -30,7 +116,7 @@ func NewMsgUpdateParams(
 }
 
 // Route returns the name of the module
-func (msg MsgUpdateParams) Route() string { return types.RouterKey }
+func (msg MsgUpdateParams) Route() string { return RouterKey }
 
 // Type returns the the action
 func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
