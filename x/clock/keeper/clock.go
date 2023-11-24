@@ -23,10 +23,9 @@ func (k Keeper) getStore(ctx sdk.Context, isJailed bool) prefix.Store {
 }
 
 // Set a clock contract address in the KV store.
-func (k Keeper) SetClockContract(ctx sdk.Context, contractAddress string, isJailed bool) error {
+func (k Keeper) SetClockContract(ctx sdk.Context, contractAddress string, isJailed bool) {
 	store := k.getStore(ctx, isJailed)
 	store.Set([]byte(contractAddress), []byte(contractAddress))
-	return nil
 }
 
 // Check if a clock contract address is in the KV store.
@@ -40,14 +39,8 @@ func (k Keeper) GetAllContracts(ctx sdk.Context, isJailed bool) []string {
 	// Get the KV store
 	store := k.getStore(ctx, isJailed)
 
-	// Get prefix for kv store iterator
-	prefix := StoreKeyContracts
-	if isJailed {
-		prefix = StoreKeyJailedContracts
-	}
-
 	// Iterate over all contracts
-	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	iterator := sdk.KVStorePrefixIterator(store, []byte(nil))
 	defer iterator.Close()
 
 	contracts := []string{}
@@ -81,18 +74,14 @@ func (k Keeper) RegisterContract(ctx sdk.Context, senderAddress string, contract
 		return types.ErrContractJailed
 	}
 
-	// Ensure the contract is a cosm wasm contract
-	if ok := k.wasmKeeper.HasContractInfo(ctx, sdk.AccAddress(contractAddress)); !ok {
-		return types.ErrInvalidCWContract
-	}
-
 	// Ensure the sender is the contract admin or creator
 	if ok, err := k.IsContractManager(ctx, senderAddress, contractAddress); !ok {
 		return err
 	}
 
 	// Register contract
-	return k.SetClockContract(ctx, contractAddress, false)
+	k.SetClockContract(ctx, contractAddress, false)
+	return nil
 }
 
 // Unregister a clock contract from either the jailed or unjailed KV store.
@@ -124,7 +113,8 @@ func (k Keeper) JailContract(ctx sdk.Context, contractAddress string) error {
 	k.RemoveContract(ctx, contractAddress, false)
 
 	// Set contract in jailed store
-	return k.SetClockContract(ctx, contractAddress, true)
+	k.SetClockContract(ctx, contractAddress, true)
+	return nil
 }
 
 // Unjail a clock contract from the jailed KV store.
@@ -143,15 +133,23 @@ func (k Keeper) UnjailContract(ctx sdk.Context, senderAddress string, contractAd
 	k.RemoveContract(ctx, contractAddress, true)
 
 	// Set contract in unjailed store
-	return k.SetClockContract(ctx, contractAddress, false)
+	k.SetClockContract(ctx, contractAddress, false)
+	return nil
 }
 
 // Check if the sender is the designated contract manager for the FeePay contract. If
 // an admin is present, they are considered the manager. If there is no admin, the
 // contract creator is considered the manager.
 func (k Keeper) IsContractManager(ctx sdk.Context, senderAddress string, contractAddress string) (bool, error) {
+	contractAddr := sdk.MustAccAddressFromBech32(contractAddress)
+
+	// Ensure the contract is a cosm wasm contract
+	if ok := k.wasmKeeper.HasContractInfo(ctx, contractAddr); !ok {
+		return false, types.ErrInvalidCWContract
+	}
+
 	// Get the contract info
-	contractInfo := k.wasmKeeper.GetContractInfo(ctx, sdk.AccAddress(contractAddress))
+	contractInfo := k.wasmKeeper.GetContractInfo(ctx, contractAddr)
 
 	// Flags for admin existence & sender being admin/creator
 	adminExists := len(contractInfo.Admin) > 0
