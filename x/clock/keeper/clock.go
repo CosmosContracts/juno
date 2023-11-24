@@ -87,7 +87,10 @@ func (k Keeper) RegisterContract(ctx sdk.Context, senderAddress string, contract
 		return types.ErrInvalidCWContract
 	}
 
-	// TODO: Check if the sender is the contract admin or creator
+	// Ensure the sender is the contract admin or creator
+	if ok, err := k.IsContractManager(ctx, senderAddress, contractAddress); !ok {
+		return err
+	}
 
 	// Register contract
 	return k.SetClockContract(ctx, contractAddress, false)
@@ -101,7 +104,10 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, senderAddress string, contra
 		return types.ErrContractNotRegistered
 	}
 
-	// TODO: Check if the sender is the contract admin or creator
+	// Ensure the sender is the contract admin or creator
+	if ok, err := k.IsContractManager(ctx, senderAddress, contractAddress); !ok {
+		return err
+	}
 
 	// Remove contract from both stores
 	k.RemoveContract(ctx, contractAddress, false)
@@ -133,7 +139,10 @@ func (k Keeper) UnjailContract(ctx sdk.Context, senderAddress string, contractAd
 		return types.ErrContractNotJailed
 	}
 
-	// TODO: Check if the sender is the contract admin or creator
+	// Ensure the sender is the contract admin or creator
+	if ok, err := k.IsContractManager(ctx, senderAddress, contractAddress); !ok {
+		return err
+	}
 
 	// Remove contract from jailed store
 	k.RemoveContract(ctx, contractAddress, true)
@@ -141,4 +150,26 @@ func (k Keeper) UnjailContract(ctx sdk.Context, senderAddress string, contractAd
 	// Set contract in unjailed store
 	k.SetClockContract(ctx, contractAddress, false)
 	return nil
+}
+
+// Check if the sender is the designated contract manager for the FeePay contract. If
+// an admin is present, they are considered the manager. If there is no admin, the
+// contract creator is considered the manager.
+func (k Keeper) IsContractManager(ctx sdk.Context, senderAddress string, contractAddress string) (bool, error) {
+	// Get the contract info
+	contractInfo := k.wasmKeeper.GetContractInfo(ctx, sdk.AccAddress(contractAddress))
+
+	// Flags for admin existence & sender being admin/creator
+	adminExists := len(contractInfo.Admin) > 0
+	isSenderAdmin := contractInfo.Admin == senderAddress
+	isSenderCreator := contractInfo.Creator == senderAddress
+
+	// Check if the sender is the admin or creator
+	if adminExists && !isSenderAdmin {
+		return false, types.ErrContractNotAdmin
+	} else if !adminExists && !isSenderCreator {
+		return false, types.ErrContractNotCreator
+	}
+
+	return true, nil
 }
