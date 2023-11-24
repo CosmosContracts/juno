@@ -21,6 +21,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 	contracts := k.GetAllContracts(ctx, false)
 	errorExecs := make([]string, len(contracts))
+	errorExists := false
 
 	for idx, addr := range contracts {
 		contract, err := sdk.AccAddressFromBech32(addr)
@@ -32,14 +33,16 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		childCtx := ctx.WithGasMeter(sdk.NewGasMeter(p.ContractGasLimit))
 		_, err = k.GetContractKeeper().Sudo(childCtx, contract, message)
 		if err != nil {
+			errorExists = true
 			errorExecs[idx] = addr
-			continue
-		}
 
-		// TODO: JAIL CONTRACT ON ERROR
+			// Jail contract on error
+			k.JailContract(ctx, addr)
+		}
 	}
 
-	if len(errorExecs) > 0 {
+	// Log errors if present
+	if errorExists {
 		log.Printf("[x/clock] Execute Errors: %v", errorExecs)
 	}
 }
