@@ -27,13 +27,13 @@ func (suite *MsgsTestSuite) TestMsgUpdateParams() {
 	p := MsgUpdateParams{
 		Authority: suite.govModule,
 		Params: Params{
-			ContractAddresses: []string{},
+			ContractGasLimit: 100_000,
 		},
 	}
 
 	acc, _ := sdk.AccAddressFromBech32(p.Authority)
 
-	msg := NewMsgUpdateParams(acc, []string(nil))
+	msg := NewMsgUpdateParams(acc)
 
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgUpdateParams, msg.Type())

@@ -107,11 +107,10 @@ func (msg MsgUnjailClockContract) GetSigners() []sdk.AccAddress {
 // NewMsgUpdateParams creates new instance of MsgUpdateParams
 func NewMsgUpdateParams(
 	sender sdk.Address,
-	contracts []string,
 ) *MsgUpdateParams {
 	return &MsgUpdateParams{
 		Authority: sender.String(),
-		Params:    Params{ContractAddresses: contracts},
+		Params:    Params{},
 	}
 }
 

@@ -58,9 +58,10 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 			"custom genesis - none",
 			types.GenesisState{
 				Params: types.Params{
-					ContractAddresses: []string(nil),
-					ContractGasLimit:  defaultParams.ContractGasLimit,
+					ContractGasLimit: defaultParams.ContractGasLimit,
 				},
+				ContractAddresses:       []string(nil),
+				JailedContractAddresses: []string(nil),
 			},
 			false,
 		},
@@ -68,9 +69,10 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 			"custom genesis - incorrect addr",
 			types.GenesisState{
 				Params: types.Params{
-					ContractAddresses: []string{"incorrectaddr"},
-					ContractGasLimit:  defaultParams.ContractGasLimit,
+					ContractGasLimit: defaultParams.ContractGasLimit,
 				},
+				ContractAddresses:       []string{"incorrectaddr"},
+				JailedContractAddresses: []string(nil),
 			},
 			true,
 		},
@@ -78,9 +80,10 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 			"custom genesis - only one addr allowed",
 			types.GenesisState{
 				Params: types.Params{
-					ContractAddresses: []string{addr.String(), addr2.String()},
-					ContractGasLimit:  defaultParams.ContractGasLimit,
+					ContractGasLimit: defaultParams.ContractGasLimit,
 				},
+				ContractAddresses:       []string{addr.String(), addr2.String()},
+				JailedContractAddresses: []string(nil),
 			},
 			false,
 		},

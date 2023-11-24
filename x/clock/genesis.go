@@ -55,7 +55,13 @@ func InitGenesis(
 
 // ExportGenesis export module state
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+	params := k.GetParams(ctx)
+	contracts := k.GetAllContracts(ctx, false)
+	jailedContracts := k.GetAllContracts(ctx, true)
+
 	return &types.GenesisState{
-		Params: k.GetParams(ctx),
+		Params:                  params,
+		ContractAddresses:       contracts,
+		JailedContractAddresses: jailedContracts,
 	}
 }

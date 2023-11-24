@@ -13,22 +13,21 @@ message GenesisState {
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "params,omitempty"
   ];
+  // contract_addresses stores the list of executable contracts to be ticked on every block.
+  repeated string contract_addresses = 2 [    
+    (gogoproto.jsontag) = "contract_addresses,omitempty",
+    (gogoproto.moretags) = "yaml:\"contract_addresses\""
+  ];
+  // jailed_contract_addresses stores the list of executable contracts that have been jailed.
+  repeated string jailed_contract_addresses = 3 [
+    (gogoproto.jsontag) = "jailed_contract_addresses,omitempty",
+    (gogoproto.moretags) = "yaml:\"jailed_contract_addresses\""
+  ];
 }
 
 // Params defines the set of module parameters.
 message Params {
-  // contract_addresses stores the list of executable contracts to be ticked on every block.
-  repeated string contract_addresses = 1 [    
-    (gogoproto.jsontag) = "contract_addresses,omitempty",
-    (gogoproto.moretags) = "yaml:\"contract_addresses\""
-  ];
-
-  // jailed_contract_addresses stores the list of executable contracts that have been jailed.
-  repeated string jailed_contract_addresses = 2 [
-    (gogoproto.jsontag) = "jailed_contract_addresses,omitempty",
-    (gogoproto.moretags) = "yaml:\"jailed_contract_addresses\""
-  ];
-
+  // contract_gas_limit defines the maximum amount of gas that can be used by a contract.
   uint64 contract_gas_limit = 3 [
     (gogoproto.jsontag) = "contract_gas_limit,omitempty",
     (gogoproto.moretags) = "yaml:\"contract_gas_limit\""

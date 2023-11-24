@@ -19,9 +19,10 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 	p := k.GetParams(ctx)
 
-	errorExecs := make([]string, len(p.ContractAddresses))
+	contracts := k.GetAllContracts(ctx, false)
+	errorExecs := make([]string, len(contracts))
 
-	for idx, addr := range p.ContractAddresses {
+	for idx, addr := range contracts {
 		contract, err := sdk.AccAddressFromBech32(addr)
 		if err != nil {
 			errorExecs[idx] = addr
