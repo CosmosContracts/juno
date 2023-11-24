@@ -23,6 +23,8 @@ func NewTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		NewRegisterClockContract(),
+		NewUnregisterClockContract(),
+		NewUnjailClockContract(),
 	)
 	return txCmd
 }

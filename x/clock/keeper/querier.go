@@ -46,6 +46,11 @@ func (q Querier) JailedClockContracts(stdCtx context.Context, _ *types.QueryJail
 func (q Querier) ClockContract(stdCtx context.Context, req *types.QueryClockContract) (*types.QueryClockContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(stdCtx)
 
+	// Ensure the contract address is valid
+	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
+		return nil, types.ErrInvalidAddress
+	}
+
 	// Check if the contract is jailed or unjailed
 	isUnjailed := q.keeper.IsClockContract(ctx, req.ContractAddress, false)
 	isJailed := q.keeper.IsClockContract(ctx, req.ContractAddress, true)
@@ -56,9 +61,9 @@ func (q Querier) ClockContract(stdCtx context.Context, req *types.QueryClockCont
 			ContractAddress: req.ContractAddress,
 			IsJailed:        isJailed,
 		}, nil
-	} else {
-		return nil, types.ErrContractNotRegistered
 	}
+
+	return nil, types.ErrContractNotRegistered
 }
 
 // Params returns the total set of clock parameters.

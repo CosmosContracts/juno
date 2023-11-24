@@ -19,6 +19,8 @@ func GetQueryCmd() *cobra.Command {
 	}
 	queryCmd.AddCommand(
 		GetCmdShowContracts(),
+		GetCmdShowJailedContracts(),
+		GetCmdShowContract(),
 		GetCmdParams(),
 	)
 	return queryCmd
@@ -27,7 +29,7 @@ func GetQueryCmd() *cobra.Command {
 func GetCmdShowContracts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "contracts",
-		Short: "Show addresses of all current contract modules",
+		Short: "Show addresses of all current clock contracts",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -37,6 +39,59 @@ func GetCmdShowContracts() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 			res, err := queryClient.ClockContracts(cmd.Context(), &types.QueryClockContracts{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdShowJailedContracts() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "jailed-contracts",
+		Short: "Show addresses of all jailed clock contracts",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.JailedClockContracts(cmd.Context(), &types.QueryJailedClockContracts{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdShowContract() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "contract [contract_address]",
+		Short: "Get contract by address",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			req := &types.QueryClockContract{
+				ContractAddress: args[0],
+			}
+
+			res, err := queryClient.ClockContract(cmd.Context(), req)
 			if err != nil {
 				return err
 			}
