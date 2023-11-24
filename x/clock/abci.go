@@ -37,7 +37,10 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			errorExecs[idx] = addr
 
 			// Jail contract on error
-			k.JailContract(ctx, addr)
+			err = k.JailContract(ctx, addr)
+			if err != nil {
+				log.Printf("[x/clock] Failed to Error Contract %s: %v", addr, err)
+			}
 		}
 	}
 
