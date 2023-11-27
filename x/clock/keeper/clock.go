@@ -109,7 +109,7 @@ func (k Keeper) JailContract(ctx sdk.Context, contractAddress string) error {
 		return types.ErrContractNotRegistered
 	}
 
-	// Remoe contract from unjailed store
+	// Remove contract from unjailed store
 	k.RemoveContract(ctx, contractAddress, false)
 
 	// Set contract in jailed store

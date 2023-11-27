@@ -18,6 +18,7 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 	// Store code
 	s.StoreCode()
 	contractAddress := s.InstantiateContract(addr.String(), "")
+	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String())
 
 	for _, tc := range []struct {
 		desc     string
@@ -31,6 +32,18 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 			sender:   addr.String(),
 			contract: contractAddress,
 			success:  true,
+		},
+		{
+			desc:     "Success - Register Contract With Admin",
+			sender:   addr2.String(),
+			contract: contractAddressWithAdmin,
+			success:  true,
+		},
+		{
+			desc:     "Fail - Register Contract With Admin, But With Creator Addr",
+			sender:   addr.String(),
+			contract: contractAddressWithAdmin,
+			success:  false,
 		},
 		{
 			desc:     "Error - Invalid Sender",
@@ -67,7 +80,8 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 
 			// Jail contract if needed
 			if tc.isJailed {
-				err := s.app.AppKeepers.ClockKeeper.JailContract(s.ctx, contractAddress)
+				s.RegisterClockContract(tc.sender, tc.contract)
+				err := s.app.AppKeepers.ClockKeeper.JailContract(s.ctx, tc.contract)
 				s.Require().NoError(err)
 			}
 
@@ -83,6 +97,10 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 				s.Require().NoError(err)
 				s.Require().Equal(res, &types.MsgRegisterClockContractResponse{})
 			}
+
+			// Ensure contract is unregistered
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress, false)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin, false)
 		})
 	}
 }
@@ -95,6 +113,7 @@ func (s *IntegrationTestSuite) TestUnregisterClockContract() {
 
 	s.StoreCode()
 	contractAddress := s.InstantiateContract(addr.String(), "")
+	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String())
 
 	for _, tc := range []struct {
 		desc     string
@@ -107,6 +126,18 @@ func (s *IntegrationTestSuite) TestUnregisterClockContract() {
 			sender:   addr.String(),
 			contract: contractAddress,
 			success:  true,
+		},
+		{
+			desc:     "Success - Unregister Contract With Admin",
+			sender:   addr2.String(),
+			contract: contractAddressWithAdmin,
+			success:  true,
+		},
+		{
+			desc:     "Fail - Unregister Contract With Admin, But With Creator Addr",
+			sender:   addr.String(),
+			contract: contractAddressWithAdmin,
+			success:  false,
 		},
 		{
 			desc:     "Error - Invalid Sender",
@@ -129,9 +160,8 @@ func (s *IntegrationTestSuite) TestUnregisterClockContract() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			// Ensure contract is unregistered, ignore unregister error
-			_ = s.app.AppKeepers.ClockKeeper.UnregisterContract(s.ctx, addr.String(), contractAddress)
 			s.RegisterClockContract(addr.String(), contractAddress)
+			s.RegisterClockContract(addr2.String(), contractAddressWithAdmin)
 
 			// Set params
 			params := types.DefaultParams()
@@ -150,6 +180,10 @@ func (s *IntegrationTestSuite) TestUnregisterClockContract() {
 				s.Require().NoError(err)
 				s.Require().Equal(res, &types.MsgUnregisterClockContractResponse{})
 			}
+
+			// Ensure contract is unregistered
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress, false)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin, false)
 		})
 	}
 }
@@ -197,7 +231,7 @@ func (s *IntegrationTestSuite) TestUnjailClockContract() {
 
 	s.StoreCode()
 	contractAddress := s.InstantiateContract(addr.String(), "")
-	s.RegisterClockContract(addr.String(), contractAddress)
+	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String())
 
 	for _, tc := range []struct {
 		desc     string
@@ -211,6 +245,18 @@ func (s *IntegrationTestSuite) TestUnjailClockContract() {
 			sender:   addr.String(),
 			contract: contractAddress,
 			success:  true,
+		},
+		{
+			desc:     "Success - Unjail Contract With Admin",
+			sender:   addr2.String(),
+			contract: contractAddressWithAdmin,
+			success:  true,
+		},
+		{
+			desc:     "Fail - Unjail Contract With Admin, But With Creator Addr",
+			sender:   addr.String(),
+			contract: contractAddressWithAdmin,
+			success:  false,
 		},
 		{
 			desc:     "Error - Invalid Sender",
@@ -240,12 +286,15 @@ func (s *IntegrationTestSuite) TestUnjailClockContract() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			_ = s.app.AppKeepers.ClockKeeper.UnjailContract(s.ctx, addr.String(), contractAddress)
+			s.RegisterClockContract(addr.String(), contractAddress)
 			s.JailClockContract(contractAddress)
+			s.RegisterClockContract(addr2.String(), contractAddressWithAdmin)
+			s.JailClockContract(contractAddressWithAdmin)
 
 			// Unjail contract if needed
 			if tc.unjail {
 				s.UnjailClockContract(addr.String(), contractAddress)
+				s.UnjailClockContract(addr2.String(), contractAddressWithAdmin)
 			}
 
 			// Set params
@@ -265,6 +314,12 @@ func (s *IntegrationTestSuite) TestUnjailClockContract() {
 				s.Require().NoError(err)
 				s.Require().Equal(res, &types.MsgUnjailClockContractResponse{})
 			}
+
+			// Ensure contract is unregistered
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress, false)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress, true)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin, false)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin, true)
 		})
 	}
 }
