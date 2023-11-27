@@ -10,35 +10,54 @@ import (
 
 func TestParamsValidate(t *testing.T) {
 	testCases := []struct {
-		name     string
-		params   types.Params
-		expError bool
+		name    string
+		params  types.Params
+		success bool
 	}{
-		{"default", types.DefaultParams(), false},
 		{
-			"valid: no contracts, enough gas",
+			"Success - Default",
+			types.DefaultParams(),
+			true,
+		},
+		{
+			"Success - Meets min Gas",
 			types.NewParams(100_000),
+			true,
+		},
+		{
+			"Success - Meets min Gas",
+			types.NewParams(500_000),
+			true,
+		},
+		{
+			"Fail - Not Enough Gas",
+			types.NewParams(1),
 			false,
 		},
 		{
-			"invalid: address malformed",
-			types.NewParams(100_000),
-			true,
+			"Fail - Not Enough Gas",
+			types.NewParams(100),
+			false,
 		},
 		{
-			"invalid: not enough gas",
-			types.NewParams(1),
-			true,
+			"Fail - Not Enough Gas",
+			types.NewParams(1_000),
+			false,
+		},
+		{
+			"Fail - Not Enough Gas",
+			types.NewParams(10_000),
+			false,
 		},
 	}
 
 	for _, tc := range testCases {
 		err := tc.params.Validate()
 
-		if tc.expError {
-			require.Error(t, err, tc.name)
-		} else {
+		if tc.success {
 			require.NoError(t, err, tc.name)
+		} else {
+			require.Error(t, err, tc.name)
 		}
 	}
 }
