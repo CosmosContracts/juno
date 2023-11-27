@@ -1,56 +1,222 @@
 package keeper_test
 
 import (
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v18/x/clock/types"
 )
 
-func (s *IntegrationTestSuite) TestClockQueryParams() {
-	// _, _, addr := testdata.KeyTestPubAddr()
-	// _, _, addr2 := testdata.KeyTestPubAddr()
-
-	defaultParams := types.DefaultParams()
-
+// Query Clock Params
+func (s *IntegrationTestSuite) TestQueryClockParams() {
 	for _, tc := range []struct {
-		desc     string
-		Expected types.Params
+		desc   string
+		params types.Params
 	}{
 		{
-			desc: "On empty",
-			Expected: types.Params{
-				ContractGasLimit: defaultParams.ContractGasLimit,
+			desc:   "On default",
+			params: types.DefaultParams(),
+		},
+		{
+			desc: "On 500_000",
+			params: types.Params{
+				ContractGasLimit: 500_000,
 			},
 		},
 		{
-			desc: "On 1 address",
-			Expected: types.Params{
-				ContractGasLimit: defaultParams.ContractGasLimit,
-			},
-		},
-		{
-			desc: "On 2 Unique",
-			Expected: types.Params{
-				ContractGasLimit: defaultParams.ContractGasLimit,
+			desc: "On 1_000_000",
+			params: types.Params{
+				ContractGasLimit: 1_000_000,
 			},
 		},
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			// Set the params to what is expected, then query and ensure the query is the same
-			err := s.app.AppKeepers.ClockKeeper.SetParams(s.ctx, tc.Expected)
+			// Set params
+			err := s.app.AppKeepers.ClockKeeper.SetParams(s.ctx, tc.params)
 			s.Require().NoError(err)
+
+			// Query params
+			goCtx := sdk.WrapSDKContext(s.ctx)
+			resp, err := s.queryClient.Params(goCtx, &types.QueryParamsRequest{})
+
+			// Response check
+			s.Require().NoError(err)
+			s.Require().NotNil(resp)
+			s.Require().Equal(tc.params, *resp.Params)
+		})
+	}
+}
+
+// Query Clock Contracts
+func (s *IntegrationTestSuite) TestQueryClockContracts() {
+	_, _, addr := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	s.StoreCode()
+
+	for _, tc := range []struct {
+		desc      string
+		contracts []string
+	}{
+		{
+			desc:      "On empty",
+			contracts: []string(nil),
+		},
+		{
+			desc: "On Single",
+			contracts: []string{
+				s.InstantiateContract(addr.String(), ""),
+			},
+		},
+		{
+			desc: "On Multiple",
+			contracts: []string{
+				s.InstantiateContract(addr.String(), ""),
+				s.InstantiateContract(addr.String(), ""),
+				s.InstantiateContract(addr.String(), ""),
+			},
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			// Loop through contracts & register
+			for _, contract := range tc.contracts {
+				s.RegisterClockContract(addr.String(), contract)
+			}
 
 			// Contracts check
 			goCtx := sdk.WrapSDKContext(s.ctx)
 			resp, err := s.queryClient.ClockContracts(goCtx, &types.QueryClockContracts{})
+
+			// Response check
 			s.Require().NoError(err)
 			s.Require().NotNil(resp)
+			s.Require().ElementsMatch(resp.ContractAddresses, tc.contracts)
 
-			// All Params Check
-			resp2, err := s.queryClient.Params(goCtx, &types.QueryParamsRequest{})
+			// Remove all contracts
+			for _, contract := range tc.contracts {
+				s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contract, false)
+			}
+		})
+	}
+}
+
+// Query Jailed Clock Contracts
+func (s *IntegrationTestSuite) TestQueryJailedClockContracts() {
+	_, _, addr := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	s.StoreCode()
+
+	for _, tc := range []struct {
+		desc      string
+		contracts []string
+	}{
+		{
+			desc:      "On empty",
+			contracts: []string(nil),
+		},
+		{
+			desc: "On Single",
+			contracts: []string{
+				s.InstantiateContract(addr.String(), ""),
+			},
+		},
+		{
+			desc: "On Multiple",
+			contracts: []string{
+				s.InstantiateContract(addr.String(), ""),
+				s.InstantiateContract(addr.String(), ""),
+				s.InstantiateContract(addr.String(), ""),
+			},
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			// Loop through contracts & register
+			for _, contract := range tc.contracts {
+				s.RegisterClockContract(addr.String(), contract)
+				s.JailClockContract(contract)
+			}
+
+			// Contracts check
+			goCtx := sdk.WrapSDKContext(s.ctx)
+			resp, err := s.queryClient.JailedClockContracts(goCtx, &types.QueryJailedClockContracts{})
+
+			// Response check
 			s.Require().NoError(err)
-			s.Require().Equal(tc.Expected, *resp2.Params)
+			s.Require().NotNil(resp)
+			s.Require().ElementsMatch(resp.JailedContractAddresses, tc.contracts)
+
+			// Remove all contracts
+			for _, contract := range tc.contracts {
+				s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contract, true)
+			}
+		})
+	}
+}
+
+// Query Clock Contract
+func (s *IntegrationTestSuite) TestQueryClockContract() {
+	_, _, addr := testdata.KeyTestPubAddr()
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_, _, invalidAddr := testdata.KeyTestPubAddr()
+
+	s.StoreCode()
+
+	unjailedContract := s.InstantiateContract(addr.String(), "")
+	s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, unjailedContract, false)
+
+	jailedContract := s.InstantiateContract(addr.String(), "")
+	s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, jailedContract, true)
+
+	for _, tc := range []struct {
+		desc     string
+		contract string
+		isJailed bool
+		success  bool
+	}{
+		{
+			desc:     "On Unjailed",
+			contract: unjailedContract,
+			isJailed: false,
+			success:  true,
+		},
+		{
+			desc:     "On Jailed",
+			contract: jailedContract,
+			isJailed: true,
+			success:  true,
+		},
+		{
+			desc:     "Invalid Contract - Unjailed",
+			contract: invalidAddr.String(),
+			isJailed: false,
+			success:  false,
+		},
+		{
+			desc:     "Invalid Contract - Jailed",
+			contract: invalidAddr.String(),
+			isJailed: true,
+			success:  false,
+		},
+	} {
+		tc := tc
+		s.Run(tc.desc, func() {
+			// Query contract
+			resp, err := s.queryClient.ClockContract(s.ctx, &types.QueryClockContract{
+				ContractAddress: tc.contract,
+			})
+
+			// Validate responses
+			if tc.success {
+				s.Require().NoError(err)
+				s.Require().Equal(resp.ContractAddress, tc.contract)
+				s.Require().Equal(resp.IsJailed, tc.isJailed)
+			} else {
+				s.Require().Error(err)
+			}
 		})
 	}
 }
