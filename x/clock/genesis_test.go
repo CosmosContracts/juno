@@ -45,17 +45,17 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 	defaultParams := types.DefaultParams()
 
 	testCases := []struct {
-		name     string
-		genesis  types.GenesisState
-		expPanic bool
+		name    string
+		genesis types.GenesisState
+		success bool
 	}{
 		{
-			"default genesis",
+			"Success - Default Genesis",
 			*clock.DefaultGenesisState(),
-			false,
+			true,
 		},
 		{
-			"custom genesis - none",
+			"Success - Custom Genesis",
 			types.GenesisState{
 				Params: types.Params{
 					ContractGasLimit: defaultParams.ContractGasLimit,
@@ -63,10 +63,10 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 				ContractAddresses:       []string(nil),
 				JailedContractAddresses: []string(nil),
 			},
-			false,
+			true,
 		},
 		{
-			"custom genesis - incorrect addr",
+			"Fail - Incorrect Contract Address",
 			types.GenesisState{
 				Params: types.Params{
 					ContractGasLimit: defaultParams.ContractGasLimit,
@@ -74,10 +74,21 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 				ContractAddresses:       []string{"incorrectaddr"},
 				JailedContractAddresses: []string(nil),
 			},
-			true,
+			false,
 		},
 		{
-			"custom genesis - only one addr allowed",
+			"Fail - Incorrect Jailed Contract Address",
+			types.GenesisState{
+				Params: types.Params{
+					ContractGasLimit: defaultParams.ContractGasLimit,
+				},
+				ContractAddresses:       []string(nil),
+				JailedContractAddresses: []string{"incorrectaddr"},
+			},
+			false,
+		},
+		{
+			"Fail - Incorrect Invalid Contracts",
 			types.GenesisState{
 				Params: types.Params{
 					ContractGasLimit: defaultParams.ContractGasLimit,
@@ -85,7 +96,18 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 				ContractAddresses:       []string{addr.String(), addr2.String()},
 				JailedContractAddresses: []string(nil),
 			},
-			false,
+			true,
+		},
+		{
+			"Fail - Incorrect Jailed Invalid Contracts",
+			types.GenesisState{
+				Params: types.Params{
+					ContractGasLimit: defaultParams.ContractGasLimit,
+				},
+				ContractAddresses:       []string(nil),
+				JailedContractAddresses: []string{addr.String(), addr2.String()},
+			},
+			true,
 		},
 	}
 
@@ -93,17 +115,17 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			if tc.expPanic {
-				suite.Require().Panics(func() {
-					clock.InitGenesis(suite.ctx, suite.app.AppKeepers.ClockKeeper, tc.genesis)
-				})
-			} else {
+			if tc.success {
 				suite.Require().NotPanics(func() {
 					clock.InitGenesis(suite.ctx, suite.app.AppKeepers.ClockKeeper, tc.genesis)
 				})
 
 				params := suite.app.AppKeepers.ClockKeeper.GetParams(suite.ctx)
 				suite.Require().Equal(tc.genesis.Params, params)
+			} else {
+				suite.Require().Panics(func() {
+					clock.InitGenesis(suite.ctx, suite.app.AppKeepers.ClockKeeper, tc.genesis)
+				})
 			}
 		})
 	}

@@ -35,7 +35,26 @@ func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMe
 }
 
 func ValidateGenesis(data types.GenesisState) error {
-	return data.Params.Validate()
+	err := data.Params.Validate()
+	if err != nil {
+		return err
+	}
+
+	// Validate contracts
+	for _, addr := range data.ContractAddresses {
+		if _, err := sdk.AccAddressFromBech32(addr); err != nil {
+			return err
+		}
+	}
+
+	// Validate jailed contracts
+	for _, addr := range data.JailedContractAddresses {
+		if _, err := sdk.AccAddressFromBech32(addr); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // InitGenesis import module genesis
@@ -44,12 +63,24 @@ func InitGenesis(
 	k keeper.Keeper,
 	data types.GenesisState,
 ) {
+	// Validate init contents
 	if err := ValidateGenesis(data); err != nil {
 		panic(err)
 	}
 
+	// Set params
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
+	}
+
+	// Register unjailed contracts
+	for _, addr := range data.ContractAddresses {
+		k.SetClockContract(ctx, addr, false)
+	}
+
+	// Register jailed contracts
+	for _, addr := range data.JailedContractAddresses {
+		k.SetClockContract(ctx, addr, true)
 	}
 }
 
