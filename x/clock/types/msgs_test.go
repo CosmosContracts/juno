@@ -6,8 +6,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/CosmosContracts/juno/v18/x/drip/types"
 )
 
 type MsgsTestSuite struct {
@@ -35,7 +33,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateParams() {
 
 	msg := NewMsgUpdateParams(acc)
 
-	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgUpdateParams, msg.Type())
 	suite.Require().NotNil(msg.GetSigners())
 }
