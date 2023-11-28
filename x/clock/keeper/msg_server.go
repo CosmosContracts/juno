@@ -29,14 +29,9 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 func (k msgServer) RegisterClockContract(goCtx context.Context, req *types.MsgRegisterClockContract) (*types.MsgRegisterClockContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Validate sender address
-	if _, err := sdk.AccAddressFromBech32(req.SenderAddress); err != nil {
-		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid sender address: %s", req.SenderAddress)
-	}
-
-	// Validate contract address
-	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid contract address: %s", req.ContractAddress)
+	// Validate request
+	if err := req.ValidateBasic(); err != nil {
+		return nil, err
 	}
 
 	return &types.MsgRegisterClockContractResponse{}, k.RegisterContract(ctx, req.SenderAddress, req.ContractAddress)
@@ -46,14 +41,9 @@ func (k msgServer) RegisterClockContract(goCtx context.Context, req *types.MsgRe
 func (k msgServer) UnregisterClockContract(goCtx context.Context, req *types.MsgUnregisterClockContract) (*types.MsgUnregisterClockContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Validate sender address
-	if _, err := sdk.AccAddressFromBech32(req.SenderAddress); err != nil {
-		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid sender address: %s", req.SenderAddress)
-	}
-
-	// Validate contract address
-	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid contract address: %s", req.ContractAddress)
+	// Validate request
+	if err := req.ValidateBasic(); err != nil {
+		return nil, err
 	}
 
 	return &types.MsgUnregisterClockContractResponse{}, k.UnregisterContract(ctx, req.SenderAddress, req.ContractAddress)
@@ -63,14 +53,9 @@ func (k msgServer) UnregisterClockContract(goCtx context.Context, req *types.Msg
 func (k msgServer) UnjailClockContract(goCtx context.Context, req *types.MsgUnjailClockContract) (*types.MsgUnjailClockContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Validate sender address
-	if _, err := sdk.AccAddressFromBech32(req.SenderAddress); err != nil {
-		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid sender address: %s", req.SenderAddress)
-	}
-
-	// Validate contract address
-	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid contract address: %s", req.ContractAddress)
+	// Validate request
+	if err := req.ValidateBasic(); err != nil {
+		return nil, err
 	}
 
 	return &types.MsgUnjailClockContractResponse{}, k.SetJailStatusBySender(ctx, req.SenderAddress, req.ContractAddress, false)

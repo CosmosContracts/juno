@@ -34,11 +34,7 @@ func (msg MsgRegisterClockContract) Type() string { return TypeMsgRegisterFeePay
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgRegisterClockContract) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return err
-	}
-
-	return nil
+	return validateAddresses(msg.SenderAddress, msg.ContractAddress)
 }
 
 // GetSignBytes encodes the message for signing
@@ -60,11 +56,7 @@ func (msg MsgUnregisterClockContract) Type() string { return TypeMsgRegisterFeeP
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUnregisterClockContract) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return err
-	}
-
-	return nil
+	return validateAddresses(msg.SenderAddress, msg.ContractAddress)
 }
 
 // GetSignBytes encodes the message for signing
@@ -86,11 +78,7 @@ func (msg MsgUnjailClockContract) Type() string { return TypeMsgRegisterFeePayCo
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgUnjailClockContract) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return err
-	}
-
-	return nil
+	return validateAddresses(msg.SenderAddress, msg.ContractAddress)
 }
 
 // GetSignBytes encodes the message for signing
@@ -138,4 +126,15 @@ func (msg *MsgUpdateParams) ValidateBasic() error {
 	}
 
 	return msg.Params.Validate()
+}
+
+// ValidateAddresses validates the provided addresses
+func validateAddresses(addresses ...string) error {
+	for _, address := range addresses {
+		if _, err := sdk.AccAddressFromBech32(address); err != nil {
+			return errors.Wrapf(ErrInvalidAddress, "invalid address: %s", address)
+		}
+	}
+
+	return nil
 }
