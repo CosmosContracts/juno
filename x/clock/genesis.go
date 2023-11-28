@@ -40,13 +40,6 @@ func ValidateGenesis(data types.GenesisState) error {
 		return err
 	}
 
-	// Validate contracts
-	for _, contract := range data.ClockContracts {
-		if _, err := sdk.AccAddressFromBech32(contract.ContractAddress); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -65,26 +58,13 @@ func InitGenesis(
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
 	}
-
-	// Register unjailed contracts
-	for _, contract := range data.ClockContracts {
-		err := k.SetClockContract(ctx, contract)
-		if err != nil {
-			panic(err)
-		}
-	}
 }
 
 // ExportGenesis export module state
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	params := k.GetParams(ctx)
-	contracts, err := k.GetAllContracts(ctx)
-	if err != nil {
-		panic(err)
-	}
 
 	return &types.GenesisState{
-		Params:         params,
-		ClockContracts: contracts,
+		Params: params,
 	}
 }

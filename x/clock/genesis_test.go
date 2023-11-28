@@ -8,7 +8,6 @@ import (
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v18/app"
@@ -39,10 +38,6 @@ func (suite *GenesisTestSuite) SetupTest() {
 }
 
 func (suite *GenesisTestSuite) TestClockInitGenesis() {
-	_, _, addr := testdata.KeyTestPubAddr()
-
-	defaultParams := types.DefaultParams()
-
 	testCases := []struct {
 		name    string
 		genesis types.GenesisState
@@ -57,41 +52,19 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 			"Success - Custom Genesis",
 			types.GenesisState{
 				Params: types.Params{
-					ContractGasLimit: defaultParams.ContractGasLimit,
+					ContractGasLimit: 500_000,
 				},
-				ClockContracts: []types.ClockContract{},
 			},
 			true,
 		},
 		{
-			"Fail - Invalid Contract Address",
+			"Fail - Invalid Gas Amount",
 			types.GenesisState{
 				Params: types.Params{
-					ContractGasLimit: defaultParams.ContractGasLimit,
-				},
-				ClockContracts: []types.ClockContract{
-					{
-						ContractAddress: "invalid-address",
-						IsJailed:        false,
-					},
+					ContractGasLimit: 1,
 				},
 			},
 			false,
-		},
-		{
-			"Fail - Valid Address, Invalid Contract",
-			types.GenesisState{
-				Params: types.Params{
-					ContractGasLimit: defaultParams.ContractGasLimit,
-				},
-				ClockContracts: []types.ClockContract{
-					{
-						ContractAddress: addr.String(),
-						IsJailed:        false,
-					},
-				},
-			},
-			true,
 		},
 	}
 

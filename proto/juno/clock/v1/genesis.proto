@@ -14,12 +14,6 @@ message GenesisState {
     (gogoproto.nullable) = false,
     (gogoproto.jsontag) = "params,omitempty"
   ];
-  // contract_addresses stores the list of executable contracts to be ticked on every block.
-  repeated ClockContract clock_contracts = 2 [ 
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag) = "contracts,omitempty",
-    (gogoproto.moretags) = "yaml:\"contracts\""
-  ];
 }
 
 // Params defines the set of module parameters.
