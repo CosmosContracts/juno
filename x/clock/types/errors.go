@@ -15,5 +15,6 @@ var (
 	ErrContractNotCreator        = errorsmod.Register(ModuleName, 5, "sender is not the contract creator")
 	ErrContractJailed            = errorsmod.Register(ModuleName, 6, "contract is jailed")
 	ErrContractNotJailed         = errorsmod.Register(ModuleName, 7, "contract is not jailed")
-	ErrInvalidCWContract         = errorsmod.Register(ModuleName, 8, "invalid CosmWasm contract")
+	ErrContractAlreadyJailed     = errorsmod.Register(ModuleName, 8, "contract is already jailed")
+	ErrInvalidCWContract         = errorsmod.Register(ModuleName, 9, "invalid CosmWasm contract")
 )

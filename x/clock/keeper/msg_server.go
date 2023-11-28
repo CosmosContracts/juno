@@ -73,7 +73,7 @@ func (k msgServer) UnjailClockContract(goCtx context.Context, req *types.MsgUnja
 		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid contract address: %s", req.ContractAddress)
 	}
 
-	return &types.MsgUnjailClockContractResponse{}, k.UnjailContract(ctx, req.SenderAddress, req.ContractAddress)
+	return &types.MsgUnjailClockContractResponse{}, k.SetJailStatusBySender(ctx, req.SenderAddress, req.ContractAddress, false)
 }
 
 func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {

@@ -126,12 +126,12 @@ func (s *IntegrationTestSuite) UnregisterClockContract(senderAddress string, con
 
 // Helper method for quickly jailing a clock contract
 func (s *IntegrationTestSuite) JailClockContract(contractAddress string) {
-	err := s.app.AppKeepers.ClockKeeper.JailContract(s.ctx, contractAddress)
+	err := s.app.AppKeepers.ClockKeeper.SetJailStatus(s.ctx, contractAddress, true)
 	s.Require().NoError(err)
 }
 
 // Helper method for quickly unjailing a clock contract
 func (s *IntegrationTestSuite) UnjailClockContract(senderAddress string, contractAddress string) {
-	err := s.app.AppKeepers.ClockKeeper.UnjailContract(s.ctx, senderAddress, contractAddress)
+	err := s.app.AppKeepers.ClockKeeper.SetJailStatus(s.ctx, contractAddress, false)
 	s.Require().NoError(err)
 }

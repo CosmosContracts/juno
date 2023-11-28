@@ -3,58 +3,128 @@ package keeper
 import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"github.com/CosmosContracts/juno/v18/x/clock/types"
 )
 
 // Store Keys for clock contracts (both jailed and unjailed)
 var (
-	StoreKeyContracts       = []byte("contracts")
-	StoreKeyJailedContracts = []byte("jailed-contracts")
+	StoreKeyContracts = []byte("contracts")
 )
 
-// Get the store key for either jailed or unjailed contracts.
-func (k Keeper) getStore(ctx sdk.Context, isJailed bool) prefix.Store {
-	if isJailed {
-		return prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyJailedContracts)
-	}
-
+// Get the store for the clock contracts.
+func (k Keeper) getStore(ctx sdk.Context) prefix.Store {
 	return prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
 }
 
 // Set a clock contract address in the KV store.
-func (k Keeper) SetClockContract(ctx sdk.Context, contractAddress string, isJailed bool) {
-	store := k.getStore(ctx, isJailed)
-	store.Set([]byte(contractAddress), []byte(contractAddress))
+func (k Keeper) SetClockContract(ctx sdk.Context, contract types.ClockContract) error {
+	// Get store, marshal content
+	store := k.getStore(ctx)
+	bz, err := k.cdc.Marshal(&contract)
+
+	if err != nil {
+		return err
+	}
+
+	// Set the contract
+	store.Set([]byte(contract.ContractAddress), bz)
+	return nil
 }
 
 // Check if a clock contract address is in the KV store.
-func (k Keeper) IsClockContract(ctx sdk.Context, contractAddress string, isJailed bool) bool {
-	store := k.getStore(ctx, isJailed)
+func (k Keeper) IsClockContract(ctx sdk.Context, contractAddress string) bool {
+	store := k.getStore(ctx)
 	return store.Has([]byte(contractAddress))
 }
 
-// Get all clock contract addresses from the KV store.
-func (k Keeper) GetAllContracts(ctx sdk.Context, isJailed bool) []string {
-	// Get the KV store
-	store := k.getStore(ctx, isJailed)
+// Get a clock contract address from the KV store.
+func (k Keeper) GetClockContract(ctx sdk.Context, contractAddress string) (*types.ClockContract, error) {
 
-	// Iterate over all contracts
+	// Check if the contract is registered
+	if !k.IsClockContract(ctx, contractAddress) {
+		return nil, types.ErrContractNotRegistered
+	}
+
+	// Get the KV store
+	store := k.getStore(ctx)
+	bz := store.Get([]byte(contractAddress))
+
+	// Unmarshal the contract
+	var contract types.ClockContract
+	err := k.cdc.Unmarshal(bz, &contract)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the contract
+	return &contract, nil
+}
+
+// Get all clock contract addresses from the KV store.
+func (k Keeper) GetAllContracts(ctx sdk.Context) ([]types.ClockContract, error) {
+	// Get the KV store
+	store := k.getStore(ctx)
+
+	// Create iterator for contracts
 	iterator := sdk.KVStorePrefixIterator(store, []byte(nil))
 	defer iterator.Close()
 
-	contracts := []string{}
+	// Iterate over all contracts
+	contracts := []types.ClockContract{}
 	for ; iterator.Valid(); iterator.Next() {
-		contracts = append(contracts, string(iterator.Value()))
+
+		// Unmarshal iterator
+		var contract types.ClockContract
+		err := k.cdc.Unmarshal(iterator.Value(), &contract)
+		if err != nil {
+			return nil, err
+		}
+
+		contracts = append(contracts, contract)
 	}
 
-	// Return array of contract addresses
-	return contracts
+	// Return array of contracts
+	return contracts, nil
+}
+
+// Get all registered fee pay contracts
+func (k Keeper) GetPaginatedContracts(ctx sdk.Context, pag *query.PageRequest) (*types.QueryClockContractsResponse, error) {
+	store := k.getStore(ctx)
+
+	// Filter and paginate all contracts
+	results, pageRes, err := query.GenericFilteredPaginate(
+		k.cdc,
+		store,
+		pag,
+		func(key []byte, value *types.ClockContract) (*types.ClockContract, error) {
+			return value, nil
+		},
+		func() *types.ClockContract {
+			return &types.ClockContract{}
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Dereference pointer array of contracts
+	var contracts []types.ClockContract
+	for _, contract := range results {
+		contracts = append(contracts, *contract)
+	}
+
+	// Return paginated contracts
+	return &types.QueryClockContractsResponse{
+		ClockContracts: contracts,
+		Pagination:     pageRes,
+	}, nil
 }
 
 // Remove a clock contract address from the KV store.
-func (k Keeper) RemoveContract(ctx sdk.Context, contractAddress string, isJailed bool) {
-	store := k.getStore(ctx, isJailed)
+func (k Keeper) RemoveContract(ctx sdk.Context, contractAddress string) {
+	store := k.getStore(ctx)
 	key := []byte(contractAddress)
 
 	if store.Has(key) {
@@ -65,13 +135,8 @@ func (k Keeper) RemoveContract(ctx sdk.Context, contractAddress string, isJailed
 // Register a clock contract address in the KV store.
 func (k Keeper) RegisterContract(ctx sdk.Context, senderAddress string, contractAddress string) error {
 	// Check if the contract is already registered
-	if k.IsClockContract(ctx, contractAddress, false) {
+	if k.IsClockContract(ctx, contractAddress) {
 		return types.ErrContractAlreadyRegistered
-	}
-
-	// Check if the contract is already jailed
-	if k.IsClockContract(ctx, contractAddress, true) {
-		return types.ErrContractJailed
 	}
 
 	// Ensure the sender is the contract admin or creator
@@ -80,14 +145,17 @@ func (k Keeper) RegisterContract(ctx sdk.Context, senderAddress string, contract
 	}
 
 	// Register contract
-	k.SetClockContract(ctx, contractAddress, false)
+	k.SetClockContract(ctx, types.ClockContract{
+		ContractAddress: contractAddress,
+		IsJailed:        false,
+	})
 	return nil
 }
 
 // Unregister a clock contract from either the jailed or unjailed KV store.
 func (k Keeper) UnregisterContract(ctx sdk.Context, senderAddress string, contractAddress string) error {
 	// Check if the contract is registered in either store
-	if !k.IsClockContract(ctx, contractAddress, false) && !k.IsClockContract(ctx, contractAddress, true) {
+	if !k.IsClockContract(ctx, contractAddress) {
 		return types.ErrContractNotRegistered
 	}
 
@@ -97,44 +165,45 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, senderAddress string, contra
 	}
 
 	// Remove contract from both stores
-	k.RemoveContract(ctx, contractAddress, false)
-	k.RemoveContract(ctx, contractAddress, true)
+	k.RemoveContract(ctx, contractAddress)
 	return nil
 }
 
-// Jail a clock contract in the jailed KV store.
-func (k Keeper) JailContract(ctx sdk.Context, contractAddress string) error {
-	// Check if the contract is registered in the unjailed store
-	if !k.IsClockContract(ctx, contractAddress, false) {
-		return types.ErrContractNotRegistered
+// Set the jail status of a clock contract in the KV store.
+func (k Keeper) SetJailStatus(ctx sdk.Context, contractAddress string, isJailed bool) error {
+
+	// Get the contract
+	contract, err := k.GetClockContract(ctx, contractAddress)
+	if err != nil {
+		return err
 	}
 
-	// Remove contract from unjailed store
-	k.RemoveContract(ctx, contractAddress, false)
+	// Check if the contract is already jailed or unjailed
+	if contract.IsJailed == isJailed {
+		if isJailed {
+			return types.ErrContractAlreadyJailed
+		} else {
+			return types.ErrContractNotJailed
+		}
+	}
 
-	// Set contract in jailed store
-	k.SetClockContract(ctx, contractAddress, true)
+	// Set the jail status
+	contract.IsJailed = isJailed
+
+	// Set the contract
+	k.SetClockContract(ctx, *contract)
 	return nil
 }
 
-// Unjail a clock contract from the jailed KV store.
-func (k Keeper) UnjailContract(ctx sdk.Context, senderAddress string, contractAddress string) error {
-	// Check if the contract is registered in the jailed store
-	if !k.IsClockContract(ctx, contractAddress, true) {
-		return types.ErrContractNotJailed
-	}
+// Set the jail status of a clock contract by the sender address.
+func (k Keeper) SetJailStatusBySender(ctx sdk.Context, senderAddress string, contractAddress string, jailStatus bool) error {
 
 	// Ensure the sender is the contract admin or creator
 	if ok, err := k.IsContractManager(ctx, senderAddress, contractAddress); !ok {
 		return err
 	}
 
-	// Remove contract from jailed store
-	k.RemoveContract(ctx, contractAddress, true)
-
-	// Set contract in unjailed store
-	k.SetClockContract(ctx, contractAddress, false)
-	return nil
+	return k.SetJailStatus(ctx, contractAddress, jailStatus)
 }
 
 // Check if the sender is the designated contract manager for the FeePay contract. If

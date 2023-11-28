@@ -1,10 +1,12 @@
 syntax = "proto3";
 package juno.clock.v1;
 
+import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "juno/clock/v1/genesis.proto";
+import "juno/clock/v1/clock.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/clock/types";
 
@@ -15,12 +17,6 @@ service Query {
       returns (QueryClockContractsResponse) {
     option (google.api.http).get =
         "/juno/clock/v1/contracts";
-  }
-  // Jailed Clock Contracts
-  rpc JailedClockContracts(QueryJailedClockContracts)
-      returns (QueryJailedClockContractsResponse) {
-    option (google.api.http).get =
-        "/juno/clock/v1/contracts/jailed";
   }
   // ClockContract
   rpc ClockContract(QueryClockContract)
@@ -35,25 +31,17 @@ service Query {
 }
 
 // QueryClockContracts is the request type to get all contracts.
-message QueryClockContracts {}
+message QueryClockContracts {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
 
 // QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
 message QueryClockContractsResponse {
-  repeated string contract_addresses = 1 [    
-    (gogoproto.jsontag) = "contract_addresses,omitempty",
-    (gogoproto.moretags) = "yaml:\"contract_addresses\""
-  ];
-}
-
-// QueryJailedClockContracts is the request type to get all jailed contracts.
-message QueryJailedClockContracts {}
-
-// QueryJailedClockContractsResponse is the response type for the Query/JailedClockContracts RPC method.
-message QueryJailedClockContractsResponse {
-  repeated string jailed_contract_addresses = 1 [    
-    (gogoproto.jsontag) = "contract_addresses,omitempty",
-    (gogoproto.moretags) = "yaml:\"contract_addresses\""
-  ];
+  // clock_contracts are the clock contracts.
+  repeated ClockContract clock_contracts = 1 [ (gogoproto.nullable) = false ];
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryClockContract is the request type to get a single contract.
@@ -64,10 +52,8 @@ message QueryClockContract {
 
 // QueryClockContractResponse is the response type for the Query/ClockContract RPC method.
 message QueryClockContractResponse {
-  // contract is the contract with the given address.
-  string contract_address = 1;
-  // is_jailed is the jailed status of the contract.
-  bool is_jailed = 2;
+  // contract is the clock contract.
+  ClockContract contract = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryParams is the request type to get all module params.

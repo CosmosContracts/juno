@@ -19,28 +19,58 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 	p := k.GetParams(ctx)
 
-	contracts := k.GetAllContracts(ctx, false)
+	// Get all contracts
+	contracts, err := k.GetAllContracts(ctx)
+	if err != nil {
+		log.Printf("[x/clock] Failed to get contracts: %v", err)
+		return
+	}
+
+	// Track errors
 	errorExecs := make([]string, len(contracts))
 	errorExists := false
 
-	for idx, addr := range contracts {
-		contract, err := sdk.AccAddressFromBech32(addr)
+	// Function to handle contract execution errors. Returns true if error is present, false otherwise.
+	handleError := func(err error, idx int, contractAddress string) bool {
+
+		// Check if error is present
 		if err != nil {
-			errorExecs[idx] = addr
+
+			// Flag error
+			errorExists = true
+			errorExecs[idx] = contractAddress
+
+			// Attempt to jail contract, log error if present
+			err := k.SetJailStatus(ctx, contractAddress, true)
+			if err != nil {
+				log.Printf("[x/clock] Failed to Error Contract %s: %v", contractAddress, err)
+			}
+		}
+
+		return err != nil
+	}
+
+	// Execute all contracts that are not jailed
+	for idx, contract := range contracts {
+
+		// Skip jailed contracts
+		if contract.IsJailed {
 			continue
 		}
 
-		childCtx := ctx.WithGasMeter(sdk.NewGasMeter(p.ContractGasLimit))
-		_, err = k.GetContractKeeper().Sudo(childCtx, contract, message)
-		if err != nil {
-			errorExists = true
-			errorExecs[idx] = addr
+		// Get sdk.AccAddress from contract address
+		contractAddr := sdk.MustAccAddressFromBech32(contract.ContractAddress)
+		if handleError(err, idx, contract.ContractAddress) {
+			continue
+		}
 
-			// Jail contract on error
-			err = k.JailContract(ctx, addr)
-			if err != nil {
-				log.Printf("[x/clock] Failed to Error Contract %s: %v", addr, err)
-			}
+		// Create context with gas limit
+		childCtx := ctx.WithGasMeter(sdk.NewGasMeter(p.ContractGasLimit))
+
+		// Execute contract
+		_, err = k.GetContractKeeper().Sudo(childCtx, contractAddr, message)
+		if handleError(err, idx, contract.ContractAddress) {
+			continue
 		}
 	}
 

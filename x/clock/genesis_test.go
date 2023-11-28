@@ -40,7 +40,6 @@ func (suite *GenesisTestSuite) SetupTest() {
 
 func (suite *GenesisTestSuite) TestClockInitGenesis() {
 	_, _, addr := testdata.KeyTestPubAddr()
-	_, _, addr2 := testdata.KeyTestPubAddr()
 
 	defaultParams := types.DefaultParams()
 
@@ -60,52 +59,37 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 				Params: types.Params{
 					ContractGasLimit: defaultParams.ContractGasLimit,
 				},
-				ContractAddresses:       []string(nil),
-				JailedContractAddresses: []string(nil),
+				ClockContracts: []types.ClockContract{},
 			},
 			true,
 		},
 		{
-			"Fail - Incorrect Contract Address",
+			"Fail - Invalid Contract Address",
 			types.GenesisState{
 				Params: types.Params{
 					ContractGasLimit: defaultParams.ContractGasLimit,
 				},
-				ContractAddresses:       []string{"incorrectaddr"},
-				JailedContractAddresses: []string(nil),
+				ClockContracts: []types.ClockContract{
+					{
+						ContractAddress: "invalid-address",
+						IsJailed:        false,
+					},
+				},
 			},
 			false,
 		},
 		{
-			"Fail - Incorrect Jailed Contract Address",
+			"Fail - Valid Address, Invalid Contract",
 			types.GenesisState{
 				Params: types.Params{
 					ContractGasLimit: defaultParams.ContractGasLimit,
 				},
-				ContractAddresses:       []string(nil),
-				JailedContractAddresses: []string{"incorrectaddr"},
-			},
-			false,
-		},
-		{
-			"Fail - Incorrect Invalid Contracts",
-			types.GenesisState{
-				Params: types.Params{
-					ContractGasLimit: defaultParams.ContractGasLimit,
+				ClockContracts: []types.ClockContract{
+					{
+						ContractAddress: addr.String(),
+						IsJailed:        false,
+					},
 				},
-				ContractAddresses:       []string{addr.String(), addr2.String()},
-				JailedContractAddresses: []string(nil),
-			},
-			true,
-		},
-		{
-			"Fail - Incorrect Jailed Invalid Contracts",
-			types.GenesisState{
-				Params: types.Params{
-					ContractGasLimit: defaultParams.ContractGasLimit,
-				},
-				ContractAddresses:       []string(nil),
-				JailedContractAddresses: []string{addr.String(), addr2.String()},
 			},
 			true,
 		},

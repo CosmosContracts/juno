@@ -92,11 +92,14 @@ func (s *IntegrationTestSuite) TestQueryClockContracts() {
 			// Response check
 			s.Require().NoError(err)
 			s.Require().NotNil(resp)
-			s.Require().ElementsMatch(resp.ContractAddresses, tc.contracts)
+			for _, contract := range resp.ClockContracts {
+				s.Require().Contains(tc.contracts, contract.ContractAddress)
+				s.Require().False(contract.IsJailed)
+			}
 
 			// Remove all contracts
 			for _, contract := range tc.contracts {
-				s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contract, false)
+				s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contract)
 			}
 		})
 	}
@@ -142,16 +145,19 @@ func (s *IntegrationTestSuite) TestQueryJailedClockContracts() {
 
 			// Contracts check
 			goCtx := sdk.WrapSDKContext(s.ctx)
-			resp, err := s.queryClient.JailedClockContracts(goCtx, &types.QueryJailedClockContracts{})
+			resp, err := s.queryClient.ClockContracts(goCtx, &types.QueryClockContracts{})
 
 			// Response check
 			s.Require().NoError(err)
 			s.Require().NotNil(resp)
-			s.Require().ElementsMatch(resp.JailedContractAddresses, tc.contracts)
+			for _, contract := range resp.ClockContracts {
+				s.Require().Contains(tc.contracts, contract.ContractAddress)
+				s.Require().True(contract.IsJailed)
+			}
 
 			// Remove all contracts
 			for _, contract := range tc.contracts {
-				s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contract, true)
+				s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contract)
 			}
 		})
 	}
@@ -166,10 +172,16 @@ func (s *IntegrationTestSuite) TestQueryClockContract() {
 	s.StoreCode()
 
 	unjailedContract := s.InstantiateContract(addr.String(), "")
-	s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, unjailedContract, false)
+	s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
+		ContractAddress: unjailedContract,
+		IsJailed:        false,
+	})
 
 	jailedContract := s.InstantiateContract(addr.String(), "")
-	s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, jailedContract, true)
+	s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
+		ContractAddress: jailedContract,
+		IsJailed:        true,
+	})
 
 	for _, tc := range []struct {
 		desc     string
@@ -212,8 +224,8 @@ func (s *IntegrationTestSuite) TestQueryClockContract() {
 			// Validate responses
 			if tc.success {
 				s.Require().NoError(err)
-				s.Require().Equal(resp.ContractAddress, tc.contract)
-				s.Require().Equal(resp.IsJailed, tc.isJailed)
+				s.Require().Equal(resp.Contract.ContractAddress, tc.contract)
+				s.Require().Equal(resp.Contract.IsJailed, tc.isJailed)
 			} else {
 				s.Require().Error(err)
 			}

@@ -29,10 +29,10 @@ func init() {
 
 // RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgRegisterClockContract{}, "juno/x/clock/MsgRegisterClockContract", nil)
-	cdc.RegisterConcrete(&MsgUnregisterClockContract{}, "juno/x/clock/MsgUnregisterClockContract", nil)
-	cdc.RegisterConcrete(&MsgUnjailClockContract{}, "juno/x/clock/MsgUnjailClockContract", nil)
-	cdc.RegisterConcrete(&MsgUpdateParams{}, "juno/x/clock/MsgUpdateParams", nil)
+	cdc.RegisterConcrete(&MsgRegisterClockContract{}, "clock/MsgRegisterClockContract", nil)
+	cdc.RegisterConcrete(&MsgUnregisterClockContract{}, "clock/MsgUnregisterClockContract", nil)
+	cdc.RegisterConcrete(&MsgUnjailClockContract{}, "clock/MsgUnjailClockContract", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "clock/MsgUpdateParams", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

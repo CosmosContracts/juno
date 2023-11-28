@@ -81,7 +81,7 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 			// Jail contract if needed
 			if tc.isJailed {
 				s.RegisterClockContract(tc.sender, tc.contract)
-				err := s.app.AppKeepers.ClockKeeper.JailContract(s.ctx, tc.contract)
+				err := s.app.AppKeepers.ClockKeeper.SetJailStatus(s.ctx, tc.contract, true)
 				s.Require().NoError(err)
 			}
 
@@ -99,8 +99,8 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 			}
 
 			// Ensure contract is unregistered
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress, false)
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin, false)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin)
 		})
 	}
 }
@@ -182,8 +182,8 @@ func (s *IntegrationTestSuite) TestUnregisterClockContract() {
 			}
 
 			// Ensure contract is unregistered
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress, false)
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin, false)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin)
 		})
 	}
 }
@@ -316,10 +316,8 @@ func (s *IntegrationTestSuite) TestUnjailClockContract() {
 			}
 
 			// Ensure contract is unregistered
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress, false)
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress, true)
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin, false)
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin, true)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress)
+			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin)
 		})
 	}
 }
