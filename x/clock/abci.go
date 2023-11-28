@@ -10,9 +10,7 @@ import (
 	"github.com/CosmosContracts/juno/v18/x/clock/types"
 )
 
-var (
-	endBlockSudoMessage = []byte(types.EndBlockSudoMessage)
-)
+var endBlockSudoMessage = []byte(types.EndBlockSudoMessage)
 
 // EndBlocker executes on contracts at the end of the block.
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
