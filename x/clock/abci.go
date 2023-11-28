@@ -1,7 +1,6 @@
 package clock
 
 import (
-	"log"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -11,18 +10,21 @@ import (
 	"github.com/CosmosContracts/juno/v18/x/clock/types"
 )
 
+var (
+	endBlockSudoMessage = []byte(types.EndBlockSudoMessage)
+)
+
 // EndBlocker executes on contracts at the end of the block.
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
 
-	message := []byte(types.EndBlockSudoMessage)
-
+	logger := k.Logger(ctx)
 	p := k.GetParams(ctx)
 
 	// Get all contracts
 	contracts, err := k.GetAllContracts(ctx)
 	if err != nil {
-		log.Printf("[x/clock] Failed to get contracts: %v", err)
+		logger.Error("Failed to get contracts", "error", err)
 		return
 	}
 
@@ -42,7 +44,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			// Attempt to jail contract, log error if present
 			err := k.SetJailStatus(ctx, contractAddress, true)
 			if err != nil {
-				log.Printf("[x/clock] Failed to Error Contract %s: %v", contractAddress, err)
+				logger.Error("Failed to jail contract", "contract", contractAddress, "error", err)
 			}
 		}
 
@@ -67,7 +69,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		childCtx := ctx.WithGasMeter(sdk.NewGasMeter(p.ContractGasLimit))
 
 		// Execute contract
-		_, err = k.GetContractKeeper().Sudo(childCtx, contractAddr, message)
+		_, err = k.GetContractKeeper().Sudo(childCtx, contractAddr, endBlockSudoMessage)
 		if handleError(err, idx, contract.ContractAddress) {
 			continue
 		}
@@ -75,6 +77,6 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 	// Log errors if present
 	if errorExists {
-		log.Printf("[x/clock] Execute Errors: %v", errorExecs)
+		logger.Error("Failed to execute contracts", "contracts", errorExecs)
 	}
 }

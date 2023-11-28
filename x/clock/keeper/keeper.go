@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"github.com/cometbft/cometbft/libs/log"
+
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -36,6 +38,11 @@ func NewKeeper(
 		contractKeeper: contractKeeper,
 		authority:      authority,
 	}
+}
+
+// Logger returns a module-specific logger.
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // GetAuthority returns the x/clock module's authority.
