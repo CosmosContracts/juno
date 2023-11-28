@@ -172,13 +172,13 @@ func (s *IntegrationTestSuite) TestQueryClockContract() {
 	s.StoreCode()
 
 	unjailedContract := s.InstantiateContract(addr.String(), "")
-	s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
+	_ = s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
 		ContractAddress: unjailedContract,
 		IsJailed:        false,
 	})
 
 	jailedContract := s.InstantiateContract(addr.String(), "")
-	s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
+	_ = s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
 		ContractAddress: jailedContract,
 		IsJailed:        true,
 	})

@@ -68,7 +68,10 @@ func InitGenesis(
 
 	// Register unjailed contracts
 	for _, contract := range data.ClockContracts {
-		k.SetClockContract(ctx, contract)
+		err := k.SetClockContract(ctx, contract)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

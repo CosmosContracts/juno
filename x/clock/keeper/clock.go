@@ -143,11 +143,10 @@ func (k Keeper) RegisterContract(ctx sdk.Context, senderAddress string, contract
 	}
 
 	// Register contract
-	k.SetClockContract(ctx, types.ClockContract{
+	return k.SetClockContract(ctx, types.ClockContract{
 		ContractAddress: contractAddress,
 		IsJailed:        false,
 	})
-	return nil
 }
 
 // Unregister a clock contract from either the jailed or unjailed KV store.
@@ -179,17 +178,16 @@ func (k Keeper) SetJailStatus(ctx sdk.Context, contractAddress string, isJailed 
 	if contract.IsJailed == isJailed {
 		if isJailed {
 			return types.ErrContractAlreadyJailed
-		} else {
-			return types.ErrContractNotJailed
 		}
+
+		return types.ErrContractNotJailed
 	}
 
 	// Set the jail status
 	contract.IsJailed = isJailed
 
 	// Set the contract
-	k.SetClockContract(ctx, *contract)
-	return nil
+	return k.SetClockContract(ctx, *contract)
 }
 
 // Set the jail status of a clock contract by the sender address.
