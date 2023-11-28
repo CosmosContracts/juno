@@ -32,7 +32,6 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 	// Function to handle contract execution errors. Returns true if error is present, false otherwise.
 	handleError := func(err error, idx int, contractAddress string) bool {
-
 		// Check if error is present
 		if err != nil {
 

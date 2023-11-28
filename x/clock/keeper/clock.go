@@ -23,7 +23,6 @@ func (k Keeper) SetClockContract(ctx sdk.Context, contract types.ClockContract) 
 	// Get store, marshal content
 	store := k.getStore(ctx)
 	bz, err := k.cdc.Marshal(&contract)
-
 	if err != nil {
 		return err
 	}
@@ -41,7 +40,6 @@ func (k Keeper) IsClockContract(ctx sdk.Context, contractAddress string) bool {
 
 // Get a clock contract address from the KV store.
 func (k Keeper) GetClockContract(ctx sdk.Context, contractAddress string) (*types.ClockContract, error) {
-
 	// Check if the contract is registered
 	if !k.IsClockContract(ctx, contractAddress) {
 		return nil, types.ErrContractNotRegistered
@@ -171,7 +169,6 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, senderAddress string, contra
 
 // Set the jail status of a clock contract in the KV store.
 func (k Keeper) SetJailStatus(ctx sdk.Context, contractAddress string, isJailed bool) error {
-
 	// Get the contract
 	contract, err := k.GetClockContract(ctx, contractAddress)
 	if err != nil {
@@ -197,7 +194,6 @@ func (k Keeper) SetJailStatus(ctx sdk.Context, contractAddress string, isJailed 
 
 // Set the jail status of a clock contract by the sender address.
 func (k Keeper) SetJailStatusBySender(ctx sdk.Context, senderAddress string, contractAddress string, jailStatus bool) error {
-
 	// Ensure the sender is the contract admin or creator
 	if ok, err := k.IsContractManager(ctx, senderAddress, contractAddress); !ok {
 		return err
