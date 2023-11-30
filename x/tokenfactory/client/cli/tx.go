@@ -335,7 +335,7 @@ func NewModifyDenomMetadataCmd() *cobra.Command {
 
 			bankMetadata := banktypes.Metadata{
 				Description: desc,
-				Display:     fullDenom,
+				Display:     ticker,
 				Symbol:      ticker,
 				Name:        fullDenom,
 				DenomUnits: []*banktypes.DenomUnit{
