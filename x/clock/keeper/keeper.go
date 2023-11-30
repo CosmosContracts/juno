@@ -79,3 +79,13 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 func (k Keeper) GetContractKeeper() wasmtypes.ContractOpsKeeper {
 	return k.contractKeeper
 }
+
+// GetCdc returns the x/clock module's codec.
+func (k Keeper) GetCdc() codec.BinaryCodec {
+	return k.cdc
+}
+
+// GetStore returns the x/clock module's store key.
+func (k Keeper) GetStore() storetypes.StoreKey {
+	return k.storeKey
+}

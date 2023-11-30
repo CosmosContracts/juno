@@ -17,4 +17,6 @@ var (
 	ErrContractNotJailed         = errorsmod.Register(ModuleName, 7, "contract is not jailed")
 	ErrContractAlreadyJailed     = errorsmod.Register(ModuleName, 8, "contract is already jailed")
 	ErrInvalidCWContract         = errorsmod.Register(ModuleName, 9, "invalid CosmWasm contract")
+	ErrOutOfGas                  = errorsmod.Register(ModuleName, 10, "contract execution ran out of gas")
+	ErrContractExecutionPanic    = errorsmod.Register(ModuleName, 11, "contract execution panicked")
 )
