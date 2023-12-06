@@ -24,14 +24,61 @@ func SmartQueryString(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 	return err
 }
 
+func StoreContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string) (codeId string) {
+	codeId, err := chain.StoreContract(ctx, keyname, fileLoc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return codeId
+}
+
 func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string, message string) (codeId, contract string) {
+	codeId = StoreContract(t, ctx, chain, keyname, fileLoc)
+
+	contractAddr, err := chain.InstantiateContract(ctx, keyname, codeId, message, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return codeId, contractAddr
+}
+
+func SetupContractWithAdmin(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, creatorKeyName string, adminAddress string, fileLoc string, message string) (codeId, contract string) {
+	codeId = StoreContract(t, ctx, chain, creatorKeyName, fileLoc)
+
+	contractAddr, err := chain.InstantiateContract(ctx, creatorKeyName, codeId, message, false, "--admin", adminAddress)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return codeId, contractAddr
+}
+
+func MigrateContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, contractAddr string, fileLoc string, message string) (codeId, contract string) {
 	codeId, err := chain.StoreContract(ctx, keyname, fileLoc)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	contractAddr, err := chain.InstantiateContract(ctx, keyname, codeId, message, true)
-	if err != nil {
+	// Execute migrate tx
+	cmd := []string{
+		"junod", "tx", "wasm", "migrate", contractAddr, codeId, message,
+		"--node", chain.GetRPCAddress(),
+		"--home", chain.HomeDir(),
+		"--chain-id", chain.Config().ChainID,
+		"--from", keyname,
+		"--gas", "500000",
+		"--keyring-dir", chain.HomeDir(),
+		"--keyring-backend", keyring.BackendTest,
+		"-y",
+	}
+
+	stdout, _, err := chain.Exec(ctx, cmd, nil)
+	require.NoError(t, err)
+
+	debugOutput(t, string(stdout))
+
+	if err := testutil.WaitForBlocks(ctx, 2, chain); err != nil {
 		t.Fatal(err)
 	}
 

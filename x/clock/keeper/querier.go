@@ -47,7 +47,7 @@ func (q Querier) ClockContract(stdCtx context.Context, req *types.QueryClockCont
 	}
 
 	return &types.QueryClockContractResponse{
-		Contract: *contract,
+		ClockContract: *contract,
 	}, nil
 }
 

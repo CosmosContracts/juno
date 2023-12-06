@@ -53,7 +53,7 @@ message QueryClockContract {
 // QueryClockContractResponse is the response type for the Query/ClockContract RPC method.
 message QueryClockContractResponse {
   // contract is the clock contract.
-  ClockContract contract = 1 [(gogoproto.nullable) = false];
+  ClockContract clock_contract = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryParams is the request type to get all module params.

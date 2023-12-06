@@ -224,8 +224,8 @@ func (s *IntegrationTestSuite) TestQueryClockContract() {
 			// Validate responses
 			if tc.success {
 				s.Require().NoError(err)
-				s.Require().Equal(resp.Contract.ContractAddress, tc.contract)
-				s.Require().Equal(resp.Contract.IsJailed, tc.isJailed)
+				s.Require().Equal(resp.ClockContract.ContractAddress, tc.contract)
+				s.Require().Equal(resp.ClockContract.IsJailed, tc.isJailed)
 			} else {
 				s.Require().Error(err)
 			}
