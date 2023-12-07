@@ -62,6 +62,10 @@ func TestJunoClock(t *testing.T) {
 	fmt.Printf("- res: %v\n", res.Data.Val)
 	require.GreaterOrEqual(t, res.Data.Val, uint32(1))
 
+	// Unregister the contract & ensure it is removed from the store
+	helpers.UnregisterClockContract(t, ctx, juno, user, contractAddr)
+	helpers.ValidateNoClockContract(t, ctx, juno, contractAddr)
+
 	//
 	// -- HIGH GAS CONTRACT --
 	// Ensure contracts that exceed the gas limit are jailed.

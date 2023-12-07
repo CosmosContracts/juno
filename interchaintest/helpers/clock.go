@@ -90,12 +90,7 @@ type ClockContract struct {
 func GetClockContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) ClockContract {
 	var res ClockContract
 
-	cmd := []string{"junod", "query", "clock", "contract", contract,
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
-		"--output", "json",
-	}
-
+	cmd := getClockQueryCommand(chain, contract)
 	stdout, _, err := chain.Exec(ctx, cmd, nil)
 	require.NoError(t, err)
 
@@ -106,4 +101,20 @@ func GetClockContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 	}
 
 	return res
+}
+
+// Validate a contract is not registered with the clock module
+func ValidateNoClockContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) {
+	cmd := getClockQueryCommand(chain, contract)
+	_, _, err := chain.Exec(ctx, cmd, nil)
+	require.Error(t, err)
+}
+
+// Get the clock query command
+func getClockQueryCommand(chain *cosmos.CosmosChain, contract string) []string {
+	return []string{"junod", "query", "clock", "contract", contract,
+		"--node", chain.GetRPCAddress(),
+		"--chain-id", chain.Config().ChainID,
+		"--output", "json",
+	}
 }
