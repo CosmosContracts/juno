@@ -1,4 +1,4 @@
-module github.com/CosmosContracts/juno/v18
+module github.com/CosmosContracts/juno/v19
 
 go 1.21
 

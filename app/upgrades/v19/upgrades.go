@@ -1,4 +1,4 @@
-package v18
+package v19
 
 import (
 	"fmt"
@@ -9,14 +9,12 @@ import (
 
 	"github.com/CosmosContracts/juno/v19/app/keepers"
 	"github.com/CosmosContracts/juno/v19/app/upgrades"
-	cwhookstypes "github.com/CosmosContracts/juno/v19/x/cw-hooks/types"
-	feepaytypes "github.com/CosmosContracts/juno/v19/x/feepay/types"
 )
 
-func CreateV18UpgradeHandler(
+func CreateV19UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
-	k *keepers.AppKeepers,
+	_ *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -31,19 +29,6 @@ func CreateV18UpgradeHandler(
 			return nil, err
 		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
-
-		// x/cw-hooks
-		gasLimit := uint64(250_000)
-		if err := k.CWHooksKeeper.SetParams(ctx, cwhookstypes.NewParams(gasLimit)); err != nil {
-			return nil, err
-		}
-
-		// x/feepay
-		if err := k.FeePayKeeper.SetParams(ctx, feepaytypes.Params{
-			EnableFeepay: true,
-		}); err != nil {
-			return nil, err
-		}
 
 		return versionMap, err
 	}

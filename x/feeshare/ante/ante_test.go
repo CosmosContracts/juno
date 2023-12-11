@@ -17,10 +17,10 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	"github.com/CosmosContracts/juno/v18/app"
-	ante "github.com/CosmosContracts/juno/v18/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v19/app"
+	ante "github.com/CosmosContracts/juno/v19/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v19/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v19/x/feeshare/types"
 )
 
 // Define an empty ante handle
