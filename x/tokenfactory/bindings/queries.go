@@ -6,17 +6,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	bindingstypes "github.com/CosmosContracts/juno/v18/x/tokenfactory/bindings/types"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v18/x/tokenfactory/keeper"
+	bindingstypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/bindings/types"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v19/x/tokenfactory/keeper"
 )
 
 type QueryPlugin struct {
-	bankKeeper         *bankkeeper.BaseKeeper
+	bankKeeper         bankkeeper.Keeper
 	tokenFactoryKeeper *tokenfactorykeeper.Keeper
 }
 
 // NewQueryPlugin returns a reference to a new QueryPlugin.
-func NewQueryPlugin(b *bankkeeper.BaseKeeper, tfk *tokenfactorykeeper.Keeper) *QueryPlugin {
+func NewQueryPlugin(b bankkeeper.Keeper, tfk *tokenfactorykeeper.Keeper) *QueryPlugin {
 	return &QueryPlugin{
 		bankKeeper:         b,
 		tokenFactoryKeeper: tfk,

@@ -9,7 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/CosmosContracts/juno/v18/x/tokenfactory/bindings"
+	wasmbinding "github.com/CosmosContracts/juno/v19/x/tokenfactory/bindings"
 )
 
 func TestFullDenom(t *testing.T) {
@@ -79,7 +79,7 @@ func TestDenomAdmin(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, tfDenom)
 
-	queryPlugin := wasmbinding.NewQueryPlugin(&app.AppKeepers.BankKeeper, &app.AppKeepers.TokenFactoryKeeper)
+	queryPlugin := wasmbinding.NewQueryPlugin(app.AppKeepers.BankKeeper, &app.AppKeepers.TokenFactoryKeeper)
 
 	testCases := []struct {
 		name        string

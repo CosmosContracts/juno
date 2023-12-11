@@ -15,9 +15,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
-	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
+	feepaykeeper "github.com/CosmosContracts/juno/v19/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v19/x/feepay/types"
+	globalfeekeeper "github.com/CosmosContracts/juno/v19/x/globalfee/keeper"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx

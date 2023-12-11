@@ -122,10 +122,5 @@ func ExecuteMsgWithFeeReturn(t *testing.T, ctx context.Context, chain *cosmos.Co
 
 	// convert stdout into a TxResponse
 	txRes, err := chain.GetTransaction(txHash)
-
-	if err := testutil.WaitForBlocks(ctx, 2, chain); err != nil {
-		t.Fatal(err)
-	}
-
 	return txRes, err
 }
