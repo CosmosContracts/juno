@@ -78,6 +78,7 @@ import (
 	v16 "github.com/CosmosContracts/juno/v19/app/upgrades/v16"
 	v17 "github.com/CosmosContracts/juno/v19/app/upgrades/v17"
 	v18 "github.com/CosmosContracts/juno/v19/app/upgrades/v18"
+	v19 "github.com/CosmosContracts/juno/v19/app/upgrades/v19"
 	"github.com/CosmosContracts/juno/v19/docs"
 )
 
@@ -114,6 +115,7 @@ var (
 		v16.Upgrade,
 		v17.Upgrade,
 		v18.Upgrade,
+		v19.Upgrade,
 	}
 )
 
