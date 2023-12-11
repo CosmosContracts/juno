@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v18/x/feepay/types"
+	"github.com/CosmosContracts/juno/v19/x/feepay/types"
 )
 
 var _ types.QueryServer = Querier{}
