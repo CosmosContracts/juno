@@ -27,7 +27,7 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	cdc      codec.BinaryCodec
 
-	bankKeeper    *bankkeeper.BaseKeeper
+	bankKeeper    bankkeeper.Keeper
 	wasmKeeper    wasmkeeper.Keeper
 	accountKeeper feesharetypes.AccountKeeper
 
@@ -42,7 +42,7 @@ type Keeper struct {
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
-	bk *bankkeeper.BaseKeeper,
+	bk bankkeeper.Keeper,
 	wk wasmkeeper.Keeper,
 	ak feesharetypes.AccountKeeper,
 	bondDenom string,

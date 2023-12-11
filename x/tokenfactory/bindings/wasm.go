@@ -9,7 +9,7 @@ import (
 )
 
 func RegisterCustomPlugins(
-	bank *bankkeeper.BaseKeeper,
+	bank bankkeeper.Keeper,
 	tokenFactory *tokenfactorykeeper.Keeper,
 ) []wasmkeeper.Option {
 	wasmQueryPlugin := NewQueryPlugin(bank, tokenFactory)

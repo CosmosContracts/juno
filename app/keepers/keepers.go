@@ -142,7 +142,7 @@ type AppKeepers struct {
 
 	// keepers
 	AccountKeeper       authkeeper.AccountKeeper
-	BankKeeper          bankkeeper.BaseKeeper
+	BankKeeper          bankkeeper.Keeper
 	BuildKeeper         builderkeeper.Keeper
 	CapabilityKeeper    *capabilitykeeper.Keeper
 	StakingKeeper       *stakingkeeper.Keeper
@@ -486,7 +486,7 @@ func NewAppKeepers(
 	}
 
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
-	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
+	tfOpts := bindings.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
 
 	// Stargate Queries
@@ -558,7 +558,7 @@ func NewAppKeepers(
 	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
 		appKeepers.keys[feepaytypes.StoreKey],
 		appCodec,
-		&appKeepers.BankKeeper,
+		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		bondDenom,
