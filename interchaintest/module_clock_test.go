@@ -10,7 +10,6 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
@@ -50,9 +49,6 @@ func TestJunoClock(t *testing.T) {
 	// Register the contract
 	helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
 
-	// Wait 1 block
-	_ = testutil.WaitForBlocks(ctx, 1, juno)
-
 	// Validate contract is not jailed
 	contract := helpers.GetClockContract(t, ctx, juno, contractAddr)
 	require.False(t, contract.ClockContract.IsJailed)
@@ -82,9 +78,6 @@ func TestJunoClock(t *testing.T) {
 	// Register the contract
 	helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
 
-	// Wait 1 block
-	_ = testutil.WaitForBlocks(ctx, 1, juno)
-
 	// Validate contract is jailed
 	contract = helpers.GetClockContract(t, ctx, juno, contractAddr)
 	require.True(t, contract.ClockContract.IsJailed)
@@ -100,9 +93,6 @@ func TestJunoClock(t *testing.T) {
 
 	// Unjail the contract
 	helpers.UnjailClockContract(t, ctx, juno, user, contractAddr)
-
-	// Wait 1 block
-	_ = testutil.WaitForBlocks(ctx, 1, juno)
 
 	// Validate contract is not jailed
 	contract = helpers.GetClockContract(t, ctx, juno, contractAddr)
@@ -128,9 +118,6 @@ func TestJunoClock(t *testing.T) {
 
 	// Register the contract
 	helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
-
-	// Wait 1 block
-	_ = testutil.WaitForBlocks(ctx, 1, juno)
 
 	// Validate contract is jailed
 	contract = helpers.GetClockContract(t, ctx, juno, contractAddr)

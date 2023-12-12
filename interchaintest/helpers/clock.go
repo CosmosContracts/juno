@@ -31,7 +31,7 @@ func RegisterClockContract(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 
 	debugOutput(t, string(stdout))
 
-	err = testutil.WaitForBlocks(ctx, 1, chain)
+	err = testutil.WaitForBlocks(ctx, 2, chain)
 	require.NoError(t, err)
 }
 
@@ -53,7 +53,7 @@ func UnregisterClockContract(t *testing.T, ctx context.Context, chain *cosmos.Co
 
 	debugOutput(t, string(stdout))
 
-	err = testutil.WaitForBlocks(ctx, 1, chain)
+	err = testutil.WaitForBlocks(ctx, 2, chain)
 	require.NoError(t, err)
 }
 
@@ -75,7 +75,7 @@ func UnjailClockContract(t *testing.T, ctx context.Context, chain *cosmos.Cosmos
 
 	debugOutput(t, string(stdout))
 
-	err = testutil.WaitForBlocks(ctx, 1, chain)
+	err = testutil.WaitForBlocks(ctx, 2, chain)
 	require.NoError(t, err)
 }
 
