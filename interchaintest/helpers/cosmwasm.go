@@ -32,21 +32,10 @@ func StoreContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain,
 	return codeId
 }
 
-func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string, message string) (codeId, contract string) {
+func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string, message string, extraFlags ...string) (codeId, contract string) {
 	codeId = StoreContract(t, ctx, chain, keyname, fileLoc)
 
-	contractAddr, err := chain.InstantiateContract(ctx, keyname, codeId, message, true)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return codeId, contractAddr
-}
-
-func SetupContractWithAdmin(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, creatorKeyName string, adminAddress string, fileLoc string, message string) (codeId, contract string) {
-	codeId = StoreContract(t, ctx, chain, creatorKeyName, fileLoc)
-
-	contractAddr, err := chain.InstantiateContract(ctx, creatorKeyName, codeId, message, false, "--admin", adminAddress)
+	contractAddr, err := chain.InstantiateContract(ctx, keyname, codeId, message, true, extraFlags...)
 	if err != nil {
 		t.Fatal(err)
 	}

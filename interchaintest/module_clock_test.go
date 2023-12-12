@@ -72,7 +72,7 @@ func TestJunoClock(t *testing.T) {
 	//
 
 	// Setup contract
-	_, contractAddr = helpers.SetupContractWithAdmin(t, ctx, juno, user.KeyName(), user.FormattedAddress(), "contracts/clock_example_high_gas.wasm", `{}`)
+	_, contractAddr = helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/clock_example_high_gas.wasm", `{}`, "--admin", user.FormattedAddress())
 
 	// Ensure config is 0
 	res = helpers.GetClockContractValue(t, ctx, juno, contractAddr)
