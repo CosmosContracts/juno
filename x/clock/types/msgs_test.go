@@ -22,16 +22,18 @@ func (suite *MsgsTestSuite) SetupTest() {
 }
 
 func (suite *MsgsTestSuite) TestMsgUpdateParams() {
+	var limit uint64 = 100_000
+
 	p := MsgUpdateParams{
 		Authority: suite.govModule,
 		Params: Params{
-			ContractGasLimit: 100_000,
+			ContractGasLimit: limit,
 		},
 	}
 
 	acc, _ := sdk.AccAddressFromBech32(p.Authority)
 
-	msg := NewMsgUpdateParams(acc)
+	msg := NewMsgUpdateParams(acc, limit)
 
 	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgUpdateParams, msg.Type())
