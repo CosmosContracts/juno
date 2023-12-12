@@ -35,7 +35,15 @@ func StoreContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain,
 func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string, message string, extraFlags ...string) (codeId, contract string) {
 	codeId = StoreContract(t, ctx, chain, keyname, fileLoc)
 
-	contractAddr, err := chain.InstantiateContract(ctx, keyname, codeId, message, true, extraFlags...)
+	needsNoAdminFlag := true
+	// if extraFlags contains "--admin", switch to false
+	for _, flag := range extraFlags {
+		if flag == "--admin" {
+			needsNoAdminFlag = false
+		}
+	}
+
+	contractAddr, err := chain.InstantiateContract(ctx, keyname, codeId, message, needsNoAdminFlag, extraFlags...)
 	if err != nil {
 		t.Fatal(err)
 	}
