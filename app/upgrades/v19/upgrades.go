@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	decorators "github.com/CosmosContracts/juno/v19/app/decorators"
 	"github.com/CosmosContracts/juno/v19/app/keepers"
 	"github.com/CosmosContracts/juno/v19/app/upgrades"
 )
@@ -14,7 +15,7 @@ import (
 func CreateV19UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
-	_ *keepers.AppKeepers,
+	k *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -29,6 +30,18 @@ func CreateV19UpgradeHandler(
 			return nil, err
 		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
+
+		// Change Rate Decorator Migration
+		// Ensure all Validators have a max change rate of 5%
+		maxChangeRate := sdk.MustNewDecFromStr(decorators.MaxChangeRate)
+		validators := k.StakingKeeper.GetAllValidators(ctx)
+
+		for _, validator := range validators {
+			if validator.Commission.MaxChangeRate.GT(maxChangeRate) {
+				validator.Commission.MaxChangeRate.Set(maxChangeRate)
+				k.StakingKeeper.SetValidator(ctx, validator)
+			}
+		}
 
 		return versionMap, err
 	}

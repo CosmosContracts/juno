@@ -90,13 +90,14 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	gfd := globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage, &isFeePayTx)
 
 	anteDecorators := []sdk.AnteDecorator{
-		// GLobalFee query params for minimum fee
+		// GlobalFee query params for minimum fee
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		decorators.MsgFilterDecorator{},
 		ante.NewValidateBasicDecorator(),
+		decorators.NewChangeRateDecorator(&options.StakingKeeper),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
