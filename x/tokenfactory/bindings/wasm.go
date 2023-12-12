@@ -5,11 +5,11 @@ import (
 
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v18/x/tokenfactory/keeper"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v19/x/tokenfactory/keeper"
 )
 
 func RegisterCustomPlugins(
-	bank *bankkeeper.BaseKeeper,
+	bank bankkeeper.Keeper,
 	tokenFactory *tokenfactorykeeper.Keeper,
 ) []wasmkeeper.Option {
 	wasmQueryPlugin := NewQueryPlugin(bank, tokenFactory)

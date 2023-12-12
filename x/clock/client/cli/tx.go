@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 
-	"github.com/CosmosContracts/juno/v18/x/clock/types"
+	"github.com/CosmosContracts/juno/v19/x/clock/types"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules/Clock

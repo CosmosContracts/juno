@@ -82,25 +82,25 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	junoburn "github.com/CosmosContracts/juno/v18/x/burn"
-	clockkeeper "github.com/CosmosContracts/juno/v18/x/clock/keeper"
-	clocktypes "github.com/CosmosContracts/juno/v18/x/clock/types"
-	cwhookskeeper "github.com/CosmosContracts/juno/v18/x/cw-hooks/keeper"
-	cwhookstypes "github.com/CosmosContracts/juno/v18/x/cw-hooks/types"
-	dripkeeper "github.com/CosmosContracts/juno/v18/x/drip/keeper"
-	driptypes "github.com/CosmosContracts/juno/v18/x/drip/types"
-	feepaykeeper "github.com/CosmosContracts/juno/v18/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v18/x/feepay/types"
-	feesharekeeper "github.com/CosmosContracts/juno/v18/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v18/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v18/x/globalfee"
-	globalfeekeeper "github.com/CosmosContracts/juno/v18/x/globalfee/keeper"
-	globalfeetypes "github.com/CosmosContracts/juno/v18/x/globalfee/types"
-	mintkeeper "github.com/CosmosContracts/juno/v18/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v18/x/mint/types"
-	"github.com/CosmosContracts/juno/v18/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v18/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v18/x/tokenfactory/types"
+	junoburn "github.com/CosmosContracts/juno/v19/x/burn"
+	clockkeeper "github.com/CosmosContracts/juno/v19/x/clock/keeper"
+	clocktypes "github.com/CosmosContracts/juno/v19/x/clock/types"
+	cwhookskeeper "github.com/CosmosContracts/juno/v19/x/cw-hooks/keeper"
+	cwhookstypes "github.com/CosmosContracts/juno/v19/x/cw-hooks/types"
+	dripkeeper "github.com/CosmosContracts/juno/v19/x/drip/keeper"
+	driptypes "github.com/CosmosContracts/juno/v19/x/drip/types"
+	feepaykeeper "github.com/CosmosContracts/juno/v19/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v19/x/feepay/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v19/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v19/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v19/x/globalfee"
+	globalfeekeeper "github.com/CosmosContracts/juno/v19/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v19/x/globalfee/types"
+	mintkeeper "github.com/CosmosContracts/juno/v19/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v19/x/mint/types"
+	"github.com/CosmosContracts/juno/v19/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v19/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
 )
 
 var (
@@ -142,7 +142,7 @@ type AppKeepers struct {
 
 	// keepers
 	AccountKeeper       authkeeper.AccountKeeper
-	BankKeeper          bankkeeper.BaseKeeper
+	BankKeeper          bankkeeper.Keeper
 	BuildKeeper         builderkeeper.Keeper
 	CapabilityKeeper    *capabilitykeeper.Keeper
 	StakingKeeper       *stakingkeeper.Keeper
@@ -486,7 +486,7 @@ func NewAppKeepers(
 	}
 
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
-	tfOpts := bindings.RegisterCustomPlugins(&appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
+	tfOpts := bindings.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
 
 	// Stargate Queries
@@ -558,7 +558,7 @@ func NewAppKeepers(
 	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
 		appKeepers.keys[feepaytypes.StoreKey],
 		appCodec,
-		&appKeepers.BankKeeper,
+		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		bondDenom,

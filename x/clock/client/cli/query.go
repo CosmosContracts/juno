@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/CosmosContracts/juno/v18/x/clock/types"
+	"github.com/CosmosContracts/juno/v19/x/clock/types"
 )
 
 func GetQueryCmd() *cobra.Command {
