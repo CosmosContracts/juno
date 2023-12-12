@@ -15,7 +15,7 @@ import (
 func CreateV19UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
-	ak *keepers.AppKeepers,
+	k *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -34,12 +34,12 @@ func CreateV19UpgradeHandler(
 		// Change Rate Decorator Migration
 		// Ensure all Validators have a max change rate of 5%
 		maxChangeRate := sdk.MustNewDecFromStr(decorators.MaxChangeRate)
-		validators := ak.StakingKeeper.GetAllValidators(ctx)
+		validators := k.StakingKeeper.GetAllValidators(ctx)
 
 		for _, validator := range validators {
 			if validator.Commission.MaxChangeRate.GT(maxChangeRate) {
 				validator.Commission.MaxChangeRate.Set(maxChangeRate)
-				ak.StakingKeeper.SetValidator(ctx, validator)
+				k.StakingKeeper.SetValidator(ctx, validator)
 			}
 		}
 
