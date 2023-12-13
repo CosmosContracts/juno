@@ -74,6 +74,9 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v19/x/mint/types"
 	"github.com/CosmosContracts/juno/v19/x/tokenfactory"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
+
+	youtube "github.com/CosmosContracts/juno/v19/x/youtube"
+	youtubetypes "github.com/CosmosContracts/juno/v19/x/youtube/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -116,6 +119,7 @@ var ModuleBasics = module.NewBasicManager(
 	packetforward.AppModuleBasic{},
 	clock.AppModuleBasic{},
 	cwhooks.AppModuleBasic{},
+	youtube.AppModuleBasic{},
 )
 
 func appModules(
@@ -164,6 +168,7 @@ func appModules(
 		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
 		clock.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
 		cwhooks.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
+		youtube.NewAppModule(appCodec, app.AppKeepers.YoutubeKeeper),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
@@ -243,6 +248,7 @@ func orderBeginBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhooks.ModuleName,
+		youtubetypes.ModuleName,
 	}
 }
 
@@ -283,6 +289,7 @@ func orderEndBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhooks.ModuleName,
+		youtubetypes.ModuleName,
 	}
 }
 
@@ -323,5 +330,6 @@ func orderInitBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhooks.ModuleName,
+		youtubetypes.ModuleName,
 	}
 }

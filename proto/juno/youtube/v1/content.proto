@@ -1,0 +1,72 @@
+syntax = "proto3";
+package juno.youtube.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/youtube/types";
+
+// GenesisState - initial state of module
+message GenesisState {
+  // Params of this module
+  // Params params = 1 [
+  //   (gogoproto.nullable) = false,
+  //   (gogoproto.jsontag) = "params,omitempty"
+  // ];
+}
+
+// Params defines the set of module parameters.
+message Params {
+  // contract_addresses stores the list of executable contracts to be ticked on every block.
+  // repeated string contract_addresses = 1 [
+  //   (gogoproto.jsontag) = "contract_addresses,omitempty",
+  //   (gogoproto.moretags) = "yaml:\"contract_addresses\""
+  // ];
+
+  // uint64 contract_gas_limit = 2 [
+  //   (gogoproto.jsontag) = "contract_gas_limit,omitempty",
+  //   (gogoproto.moretags) = "yaml:\"contract_gas_limit\""
+  // ];
+}
+
+
+message Metadata {
+  // title, description, creator, and an array of video ids
+  string title = 1 [
+    (gogoproto.jsontag) = "title,omitempty",
+    (gogoproto.moretags) = "yaml:\"title\""
+  ];
+
+  string description = 2 [
+    (gogoproto.jsontag) = "description,omitempty",
+    (gogoproto.moretags) = "yaml:\"description\""
+  ];
+
+  string creator = 3 [
+    (gogoproto.jsontag) = "creator,omitempty",
+    (gogoproto.moretags) = "yaml:\"creator\""
+  ];
+
+
+  // id start and id end is the range for where your video content is
+  uint64 id_start = 4 [
+    (gogoproto.jsontag) = "id_start,omitempty",
+    (gogoproto.moretags) = "yaml:\"id_start\""
+  ];
+
+  uint64 id_end = 5 [
+    (gogoproto.jsontag) = "id_end,omitempty",
+    (gogoproto.moretags) = "yaml:\"id_end\""
+  ];
+}
+
+// the content blob is the actual content of the video split into chunks
+message ContentBlob {
+  // the Key would be the place in the video that is, which does not need storage here.
+
+  // content is an array of bytes
+  bytes content = 1 [
+    (gogoproto.jsontag) = "content,omitempty",
+    (gogoproto.moretags) = "yaml:\"content\""
+  ];
+}

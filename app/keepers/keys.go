@@ -39,6 +39,7 @@ import (
 	globalfeetypes "github.com/CosmosContracts/juno/v19/x/globalfee/types"
 	minttypes "github.com/CosmosContracts/juno/v19/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
+	youtubettypes "github.com/CosmosContracts/juno/v19/x/youtube/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -63,6 +64,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		driptypes.StoreKey,
 		clocktypes.StoreKey,
 		cwhookstypes.StoreKey,
+		youtubettypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)

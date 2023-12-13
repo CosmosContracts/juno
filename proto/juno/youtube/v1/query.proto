@@ -1,0 +1,39 @@
+syntax = "proto3";
+package juno.youtube.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "juno/youtube/v1/content.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/youtube/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // YoutubeContracts
+  rpc YoutubeContracts(QueryYoutubemetadata)
+      returns (QueryYoutubemetadataResponse) {
+    option (google.api.http).get =
+        "/juno/youtube/v1/metadata";
+  }
+  // Params
+  // rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+  //   option (google.api.http).get = "/juno/youtube/v1/params";
+  // }
+}
+
+// QueryYoutubeContracts is the request type to get all contracts.
+message QueryYoutubemetadata {}
+
+// QueryYoutubeContractsResponse is the response type for the Query/YoutubeContracts RPC method.
+message QueryYoutubemetadataResponse {
+  Metadata metadata = 1 [(gogoproto.jsontag) = "metadata", (gogoproto.moretags) = "yaml:\"metadata\""];
+}
+
+// // QueryParams is the request type to get all module params.
+// message QueryParamsRequest {}
+
+// // QueryYoutubeContractsResponse is the response type for the Query/YoutubeContracts RPC method.
+// message QueryParamsResponse {
+//   Params params = 1 [(gogoproto.jsontag) = "params", (gogoproto.moretags) = "yaml:\"params\""];
+// }

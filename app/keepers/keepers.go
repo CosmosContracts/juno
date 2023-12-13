@@ -101,6 +101,9 @@ import (
 	"github.com/CosmosContracts/juno/v19/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v19/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
+
+	youtubekeeper "github.com/CosmosContracts/juno/v19/x/youtube/keeper"
+	youtubetypes "github.com/CosmosContracts/juno/v19/x/youtube/types"
 )
 
 var (
@@ -169,6 +172,7 @@ type AppKeepers struct {
 	ContractKeeper      wasmtypes.ContractOpsKeeper
 	ClockKeeper         clockkeeper.Keeper
 	CWHooksKeeper       cwhookskeeper.Keeper
+	YoutubeKeeper       youtubekeeper.Keeper
 
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -607,6 +611,12 @@ func NewAppKeepers(
 		*govKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.ContractKeeper,
+		govModAddress,
+	)
+
+	appKeepers.YoutubeKeeper = youtubekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[youtubetypes.StoreKey],
 		govModAddress,
 	)
 
