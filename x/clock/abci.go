@@ -3,6 +3,8 @@ package clock
 import (
 	"time"
 
+	"github.com/cometbft/cometbft/libs/log"
+
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,25 +33,6 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	errorExecs := make([]string, len(contracts))
 	errorExists := false
 
-	// Function to handle contract execution errors. Returns true if error is present, false otherwise.
-	handleError := func(err error, idx int, contractAddress string) bool {
-		// Check if error is present
-		if err != nil {
-
-			// Flag error
-			errorExists = true
-			errorExecs[idx] = contractAddress
-
-			// Attempt to jail contract, log error if present
-			err := k.SetJailStatus(ctx, contractAddress, true)
-			if err != nil {
-				logger.Error("Failed to jail contract", "contract", contractAddress, "error", err)
-			}
-		}
-
-		return err != nil
-	}
-
 	// Execute all contracts that are not jailed
 	for idx, contract := range contracts {
 
@@ -60,7 +43,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 		// Get sdk.AccAddress from contract address
 		contractAddr := sdk.MustAccAddressFromBech32(contract.ContractAddress)
-		if handleError(err, idx, contract.ContractAddress) {
+		if handleError(ctx, k, logger, errorExecs, &errorExists, err, idx, contract.ContractAddress) {
 			continue
 		}
 
@@ -69,7 +52,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 		// Execute contract
 		executeContract(k, childCtx, contractAddr, &err)
-		if handleError(err, idx, contract.ContractAddress) {
+		if handleError(ctx, k, logger, errorExecs, &errorExists, err, idx, contract.ContractAddress) {
 			continue
 		}
 	}
@@ -78,6 +61,34 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	if errorExists {
 		logger.Error("Failed to execute contracts", "contracts", errorExecs)
 	}
+}
+
+// Function to handle contract execution errors. Returns true if error is present, false otherwise.
+func handleError(
+	ctx sdk.Context,
+	k keeper.Keeper,
+	logger log.Logger,
+	errorExecs []string,
+	errorExists *bool,
+	err error,
+	idx int,
+	contractAddress string,
+) bool {
+	// Check if error is present
+	if err != nil {
+
+		// Flag error
+		*errorExists = true
+		errorExecs[idx] = contractAddress
+
+		// Attempt to jail contract, log error if present
+		err := k.SetJailStatus(ctx, contractAddress, true)
+		if err != nil {
+			logger.Error("Failed to jail contract", "contract", contractAddress, "error", err)
+		}
+	}
+
+	return err != nil
 }
 
 // Execute contract, recover from panic
