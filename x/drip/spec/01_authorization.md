@@ -4,9 +4,9 @@ order: 1
 
 # Authorization
 
-For security reasons, only specific addresses can distribute tokens to $JUNO stakers. We accept any kind of address: multisig, smart contracts, regular and [https://daodao.zone](DAODAO) DAOs. 
+For security reasons, only specific addresses can distribute tokens to $JUNO stakers. We accept any kind of address: multisig, smart contracts, regular and [https://daodao.zone](DAODAO) DAOs.
 
-Governance can decide wether to approve or deny a new address to be added to the authorized list.
+Governance can decide whether to approve or deny a new address to be added to the authorized list.
 
 ## Query the allowed addresses
 

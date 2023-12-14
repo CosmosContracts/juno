@@ -151,7 +151,7 @@ func runConfigCmd(cmd *cobra.Command, args []string) error {
 		}
 
 	default:
-		panic("cound not execute config command")
+		panic("could not execute config command")
 	}
 
 	return nil
