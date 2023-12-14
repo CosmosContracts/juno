@@ -3,6 +3,7 @@ package juno.clock.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "juno/clock/v1/clock.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/clock/types";
 
@@ -17,13 +18,8 @@ message GenesisState {
 
 // Params defines the set of module parameters.
 message Params {
-  // contract_addresses stores the list of executable contracts to be ticked on every block.
-  repeated string contract_addresses = 1 [    
-    (gogoproto.jsontag) = "contract_addresses,omitempty",
-    (gogoproto.moretags) = "yaml:\"contract_addresses\""
-  ];
-
-  uint64 contract_gas_limit = 2 [
+  // contract_gas_limit defines the maximum amount of gas that can be used by a contract.
+  uint64 contract_gas_limit = 1 [
     (gogoproto.jsontag) = "contract_gas_limit,omitempty",
     (gogoproto.moretags) = "yaml:\"contract_gas_limit\""
   ];

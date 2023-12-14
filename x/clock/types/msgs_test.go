@@ -6,8 +6,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/CosmosContracts/juno/v19/x/drip/types"
 )
 
 type MsgsTestSuite struct {
@@ -24,18 +22,20 @@ func (suite *MsgsTestSuite) SetupTest() {
 }
 
 func (suite *MsgsTestSuite) TestMsgUpdateParams() {
+	var limit uint64 = 100_000
+
 	p := MsgUpdateParams{
 		Authority: suite.govModule,
 		Params: Params{
-			ContractAddresses: []string{},
+			ContractGasLimit: limit,
 		},
 	}
 
 	acc, _ := sdk.AccAddressFromBech32(p.Authority)
 
-	msg := NewMsgUpdateParams(acc, []string(nil))
+	msg := NewMsgUpdateParams(acc, limit)
 
-	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(RouterKey, msg.Route())
 	suite.Require().Equal(TypeMsgUpdateParams, msg.Type())
 	suite.Require().NotNil(msg.GetSigners())
 }

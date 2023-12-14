@@ -35,7 +35,12 @@ func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMe
 }
 
 func ValidateGenesis(data types.GenesisState) error {
-	return data.Params.Validate()
+	err := data.Params.Validate()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // InitGenesis import module genesis
@@ -44,10 +49,12 @@ func InitGenesis(
 	k keeper.Keeper,
 	data types.GenesisState,
 ) {
+	// Validate init contents
 	if err := ValidateGenesis(data); err != nil {
 		panic(err)
 	}
 
+	// Set params
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
 	}
@@ -55,7 +62,9 @@ func InitGenesis(
 
 // ExportGenesis export module state
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+	params := k.GetParams(ctx)
+
 	return &types.GenesisState{
-		Params: k.GetParams(ctx),
+		Params: params,
 	}
 }

@@ -2,7 +2,6 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,13 +29,18 @@ func init() {
 
 // RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(Params{}, "juno/x/clock/Params", nil)
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "juno/x/clock/MsgUpdateParams")
+	cdc.RegisterConcrete(&MsgRegisterClockContract{}, "clock/MsgRegisterClockContract", nil)
+	cdc.RegisterConcrete(&MsgUnregisterClockContract{}, "clock/MsgUnregisterClockContract", nil)
+	cdc.RegisterConcrete(&MsgUnjailClockContract{}, "clock/MsgUnjailClockContract", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "clock/MsgUpdateParams", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
+		&MsgRegisterClockContract{},
+		&MsgUnregisterClockContract{},
+		&MsgUnjailClockContract{},
 		&MsgUpdateParams{},
 	)
 

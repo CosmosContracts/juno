@@ -8,7 +8,6 @@ import (
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v19/app"
@@ -39,47 +38,30 @@ func (suite *GenesisTestSuite) SetupTest() {
 }
 
 func (suite *GenesisTestSuite) TestClockInitGenesis() {
-	_, _, addr := testdata.KeyTestPubAddr()
-	_, _, addr2 := testdata.KeyTestPubAddr()
-
-	defaultParams := types.DefaultParams()
-
 	testCases := []struct {
-		name     string
-		genesis  types.GenesisState
-		expPanic bool
+		name    string
+		genesis types.GenesisState
+		success bool
 	}{
 		{
-			"default genesis",
+			"Success - Default Genesis",
 			*clock.DefaultGenesisState(),
-			false,
+			true,
 		},
 		{
-			"custom genesis - none",
+			"Success - Custom Genesis",
 			types.GenesisState{
 				Params: types.Params{
-					ContractAddresses: []string(nil),
-					ContractGasLimit:  defaultParams.ContractGasLimit,
-				},
-			},
-			false,
-		},
-		{
-			"custom genesis - incorrect addr",
-			types.GenesisState{
-				Params: types.Params{
-					ContractAddresses: []string{"incorrectaddr"},
-					ContractGasLimit:  defaultParams.ContractGasLimit,
+					ContractGasLimit: 500_000,
 				},
 			},
 			true,
 		},
 		{
-			"custom genesis - only one addr allowed",
+			"Fail - Invalid Gas Amount",
 			types.GenesisState{
 				Params: types.Params{
-					ContractAddresses: []string{addr.String(), addr2.String()},
-					ContractGasLimit:  defaultParams.ContractGasLimit,
+					ContractGasLimit: 1,
 				},
 			},
 			false,
@@ -90,17 +72,17 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			if tc.expPanic {
-				suite.Require().Panics(func() {
-					clock.InitGenesis(suite.ctx, suite.app.AppKeepers.ClockKeeper, tc.genesis)
-				})
-			} else {
+			if tc.success {
 				suite.Require().NotPanics(func() {
 					clock.InitGenesis(suite.ctx, suite.app.AppKeepers.ClockKeeper, tc.genesis)
 				})
 
 				params := suite.app.AppKeepers.ClockKeeper.GetParams(suite.ctx)
 				suite.Require().Equal(tc.genesis.Params, params)
+			} else {
+				suite.Require().Panics(func() {
+					clock.InitGenesis(suite.ctx, suite.app.AppKeepers.ClockKeeper, tc.genesis)
+				})
 			}
 		})
 	}

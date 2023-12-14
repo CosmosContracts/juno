@@ -7,6 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-sdk/types"
+	query "github.com/cosmos/cosmos-sdk/types/query"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -32,6 +33,8 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryClockContracts is the request type to get all contracts.
 type QueryClockContracts struct {
+	// pagination defines an optional pagination for the request.
+	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
 func (m *QueryClockContracts) Reset()         { *m = QueryClockContracts{} }
@@ -67,9 +70,19 @@ func (m *QueryClockContracts) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryClockContracts proto.InternalMessageInfo
 
+func (m *QueryClockContracts) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
 // QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
 type QueryClockContractsResponse struct {
-	ContractAddresses []string `protobuf:"bytes,1,rep,name=contract_addresses,json=contractAddresses,proto3" json:"contract_addresses,omitempty" yaml:"contract_addresses"`
+	// clock_contracts are the clock contracts.
+	ClockContracts []ClockContract `protobuf:"bytes,1,rep,name=clock_contracts,json=clockContracts,proto3" json:"clock_contracts"`
+	// pagination defines the pagination in the response.
+	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
 func (m *QueryClockContractsResponse) Reset()         { *m = QueryClockContractsResponse{} }
@@ -105,11 +118,110 @@ func (m *QueryClockContractsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryClockContractsResponse proto.InternalMessageInfo
 
-func (m *QueryClockContractsResponse) GetContractAddresses() []string {
+func (m *QueryClockContractsResponse) GetClockContracts() []ClockContract {
 	if m != nil {
-		return m.ContractAddresses
+		return m.ClockContracts
 	}
 	return nil
+}
+
+func (m *QueryClockContractsResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryClockContract is the request type to get a single contract.
+type QueryClockContract struct {
+	// contract_address is the address of the contract to query.
+	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+}
+
+func (m *QueryClockContract) Reset()         { *m = QueryClockContract{} }
+func (m *QueryClockContract) String() string { return proto.CompactTextString(m) }
+func (*QueryClockContract) ProtoMessage()    {}
+func (*QueryClockContract) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7da208f579d775c8, []int{2}
+}
+func (m *QueryClockContract) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryClockContract) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryClockContract.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryClockContract) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryClockContract.Merge(m, src)
+}
+func (m *QueryClockContract) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryClockContract) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryClockContract.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryClockContract proto.InternalMessageInfo
+
+func (m *QueryClockContract) GetContractAddress() string {
+	if m != nil {
+		return m.ContractAddress
+	}
+	return ""
+}
+
+// QueryClockContractResponse is the response type for the Query/ClockContract RPC method.
+type QueryClockContractResponse struct {
+	// contract is the clock contract.
+	ClockContract ClockContract `protobuf:"bytes,1,opt,name=clock_contract,json=clockContract,proto3" json:"clock_contract"`
+}
+
+func (m *QueryClockContractResponse) Reset()         { *m = QueryClockContractResponse{} }
+func (m *QueryClockContractResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryClockContractResponse) ProtoMessage()    {}
+func (*QueryClockContractResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7da208f579d775c8, []int{3}
+}
+func (m *QueryClockContractResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryClockContractResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryClockContractResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryClockContractResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryClockContractResponse.Merge(m, src)
+}
+func (m *QueryClockContractResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryClockContractResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryClockContractResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryClockContractResponse proto.InternalMessageInfo
+
+func (m *QueryClockContractResponse) GetClockContract() ClockContract {
+	if m != nil {
+		return m.ClockContract
+	}
+	return ClockContract{}
 }
 
 // QueryParams is the request type to get all module params.
@@ -120,7 +232,7 @@ func (m *QueryParamsRequest) Reset()         { *m = QueryParamsRequest{} }
 func (m *QueryParamsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsRequest) ProtoMessage()    {}
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7da208f579d775c8, []int{2}
+	return fileDescriptor_7da208f579d775c8, []int{4}
 }
 func (m *QueryParamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -158,7 +270,7 @@ func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
 func (m *QueryParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsResponse) ProtoMessage()    {}
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7da208f579d775c8, []int{3}
+	return fileDescriptor_7da208f579d775c8, []int{5}
 }
 func (m *QueryParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -197,6 +309,8 @@ func (m *QueryParamsResponse) GetParams() *Params {
 func init() {
 	proto.RegisterType((*QueryClockContracts)(nil), "juno.clock.v1.QueryClockContracts")
 	proto.RegisterType((*QueryClockContractsResponse)(nil), "juno.clock.v1.QueryClockContractsResponse")
+	proto.RegisterType((*QueryClockContract)(nil), "juno.clock.v1.QueryClockContract")
+	proto.RegisterType((*QueryClockContractResponse)(nil), "juno.clock.v1.QueryClockContractResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "juno.clock.v1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "juno.clock.v1.QueryParamsResponse")
 }
@@ -204,34 +318,41 @@ func init() {
 func init() { proto.RegisterFile("juno/clock/v1/query.proto", fileDescriptor_7da208f579d775c8) }
 
 var fileDescriptor_7da208f579d775c8 = []byte{
-	// 423 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0xb1, 0x8f, 0xd3, 0x30,
-	0x18, 0xc5, 0x6b, 0x10, 0x95, 0x30, 0x3a, 0x24, 0xcc, 0x55, 0xf4, 0xd2, 0x23, 0x2d, 0x9e, 0x4e,
-	0x08, 0x62, 0xe5, 0xd8, 0x90, 0x18, 0x68, 0x07, 0x24, 0x26, 0xc8, 0xc8, 0x82, 0x1c, 0x9f, 0x15,
-	0x02, 0x89, 0xbf, 0x5c, 0xec, 0x54, 0x64, 0xbd, 0x95, 0x05, 0x89, 0x7f, 0x8a, 0xf1, 0x24, 0x16,
-	0xa6, 0x08, 0xb5, 0x4c, 0x37, 0xde, 0xcc, 0x80, 0xe2, 0xb8, 0x95, 0x72, 0x57, 0xc1, 0x96, 0xbc,
-	0xdf, 0xcb, 0xf7, 0x9e, 0xbf, 0x18, 0x1f, 0x7c, 0xac, 0x14, 0x30, 0x91, 0x81, 0xf8, 0xc4, 0x96,
-	0x21, 0x3b, 0xad, 0x64, 0x59, 0x07, 0x45, 0x09, 0x06, 0xc8, 0x5e, 0x8b, 0x02, 0x8b, 0x82, 0x65,
-	0xe8, 0xed, 0x27, 0x90, 0x80, 0x25, 0xac, 0x7d, 0xea, 0x4c, 0xde, 0x61, 0x02, 0x90, 0x64, 0x92,
-	0xf1, 0x22, 0x65, 0x5c, 0x29, 0x30, 0xdc, 0xa4, 0xa0, 0xb4, 0xa3, 0xbe, 0x00, 0x9d, 0x83, 0x66,
-	0x31, 0xd7, 0x92, 0x2d, 0xc3, 0x58, 0x1a, 0x1e, 0x32, 0x01, 0xa9, 0x72, 0x7c, 0xd2, 0x4f, 0x4f,
-	0xa4, 0x92, 0x3a, 0x75, 0x1f, 0xd3, 0x11, 0xbe, 0xff, 0xb6, 0xad, 0xb3, 0x68, 0xf1, 0x02, 0x94,
-	0x29, 0xb9, 0x30, 0x9a, 0x7e, 0x41, 0x78, 0xb2, 0x43, 0x8f, 0xa4, 0x2e, 0x40, 0x69, 0x49, 0x32,
-	0x4c, 0x84, 0x13, 0xdf, 0xf3, 0x93, 0x93, 0x52, 0x6a, 0x2d, 0xf5, 0x18, 0xcd, 0x6e, 0x1e, 0xdd,
-	0x9e, 0xbf, 0xb8, 0x68, 0xa6, 0x87, 0xd7, 0xe9, 0x13, 0xc8, 0x53, 0x23, 0xf3, 0xc2, 0xd4, 0x97,
-	0xcd, 0xf4, 0xa0, 0xe6, 0x79, 0xf6, 0x9c, 0x5e, 0x77, 0xd1, 0xe8, 0xde, 0x46, 0x7c, 0xb9, 0xd5,
-	0xf6, 0x31, 0xb1, 0x65, 0xde, 0xf0, 0x92, 0xe7, 0x3a, 0x92, 0xa7, 0x95, 0xd4, 0x86, 0x72, 0x57,
-	0x7d, 0xa3, 0xba, 0x6a, 0xaf, 0xf1, 0xb0, 0xb0, 0xca, 0x18, 0xcd, 0xd0, 0xd1, 0x9d, 0xe3, 0x51,
-	0xd0, 0x5b, 0x71, 0xd0, 0xd9, 0xe7, 0x93, 0x8b, 0x66, 0xea, 0x8c, 0x97, 0xcd, 0x74, 0xaf, 0xeb,
-	0xd3, 0xbd, 0xd3, 0xc8, 0x81, 0xe3, 0x3f, 0x08, 0xdf, 0xb2, 0x19, 0xe4, 0x0c, 0xe1, 0xbb, 0xfd,
-	0x5d, 0x10, 0x7a, 0x65, 0xf0, 0x8e, 0x7d, 0x79, 0x8f, 0xff, 0xef, 0xd9, 0x14, 0xa7, 0xb3, 0xb3,
-	0x1f, 0xbf, 0xbf, 0xdd, 0xf0, 0xc8, 0x98, 0xf5, 0x7f, 0x98, 0xd8, 0x26, 0x2a, 0x3c, 0xec, 0xda,
-	0x93, 0x47, 0xbb, 0xe6, 0xf6, 0xd6, 0xe3, 0xd1, 0x7f, 0x59, 0x5c, 0xe4, 0x43, 0x1b, 0xf9, 0x80,
-	0x8c, 0xae, 0x44, 0x76, 0xc7, 0x9f, 0xbf, 0xfa, 0xbe, 0xf2, 0xd1, 0xf9, 0xca, 0x47, 0xbf, 0x56,
-	0x3e, 0xfa, 0xba, 0xf6, 0x07, 0xe7, 0x6b, 0x7f, 0xf0, 0x73, 0xed, 0x0f, 0xde, 0x3d, 0x4d, 0x52,
-	0xf3, 0xa1, 0x8a, 0x03, 0x01, 0x39, 0x5b, 0xd8, 0xeb, 0xb7, 0x3d, 0x4f, 0x37, 0xea, 0xb3, 0x1b,
-	0x66, 0xea, 0x42, 0xea, 0x78, 0x68, 0x2f, 0xdb, 0xb3, 0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0xdb,
-	0x57, 0xe2, 0x8b, 0x09, 0x03, 0x00, 0x00,
+	// 542 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x94, 0x4d, 0x6f, 0xd3, 0x30,
+	0x18, 0xc7, 0x9b, 0x0d, 0x2a, 0xe1, 0xa9, 0x1d, 0x32, 0x9b, 0x28, 0xe9, 0x48, 0x8b, 0x0f, 0xb0,
+	0x0d, 0xcd, 0x56, 0xbb, 0x1b, 0x17, 0x44, 0x2b, 0x31, 0x01, 0x97, 0x91, 0x23, 0x12, 0x9a, 0xdc,
+	0xcc, 0x0a, 0x81, 0x36, 0xce, 0x62, 0xb7, 0xa2, 0x42, 0x5c, 0xf6, 0x09, 0x78, 0xf9, 0x28, 0x7c,
+	0x89, 0x1d, 0x27, 0x71, 0xe1, 0x54, 0xa1, 0x96, 0x13, 0x47, 0x3e, 0x01, 0x8a, 0xed, 0x94, 0x39,
+	0x2b, 0x94, 0x9b, 0xfb, 0xbc, 0xfc, 0x9f, 0xdf, 0xf3, 0xd2, 0x80, 0x5b, 0xaf, 0x87, 0x31, 0x27,
+	0x41, 0x9f, 0x07, 0x6f, 0xc8, 0xa8, 0x45, 0x4e, 0x86, 0x2c, 0x1d, 0xe3, 0x24, 0xe5, 0x92, 0xc3,
+	0x4a, 0xe6, 0xc2, 0xca, 0x85, 0x47, 0x2d, 0x77, 0x37, 0xe0, 0x62, 0xc0, 0x05, 0xe9, 0x51, 0xc1,
+	0x74, 0x1c, 0x19, 0xb5, 0x7a, 0x4c, 0xd2, 0x16, 0x49, 0x68, 0x18, 0xc5, 0x54, 0x46, 0x3c, 0xd6,
+	0xa9, 0xee, 0x46, 0xc8, 0x43, 0xae, 0x9e, 0x24, 0x7b, 0x19, 0xeb, 0x56, 0xc8, 0x79, 0xd8, 0x67,
+	0x84, 0x26, 0x11, 0xa1, 0x71, 0xcc, 0xa5, 0x4a, 0x11, 0xc6, 0xeb, 0x5d, 0xd4, 0xcf, 0x95, 0x03,
+	0x1e, 0xe5, 0x9a, 0x75, 0x9b, 0x34, 0x64, 0x31, 0x13, 0x51, 0x9e, 0x5c, 0x68, 0x43, 0x43, 0x2b,
+	0x17, 0x7a, 0x09, 0x6e, 0x3c, 0xcf, 0x68, 0xbb, 0x99, 0xad, 0xcb, 0x63, 0x99, 0xd2, 0x40, 0x0a,
+	0xf8, 0x18, 0x80, 0x3f, 0xd8, 0x35, 0xa7, 0xe9, 0x6c, 0xaf, 0xb5, 0xef, 0x62, 0xcd, 0x80, 0x33,
+	0x06, 0xac, 0x67, 0x61, 0x48, 0xf0, 0x21, 0x0d, 0x99, 0xcf, 0x4e, 0x86, 0x4c, 0x48, 0xff, 0x42,
+	0x26, 0xfa, 0xe2, 0x80, 0xfa, 0x02, 0x7d, 0x9f, 0x89, 0x84, 0xc7, 0x82, 0xc1, 0x67, 0x60, 0x5d,
+	0xd1, 0x1c, 0x05, 0xb9, 0xab, 0xe6, 0x34, 0x57, 0xb7, 0xd7, 0xda, 0x5b, 0xd8, 0x9a, 0x2f, 0xb6,
+	0xf2, 0x3b, 0x57, 0xce, 0x26, 0x8d, 0x92, 0x5f, 0x0d, 0x6c, 0xe8, 0x03, 0x0b, 0x7a, 0x45, 0x41,
+	0xdf, 0x5b, 0x0a, 0xad, 0x49, 0x2c, 0xea, 0x87, 0x00, 0x5e, 0x86, 0x86, 0x3b, 0xe0, 0x7a, 0x4e,
+	0x79, 0x44, 0x8f, 0x8f, 0x53, 0x26, 0x84, 0x9a, 0xcc, 0x35, 0x7f, 0x3d, 0xb7, 0x3f, 0xd2, 0x66,
+	0x14, 0x02, 0xf7, 0xb2, 0xc0, 0xbc, 0xe9, 0x27, 0xa0, 0x6a, 0x37, 0x6d, 0x06, 0xfc, 0x3f, 0x3d,
+	0x57, 0xac, 0x9e, 0xd1, 0x86, 0x21, 0x3d, 0xa4, 0x29, 0x1d, 0x08, 0xb3, 0x01, 0x44, 0xcd, 0x52,
+	0x73, 0xab, 0xa9, 0xfb, 0x14, 0x94, 0x13, 0x65, 0x31, 0xf5, 0x36, 0x0b, 0xf5, 0x74, 0x78, 0xa7,
+	0xfe, 0x73, 0xd2, 0x30, 0x81, 0xbf, 0x26, 0x8d, 0xca, 0x98, 0x0e, 0xfa, 0x0f, 0x90, 0xfe, 0x8d,
+	0x7c, 0xe3, 0x68, 0x7f, 0x5c, 0x05, 0x57, 0x55, 0x0d, 0x78, 0xea, 0x80, 0x6a, 0xe1, 0x7a, 0x50,
+	0x41, 0x78, 0xc1, 0x05, 0xb8, 0xbb, 0xcb, 0x63, 0x72, 0x70, 0xd4, 0x3c, 0xfd, 0xfa, 0xe3, 0xf3,
+	0x8a, 0x0b, 0x6b, 0xa4, 0x70, 0xc8, 0xf3, 0x8a, 0x9f, 0x1c, 0x50, 0xb1, 0xb7, 0x75, 0x67, 0xa9,
+	0xbe, 0xbb, 0xb3, 0x34, 0x64, 0x4e, 0xb0, 0xaf, 0x08, 0xf6, 0xe0, 0xfd, 0xbf, 0x11, 0x90, 0x77,
+	0xc5, 0xdb, 0x78, 0x0f, 0x63, 0x50, 0xd6, 0x23, 0x5d, 0x0c, 0x63, 0xed, 0xcc, 0x45, 0xff, 0x0a,
+	0x31, 0x14, 0xb7, 0x15, 0xc5, 0x4d, 0xb8, 0x59, 0xa0, 0xd0, 0x3b, 0xe9, 0x1c, 0x9c, 0x4d, 0x3d,
+	0xe7, 0x7c, 0xea, 0x39, 0xdf, 0xa7, 0x9e, 0xf3, 0x61, 0xe6, 0x95, 0xce, 0x67, 0x5e, 0xe9, 0xdb,
+	0xcc, 0x2b, 0xbd, 0xd8, 0x0b, 0x23, 0xf9, 0x6a, 0xd8, 0xc3, 0x01, 0x1f, 0x90, 0xae, 0xfa, 0x3f,
+	0xcc, 0x87, 0xac, 0xa5, 0xde, 0x1a, 0x31, 0x39, 0x4e, 0x98, 0xe8, 0x95, 0xd5, 0xb7, 0x61, 0xff,
+	0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x1a, 0x8e, 0x06, 0x27, 0xff, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -248,6 +369,8 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// ClockContracts
 	ClockContracts(ctx context.Context, in *QueryClockContracts, opts ...grpc.CallOption) (*QueryClockContractsResponse, error)
+	// ClockContract
+	ClockContract(ctx context.Context, in *QueryClockContract, opts ...grpc.CallOption) (*QueryClockContractResponse, error)
 	// Params
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
@@ -269,6 +392,15 @@ func (c *queryClient) ClockContracts(ctx context.Context, in *QueryClockContract
 	return out, nil
 }
 
+func (c *queryClient) ClockContract(ctx context.Context, in *QueryClockContract, opts ...grpc.CallOption) (*QueryClockContractResponse, error) {
+	out := new(QueryClockContractResponse)
+	err := c.cc.Invoke(ctx, "/juno.clock.v1.Query/ClockContract", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
 	out := new(QueryParamsResponse)
 	err := c.cc.Invoke(ctx, "/juno.clock.v1.Query/Params", in, out, opts...)
@@ -282,6 +414,8 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 type QueryServer interface {
 	// ClockContracts
 	ClockContracts(context.Context, *QueryClockContracts) (*QueryClockContractsResponse, error)
+	// ClockContract
+	ClockContract(context.Context, *QueryClockContract) (*QueryClockContractResponse, error)
 	// Params
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
@@ -292,6 +426,9 @@ type UnimplementedQueryServer struct {
 
 func (*UnimplementedQueryServer) ClockContracts(ctx context.Context, req *QueryClockContracts) (*QueryClockContractsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ClockContracts not implemented")
+}
+func (*UnimplementedQueryServer) ClockContract(ctx context.Context, req *QueryClockContract) (*QueryClockContractResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClockContract not implemented")
 }
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
@@ -315,6 +452,24 @@ func _Query_ClockContracts_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).ClockContracts(ctx, req.(*QueryClockContracts))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_ClockContract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryClockContract)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ClockContract(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/juno.clock.v1.Query/ClockContract",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ClockContract(ctx, req.(*QueryClockContract))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -346,6 +501,10 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_ClockContracts_Handler,
 		},
 		{
+			MethodName: "ClockContract",
+			Handler:    _Query_ClockContract_Handler,
+		},
+		{
 			MethodName: "Params",
 			Handler:    _Query_Params_Handler,
 		},
@@ -374,6 +533,18 @@ func (m *QueryClockContracts) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -397,15 +568,95 @@ func (m *QueryClockContractsResponse) MarshalToSizedBuffer(dAtA []byte) (int, er
 	_ = i
 	var l int
 	_ = l
-	if len(m.ContractAddresses) > 0 {
-		for iNdEx := len(m.ContractAddresses) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.ContractAddresses[iNdEx])
-			copy(dAtA[i:], m.ContractAddresses[iNdEx])
-			i = encodeVarintQuery(dAtA, i, uint64(len(m.ContractAddresses[iNdEx])))
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ClockContracts) > 0 {
+		for iNdEx := len(m.ClockContracts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ClockContracts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
 			i--
 			dAtA[i] = 0xa
 		}
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryClockContract) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryClockContract) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryClockContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryClockContractResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryClockContractResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryClockContractResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.ClockContract.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -484,6 +735,10 @@ func (m *QueryClockContracts) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
 	return n
 }
 
@@ -493,12 +748,40 @@ func (m *QueryClockContractsResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if len(m.ContractAddresses) > 0 {
-		for _, s := range m.ContractAddresses {
-			l = len(s)
+	if len(m.ClockContracts) > 0 {
+		for _, e := range m.ClockContracts {
+			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
 	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryClockContract) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryClockContractResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.ClockContract.Size()
+	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
 
@@ -559,6 +842,42 @@ func (m *QueryClockContracts) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: QueryClockContracts: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipQuery(dAtA[iNdEx:])
@@ -611,7 +930,127 @@ func (m *QueryClockContractsResponse) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddresses", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ClockContracts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ClockContracts = append(m.ClockContracts, ClockContract{})
+			if err := m.ClockContracts[len(m.ClockContracts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryClockContract) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryClockContract: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryClockContract: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -639,7 +1078,90 @@ func (m *QueryClockContractsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ContractAddresses = append(m.ContractAddresses, string(dAtA[iNdEx:postIndex]))
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryClockContractResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryClockContractResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryClockContractResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ClockContract", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.ClockContract.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

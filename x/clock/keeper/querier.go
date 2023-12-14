@@ -21,13 +21,33 @@ func NewQuerier(k Keeper) Querier {
 }
 
 // ContractModules returns contract addresses which are using the clock
-func (q Querier) ClockContracts(stdCtx context.Context, _ *types.QueryClockContracts) (*types.QueryClockContractsResponse, error) {
+func (q Querier) ClockContracts(stdCtx context.Context, req *types.QueryClockContracts) (*types.QueryClockContractsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(stdCtx)
 
-	p := q.keeper.GetParams(ctx)
+	contracts, err := q.keeper.GetPaginatedContracts(ctx, req.Pagination)
+	if err != nil {
+		return nil, err
+	}
 
-	return &types.QueryClockContractsResponse{
-		ContractAddresses: p.ContractAddresses,
+	return contracts, nil
+}
+
+// ClockContract returns the clock contract information
+func (q Querier) ClockContract(stdCtx context.Context, req *types.QueryClockContract) (*types.QueryClockContractResponse, error) {
+	ctx := sdk.UnwrapSDKContext(stdCtx)
+
+	// Ensure the contract address is valid
+	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
+		return nil, types.ErrInvalidAddress
+	}
+
+	contract, err := q.keeper.GetClockContract(ctx, req.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryClockContractResponse{
+		ClockContract: *contract,
 	}, nil
 }
 

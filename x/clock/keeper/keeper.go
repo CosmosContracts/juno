@@ -1,7 +1,10 @@
 package keeper
 
 import (
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -15,6 +18,7 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	cdc      codec.BinaryCodec
 
+	wasmKeeper     wasmkeeper.Keeper
 	contractKeeper wasmtypes.ContractOpsKeeper
 
 	authority string
@@ -23,15 +27,22 @@ type Keeper struct {
 func NewKeeper(
 	key storetypes.StoreKey,
 	cdc codec.BinaryCodec,
+	wasmKeeper wasmkeeper.Keeper,
 	contractKeeper wasmtypes.ContractOpsKeeper,
 	authority string,
 ) Keeper {
 	return Keeper{
 		cdc:            cdc,
 		storeKey:       key,
+		wasmKeeper:     wasmKeeper,
 		contractKeeper: contractKeeper,
 		authority:      authority,
 	}
+}
+
+// Logger returns a module-specific logger.
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // GetAuthority returns the x/clock module's authority.
@@ -67,4 +78,14 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 // GetContractKeeper returns the x/wasm module's contract keeper.
 func (k Keeper) GetContractKeeper() wasmtypes.ContractOpsKeeper {
 	return k.contractKeeper
+}
+
+// GetCdc returns the x/clock module's codec.
+func (k Keeper) GetCdc() codec.BinaryCodec {
+	return k.cdc
+}
+
+// GetStore returns the x/clock module's store key.
+func (k Keeper) GetStore() storetypes.StoreKey {
+	return k.storeKey
 }

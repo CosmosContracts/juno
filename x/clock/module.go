@@ -75,7 +75,7 @@ func (a AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux 
 }
 
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-	return nil
+	return cli.NewTxCmd()
 }
 
 func (a AppModuleBasic) GetQueryCmd() *cobra.Command {
@@ -115,8 +115,7 @@ func (a AppModule) InitGenesis(ctx sdk.Context, marshaler codec.JSONCodec, messa
 }
 
 func (a AppModule) ExportGenesis(ctx sdk.Context, marshaler codec.JSONCodec) json.RawMessage {
-	params := a.keeper.GetParams(ctx)
-	genState := NewGenesisState(params)
+	genState := ExportGenesis(ctx, a.keeper)
 	return marshaler.MustMarshalJSON(genState)
 }
 
