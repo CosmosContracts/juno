@@ -6,7 +6,7 @@ order: 2
 
 Once an address is authorized, at any time it can use the `MsgDistributToken` message to distribute all the attached funds at the next block. 
 
-From command line is as easy as running the follwing instruction
+From command line is as easy as running the following instruction
 
 ```
 junod tx drip distribute-tokens 100000tf/yourcontract/yourtoken
