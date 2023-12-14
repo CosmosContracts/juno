@@ -15,7 +15,7 @@ type Minter struct {
  Inflation        sdk.Dec   // current annual inflation rate
  Phase            uint64    // current phase inflation
  StartPhaseBlock  uint64    // current phase start block 
- AnnualProvisions sdk.Dec   // current annual exptected provisions
+ AnnualProvisions sdk.Dec   // current annual expected provisions
 }
 ```
 
