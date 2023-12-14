@@ -13,7 +13,7 @@ import (
 	"github.com/CosmosContracts/juno/v19/app/keepers"
 )
 
-// BaseAppParamManager defines an interrace that BaseApp is expected to fullfil
+// BaseAppParamManager defines an interrace that BaseApp is expected to fulfil
 // that allows upgrade handlers to modify BaseApp parameters.
 type BaseAppParamManager interface {
 	GetConsensusParams(ctx sdk.Context) *tmproto.ConsensusParams

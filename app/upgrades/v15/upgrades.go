@@ -27,7 +27,7 @@ func CreateV15PatchUpgradeHandler(
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
 		// x/TokenFactory
-		// Use denom creation gas consumtion instead of fee for contract developers
+		// Use denom creation gas consumption instead of fee for contract developers
 		updatedTf := tokenfactorytypes.Params{
 			DenomCreationFee:        nil,
 			DenomCreationGasConsume: NewDenomCreationGasConsume,
