@@ -405,8 +405,8 @@ func New(
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(
-			// TODO: is this okay? (may not matter since we are sharing the VM instance)
-			// wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
+			// https://github.com/cosmos/ibc-go/pull/5439
+			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
 			wasmlckeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmClientKeeper),
 		)
 		if err != nil {
@@ -446,6 +446,11 @@ func New(
 		// We do not use the wasm light client's impl since we do not want ALL to be pinned.
 		// The WasmKeeper will handle is as expected.
 		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+		}
+
+		// https://github.com/cosmos/ibc-go/pull/5439
+		if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil {
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 
