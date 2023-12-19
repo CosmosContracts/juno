@@ -442,12 +442,10 @@ func New(
 		}
 		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
 
-		// Initialize pinned codes in wasmvm as they are not persisted there
-		// TODO: check if this must match docs
-		// if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
-		// 	tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
-		// }
-		if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil { // TODO: fix for the v7 docs
+		// Initialize pinned codes in wasmvm as they are not persisted there.
+		// We do not use the wasm light client's impl since we do not want ALL to be pinned.
+		// The WasmKeeper will handle is as expected.
+		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 

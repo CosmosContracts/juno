@@ -521,11 +521,6 @@ func NewAppKeepers(
 		"/osmosis.tokenfactory.v1beta1.Query/DenomsFromCreator":      &tokenfactorytypes.QueryDenomsFromCreatorResponse{},
 	}
 
-	accepted := make([]string, 0)
-	for k := range acceptedStargateQueries {
-		accepted = append(accepted, k)
-	}
-
 	querierOpts := wasmkeeper.WithQueryPlugins(
 		&wasmkeeper.QueryPlugins{
 			Stargate: wasmkeeper.AcceptListStargateQuerier(acceptedStargateQueries, bApp.GRPCQueryRouter(), appCodec),
@@ -544,7 +539,7 @@ func NewAppKeepers(
 
 	wasmOpts = append(wasmOpts, burnMessageHandler)
 
-	// create a shared VM instance
+	// create a shared VM instance (x/wasm <-> wasm light client)
 	wasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create juno wasm vm: %s", err))
@@ -574,6 +569,11 @@ func NewAppKeepers(
 	)
 
 	// 08-wasm light client
+	accepted := make([]string, 0)
+	for k := range acceptedStargateQueries {
+		accepted = append(accepted, k)
+	}
+
 	wasmLightClientQuerier := wasmlctypes.QueryPlugins{
 		// Custom: MyCustomQueryPlugin(),
 		// `myAcceptList` is a `[]string` containing the list of gRPC query paths that the chain wants to allow for the `08-wasm` module to query.
@@ -583,12 +583,11 @@ func NewAppKeepers(
 		Stargate: wasmlctypes.AcceptListStargateQuerier(accepted),
 	}
 
-	wasmQuerierOption := wasmlckeeper.WithQueryPlugins(&wasmLightClientQuerier) // TODO: update in IBC documentation, uses the keeper & ref not types.
+	wasmQuerierOption := wasmlckeeper.WithQueryPlugins(&wasmLightClientQuerier)
 
 	appKeepers.WasmClientKeeper = wasmlckeeper.NewKeeperWithVM(
 		appCodec,
-		// runtime.NewKVStoreService(keys[wasmtypes.StoreKey]), // TODO: Remove from v7 docs, this is a v8 / SDK v50 thing
-		appKeepers.keys[evidencetypes.StoreKey],
+		appKeepers.keys[wasmlctypes.StoreKey],
 		appKeepers.IBCKeeper.ClientKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		wasmer,
