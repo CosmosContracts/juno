@@ -10,6 +10,7 @@ import (
 	decorators "github.com/CosmosContracts/juno/v19/app/decorators"
 	"github.com/CosmosContracts/juno/v19/app/keepers"
 	"github.com/CosmosContracts/juno/v19/app/upgrades"
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 )
 
 func CreateV19UpgradeHandler(
@@ -42,6 +43,11 @@ func CreateV19UpgradeHandler(
 				k.StakingKeeper.SetValidator(ctx, validator)
 			}
 		}
+
+		// https://github.com/cosmos/ibc-go/blob/main/docs/docs/03-light-clients/04-wasm/03-integration.md
+		params := k.IBCKeeper.ClientKeeper.GetParams(ctx)
+		params.AllowedClients = append(params.AllowedClients, wasmlctypes.Wasm)
+		k.IBCKeeper.ClientKeeper.SetParams(ctx, params)
 
 		return versionMap, err
 	}

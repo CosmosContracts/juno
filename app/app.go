@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	wasmlckeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
+
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -404,7 +406,9 @@ func New(
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(
-			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
+			// TODO: is this okay? (may not matter since we are sharing the VM instance)
+			// wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
+			wasmlckeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmClientKeeper),
 		)
 		if err != nil {
 			panic("failed to register snapshot extension: " + err.Error())
@@ -438,8 +442,13 @@ func New(
 			tmos.Exit(err.Error())
 		}
 		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+
 		// Initialize pinned codes in wasmvm as they are not persisted there
-		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+		// TODO: check if this must match docs
+		// if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+		// 	tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+		// }
+		if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil { // TODO: fix for the v7 docs
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 

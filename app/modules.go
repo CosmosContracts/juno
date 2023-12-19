@@ -74,6 +74,9 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v19/x/mint/types"
 	"github.com/CosmosContracts/juno/v19/x/tokenfactory"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
+
+	wasmlc "github.com/cosmos/ibc-go/modules/light-clients/08-wasm"
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -116,6 +119,7 @@ var ModuleBasics = module.NewBasicManager(
 	packetforward.AppModuleBasic{},
 	clock.AppModuleBasic{},
 	cwhooks.AppModuleBasic{},
+	wasmlc.AppModuleBasic{},
 )
 
 func appModules(
@@ -168,6 +172,7 @@ func appModules(
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
 		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
+		wasmlc.NewAppModule(app.AppKeepers.WasmClientKeeper),
 	}
 }
 
@@ -243,6 +248,7 @@ func orderBeginBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhooks.ModuleName,
+		wasmlctypes.ModuleName,
 	}
 }
 
@@ -283,6 +289,7 @@ func orderEndBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhooks.ModuleName,
+		wasmlctypes.ModuleName,
 	}
 }
 
@@ -323,5 +330,6 @@ func orderInitBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhooks.ModuleName,
+		wasmlctypes.ModuleName,
 	}
 }

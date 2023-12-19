@@ -39,6 +39,7 @@ import (
 	globalfeetypes "github.com/CosmosContracts/juno/v19/x/globalfee/types"
 	minttypes "github.com/CosmosContracts/juno/v19/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -47,7 +48,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, consensusparamtypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, capabilitytypes.StoreKey,
-		authzkeeper.StoreKey, nftkeeper.StoreKey,
+		authzkeeper.StoreKey, nftkeeper.StoreKey, wasmlctypes.StoreKey,
 
 		// non sdk store keys
 		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
