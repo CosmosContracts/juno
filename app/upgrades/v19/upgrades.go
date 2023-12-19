@@ -3,6 +3,8 @@ package v19
 import (
 	"fmt"
 
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -10,7 +12,6 @@ import (
 	decorators "github.com/CosmosContracts/juno/v19/app/decorators"
 	"github.com/CosmosContracts/juno/v19/app/keepers"
 	"github.com/CosmosContracts/juno/v19/app/upgrades"
-	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 )
 
 func CreateV19UpgradeHandler(

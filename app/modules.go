@@ -12,6 +12,8 @@ import (
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 	ibc_hooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
+	wasmlc "github.com/cosmos/ibc-go/modules/light-clients/08-wasm"
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 	ibcfee "github.com/cosmos/ibc-go/v7/modules/apps/29-fee"
@@ -74,9 +76,6 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v19/x/mint/types"
 	"github.com/CosmosContracts/juno/v19/x/tokenfactory"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
-
-	wasmlc "github.com/cosmos/ibc-go/modules/light-clients/08-wasm"
-	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,

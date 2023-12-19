@@ -7,6 +7,7 @@ import (
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
@@ -39,7 +40,6 @@ import (
 	globalfeetypes "github.com/CosmosContracts/juno/v19/x/globalfee/types"
 	minttypes "github.com/CosmosContracts/juno/v19/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
-	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
