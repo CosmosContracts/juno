@@ -5,12 +5,13 @@ import (
 
 	"github.com/cometbft/cometbft/libs/log"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v19/x/clock/keeper"
 	"github.com/CosmosContracts/juno/v19/x/clock/types"
+
+	helpers "github.com/CosmosContracts/juno/v19/app/helpers"
 )
 
 var endBlockSudoMessage = []byte(types.EndBlockSudoMessage)
@@ -51,7 +52,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		childCtx := ctx.WithGasMeter(sdk.NewGasMeter(p.ContractGasLimit))
 
 		// Execute contract
-		executeContract(k, childCtx, contractAddr, &err)
+		helpers.ExecuteContract(k.GetContractKeeper(), childCtx, contractAddr, endBlockSudoMessage, &err)
 		if handleError(ctx, k, logger, errorExecs, &errorExists, err, idx, contract.ContractAddress) {
 			continue
 		}
@@ -89,34 +90,4 @@ func handleError(
 	}
 
 	return err != nil
-}
-
-// Execute contract, recover from panic
-func executeContract(k keeper.Keeper, childCtx sdk.Context, contractAddr sdk.AccAddress, err *error) {
-	// Recover from panic, return error
-	defer func() {
-		if recoveryError := recover(); recoveryError != nil {
-			// Determine error associated with panic
-			if isOutofGas, msg := isOutOfGasError(recoveryError); isOutofGas {
-				*err = types.ErrOutOfGas.Wrapf("%s", msg)
-			} else {
-				*err = types.ErrContractExecutionPanic.Wrapf("%s", recoveryError)
-			}
-		}
-	}()
-
-	// Execute contract with sudo
-	_, *err = k.GetContractKeeper().Sudo(childCtx, contractAddr, endBlockSudoMessage)
-}
-
-// Check if error is out of gas error
-func isOutOfGasError(err any) (bool, string) {
-	switch e := err.(type) {
-	case storetypes.ErrorOutOfGas:
-		return true, e.Descriptor
-	case storetypes.ErrorGasOverflow:
-		return true, e.Descriptor
-	default:
-		return false, ""
-	}
 }
