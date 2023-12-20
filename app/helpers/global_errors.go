@@ -6,7 +6,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-const codespace = "global-errors"
+const codespace = "juno-global"
 
 var (
 	ErrInvalidAddress            = sdkerrors.ErrInvalidAddress
