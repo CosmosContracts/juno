@@ -12,6 +12,8 @@ import (
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 	ibc_hooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
+	wasmlc "github.com/cosmos/ibc-go/modules/light-clients/08-wasm"
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 	ibcfee "github.com/cosmos/ibc-go/v7/modules/apps/29-fee"
@@ -116,6 +118,7 @@ var ModuleBasics = module.NewBasicManager(
 	packetforward.AppModuleBasic{},
 	clock.AppModuleBasic{},
 	cwhooks.AppModuleBasic{},
+	wasmlc.AppModuleBasic{},
 )
 
 func appModules(
@@ -168,6 +171,7 @@ func appModules(
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
 		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
+		wasmlc.NewAppModule(app.AppKeepers.WasmClientKeeper),
 	}
 }
 
@@ -243,6 +247,7 @@ func orderBeginBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhooks.ModuleName,
+		wasmlctypes.ModuleName,
 	}
 }
 
@@ -283,6 +288,7 @@ func orderEndBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhooks.ModuleName,
+		wasmlctypes.ModuleName,
 	}
 }
 
@@ -323,5 +329,6 @@ func orderInitBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhooks.ModuleName,
+		wasmlctypes.ModuleName,
 	}
 }

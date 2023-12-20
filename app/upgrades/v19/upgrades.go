@@ -3,6 +3,8 @@ package v19
 import (
 	"fmt"
 
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -42,6 +44,11 @@ func CreateV19UpgradeHandler(
 				k.StakingKeeper.SetValidator(ctx, validator)
 			}
 		}
+
+		// https://github.com/cosmos/ibc-go/blob/main/docs/docs/03-light-clients/04-wasm/03-integration.md
+		params := k.IBCKeeper.ClientKeeper.GetParams(ctx)
+		params.AllowedClients = append(params.AllowedClients, wasmlctypes.Wasm)
+		k.IBCKeeper.ClientKeeper.SetParams(ctx, params)
 
 		return versionMap, err
 	}

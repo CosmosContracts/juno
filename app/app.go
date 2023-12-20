@@ -24,6 +24,7 @@ import (
 	tmos "github.com/cometbft/cometbft/libs/os"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	wasmlckeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
@@ -404,7 +405,9 @@ func New(
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(
+			// https://github.com/cosmos/ibc-go/pull/5439
 			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
+			wasmlckeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmClientKeeper),
 		)
 		if err != nil {
 			panic("failed to register snapshot extension: " + err.Error())
@@ -438,8 +441,16 @@ func New(
 			tmos.Exit(err.Error())
 		}
 		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
-		// Initialize pinned codes in wasmvm as they are not persisted there
+
+		// Initialize pinned codes in wasmvm as they are not persisted there.
+		// We do not use the wasm light client's impl since we do not want ALL to be pinned.
+		// The WasmKeeper will handle is as expected.
 		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+		}
+
+		// https://github.com/cosmos/ibc-go/pull/5439
+		if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil {
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 

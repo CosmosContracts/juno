@@ -1,12 +1,14 @@
 package keepers
 
 import (
+	"fmt"
 	"math"
 	"path/filepath"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	wasmvm "github.com/CosmWasm/wasmvm"
 	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
 	"github.com/spf13/cast"
@@ -20,6 +22,8 @@ import (
 	ibc_hooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7"
 	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/keeper"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
+	wasmlckeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	icacontroller "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
@@ -169,6 +173,7 @@ type AppKeepers struct {
 	ContractKeeper      wasmtypes.ContractOpsKeeper
 	ClockKeeper         clockkeeper.Keeper
 	CWHooksKeeper       cwhookskeeper.Keeper
+	WasmClientKeeper    wasmlckeeper.Keeper
 
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -490,7 +495,7 @@ func NewAppKeepers(
 	wasmOpts = append(wasmOpts, tfOpts...)
 
 	// Stargate Queries
-	accepted := wasmkeeper.AcceptedStargateQueries{
+	acceptedStargateQueries := wasmkeeper.AcceptedStargateQueries{
 		// ibc
 		"/ibc.core.client.v1.Query/ClientState":    &ibcclienttypes.QueryClientStateResponse{},
 		"/ibc.core.client.v1.Query/ConsensusState": &ibcclienttypes.QueryConsensusStateResponse{},
@@ -518,7 +523,7 @@ func NewAppKeepers(
 
 	querierOpts := wasmkeeper.WithQueryPlugins(
 		&wasmkeeper.QueryPlugins{
-			Stargate: wasmkeeper.AcceptListStargateQuerier(accepted, bApp.GRPCQueryRouter(), appCodec),
+			Stargate: wasmkeeper.AcceptListStargateQuerier(acceptedStargateQueries, bApp.GRPCQueryRouter(), appCodec),
 		})
 	wasmOpts = append(wasmOpts, querierOpts)
 
@@ -533,6 +538,14 @@ func NewAppKeepers(
 	})
 
 	wasmOpts = append(wasmOpts, burnMessageHandler)
+
+	// create a shared VM instance (x/wasm <-> wasm light client)
+	wasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create juno wasm vm: %s", err))
+	}
+
+	wasmOpts = append(wasmOpts, wasmkeeper.WithWasmEngine(wasmer))
 
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
@@ -553,6 +566,33 @@ func NewAppKeepers(
 		wasmCapabilities,
 		govModAddress,
 		wasmOpts...,
+	)
+
+	// 08-wasm light client
+	accepted := make([]string, 0)
+	for k := range acceptedStargateQueries {
+		accepted = append(accepted, k)
+	}
+
+	wasmLightClientQuerier := wasmlctypes.QueryPlugins{
+		// Custom: MyCustomQueryPlugin(),
+		// `myAcceptList` is a `[]string` containing the list of gRPC query paths that the chain wants to allow for the `08-wasm` module to query.
+		// These queries must be registered in the chain's gRPC query router, be deterministic, and track their gas usage.
+		// The `AcceptListStargateQuerier` function will return a query plugin that will only allow queries for the paths in the `myAcceptList`.
+		// The query responses are encoded in protobuf unlike the implementation in `x/wasm`.
+		Stargate: wasmlctypes.AcceptListStargateQuerier(accepted),
+	}
+
+	wasmQuerierOption := wasmlckeeper.WithQueryPlugins(&wasmLightClientQuerier)
+
+	appKeepers.WasmClientKeeper = wasmlckeeper.NewKeeperWithVM(
+		appCodec,
+		appKeepers.keys[wasmlctypes.StoreKey],
+		appKeepers.IBCKeeper.ClientKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		wasmer,
+		bApp.GRPCQueryRouter(),
+		wasmQuerierOption,
 	)
 
 	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
