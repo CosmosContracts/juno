@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	globalerrors "github.com/CosmosContracts/juno/v19/app/helpers"
 	"github.com/CosmosContracts/juno/v19/x/feepay/types"
 )
 
@@ -39,7 +40,7 @@ func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeeP
 	// Validate sender address
 	senderAddr, err := sdk.AccAddressFromBech32(msg.SenderAddress)
 	if err != nil {
-		return nil, errorsmod.Wrapf(types.ErrInvalidAddress, "invalid sender address: %s", msg.SenderAddress)
+		return nil, errorsmod.Wrapf(globalerrors.ErrInvalidAddress, "invalid sender address: %s", msg.SenderAddress)
 	}
 
 	return &types.MsgFundFeePayContractResponse{}, k.FundContract(ctx, contract, senderAddr, msg.Amount)

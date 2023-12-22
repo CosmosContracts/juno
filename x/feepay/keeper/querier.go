@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	globalerrors "github.com/CosmosContracts/juno/v19/app/helpers"
 	"github.com/CosmosContracts/juno/v19/x/feepay/types"
 )
 
@@ -24,7 +25,7 @@ func NewQuerier(k Keeper) Querier {
 func (q Querier) FeePayContract(ctx context.Context, req *types.QueryFeePayContract) (*types.QueryFeePayContractResponse, error) {
 	// Check if contract address are valid
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, types.ErrInvalidAddress
+		return nil, globalerrors.ErrInvalidAddress
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -55,11 +56,11 @@ func (q Querier) FeePayContracts(ctx context.Context, req *types.QueryFeePayCont
 func (q Querier) FeePayContractUses(ctx context.Context, req *types.QueryFeePayContractUses) (*types.QueryFeePayContractUsesResponse, error) {
 	// Check if wallet & contract address are valid
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, types.ErrInvalidAddress
+		return nil, globalerrors.ErrInvalidAddress
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.WalletAddress); err != nil {
-		return nil, types.ErrInvalidAddress
+		return nil, globalerrors.ErrInvalidAddress
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -84,11 +85,11 @@ func (q Querier) FeePayContractUses(ctx context.Context, req *types.QueryFeePayC
 func (q Querier) FeePayWalletIsEligible(ctx context.Context, req *types.QueryFeePayWalletIsEligible) (*types.QueryFeePayWalletIsEligibleResponse, error) {
 	// Check if wallet & contract address are valid
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, types.ErrInvalidAddress
+		return nil, globalerrors.ErrInvalidAddress
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.WalletAddress); err != nil {
-		return nil, types.ErrInvalidAddress
+		return nil, globalerrors.ErrInvalidAddress
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
