@@ -4,6 +4,8 @@ import (
 	"cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	globalerrors "github.com/CosmosContracts/juno/v19/app/helpers"
 )
 
 const (
@@ -133,7 +135,7 @@ func (msg *MsgUpdateParams) ValidateBasic() error {
 func validateAddresses(addresses ...string) error {
 	for _, address := range addresses {
 		if _, err := sdk.AccAddressFromBech32(address); err != nil {
-			return errors.Wrapf(ErrInvalidAddress, "invalid address: %s", address)
+			return errors.Wrapf(globalerrors.ErrInvalidAddress, "invalid address: %s", address)
 		}
 	}
 

@@ -3,6 +3,8 @@ package keeper
 import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	helpers "github.com/CosmosContracts/juno/v19/app/helpers"
 )
 
 func (k Keeper) SetContract(ctx sdk.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {
@@ -63,7 +65,10 @@ func (k Keeper) ExecuteMessageOnContracts(ctx sdk.Context, keyPrefix []byte, msg
 	for _, c := range k.GetAllContracts(ctx, keyPrefix) {
 		gasLimitCtx := ctx.WithGasMeter(sdk.NewGasMeter(p.ContractGasLimit))
 		addr := sdk.AccAddress(c.Bytes())
-		if _, err := k.GetContractKeeper().Sudo(gasLimitCtx, addr, msgBz); err != nil {
+
+		var err error
+		helpers.ExecuteContract(k.GetContractKeeper(), gasLimitCtx, addr, msgBz, &err)
+		if err != nil {
 			k.Logger(ctx).Error("ExecuteMessageOnContracts err", err, "contract", addr.String())
 			return err
 		}
