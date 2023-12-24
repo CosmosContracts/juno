@@ -12,7 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/CosmosContracts/juno/v16/app/keepers"
+	"github.com/CosmosContracts/juno/v19/app/keepers"
 )
 
 const (
