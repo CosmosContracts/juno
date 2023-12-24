@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v17/x/mint/types"
+	"github.com/CosmosContracts/juno/v19/x/mint/types"
 )
 
 var _ types.QueryServer = Keeper{}
@@ -32,4 +32,12 @@ func (k Keeper) AnnualProvisions(c context.Context, _ *types.QueryAnnualProvisio
 	minter := k.GetMinter(ctx)
 
 	return &types.QueryAnnualProvisionsResponse{AnnualProvisions: minter.AnnualProvisions}, nil
+}
+
+// Target supply returns minter.TargetSupply of the mint module.
+func (k Keeper) TargetSupply(c context.Context, _ *types.QueryTargetSupplyRequest) (*types.QueryTargetSupplyResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	minter := k.GetMinter(ctx)
+
+	return &types.QueryTargetSupplyResponse{TargetSupply: minter.TargetSupply}, nil
 }

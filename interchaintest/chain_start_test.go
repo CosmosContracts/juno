@@ -3,6 +3,9 @@ package interchaintest
 import (
 	"testing"
 
+	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
+	"github.com/strangelove-ventures/interchaintest/v7"
+	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,6 +20,14 @@ func TestBasicJunoStart(t *testing.T) {
 	// Base setup
 	chains := CreateThisBranchChain(t, 1, 0)
 	ic, ctx, _, _ := BuildInitialChain(t, chains)
+
+	chain := chains[0].(*cosmos.CosmosChain)
+
+	const userFunds = int64(10_000_000_000)
+	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, chain)
+	chainUser := users[0]
+
+	junoconformance.ConformanceCosmWasm(t, ctx, chain, chainUser)
 
 	require.NotNil(t, ic)
 	require.NotNil(t, ctx)

@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
 )
 
 func (suite *KeeperTestSuite) TestAdminMsgs() {
@@ -78,7 +78,7 @@ func (suite *KeeperTestSuite) TestAdminMsgs() {
 }
 
 // TestMintDenom ensures the following properties of the MintMessage:
-// * Noone can mint tokens for a denom that doesn't exist
+// * No one can mint tokens for a denom that doesn't exist
 // * Only the admin of a denom can mint tokens for it
 // * The admin of a denom can mint tokens for it
 func (suite *KeeperTestSuite) TestMintDenom() {
@@ -131,6 +131,7 @@ func (suite *KeeperTestSuite) TestMintDenom() {
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
+			tc := tc
 			_, err := suite.msgServer.Mint(sdk.WrapSDKContext(suite.Ctx), &tc.mintMsg)
 			if tc.expectPass {
 				suite.Require().NoError(err)
@@ -207,6 +208,7 @@ func (suite *KeeperTestSuite) TestBurnDenom() {
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
+			tc := tc
 			_, err := suite.msgServer.Burn(sdk.WrapSDKContext(suite.Ctx), &tc.burnMsg)
 			if tc.expectPass {
 				suite.Require().NoError(err)
@@ -281,6 +283,7 @@ func (suite *KeeperTestSuite) TestForceTransferDenom() {
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
+			tc := tc
 			_, err := suite.msgServer.ForceTransfer(sdk.WrapSDKContext(suite.Ctx), &tc.forceTransferMsg)
 			if tc.expectPass {
 				suite.Require().NoError(err)
@@ -505,6 +508,7 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
+			tc := tc
 			bankKeeper := suite.App.AppKeepers.BankKeeper
 			res, err := suite.msgServer.SetDenomMetadata(sdk.WrapSDKContext(suite.Ctx), &tc.msgSetDenomMetadata)
 			if tc.expectedPass {

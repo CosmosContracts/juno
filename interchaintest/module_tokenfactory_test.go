@@ -37,7 +37,7 @@ func TestJunoTokenFactory(t *testing.T) {
 	t.Log("minted tfDenom to user")
 	if balance, err := juno.GetBalance(ctx, uaddr, tfDenom); err != nil {
 		t.Fatal(err)
-	} else if balance != 100 {
+	} else if balance.Int64() != 100 {
 		t.Fatal("balance not 100")
 	}
 
@@ -46,12 +46,12 @@ func TestJunoTokenFactory(t *testing.T) {
 	t.Log("minted tfDenom to user")
 	if balance, err := juno.GetBalance(ctx, uaddr2, tfDenom); err != nil {
 		t.Fatal(err)
-	} else if balance != 70 {
+	} else if balance.Int64() != 70 {
 		t.Fatal("balance not 70")
 	}
 
 	// This allows the uaddr here to mint tokens on behalf of the contract. Typically you only allow a contract here, but this is testing.
-	coreInitMsg := fmt.Sprintf(`{"allowed_mint_addresses":["%s"],"denoms":["%s"]}`, uaddr, tfDenom)
+	coreInitMsg := fmt.Sprintf(`{"allowed_mint_addresses":["%s"],"existing_denoms":["%s"]}`, uaddr, tfDenom)
 	_, coreTFContract := helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/tokenfactory_core.wasm", coreInitMsg)
 	t.Log("coreContract", coreTFContract)
 
@@ -74,7 +74,7 @@ func TestJunoTokenFactory(t *testing.T) {
 	// ensure uaddr2 has 31+70 = 101
 	if balance, err := juno.GetBalance(ctx, uaddr2, tfDenom); err != nil {
 		t.Fatal(err)
-	} else if balance != 101 {
+	} else if balance.Int64() != 101 {
 		t.Fatal("balance not 101")
 	}
 

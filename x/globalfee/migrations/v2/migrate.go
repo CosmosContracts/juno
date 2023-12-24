@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v17/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v19/x/globalfee/types"
 )
 
 const (

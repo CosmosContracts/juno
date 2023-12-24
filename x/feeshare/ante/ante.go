@@ -1,6 +1,8 @@
 package ante
 
 import (
+	"encoding/json"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	errorsmod "cosmossdk.io/errors"
@@ -8,8 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	feeshare "github.com/CosmosContracts/juno/v17/x/feeshare/types"
+	feeshare "github.com/CosmosContracts/juno/v19/x/feeshare/types"
 )
 
 // FeeSharePayoutDecorator Run his after we already deduct the fee from the account with
@@ -32,7 +35,7 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 	}
 
-	err = FeeSharePayout(ctx, fsd.bankKeeper, feeTx.GetFee(), fsd.feesharekeeper, tx.GetMsgs())
+	err = fsd.FeeSharePayout(ctx, fsd.bankKeeper, feeTx.GetFee(), fsd.feesharekeeper, tx.GetMsgs())
 	if err != nil {
 		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
 	}
@@ -55,30 +58,67 @@ func FeePayLogic(fees sdk.Coins, govPercent sdk.Dec, numPairs int) sdk.Coins {
 	return splitFees
 }
 
+type FeeSharePayoutEventOutput struct {
+	WithdrawAddress sdk.AccAddress `json:"withdraw_address"`
+	FeesPaid        sdk.Coins      `json:"fees_paid"`
+}
+
+// Loop through all messages and add the withdraw address to the list of addresses to pay
+// if the contract opted-in to fee sharing
+func addNewFeeSharePayoutsForMsgs(ctx sdk.Context, fsk FeeShareKeeper, toPay *[]sdk.AccAddress, msgs []sdk.Msg) error {
+	for _, msg := range msgs {
+
+		// Check if an authz message, loop through all inner messages, and recursively call this function
+		if authzMsg, ok := msg.(*authz.MsgExec); ok {
+
+			innerMsgs, err := authzMsg.GetMessages()
+			if err != nil {
+				return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
+			}
+
+			// Recursively call this function with the inner messages
+			err = addNewFeeSharePayoutsForMsgs(ctx, fsk, toPay, innerMsgs)
+			if err != nil {
+				return err
+			}
+		}
+
+		// If an execute contract message, check if the contract opted-in to fee sharing,
+		// and if so, add the withdraw address to the list of addresses to pay
+		if execContractMsg, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
+			contractAddr, err := sdk.AccAddressFromBech32(execContractMsg.Contract)
+			if err != nil {
+				return err
+			}
+
+			shareData, _ := fsk.GetFeeShare(ctx, contractAddr)
+
+			withdrawAddr := shareData.GetWithdrawerAddr()
+			if withdrawAddr != nil && !withdrawAddr.Empty() {
+				*toPay = append(*toPay, withdrawAddr)
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
-func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, revKeeper FeeShareKeeper, msgs []sdk.Msg) error {
-	params := revKeeper.GetParams(ctx)
+func (fsd FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, fsk FeeShareKeeper, msgs []sdk.Msg) error {
+	params := fsk.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil
 	}
 
 	// Get valid withdraw addresses from contracts
 	toPay := make([]sdk.AccAddress, 0)
-	for _, msg := range msgs {
-		if _, ok := msg.(*wasmtypes.MsgExecuteContract); ok {
-			contractAddr, err := sdk.AccAddressFromBech32(msg.(*wasmtypes.MsgExecuteContract).Contract)
-			if err != nil {
-				return err
-			}
 
-			shareData, _ := revKeeper.GetFeeShare(ctx, contractAddr)
-
-			withdrawAddr := shareData.GetWithdrawerAddr()
-			if withdrawAddr != nil && !withdrawAddr.Empty() {
-				toPay = append(toPay, withdrawAddr)
-			}
-		}
+	// Add fee share payouts for each msg
+	err := addNewFeeSharePayoutsForMsgs(ctx, fsk, &toPay, msgs)
+	if err != nil {
+		return err
 	}
 
 	// Do nothing if no one needs payment
@@ -101,20 +141,37 @@ func FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins,
 		}
 	}
 
-	// FeeShare logic payouts for contracts
 	numPairs := len(toPay)
+
+	feesPaidOutput := make([]FeeSharePayoutEventOutput, numPairs)
 	if numPairs > 0 {
 		govPercent := params.DeveloperShares
 		splitFees := FeePayLogic(fees, govPercent, numPairs)
 
 		// pay fees evenly between all withdraw addresses
-		for _, withdrawAddr := range toPay {
+		for i, withdrawAddr := range toPay {
 			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, withdrawAddr, splitFees)
+			feesPaidOutput[i] = FeeSharePayoutEventOutput{
+				WithdrawAddress: withdrawAddr,
+				FeesPaid:        splitFees,
+			}
+
 			if err != nil {
 				return errorsmod.Wrapf(feeshare.ErrFeeSharePayment, "failed to pay fees to contract developer: %s", err.Error())
 			}
 		}
 	}
+
+	bz, err := json.Marshal(feesPaidOutput)
+	if err != nil {
+		return errorsmod.Wrapf(feeshare.ErrFeeSharePayment, "failed to marshal feesPaidOutput: %s", err.Error())
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			feeshare.EventTypePayoutFeeShare,
+			sdk.NewAttribute(feeshare.AttributeWithdrawPayouts, string(bz))),
+	)
 
 	return nil
 }

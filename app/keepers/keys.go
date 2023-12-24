@@ -4,9 +4,10 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
-	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
@@ -31,10 +32,14 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v17/x/globalfee/types"
-	minttypes "github.com/CosmosContracts/juno/v17/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
+	clocktypes "github.com/CosmosContracts/juno/v19/x/clock/types"
+	cwhookstypes "github.com/CosmosContracts/juno/v19/x/cw-hooks/types"
+	driptypes "github.com/CosmosContracts/juno/v19/x/drip/types"
+	feepaytypes "github.com/CosmosContracts/juno/v19/x/feepay/types"
+	feesharetypes "github.com/CosmosContracts/juno/v19/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v19/x/globalfee/types"
+	minttypes "github.com/CosmosContracts/juno/v19/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -43,7 +48,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, consensusparamtypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, capabilitytypes.StoreKey,
-		authzkeeper.StoreKey, nftkeeper.StoreKey,
+		authzkeeper.StoreKey, nftkeeper.StoreKey, wasmlctypes.StoreKey,
 
 		// non sdk store keys
 		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
@@ -52,9 +57,13 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
 		tokenfactorytypes.StoreKey,
+		feepaytypes.StoreKey,
 		feesharetypes.StoreKey,
 		globalfeetypes.StoreKey,
 		buildertypes.StoreKey,
+		driptypes.StoreKey,
+		clocktypes.StoreKey,
+		cwhookstypes.StoreKey,
 	)
 
 	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)

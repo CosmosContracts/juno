@@ -10,10 +10,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v17/app/keepers"
+	"github.com/CosmosContracts/juno/v19/app/keepers"
 )
 
-// BaseAppParamManager defines an interrace that BaseApp is expected to fullfil
+// BaseAppParamManager defines an interrace that BaseApp is expected to fulfil
 // that allows upgrade handlers to modify BaseApp parameters.
 type BaseAppParamManager interface {
 	GetConsensusParams(ctx sdk.Context) *tmproto.ConsensusParams
@@ -45,4 +45,15 @@ func GetChainsDenomToken(chainID string) string {
 		return "ujunox"
 	}
 	return "ujuno"
+}
+
+// A blank upgrade handler with no logic, just a migration.
+func CreateBlankUpgradeHandler(
+	mm *module.Manager,
+	cfg module.Configurator,
+	_ *keepers.AppKeepers,
+) upgradetypes.UpgradeHandler {
+	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return mm.RunMigrations(ctx, cfg, vm)
+	}
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v17/app/keepers"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v19/app/keepers"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
 )
 
 // We now charge 2 million gas * gas price to create a denom.
@@ -27,7 +27,7 @@ func CreateV15PatchUpgradeHandler(
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
 		// x/TokenFactory
-		// Use denom creation gas consumtion instead of fee for contract developers
+		// Use denom creation gas consumption instead of fee for contract developers
 		updatedTf := tokenfactorytypes.Params{
 			DenomCreationFee:        nil,
 			DenomCreationGasConsume: NewDenomCreationGasConsume,

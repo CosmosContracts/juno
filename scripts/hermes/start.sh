@@ -31,9 +31,9 @@ export HERMES="hermes --config $FOLDER/$config"
 # export HERMES="hermes --config ./scripts/hermes/config.toml"
 
 # First, lets make sure our chains are running and are healthy.
-# Exit if theres an error.
-{ 
-    set -e 
+# Exit if there's an error.
+{
+    set -e
     $HERMES health-check || echo "Chains are not healthy! don't forget to run them"
     $HERMES config validate || echo "Something is wrong with the config!"
 }

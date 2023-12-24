@@ -9,9 +9,8 @@ import (
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	bindingstypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings/types"
+	bindingstypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/bindings/types"
 )
 
 // CustomQuerier dispatches custom CosmWasm bindings queries.
@@ -21,15 +20,11 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 		if err := json.Unmarshal(request, &contractQuery); err != nil {
 			return nil, errorsmod.Wrap(err, "osmosis query")
 		}
-		if contractQuery.Token == nil {
-			return nil, errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "nil token field")
-		}
-		tokenQuery := contractQuery.Token
 
 		switch {
-		case tokenQuery.FullDenom != nil:
-			creator := tokenQuery.FullDenom.CreatorAddr
-			subdenom := tokenQuery.FullDenom.Subdenom
+		case contractQuery.FullDenom != nil:
+			creator := contractQuery.FullDenom.CreatorAddr
+			subdenom := contractQuery.FullDenom.Subdenom
 
 			fullDenom, err := GetFullDenom(creator, subdenom)
 			if err != nil {
@@ -47,8 +42,8 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			return bz, nil
 
-		case tokenQuery.Admin != nil:
-			res, err := qp.GetDenomAdmin(ctx, tokenQuery.Admin.Denom)
+		case contractQuery.Admin != nil:
+			res, err := qp.GetDenomAdmin(ctx, contractQuery.Admin.Denom)
 			if err != nil {
 				return nil, err
 			}
@@ -60,8 +55,8 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			return bz, nil
 
-		case tokenQuery.Metadata != nil:
-			res, err := qp.GetMetadata(ctx, tokenQuery.Metadata.Denom)
+		case contractQuery.Metadata != nil:
+			res, err := qp.GetMetadata(ctx, contractQuery.Metadata.Denom)
 			if err != nil {
 				return nil, err
 			}
@@ -73,8 +68,8 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			return bz, nil
 
-		case tokenQuery.DenomsByCreator != nil:
-			res, err := qp.GetDenomsByCreator(ctx, tokenQuery.DenomsByCreator.Creator)
+		case contractQuery.DenomsByCreator != nil:
+			res, err := qp.GetDenomsByCreator(ctx, contractQuery.DenomsByCreator.Creator)
 			if err != nil {
 				return nil, err
 			}
@@ -86,7 +81,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			return bz, nil
 
-		case tokenQuery.Params != nil:
+		case contractQuery.Params != nil:
 			res, err := qp.GetParams(ctx)
 			if err != nil {
 				return nil, err

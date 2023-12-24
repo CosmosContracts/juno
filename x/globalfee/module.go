@@ -19,9 +19,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v17/x/globalfee/client/cli"
-	"github.com/CosmosContracts/juno/v17/x/globalfee/keeper"
-	"github.com/CosmosContracts/juno/v17/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v19/x/globalfee/client/cli"
+	"github.com/CosmosContracts/juno/v19/x/globalfee/keeper"
+	"github.com/CosmosContracts/juno/v19/x/globalfee/types"
 )
 
 var (
@@ -131,6 +131,7 @@ func (a AppModule) QuerierRoute() string {
 }
 
 func (a AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(a.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), NewGrpcQuerier(a.keeper))
 
 	m := keeper.NewMigrator(a.keeper, a.bondDenom)

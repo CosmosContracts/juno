@@ -10,8 +10,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v17/app"
-	bindings "github.com/CosmosContracts/juno/v17/x/tokenfactory/bindings/types"
+	"github.com/CosmosContracts/juno/v19/app"
+	bindings "github.com/CosmosContracts/juno/v19/x/tokenfactory/bindings/types"
 )
 
 func TestQueryFullDenom(t *testing.T) {
@@ -22,7 +22,7 @@ func TestQueryFullDenom(t *testing.T) {
 	require.NotEmpty(t, reflect)
 
 	// query full denom
-	query := bindings.TokenQuery{
+	query := bindings.TokenFactoryQuery{
 		FullDenom: &bindings.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "ustart",
@@ -47,11 +47,8 @@ type ChainResponse struct {
 	Data []byte `json:"data"`
 }
 
-func queryCustom(t *testing.T, ctx sdk.Context, junoapp *app.App, contract sdk.AccAddress, request bindings.TokenQuery, response interface{}) {
-	wrapped := bindings.TokenFactoryQuery{
-		Token: &request,
-	}
-	msgBz, err := json.Marshal(wrapped)
+func queryCustom(t *testing.T, ctx sdk.Context, junoapp *app.App, contract sdk.AccAddress, request bindings.TokenFactoryQuery, response interface{}) {
+	msgBz, err := json.Marshal(request)
 	require.NoError(t, err)
 	fmt.Println("queryCustom1", string(msgBz))
 

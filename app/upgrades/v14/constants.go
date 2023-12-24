@@ -5,8 +5,8 @@ import (
 
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
-	"github.com/CosmosContracts/juno/v17/app/upgrades"
-	"github.com/CosmosContracts/juno/v17/x/globalfee"
+	"github.com/CosmosContracts/juno/v19/app/upgrades"
+	"github.com/CosmosContracts/juno/v19/x/globalfee"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.

@@ -24,6 +24,7 @@ import (
 	tmos "github.com/cometbft/cometbft/libs/os"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	wasmlckeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
@@ -63,18 +64,23 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v17/app/keepers"
-	"github.com/CosmosContracts/juno/v17/app/openapiconsole"
-	upgrades "github.com/CosmosContracts/juno/v17/app/upgrades"
-	v10 "github.com/CosmosContracts/juno/v17/app/upgrades/v10"
-	v11 "github.com/CosmosContracts/juno/v17/app/upgrades/v11"
-	v12 "github.com/CosmosContracts/juno/v17/app/upgrades/v12"
-	v13 "github.com/CosmosContracts/juno/v17/app/upgrades/v13"
-	v14 "github.com/CosmosContracts/juno/v17/app/upgrades/v14"
-	v15 "github.com/CosmosContracts/juno/v17/app/upgrades/v15"
-	v16 "github.com/CosmosContracts/juno/v17/app/upgrades/v16"
-	v17 "github.com/CosmosContracts/juno/v17/app/upgrades/v17"
-	"github.com/CosmosContracts/juno/v17/docs"
+	"github.com/CosmosContracts/juno/v19/app/keepers"
+	"github.com/CosmosContracts/juno/v19/app/openapiconsole"
+	upgrades "github.com/CosmosContracts/juno/v19/app/upgrades"
+	testnetV18alpha2 "github.com/CosmosContracts/juno/v19/app/upgrades/testnet/v18.0.0-alpha.2"
+	testnetV18alpha3 "github.com/CosmosContracts/juno/v19/app/upgrades/testnet/v18.0.0-alpha.3"
+	testnetV18alpha4 "github.com/CosmosContracts/juno/v19/app/upgrades/testnet/v18.0.0-alpha.4"
+	v10 "github.com/CosmosContracts/juno/v19/app/upgrades/v10"
+	v11 "github.com/CosmosContracts/juno/v19/app/upgrades/v11"
+	v12 "github.com/CosmosContracts/juno/v19/app/upgrades/v12"
+	v13 "github.com/CosmosContracts/juno/v19/app/upgrades/v13"
+	v14 "github.com/CosmosContracts/juno/v19/app/upgrades/v14"
+	v15 "github.com/CosmosContracts/juno/v19/app/upgrades/v15"
+	v16 "github.com/CosmosContracts/juno/v19/app/upgrades/v16"
+	v17 "github.com/CosmosContracts/juno/v19/app/upgrades/v17"
+	v18 "github.com/CosmosContracts/juno/v19/app/upgrades/v18"
+	v19 "github.com/CosmosContracts/juno/v19/app/upgrades/v19"
+	"github.com/CosmosContracts/juno/v19/docs"
 )
 
 const (
@@ -95,7 +101,23 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v10.Upgrade, v11.Upgrade, v12.Upgrade, v13.Upgrade, v14.Upgrade, v15.Upgrade, v16.Upgrade, v17.Upgrade}
+	Upgrades = []upgrades.Upgrade{
+		// testnet
+		testnetV18alpha2.Upgrade,
+		testnetV18alpha3.Upgrade,
+		testnetV18alpha4.Upgrade,
+
+		v10.Upgrade,
+		v11.Upgrade,
+		v12.Upgrade,
+		v13.Upgrade,
+		v14.Upgrade,
+		v15.Upgrade,
+		v16.Upgrade,
+		v17.Upgrade,
+		v18.Upgrade,
+		v19.Upgrade,
+	}
 )
 
 // These constants are derived from the above variables.
@@ -148,23 +170,6 @@ func SetAddressPrefixes() {
 
 		return nil
 	})
-}
-
-// GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
-// produce a list of enabled proposals to pass into wasmd app.
-func GetEnabledProposals() []wasmtypes.ProposalType {
-	if EnableSpecificProposals == "" {
-		if ProposalsEnabled == "true" {
-			return wasmtypes.EnableAllProposals
-		}
-		return wasmtypes.DisableAllProposals
-	}
-	chunks := strings.Split(EnableSpecificProposals, ",")
-	proposals, err := wasmtypes.ConvertToProposals(chunks)
-	if err != nil {
-		panic(err)
-	}
-	return proposals
 }
 
 func GetWasmOpts(appOpts servertypes.AppOptions) []wasmkeeper.Option {
@@ -229,7 +234,6 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	enabledProposals []wasmtypes.ProposalType,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
@@ -262,9 +266,9 @@ func New(
 		bApp,
 		legacyAmino,
 		keepers.GetMaccPerms(),
-		enabledProposals,
 		appOpts,
 		wasmOpts,
+		app.GetChainBondDenom(),
 	)
 	app.keys = app.AppKeepers.GetKVStoreKey()
 
@@ -352,8 +356,9 @@ func New(
 
 			GovKeeper:         app.AppKeepers.GovKeeper,
 			IBCKeeper:         app.AppKeepers.IBCKeeper,
+			FeePayKeeper:      app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:    app.AppKeepers.FeeShareKeeper,
-			BankKeeperFork:    app.AppKeepers.BankKeeper, // since we need extra methods
+			BankKeeper:        app.AppKeepers.BankKeeper,
 			TxCounterStoreKey: app.AppKeepers.GetKey(wasmtypes.StoreKey),
 			WasmConfig:        wasmConfig,
 			Cdc:               appCodec,
@@ -365,6 +370,7 @@ func New(
 			TxEncoder:     app.txConfig.TxEncoder(),
 			BuilderKeeper: app.AppKeepers.BuildKeeper,
 			Mempool:       mempool,
+			BondDenom:     app.GetChainBondDenom(),
 		},
 	)
 	if err != nil {
@@ -399,7 +405,9 @@ func New(
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(
+			// https://github.com/cosmos/ibc-go/pull/5439
 			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
+			wasmlckeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmClientKeeper),
 		)
 		if err != nil {
 			panic("failed to register snapshot extension: " + err.Error())
@@ -433,8 +441,16 @@ func New(
 			tmos.Exit(err.Error())
 		}
 		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
-		// Initialize pinned codes in wasmvm as they are not persisted there
+
+		// Initialize pinned codes in wasmvm as they are not persisted there.
+		// We do not use the wasm light client's impl since we do not want ALL to be pinned.
+		// The WasmKeeper will handle is as expected.
 		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+		}
+
+		// https://github.com/cosmos/ibc-go/pull/5439
+		if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil {
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 
@@ -477,10 +493,16 @@ func GetDefaultBypassFeeMessages() []string {
 		// IBC
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgRecvPacket{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgAcknowledgement{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgCreateClient{}),
 		sdk.MsgTypeURL(&ibcclienttypes.MsgUpdateClient{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgSubmitMisbehaviour{}),
+		sdk.MsgTypeURL(&ibcclienttypes.MsgUpgradeClient{}),
 		sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeout{}),
 		sdk.MsgTypeURL(&ibcchanneltypes.MsgTimeoutOnClose{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgChannelOpenTry{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgChannelOpenConfirm{}),
+		sdk.MsgTypeURL(&ibcchanneltypes.MsgChannelOpenAck{}),
 	}
 }
 

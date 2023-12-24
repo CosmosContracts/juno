@@ -3,7 +3,6 @@ package types
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	// "github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	acctypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )

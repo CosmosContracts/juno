@@ -3,7 +3,7 @@ package v13
 import (
 	"fmt"
 
-	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/router/types"
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
 	// ICA
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
@@ -13,11 +13,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v17/app/keepers"
-	"github.com/CosmosContracts/juno/v17/app/upgrades"
+	"github.com/CosmosContracts/juno/v19/app/keepers"
+	"github.com/CosmosContracts/juno/v19/app/upgrades"
 	// types
-	feesharetypes "github.com/CosmosContracts/juno/v17/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v17/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v19/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
 )
 
 func CreateV13UpgradeHandler(

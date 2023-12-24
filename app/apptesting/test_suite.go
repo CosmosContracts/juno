@@ -34,8 +34,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v17/app"
-	appparams "github.com/CosmosContracts/juno/v17/app/params"
+	"github.com/CosmosContracts/juno/v19/app"
+	appparams "github.com/CosmosContracts/juno/v19/app/params"
 )
 
 type KeeperTestHelper struct {

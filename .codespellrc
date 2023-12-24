@@ -1,0 +1,4 @@
+[codespell]
+skip = *.rs,*.json,*.js,*.html,*.d,*.sum,go.mod,*/statik.go,./docs,*.pb.*,./interchaintest
+quiet-level = 2
+ignore-words = .github/workflows/spell-check-ignore.txt
