@@ -18,17 +18,17 @@ If it is something that can be handled by a param change, discuss it on Discord 
 
 For a bug that is non-sensitive and/or operational in nature rather than a critical vulnerability, please add it as a GitHub issue.
 
-If it is not triaged in a couple of days, feel free to tag `@the-frey` or `@jakehartnell`.
+If it is not triaged in a couple of days, feel free to tag `@jakehartnell`
 
 ## Critical bug or security issue 💥
 
 If you're here because you're trying to figure out how to notify us of a security issue, go to [Discord](https://discord.gg/wHdzjS5vXx), and alert the core engineers:
 
-- Jake (Meow) `Meow Stargaze ✨🔭#1736`
-- Dimi `dimiandre`
-- Alex (the-frey) `.thefrey`
-- Giansalex `giansalex`
-- Reece `reecepbcups`
+| Name  | Discord   | Telegram | Email  |
+|-----|------|------|------|
+| Reece | reecepbcups | @Reecepbcups | reece[at]junonetwork.io |
+| Jake (Meow) | Meow Stargaze ✨🔭#1736 | @jakehartnell |  |
+| Dimi | dimiandre | @dimiandre | dimi[at]junonetwork.io | 
 
 Please avoid opening public issues on GitHub that contain information about a potential security vulnerability as this makes it difficult to reduce the impact and harm of valid security issues.
 
