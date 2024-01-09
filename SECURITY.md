@@ -18,7 +18,7 @@ If it is something that can be handled by a param change, discuss it on Discord 
 
 For a bug that is non-sensitive and/or operational in nature rather than a critical vulnerability, please add it as a GitHub issue.
 
-If it is not triaged in a couple of days, feel free to tag `@the-frey` or `@ `.
+If it is not triaged in a couple of days, feel free to tag `@jakehartnell`
 
 ## Critical bug or security issue 💥
 
