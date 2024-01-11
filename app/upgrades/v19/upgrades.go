@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/math"
 	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -66,32 +67,107 @@ func CreateV19UpgradeHandler(
 }
 
 func migrateCore1Vesting(ctx sdk.Context, logger log.Logger, k *keepers.AppKeepers) {
-	core1Acc := k.AccountKeeper.GetAccount(ctx, sdk.MustAccAddressFromBech32(Core1MultisigVestingAccount))
+	core1Addr := sdk.MustAccAddressFromBech32(Core1MultisigVestingAccount)
+	charter := sdk.MustAccAddressFromBech32(CharterCouncil)
 
+	core1Acc := k.AccountKeeper.GetAccount(ctx, core1Addr)
 	vestingAcc, ok := core1Acc.(*vestingtypes.PeriodicVestingAccount)
 	if !ok {
 		panic(fmt.Errorf("core1Acc.(*vestingtypes.PeriodicVestingAccount): %+v", core1Acc))
 	}
-	fmt.Println(vestingAcc)
 
-	// remove 1 hour from the current block time to ensure it is set
-	currTime := ctx.BlockTime().Sub(time.Time{}.Add(time.Hour))
-	totalTokens := uint64(0)
+	baseAcc := vestingAcc.BaseAccount
 
-	vestingAcc.EndTime = int64(currTime.Seconds())
+	// TODO: move all delegations to the counsel directly? (or do they need to ICA or Authz on our chain to make it easier?)
+	redelegated := completeAllRedelegations(ctx, ctx.BlockTime(), k, baseAcc.GetAddress())
+	unbonded, err := unbondAllAndFinish(ctx, ctx.BlockTime(), k, baseAcc.GetAddress())
+	if err != nil {
+		panic(err)
+	}
 
-	// TODO: remove all delegations instantly from prop16 code
+	fmt.Printf("redelegated: %s\n", redelegated)
+	fmt.Printf("unbonded: %s\n", unbonded)
 
-	// sum all tokens
-	for _, period := range vestingAcc.VestingPeriods {
-		for _, coin := range period.Amount {
-			if coin.Denom == "ujuno" {
-				totalTokens += coin.Amount.Uint64()
-			}
+	// Send all vesting funds to the charter (must be minted first)
+	currBal := k.BankKeeper.GetBalance(ctx, baseAcc.GetAddress(), "ujuno")
+	diff := vestingAcc.OriginalVesting.Sub(currBal)
+	if err := k.BankKeeper.MintCoins(ctx, "mint", diff); err != nil {
+		panic(err)
+	}
+	if err := k.BankKeeper.SendCoinsFromModuleToAccount(ctx, "mint", charter, diff); err != nil {
+		panic(err)
+	}
+
+	// remove all vesting from the account
+	k.AccountKeeper.SetAccount(ctx, baseAcc)
+
+	// send any current tokens to the charter council
+
+	// transfer all balance to the charter council
+	if err := k.BankKeeper.SendCoins(
+		ctx,
+		baseAcc.GetAddress(),
+		charter,
+		sdk.NewCoins(currBal)); err != nil {
+		panic(err)
+	}
+}
+
+// From Prop16
+func completeAllRedelegations(ctx sdk.Context, now time.Time, keepers *keepers.AppKeepers, accAddr sdk.AccAddress) error {
+	for _, activeRedelegation := range keepers.StakingKeeper.GetRedelegations(ctx, accAddr, 65535) {
+		redelegationSrc, _ := sdk.ValAddressFromBech32(activeRedelegation.ValidatorSrcAddress)
+		redelegationDst, _ := sdk.ValAddressFromBech32(activeRedelegation.ValidatorDstAddress)
+
+		// set all entry completionTime to now so we can complete re-delegation
+		for i := range activeRedelegation.Entries {
+			activeRedelegation.Entries[i].CompletionTime = now
+		}
+
+		keepers.StakingKeeper.SetRedelegation(ctx, activeRedelegation)
+		_, err := keepers.StakingKeeper.CompleteRedelegation(ctx, accAddr, redelegationSrc, redelegationDst)
+		if err != nil {
+			return err
 		}
 	}
 
-	totalTokens += vestingAcc.DelegatedVesting[0].Amount.Uint64()
+	return nil
+}
 
-	fmt.Println(totalTokens)
+func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeepers, accAddr sdk.AccAddress) (math.Int, error) {
+	unbondedAmt := math.ZeroInt()
+
+	// Unbond all delegations from the account
+	for _, delegation := range keepers.StakingKeeper.GetAllDelegatorDelegations(ctx, accAddr) {
+		validatorValAddr := delegation.GetValidatorAddr()
+		_, found := keepers.StakingKeeper.GetValidator(ctx, validatorValAddr)
+		if !found {
+			continue
+		}
+
+		_, err := keepers.StakingKeeper.Undelegate(ctx, accAddr, validatorValAddr, delegation.GetShares())
+		if err != nil {
+			return math.ZeroInt(), err
+		}
+	}
+
+	// Take all unbonding and complete them.
+	for _, unbondingDelegation := range keepers.StakingKeeper.GetAllUnbondingDelegations(ctx, accAddr) {
+		validatorStringAddr := unbondingDelegation.ValidatorAddress
+		validatorValAddr, _ := sdk.ValAddressFromBech32(validatorStringAddr)
+
+		// Complete unbonding delegation
+		for i := range unbondingDelegation.Entries {
+			unbondingDelegation.Entries[i].CompletionTime = now
+			unbondedAmt = unbondedAmt.Add(unbondingDelegation.Entries[i].Balance)
+		}
+
+		keepers.StakingKeeper.SetUnbondingDelegation(ctx, unbondingDelegation)
+		_, err := keepers.StakingKeeper.CompleteUnbonding(ctx, accAddr, validatorValAddr)
+		if err != nil {
+			return math.ZeroInt(), err
+		}
+	}
+
+	return unbondedAmt, nil
 }

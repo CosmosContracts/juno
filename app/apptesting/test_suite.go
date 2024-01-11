@@ -194,6 +194,12 @@ func (s *KeeperTestHelper) DelegateToValidator(valAddr sdk.ValAddress, acc sdk.A
 	// newShares, _ = s.App.AppKeepers.StakingKeeper.SetDelegate(s.Ctx, acc, amount, stakingtypes.Bonded, validator, true)
 	del := stakingtypes.NewDelegation(acc, valAddr, math.LegacyNewDecFromInt(amount))
 	s.App.AppKeepers.StakingKeeper.SetDelegation(s.Ctx, del)
+
+	// period types.DelegatorStartingInfo
+
+	// previousPeriod uint64, stake sdk.Dec, height uint64
+	period := distrtypes.NewDelegatorStartingInfo(amount.Uint64(), del.GetShares(), uint64(s.Ctx.BlockHeight()))
+	s.App.AppKeepers.DistrKeeper.SetDelegatorStartingInfo(s.Ctx, valAddr, acc, period)
 }
 
 // BeginNewBlock starts a new block.

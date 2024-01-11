@@ -36,6 +36,13 @@ func (s *UpgradeTestSuite) setupMockCore1MultisigAccount() *vestingtypes.Periodi
 	return core1Multisig
 }
 
+func (s *UpgradeTestSuite) NextBlock(amt int) {
+	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + int64(amt))
+	s.Require().NotPanics(func() {
+		s.App.BeginBlocker(s.Ctx, abci.RequestBeginBlock{})
+	})
+}
+
 // Ensures the test does not error out.
 func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Setup()
@@ -46,18 +53,13 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	// fmt.Println(va)
 
 	v := s.App.AppKeepers.StakingKeeper.GetAllValidators(s.Ctx)
+	val1 := v[0]
 	fmt.Printf("Validators: %d", len(v))
 
-	val1 := v[0]
 	s.AllocateRewardsToValidator(val1.GetOperator(), sdk.NewInt(1_000_000))
 
-	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 10)
-	s.Require().NotPanics(func() {
-		s.App.BeginBlocker(s.Ctx, abci.RequestBeginBlock{})
-	})
-
-	// delegate to a validator
-	s.DelegateToValidator(val1.GetOperator(), va.GetAddress(), sdk.NewInt(1))
+	s.DelegateToValidator(val1.GetOperator(), va.GetAddress(), sdk.NewInt(10))
+	s.NextBlock(5)
 
 	// get delegations
 	dels := s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, va.GetAddress())
@@ -70,7 +72,11 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 
 	// TODO: check it was modified
 	updatedAcc := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, va.GetAddress())
-	fmt.Println(updatedAcc)
+	fmt.Println("updatedAcc", updatedAcc) // base account
+
+	bal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, va.GetAddress())
+	s.Require().Equal(0, len(bal))
+
 }
 
 func preUpgradeChecks(s *UpgradeTestSuite) {
