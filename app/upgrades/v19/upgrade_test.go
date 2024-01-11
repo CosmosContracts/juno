@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -29,8 +30,9 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (s *UpgradeTestSuite) setupMockCore1MultisigAccount() *vestingtypes.PeriodicVestingAccount {
-	core1Multisig := v19.CreateMainnetVestingAccount()
+	core1Multisig := v19.CreateMainnetVestingAccount(s.Ctx, s.App.AppKeepers)
 	s.App.AppKeepers.AccountKeeper.SetAccount(s.Ctx, core1Multisig)
+
 	return core1Multisig
 }
 
@@ -41,15 +43,25 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 
 	// Core-1 account mock up
 	va := s.setupMockCore1MultisigAccount()
-	fmt.Println(va)
+	// fmt.Println(va)
+
+	v := s.App.AppKeepers.StakingKeeper.GetAllValidators(s.Ctx)
+	fmt.Printf("Validators: %d", len(v))
+
+	val1 := v[0]
+	s.AllocateRewardsToValidator(val1.GetOperator(), sdk.NewInt(1_000_000))
+
+	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 10)
+	s.Require().NotPanics(func() {
+		s.App.BeginBlocker(s.Ctx, abci.RequestBeginBlock{})
+	})
 
 	// delegate to a validator
-	valAddr1 := s.SetupValidator(stakingtypes.Bonded)
-	valAddr2 := s.SetupValidator(stakingtypes.Bonded)
-	valAddr3 := s.SetupValidator(stakingtypes.Bonded)
+	s.DelegateToValidator(val1.GetOperator(), va.GetAddress(), sdk.NewInt(1))
 
-	// delegate to a validator
-	s.DelegateToValidator(valAddr1, 1000000000)
+	// get delegations
+	dels := s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, va.GetAddress())
+	s.Require().Equal(1, len(dels))
 
 	// upgrade
 	upgradeHeight := int64(5)

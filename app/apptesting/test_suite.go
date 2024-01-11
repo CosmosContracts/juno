@@ -13,7 +13,10 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	"github.com/cometbft/cometbft/libs/log"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
 	"cosmossdk.io/math"
 
@@ -62,6 +65,16 @@ func (s *KeeperTestHelper) Setup() {
 		Ctx:             s.Ctx,
 	}
 	s.TestAccs = CreateRandomAccounts(3)
+
+	gasLimit := int64(1_000_000_000_000)
+	s.Ctx = s.Ctx.WithGasMeter(sdk.NewGasMeter(uint64(gasLimit)))
+
+	// set consensus params gasLimit
+	cp, err := s.App.AppKeepers.ConsensusParamsKeeper.Get(s.Ctx)
+	s.Require().NoError(err)
+
+	cp.Block.MaxGas = gasLimit
+	s.App.AppKeepers.ConsensusParamsKeeper.Set(s.Ctx, cp)
 }
 
 func (s *KeeperTestHelper) SetupTestForInitGenesis() {
@@ -118,7 +131,8 @@ func (s *KeeperTestHelper) MintCoins(coins sdk.Coins) {
 
 // SetupValidator sets up a validator and returns the ValAddress.
 func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sdk.ValAddress {
-	valPub := secp256k1.GenPrivKey().PubKey()
+	valPriv := secp256k1.GenPrivKey()
+	valPub := valPriv.PubKey()
 	valAddr := sdk.ValAddress(valPub.Address())
 	bondDenom := s.App.AppKeepers.StakingKeeper.GetParams(s.Ctx).BondDenom
 	selfBond := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100), Denom: bondDenom})
@@ -126,10 +140,27 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 	s.FundAcc(sdk.AccAddress(valAddr), selfBond)
 
 	// stakingHandler := staking.NewHandler(s.App.AppKeepers.StakingKeeper)
+
 	stakingCoin := sdk.NewCoin(appparams.BondDenom, selfBond[0].Amount)
 	ZeroCommission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
-	_, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{}, ZeroCommission, sdk.OneInt())
+	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{
+		Moniker:  "test",
+		Identity: "test",
+		Website:  "test",
+		Details:  "test",
+	}, ZeroCommission, sdk.OneInt())
 	s.Require().NoError(err)
+
+	currBlockHeight := s.Ctx.BlockHeight()
+
+	header := cmtproto.Header{Height: currBlockHeight + 1}
+	txConfig := moduletestutil.MakeTestTxConfig()
+
+	baseApp := s.App.BaseApp
+
+	_, _, err = simtestutil.SignCheckDeliver(s.T(), txConfig, baseApp, header, []sdk.Msg{createValidatorMsg}, "", []uint64{0}, []uint64{0}, true, true, valPriv)
+	require.NoError(s.T(), err)
+
 	// res, err := stakingHandler(s.Ctx, msg)
 	// s.Require().NoError(err)
 	// s.Require().NotNil(res)
@@ -154,6 +185,15 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 	s.App.AppKeepers.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
 
 	return valAddr
+}
+
+func (s *KeeperTestHelper) DelegateToValidator(valAddr sdk.ValAddress, acc sdk.AccAddress, amount math.Int) {
+	// val := s.App.AppKeepers.StakingKeeper.Validator(s.Ctx, valAddr)
+	// validator := val.(stakingtypes.Validator)
+
+	// newShares, _ = s.App.AppKeepers.StakingKeeper.SetDelegate(s.Ctx, acc, amount, stakingtypes.Bonded, validator, true)
+	del := stakingtypes.NewDelegation(acc, valAddr, math.LegacyNewDecFromInt(amount))
+	s.App.AppKeepers.StakingKeeper.SetDelegation(s.Ctx, del)
 }
 
 // BeginNewBlock starts a new block.
@@ -221,8 +261,12 @@ func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, re
 
 	// allocate rewards to validator
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
-	decTokens := sdk.DecCoins{{Denom: appparams.BondDenom, Amount: sdk.NewDec(20000)}}
-	s.App.AppKeepers.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
+	decTokens := sdk.DecCoins{{Denom: appparams.BondDenom, Amount: sdk.NewDec(rewardAmt.Int64() * 2)}}
+	// s.App.AppKeepers.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
+
+	fmt.Printf("allocating rewards to validator %+v\n\n\n", decTokens)
+
+	s.App.AppKeepers.DistrKeeper.SetValidatorCurrentRewards(s.Ctx, validator.GetOperator(), distrtypes.NewValidatorCurrentRewards(decTokens, 1))
 }
 
 // BuildTx builds a transaction.

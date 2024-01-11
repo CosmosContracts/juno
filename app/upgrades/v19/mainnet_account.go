@@ -2,12 +2,17 @@ package v19
 
 import (
 	"encoding/json"
+	"fmt"
 
+	"cosmossdk.io/math"
+	"github.com/CosmosContracts/juno/v19/app/keepers"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 )
 
 // junod q auth account juno190g5j8aszqhvtg7cprmev8xcxs6csra7xnk3n3 --output=json
-func CreateMainnetVestingAccount() *vestingtypes.PeriodicVestingAccount {
+func CreateMainnetVestingAccount(ctx sdk.Context, k keepers.AppKeepers) *vestingtypes.PeriodicVestingAccount {
 
 	// manually convert the account_number, sequence, start_time, end_time to a non string
 	// regex: "length":"([0-9]+)"  -> "length":$1
@@ -17,6 +22,21 @@ func CreateMainnetVestingAccount() *vestingtypes.PeriodicVestingAccount {
 	var accStruct vestingtypes.PeriodicVestingAccount
 
 	if err := json.Unmarshal([]byte(str), &accStruct); err != nil {
+		panic(err)
+	}
+
+	// TODO: add all tokens
+	var total math.Int = math.ZeroInt()
+	for _, period := range accStruct.VestingPeriods {
+		for _, amount := range period.Amount {
+			total = total.Add(amount.Amount)
+		}
+	}
+
+	fmt.Println("Total: ", total)
+
+	err := banktestutil.FundAccount(k.BankKeeper, ctx, accStruct.BaseAccount.GetAddress(), sdk.NewCoins(sdk.NewCoin("ujuno", total)))
+	if err != nil {
 		panic(err)
 	}
 
