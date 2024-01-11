@@ -13,6 +13,7 @@ import (
 	"github.com/CosmosContracts/juno/v19/app/apptesting"
 	decorators "github.com/CosmosContracts/juno/v19/app/decorators"
 	v19 "github.com/CosmosContracts/juno/v19/app/upgrades/v19"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
 type UpgradeTestSuite struct {
@@ -27,16 +28,37 @@ func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(UpgradeTestSuite))
 }
 
+func (s *UpgradeTestSuite) setupMockCore1MultisigAccount() *vestingtypes.PeriodicVestingAccount {
+	core1Multisig := v19.CreateMainnetVestingAccount()
+	s.App.AppKeepers.AccountKeeper.SetAccount(s.Ctx, core1Multisig)
+	return core1Multisig
+}
+
 // Ensures the test does not error out.
 func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Setup()
-
 	preUpgradeChecks(s)
 
+	// Core-1 account mock up
+	va := s.setupMockCore1MultisigAccount()
+	fmt.Println(va)
+
+	// delegate to a validator
+	valAddr1 := s.SetupValidator(stakingtypes.Bonded)
+	valAddr2 := s.SetupValidator(stakingtypes.Bonded)
+	valAddr3 := s.SetupValidator(stakingtypes.Bonded)
+
+	// delegate to a validator
+	s.DelegateToValidator(valAddr1, 1000000000)
+
+	// upgrade
 	upgradeHeight := int64(5)
 	s.ConfirmUpgradeSucceeded(v19.UpgradeName, upgradeHeight)
-
 	postUpgradeChecks(s)
+
+	// TODO: check it was modified
+	updatedAcc := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, va.GetAddress())
+	fmt.Println(updatedAcc)
 }
 
 func preUpgradeChecks(s *UpgradeTestSuite) {
@@ -74,4 +96,5 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 	for _, validator := range validators {
 		s.Require().True(validator.Commission.MaxChangeRate.LTE(sdk.MustNewDecFromStr(decorators.MaxChangeRate)))
 	}
+
 }
