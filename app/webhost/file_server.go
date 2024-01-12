@@ -19,18 +19,15 @@ func Handler2() http.HandlerFunc {
 
 		// Pull out contract
 		contract := route[0]
-		fmt.Println("contract: ", contract)
 
 		// Pull out name
 		name := route[1]
-		fmt.Println("name: ", name)
 
 		// Pull out path to file on contract
 		path := strings.Join(route[2:], "/")
 		if path == "" {
 			path = "index.html"
 		}
-		fmt.Println("path: ", path)
 
 		website, err := makeRequest(contract, name, path)
 		if err != nil {
@@ -71,7 +68,8 @@ func Handler2() http.HandlerFunc {
 
 				// Write buffer to response
 				if _, err := w.Write(buf.Bytes()); err != nil {
-					fmt.Println("error writing response: ", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					writeResponse(w, "error writing response: "+err.Error())
 				}
 
 				break
