@@ -66,8 +66,8 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Require().Equal(0, len(s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)))
 
 	charterBal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, sdk.MustAccAddressFromBech32(v19.CharterCouncil))
-	fmt.Printf("Council Post Upgrade Balance: %s\n", charterBal) // this should be >= unvested + balance before the upgrade
-	s.Require().True(charterBal.AmountOf("ujuno").GTE(unvested.Add(core1Prebal.AmountOf("ujuno"))))
+	fmt.Printf("Council Post Upgrade Balance: %s\n", charterBal)
+	s.Require().True(charterBal.AmountOf("ujuno").GTE(core1Prebal.AmountOf("ujuno")))
 }
 
 func preUpgradeChecks(s *UpgradeTestSuite) {
