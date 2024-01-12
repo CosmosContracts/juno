@@ -9,6 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtestutil "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmosContracts/juno/v19/app/apptesting"
@@ -50,20 +51,24 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 
 	// Core-1 account mock up
 	va := s.setupMockCore1MultisigAccount()
-	// fmt.Println(va)
 
-	v := s.App.AppKeepers.StakingKeeper.GetAllValidators(s.Ctx)
-	val1 := v[0]
-	fmt.Printf("Validators: %d", len(v))
+	newVal1 := s.SetupValidator(stakingtypes.Bonded)
+	newVal2 := s.SetupValidator(stakingtypes.Bonded)
+	newVal3 := s.SetupValidator(stakingtypes.Bonded)
 
-	s.AllocateRewardsToValidator(val1.GetOperator(), sdk.NewInt(1_000_000))
+	sh := stakingtestutil.NewHelper(s.Suite.T(), s.Ctx, s.App.AppKeepers.StakingKeeper)
+	sh.Denom = "ujuno"
 
-	s.DelegateToValidator(val1.GetOperator(), va.GetAddress(), sdk.NewInt(10))
+	sh.Delegate(va.GetAddress(), newVal1, sdk.NewInt(1))
+	sh.Delegate(va.GetAddress(), newVal2, sdk.NewInt(2))
+	sh.Delegate(va.GetAddress(), newVal3, sdk.NewInt(3))
+
+	// s.DelegateToValidator(val1.GetOperator(), va.GetAddress(), sdk.NewInt(10))
 	s.NextBlock(5)
 
 	// get delegations
 	dels := s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, va.GetAddress())
-	s.Require().Equal(1, len(dels))
+	s.Require().Equal(3, len(dels))
 
 	// upgrade
 	upgradeHeight := int64(5)

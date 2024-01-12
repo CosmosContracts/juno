@@ -13,10 +13,8 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	"github.com/cometbft/cometbft/libs/log"
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
-	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	"github.com/cosmos/cosmos-sdk/x/staking/testutil"
 
 	"cosmossdk.io/math"
 
@@ -141,29 +139,13 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 
 	// stakingHandler := staking.NewHandler(s.App.AppKeepers.StakingKeeper)
 
-	stakingCoin := sdk.NewCoin(appparams.BondDenom, selfBond[0].Amount)
-	ZeroCommission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
-	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{
-		Moniker:  "test",
-		Identity: "test",
-		Website:  "test",
-		Details:  "test",
-	}, ZeroCommission, sdk.OneInt())
+	sh := testutil.NewHelper(s.Suite.T(), s.Ctx, s.App.AppKeepers.StakingKeeper)
+	sh.Denom = "ujuno"
+
+	msg := sh.CreateValidatorMsg(valAddr, valPub, selfBond[0].Amount)
+	res, err := sh.CreateValidatorWithMsg(s.Ctx, msg)
 	s.Require().NoError(err)
-
-	currBlockHeight := s.Ctx.BlockHeight()
-
-	header := cmtproto.Header{Height: currBlockHeight + 1}
-	txConfig := moduletestutil.MakeTestTxConfig()
-
-	baseApp := s.App.BaseApp
-
-	_, _, err = simtestutil.SignCheckDeliver(s.T(), txConfig, baseApp, header, []sdk.Msg{createValidatorMsg}, "", []uint64{0}, []uint64{0}, true, true, valPriv)
-	require.NoError(s.T(), err)
-
-	// res, err := stakingHandler(s.Ctx, msg)
-	// s.Require().NoError(err)
-	// s.Require().NotNil(res)
+	s.Require().NotNil(res)
 
 	val, found := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, valAddr)
 	s.Require().True(found)
@@ -184,22 +166,10 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 	)
 	s.App.AppKeepers.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
 
+	// set some rewards (else you get a reference error)
+	// s.AllocateRewardsToValidator(val.GetOperator(), sdk.NewInt(1_000_000))
+
 	return valAddr
-}
-
-func (s *KeeperTestHelper) DelegateToValidator(valAddr sdk.ValAddress, acc sdk.AccAddress, amount math.Int) {
-	// val := s.App.AppKeepers.StakingKeeper.Validator(s.Ctx, valAddr)
-	// validator := val.(stakingtypes.Validator)
-
-	// newShares, _ = s.App.AppKeepers.StakingKeeper.SetDelegate(s.Ctx, acc, amount, stakingtypes.Bonded, validator, true)
-	del := stakingtypes.NewDelegation(acc, valAddr, math.LegacyNewDecFromInt(amount))
-	s.App.AppKeepers.StakingKeeper.SetDelegation(s.Ctx, del)
-
-	// period types.DelegatorStartingInfo
-
-	// previousPeriod uint64, stake sdk.Dec, height uint64
-	period := distrtypes.NewDelegatorStartingInfo(amount.Uint64(), del.GetShares(), uint64(s.Ctx.BlockHeight()))
-	s.App.AppKeepers.DistrKeeper.SetDelegatorStartingInfo(s.Ctx, valAddr, acc, period)
 }
 
 // BeginNewBlock starts a new block.
@@ -270,9 +240,8 @@ func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, re
 	decTokens := sdk.DecCoins{{Denom: appparams.BondDenom, Amount: sdk.NewDec(rewardAmt.Int64() * 2)}}
 	// s.App.AppKeepers.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
 
-	fmt.Printf("allocating rewards to validator %+v\n\n\n", decTokens)
-
-	s.App.AppKeepers.DistrKeeper.SetValidatorCurrentRewards(s.Ctx, validator.GetOperator(), distrtypes.NewValidatorCurrentRewards(decTokens, 1))
+	s.App.AppKeepers.DistrKeeper.GetValidatorHistoricalRewards(s.Ctx, validator.GetOperator(), 0)
+	s.App.AppKeepers.DistrKeeper.SetValidatorHistoricalRewards(s.Ctx, validator.GetOperator(), 1, distrtypes.NewValidatorHistoricalRewards(decTokens, 2))
 }
 
 // BuildTx builds a transaction.
