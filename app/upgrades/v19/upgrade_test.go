@@ -6,8 +6,6 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -28,13 +26,6 @@ func (s *UpgradeTestSuite) SetupTest() {
 
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(UpgradeTestSuite))
-}
-
-func (s *UpgradeTestSuite) NextBlock(amt int) {
-	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + int64(amt))
-	s.Require().NotPanics(func() {
-		s.App.BeginBlocker(s.Ctx, abci.RequestBeginBlock{})
-	})
 }
 
 // Ensures the test does not error out.

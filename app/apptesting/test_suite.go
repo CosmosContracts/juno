@@ -66,16 +66,6 @@ func (s *KeeperTestHelper) Setup() {
 	}
 	s.TestAccs = CreateRandomAccounts(3)
 
-	gasLimit := int64(1_000_000_000_000)
-	s.Ctx = s.Ctx.WithGasMeter(sdk.NewGasMeter(uint64(gasLimit)))
-
-	// set consensus params gasLimit
-	cp, err := s.App.AppKeepers.ConsensusParamsKeeper.Get(s.Ctx)
-	s.Require().NoError(err)
-
-	cp.Block.MaxGas = gasLimit
-	s.App.AppKeepers.ConsensusParamsKeeper.Set(s.Ctx, cp)
-
 	s.StakingHelper = stakinghelper.NewHelper(s.Suite.T(), s.Ctx, s.App.AppKeepers.StakingKeeper)
 	s.StakingHelper.Denom = "ujuno"
 }
@@ -234,10 +224,8 @@ func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, re
 
 	// allocate rewards to validator
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
-	decTokens := sdk.DecCoins{{Denom: appparams.BondDenom, Amount: sdk.NewDec(rewardAmt.Int64() * 2)}}
-
-	s.App.AppKeepers.DistrKeeper.GetValidatorHistoricalRewards(s.Ctx, validator.GetOperator(), 0)
-	s.App.AppKeepers.DistrKeeper.SetValidatorHistoricalRewards(s.Ctx, validator.GetOperator(), 1, distrtypes.NewValidatorHistoricalRewards(decTokens, 2))
+	decTokens := sdk.DecCoins{{Denom: appparams.BondDenom, Amount: sdk.NewDec(20000)}}
+	s.App.AppKeepers.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
 }
 
 // BuildTx builds a transaction.

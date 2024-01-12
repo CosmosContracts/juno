@@ -50,7 +50,6 @@ func CreateV19UpgradeHandler(
 		}
 
 		if ctx.ChainID() == "juno-1" {
-			// Mainnet Only
 			migrateCore1MultisigVesting(ctx, k)
 		}
 
