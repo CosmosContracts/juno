@@ -114,8 +114,6 @@ func prop16Core1Multisig(ctx sdk.Context, k *keepers.AppKeepers, Core1Addr, Coun
 		panic(err)
 	}
 
-	// TODO: claim rewards?
-
 	fmt.Printf("Core1Addr Instant Redelegations: %s\n", redelegated)
 	fmt.Printf("Core1Addr Instant Unbonding: %s\n", unbonded)
 
