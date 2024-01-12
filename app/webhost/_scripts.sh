@@ -1,6 +1,6 @@
 # EXECUTE THIS SCRIPT FROM THIS DIRECTORY
 
-junod tx wasm store cw_webhost.wasm --from=juno1 --keyring-backend=test --chain-id=local-1 --gas=auto --gas-adjustment=1.5 --gas-prices=0.025ujuno --yes --home=/home/joel/.juno1
+junod tx wasm store cw_webhost.wasm --from=juno1 --keyring-backend=test --chain-id=local-1 --gas=auto --gas-adjustment=1.5 --gas-prices=0.025ujuno --yes --home=$HOME/.juno1
 
 sleep 3
 
