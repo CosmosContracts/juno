@@ -14,7 +14,7 @@ import (
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	"github.com/cometbft/cometbft/libs/log"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cosmos/cosmos-sdk/x/staking/testutil"
+	stakinghelper "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 
 	"cosmossdk.io/math"
 
@@ -46,6 +46,8 @@ type KeeperTestHelper struct {
 	Ctx         sdk.Context
 	QueryHelper *baseapp.QueryServiceTestHelper
 	TestAccs    []sdk.AccAddress
+
+	StakingHelper *stakinghelper.Helper
 }
 
 var (
@@ -73,6 +75,9 @@ func (s *KeeperTestHelper) Setup() {
 
 	cp.Block.MaxGas = gasLimit
 	s.App.AppKeepers.ConsensusParamsKeeper.Set(s.Ctx, cp)
+
+	s.StakingHelper = stakinghelper.NewHelper(s.Suite.T(), s.Ctx, s.App.AppKeepers.StakingKeeper)
+	s.StakingHelper.Denom = "ujuno"
 }
 
 func (s *KeeperTestHelper) SetupTestForInitGenesis() {
@@ -137,13 +142,8 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 
 	s.FundAcc(sdk.AccAddress(valAddr), selfBond)
 
-	// stakingHandler := staking.NewHandler(s.App.AppKeepers.StakingKeeper)
-
-	sh := testutil.NewHelper(s.Suite.T(), s.Ctx, s.App.AppKeepers.StakingKeeper)
-	sh.Denom = "ujuno"
-
-	msg := sh.CreateValidatorMsg(valAddr, valPub, selfBond[0].Amount)
-	res, err := sh.CreateValidatorWithMsg(s.Ctx, msg)
+	msg := s.StakingHelper.CreateValidatorMsg(valAddr, valPub, selfBond[0].Amount)
+	res, err := s.StakingHelper.CreateValidatorWithMsg(s.Ctx, msg)
 	s.Require().NoError(err)
 	s.Require().NotNil(res)
 

@@ -18,11 +18,6 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
-const (
-	Core1MultisigVestingAccount = "juno190g5j8aszqhvtg7cprmev8xcxs6csra7xnk3n3"
-	CharterCouncil              = "juno1nmezpepv3lx45mndyctz2lzqxa6d9xzd2xumkxf7a6r4nxt0y95qypm6c0"
-)
-
 func CreateV19UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
@@ -55,7 +50,7 @@ func CreateV19UpgradeHandler(
 		}
 
 		// TODO: ONLY DO THIS WITH MAINNET
-		migrateCore1Vesting(ctx, logger, k)
+		migrateCore1MultisigVesting(ctx, logger, k)
 
 		// https://github.com/cosmos/ibc-go/blob/main/docs/docs/03-light-clients/04-wasm/03-integration.md
 		params := k.IBCKeeper.ClientKeeper.GetParams(ctx)
@@ -66,55 +61,75 @@ func CreateV19UpgradeHandler(
 	}
 }
 
-func migrateCore1Vesting(ctx sdk.Context, logger log.Logger, k *keepers.AppKeepers) {
-	core1Addr := sdk.MustAccAddressFromBech32(Core1MultisigVestingAccount)
-	charter := sdk.MustAccAddressFromBech32(CharterCouncil)
+// migrateCore1Vesting moves the funds and delegations from the PeriodicVestingAccount -> the Council.
+// All redelegations and unbonds are completed, and returned to the multisigs balance.
+// Finally, the remaining vested tokens are minted, sent to the council, and the vesting account is removed.
+func migrateCore1MultisigVesting(ctx sdk.Context, logger log.Logger, k *keepers.AppKeepers) {
+	Core1Addr := sdk.MustAccAddressFromBech32(Core1MultisigVestingAccount)
+	CouncilAddr := sdk.MustAccAddressFromBech32(CharterCouncil)
 
-	core1Acc := k.AccountKeeper.GetAccount(ctx, core1Addr)
+	core1Acc := k.AccountKeeper.GetAccount(ctx, Core1Addr)
+
 	vestingAcc, ok := core1Acc.(*vestingtypes.PeriodicVestingAccount)
 	if !ok {
 		panic(fmt.Errorf("core1Acc.(*vestingtypes.PeriodicVestingAccount): %+v", core1Acc))
 	}
 
-	baseAcc := vestingAcc.BaseAccount
+	// SEND TO THE CHARTER
+	prop16Core1Multisig(ctx, k, Core1Addr, CouncilAddr)
 
-	// TODO: move all delegations to the counsel directly? (or do they need to ICA or Authz on our chain to make it easier?)
-	redelegated := completeAllRedelegations(ctx, ctx.BlockTime(), k, baseAcc.GetAddress())
-	unbonded, err := unbondAllAndFinish(ctx, ctx.BlockTime(), k, baseAcc.GetAddress())
+	// MINT UNVESTED TOKENS TO THE CHARTER
+	mintUnvestedToCharter(ctx, k, CouncilAddr, vestingAcc)
+
+	// REMOVE VESTING FROM THE CORE1 MULTISIG (set it to the base account)
+	k.AccountKeeper.SetAccount(ctx, vestingAcc.BaseAccount)
+}
+
+func mintUnvestedToCharter(ctx sdk.Context, k *keepers.AppKeepers, CouncilAddr sdk.AccAddress, vestingAcc *vestingtypes.PeriodicVestingAccount) {
+	unvested := SumPeriodVestingAccountsUnvestedTokensAmount(vestingAcc)
+	fmt.Printf("Core1Addr Unvested to mint to the charter: %s\n", unvested)
+
+	coins := sdk.NewCoins(sdk.NewCoin("ujuno", unvested))
+
+	if err := k.BankKeeper.MintCoins(ctx, "mint", coins); err != nil {
+		panic(err)
+	}
+
+	if err := k.BankKeeper.SendCoinsFromModuleToAccount(ctx, "mint", CouncilAddr, coins); err != nil {
+		panic(err)
+	}
+}
+
+func prop16Core1Multisig(ctx sdk.Context, k *keepers.AppKeepers, Core1Addr, CouncilAddr sdk.AccAddress) {
+	// undelegate all tokens from the core1 multisig
+	// - complete pending redelegations
+	// - unbond all tokens -> balance
+	redelegated, err := completeAllRedelegations(ctx, ctx.BlockTime(), k, Core1Addr)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("redelegated: %s\n", redelegated)
-	fmt.Printf("unbonded: %s\n", unbonded)
-
-	// Send all vesting funds to the charter (must be minted first)
-	currBal := k.BankKeeper.GetBalance(ctx, baseAcc.GetAddress(), "ujuno")
-	diff := vestingAcc.OriginalVesting.Sub(currBal)
-	if err := k.BankKeeper.MintCoins(ctx, "mint", diff); err != nil {
-		panic(err)
-	}
-	if err := k.BankKeeper.SendCoinsFromModuleToAccount(ctx, "mint", charter, diff); err != nil {
+	unbonded, err := unbondAllAndFinish(ctx, ctx.BlockTime(), k, Core1Addr)
+	if err != nil {
 		panic(err)
 	}
 
-	// remove all vesting from the account
-	k.AccountKeeper.SetAccount(ctx, baseAcc)
+	// TODO: claim rewards?
 
-	// send any current tokens to the charter council
+	fmt.Printf("Core1Addr Instant Redelegations: %s\n", redelegated)
+	fmt.Printf("Core1Addr Instant Unbonding: %s\n", unbonded)
 
-	// transfer all balance to the charter council
-	if err := k.BankKeeper.SendCoins(
-		ctx,
-		baseAcc.GetAddress(),
-		charter,
-		sdk.NewCoins(currBal)); err != nil {
+	// now send these to the charter council
+	err = k.BankKeeper.SendCoins(ctx, Core1Addr, CouncilAddr, sdk.NewCoins(k.BankKeeper.GetBalance(ctx, Core1Addr, "ujuno")))
+	if err != nil {
 		panic(err)
 	}
 }
 
 // From Prop16
-func completeAllRedelegations(ctx sdk.Context, now time.Time, keepers *keepers.AppKeepers, accAddr sdk.AccAddress) error {
+func completeAllRedelegations(ctx sdk.Context, now time.Time, keepers *keepers.AppKeepers, accAddr sdk.AccAddress) (math.Int, error) {
+	redelegatedAmt := math.ZeroInt()
+
 	for _, activeRedelegation := range keepers.StakingKeeper.GetRedelegations(ctx, accAddr, 65535) {
 		redelegationSrc, _ := sdk.ValAddressFromBech32(activeRedelegation.ValidatorSrcAddress)
 		redelegationDst, _ := sdk.ValAddressFromBech32(activeRedelegation.ValidatorDstAddress)
@@ -122,16 +137,17 @@ func completeAllRedelegations(ctx sdk.Context, now time.Time, keepers *keepers.A
 		// set all entry completionTime to now so we can complete re-delegation
 		for i := range activeRedelegation.Entries {
 			activeRedelegation.Entries[i].CompletionTime = now
+			redelegatedAmt = redelegatedAmt.Add(math.Int(activeRedelegation.Entries[i].SharesDst))
 		}
 
 		keepers.StakingKeeper.SetRedelegation(ctx, activeRedelegation)
 		_, err := keepers.StakingKeeper.CompleteRedelegation(ctx, accAddr, redelegationSrc, redelegationDst)
 		if err != nil {
-			return err
+			return redelegatedAmt, err
 		}
 	}
 
-	return nil
+	return redelegatedAmt, nil
 }
 
 func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeepers, accAddr sdk.AccAddress) (math.Int, error) {

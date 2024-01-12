@@ -9,7 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtestutil "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmosContracts/juno/v19/app/apptesting"
@@ -30,13 +29,6 @@ func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(UpgradeTestSuite))
 }
 
-func (s *UpgradeTestSuite) setupMockCore1MultisigAccount() *vestingtypes.PeriodicVestingAccount {
-	core1Multisig := v19.CreateMainnetVestingAccount(s.Ctx, s.App.AppKeepers)
-	s.App.AppKeepers.AccountKeeper.SetAccount(s.Ctx, core1Multisig)
-
-	return core1Multisig
-}
-
 func (s *UpgradeTestSuite) NextBlock(amt int) {
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + int64(amt))
 	s.Require().NotPanics(func() {
@@ -49,38 +41,45 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Setup()
 	preUpgradeChecks(s)
 
-	// Core-1 account mock up
-	va := s.setupMockCore1MultisigAccount()
+	// Core-1 Multisig mock
+	c1m, unvested := v19.CreateMainnetVestingAccount(s.Ctx, s.App.AppKeepers)
+	c1mAddr := c1m.GetAddress()
+	// TODO: mint this to the council since we are 'burning' it from the multisig (by setting to a base account)
+	fmt.Printf("c1mAddr unvested: %+v\n", unvested)
 
+	bal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, c1mAddr)
+	fmt.Printf("bal: %s\n", bal)
+
+	// create many validators to confirm the unbonding code works
 	newVal1 := s.SetupValidator(stakingtypes.Bonded)
 	newVal2 := s.SetupValidator(stakingtypes.Bonded)
 	newVal3 := s.SetupValidator(stakingtypes.Bonded)
 
-	sh := stakingtestutil.NewHelper(s.Suite.T(), s.Ctx, s.App.AppKeepers.StakingKeeper)
-	sh.Denom = "ujuno"
+	// Delegate 6 tokens of the core1 multisig account
+	s.StakingHelper.Delegate(c1mAddr, newVal1, sdk.NewInt(1))
+	s.StakingHelper.Delegate(c1mAddr, newVal2, sdk.NewInt(2))
+	s.StakingHelper.Delegate(c1mAddr, newVal3, sdk.NewInt(3))
 
-	sh.Delegate(va.GetAddress(), newVal1, sdk.NewInt(1))
-	sh.Delegate(va.GetAddress(), newVal2, sdk.NewInt(2))
-	sh.Delegate(va.GetAddress(), newVal3, sdk.NewInt(3))
-
-	// s.DelegateToValidator(val1.GetOperator(), va.GetAddress(), sdk.NewInt(10))
-	s.NextBlock(5)
-
-	// get delegations
-	dels := s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, va.GetAddress())
+	// Verify delegations
+	dels := s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)
 	s.Require().Equal(3, len(dels))
 
-	// upgrade
+	// == UPGRADE ==
 	upgradeHeight := int64(5)
 	s.ConfirmUpgradeSucceeded(v19.UpgradeName, upgradeHeight)
 	postUpgradeChecks(s)
 
-	// TODO: check it was modified
-	updatedAcc := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, va.GetAddress())
-	fmt.Println("updatedAcc", updatedAcc) // base account
+	// == POST VERIFICATION ==
+	updatedAcc := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, c1mAddr)
+	_, ok := updatedAcc.(*vestingtypes.PeriodicVestingAccount)
+	s.Require().False(ok)
 
-	bal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, va.GetAddress())
-	s.Require().Equal(0, len(bal))
+	s.Require().Equal(0, len(s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, c1mAddr)))
+	s.Require().Equal(0, len(s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)))
+
+	// query balance of CharterCouncil
+	charterBal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, sdk.MustAccAddressFromBech32(v19.CharterCouncil))
+	fmt.Printf("charterBal: %s\n", charterBal) // this should == the vesting
 
 }
 
