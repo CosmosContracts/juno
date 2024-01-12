@@ -12,8 +12,10 @@ import (
 )
 
 const (
-	address    = ":8787"
-	restServer = "http://0.0.0.0:1317/cosmwasm/wasm/v1/contract/"
+	address             = ":8787"
+	restServer          = "http://0.0.0.0:1317/cosmwasm/wasm/v1/contract/"
+	maxZipFileSize      = uint64(1024 * 1024 * 5) // 5 MB
+	maxUnzippedFileSize = uint64(1024 * 1024 * 1) // 1 MB
 )
 
 type Website struct {
@@ -25,7 +27,6 @@ type Website struct {
 
 func Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		// Get request route
 		route := strings.Split(r.URL.Path, "/")[2:]
 
@@ -40,7 +41,7 @@ func Handler() http.HandlerFunc {
 		}
 
 		// Send request to CosmWasm contract, retrieve website
-		website, err := makeRequest(contract, name, path)
+		website, err := makeRequest(contract, name)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			writeResponse(w, "error making request: "+err.Error())
@@ -68,13 +69,25 @@ func Handler() http.HandlerFunc {
 
 				// Read file into buffer
 				buf := new(bytes.Buffer)
-				if _, err := io.Copy(buf, rc); err != nil {
+
+				// Check if file size exceeds maximum allowed size
+				if f.UncompressedSize64 > maxUnzippedFileSize {
+					w.WriteHeader(http.StatusInternalServerError)
+					writeResponse(w, "resource exceeds maximum allowed size of "+fmt.Sprintf("%d", maxUnzippedFileSize)+" bytes")
+					return
+				}
+
+				// Define limit to prevent linting error (we check for file size limit above)
+				maxSize := int64(f.UncompressedSize64)
+
+				// Copy file to buffer
+				if _, err := io.CopyN(buf, rc, maxSize); err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					writeResponse(w, "error reading file: "+err.Error())
 					return
 				}
 
-				// Set content type
+				// Set content type based on file type
 				setContentType(w, path)
 
 				// Write buffer to response
@@ -90,13 +103,12 @@ func Handler() http.HandlerFunc {
 }
 
 // Make request to contract through CosmWasm REST server
-func makeRequest(contract, name, path string) (Website, error) {
+func makeRequest(contract string, name string) (Website, error) {
 	var website Website
 
 	b64Query := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf(`{"get_website":{"name":"%s"}}`, name)))
-	url := restServer + contract + "/smart/" + b64Query
 
-	res, err := http.Get(url)
+	res, err := http.Get(restServer + contract + "/smart/" + b64Query)
 	if err != nil {
 		return website, err
 	}
@@ -124,6 +136,11 @@ func decodeAndUnzip(source string) (*zip.Reader, error) {
 		return nil, err
 	}
 
+	// Check if decoded content exceeds the maximum allowed size
+	if uint64(len(decodedBytes)) > maxZipFileSize {
+		return nil, fmt.Errorf("decoded content exceeds maximum allowed size of %d bytes", maxZipFileSize)
+	}
+
 	// Unzip
 	reader := bytes.NewReader(decodedBytes)
 	zr, err := zip.NewReader(reader, int64(len(decodedBytes)))
@@ -137,23 +154,24 @@ func decodeAndUnzip(source string) (*zip.Reader, error) {
 // Set the content type of the response based on the file's extension
 func setContentType(w http.ResponseWriter, filePath string) {
 	// Set content type
-	if strings.HasSuffix(filePath, ".html") {
+	switch {
+	case strings.HasSuffix(filePath, ".html"):
 		w.Header().Set("Content-Type", "text/html")
-	} else if strings.HasSuffix(filePath, ".css") {
+	case strings.HasSuffix(filePath, ".css"):
 		w.Header().Set("Content-Type", "text/css")
-	} else if strings.HasSuffix(filePath, ".js") {
+	case strings.HasSuffix(filePath, ".js"):
 		w.Header().Set("Content-Type", "text/javascript")
-	} else if strings.HasSuffix(filePath, ".png") {
+	case strings.HasSuffix(filePath, ".png"):
 		w.Header().Set("Content-Type", "image/png")
-	} else if strings.HasSuffix(filePath, ".jpg") || strings.HasSuffix(filePath, ".jpeg") {
+	case strings.HasSuffix(filePath, ".jpg"), strings.HasSuffix(filePath, ".jpeg"):
 		w.Header().Set("Content-Type", "image/jpeg")
-	} else if strings.HasSuffix(filePath, ".gif") {
+	case strings.HasSuffix(filePath, ".gif"):
 		w.Header().Set("Content-Type", "image/gif")
-	} else if strings.HasSuffix(filePath, ".svg") {
+	case strings.HasSuffix(filePath, ".svg"):
 		w.Header().Set("Content-Type", "image/svg+xml")
-	} else if strings.HasSuffix(filePath, ".ico") {
+	case strings.HasSuffix(filePath, ".ico"):
 		w.Header().Set("Content-Type", "image/x-icon")
-	} else {
+	default:
 		w.Header().Set("Content-Type", "text/plain")
 	}
 }
