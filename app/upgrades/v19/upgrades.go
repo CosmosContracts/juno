@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/math"
 	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
+
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	decorators "github.com/CosmosContracts/juno/v19/app/decorators"
 	"github.com/CosmosContracts/juno/v19/app/keepers"
 	"github.com/CosmosContracts/juno/v19/app/upgrades"
-	"github.com/cometbft/cometbft/libs/log"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
 func CreateV19UpgradeHandler(
@@ -51,7 +51,7 @@ func CreateV19UpgradeHandler(
 
 		if nativeDenom == "ujuno" {
 			// Mainnet Only
-			migrateCore1MultisigVesting(ctx, logger, k)
+			migrateCore1MultisigVesting(ctx, k)
 		}
 
 		// https://github.com/cosmos/ibc-go/blob/main/docs/docs/03-light-clients/04-wasm/03-integration.md
@@ -68,7 +68,7 @@ func CreateV19UpgradeHandler(
 // - Instantly finish all redelegations, then unbond all tokens.
 // - Send all tokens to the new council (including the previously held balance)
 // - Sum all future vesting periods, then mint and send those tokens to the new council.
-func migrateCore1MultisigVesting(ctx sdk.Context, logger log.Logger, k *keepers.AppKeepers) {
+func migrateCore1MultisigVesting(ctx sdk.Context, k *keepers.AppKeepers) {
 	Core1Addr := sdk.MustAccAddressFromBech32(Core1MultisigVestingAccount)
 	CouncilAddr := sdk.MustAccAddressFromBech32(CharterCouncil)
 
@@ -89,7 +89,7 @@ func migrateCore1MultisigVesting(ctx sdk.Context, logger log.Logger, k *keepers.
 	k.AccountKeeper.SetAccount(ctx, vestingAcc.BaseAccount)
 }
 
-func mintUnvestedToCharter(ctx sdk.Context, k *keepers.AppKeepers, CouncilAddr sdk.AccAddress, vestingAcc *vestingtypes.PeriodicVestingAccount) {
+func mintUnvestedToCharter(ctx sdk.Context, k *keepers.AppKeepers, CouncilAddr sdk.AccAddress, vestingAcc *vestingtypes.PeriodicVestingAccount) { // nolint:gocritic
 	unvested := SumPeriodVestingAccountsUnvestedTokensAmount(ctx, vestingAcc)
 	fmt.Printf("Core1Addr Unvested to mint to the charter: %s\n", unvested)
 
@@ -104,7 +104,7 @@ func mintUnvestedToCharter(ctx sdk.Context, k *keepers.AppKeepers, CouncilAddr s
 	}
 }
 
-func prop16Core1Multisig(ctx sdk.Context, k *keepers.AppKeepers, Core1Addr, CouncilAddr sdk.AccAddress) {
+func prop16Core1Multisig(ctx sdk.Context, k *keepers.AppKeepers, Core1Addr, CouncilAddr sdk.AccAddress) { // nolint:gocritic
 	redelegated, err := completeAllRedelegations(ctx, ctx.BlockTime(), k, Core1Addr)
 	if err != nil {
 		panic(err)

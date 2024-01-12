@@ -5,10 +5,12 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/CosmosContracts/juno/v19/app/keepers"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
+
+	"github.com/CosmosContracts/juno/v19/app/keepers"
 )
 
 const (
@@ -21,7 +23,6 @@ const (
 // junod q auth account juno190g5j8aszqhvtg7cprmev8xcxs6csra7xnk3n3 --output=json
 // returns the account and remaining unvested
 func CreateMainnetVestingAccount(ctx sdk.Context, k keepers.AppKeepers) (*vestingtypes.PeriodicVestingAccount, math.Int) {
-
 	// manually convert the account_number, sequence, start_time, end_time to a non string
 	// regex: "length":"([0-9]+)"  -> "length":$1
 

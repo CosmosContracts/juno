@@ -4,17 +4,18 @@ import (
 	"fmt"
 	"testing"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/suite"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmosContracts/juno/v19/app/apptesting"
 	decorators "github.com/CosmosContracts/juno/v19/app/decorators"
 	v19 "github.com/CosmosContracts/juno/v19/app/upgrades/v19"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
 type UpgradeTestSuite struct {
@@ -113,5 +114,4 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 	for _, validator := range validators {
 		s.Require().True(validator.Commission.MaxChangeRate.LTE(sdk.MustNewDecFromStr(decorators.MaxChangeRate)))
 	}
-
 }
