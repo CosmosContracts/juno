@@ -19,4 +19,4 @@ sleep 3
 
 junod q wasm contract-state smart $ADDRESS '{"get_website":{"name":"test"}}' --home=/home/joel/.juno1
 
-# Website should be available at: http://localhost:1317/fs/juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8/test/
+# Website should be available at: http://localhost:1317/webhost/juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8/test/
