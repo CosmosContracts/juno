@@ -32,7 +32,7 @@ func CreateMainnetVestingAccount(ctx sdk.Context, k keepers.AppKeepers) (*vestin
 		panic(err)
 	}
 
-	unvested := SumPeriodVestingAccountsUnvestedTokensAmount(&acc)
+	unvested := SumPeriodVestingAccountsUnvestedTokensAmount(ctx, &acc)
 
 	err := banktestutil.FundAccount(k.BankKeeper, ctx, acc.BaseAccount.GetAddress(), sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(AvaliableCoins+DelegatedCoins+StakingRewardCoins))))
 	if err != nil {
@@ -43,8 +43,8 @@ func CreateMainnetVestingAccount(ctx sdk.Context, k keepers.AppKeepers) (*vestin
 	return &acc, unvested
 }
 
-func SumPeriodVestingAccountsUnvestedTokensAmount(acc *vestingtypes.PeriodicVestingAccount) (unvested math.Int) {
-	now := time.Now()
+func SumPeriodVestingAccountsUnvestedTokensAmount(ctx sdk.Context, acc *vestingtypes.PeriodicVestingAccount) (unvested math.Int) {
+	now := ctx.BlockTime()
 	startTime := time.Unix(acc.StartTime, 0)
 
 	unvested = math.ZeroInt()

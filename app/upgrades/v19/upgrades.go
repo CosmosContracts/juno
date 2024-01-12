@@ -90,7 +90,7 @@ func migrateCore1MultisigVesting(ctx sdk.Context, logger log.Logger, k *keepers.
 }
 
 func mintUnvestedToCharter(ctx sdk.Context, k *keepers.AppKeepers, CouncilAddr sdk.AccAddress, vestingAcc *vestingtypes.PeriodicVestingAccount) {
-	unvested := SumPeriodVestingAccountsUnvestedTokensAmount(vestingAcc)
+	unvested := SumPeriodVestingAccountsUnvestedTokensAmount(ctx, vestingAcc)
 	fmt.Printf("Core1Addr Unvested to mint to the charter: %s\n", unvested)
 
 	coins := sdk.NewCoins(sdk.NewCoin("ujuno", unvested))
