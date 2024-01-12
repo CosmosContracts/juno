@@ -4,7 +4,7 @@ junod tx wasm store cw_webhost.wasm --from=juno1 --keyring-backend=test --chain-
 
 sleep 3
 
-junod tx wasm instantiate 1 '{}' --from=juno1 --keyring-backend=test --chain-id=local-1 --label=cw_webhost --gas=auto --gas-adjustment=1.5 --gas-prices=0.025ujuno --yes --no-admin --home=/home/joel/.juno1
+junod tx wasm instantiate 1 '{}' --from=juno1 --keyring-backend=test --chain-id=local-1 --label=cw_webhost --gas=auto --gas-adjustment=1.5 --gas-prices=0.025ujuno --yes --no-admin --home=$HOME/.juno1
 ADDRESS=juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8
 
 sleep 3
