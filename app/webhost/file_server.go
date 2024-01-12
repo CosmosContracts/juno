@@ -63,7 +63,6 @@ func Handler2() http.HandlerFunc {
 				}
 
 				// Set content type
-				w.WriteHeader(http.StatusOK)
 				setContentType(w, path)
 
 				// Write buffer to response
