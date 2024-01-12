@@ -49,7 +49,7 @@ func CreateV19UpgradeHandler(
 			}
 		}
 
-		if nativeDenom == "ujuno" {
+		if ctx.ChainID() == "juno-1" {
 			// Mainnet Only
 			migrateCore1MultisigVesting(ctx, k)
 		}
