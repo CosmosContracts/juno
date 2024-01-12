@@ -596,7 +596,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
 	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
 	apiSvr.Router.HandleFunc("/webhost", webhost.Handler())
-	apiSvr.Router.HandleFunc("/fs/{contract}/{path:.*}", webhost.Handler2())
+	apiSvr.Router.HandleFunc("/fs/{contract}/{name}/{path:.*}", webhost.Handler2())
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.

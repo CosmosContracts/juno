@@ -3,6 +3,8 @@ package webhost
 import (
 	"archive/zip"
 	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -19,29 +21,31 @@ func Handler2() http.HandlerFunc {
 		contract := route[0]
 		fmt.Println("contract: ", contract)
 
+		// Pull out name
+		name := route[1]
+		fmt.Println("name: ", name)
+
 		// Pull out path to file on contract
-		path := strings.Join(route[1:], "/")
+		path := strings.Join(route[2:], "/")
 		if path == "" {
 			path = "index.html"
 		}
 		fmt.Println("path: ", path)
 
-		file := "/home/joel/development/web.zip"
-
-		if file == "" {
-			w.WriteHeader(http.StatusNotFound)
-			writeResponse(w, "no website found")
-			return
-		}
-
-		zr, err := zip.OpenReader(file)
+		website, err := makeRequest(contract, name, path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			writeResponse(w, "error opening zip file: "+err.Error())
+			writeResponse(w, "error making request: "+err.Error())
 			return
 		}
 
-		defer zr.Close()
+		// Unzip website.Data.Source
+		zr, err := decodeAndUnzip(website.Data.Source)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			writeResponse(w, "error decoding and unzipping file: "+err.Error())
+			return
+		}
 
 		// Find file in zip at path
 		for _, f := range zr.File {
@@ -74,6 +78,51 @@ func Handler2() http.HandlerFunc {
 			}
 		}
 	}
+}
+
+// Make request to contract
+func makeRequest(contract, name, path string) (Website, error) {
+	var website Website
+
+	b64Query := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf(`{"get_website":{"name":"%s"}}`, name)))
+	url := restServer + contract + "/smart/" + b64Query
+
+	res, err := http.Get(url)
+	if err != nil {
+		return website, err
+	}
+	defer res.Body.Close()
+
+	resBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return website, err
+	}
+
+	if len(resBody) > 0 && strings.Contains(string(resBody), "data") {
+		if err = json.Unmarshal(resBody, &website); err != nil {
+			return website, err
+		}
+	}
+
+	return website, nil
+}
+
+// Decode from base 64 and unzip file
+func decodeAndUnzip(source string) (*zip.Reader, error) {
+	// Decode from base 64
+	decodedBytes, err := base64.StdEncoding.DecodeString(source)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unzip
+	reader := bytes.NewReader(decodedBytes)
+	zr, err := zip.NewReader(reader, int64(len(decodedBytes)))
+	if err != nil {
+		return nil, err
+	}
+
+	return zr, nil
 }
 
 // Function to set the header
