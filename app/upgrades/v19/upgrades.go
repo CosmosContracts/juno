@@ -81,26 +81,8 @@ func migrateCore1MultisigVesting(ctx sdk.Context, k *keepers.AppKeepers) {
 	// SEND TO THE CHARTER
 	prop16Core1Multisig(ctx, k, Core1Addr, CouncilAddr)
 
-	// MINT UNVESTED TOKENS TO THE CHARTER
-	mintUnvestedToCharter(ctx, k, CouncilAddr, vestingAcc)
-
 	// REMOVE VESTING FROM THE CORE1 MULTISIG (set it to the base account, no vesting terms)
 	k.AccountKeeper.SetAccount(ctx, vestingAcc.BaseAccount)
-}
-
-func mintUnvestedToCharter(ctx sdk.Context, k *keepers.AppKeepers, CouncilAddr sdk.AccAddress, vestingAcc *vestingtypes.PeriodicVestingAccount) { // nolint:gocritic
-	unvested := SumPeriodVestingAccountsUnvestedTokensAmount(ctx, vestingAcc)
-	fmt.Printf("Core1Addr Unvested to mint to the charter: %s\n", unvested)
-
-	coins := sdk.NewCoins(sdk.NewCoin("ujuno", unvested))
-
-	if err := k.BankKeeper.MintCoins(ctx, "mint", coins); err != nil {
-		panic(err)
-	}
-
-	if err := k.BankKeeper.SendCoinsFromModuleToAccount(ctx, "mint", CouncilAddr, coins); err != nil {
-		panic(err)
-	}
 }
 
 func prop16Core1Multisig(ctx sdk.Context, k *keepers.AppKeepers, Core1Addr, CouncilAddr sdk.AccAddress) { // nolint:gocritic
