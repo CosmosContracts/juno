@@ -33,7 +33,7 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Setup()
 	preUpgradeChecks(s)
 
-	// Core-1 Multisig mock
+	// == CREATE MOCK CORE-1 ACCOUNT ==
 	c1m, unvested := v19.CreateMainnetVestingAccount(s.Ctx, s.App.AppKeepers)
 	c1mAddr := c1m.GetAddress()
 	fmt.Printf("c1mAddr unvested: %+v\n", unvested)

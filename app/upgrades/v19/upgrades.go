@@ -124,6 +124,23 @@ func prop16Core1Multisig(ctx sdk.Context, k *keepers.AppKeepers, Core1Addr, Coun
 	}
 }
 
+func SumPeriodVestingAccountsUnvestedTokensAmount(ctx sdk.Context, acc *vestingtypes.PeriodicVestingAccount) (unvested math.Int) {
+	now := ctx.BlockTime()
+	startTime := time.Unix(acc.StartTime, 0)
+
+	unvested = math.ZeroInt()
+	for _, period := range acc.VestingPeriods {
+		durration := time.Duration(period.Length) * time.Minute
+		if startTime.Add(durration).After(now) {
+			unvested = unvested.Add(period.Amount[0].Amount)
+		}
+
+		startTime = startTime.Add(time.Duration(period.Length))
+	}
+
+	return unvested
+}
+
 // From Prop16
 func completeAllRedelegations(ctx sdk.Context, now time.Time, keepers *keepers.AppKeepers, accAddr sdk.AccAddress) (math.Int, error) {
 	redelegatedAmt := math.ZeroInt()

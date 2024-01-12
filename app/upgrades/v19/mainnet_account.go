@@ -2,7 +2,6 @@ package v19
 
 import (
 	"encoding/json"
-	"time"
 
 	"cosmossdk.io/math"
 
@@ -42,21 +41,4 @@ func CreateMainnetVestingAccount(ctx sdk.Context, k keepers.AppKeepers) (*vestin
 
 	k.AccountKeeper.SetAccount(ctx, &acc)
 	return &acc, unvested
-}
-
-func SumPeriodVestingAccountsUnvestedTokensAmount(ctx sdk.Context, acc *vestingtypes.PeriodicVestingAccount) (unvested math.Int) {
-	now := ctx.BlockTime()
-	startTime := time.Unix(acc.StartTime, 0)
-
-	unvested = math.ZeroInt()
-	for _, period := range acc.VestingPeriods {
-		durration := time.Duration(period.Length) * time.Minute
-		if startTime.Add(durration).After(now) {
-			unvested = unvested.Add(period.Amount[0].Amount)
-		}
-
-		startTime = startTime.Add(time.Duration(period.Length))
-	}
-
-	return unvested
 }
