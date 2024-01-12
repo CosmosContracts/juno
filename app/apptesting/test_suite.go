@@ -166,9 +166,6 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 	)
 	s.App.AppKeepers.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
 
-	// set some rewards (else you get a reference error)
-	// s.AllocateRewardsToValidator(val.GetOperator(), sdk.NewInt(1_000_000))
-
 	return valAddr
 }
 
@@ -238,7 +235,6 @@ func (s *KeeperTestHelper) AllocateRewardsToValidator(valAddr sdk.ValAddress, re
 	// allocate rewards to validator
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
 	decTokens := sdk.DecCoins{{Denom: appparams.BondDenom, Amount: sdk.NewDec(rewardAmt.Int64() * 2)}}
-	// s.App.AppKeepers.DistrKeeper.AllocateTokensToValidator(s.Ctx, validator, decTokens)
 
 	s.App.AppKeepers.DistrKeeper.GetValidatorHistoricalRewards(s.Ctx, validator.GetOperator(), 0)
 	s.App.AppKeepers.DistrKeeper.SetValidatorHistoricalRewards(s.Ctx, validator.GetOperator(), 1, distrtypes.NewValidatorHistoricalRewards(decTokens, 2))

@@ -44,25 +44,21 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	// Core-1 Multisig mock
 	c1m, unvested := v19.CreateMainnetVestingAccount(s.Ctx, s.App.AppKeepers)
 	c1mAddr := c1m.GetAddress()
-	// TODO: mint this to the council since we are 'burning' it from the multisig (by setting to a base account)
 	fmt.Printf("c1mAddr unvested: %+v\n", unvested)
 
-	bal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, c1mAddr)
-	fmt.Printf("bal: %s\n", bal)
+	core1Prebal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, c1mAddr)
+	fmt.Printf("Core1 bal: %s\n", core1Prebal)
 
 	// create many validators to confirm the unbonding code works
 	newVal1 := s.SetupValidator(stakingtypes.Bonded)
 	newVal2 := s.SetupValidator(stakingtypes.Bonded)
 	newVal3 := s.SetupValidator(stakingtypes.Bonded)
 
-	// Delegate 6 tokens of the core1 multisig account
+	// Delegate tokens of the core1 multisig account
 	s.StakingHelper.Delegate(c1mAddr, newVal1, sdk.NewInt(1))
 	s.StakingHelper.Delegate(c1mAddr, newVal2, sdk.NewInt(2))
 	s.StakingHelper.Delegate(c1mAddr, newVal3, sdk.NewInt(3))
-
-	// Verify delegations
-	dels := s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)
-	s.Require().Equal(3, len(dels))
+	s.Require().Equal(3, len(s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)))
 
 	// == UPGRADE ==
 	upgradeHeight := int64(5)
@@ -77,10 +73,9 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Require().Equal(0, len(s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, c1mAddr)))
 	s.Require().Equal(0, len(s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)))
 
-	// query balance of CharterCouncil
 	charterBal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, sdk.MustAccAddressFromBech32(v19.CharterCouncil))
-	fmt.Printf("charterBal: %s\n", charterBal) // this should == the vesting
-
+	fmt.Printf("Council Post Upgrade Balance: %s\n", charterBal) // this should be >= unvested + balance before the upgrade
+	s.Require().True(charterBal.AmountOf("ujuno").GTE(unvested.Add(core1Prebal.AmountOf("ujuno"))))
 }
 
 func preUpgradeChecks(s *UpgradeTestSuite) {

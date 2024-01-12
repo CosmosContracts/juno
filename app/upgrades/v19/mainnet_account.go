@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	// based off some mintscan data, this is JUST for testing.
-	AvaliableCoins     = "2176229.301554"
-	DelegatedCoins     = "6803271.425657"
-	StakingRewardCoins = "909613.203388"
+	// based off some mintscan data, this is JUST for testing. (ujuno)
+	AvaliableCoins     = 2176229301554
+	DelegatedCoins     = 6803271425657
+	StakingRewardCoins = 909613203388
 )
 
 // junod q auth account juno190g5j8aszqhvtg7cprmev8xcxs6csra7xnk3n3 --output=json
@@ -32,11 +32,9 @@ func CreateMainnetVestingAccount(ctx sdk.Context, k keepers.AppKeepers) (*vestin
 		panic(err)
 	}
 
-	// sum unvested token periods. We need to know this to mint to the charter (since we are removing the multisig vesting)
-
 	unvested := SumPeriodVestingAccountsUnvestedTokensAmount(&acc)
 
-	err := banktestutil.FundAccount(k.BankKeeper, ctx, acc.BaseAccount.GetAddress(), sdk.NewCoins(sdk.NewCoin("ujuno", unvested)))
+	err := banktestutil.FundAccount(k.BankKeeper, ctx, acc.BaseAccount.GetAddress(), sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(AvaliableCoins+DelegatedCoins+StakingRewardCoins))))
 	if err != nil {
 		panic(err)
 	}

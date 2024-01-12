@@ -49,8 +49,10 @@ func CreateV19UpgradeHandler(
 			}
 		}
 
-		// TODO: ONLY DO THIS WITH MAINNET
-		migrateCore1MultisigVesting(ctx, logger, k)
+		if nativeDenom == "ujuno" {
+			// Mainnet Only
+			migrateCore1MultisigVesting(ctx, logger, k)
+		}
 
 		// https://github.com/cosmos/ibc-go/blob/main/docs/docs/03-light-clients/04-wasm/03-integration.md
 		params := k.IBCKeeper.ClientKeeper.GetParams(ctx)
@@ -61,9 +63,11 @@ func CreateV19UpgradeHandler(
 	}
 }
 
-// migrateCore1Vesting moves the funds and delegations from the PeriodicVestingAccount -> the Council.
-// All redelegations and unbonds are completed, and returned to the multisigs balance.
-// Finally, the remaining vested tokens are minted, sent to the council, and the vesting account is removed.
+// migrateCore1Vesting moves the funds and delegations from the PeriodicVestingAccount -> the new Council (contract address).
+// - Get the Core-1 multisig vesting account
+// - Instantly finish all redelegations, then unbond all tokens.
+// - Send all tokens to the new council (including the previously held balance)
+// - Sum all future vesting periods, then mint and send those tokens to the new council.
 func migrateCore1MultisigVesting(ctx sdk.Context, logger log.Logger, k *keepers.AppKeepers) {
 	Core1Addr := sdk.MustAccAddressFromBech32(Core1MultisigVestingAccount)
 	CouncilAddr := sdk.MustAccAddressFromBech32(CharterCouncil)
@@ -81,7 +85,7 @@ func migrateCore1MultisigVesting(ctx sdk.Context, logger log.Logger, k *keepers.
 	// MINT UNVESTED TOKENS TO THE CHARTER
 	mintUnvestedToCharter(ctx, k, CouncilAddr, vestingAcc)
 
-	// REMOVE VESTING FROM THE CORE1 MULTISIG (set it to the base account)
+	// REMOVE VESTING FROM THE CORE1 MULTISIG (set it to the base account, no vesting terms)
 	k.AccountKeeper.SetAccount(ctx, vestingAcc.BaseAccount)
 }
 
@@ -101,9 +105,6 @@ func mintUnvestedToCharter(ctx sdk.Context, k *keepers.AppKeepers, CouncilAddr s
 }
 
 func prop16Core1Multisig(ctx sdk.Context, k *keepers.AppKeepers, Core1Addr, CouncilAddr sdk.AccAddress) {
-	// undelegate all tokens from the core1 multisig
-	// - complete pending redelegations
-	// - unbond all tokens -> balance
 	redelegated, err := completeAllRedelegations(ctx, ctx.BlockTime(), k, Core1Addr)
 	if err != nil {
 		panic(err)
@@ -119,7 +120,7 @@ func prop16Core1Multisig(ctx sdk.Context, k *keepers.AppKeepers, Core1Addr, Coun
 	fmt.Printf("Core1Addr Instant Redelegations: %s\n", redelegated)
 	fmt.Printf("Core1Addr Instant Unbonding: %s\n", unbonded)
 
-	// now send these to the charter council
+	// now send these to the council
 	err = k.BankKeeper.SendCoins(ctx, Core1Addr, CouncilAddr, sdk.NewCoins(k.BankKeeper.GetBalance(ctx, Core1Addr, "ujuno")))
 	if err != nil {
 		panic(err)
@@ -150,6 +151,7 @@ func completeAllRedelegations(ctx sdk.Context, now time.Time, keepers *keepers.A
 	return redelegatedAmt, nil
 }
 
+// From Prop16
 func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeepers, accAddr sdk.AccAddress) (math.Int, error) {
 	unbondedAmt := math.ZeroInt()
 
