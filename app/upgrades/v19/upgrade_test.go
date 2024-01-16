@@ -55,7 +55,8 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	s.StakingHelper.Undelegate(c1mAddr, newVal3, sdk.NewInt(1), true)
 
 	// Redelegate part of the tokens from val2 -> val3 (test instant unbonding on redelegations started before upgrade)
-	s.App.AppKeepers.StakingKeeper.BeginRedelegation(s.Ctx, c1mAddr, newVal2, newVal3, sdk.NewDec(1))
+	_, err := s.App.AppKeepers.StakingKeeper.BeginRedelegation(s.Ctx, c1mAddr, newVal2, newVal3, sdk.NewDec(1))
+	s.Require().NoError(err)
 
 	// Confirm delegated to 3 validators
 	s.Require().Equal(3, len(s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)))
