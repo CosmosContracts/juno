@@ -50,6 +50,14 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	s.StakingHelper.Delegate(c1mAddr, newVal1, sdk.NewInt(1))
 	s.StakingHelper.Delegate(c1mAddr, newVal2, sdk.NewInt(2))
 	s.StakingHelper.Delegate(c1mAddr, newVal3, sdk.NewInt(3))
+
+	// Undelegate part of the tokens from val2 (test instant unbonding on undelegation started before upgrade)
+	s.StakingHelper.Undelegate(c1mAddr, newVal3, sdk.NewInt(1), true)
+
+	// Redelegate part of the tokens from val2 -> val3 (test instant unbonding on redelegations started before upgrade)
+	s.App.AppKeepers.StakingKeeper.BeginRedelegation(s.Ctx, c1mAddr, newVal2, newVal3, sdk.NewDec(1))
+
+	// Confirm delegated to 3 validators
 	s.Require().Equal(3, len(s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)))
 
 	// == UPGRADE ==
@@ -64,6 +72,7 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 
 	s.Require().Equal(0, len(s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, c1mAddr)))
 	s.Require().Equal(0, len(s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)))
+	s.Require().Equal(0, len(s.App.AppKeepers.StakingKeeper.GetRedelegations(s.Ctx, c1mAddr, 65535)))
 
 	charterBal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, sdk.MustAccAddressFromBech32(v19.CharterCouncil))
 	fmt.Printf("Council Post Upgrade Balance: %s\n", charterBal)
