@@ -449,10 +449,12 @@ func New(
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 
+		// This fails when upgrading a upgrade
+		// `failed initialize pinned codes Error calling the VM: Cache error: Error opening Wasm file for reading: pinning contract failed`
 		// https://github.com/cosmos/ibc-go/pull/5439
-		if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil {
-			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
-		}
+		// if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil {
+		// 	tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+		// }
 
 		// Initialize and seal the capability keeper so all persistent capabilities
 		// are loaded in-memory and prevent any further modules from creating scoped
