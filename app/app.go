@@ -442,17 +442,15 @@ func New(
 		}
 		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
 
-		// Initialize pinned codes in wasmvm as they are not persisted there.
-		// We do not use the wasm light client's impl since we do not want ALL to be pinned.
-		// The WasmKeeper will handle is as expected.
-		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
-			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
-		}
-
 		// https://github.com/cosmos/ibc-go/pull/5439
 		if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil {
-			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+			tmos.Exit(fmt.Sprintf("wasmlckeeper failed initialize pinned codes %s", err))
 		}
+
+		// we already load in with the wasmlc (all)
+		// if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+		// 	tmos.Exit(fmt.Sprintf("app.AppKeepers.WasmKeeper failed initialize pinned codes %s", err))
+		// }
 
 		// Initialize and seal the capability keeper so all persistent capabilities
 		// are loaded in-memory and prevent any further modules from creating scoped
