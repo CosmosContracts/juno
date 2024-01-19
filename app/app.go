@@ -24,6 +24,7 @@ import (
 	tmos "github.com/cometbft/cometbft/libs/os"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	wasmlckeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
@@ -406,7 +407,7 @@ func New(
 		err = manager.RegisterExtensions(
 			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
 			// https://github.com/cosmos/ibc-go/pull/5439
-			// wasmlckeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmClientKeeper),
+			wasmlckeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmClientKeeper),
 		)
 		if err != nil {
 			panic("failed to register snapshot extension: " + err.Error())
@@ -448,12 +449,10 @@ func New(
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 
-		// This fails when upgrading a upgrade
-		// `failed initialize pinned codes Error calling the VM: Cache error: Error opening Wasm file for reading: pinning contract failed`
 		// https://github.com/cosmos/ibc-go/pull/5439
-		// if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil {
-		// 	tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
-		// }
+		if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil {
+			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+		}
 
 		// Initialize and seal the capability keeper so all persistent capabilities
 		// are loaded in-memory and prevent any further modules from creating scoped
