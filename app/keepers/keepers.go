@@ -486,6 +486,7 @@ func NewAppKeepers(
 	)
 
 	wasmDir := filepath.Join(homePath, "data")
+	lcWasmDir := filepath.Join(homePath, "data", "light-client-wasm")
 
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
@@ -542,12 +543,17 @@ func NewAppKeepers(
 	wasmOpts = append(wasmOpts, burnMessageHandler)
 
 	// create a shared VM instance (x/wasm <-> wasm light client)
-	wasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	mainWasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create juno wasm vm: %s", err))
 	}
 
-	wasmOpts = append(wasmOpts, wasmkeeper.WithWasmEngine(wasmer))
+	lcWasmer, err := wasmvm.NewVM(lcWasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create juno wasm vm for 08-wasm: %s", err))
+	}
+
+	wasmOpts = append(wasmOpts, wasmkeeper.WithWasmEngine(mainWasmer))
 
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
@@ -592,7 +598,7 @@ func NewAppKeepers(
 		appKeepers.keys[wasmlctypes.StoreKey],
 		appKeepers.IBCKeeper.ClientKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		wasmer,
+		lcWasmer,
 		bApp.GRPCQueryRouter(),
 		wasmQuerierOption,
 	)
