@@ -31,6 +31,10 @@ func TestKeeperTestSuite(t *testing.T) {
 func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Setup()
 
+	// Setup mainnet account
+	_, err := v19.CreateMainnetVestingAccount(s.Ctx, s.App.AppKeepers)
+	s.Require().NoError(err)
+
 	preUpgradeChecks(s)
 
 	upgradeHeight := int64(5)
