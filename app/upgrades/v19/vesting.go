@@ -1,4 +1,4 @@
-package upgrades
+package v19
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 )
 
 // Stops a vesting account and returns all tokens back to the Core-1 SubDAO.
-func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, name string, accAddr sdk.AccAddress, councilAccAddr sdk.AccAddress) error {
+func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, owner string, accAddr sdk.AccAddress, councilAccAddr sdk.AccAddress) error {
 	now := ctx.BlockHeader().Time
 
 	stdAcc := keepers.AccountKeeper.GetAccount(ctx, accAddr)
@@ -24,7 +24,7 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 		return nil
 	}
 
-	fmt.Printf("\n\n== Vesting Account Address: %s (%s) ==\n", vacc.GetAddress().String(), name)
+	fmt.Printf("\n\n== Vesting Account Address: %s (%s) ==\n", vacc.GetAddress().String(), owner)
 
 	// Gets vesting coins (These get returned back to Core-1 SubDAO / a new vesting contract made from)
 	vestingCoins := vacc.GetVestingCoins(now)
@@ -38,7 +38,7 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	fmt.Println("Redelegated Amount: ", amt)
 
 	// Instantly unbond all delegations.
-	amt, err = unbondAllAndFinish(ctx, now, keepers, accAddr)
+	amt, err = unbondAllAndFinish(ctx, now, keepers, owner, accAddr)
 	if err != nil {
 		return err
 	}
@@ -56,11 +56,11 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	keepers.AccountKeeper.SetAccount(ctx, vacc.BaseAccount)
 
 	// Ensure the post validation checks are met.
-	err = postValidation(ctx, keepers, bondDenom, accAddr, councilAccAddr, vestingCoins, councilBeforeBal)
+	err = postValidation(ctx, keepers, bondDenom, owner, accAddr, councilAccAddr, vestingCoins, councilBeforeBal)
 	return err
 }
 
-func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr sdk.AccAddress, councilAccAddr sdk.AccAddress, vestingCoins sdk.Coins, councilBeforeBal sdk.Coin) error {
+func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, owner string, accAddr sdk.AccAddress, councilAccAddr sdk.AccAddress, vestingCoins sdk.Coins, councilBeforeBal sdk.Coin) error {
 	// Council balance should only increase by exactly the council + vestedCoins
 	councilAfterBal := keepers.BankKeeper.GetBalance(ctx, councilAccAddr, bondDenom)
 	if !councilBeforeBal.Add(vestingCoins[0]).IsEqual(councilAfterBal) {
@@ -75,7 +75,7 @@ func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom stri
 
 	// ensure the account has 0 delegations, redelegations, or unbonding delegations
 	delegations := keepers.StakingKeeper.GetAllDelegatorDelegations(ctx, accAddr)
-	if len(delegations) != 0 {
+	if len(delegations) != 0 || !(owner == JackKey && len(delegations) == 1) {
 		return fmt.Errorf("ERROR: account %s still has delegations", accAddr.String())
 	}
 
@@ -93,7 +93,7 @@ func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom stri
 }
 
 // Transfer funds from the vesting account to the Council SubDAO.
-func transferUnvestedTokensToCouncil(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr, councilAccAddr sdk.AccAddress, unvestedCoins sdk.Coins) error {
+func transferUnvestedTokensToCouncil(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr sdk.AccAddress, councilAccAddr sdk.AccAddress, unvestedCoins sdk.Coins) error {
 	fmt.Printf("Sending Vesting Coins to Council: %v\n", unvestedCoins)
 	if err := keepers.BankKeeper.SendCoins(ctx, accAddr, councilAccAddr, unvestedCoins); err != nil {
 		return err
@@ -130,14 +130,18 @@ func completeAllRedelegations(ctx sdk.Context, now time.Time, keepers *keepers.A
 }
 
 // Returns the amount of tokens which were unbonded (not rewards)
-func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeepers, accAddr sdk.AccAddress) (math.Int, error) {
+func unbondAllAndFinish(ctx sdk.Context, now time.Time, keepers *keepers.AppKeepers, owner string, accAddr sdk.AccAddress) (math.Int, error) {
 	unbondedAmt := math.ZeroInt()
 
 	// Unbond all delegations from the account
 	for _, delegation := range keepers.StakingKeeper.GetAllDelegatorDelegations(ctx, accAddr) {
 		validatorValAddr := delegation.GetValidatorAddr()
-		_, found := keepers.StakingKeeper.GetValidator(ctx, validatorValAddr)
-		if !found {
+		if _, found := keepers.StakingKeeper.GetValidator(ctx, validatorValAddr); !found {
+			continue
+		}
+
+		// Jack's account has a delegation to his validator which is not unbonded.
+		if owner == JackKey && validatorValAddr.String() == JackValidatorAddress {
 			continue
 		}
 

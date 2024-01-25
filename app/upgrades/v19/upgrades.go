@@ -16,7 +16,9 @@ import (
 
 const (
 	// Charter Council's SubDAO Address
-	CharterCouncil = "juno1nmezpepv3lx45mndyctz2lzqxa6d9xzd2xumkxf7a6r4nxt0y95qypm6c0"
+	CharterCouncil       = "juno1nmezpepv3lx45mndyctz2lzqxa6d9xzd2xumkxf7a6r4nxt0y95qypm6c0"
+	JackKey              = "jack"
+	JackValidatorAddress = "junovaloper130mdu9a0etmeuw52qfxk73pn0ga6gawk2tz77l"
 )
 
 type IndividualAccount struct {
@@ -35,7 +37,7 @@ var Core1VestingAccounts = []IndividualAccount{
 		Address: "juno1s33zct2zhhaf60x4a90cpe9yquw99jj0zen8pt",
 	},
 	{
-		Owner:   "jack",
+		Owner:   JackKey,
 		Address: "juno130mdu9a0etmeuw52qfxk73pn0ga6gawk4k539x",
 	},
 	{
@@ -103,7 +105,7 @@ func CreateV19UpgradeHandler(
 func migrateCore1VestingAccounts(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string) error {
 	for _, account := range Core1VestingAccounts {
 		// A new vesting contract will not be created if the account name is 'wolf'.
-		if err := upgrades.MoveVestingCoinFromVestingAccount(ctx,
+		if err := MoveVestingCoinFromVestingAccount(ctx,
 			keepers,
 			bondDenom,
 			account.Owner,

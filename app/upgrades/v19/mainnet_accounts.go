@@ -2,7 +2,6 @@ package v19
 
 import (
 	"encoding/json"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -38,26 +37,8 @@ func CreateMainnetVestingAccount(ctx sdk.Context, k keepers.AppKeepers) ([]*vest
 			panic(err)
 		}
 
-		stillVesting := acc.GetVestingCoins(ctx.BlockTime())
-		delegatedVesting := acc.GetDelegatedVesting() // TODO: FIX: DOES NOT ACCOUNT FOR BLOCK TIME
-
-		vestedUnlocked := acc.GetVestedCoins(ctx.BlockTime())
-		delegatedUnlocked := acc.GetDelegatedFree() // TODO: FIX: DOES NOT ACCOUNT FOR BLOCK TIME
-
-		fmt.Println("--------------------")
-		fmt.Println("Still Vesting: ", stillVesting)
-		fmt.Println("Delegated Vesting: ", delegatedVesting)
-		fmt.Println()
-		fmt.Println("Vested Unlocked: ", vestedUnlocked)
-		fmt.Println("Delegated Unlocked: ", delegatedUnlocked)
-		fmt.Println("--------------------")
-		// fmt.Println("Difference: ", originalVesting[0].Sub(vestedUnlocked[0]))
-		fmt.Println()
-		fmt.Println()
-
 		// Fund the account from bank keeper
-		// TODO: DETERMINE HOW MUCH TO FUND THE ACCOUNT
-		funds := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(123_000_000_000_000)))
+		funds := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(100_000_000_000_000)))
 		if err := banktestutil.FundAccount(k.BankKeeper, ctx, acc.GetAddress(), funds); err != nil {
 			panic(err)
 		}
