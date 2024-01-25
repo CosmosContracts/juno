@@ -16,6 +16,7 @@ import (
 	decorators "github.com/CosmosContracts/juno/v19/app/decorators"
 	"github.com/CosmosContracts/juno/v19/app/keepers"
 	"github.com/CosmosContracts/juno/v19/app/upgrades"
+	clocktypes "github.com/CosmosContracts/juno/v19/x/clock/types"
 )
 
 func CreateV19UpgradeHandler(
@@ -57,6 +58,12 @@ func CreateV19UpgradeHandler(
 		params := k.IBCKeeper.ClientKeeper.GetParams(ctx)
 		params.AllowedClients = append(params.AllowedClients, wasmlctypes.Wasm)
 		k.IBCKeeper.ClientKeeper.SetParams(ctx, params)
+
+		if err := k.ClockKeeper.SetParams(ctx, clocktypes.Params{
+			ContractGasLimit: 250_000,
+		}); err != nil {
+			return nil, err
+		}
 
 		return versionMap, err
 	}
