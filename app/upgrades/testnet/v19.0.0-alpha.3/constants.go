@@ -14,15 +14,15 @@ import (
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.
-const UpgradeName = "v1900alpha2"
+const UpgradeName = "v1900alpha3"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: v1900Alpha2UpgradeHandler,
+	CreateUpgradeHandler: v1900Alpha3UpgradeHandler,
 	StoreUpgrades:        store.StoreUpgrades{},
 }
 
-func v1900Alpha2UpgradeHandler(
+func v1900Alpha3UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	k *keepers.AppKeepers,
