@@ -8,6 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmosContracts/juno/v19/app/apptesting"
@@ -30,13 +31,53 @@ func TestKeeperTestSuite(t *testing.T) {
 // Ensures the test does not error out.
 func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Setup()
-
 	preUpgradeChecks(s)
 
+	// == CREATE MOCK CORE-1 ACCOUNT ==
+	c1m, unvested := v19.CreateMainnetVestingAccount(s.Ctx, s.App.AppKeepers)
+	c1mAddr := c1m.GetAddress()
+	fmt.Printf("c1mAddr unvested: %+v\n", unvested)
+
+	core1Prebal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, c1mAddr)
+	fmt.Printf("Core1 bal: %s\n", core1Prebal)
+
+	// create many validators to confirm the unbonding code works
+	newVal1 := s.SetupValidator(stakingtypes.Bonded)
+	newVal2 := s.SetupValidator(stakingtypes.Bonded)
+	newVal3 := s.SetupValidator(stakingtypes.Bonded)
+
+	// Delegate tokens of the core1 multisig account
+	s.StakingHelper.Delegate(c1mAddr, newVal1, sdk.NewInt(1))
+	s.StakingHelper.Delegate(c1mAddr, newVal2, sdk.NewInt(2))
+	s.StakingHelper.Delegate(c1mAddr, newVal3, sdk.NewInt(3))
+
+	// Undelegate part of the tokens from val2 (test instant unbonding on undelegation started before upgrade)
+	s.StakingHelper.Undelegate(c1mAddr, newVal3, sdk.NewInt(1), true)
+
+	// Redelegate part of the tokens from val2 -> val3 (test instant unbonding on redelegations started before upgrade)
+	_, err := s.App.AppKeepers.StakingKeeper.BeginRedelegation(s.Ctx, c1mAddr, newVal2, newVal3, sdk.NewDec(1))
+	s.Require().NoError(err)
+
+	// Confirm delegated to 3 validators
+	s.Require().Equal(3, len(s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)))
+
+	// == UPGRADE ==
 	upgradeHeight := int64(5)
 	s.ConfirmUpgradeSucceeded(v19.UpgradeName, upgradeHeight)
-
 	postUpgradeChecks(s)
+
+	// == POST VERIFICATION ==
+	updatedAcc := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, c1mAddr)
+	_, ok := updatedAcc.(*vestingtypes.PeriodicVestingAccount)
+	s.Require().False(ok)
+
+	s.Require().Equal(0, len(s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, c1mAddr)))
+	s.Require().Equal(0, len(s.App.AppKeepers.StakingKeeper.GetAllDelegatorDelegations(s.Ctx, c1mAddr)))
+	s.Require().Equal(0, len(s.App.AppKeepers.StakingKeeper.GetRedelegations(s.Ctx, c1mAddr, 65535)))
+
+	charterBal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, sdk.MustAccAddressFromBech32(v19.CharterCouncil))
+	fmt.Printf("Council Post Upgrade Balance: %s\n", charterBal)
+	s.Require().True(charterBal.AmountOf("ujuno").GTE(core1Prebal.AmountOf("ujuno")))
 }
 
 func preUpgradeChecks(s *UpgradeTestSuite) {

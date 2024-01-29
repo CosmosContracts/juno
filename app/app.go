@@ -70,6 +70,7 @@ import (
 	testnetV18alpha2 "github.com/CosmosContracts/juno/v19/app/upgrades/testnet/v18.0.0-alpha.2"
 	testnetV18alpha3 "github.com/CosmosContracts/juno/v19/app/upgrades/testnet/v18.0.0-alpha.3"
 	testnetV18alpha4 "github.com/CosmosContracts/juno/v19/app/upgrades/testnet/v18.0.0-alpha.4"
+	testnetV19alpha3 "github.com/CosmosContracts/juno/v19/app/upgrades/testnet/v19.0.0-alpha.3"
 	v10 "github.com/CosmosContracts/juno/v19/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v19/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v19/app/upgrades/v12"
@@ -107,6 +108,7 @@ var (
 		testnetV18alpha2.Upgrade,
 		testnetV18alpha3.Upgrade,
 		testnetV18alpha4.Upgrade,
+		testnetV19alpha3.Upgrade,
 
 		v10.Upgrade,
 		v11.Upgrade,
@@ -407,8 +409,8 @@ func New(
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(
-			// https://github.com/cosmos/ibc-go/pull/5439
 			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
+			// https://github.com/cosmos/ibc-go/pull/5439
 			wasmlckeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmClientKeeper),
 		)
 		if err != nil {
@@ -444,17 +446,15 @@ func New(
 		}
 		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
 
-		// Initialize pinned codes in wasmvm as they are not persisted there.
-		// We do not use the wasm light client's impl since we do not want ALL to be pinned.
-		// The WasmKeeper will handle is as expected.
-		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
-			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
-		}
-
 		// https://github.com/cosmos/ibc-go/pull/5439
 		if err := wasmlckeeper.InitializePinnedCodes(ctx, appCodec); err != nil {
-			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+			tmos.Exit(fmt.Sprintf("wasmlckeeper failed initialize pinned codes %s", err))
 		}
+
+		// we already load in with the wasmlc (all)
+		// if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+		// 	tmos.Exit(fmt.Sprintf("app.AppKeepers.WasmKeeper failed initialize pinned codes %s", err))
+		// }
 
 		// Initialize and seal the capability keeper so all persistent capabilities
 		// are loaded in-memory and prevent any further modules from creating scoped

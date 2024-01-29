@@ -6,8 +6,6 @@
 
 🚀 For release procedures, check out [RELEASES.md](./RELEASES.md). 🚀
 
-📄 For production plans, check out [ROADMAP.md](./ROADMAP.md). 📄
-
 **Juno** is an open-source platform for inter-operable smart contracts which automatically execute, control or document a procedure of events and actions according to the terms of the contract or agreement to be valid and usable across multiple sovereign networks.
 
 Juno is a **sovereign public blockchain** in the Cosmos ecosystem. It aims to provide a sandbox environment for the deployment of inter-operable smart contracts. The network serves as a **decentralized, permissionless**, and **censorship-resistant** zone for developers to efficiently and securely launch application-specific smart contracts.
