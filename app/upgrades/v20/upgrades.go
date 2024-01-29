@@ -44,10 +44,6 @@ var Core1VestingAccounts = []IndividualAccount{
 		Address: "juno18qw9ydpewh405w4lvmuhlg9gtaep79vy2gmtr2",
 	},
 	{
-		Owner:   "multisig",
-		Address: "juno190g5j8aszqhvtg7cprmev8xcxs6csra7xnk3n3",
-	},
-	{
 		Owner:   "wolf",
 		Address: "juno1a8u47ggy964tv9trjxfjcldutau5ls705djqyu",
 	},
