@@ -26,9 +26,8 @@ If you're here because you're trying to figure out how to notify us of a securit
 
 | Name  | Discord   | Telegram | Email  |
 |-----|------|------|------|
-| Reece | reecepbcups | @Reecepbcups | reece[at]junonetwork.io |
 | Jake (Meow) | Meow Stargaze ✨🔭#1736 | @jakehartnell |  |
-| Dimi | dimiandre | @dimiandre | dimi[at]junonetwork.io | 
+| Dimi | dimiandre | @dimiandre | dimi[at]junonetwork.io |
 
 Please avoid opening public issues on GitHub that contain information about a potential security vulnerability as this makes it difficult to reduce the impact and harm of valid security issues.
 
