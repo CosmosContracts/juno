@@ -48,9 +48,14 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	councilBeforeBal := keepers.BankKeeper.GetBalance(ctx, councilAccAddr, bondDenom)
 
 	// Moves unvested tokens to the Core-1 SubDAO.
-	if err := transferUnvestedTokensToCouncil(ctx, keepers, bondDenom, accAddr, councilAccAddr, vestingCoins); err != nil {
+	if err := transferUnvestedTokensToCouncil(ctx, keepers, accAddr, councilAccAddr, vestingCoins); err != nil {
 		return err
 	}
+
+	// Log new council balance
+	councilAfterBal := keepers.BankKeeper.GetBalance(ctx, councilAccAddr, bondDenom)
+	fmt.Printf("Council Balance Before: %v\n", councilBeforeBal)
+	fmt.Printf("Council Balance After: %v\n", councilAfterBal)
 
 	// Set the vesting account to a base account
 	keepers.AccountKeeper.SetAccount(ctx, vacc.BaseAccount)
@@ -73,9 +78,10 @@ func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom stri
 		return fmt.Errorf("ERROR: account %s still is a vesting account", accAddr.String())
 	}
 
-	// ensure the account has 0 delegations, redelegations, or unbonding delegations
+	// ensure the account has 0 delegations, redelegations, or unbonding delegations,
+	// if the account is Jack's account, ensure it has 1 delegation to his validator
 	delegations := keepers.StakingKeeper.GetAllDelegatorDelegations(ctx, accAddr)
-	if len(delegations) != 0 || !(owner == JackKey && len(delegations) == 1) {
+	if !(len(delegations) == 0 || (owner == JackKey && len(delegations) == 1)) {
 		return fmt.Errorf("ERROR: account %s still has delegations", accAddr.String())
 	}
 
@@ -93,16 +99,10 @@ func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom stri
 }
 
 // Transfer funds from the vesting account to the Council SubDAO.
-func transferUnvestedTokensToCouncil(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr sdk.AccAddress, councilAccAddr sdk.AccAddress, unvestedCoins sdk.Coins) error {
-	fmt.Printf("Sending Vesting Coins to Council: %v\n", unvestedCoins)
-	if err := keepers.BankKeeper.SendCoins(ctx, accAddr, councilAccAddr, unvestedCoins); err != nil {
-		return err
-	}
-
-	councilBal := keepers.BankKeeper.GetBalance(ctx, councilAccAddr, bondDenom)
-	fmt.Printf("Updated Council SubDAO Balance: %v\n", councilBal)
-
-	return nil
+func transferUnvestedTokensToCouncil(ctx sdk.Context, keepers *keepers.AppKeepers, accAddr sdk.AccAddress, councilAccAddr sdk.AccAddress, vestingCoins sdk.Coins) error {
+	fmt.Printf("Sending Vesting Coins to Council: %v\n", vestingCoins)
+	err := keepers.BankKeeper.SendCoins(ctx, accAddr, councilAccAddr, vestingCoins)
+	return err
 }
 
 // Completes all re-delegations and returns the amount of tokens which were re-delegated.

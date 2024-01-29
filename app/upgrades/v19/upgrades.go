@@ -16,10 +16,12 @@ import (
 
 const (
 	// Charter Council's SubDAO Address
-	CharterCouncil       = "juno1nmezpepv3lx45mndyctz2lzqxa6d9xzd2xumkxf7a6r4nxt0y95qypm6c0"
-	JackKey              = "jack"
-	JackValidatorAddress = "junovaloper130mdu9a0etmeuw52qfxk73pn0ga6gawk2tz77l"
+	CharterCouncil = "juno1nmezpepv3lx45mndyctz2lzqxa6d9xzd2xumkxf7a6r4nxt0y95qypm6c0"
+	JackKey        = "jack"
 )
+
+// JackValidatorAddress must be mutable for testing
+var JackValidatorAddress = "junovaloper130mdu9a0etmeuw52qfxk73pn0ga6gawk2tz77l"
 
 type IndividualAccount struct {
 	Owner   string
