@@ -10,6 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"github.com/CosmosContracts/juno/v20/x/feepay/types"
+
+	globalerrors "github.com/CosmosContracts/juno/v20/app/helpers"
 )
 
 // Check if a contract is registered as a fee pay contract

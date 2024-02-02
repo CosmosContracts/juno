@@ -16,6 +16,8 @@ import (
 	decorators "github.com/CosmosContracts/juno/v20/app/decorators"
 	"github.com/CosmosContracts/juno/v20/app/keepers"
 	"github.com/CosmosContracts/juno/v20/app/upgrades"
+
+	clocktypes "github.com/CosmosContracts/juno/v20/x/clock/types"
 )
 
 func CreateV19UpgradeHandler(

@@ -70,6 +70,7 @@ import (
 	testnetV18alpha2 "github.com/CosmosContracts/juno/v20/app/upgrades/testnet/v18.0.0-alpha.2"
 	testnetV18alpha3 "github.com/CosmosContracts/juno/v20/app/upgrades/testnet/v18.0.0-alpha.3"
 	testnetV18alpha4 "github.com/CosmosContracts/juno/v20/app/upgrades/testnet/v18.0.0-alpha.4"
+	testnetV19alpha3 "github.com/CosmosContracts/juno/v20/app/upgrades/testnet/v19.0.0-alpha.3"
 	v10 "github.com/CosmosContracts/juno/v20/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v20/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v20/app/upgrades/v12"

@@ -1,4 +1,4 @@
-package v18
+package v19
 
 import (
 	"fmt"
@@ -8,9 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v19/app/keepers"
-	"github.com/CosmosContracts/juno/v19/app/upgrades"
-	clocktypes "github.com/CosmosContracts/juno/v19/x/clock/types"
+	"github.com/CosmosContracts/juno/v20/app/keepers"
+	"github.com/CosmosContracts/juno/v20/app/upgrades"
+	clocktypes "github.com/CosmosContracts/juno/v20/x/clock/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.

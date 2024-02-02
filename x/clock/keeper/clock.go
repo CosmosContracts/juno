@@ -6,6 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"github.com/CosmosContracts/juno/v20/x/clock/types"
+
+	globalerrors "github.com/CosmosContracts/juno/v20/app/helpers"
 )
 
 // Store Keys for clock contracts (both jailed and unjailed)

@@ -9,6 +9,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/CosmosContracts/juno/v20/x/feepay/types"
+
+	globalerrors "github.com/CosmosContracts/juno/v20/app/helpers"
 )
 
 var _ types.MsgServer = &Keeper{}

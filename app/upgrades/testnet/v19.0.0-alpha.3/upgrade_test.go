@@ -1,12 +1,12 @@
-package v18_test
+package v19_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v19/app/apptesting"
-	v19alpha3 "github.com/CosmosContracts/juno/v19/app/upgrades/testnet/v19.0.0-alpha.3"
+	"github.com/CosmosContracts/juno/v20/app/apptesting"
+	v19alpha3 "github.com/CosmosContracts/juno/v20/app/upgrades/testnet/v19.0.0-alpha.3"
 )
 
 type UpgradeTestSuite struct {
