@@ -5,7 +5,7 @@ package ante
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	revtypes "github.com/CosmosContracts/juno/v19/x/feeshare/types"
+	revtypes "github.com/CosmosContracts/juno/v20/x/feeshare/types"
 )
 
 type BankKeeper interface {

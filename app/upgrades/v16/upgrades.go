@@ -30,13 +30,13 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v19/app/keepers"
-	"github.com/CosmosContracts/juno/v19/app/upgrades"
+	"github.com/CosmosContracts/juno/v20/app/keepers"
+	"github.com/CosmosContracts/juno/v20/app/upgrades"
 	// Juno modules
-	feesharetypes "github.com/CosmosContracts/juno/v19/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v19/x/globalfee/types"
-	minttypes "github.com/CosmosContracts/juno/v19/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v20/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v20/x/globalfee/types"
+	minttypes "github.com/CosmosContracts/juno/v20/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v20/x/tokenfactory/types"
 )
 
 func CreateV16UpgradeHandler(

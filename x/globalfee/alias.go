@@ -1,7 +1,7 @@
 package globalfee
 
 import (
-	"github.com/CosmosContracts/juno/v19/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v20/x/globalfee/types"
 )
 
 const (

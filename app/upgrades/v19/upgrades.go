@@ -9,9 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	decorators "github.com/CosmosContracts/juno/v19/app/decorators"
-	"github.com/CosmosContracts/juno/v19/app/keepers"
-	"github.com/CosmosContracts/juno/v19/app/upgrades"
+	decorators "github.com/CosmosContracts/juno/v20/app/decorators"
+	"github.com/CosmosContracts/juno/v20/app/keepers"
+	"github.com/CosmosContracts/juno/v20/app/upgrades"
 )
 
 func CreateV19UpgradeHandler(

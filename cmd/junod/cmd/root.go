@@ -37,8 +37,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"github.com/CosmosContracts/juno/v19/app"
-	"github.com/CosmosContracts/juno/v19/app/params"
+	"github.com/CosmosContracts/juno/v20/app"
+	"github.com/CosmosContracts/juno/v20/app/params"
 )
 
 // NewRootCmd creates a new root command for junod. It is called once in the

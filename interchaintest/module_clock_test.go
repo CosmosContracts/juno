@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	clocktypes "github.com/CosmosContracts/juno/v19/x/clock/types"
+	clocktypes "github.com/CosmosContracts/juno/v20/x/clock/types"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"

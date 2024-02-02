@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v19/x/drip/types"
+	"github.com/CosmosContracts/juno/v20/x/drip/types"
 )
 
 // GetParams returns the current x/drip module parameters.

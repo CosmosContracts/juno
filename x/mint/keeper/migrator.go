@@ -3,8 +3,8 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	v2 "github.com/CosmosContracts/juno/v19/x/mint/migrations/v2"
-	v3 "github.com/CosmosContracts/juno/v19/x/mint/migrations/v3"
+	v2 "github.com/CosmosContracts/juno/v20/x/mint/migrations/v2"
+	v3 "github.com/CosmosContracts/juno/v20/x/mint/migrations/v3"
 )
 
 // Migrator is a struct for handling in-place state migrations.

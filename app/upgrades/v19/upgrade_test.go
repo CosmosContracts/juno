@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmosContracts/juno/v19/app/apptesting"
-	decorators "github.com/CosmosContracts/juno/v19/app/decorators"
-	v19 "github.com/CosmosContracts/juno/v19/app/upgrades/v19"
+	"github.com/CosmosContracts/juno/v20/app/apptesting"
+	decorators "github.com/CosmosContracts/juno/v20/app/decorators"
+	v19 "github.com/CosmosContracts/juno/v20/app/upgrades/v19"
 )
 
 type UpgradeTestSuite struct {

@@ -6,9 +6,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	feepayhelpers "github.com/CosmosContracts/juno/v19/x/feepay/helpers"
-	feepaykeeper "github.com/CosmosContracts/juno/v19/x/feepay/keeper"
-	globalfeeante "github.com/CosmosContracts/juno/v19/x/globalfee/ante"
+	feepayhelpers "github.com/CosmosContracts/juno/v20/x/feepay/helpers"
+	feepaykeeper "github.com/CosmosContracts/juno/v20/x/feepay/keeper"
+	globalfeeante "github.com/CosmosContracts/juno/v20/x/globalfee/ante"
 )
 
 // MsgFilterDecorator defines an AnteHandler decorator that only checks and saves if a

@@ -12,9 +12,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	"github.com/CosmosContracts/juno/v19/app"
-	"github.com/CosmosContracts/juno/v19/x/drip/keeper"
-	"github.com/CosmosContracts/juno/v19/x/drip/types"
+	"github.com/CosmosContracts/juno/v20/app"
+	"github.com/CosmosContracts/juno/v20/x/drip/keeper"
+	"github.com/CosmosContracts/juno/v20/x/drip/types"
 )
 
 type IntegrationTestSuite struct {
