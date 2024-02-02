@@ -22,7 +22,7 @@ func (k Keeper) IsContractRegistered(ctx sdk.Context, contractAddr string) bool 
 func (k Keeper) GetContract(ctx sdk.Context, contractAddress string) (*types.FeePayContract, error) {
 	// Return nil, contract not registered
 	if !k.IsContractRegistered(ctx, contractAddress) {
-		return nil, types.ErrContractNotRegistered
+		return nil, globalerrors.ErrContractNotRegistered
 	}
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
@@ -92,7 +92,7 @@ func (k Keeper) GetAllContracts(ctx sdk.Context) []types.FeePayContract {
 func (k Keeper) RegisterContract(ctx sdk.Context, rfp *types.MsgRegisterFeePayContract) error {
 	// Return false because the contract was already registered
 	if k.IsContractRegistered(ctx, rfp.FeePayContract.ContractAddress) {
-		return types.ErrContractAlreadyRegistered
+		return globalerrors.ErrContractAlreadyRegistered
 	}
 
 	// Check if sender is the owner of the cw contract
@@ -102,7 +102,7 @@ func (k Keeper) RegisterContract(ctx sdk.Context, rfp *types.MsgRegisterFeePayCo
 	}
 
 	if ok := k.wasmKeeper.HasContractInfo(ctx, contractAddr); !ok {
-		return types.ErrInvalidCWContract
+		return globalerrors.ErrInvalidCWContract
 	}
 
 	// Get the contract owner
@@ -141,7 +141,7 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 
 	// Ensure CW contract is valid
 	if ok := k.wasmKeeper.HasContractInfo(ctx, contractAddr); !ok {
-		return types.ErrInvalidCWContract
+		return globalerrors.ErrInvalidCWContract
 	}
 
 	// Get the contract info
@@ -278,7 +278,7 @@ func (k Keeper) UpdateContractWalletLimit(ctx sdk.Context, fpc *types.FeePayCont
 	}
 
 	if ok := k.wasmKeeper.HasContractInfo(ctx, contractAddr); !ok {
-		return types.ErrInvalidCWContract
+		return globalerrors.ErrInvalidCWContract
 	}
 
 	// Get the contract info & ensure sender is the manager
@@ -316,9 +316,9 @@ func (k Keeper) IsContractManager(senderAddress string, contractInfo *wasmtypes.
 	isSenderCreator := contractInfo.Creator == senderAddress
 
 	if adminExists && !isSenderAdmin {
-		return false, types.ErrContractNotAdmin
+		return false, globalerrors.ErrContractNotAdmin
 	} else if !adminExists && !isSenderCreator {
-		return false, types.ErrContractNotCreator
+		return false, globalerrors.ErrContractNotCreator
 	}
 
 	return true, nil

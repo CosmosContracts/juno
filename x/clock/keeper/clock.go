@@ -42,7 +42,7 @@ func (k Keeper) IsClockContract(ctx sdk.Context, contractAddress string) bool {
 func (k Keeper) GetClockContract(ctx sdk.Context, contractAddress string) (*types.ClockContract, error) {
 	// Check if the contract is registered
 	if !k.IsClockContract(ctx, contractAddress) {
-		return nil, types.ErrContractNotRegistered
+		return nil, globalerrors.ErrContractNotRegistered
 	}
 
 	// Get the KV store
@@ -134,7 +134,7 @@ func (k Keeper) RemoveContract(ctx sdk.Context, contractAddress string) {
 func (k Keeper) RegisterContract(ctx sdk.Context, senderAddress string, contractAddress string) error {
 	// Check if the contract is already registered
 	if k.IsClockContract(ctx, contractAddress) {
-		return types.ErrContractAlreadyRegistered
+		return globalerrors.ErrContractAlreadyRegistered
 	}
 
 	// Ensure the sender is the contract admin or creator
@@ -153,7 +153,7 @@ func (k Keeper) RegisterContract(ctx sdk.Context, senderAddress string, contract
 func (k Keeper) UnregisterContract(ctx sdk.Context, senderAddress string, contractAddress string) error {
 	// Check if the contract is registered in either store
 	if !k.IsClockContract(ctx, contractAddress) {
-		return types.ErrContractNotRegistered
+		return globalerrors.ErrContractNotRegistered
 	}
 
 	// Ensure the sender is the contract admin or creator
@@ -208,7 +208,7 @@ func (k Keeper) IsContractManager(ctx sdk.Context, senderAddress string, contrac
 
 	// Ensure the contract is a cosm wasm contract
 	if ok := k.wasmKeeper.HasContractInfo(ctx, contractAddr); !ok {
-		return false, types.ErrInvalidCWContract
+		return false, globalerrors.ErrInvalidCWContract
 	}
 
 	// Get the contract info
@@ -221,9 +221,9 @@ func (k Keeper) IsContractManager(ctx sdk.Context, senderAddress string, contrac
 
 	// Check if the sender is the admin or creator
 	if adminExists && !isSenderAdmin {
-		return false, types.ErrContractNotAdmin
+		return false, globalerrors.ErrContractNotAdmin
 	} else if !adminExists && !isSenderCreator {
-		return false, types.ErrContractNotCreator
+		return false, globalerrors.ErrContractNotCreator
 	}
 
 	return true, nil

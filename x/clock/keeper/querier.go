@@ -38,7 +38,7 @@ func (q Querier) ClockContract(stdCtx context.Context, req *types.QueryClockCont
 
 	// Ensure the contract address is valid
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, types.ErrInvalidAddress
+		return nil, globalerrors.ErrInvalidAddress
 	}
 
 	contract, err := q.keeper.GetClockContract(ctx, req.ContractAddress)

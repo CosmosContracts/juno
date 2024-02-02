@@ -57,6 +57,25 @@ func TestJunoCwHooks(t *testing.T) {
 	require.Equal(t, user.FormattedAddress(), res.Data.DelegatorAddress)
 	require.Equal(t, fmt.Sprintf("%d.000000000000000000", stakeAmt), res.Data.Shares)
 
+	// HIGH GAS TEST
+	// Setup a high gas contract
+	_, contractAddr = helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/juno_staking_hooks_high_gas_example.wasm", `{}`)
+
+	// Register staking contract
+	helpers.RegisterCwHooksStaking(t, ctx, juno, user, contractAddr)
+	sc = helpers.GetCwHooksStakingContracts(t, ctx, juno)
+	require.Equal(t, 2, len(sc))
+
+	// Perform a Staking Action
+	stakeAmt = 1_000_000
+	helpers.StakeTokens(t, ctx, juno, user, valoper, fmt.Sprintf("%d%s", stakeAmt, juno.Config().Denom))
+
+	// Query the smart contract, should panic and not update value
+	res = helpers.GetCwStakingHookLastDelegationChange(t, ctx, juno, contractAddr, user.FormattedAddress())
+	require.Equal(t, "", res.Data.ValidatorAddress)
+	require.Equal(t, "", res.Data.DelegatorAddress)
+	require.Equal(t, "", res.Data.Shares)
+
 	t.Cleanup(func() {
 		_ = ic.Close()
 	})

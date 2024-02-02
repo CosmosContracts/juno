@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"math"
 	"path/filepath"
+	"strings"
 
+	wasmapp "github.com/CosmWasm/wasmd/app"
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -108,7 +110,7 @@ import (
 )
 
 var (
-	wasmCapabilities = "iterator,staking,stargate,token_factory,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3,cosmwasm_1_4,cosmwasm_1_5"
+	wasmCapabilities = strings.Join(append(wasmapp.AllCapabilities(), "token_factory"), ",")
 
 	tokenFactoryCapabilities = []string{
 		tokenfactorytypes.EnableBurnFrom,
@@ -484,6 +486,7 @@ func NewAppKeepers(
 	)
 
 	wasmDir := filepath.Join(homePath, "data")
+	lcWasmDir := filepath.Join(homePath, "data", "light-client-wasm")
 
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
@@ -539,13 +542,15 @@ func NewAppKeepers(
 
 	wasmOpts = append(wasmOpts, burnMessageHandler)
 
-	// create a shared VM instance (x/wasm <-> wasm light client)
-	wasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	mainWasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create juno wasm vm: %s", err))
 	}
 
-	wasmOpts = append(wasmOpts, wasmkeeper.WithWasmEngine(wasmer))
+	lcWasmer, err := wasmvm.NewVM(lcWasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create juno wasm vm for 08-wasm: %s", err))
+	}
 
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
@@ -565,7 +570,7 @@ func NewAppKeepers(
 		wasmConfig,
 		wasmCapabilities,
 		govModAddress,
-		wasmOpts...,
+		append(wasmOpts, wasmkeeper.WithWasmEngine(mainWasmer))...,
 	)
 
 	// 08-wasm light client
@@ -583,16 +588,14 @@ func NewAppKeepers(
 		Stargate: wasmlctypes.AcceptListStargateQuerier(accepted),
 	}
 
-	wasmQuerierOption := wasmlckeeper.WithQueryPlugins(&wasmLightClientQuerier)
-
 	appKeepers.WasmClientKeeper = wasmlckeeper.NewKeeperWithVM(
 		appCodec,
 		appKeepers.keys[wasmlctypes.StoreKey],
 		appKeepers.IBCKeeper.ClientKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		wasmer,
+		lcWasmer,
 		bApp.GRPCQueryRouter(),
-		wasmQuerierOption,
+		wasmlckeeper.WithQueryPlugins(&wasmLightClientQuerier),
 	)
 
 	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(

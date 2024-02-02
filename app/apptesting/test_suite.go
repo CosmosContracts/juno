@@ -31,6 +31,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakinghelper "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
@@ -45,6 +46,8 @@ type KeeperTestHelper struct {
 	Ctx         sdk.Context
 	QueryHelper *baseapp.QueryServiceTestHelper
 	TestAccs    []sdk.AccAddress
+
+	StakingHelper *stakinghelper.Helper
 }
 
 var (
@@ -56,12 +59,15 @@ var (
 func (s *KeeperTestHelper) Setup() {
 	t := s.T()
 	s.App = app.Setup(t)
-	s.Ctx = s.App.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
+	s.Ctx = s.App.BaseApp.NewContext(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: time.Now().UTC()})
 	s.QueryHelper = &baseapp.QueryServiceTestHelper{
 		GRPCQueryRouter: s.App.GRPCQueryRouter(),
 		Ctx:             s.Ctx,
 	}
 	s.TestAccs = CreateRandomAccounts(3)
+
+	s.StakingHelper = stakinghelper.NewHelper(s.Suite.T(), s.Ctx, s.App.AppKeepers.StakingKeeper)
+	s.StakingHelper.Denom = "ujuno"
 }
 
 func (s *KeeperTestHelper) SetupTestForInitGenesis() {
@@ -118,21 +124,18 @@ func (s *KeeperTestHelper) MintCoins(coins sdk.Coins) {
 
 // SetupValidator sets up a validator and returns the ValAddress.
 func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sdk.ValAddress {
-	valPub := secp256k1.GenPrivKey().PubKey()
+	valPriv := secp256k1.GenPrivKey()
+	valPub := valPriv.PubKey()
 	valAddr := sdk.ValAddress(valPub.Address())
 	bondDenom := s.App.AppKeepers.StakingKeeper.GetParams(s.Ctx).BondDenom
 	selfBond := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100), Denom: bondDenom})
 
 	s.FundAcc(sdk.AccAddress(valAddr), selfBond)
 
-	// stakingHandler := staking.NewHandler(s.App.AppKeepers.StakingKeeper)
-	stakingCoin := sdk.NewCoin(appparams.BondDenom, selfBond[0].Amount)
-	ZeroCommission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
-	_, err := stakingtypes.NewMsgCreateValidator(valAddr, valPub, stakingCoin, stakingtypes.Description{}, ZeroCommission, sdk.OneInt())
+	msg := s.StakingHelper.CreateValidatorMsg(valAddr, valPub, selfBond[0].Amount)
+	res, err := s.StakingHelper.CreateValidatorWithMsg(s.Ctx, msg)
 	s.Require().NoError(err)
-	// res, err := stakingHandler(s.Ctx, msg)
-	// s.Require().NoError(err)
-	// s.Require().NotNil(res)
+	s.Require().NotNil(res)
 
 	val, found := s.App.AppKeepers.StakingKeeper.GetValidator(s.Ctx, valAddr)
 	s.Require().True(found)
