@@ -15,12 +15,12 @@ import (
 
 // ConformanceCosmWasm validates that store, instantiate, execute, and query work on a CosmWasm contract.
 func ConformanceCosmWasm(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) {
-	std(t, ctx, chain, user)
+	StdExecute(t, ctx, chain, user)
 	subMsg(t, ctx, chain, user)
 }
 
-func std(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) {
-	_, contractAddr := helpers.SetupContract(t, ctx, chain, user.KeyName(), "contracts/cw_template.wasm", `{"count":0}`)
+func StdExecute(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) (contractAddr string) {
+	_, contractAddr = helpers.SetupContract(t, ctx, chain, user.KeyName(), "contracts/cw_template.wasm", `{"count":0}`)
 	helpers.ExecuteMsgWithFee(t, ctx, chain, user, contractAddr, "", "10000"+chain.Config().Denom, `{"increment":{}}`)
 
 	var res helpers.GetCountResponse
@@ -28,6 +28,8 @@ func std(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.
 	require.NoError(t, err)
 
 	require.Equal(t, int64(1), res.Data.Count)
+
+	return contractAddr
 }
 
 func subMsg(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) {
