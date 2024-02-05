@@ -106,8 +106,18 @@ func prop16Core1Multisig(ctx sdk.Context, k *keepers.AppKeepers, Core1Addr, Coun
 	fmt.Printf("Core1Addr Instant Redelegations: %s\n", redelegated)
 	fmt.Printf("Core1Addr Instant Unbonding: %s\n", unbonded)
 
-	// now send these to the council
-	err = k.BankKeeper.SendCoins(ctx, Core1Addr, CouncilAddr, sdk.NewCoins(k.BankKeeper.GetBalance(ctx, Core1Addr, "ujuno")))
+	// now send these to the council (it's off due to vesting)
+
+	// Core1Addr Instant Redelegations: 0
+	// Core1Addr Instant Unbonding: 6803264663353
+	// panic: spendable balance 5458120660915ujuno is smaller than 9952159523359ujuno: insufficient funds
+	// goroutine 54 [running]:
+	// github.com/CosmosContracts/juno/v19/app/upgrades/v19.prop16Core1Multisig({{0x354dda0, 0x4c7bdc0}, {0x3564250, 0xc009ca9fc0}, {{0xb, 0x0}, {0xc049c46188, 0x6}, 0xd0b917, {0x380dacba, ...}, ...}, ...}, ...)
+	// 		github.com/CosmosContracts/juno/v19/app/upgrades/v19/upgrades.go:112 +0x3bf
+	// err = k.BankKeeper.SendCoins(ctx, Core1Addr, CouncilAddr, sdk.NewCoins(k.BankKeeper.GetBalance(ctx, Core1Addr, "ujuno")))
+
+	// due to some mis-calulation on the vesting front, this number was off. Hardcoding the expected value (true balance - unbonding = this correct amount)
+	err = k.BankKeeper.SendCoins(ctx, Core1Addr, CouncilAddr, sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(545812066091))))
 	if err != nil {
 		panic(err)
 	}
