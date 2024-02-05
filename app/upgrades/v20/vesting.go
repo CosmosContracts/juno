@@ -12,7 +12,7 @@ import (
 	"github.com/CosmosContracts/juno/v19/app/keepers"
 )
 
-// Stops a vesting account and returns all tokens back to the Core-1 SubDAO.
+// Stops a vesting account and returns all tokens back to the council
 func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, owner string, accAddr sdk.AccAddress, councilAccAddr sdk.AccAddress) error {
 	now := ctx.BlockHeader().Time
 
@@ -26,9 +26,15 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 
 	fmt.Printf("\n\n== Vesting Account Address: %s (%s) ==\n", vacc.GetAddress().String(), owner)
 
-	// Gets vesting coins (These get returned back to Core-1 SubDAO / a new vesting contract made from)
+	// Gets vesting coins (These get returned back to council / a new vesting contract made from)
 	vestingCoins := vacc.GetVestingCoins(now)
 	fmt.Printf("Vesting Coins: %v\n", vestingCoins)
+
+	// Display locked & spendable funds
+	lockedCoins := keepers.BankKeeper.LockedCoins(ctx, accAddr)
+	fmt.Printf("Locked Coins: %v\n", lockedCoins)
+	spendableCoins := keepers.BankKeeper.SpendableCoins(ctx, accAddr)
+	fmt.Printf("Spendable Coins: %v\n", spendableCoins)
 
 	// Instantly complete any re-deleations.
 	amt, err := completeAllRedelegations(ctx, now, keepers, accAddr)
@@ -47,7 +53,10 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	// Pre transfer balance
 	councilBeforeBal := keepers.BankKeeper.GetBalance(ctx, councilAccAddr, bondDenom)
 
-	// Moves unvested tokens to the Core-1 SubDAO.
+	// Set the vesting account to a base account
+	keepers.AccountKeeper.SetAccount(ctx, vacc.BaseAccount)
+
+	// Moves vesting tokens to the council.
 	if err := transferUnvestedTokensToCouncil(ctx, keepers, accAddr, councilAccAddr, vestingCoins); err != nil {
 		return err
 	}
@@ -56,9 +65,6 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	councilAfterBal := keepers.BankKeeper.GetBalance(ctx, councilAccAddr, bondDenom)
 	fmt.Printf("Council Balance Before: %v\n", councilBeforeBal)
 	fmt.Printf("Council Balance After: %v\n", councilAfterBal)
-
-	// Set the vesting account to a base account
-	keepers.AccountKeeper.SetAccount(ctx, vacc.BaseAccount)
 
 	// Ensure the post validation checks are met.
 	err = postValidation(ctx, keepers, bondDenom, owner, accAddr, councilAccAddr, vestingCoins, councilBeforeBal)

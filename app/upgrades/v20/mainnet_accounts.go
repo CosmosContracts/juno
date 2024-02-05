@@ -35,14 +35,16 @@ func CreateMainnetVestingAccount(ctx sdk.Context, k keepers.AppKeepers) ([]*vest
 			panic(err)
 		}
 
+		acc = *vestingtypes.NewPeriodicVestingAccount(acc.BaseAccount, acc.OriginalVesting, acc.StartTime, acc.VestingPeriods)
+
+		// Set account with keeper
+		k.AccountKeeper.SetAccount(ctx, &acc)
+
 		// Fund the account from bank keeper
 		funds := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(100_000_000_000_000)))
 		if err := banktestutil.FundAccount(k.BankKeeper, ctx, acc.GetAddress(), funds); err != nil {
 			panic(err)
 		}
-
-		// Set account with keeper
-		k.AccountKeeper.SetAccount(ctx, &acc)
 
 		// Append vesting account
 		vestingAccounts = append(vestingAccounts, &acc)
