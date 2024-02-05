@@ -542,16 +542,6 @@ func NewAppKeepers(
 
 	wasmOpts = append(wasmOpts, burnMessageHandler)
 
-	mainWasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
-	if err != nil {
-		panic(fmt.Sprintf("failed to create juno wasm vm: %s", err))
-	}
-
-	lcWasmer, err := wasmvm.NewVM(lcWasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
-	if err != nil {
-		panic(fmt.Sprintf("failed to create juno wasm vm for 08-wasm: %s", err))
-	}
-
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[wasmtypes.StoreKey],
@@ -570,7 +560,7 @@ func NewAppKeepers(
 		wasmConfig,
 		wasmCapabilities,
 		govModAddress,
-		append(wasmOpts, wasmkeeper.WithWasmEngine(mainWasmer))...,
+		wasmOpts...,
 	)
 
 	// 08-wasm light client
@@ -586,6 +576,11 @@ func NewAppKeepers(
 		// The `AcceptListStargateQuerier` function will return a query plugin that will only allow queries for the paths in the `myAcceptList`.
 		// The query responses are encoded in protobuf unlike the implementation in `x/wasm`.
 		Stargate: wasmlctypes.AcceptListStargateQuerier(accepted),
+	}
+
+	lcWasmer, err := wasmvm.NewVM(lcWasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create juno wasm vm for 08-wasm: %s", err))
 	}
 
 	appKeepers.WasmClientKeeper = wasmlckeeper.NewKeeperWithVM(

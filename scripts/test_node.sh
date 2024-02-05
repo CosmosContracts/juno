@@ -41,7 +41,6 @@ upload_contract() {
   export JUNOD_NODE=http://localhost:26657
   FLAGS="--from $KEY --gas 10000000 --gas-prices 0.0025ujuno --chain-id $CHAIN_ID --keyring-backend $KEYRING --yes --home=$HOME/.juno1"
   $BINARY tx wasm store ./interchaintest/contracts/cw_template.wasm $FLAGS
-
   junod tx wasm instantiate 1 '{"count":0}' --label "template" --from $KEY --gas 1000000 --gas-prices 0.0025ujuno --chain-id $CHAIN_ID --keyring-backend $KEYRING --no-admin --yes --home="$HOME/.juno1"
 
   # execute juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8
