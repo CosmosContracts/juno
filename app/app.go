@@ -449,7 +449,6 @@ func New(
 			tmos.Exit(fmt.Sprintf("wasmlckeeper failed initialize pinned codes %s", err))
 		}
 
-		// we already load in with the wasmlc (all)
 		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
 			tmos.Exit(fmt.Sprintf("app.AppKeepers.WasmKeeper failed initialize pinned codes %s", err))
 		}
