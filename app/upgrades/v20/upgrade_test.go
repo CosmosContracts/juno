@@ -6,9 +6,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/CosmosContracts/juno/v19/app/apptesting"
 	v20 "github.com/CosmosContracts/juno/v19/app/upgrades/v20"
@@ -38,8 +37,12 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	s.App.AppKeepers.AccountKeeper.SetAccount(s.Ctx, authtypes.NewBaseAccount(acc, nil, 0, 0))
 
 	amt := int64(9406347457268)
-	s.App.AppKeepers.BankKeeper.MintCoins(s.Ctx, "mint", sdk.NewCoins(sdk.NewInt64Coin("ujuno", amt)))
-	s.App.AppKeepers.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, "mint", acc, sdk.NewCoins(sdk.NewInt64Coin("ujuno", amt)))
+	if err := s.App.AppKeepers.BankKeeper.MintCoins(s.Ctx, "mint", sdk.NewCoins(sdk.NewInt64Coin("ujuno", amt))); err != nil {
+		panic(fmt.Sprintf("failed to mint coins: %s", err))
+	}
+	if err := s.App.AppKeepers.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, "mint", acc, sdk.NewCoins(sdk.NewInt64Coin("ujuno", amt))); err != nil {
+		panic(fmt.Sprintf("failed to send coins: %s", err))
+	}
 
 	accBal := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, acc)
 	fmt.Printf("Core1 bal: %s\n", accBal)
@@ -56,8 +59,8 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Require().True(charterBal.AmountOf("ujuno").GTE(accBal.AmountOf("ujuno")))
 }
 
-func preUpgradeChecks(s *UpgradeTestSuite) {
+func preUpgradeChecks(_ *UpgradeTestSuite) {
 }
 
-func postUpgradeChecks(s *UpgradeTestSuite) {
+func postUpgradeChecks(_ *UpgradeTestSuite) {
 }
