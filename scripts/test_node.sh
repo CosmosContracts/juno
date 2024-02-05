@@ -36,6 +36,18 @@ command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https
 $BINARY config keyring-backend $KEYRING
 $BINARY config chain-id $CHAIN_ID
 
+upload_contract() {
+  # need to upload a contract before upagraing to ensure it functions as expected with the new wasmvm
+  export JUNOD_NODE=http://localhost:26657
+  FLAGS="--from $KEY --gas 10000000 --gas-prices 0.0025ujuno --chain-id $CHAIN_ID --keyring-backend $KEYRING --yes --home=$HOME/.juno1"
+  $BINARY tx wasm store ./interchaintest/contracts/cw_template.wasm $FLAGS
+
+  junod tx wasm instantiate 1 '{"count":0}' --label "template" --from $KEY --gas 1000000 --gas-prices 0.0025ujuno --chain-id $CHAIN_ID --keyring-backend $KEYRING --no-admin --yes --home="$HOME/.juno1"
+
+  # execute juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8
+  junod tx wasm execute juno14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9skjuwg8 '{"increment":{}}' $FLAGS
+}
+
 from_scratch () {
   # Fresh install on current branch
   make install
