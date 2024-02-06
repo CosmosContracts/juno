@@ -7,6 +7,7 @@ import (
 	"time"
 
 	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
+	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/docker/docker/client"
 	"github.com/strangelove-ventures/interchaintest/v7"
@@ -30,7 +31,7 @@ var (
 	// baseChain is the current version of the chain that will be upgraded from
 	baseChain = ibc.DockerImage{
 		Repository: JunoMainRepo,
-		Version:    "v18.0.0",
+		Version:    "v18.1.0",
 		UidGid:     "1025:1025",
 	}
 )
@@ -82,6 +83,9 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, chain)
 	chainUser := users[0]
 
+	// execute a contract before the upgrade
+	beforeContract := junoconformance.StdExecute(t, ctx, chain, chainUser)
+
 	// upgrade
 	height, err := chain.Height(ctx)
 	require.NoError(t, err, "error fetching height before submit upgrade proposal")
@@ -92,6 +96,9 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	ValidatorVoting(t, ctx, chain, proposalID, height, haltHeight)
 
 	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, upgradeBranchVersion)
+
+	// confirm we can execute against the beforeContract (ref: v20 upgrade patch)
+	helpers.ExecuteMsgWithFee(t, ctx, chain, chainUser, beforeContract, "", "10000"+chain.Config().Denom, `{"increment":{}}`)
 
 	// Post Upgrade: Conformance Validation
 	junoconformance.ConformanceCosmWasm(t, ctx, chain, chainUser)
