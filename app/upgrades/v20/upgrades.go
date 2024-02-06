@@ -11,7 +11,7 @@ import (
 	"github.com/CosmosContracts/juno/v19/app/upgrades"
 )
 
-func CreateV19UpgradeHandler(
+func CreateV20UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	k *keepers.AppKeepers,

@@ -16,6 +16,6 @@ const UpgradeName = "v20"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: CreateV19UpgradeHandler,
+	CreateUpgradeHandler: CreateV20UpgradeHandler,
 	StoreUpgrades:        store.StoreUpgrades{},
 }
