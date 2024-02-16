@@ -9,9 +9,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
-	"github.com/CosmosContracts/juno/v19/app"
-	"github.com/CosmosContracts/juno/v19/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v19/x/mint/types"
+	"github.com/CosmosContracts/juno/v21/app"
+	"github.com/CosmosContracts/juno/v21/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v21/x/mint/types"
 )
 
 func TestDecodeStore(t *testing.T) {

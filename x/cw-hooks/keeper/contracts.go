@@ -4,7 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	helpers "github.com/CosmosContracts/juno/v19/app/helpers"
+	helpers "github.com/CosmosContracts/juno/v21/app/helpers"
 )
 
 func (k Keeper) SetContract(ctx sdk.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {

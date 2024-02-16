@@ -5,8 +5,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/CosmosContracts/juno/v19/testutil/nullify"
-	"github.com/CosmosContracts/juno/v19/x/feepay/types"
+	"github.com/CosmosContracts/juno/v21/testutil/nullify"
+	"github.com/CosmosContracts/juno/v21/x/feepay/types"
 )
 
 func (s *IntegrationTestSuite) TestQueryContract() {

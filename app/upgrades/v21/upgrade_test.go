@@ -1,4 +1,4 @@
-package v18_test
+package v21_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/CosmosContracts/juno/v21/app/apptesting"
-	v18 "github.com/CosmosContracts/juno/v21/app/upgrades/v18"
+	v21 "github.com/CosmosContracts/juno/v21/app/upgrades/v21"
 )
 
 type UpgradeTestSuite struct {
@@ -24,11 +24,10 @@ func TestKeeperTestSuite(t *testing.T) {
 // Ensures the test does not error out.
 func (s *UpgradeTestSuite) TestUpgrade() {
 	s.Setup()
-
 	preUpgradeChecks(s)
 
 	upgradeHeight := int64(5)
-	s.ConfirmUpgradeSucceeded(v18.UpgradeName, upgradeHeight)
+	s.ConfirmUpgradeSucceeded(v21.UpgradeName, upgradeHeight)
 
 	postUpgradeChecks(s)
 }

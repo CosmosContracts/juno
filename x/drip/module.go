@@ -19,9 +19,9 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	"github.com/CosmosContracts/juno/v19/x/drip/client/cli"
-	"github.com/CosmosContracts/juno/v19/x/drip/keeper"
-	"github.com/CosmosContracts/juno/v19/x/drip/types"
+	"github.com/CosmosContracts/juno/v21/x/drip/client/cli"
+	"github.com/CosmosContracts/juno/v21/x/drip/keeper"
+	"github.com/CosmosContracts/juno/v21/x/drip/types"
 )
 
 // type check to ensure the interface is properly implemented

@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v19/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v21/x/cw-hooks/types"
 )
 
 // NewTxCmd returns a root CLI command handler for modules

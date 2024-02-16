@@ -1,35 +1,28 @@
-package v18
+package v21
 
 import (
 	"fmt"
 
-	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/CosmosContracts/juno/v21/app/keepers"
 	"github.com/CosmosContracts/juno/v21/app/upgrades"
-	clocktypes "github.com/CosmosContracts/juno/v21/x/clock/types"
 )
 
-// UpgradeName defines the on-chain upgrade name for the upgrade.
-const UpgradeName = "v1900alpha3"
-
-var Upgrade = upgrades.Upgrade{
-	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: v1900Alpha3UpgradeHandler,
-	StoreUpgrades:        store.StoreUpgrades{},
-}
-
-func v1900Alpha3UpgradeHandler(
+func CreateV21UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
-	k *keepers.AppKeepers,
+	_ *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
+		nativeDenom := upgrades.GetChainsDenomToken(ctx.ChainID())
+		logger.Info(fmt.Sprintf("With native denom %s", nativeDenom))
+
+		// Run migrations
 		logger.Info(fmt.Sprintf("pre migrate version map: %v", vm))
 		versionMap, err := mm.RunMigrations(ctx, cfg, vm)
 		if err != nil {
@@ -37,12 +30,6 @@ func v1900Alpha3UpgradeHandler(
 		}
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
-		if err := k.ClockKeeper.SetParams(ctx, clocktypes.Params{
-			ContractGasLimit: 250_000,
-		}); err != nil {
-			return nil, err
-		}
-
-		return versionMap, nil
+		return versionMap, err
 	}
 }

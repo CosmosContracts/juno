@@ -10,9 +10,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v19/app"
-	clock "github.com/CosmosContracts/juno/v19/x/clock"
-	"github.com/CosmosContracts/juno/v19/x/clock/types"
+	"github.com/CosmosContracts/juno/v21/app"
+	clock "github.com/CosmosContracts/juno/v21/x/clock"
+	"github.com/CosmosContracts/juno/v21/x/clock/types"
 )
 
 type GenesisTestSuite struct {
