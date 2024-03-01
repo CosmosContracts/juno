@@ -42,7 +42,7 @@ func TestQueryMinimumGasPrices(t *testing.T) {
 			},
 		},
 		"no param set": {
-			setupStore: func(_ sdk.Context, k globalfeekeeper.Keeper) {
+			setupStore: func(_ sdk.Context, _ globalfeekeeper.Keeper) {
 			},
 		},
 	}

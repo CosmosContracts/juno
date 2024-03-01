@@ -31,7 +31,7 @@ func ResetCmd() *cobra.Command {
 var ResetWasmCmd = &cobra.Command{
 	Use:   "wasm",
 	Short: "Reset WASM files",
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
+	RunE: func(cmd *cobra.Command, _ []string) (err error) {
 		clientCtx := client.GetClientContextFromCmd(cmd)
 		serverCtx := server.GetServerContextFromCmd(cmd)
 		config := serverCtx.Config
@@ -46,7 +46,7 @@ var ResetWasmCmd = &cobra.Command{
 var ResetAppCmd = &cobra.Command{
 	Use:   "app",
 	Short: "Reset App files",
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
+	RunE: func(cmd *cobra.Command, _ []string) (err error) {
 		clientCtx := client.GetClientContextFromCmd(cmd)
 		serverCtx := server.GetServerContextFromCmd(cmd)
 		config := serverCtx.Config

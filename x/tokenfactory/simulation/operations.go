@@ -314,7 +314,7 @@ func SimulateMsgMint(
 		app *baseapp.BaseApp,
 		ctx sdk.Context,
 		accs []simtypes.Account,
-		chainID string,
+		_ string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		// Get create denom account
 		createdDenomAccount, _ := simtypes.RandomAcc(r, accs)
@@ -356,7 +356,7 @@ func SimulateMsgCreateDenom(tfKeeper TokenfactoryKeeper, ak types.AccountKeeper,
 		app *baseapp.BaseApp,
 		ctx sdk.Context,
 		accs []simtypes.Account,
-		chainID string,
+		_ string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		// Get sims account
 		simAccount, _ := simtypes.RandomAcc(r, accs)
