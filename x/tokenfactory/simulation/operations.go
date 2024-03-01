@@ -156,7 +156,7 @@ func SimulateMsgSetDenomMetadata(
 		app *baseapp.BaseApp,
 		ctx sdk.Context,
 		accs []simtypes.Account,
-		chainID string,
+		_ string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		// Get create denom account
 		createdDenomAccount, _ := simtypes.RandomAcc(r, accs)
@@ -210,7 +210,7 @@ func SimulateMsgChangeAdmin(
 		app *baseapp.BaseApp,
 		ctx sdk.Context,
 		accs []simtypes.Account,
-		chainID string,
+		_ string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		// Get create denom account
 		createdDenomAccount, _ := simtypes.RandomAcc(r, accs)
@@ -260,7 +260,7 @@ func SimulateMsgBurn(
 		app *baseapp.BaseApp,
 		ctx sdk.Context,
 		accs []simtypes.Account,
-		chainID string,
+		_ string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		// Get create denom account
 		createdDenomAccount, _ := simtypes.RandomAcc(r, accs)

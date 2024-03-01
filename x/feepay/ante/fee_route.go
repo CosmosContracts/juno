@@ -31,7 +31,7 @@ func NewFeeRouteDecorator(feePayKeeper feepaykeeper.Keeper, feePayDecorator *Ded
 // This empty ante is used to call AnteHandles that are not attached
 // to the main AnteHandler.
 var (
-	EmptyAnte = func(ctx sdk.Context, tx sdk.Tx, simulate bool) (sdk.Context, error) {
+	EmptyAnte = func(ctx sdk.Context, _ sdk.Tx, simulate bool) (sdk.Context, error) {
 		return ctx, nil
 	}
 )
