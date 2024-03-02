@@ -31,7 +31,7 @@ var (
 	// baseChain is the current version of the chain that will be upgraded from
 	baseChain = ibc.DockerImage{
 		Repository: JunoMainRepo,
-		Version:    "v19.0.0",
+		Version:    "v20.0.0",
 		UidGid:     "1025:1025",
 	}
 )
