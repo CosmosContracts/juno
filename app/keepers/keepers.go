@@ -3,6 +3,7 @@ package keepers
 import (
 	"fmt"
 	"math"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -485,8 +486,7 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	wasmDir := filepath.Join(homePath, "data")
-	lcWasmDir := filepath.Join(homePath, "data", "light-client-wasm")
+	dataDir := filepath.Join(homePath, "data")
 
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
@@ -542,12 +542,12 @@ func NewAppKeepers(
 
 	wasmOpts = append(wasmOpts, burnMessageHandler)
 
-	mainWasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	mainWasmer, err := wasmvm.NewVM(path.Join(dataDir, "wasm"), wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create juno wasm vm: %s", err))
 	}
 
-	lcWasmer, err := wasmvm.NewVM(lcWasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	lcWasmer, err := wasmvm.NewVM(filepath.Join(dataDir, "light-client-wasm"), wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create juno wasm vm for 08-wasm: %s", err))
 	}
@@ -566,7 +566,7 @@ func NewAppKeepers(
 		appKeepers.TransferKeeper,
 		bApp.MsgServiceRouter(),
 		bApp.GRPCQueryRouter(),
-		wasmDir,
+		dataDir,
 		wasmConfig,
 		wasmCapabilities,
 		govModAddress,

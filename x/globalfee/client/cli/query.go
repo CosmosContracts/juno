@@ -30,7 +30,7 @@ func GetCmdShowMinimumGasPrices() *cobra.Command {
 		Long:    "Show all minimum gas prices",
 		Aliases: []string{"min"},
 		Args:    cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
