@@ -37,7 +37,7 @@ func GetParams() *cobra.Command {
 		Use:   "params [flags]",
 		Short: "Get the params for the x/tokenfactory module",
 		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
