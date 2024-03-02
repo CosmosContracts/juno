@@ -449,10 +449,9 @@ func New(
 			tmos.Exit(fmt.Sprintf("wasmlckeeper failed initialize pinned codes %s", err))
 		}
 
-		// we already load in with the wasmlc (all)
-		// if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
-		// 	tmos.Exit(fmt.Sprintf("app.AppKeepers.WasmKeeper failed initialize pinned codes %s", err))
-		// }
+		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+			tmos.Exit(fmt.Sprintf("app.AppKeepers.WasmKeeper failed initialize pinned codes %s", err))
+		}
 
 		// Initialize and seal the capability keeper so all persistent capabilities
 		// are loaded in-memory and prevent any further modules from creating scoped
