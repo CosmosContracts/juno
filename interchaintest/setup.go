@@ -18,11 +18,11 @@ import (
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
 
-	clocktypes "github.com/CosmosContracts/juno/v19/x/clock/types"
-	feepaytypes "github.com/CosmosContracts/juno/v19/x/feepay/types"
-	feesharetypes "github.com/CosmosContracts/juno/v19/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v19/x/globalfee/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v19/x/tokenfactory/types"
+	clocktypes "github.com/CosmosContracts/juno/v21/x/clock/types"
+	feepaytypes "github.com/CosmosContracts/juno/v21/x/feepay/types"
+	feesharetypes "github.com/CosmosContracts/juno/v21/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v21/x/globalfee/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v21/x/tokenfactory/types"
 )
 
 var (

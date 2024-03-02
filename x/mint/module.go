@@ -17,10 +17,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosContracts/juno/v19/x/mint/client/cli"
-	"github.com/CosmosContracts/juno/v19/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v19/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v19/x/mint/types"
+	"github.com/CosmosContracts/juno/v21/x/mint/client/cli"
+	"github.com/CosmosContracts/juno/v21/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v21/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v21/x/mint/types"
 )
 
 var (

@@ -11,7 +11,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v19/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v21/x/feeshare/types"
 )
 
 var _ types.MsgServer = &Keeper{}

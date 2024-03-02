@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/CosmosContracts/juno/v19/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v21/x/feeshare/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

@@ -9,10 +9,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
-	"github.com/CosmosContracts/juno/v19/x/mint"
-	"github.com/CosmosContracts/juno/v19/x/mint/exported"
-	v3 "github.com/CosmosContracts/juno/v19/x/mint/migrations/v3"
-	"github.com/CosmosContracts/juno/v19/x/mint/types"
+	"github.com/CosmosContracts/juno/v21/x/mint"
+	"github.com/CosmosContracts/juno/v21/x/mint/exported"
+	v3 "github.com/CosmosContracts/juno/v21/x/mint/migrations/v3"
+	"github.com/CosmosContracts/juno/v21/x/mint/types"
 )
 
 type mockSubspace struct {
