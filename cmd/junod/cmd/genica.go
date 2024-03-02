@@ -25,7 +25,7 @@ func AddGenesisIcaCmd(defaultNodeHome string) *cobra.Command {
 		Short: "Add ICA config to genesis.json",
 		Long:  `Add default ICA configuration to genesis.json`,
 		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config

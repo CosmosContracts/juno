@@ -48,7 +48,7 @@ func (k Keeper) GetContracts(ctx sdk.Context, pag *query.PageRequest) (*types.Qu
 		k.cdc,
 		store,
 		pag,
-		func(key []byte, value *types.FeePayContract) (*types.FeePayContract, error) {
+		func(_ []byte, value *types.FeePayContract) (*types.FeePayContract, error) {
 			return value, nil
 		},
 		func() *types.FeePayContract {

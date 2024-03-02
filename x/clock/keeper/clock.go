@@ -97,7 +97,7 @@ func (k Keeper) GetPaginatedContracts(ctx sdk.Context, pag *query.PageRequest) (
 		k.cdc,
 		store,
 		pag,
-		func(key []byte, value *types.ClockContract) (*types.ClockContract, error) {
+		func(_ []byte, value *types.ClockContract) (*types.ClockContract, error) {
 			return value, nil
 		},
 		func() *types.ClockContract {

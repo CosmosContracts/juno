@@ -30,7 +30,7 @@ func GetCmdParams() *cobra.Command {
 		Use:   "params",
 		Short: "Show all module params",
 		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
@@ -54,7 +54,7 @@ func GetStakingContracts() *cobra.Command {
 		Use:   "staking-contracts",
 		Short: "Show all staking contracts",
 		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
@@ -78,7 +78,7 @@ func GetGovernanceContracts() *cobra.Command {
 		Use:   "governance-contracts",
 		Short: "Show all governance contracts",
 		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
