@@ -170,7 +170,7 @@ func appModules(
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper),
-		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper),
+		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
 		wasmlc.NewAppModule(app.AppKeepers.WasmClientKeeper),
 	}
 }
