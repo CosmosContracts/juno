@@ -409,7 +409,6 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-
 	// Create Transfer Keepers
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
