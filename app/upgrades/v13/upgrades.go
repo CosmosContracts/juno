@@ -79,7 +79,9 @@ func CreateV13UpgradeHandler(
 		logger.Info("set feeshare params")
 
 		// Packet Forward middleware initial params
-		keepers.PacketForwardKeeper.SetParams(ctx, packetforwardtypes.DefaultParams())
+		if err := keepers.PacketForwardKeeper.SetParams(ctx, packetforwardtypes.DefaultParams()); err != nil {
+			return nil, err
+		}
 
 		return versionMap, err
 	}

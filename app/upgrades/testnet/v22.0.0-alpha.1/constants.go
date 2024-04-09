@@ -24,7 +24,7 @@ var Upgrade = upgrades.Upgrade{
 func v2200Alpha1UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
-	k *keepers.AppKeepers,
+	_ *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
