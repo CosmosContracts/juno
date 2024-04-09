@@ -3,9 +3,9 @@ package v18
 import (
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
-	"github.com/CosmosContracts/juno/v21/app/upgrades"
-	cwhooks "github.com/CosmosContracts/juno/v21/x/cw-hooks"
-	feepaytypes "github.com/CosmosContracts/juno/v21/x/feepay/types"
+	"github.com/CosmosContracts/juno/v22/app/upgrades"
+	cwhooks "github.com/CosmosContracts/juno/v22/x/cw-hooks"
+	feepaytypes "github.com/CosmosContracts/juno/v22/x/feepay/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.

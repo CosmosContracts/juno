@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v21/x/drip/types"
+	"github.com/CosmosContracts/juno/v22/x/drip/types"
 )
 
 // NewTxCmd returns a root CLI command handler for certain modules transaction commands.

@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
 	// SDK v47 modules
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -30,13 +31,14 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v21/app/keepers"
-	"github.com/CosmosContracts/juno/v21/app/upgrades"
+	"github.com/CosmosContracts/juno/v22/app/keepers"
+	"github.com/CosmosContracts/juno/v22/app/upgrades"
+
 	// Juno modules
-	feesharetypes "github.com/CosmosContracts/juno/v21/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v21/x/globalfee/types"
-	minttypes "github.com/CosmosContracts/juno/v21/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v21/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v22/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v22/x/globalfee/types"
+	minttypes "github.com/CosmosContracts/juno/v22/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
 )
 
 func CreateV16UpgradeHandler(

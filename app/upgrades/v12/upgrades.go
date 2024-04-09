@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v21/app/keepers"
+	"github.com/CosmosContracts/juno/v22/app/keepers"
 )
 
 func CreateV12UpgradeHandler(

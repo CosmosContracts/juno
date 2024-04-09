@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/CosmosContracts/juno/v21/x/feepay/types"
+	"github.com/CosmosContracts/juno/v22/x/feepay/types"
 )
 
 func (s *IntegrationTestSuite) TestRegisterFeePayContract() {
