@@ -10,6 +10,7 @@ replace (
 	// For this nested module, you always want to replace the parent reference with the current worktree.
 	github.com/CosmosContracts/juno/v22 v22.0.0-00010101000000-000000000000 => ../
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.2 //indirect
+	github.com/cometbft/cometbft => github.com/cometbft/cometbft v0.37.2
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
 )
