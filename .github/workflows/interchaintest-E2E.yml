@@ -14,7 +14,7 @@ permissions:
   packages: write
 
 env:
-  GO_VERSION: 1.21.0
+  GO_VERSION: 1.22.0
   TAR_PATH: /tmp/juno-docker-image.tar
   IMAGE_NAME: juno-docker-image
 
