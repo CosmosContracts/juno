@@ -2,8 +2,6 @@ module github.com/CosmosContracts/juno/v22
 
 go 1.22
 
-toolchain go1.22.2
-
 // heighliner does not like.
 // toolchain go1.21.0
 
