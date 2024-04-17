@@ -2,6 +2,10 @@ package keeper
 
 import (
 	"fmt"
+	"sort"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -66,6 +70,28 @@ func (k Keeper) forceTransfer(ctx sdk.Context, amount sdk.Coin, fromAddr string,
 	_, _, err := types.DeconstructDenom(amount.Denom)
 	if err != nil {
 		return err
+	}
+
+	fromAcc, err := sdk.AccAddressFromBech32(fromAddr)
+	if err != nil {
+		return err
+	}
+
+	sortedPermAddrs := make([]string, 0, len(k.permAddrs))
+	for moduleName := range k.permAddrs {
+		sortedPermAddrs = append(sortedPermAddrs, moduleName)
+	}
+	sort.Strings(sortedPermAddrs)
+
+	for _, moduleName := range sortedPermAddrs {
+		account := k.accountKeeper.GetModuleAccount(ctx, moduleName)
+		if account == nil {
+			return status.Errorf(codes.NotFound, "account %s not found", moduleName)
+		}
+
+		if account.GetAddress().Equals(fromAcc) {
+			return status.Errorf(codes.Internal, "send from module acc not available")
+		}
 	}
 
 	fromSdkAddr, err := sdk.AccAddressFromBech32(fromAddr)
