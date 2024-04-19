@@ -111,7 +111,7 @@ var (
 		testnetV18alpha4.Upgrade,
 		testnetV19alpha3.Upgrade,
 		testnetV21alpha1.Upgrade,
-		
+
 		v10.Upgrade,
 		v11.Upgrade,
 		v12.Upgrade,
