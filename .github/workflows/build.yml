@@ -4,15 +4,15 @@ name: build
 on:
   push:
     paths:
-      - '**.go'      
-      - 'go.sum'
+      - "**.go"
+      - "go.sum"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  GO_VERSION: 1.21.0
+  GO_VERSION: 1.22.0
 
 jobs:
   build:
