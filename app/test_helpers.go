@@ -32,8 +32,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	apphelpers "github.com/CosmosContracts/juno/v21/app/helpers"
-	appparams "github.com/CosmosContracts/juno/v21/app/params"
+	apphelpers "github.com/CosmosContracts/juno/v22/app/helpers"
+	appparams "github.com/CosmosContracts/juno/v22/app/params"
 )
 
 // SimAppChainID hardcoded chainID for simulation

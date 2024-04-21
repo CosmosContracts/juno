@@ -89,25 +89,25 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	junoburn "github.com/CosmosContracts/juno/v21/x/burn"
-	clockkeeper "github.com/CosmosContracts/juno/v21/x/clock/keeper"
-	clocktypes "github.com/CosmosContracts/juno/v21/x/clock/types"
-	cwhookskeeper "github.com/CosmosContracts/juno/v21/x/cw-hooks/keeper"
-	cwhookstypes "github.com/CosmosContracts/juno/v21/x/cw-hooks/types"
-	dripkeeper "github.com/CosmosContracts/juno/v21/x/drip/keeper"
-	driptypes "github.com/CosmosContracts/juno/v21/x/drip/types"
-	feepaykeeper "github.com/CosmosContracts/juno/v21/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v21/x/feepay/types"
-	feesharekeeper "github.com/CosmosContracts/juno/v21/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v21/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v21/x/globalfee"
-	globalfeekeeper "github.com/CosmosContracts/juno/v21/x/globalfee/keeper"
-	globalfeetypes "github.com/CosmosContracts/juno/v21/x/globalfee/types"
-	mintkeeper "github.com/CosmosContracts/juno/v21/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v21/x/mint/types"
-	"github.com/CosmosContracts/juno/v21/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v21/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v21/x/tokenfactory/types"
+	junoburn "github.com/CosmosContracts/juno/v22/x/burn"
+	clockkeeper "github.com/CosmosContracts/juno/v22/x/clock/keeper"
+	clocktypes "github.com/CosmosContracts/juno/v22/x/clock/types"
+	cwhookskeeper "github.com/CosmosContracts/juno/v22/x/cw-hooks/keeper"
+	cwhookstypes "github.com/CosmosContracts/juno/v22/x/cw-hooks/types"
+	dripkeeper "github.com/CosmosContracts/juno/v22/x/drip/keeper"
+	driptypes "github.com/CosmosContracts/juno/v22/x/drip/types"
+	feepaykeeper "github.com/CosmosContracts/juno/v22/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v22/x/feepay/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v22/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v22/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v22/x/globalfee"
+	globalfeekeeper "github.com/CosmosContracts/juno/v22/x/globalfee/keeper"
+	globalfeetypes "github.com/CosmosContracts/juno/v22/x/globalfee/types"
+	mintkeeper "github.com/CosmosContracts/juno/v22/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v22/x/mint/types"
+	"github.com/CosmosContracts/juno/v22/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v22/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
 )
 
 var (
@@ -409,7 +409,6 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-
 	// Create Transfer Keepers
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
@@ -469,6 +468,7 @@ func NewAppKeepers(
 	appKeepers.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[tokenfactorytypes.StoreKey],
+		maccPerms,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,

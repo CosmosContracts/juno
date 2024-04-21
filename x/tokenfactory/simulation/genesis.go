@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	appparams "github.com/CosmosContracts/juno/v21/app/params"
-	"github.com/CosmosContracts/juno/v21/x/tokenfactory/types"
+	appparams "github.com/CosmosContracts/juno/v22/app/params"
+	"github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
 )
 
 func RandDenomCreationFeeParam(r *rand.Rand) sdk.Coins {

@@ -5,7 +5,7 @@ import (
 
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
-	"github.com/CosmosContracts/juno/v21/app/upgrades"
+	"github.com/CosmosContracts/juno/v22/app/upgrades"
 )
 
 const (

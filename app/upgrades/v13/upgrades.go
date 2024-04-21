@@ -13,11 +13,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v21/app/keepers"
-	"github.com/CosmosContracts/juno/v21/app/upgrades"
+	"github.com/CosmosContracts/juno/v22/app/keepers"
+	"github.com/CosmosContracts/juno/v22/app/upgrades"
 	// types
-	feesharetypes "github.com/CosmosContracts/juno/v21/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v21/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v22/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
 )
 
 func CreateV13UpgradeHandler(
@@ -79,7 +79,9 @@ func CreateV13UpgradeHandler(
 		logger.Info("set feeshare params")
 
 		// Packet Forward middleware initial params
-		keepers.PacketForwardKeeper.SetParams(ctx, packetforwardtypes.DefaultParams())
+		if err := keepers.PacketForwardKeeper.SetParams(ctx, packetforwardtypes.DefaultParams()); err != nil {
+			return nil, err
+		}
 
 		return versionMap, err
 	}

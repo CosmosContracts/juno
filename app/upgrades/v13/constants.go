@@ -8,9 +8,9 @@ import (
 
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
-	"github.com/CosmosContracts/juno/v21/app/upgrades"
-	feesharetypes "github.com/CosmosContracts/juno/v21/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v21/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v22/app/upgrades"
+	feesharetypes "github.com/CosmosContracts/juno/v22/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.

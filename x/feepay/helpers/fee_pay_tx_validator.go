@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	feepaykeeper "github.com/CosmosContracts/juno/v21/x/feepay/keeper"
+	feepaykeeper "github.com/CosmosContracts/juno/v22/x/feepay/keeper"
 )
 
 // Check if a transaction should be processed as a FeePay transaction.

@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/CosmosContracts/juno/v21/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

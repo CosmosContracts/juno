@@ -19,10 +19,10 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	"github.com/CosmosContracts/juno/v21/x/feeshare/client/cli"
-	"github.com/CosmosContracts/juno/v21/x/feeshare/exported"
-	"github.com/CosmosContracts/juno/v21/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v21/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v22/x/feeshare/client/cli"
+	"github.com/CosmosContracts/juno/v22/x/feeshare/exported"
+	"github.com/CosmosContracts/juno/v22/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v22/x/feeshare/types"
 )
 
 // type check to ensure the interface is properly implemented

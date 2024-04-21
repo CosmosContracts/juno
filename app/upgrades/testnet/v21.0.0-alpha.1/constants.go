@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v21/app/keepers"
-	"github.com/CosmosContracts/juno/v21/app/upgrades"
+	"github.com/CosmosContracts/juno/v22/app/keepers"
+	"github.com/CosmosContracts/juno/v22/app/upgrades"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.
@@ -24,7 +24,7 @@ var Upgrade = upgrades.Upgrade{
 func v2100Alpha1UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
-	k *keepers.AppKeepers,
+	_ *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)

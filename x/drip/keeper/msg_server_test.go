@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v21/x/drip/types"
+	"github.com/CosmosContracts/juno/v22/x/drip/types"
 )
 
 func (s *IntegrationTestSuite) TestDripDistributeTokensMsgs() {
