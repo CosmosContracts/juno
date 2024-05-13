@@ -15,6 +15,7 @@ func RandDenomCreationFeeParam(r *rand.Rand) sdk.Coins {
 	return sdk.NewCoins(sdk.NewCoin(appparams.BondDenom, sdk.NewInt(amount)))
 }
 
+// RandomizedGenState generates a random GenesisState for mint
 func RandomizedGenState(simstate *module.SimulationState) {
 	tfGenesis := types.DefaultGenesis()
 

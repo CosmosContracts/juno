@@ -225,5 +225,3 @@ replace (
 	// lock exp
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
 )
-
-// replace github.com/skip-mev/pob => ../pob
