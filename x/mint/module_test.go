@@ -15,6 +15,7 @@ import (
 	"github.com/CosmosContracts/juno/v22/x/mint/types"
 )
 
+// TestItCreatesModuleAccountOnInitBlock tests that the module account is created on InitBlock
 func TestItCreatesModuleAccountOnInitBlock(t *testing.T) {
 	var accountKeeper authkeeper.AccountKeeper
 
