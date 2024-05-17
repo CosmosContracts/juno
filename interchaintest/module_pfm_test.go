@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -167,7 +167,7 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 		_ = ic.Close()
 	})
 
-	const userFunds = int64(10_000_000_000)
+	userFunds := sdkmath.NewInt(10_000_000_000)
 	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, chainA, chainB, chainC, chainD)
 
 	abChan, err := ibc.GetTransferChannel(ctx, r, eRep, chainID_A, chainID_B)
@@ -201,7 +201,7 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 	// Get original account balances
 	userA, userB, userC, userD := users[0], users[1], users[2], users[3]
 
-	var transferAmount math.Int = math.NewInt(100_000)
+	transferAmount := sdkmath.NewInt(100_000)
 
 	// Compose the prefixed denoms and ibc denom for asserting balances
 	firstHopDenom := transfertypes.GetPrefixedDenom(baChan.PortID, baChan.ChannelID, chainA.Config().Denom)
@@ -274,9 +274,9 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 		chainDBalance, err := chainD.GetBalance(ctx, userD.FormattedAddress(), thirdHopIBCDenom)
 		require.NoError(t, err)
 
-		require.Equal(t, userFunds-transferAmount.Int64(), chainABalance.Int64())
-		require.Equal(t, int64(0), chainBBalance.Int64())
-		require.Equal(t, int64(0), chainCBalance.Int64())
+		require.Equal(t, userFunds.Sub(transferAmount), chainABalance)
+		require.Equal(t, sdkmath.NewInt(0), chainBBalance)
+		require.Equal(t, sdkmath.NewInt(0), chainCBalance)
 		require.Equal(t, transferAmount.Int64(), chainDBalance.Int64())
 
 		firstHopEscrowBalance, err := chainA.GetBalance(ctx, firstHopEscrowAccount, chainA.Config().Denom)

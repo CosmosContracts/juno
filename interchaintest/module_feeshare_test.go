@@ -3,6 +3,7 @@ package interchaintest
 import (
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 
@@ -23,7 +24,7 @@ func TestJunoFeeShare(t *testing.T) {
 	nativeDenom := juno.Config().Denom
 
 	// Users
-	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", int64(10_000_000), juno, juno)
+	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", sdkmath.NewInt(10_000_000), juno, juno)
 	granter := users[0]
 	grantee := users[1]
 	feeRcvAddr := "juno1v75wlkccpv7le3560zw32v2zjes5n0e7csr4qh"

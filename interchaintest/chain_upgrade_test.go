@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
@@ -23,8 +24,8 @@ const (
 	chainName   = "juno"
 	upgradeName = "v21"
 
-	haltHeightDelta    = uint64(9) // will propose upgrade this many blocks in the future
-	blocksAfterUpgrade = uint64(7)
+	haltHeightDelta    = int64(9) // will propose upgrade this many blocks in the future
+	blocksAfterUpgrade = int64(7)
 )
 
 var (
@@ -79,7 +80,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 		_ = ic.Close()
 	})
 
-	const userFunds = int64(10_000_000_000)
+	userFunds := sdkmath.NewInt(10_000_000_000)
 	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, chain)
 	chainUser := users[0]
 
@@ -105,7 +106,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	// TODO: ibc conformance test
 }
 
-func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight uint64, upgradeRepo, upgradeBranchVersion string) {
+func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight int64, upgradeRepo, upgradeBranchVersion string) {
 	// bring down nodes to prepare for upgrade
 	t.Log("stopping node(s)")
 	err := chain.StopAllNodes(ctx)
@@ -134,7 +135,7 @@ func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
 }
 
-func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, proposalID string, height uint64, haltHeight uint64) {
+func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, proposalID string, height int64, haltHeight int64) {
 	err := chain.VoteOnProposalAllValidators(ctx, proposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
@@ -157,7 +158,7 @@ func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 	require.Equal(t, haltHeight, height, "height is not equal to halt height")
 }
 
-func SubmitUpgradeProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, upgradeName string, haltHeight uint64) string {
+func SubmitUpgradeProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, upgradeName string, haltHeight int64) string {
 	upgradeMsg := []cosmosproto.Message{
 		&upgradetypes.MsgSoftwareUpgrade{
 			// gGov Module account
