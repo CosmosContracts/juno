@@ -51,7 +51,7 @@ func TestJunoDrip(t *testing.T) {
 	vals := helpers.GetValidators(t, ctx, juno)
 	valoper := vals.Validators[0].OperatorAddress
 
-	stakeAmt := sdkmath.NewInt(100_000_000_000)
+	stakeAmt := int64(100_000_000_000)
 	helpers.StakeTokens(t, ctx, juno, user, valoper, fmt.Sprintf("%d%s", stakeAmt, nativeDenom))
 
 	// Drip the TF Tokens to all stakers
