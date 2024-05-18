@@ -55,7 +55,7 @@ func TestJunoDrip(t *testing.T) {
 	helpers.StakeTokens(t, ctx, juno, user, valoper, fmt.Sprintf("%d%s", stakeAmt, nativeDenom))
 
 	// Drip the TF Tokens to all stakers
-	distribute := sdkmath.NewInt(1_000_000)
+	distribute := int64(1_000_000)
 	helpers.DripTokens(t, ctx, juno, user, fmt.Sprintf("%d%s", distribute, tfDenom))
 
 	// Claim staking rewards to capture the drip
