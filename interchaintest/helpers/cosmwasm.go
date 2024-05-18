@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
+	"time"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
@@ -13,6 +15,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+)
+
+var (
+	RtyAtt = retry.Attempts(10)
+	RtyDel = retry.Delay(time.Second * 2)
+	RtyErr = retry.LastErrorOnly(true)
 )
 
 func SmartQueryString(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contractAddr, queryMsg string, res interface{}) error {
@@ -25,11 +33,14 @@ func SmartQueryString(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 }
 
 func StoreContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string) (codeId string) {
-	codeId, err := chain.StoreContract(ctx, keyname, fileLoc)
-	if err != nil {
+	var codeID string
+	if err := retry.Do(func() (err error) {
+		codeID, err = chain.StoreContract(ctx, keyname, fileLoc)
+		return err
+	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr); err != nil {
 		t.Fatal(err)
 	}
-	return codeId
+	return codeID
 }
 
 func SetupContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string, message string, extraFlags ...string) (codeId, contract string) {
