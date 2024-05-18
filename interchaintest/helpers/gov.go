@@ -5,7 +5,9 @@ import (
 	"strconv"
 	"testing"
 
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 )
@@ -39,6 +41,6 @@ func ValidatorVote(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain,
 	height, err := chain.Height(ctx)
 	require.NoError(t, err, "failed to get height")
 
-	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+searchHeightDelta, proposalID, cosmos.ProposalStatusPassed)
+	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+searchHeightDelta, proposalID, govtypes.StatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 }

@@ -3,12 +3,14 @@ package interchaintest
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
 	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/docker/docker/client"
 	"github.com/strangelove-ventures/interchaintest/v7"
@@ -94,7 +96,10 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	haltHeight := height + haltHeightDelta
 	proposalID := SubmitUpgradeProposal(t, ctx, chain, chainUser, upgradeName, haltHeight)
 
-	ValidatorVoting(t, ctx, chain, proposalID, height, haltHeight)
+	proposalIDInt, err := strconv.ParseInt(proposalID, 10, 64)
+	require.NoError(t, err, "failed to parse proposal ID")
+
+	ValidatorVoting(t, ctx, chain, proposalIDInt, height, haltHeight)
 
 	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, upgradeBranchVersion)
 
@@ -135,11 +140,11 @@ func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
 }
 
-func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, proposalID string, height int64, haltHeight int64) {
+func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, proposalID int64, height int64, haltHeight int64) {
 	err := chain.VoteOnProposalAllValidators(ctx, proposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
-	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+haltHeightDelta, proposalID, cosmos.ProposalStatusPassed)
+	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+haltHeightDelta, proposalID, govtypes.StatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
 	timeoutCtx, timeoutCtxCancel := context.WithTimeout(ctx, time.Second*45)

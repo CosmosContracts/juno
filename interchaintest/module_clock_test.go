@@ -3,10 +3,12 @@ package interchaintest
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
 	clocktypes "github.com/CosmosContracts/juno/v22/x/clock/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
@@ -154,10 +156,13 @@ func SubmitParamChangeProp(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 
 	height, _ := chain.Height(ctx)
 
-	err = chain.VoteOnProposalAllValidators(ctx, txProp.ProposalID, cosmos.ProposalVoteYes)
+	proposalID, err := strconv.ParseInt(txProp.ProposalID, 10, 64)
+	require.NoError(t, err, "failed to parse proposal ID")
+
+	err = chain.VoteOnProposalAllValidators(ctx, proposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
-	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+haltHeightDelta, txProp.ProposalID, cosmos.ProposalStatusPassed)
+	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+haltHeightDelta, proposalID, govtypes.StatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
 	return txProp.ProposalID
