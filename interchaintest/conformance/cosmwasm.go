@@ -26,7 +26,6 @@ func StdExecute(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, us
 	var res helpers.GetCountResponse
 	err := helpers.SmartQueryString(t, ctx, chain, contractAddr, `{"get_count":{}}`, &res)
 	require.NoError(t, err)
-
 	require.Equal(t, int64(1), res.Data.Count)
 
 	return contractAddr
