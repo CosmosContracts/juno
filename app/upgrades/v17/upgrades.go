@@ -96,7 +96,6 @@ func migrateChainOwnedSubDaos(ctx sdk.Context, logger log.Logger, ak authkeeper.
 	distrAddr := ak.GetModuleAddress(distrtypes.ModuleName)
 
 	for _, dao := range subDaos {
-		dao := dao
 		logger.Info("migrating " + dao + " to the gov module")
 
 		cAddr := sdk.MustAccAddressFromBech32(dao)

@@ -71,7 +71,6 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 			success:  false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Set params
 			params := types.DefaultParams()
@@ -158,7 +157,6 @@ func (s *IntegrationTestSuite) TestUnregisterClockContract() {
 			success:  false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			s.RegisterClockContract(addr.String(), contractAddress)
 			s.RegisterClockContract(addr2.String(), contractAddressWithAdmin)
@@ -284,7 +282,6 @@ func (s *IntegrationTestSuite) TestUnjailClockContract() {
 			success:  false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			s.RegisterClockContract(addr.String(), contractAddress)
 			s.JailClockContract(contractAddress)

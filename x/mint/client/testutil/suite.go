@@ -79,8 +79,6 @@ mint_denom: stake`,
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			cmd := cli.GetCmdQueryParams()
 			clientCtx := val.ClientCtx
@@ -113,8 +111,6 @@ func (s *IntegrationTestSuite) TestGetCmdQueryInflation() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			cmd := cli.GetCmdQueryInflation()
 			clientCtx := val.ClientCtx
@@ -147,8 +143,6 @@ func (s *IntegrationTestSuite) TestGetCmdQueryAnnualProvisions() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			cmd := cli.GetCmdQueryAnnualProvisions()
 			clientCtx := val.ClientCtx
