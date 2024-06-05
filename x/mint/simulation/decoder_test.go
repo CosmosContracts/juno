@@ -14,6 +14,7 @@ import (
 	"github.com/CosmosContracts/juno/v22/x/mint/types"
 )
 
+// TestDecodeStore tests the decoding of the store
 func TestDecodeStore(t *testing.T) {
 	cdc := app.MakeEncodingConfig().Marshaler
 	dec := simulation.NewDecodeStore(cdc)

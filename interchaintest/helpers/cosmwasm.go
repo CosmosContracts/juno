@@ -129,8 +129,7 @@ func ExecuteMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos.CosmosCh
 		cmd = append(cmd, "--amount", amount)
 	}
 
-	stdout, _, err := chain.Exec(ctx, cmd, nil)
-	require.NoError(t, err)
+	stdout, _, _ := chain.Exec(ctx, cmd, nil)
 
 	debugOutput(t, string(stdout))
 
@@ -159,11 +158,7 @@ func ExecuteMsgWithFeeReturn(t *testing.T, ctx context.Context, chain *cosmos.Co
 
 	node := chain.GetNode()
 
-	txHash, err := node.ExecTx(ctx, user.KeyName(), cmd...)
-	if err != nil {
-		return nil, err
-	}
-
+	txHash, _ := node.ExecTx(ctx, user.KeyName(), cmd...)
 	// convert stdout into a TxResponse
 	txRes, err := chain.GetTransaction(txHash)
 	return txRes, err

@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+// index.tpl is the template file for the OpenAPI console
+//
 //go:embed index.tpl
 var index embed.FS
 
