@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 
@@ -36,7 +37,7 @@ func TestJunoDrip(t *testing.T) {
 	nativeDenom := juno.Config().Denom
 
 	// User
-	user, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "default", mnemonic, int64(1000000_000_000), juno)
+	user, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "default", mnemonic, sdkmath.NewInt(1_000_000_000_000), juno)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +51,7 @@ func TestJunoDrip(t *testing.T) {
 	vals := helpers.GetValidators(t, ctx, juno)
 	valoper := vals.Validators[0].OperatorAddress
 
-	stakeAmt := 100000_000_000
+	stakeAmt := int64(100_000_000_000)
 	helpers.StakeTokens(t, ctx, juno, user, valoper, fmt.Sprintf("%d%s", stakeAmt, nativeDenom))
 
 	// Drip the TF Tokens to all stakers

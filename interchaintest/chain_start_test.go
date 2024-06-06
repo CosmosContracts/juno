@@ -3,6 +3,8 @@ package interchaintest
 import (
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
+
 	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
@@ -23,7 +25,7 @@ func TestBasicJunoStart(t *testing.T) {
 
 	chain := chains[0].(*cosmos.CosmosChain)
 
-	const userFunds = int64(10_000_000_000)
+	userFunds := sdkmath.NewInt(10_000_000_000)
 	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, chain)
 	chainUser := users[0]
 

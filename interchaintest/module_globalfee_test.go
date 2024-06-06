@@ -3,8 +3,10 @@ package interchaintest
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	globalfeetypes "github.com/CosmosContracts/juno/v22/x/globalfee/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -44,7 +46,7 @@ func TestJunoGlobalFee(t *testing.T) {
 	nativeDenom := juno.Config().Denom
 
 	// Users
-	initFunds := int64(10_000_000_000)
+	initFunds := sdkmath.NewInt(10_000_000_000)
 	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", initFunds, juno, juno)
 	sender := users[0]
 	receiver := users[1].FormattedAddress()
@@ -68,11 +70,13 @@ func TestJunoGlobalFee(t *testing.T) {
 
 	afterBal, err := juno.GetBalance(ctx, receiver, nativeDenom)
 	require.NoError(t, err)
-	require.Equal(t, initFunds+2, afterBal.Int64())
+	require.Equal(t, initFunds.Add(sdkmath.NewInt(2)), afterBal)
 
 	// param change proposal (lower fee), then validate it still works
 	propID := submitGlobalFeeParamChangeProposal(t, ctx, juno, sender)
-	helpers.ValidatorVote(t, ctx, juno, propID, 25)
+	propIDInt64, err := strconv.ParseInt(propID, 10, 64)
+	require.NoError(t, err, "error converting propID to int64")
+	helpers.ValidatorVote(t, ctx, juno, propIDInt64, 25)
 
 	// success: validate the new value is in effect (200k gas * 0.005 = 200ujuno)
 	std = bankSendWithFees(t, ctx, juno, sender, receiver, "3"+nativeDenom, "1000"+nativeDenom, 200000)
@@ -81,7 +85,7 @@ func TestJunoGlobalFee(t *testing.T) {
 
 	afterBal, err = juno.GetBalance(ctx, receiver, nativeDenom)
 	require.NoError(t, err)
-	require.Equal(t, initFunds+2+3, afterBal.Int64())
+	require.Equal(t, initFunds.Add(sdkmath.NewInt(2)).Add(sdkmath.NewInt(3)), afterBal)
 
 	t.Cleanup(func() {
 		_ = ic.Close()

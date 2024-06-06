@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/docker/docker/client"
 	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
@@ -82,7 +83,7 @@ var (
 		ModifyGenesis:       cosmos.ModifyGenesis(defaultGenesisKV),
 	}
 
-	genesisWalletAmount = int64(10_000_000)
+	genesisWalletAmount = sdkmath.NewInt(10_000_000)
 )
 
 func init() {
