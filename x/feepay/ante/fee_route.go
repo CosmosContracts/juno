@@ -11,7 +11,7 @@ import (
 	globalfeeante "github.com/CosmosContracts/juno/v22/x/globalfee/ante"
 )
 
-// MsgFilterDecorator defines an AnteHandler decorator that only checks and saves if a
+// MsgIsFeePayTx defines an AnteHandler decorator that only checks and saves if a
 type MsgIsFeePayTx struct {
 	feePayKeeper       feepaykeeper.Keeper
 	feePayDecorator    *DeductFeeDecorator
