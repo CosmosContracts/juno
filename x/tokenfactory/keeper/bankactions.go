@@ -4,13 +4,32 @@ import (
 	"fmt"
 	"sort"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
 )
+
+// BlockedAddr checks if a given address is restricted
+func (k Keeper) BlockedAddr(ctx sdk.Context, addr sdk.AccAddress) bool {
+
+	sortedPermAddrs := make([]string, 0, len(k.permAddrs))
+	for moduleName := range k.permAddrs {
+		sortedPermAddrs = append(sortedPermAddrs, moduleName)
+	}
+	sort.Strings(sortedPermAddrs)
+
+	for _, moduleName := range sortedPermAddrs {
+		account := k.accountKeeper.GetModuleAccount(ctx, moduleName)
+		if account == nil {
+			return true
+		}
+
+		if account.GetAddress().Equals(addr) {
+			return true
+		}
+	}
+	return false
+}
 
 func (k Keeper) mintTo(ctx sdk.Context, amount sdk.Coin, mintTo string) error {
 	// verify that denom is an x/tokenfactory denom
@@ -29,7 +48,7 @@ func (k Keeper) mintTo(ctx sdk.Context, amount sdk.Coin, mintTo string) error {
 		return err
 	}
 
-	if k.bankKeeper.BlockedAddr(addr) {
+	if k.BlockedAddr(ctx, addr) {
 		return fmt.Errorf("failed to mint to blocked address: %s", addr)
 	}
 
@@ -50,7 +69,7 @@ func (k Keeper) burnFrom(ctx sdk.Context, amount sdk.Coin, burnFrom string) erro
 		return err
 	}
 
-	if k.bankKeeper.BlockedAddr(addr) {
+	if k.BlockedAddr(ctx, addr) {
 		return fmt.Errorf("failed to burn from blocked address: %s", addr)
 	}
 
@@ -72,28 +91,6 @@ func (k Keeper) forceTransfer(ctx sdk.Context, amount sdk.Coin, fromAddr string,
 		return err
 	}
 
-	fromAcc, err := sdk.AccAddressFromBech32(fromAddr)
-	if err != nil {
-		return err
-	}
-
-	sortedPermAddrs := make([]string, 0, len(k.permAddrs))
-	for moduleName := range k.permAddrs {
-		sortedPermAddrs = append(sortedPermAddrs, moduleName)
-	}
-	sort.Strings(sortedPermAddrs)
-
-	for _, moduleName := range sortedPermAddrs {
-		account := k.accountKeeper.GetModuleAccount(ctx, moduleName)
-		if account == nil {
-			return status.Errorf(codes.NotFound, "account %s not found", moduleName)
-		}
-
-		if account.GetAddress().Equals(fromAcc) {
-			return status.Errorf(codes.Internal, "send from module acc not available")
-		}
-	}
-
 	fromSdkAddr, err := sdk.AccAddressFromBech32(fromAddr)
 	if err != nil {
 		return err
@@ -104,8 +101,8 @@ func (k Keeper) forceTransfer(ctx sdk.Context, amount sdk.Coin, fromAddr string,
 		return err
 	}
 
-	if k.bankKeeper.BlockedAddr(toSdkAddr) {
-		return fmt.Errorf("failed to force transfer to blocked address: %s", toSdkAddr)
+	if k.BlockedAddr(ctx, fromSdkAddr) || k.BlockedAddr(ctx, toSdkAddr) {
+		return fmt.Errorf("failed to transfer from blocked address: %s", fromSdkAddr)
 	}
 
 	return k.bankKeeper.SendCoins(ctx, fromSdkAddr, toSdkAddr, sdk.NewCoins(amount))
