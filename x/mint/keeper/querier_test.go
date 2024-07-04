@@ -7,8 +7,8 @@ package keeper_test
 
 // 	"github.com/stretchr/testify/require"
 
-// 	keep "github.com/CosmosContracts/juno/v22/x/mint/keeper"
-// 	"github.com/CosmosContracts/juno/v22/x/mint/types"
+// 	keep "github.com/CosmosContracts/juno/v23/x/mint/keeper"
+// 	"github.com/CosmosContracts/juno/v23/x/mint/types"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 // 	abci "github.com/cometbft/cometbft/abci/types"

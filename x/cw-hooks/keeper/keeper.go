@@ -14,7 +14,7 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
-	"github.com/CosmosContracts/juno/v22/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v23/x/cw-hooks/types"
 )
 
 type Keeper struct {

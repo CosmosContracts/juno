@@ -8,8 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	globalerrors "github.com/CosmosContracts/juno/v22/app/helpers"
-	"github.com/CosmosContracts/juno/v22/x/feepay/types"
+	globalerrors "github.com/CosmosContracts/juno/v23/app/helpers"
+	"github.com/CosmosContracts/juno/v23/x/feepay/types"
 )
 
 var _ types.MsgServer = &Keeper{}

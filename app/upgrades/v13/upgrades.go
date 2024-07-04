@@ -13,11 +13,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v22/app/keepers"
-	"github.com/CosmosContracts/juno/v22/app/upgrades"
+	"github.com/CosmosContracts/juno/v23/app/keepers"
+	"github.com/CosmosContracts/juno/v23/app/upgrades"
+
 	// types
-	feesharetypes "github.com/CosmosContracts/juno/v22/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
+	feesharetypes "github.com/CosmosContracts/juno/v23/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
 
 func CreateV13UpgradeHandler(

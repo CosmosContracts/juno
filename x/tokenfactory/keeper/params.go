@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
 
 // GetParams returns the total set params.

@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	clocktypes "github.com/CosmosContracts/juno/v22/x/clock/types"
+	clocktypes "github.com/CosmosContracts/juno/v23/x/clock/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/strangelove-ventures/interchaintest/v7"
