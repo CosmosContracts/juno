@@ -18,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
 	// SDK v47 modules
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -33,7 +32,6 @@ import (
 
 	"github.com/CosmosContracts/juno/v23/app/keepers"
 	"github.com/CosmosContracts/juno/v23/app/upgrades"
-
 	// Juno modules
 	feesharetypes "github.com/CosmosContracts/juno/v23/x/feeshare/types"
 	globalfeetypes "github.com/CosmosContracts/juno/v23/x/globalfee/types"
@@ -131,6 +129,7 @@ func CreateV16UpgradeHandler(
 
 		// Interchain Queries
 		icqParams := icqtypes.NewParams(true, nil)
+		//nolint:errcheck
 		keepers.ICQKeeper.SetParams(ctx, icqParams)
 
 		// update gov params to use a 20% initial deposit ratio, allowing us to remote the ante handler
