@@ -429,12 +429,12 @@ func NewAppKeepers(
 	appKeepers.ICQKeeper = icqkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[icqtypes.StoreKey],
-		appKeepers.GetSubspace(icqtypes.ModuleName),
 		appKeepers.IBCKeeper.ChannelKeeper, // may be replaced with middleware
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		scopedICQKeeper,
 		bApp.GRPCQueryRouter(),
+		govModAddress,
 	)
 
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
