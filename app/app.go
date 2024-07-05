@@ -74,7 +74,6 @@ import (
 	testnetV21alpha1 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v21.0.0-alpha.1"
 	testnetV22alpha1 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v22.0.0-alpha.1"
 	testnetV23alpha1 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v23.0.0-alpha.1"
-
 	v10 "github.com/CosmosContracts/juno/v23/app/upgrades/v10"
 	v11 "github.com/CosmosContracts/juno/v23/app/upgrades/v11"
 	v12 "github.com/CosmosContracts/juno/v23/app/upgrades/v12"
@@ -118,7 +117,7 @@ var (
 		testnetV21alpha1.Upgrade,
 		testnetV22alpha1.Upgrade,
 		testnetV23alpha1.Upgrade,
-		
+
 		v10.Upgrade,
 		v11.Upgrade,
 		v12.Upgrade,

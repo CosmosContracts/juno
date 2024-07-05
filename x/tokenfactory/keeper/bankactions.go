@@ -110,6 +110,6 @@ func (k Keeper) forceTransfer(ctx sdk.Context, amount sdk.Coin, fromAddr string,
 }
 
 // IsModuleAcc checks if a given address is restricted
-func (k Keeper) IsModuleAcc(ctx sdk.Context, addr sdk.AccAddress) bool {
+func (k Keeper) IsModuleAcc(_ sdk.Context, addr sdk.AccAddress) bool {
 	return k.permAddrMap[addr.String()]
 }

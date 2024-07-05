@@ -3,11 +3,12 @@ package v23
 import (
 	"fmt"
 
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
+
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 
 	"github.com/CosmosContracts/juno/v23/app/keepers"
 	"github.com/CosmosContracts/juno/v23/app/upgrades"
@@ -19,7 +20,7 @@ const UpgradeName = "v2300alpha1"
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: v2300Alpha1UpgradeHandler,
-	StoreUpgrades:        store.StoreUpgrades{
+	StoreUpgrades: store.StoreUpgrades{
 		Added: []string{
 			// updated modules
 			icqtypes.ModuleName,

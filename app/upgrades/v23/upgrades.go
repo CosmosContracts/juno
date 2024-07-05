@@ -3,15 +3,17 @@ package v23
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v23/app/keepers"
-	"github.com/CosmosContracts/juno/v23/app/upgrades"
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
+
+	"github.com/CosmosContracts/juno/v23/app/keepers"
+	"github.com/CosmosContracts/juno/v23/app/upgrades"
 )
 
 func CreateV23UpgradeHandler(
@@ -52,7 +54,7 @@ func CreateV23UpgradeHandler(
 		if err != nil {
 			return nil, err
 		}
-		
+
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
 		// convert pob builder account to an actual module account

@@ -16,9 +16,9 @@ import (
 
 type (
 	Keeper struct {
-		cdc       codec.BinaryCodec
-		storeKey  storetypes.StoreKey
-		permAddrs map[string]authtypes.PermissionsForAddress
+		cdc         codec.BinaryCodec
+		storeKey    storetypes.StoreKey
+		permAddrs   map[string]authtypes.PermissionsForAddress
 		permAddrMap map[string]bool
 
 		accountKeeper       types.AccountKeeper
