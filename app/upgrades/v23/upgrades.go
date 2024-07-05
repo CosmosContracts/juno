@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
@@ -53,6 +54,26 @@ func CreateV23UpgradeHandler(
 		}
 		
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
+
+		// convert pob builder account to an actual module account
+		// during upgrade from v15 to v16 it wasn't correctly created, and since it received tokens on mainnet is not a base account
+		// it's like this on both mainnet and uni
+		if ctx.ChainID() == "juno-1" || ctx.ChainID() == "uni-6" {
+			logger.Info("converting x/pob builder module account")
+
+			address := sdk.MustAccAddressFromBech32("juno1ma4sw9m2nvtucny6lsjhh4qywvh86zdh5dlkd4")
+
+			acc := keepers.AccountKeeper.NewAccount(
+				ctx,
+				authtypes.NewModuleAccount(
+					authtypes.NewBaseAccountWithAddress(address),
+					"builder",
+				),
+			)
+			keepers.AccountKeeper.SetAccount(ctx, acc)
+
+			logger.Info("x/pob builder module address is now a module account")
+		}
 
 		return versionMap, err
 	}
