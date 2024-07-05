@@ -7,9 +7,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v22/app/keepers"
-	"github.com/CosmosContracts/juno/v22/app/upgrades"
-	globalfeetypes "github.com/CosmosContracts/juno/v22/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v23/app/keepers"
+	"github.com/CosmosContracts/juno/v23/app/upgrades"
+	globalfeetypes "github.com/CosmosContracts/juno/v23/x/globalfee/types"
 )
 
 func CreateV14UpgradeHandler(
