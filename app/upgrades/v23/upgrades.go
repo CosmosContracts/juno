@@ -16,6 +16,29 @@ import (
 	"github.com/CosmosContracts/juno/v23/app/upgrades"
 )
 
+
+type IndividualAccount struct {
+	Owner   string
+	Address string
+}
+
+// Core1VestingAccounts https://daodao.zone/dao/juno1j6glql3xmrcnga0gytecsucq3kd88jexxamxg3yn2xnqhunyvflqr7lxx3/members
+// we are including only lobo, dimi and jake because the other ones do not agree on giving up their vesting
+var Core1VestingAccounts = []IndividualAccount{
+	{
+		Owner:   "dimi",
+		Address: "juno1s33zct2zhhaf60x4a90cpe9yquw99jj0zen8pt",
+	},
+	{
+		Owner:   "jake",
+		Address: "juno18qw9ydpewh405w4lvmuhlg9gtaep79vy2gmtr2",
+	},
+	{
+		Owner:   "wolf",
+		Address: "juno1a8u47ggy964tv9trjxfjcldutau5ls705djqyu",
+	},
+}
+
 func CreateV23UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
@@ -58,7 +81,7 @@ func CreateV23UpgradeHandler(
 		logger.Info(fmt.Sprintf("post migrate version map: %v", versionMap))
 
 		// convert pob builder account to an actual module account
-		// during upgrade from v15 to v16 it wasn't correctly created, and since it received tokens on mainnet is not a base account
+		// during upgrade from v15 to v16 it wasn't correctly created, and since it received tokens on mainnet is now a base account
 		// it's like this on both mainnet and uni
 		if ctx.ChainID() == "juno-1" || ctx.ChainID() == "uni-6" {
 			logger.Info("converting x/pob builder module account")
@@ -77,6 +100,29 @@ func CreateV23UpgradeHandler(
 			logger.Info("x/pob builder module address is now a module account")
 		}
 
+		// only on mainnet and uni, migrate core1 vesting accounts
+		if ctx.ChainID() == "juno-1" || ctx.ChainID() == "uni-6" {
+			if err := migrateCore1VestingAccounts(ctx, keepers, nativeDenom); err != nil {
+				return nil, err
+			}
+		}
+
 		return versionMap, err
 	}
+}
+
+
+// Migrate balances from the Core-1 vesting accounts to the Council SubDAO.
+func migrateCore1VestingAccounts(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string) error {
+	for _, account := range Core1VestingAccounts {
+		if err := MoveVestingCoinFromVestingAccount(ctx,
+			keepers,
+			bondDenom,
+			account.Owner,
+			sdk.MustAccAddressFromBech32(account.Address),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
 }
