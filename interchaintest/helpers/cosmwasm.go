@@ -19,7 +19,7 @@ import (
 
 func newBackoffPolicy() *backoff.ExponentialBackOff {
 	b := backoff.NewExponentialBackOff()
-	b.MaxElapsedTime = time.Minute
+	b.MaxElapsedTime = 5 * time.Minute
 	b.InitialInterval = 500 * time.Millisecond
 	b.Multiplier = 1.5
 	b.MaxInterval = 10 * time.Second
