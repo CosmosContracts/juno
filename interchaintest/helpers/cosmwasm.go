@@ -17,11 +17,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
-var backoffPolicy = &backoff.ExponentialBackOff{
-	MaxElapsedTime:  time.Minute,
-	InitialInterval: 500 * time.Millisecond,
-	Multiplier:      1.5,
-	MaxInterval:     10 * time.Second,
+func newBackoffPolicy() *backoff.ExponentialBackOff {
+	b := backoff.NewExponentialBackOff()
+	b.MaxElapsedTime = time.Minute
+	b.InitialInterval = 500 * time.Millisecond
+	b.Multiplier = 1.5
+	b.MaxInterval = 10 * time.Second
+	return b
 }
 
 func SmartQueryString(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contractAddr, queryMsg string, res interface{}) error {
@@ -35,11 +37,12 @@ func SmartQueryString(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 
 func StoreContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname, fileLoc string) string {
 	var codeId string
+
 	err := backoff.Retry(func() error {
 		var err error
 		codeId, err = chain.StoreContract(ctx, keyname, fileLoc)
 		return err
-	}, backoffPolicy)
+	}, newBackoffPolicy())
 
 	if err != nil {
 		t.Fatalf("Failed to store contract: %v", err)

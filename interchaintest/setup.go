@@ -28,13 +28,6 @@ import (
 	tokenfactorytypes "github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
 
-var backoffPolicy = &backoff.ExponentialBackOff{
-	MaxElapsedTime:  5 * time.Minute,
-	InitialInterval: 1 * time.Second,
-	Multiplier:      2,
-	MaxInterval:     30 * time.Second,
-}
-
 var (
 	VotingPeriod     = "15s"
 	MaxDepositPeriod = "10s"
@@ -132,6 +125,13 @@ func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
 }
 
 func CreateChainWithCustomConfig(t *testing.T, numVals, numFull int, config ibc.ChainConfig) []ibc.Chain {
+
+	backoffPolicy := backoff.NewExponentialBackOff()
+	backoffPolicy.MaxElapsedTime = 5 * time.Minute
+	backoffPolicy.InitialInterval = 500 * time.Millisecond
+	backoffPolicy.Multiplier = 1.5
+	backoffPolicy.MaxInterval = 10 * time.Second
+
 	var chains []ibc.Chain
 
 	err := backoff.Retry(func() error {
