@@ -15,6 +15,7 @@ import (
 	"github.com/CosmosContracts/juno/v23/app/keepers"
 	"github.com/CosmosContracts/juno/v23/app/upgrades"
 )
+
 type IndividualAccount struct {
 	Owner   string
 	Address string
