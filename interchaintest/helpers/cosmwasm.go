@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
@@ -12,8 +13,16 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
+
+var backoffPolicy = &backoff.ExponentialBackOff{
+	MaxElapsedTime:  time.Minute,
+	InitialInterval: 500 * time.Millisecond,
+	Multiplier:      1.5,
+	MaxInterval:     10 * time.Second,
+}
 
 func SmartQueryString(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contractAddr, queryMsg string, res interface{}) error {
 	var jsonMap map[string]interface{}
@@ -24,10 +33,16 @@ func SmartQueryString(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 	return err
 }
 
-func StoreContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname string, fileLoc string) (codeId string) {
-	codeId, err := chain.StoreContract(ctx, keyname, fileLoc)
+func StoreContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, keyname, fileLoc string) string {
+	var codeId string
+	err := backoff.Retry(func() error {
+		var err error
+		codeId, err = chain.StoreContract(ctx, keyname, fileLoc)
+		return err
+	}, backoffPolicy)
+
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Failed to store contract: %v", err)
 	}
 	return codeId
 }

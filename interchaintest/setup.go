@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/cenkalti/backoff"
 	"github.com/docker/docker/client"
 	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
@@ -25,6 +27,13 @@ import (
 	globalfeetypes "github.com/CosmosContracts/juno/v23/x/globalfee/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
+
+var backoffPolicy = &backoff.ExponentialBackOff{
+	MaxElapsedTime:  5 * time.Minute,
+	InitialInterval: 1 * time.Second,
+	Multiplier:      2,
+	MaxInterval:     30 * time.Second,
+}
 
 var (
 	VotingPeriod     = "15s"
@@ -123,22 +132,26 @@ func CreateThisBranchChain(t *testing.T, numVals, numFull int) []ibc.Chain {
 }
 
 func CreateChainWithCustomConfig(t *testing.T, numVals, numFull int, config ibc.ChainConfig) []ibc.Chain {
-	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
-		{
-			Name:          "juno",
-			ChainName:     "juno",
-			Version:       config.Images[0].Version,
-			ChainConfig:   config,
-			NumValidators: &numVals,
-			NumFullNodes:  &numFull,
-		},
-	})
+	var chains []ibc.Chain
 
-	// Get chains from the chain factory
-	chains, err := cf.Chains(t.Name())
-	require.NoError(t, err)
+	err := backoff.Retry(func() error {
+		cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
+			{
+				Name:          "juno",
+				ChainName:     "juno",
+				Version:       config.Images[0].Version,
+				ChainConfig:   config,
+				NumValidators: &numVals,
+				NumFullNodes:  &numFull,
+			},
+		})
 
-	// chain := chains[0].(*cosmos.CosmosChain)
+		var err error
+		chains, err = cf.Chains(t.Name())
+		return err
+	}, backoffPolicy)
+
+	require.NoError(t, err, "Failed to create chain after multiple attempts")
 	return chains
 }
 
