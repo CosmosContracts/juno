@@ -75,10 +75,10 @@ func MoveVestingCoinFromVestingAccount(ctx sdk.Context, keepers *keepers.AppKeep
 	return err
 }
 
-func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string,  accAddr sdk.AccAddress, vestingCoins sdk.Coins, cpoolBeforeBal sdk.DecCoins) error {
+func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string, accAddr sdk.AccAddress, vestingCoins sdk.Coins, cpoolBeforeBal sdk.DecCoins) error {
 	// Community pool juno balance should only increase by exactly the vestedCoins
 	cpoolAfterBal := keepers.DistrKeeper.GetFeePool(ctx).CommunityPool
-	
+
 	// only count vesting junos
 	vestingJuno := vestingCoins.AmountOf(bondDenom)
 
@@ -114,7 +114,7 @@ func postValidation(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom stri
 // Transfer funds from the vesting account to the Council SubDAO.
 func transferUnvestedTokensToCommunityPool(ctx sdk.Context, keepers *keepers.AppKeepers, accAddr sdk.AccAddress, vestingJuno sdk.Coin) error {
 	fmt.Printf("Sending Vesting Juno to Community pool: %v\n", vestingJuno)
-	err := keepers.DistrKeeper.FundCommunityPool(ctx, sdk.NewCoins(vestingJuno), accAddr);
+	err := keepers.DistrKeeper.FundCommunityPool(ctx, sdk.NewCoins(vestingJuno), accAddr)
 	return err
 }
 

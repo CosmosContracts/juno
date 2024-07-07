@@ -15,8 +15,6 @@ import (
 	"github.com/CosmosContracts/juno/v23/app/keepers"
 	"github.com/CosmosContracts/juno/v23/app/upgrades"
 )
-
-
 type IndividualAccount struct {
 	Owner   string
 	Address string
@@ -110,7 +108,6 @@ func CreateV23UpgradeHandler(
 		return versionMap, err
 	}
 }
-
 
 // Migrate balances from the Core-1 vesting accounts to the Council SubDAO.
 func migrateCore1VestingAccounts(ctx sdk.Context, keepers *keepers.AppKeepers, bondDenom string) error {
