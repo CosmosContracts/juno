@@ -5,7 +5,6 @@ import (
 
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -64,11 +63,6 @@ func CreateV23UpgradeHandler(
 				subspace.WithKeyTable(keyTable)
 			}
 		}
-
-		// Migrate Tendermint consensus parameters from x/params module to a deprecated x/consensus module.
-		// The old params module is required to still be imported in your app.go in order to handle this migration.
-		baseAppLegacySS := keepers.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable())
-		baseapp.MigrateParams(ctx, baseAppLegacySS, &keepers.ConsensusParamsKeeper)
 
 		// Run migrations
 		logger.Info(fmt.Sprintf("pre migrate version map: %v", vm))
