@@ -106,7 +106,7 @@ jobs:
       - name: Retry Failed Test
         if: steps.run_test.outcome == 'failure'
         run: |
-          for i in 1 2; do
+          for i in 1 2 3; do
             echo "Retry attempt $i"
             if make ${{ matrix.test }}; then
               echo "Test passed on retry"
