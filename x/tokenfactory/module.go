@@ -26,11 +26,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory/client/cli"
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory/exported"
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory/keeper"
-	simulation "github.com/CosmosContracts/juno/v22/x/tokenfactory/simulation"
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory/client/cli"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory/exported"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory/keeper"
+	simulation "github.com/CosmosContracts/juno/v23/x/tokenfactory/simulation"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
 
 var (
@@ -57,6 +57,7 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
+// RegisterLegacyAminoCodec registers the x/tokenfactory module's types for the given codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	types.RegisterLegacyAminoCodec(cdc)
 }

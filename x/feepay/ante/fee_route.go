@@ -6,12 +6,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	feepayhelpers "github.com/CosmosContracts/juno/v22/x/feepay/helpers"
-	feepaykeeper "github.com/CosmosContracts/juno/v22/x/feepay/keeper"
-	globalfeeante "github.com/CosmosContracts/juno/v22/x/globalfee/ante"
+	feepayhelpers "github.com/CosmosContracts/juno/v23/x/feepay/helpers"
+	feepaykeeper "github.com/CosmosContracts/juno/v23/x/feepay/keeper"
+	globalfeeante "github.com/CosmosContracts/juno/v23/x/globalfee/ante"
 )
 
-// MsgFilterDecorator defines an AnteHandler decorator that only checks and saves if a
+// MsgIsFeePayTx defines an AnteHandler decorator that only checks and saves if a
 type MsgIsFeePayTx struct {
 	feePayKeeper       feepaykeeper.Keeper
 	feePayDecorator    *DeductFeeDecorator

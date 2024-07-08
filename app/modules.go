@@ -61,21 +61,21 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	encparams "github.com/CosmosContracts/juno/v22/app/params"
-	"github.com/CosmosContracts/juno/v22/x/clock"
-	clocktypes "github.com/CosmosContracts/juno/v22/x/clock/types"
-	cwhooks "github.com/CosmosContracts/juno/v22/x/cw-hooks"
-	"github.com/CosmosContracts/juno/v22/x/drip"
-	driptypes "github.com/CosmosContracts/juno/v22/x/drip/types"
-	feepay "github.com/CosmosContracts/juno/v22/x/feepay"
-	feepaytypes "github.com/CosmosContracts/juno/v22/x/feepay/types"
-	feeshare "github.com/CosmosContracts/juno/v22/x/feeshare"
-	feesharetypes "github.com/CosmosContracts/juno/v22/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v22/x/globalfee"
-	"github.com/CosmosContracts/juno/v22/x/mint"
-	minttypes "github.com/CosmosContracts/juno/v22/x/mint/types"
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
+	encparams "github.com/CosmosContracts/juno/v23/app/params"
+	"github.com/CosmosContracts/juno/v23/x/clock"
+	clocktypes "github.com/CosmosContracts/juno/v23/x/clock/types"
+	cwhooks "github.com/CosmosContracts/juno/v23/x/cw-hooks"
+	"github.com/CosmosContracts/juno/v23/x/drip"
+	driptypes "github.com/CosmosContracts/juno/v23/x/drip/types"
+	feepay "github.com/CosmosContracts/juno/v23/x/feepay"
+	feepaytypes "github.com/CosmosContracts/juno/v23/x/feepay/types"
+	feeshare "github.com/CosmosContracts/juno/v23/x/feeshare"
+	feesharetypes "github.com/CosmosContracts/juno/v23/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v23/x/globalfee"
+	"github.com/CosmosContracts/juno/v23/x/mint"
+	minttypes "github.com/CosmosContracts/juno/v23/x/mint/types"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
 
 // ModuleBasics defines the module BasicManager is in charge of setting up basic,
@@ -169,7 +169,7 @@ func appModules(
 		cwhooks.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
-		icq.NewAppModule(app.AppKeepers.ICQKeeper),
+		icq.NewAppModule(app.AppKeepers.ICQKeeper, app.GetSubspace(icqtypes.ModuleName)),
 		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
 		wasmlc.NewAppModule(app.AppKeepers.WasmClientKeeper),
 	}

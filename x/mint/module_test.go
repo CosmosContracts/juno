@@ -12,9 +12,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/testutil"
 
-	"github.com/CosmosContracts/juno/v22/x/mint/types"
+	"github.com/CosmosContracts/juno/v23/x/mint/types"
 )
 
+// TestItCreatesModuleAccountOnInitBlock tests that the module account is created on InitBlock
 func TestItCreatesModuleAccountOnInitBlock(t *testing.T) {
 	var accountKeeper authkeeper.AccountKeeper
 

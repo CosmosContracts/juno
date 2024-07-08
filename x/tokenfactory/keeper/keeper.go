@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
 
 type (

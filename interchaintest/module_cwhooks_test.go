@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/stretchr/testify/require"
@@ -26,7 +27,7 @@ func TestJunoCwHooks(t *testing.T) {
 	juno := chains[0].(*cosmos.CosmosChain)
 
 	// Users
-	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", int64(10_000_000_000), juno, juno)
+	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", sdkmath.NewInt(10_000_000_000), juno, juno)
 	user := users[0]
 
 	// Upload & init contract payment to another address

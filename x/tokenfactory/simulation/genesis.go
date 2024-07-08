@@ -6,15 +6,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	appparams "github.com/CosmosContracts/juno/v22/app/params"
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
+	appparams "github.com/CosmosContracts/juno/v23/app/params"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
 
+// RandDenomCreationFeeParam returns a random DenomCreationFeeParam
 func RandDenomCreationFeeParam(r *rand.Rand) sdk.Coins {
 	amount := r.Int63n(10_000_000)
 	return sdk.NewCoins(sdk.NewCoin(appparams.BondDenom, sdk.NewInt(amount)))
 }
 
+// RandomizedGenState generates a random GenesisState for mint
 func RandomizedGenState(simstate *module.SimulationState) {
 	tfGenesis := types.DefaultGenesis()
 

@@ -19,9 +19,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmosContracts/juno/v22/app"
-	decorators "github.com/CosmosContracts/juno/v22/app/decorators"
-	appparams "github.com/CosmosContracts/juno/v22/app/params"
+	"github.com/CosmosContracts/juno/v23/app"
+	decorators "github.com/CosmosContracts/juno/v23/app/decorators"
+	appparams "github.com/CosmosContracts/juno/v23/app/params"
 )
 
 // Define an empty ante handle

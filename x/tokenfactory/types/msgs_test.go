@@ -11,8 +11,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory/testhelpers"
-	"github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory/testhelpers"
+	"github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
 
 // Test authz serialize and de-serializes for tokenfactory msg.

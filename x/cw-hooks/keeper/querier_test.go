@@ -4,7 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v22/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v23/x/cw-hooks/types"
 )
 
 func (s *IntegrationTestSuite) TestContracts() {

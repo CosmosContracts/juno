@@ -5,7 +5,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	driptypes "github.com/CosmosContracts/juno/v22/x/drip/types"
+	driptypes "github.com/CosmosContracts/juno/v23/x/drip/types"
 )
 
 // Keeper of this module maintains distributing tokens to all stakers.
