@@ -202,7 +202,7 @@ type AppKeepers struct {
 	HooksICS4Wrapper ibc_hooks.ICS4Middleware
 }
 
-func NewAppKeepers(
+func NewAppKeepers( //nolint:maintidx // TODO: make this function less complex so it doesn't trigger the maintainability index
 	appCodec codec.Codec,
 	bApp *baseapp.BaseApp,
 	cdc *codec.LegacyAmino,
