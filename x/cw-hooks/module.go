@@ -18,9 +18,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v22/x/cw-hooks/client/cli"
-	"github.com/CosmosContracts/juno/v22/x/cw-hooks/keeper"
-	"github.com/CosmosContracts/juno/v22/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v23/x/cw-hooks/client/cli"
+	"github.com/CosmosContracts/juno/v23/x/cw-hooks/keeper"
+	"github.com/CosmosContracts/juno/v23/x/cw-hooks/types"
 )
 
 const (

@@ -7,8 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v22/app/keepers"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v22/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v23/app/keepers"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
 )
 
 // We now charge 2 million gas * gas price to create a denom.

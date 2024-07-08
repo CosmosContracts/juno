@@ -3,9 +3,9 @@ package v17
 import (
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
-	"github.com/CosmosContracts/juno/v22/app/upgrades"
-	clocktypes "github.com/CosmosContracts/juno/v22/x/clock/types"
-	driptypes "github.com/CosmosContracts/juno/v22/x/drip/types"
+	"github.com/CosmosContracts/juno/v23/app/upgrades"
+	clocktypes "github.com/CosmosContracts/juno/v23/x/clock/types"
+	driptypes "github.com/CosmosContracts/juno/v23/x/drip/types"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.

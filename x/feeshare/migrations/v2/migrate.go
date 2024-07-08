@@ -4,8 +4,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v22/x/feeshare/exported"
-	"github.com/CosmosContracts/juno/v22/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v23/x/feeshare/exported"
+	"github.com/CosmosContracts/juno/v23/x/feeshare/types"
 )
 
 const (

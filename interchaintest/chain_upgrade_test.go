@@ -3,11 +3,14 @@ package interchaintest
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/docker/docker/client"
 	"github.com/strangelove-ventures/interchaintest/v7"
@@ -23,8 +26,8 @@ const (
 	chainName   = "juno"
 	upgradeName = "v21"
 
-	haltHeightDelta    = uint64(9) // will propose upgrade this many blocks in the future
-	blocksAfterUpgrade = uint64(7)
+	haltHeightDelta    = int64(9) // will propose upgrade this many blocks in the future
+	blocksAfterUpgrade = int64(7)
 )
 
 var (
@@ -79,7 +82,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 		_ = ic.Close()
 	})
 
-	const userFunds = int64(10_000_000_000)
+	userFunds := sdkmath.NewInt(10_000_000_000)
 	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, chain)
 	chainUser := users[0]
 
@@ -93,7 +96,10 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	haltHeight := height + haltHeightDelta
 	proposalID := SubmitUpgradeProposal(t, ctx, chain, chainUser, upgradeName, haltHeight)
 
-	ValidatorVoting(t, ctx, chain, proposalID, height, haltHeight)
+	proposalIDInt, err := strconv.ParseInt(proposalID, 10, 64)
+	require.NoError(t, err, "failed to parse proposal ID")
+
+	ValidatorVoting(t, ctx, chain, proposalIDInt, height, haltHeight)
 
 	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, upgradeBranchVersion)
 
@@ -105,7 +111,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	// TODO: ibc conformance test
 }
 
-func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight uint64, upgradeRepo, upgradeBranchVersion string) {
+func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight int64, upgradeRepo, upgradeBranchVersion string) {
 	// bring down nodes to prepare for upgrade
 	t.Log("stopping node(s)")
 	err := chain.StopAllNodes(ctx)
@@ -134,11 +140,11 @@ func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
 }
 
-func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, proposalID string, height uint64, haltHeight uint64) {
+func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, proposalID int64, height int64, haltHeight int64) {
 	err := chain.VoteOnProposalAllValidators(ctx, proposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
-	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+haltHeightDelta, proposalID, cosmos.ProposalStatusPassed)
+	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+haltHeightDelta, proposalID, govtypes.StatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
 	timeoutCtx, timeoutCtxCancel := context.WithTimeout(ctx, time.Second*45)
@@ -157,7 +163,7 @@ func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 	require.Equal(t, haltHeight, height, "height is not equal to halt height")
 }
 
-func SubmitUpgradeProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, upgradeName string, haltHeight uint64) string {
+func SubmitUpgradeProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, upgradeName string, haltHeight int64) string {
 	upgradeMsg := []cosmosproto.Message{
 		&upgradetypes.MsgSoftwareUpgrade{
 			// gGov Module account

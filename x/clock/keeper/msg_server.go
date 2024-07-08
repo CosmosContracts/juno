@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v22/x/clock/types"
+	"github.com/CosmosContracts/juno/v23/x/clock/types"
 )
 
 var _ types.MsgServer = &msgServer{}
