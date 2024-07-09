@@ -20,4 +20,5 @@ var (
 	ErrCreatorTooLong           = errorsmod.Register(ModuleName, 9, fmt.Sprintf("creator too long, max length is %d bytes", MaxCreatorLength))
 	ErrDenomDoesNotExist        = errorsmod.Register(ModuleName, 10, "denom does not exist")
 	ErrCapabilityNotEnabled     = errorsmod.Register(ModuleName, 11, "this capability is not enabled on chain")
+	ErrModuleAccount            = errorsmod.Register(ModuleName, 12, "interacting with module accounts not allowed")
 )
