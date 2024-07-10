@@ -1,12 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-	"sort"
-
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
@@ -29,8 +23,8 @@ func (k Keeper) mintTo(ctx sdk.Context, amount sdk.Coin, mintTo string) error {
 		return err
 	}
 
-	if k.bankKeeper.BlockedAddr(addr) {
-		return fmt.Errorf("failed to mint to blocked address: %s", addr)
+	if k.IsModuleAcc(ctx, addr) {
+		return types.ErrModuleAccount
 	}
 
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName,
@@ -50,8 +44,8 @@ func (k Keeper) burnFrom(ctx sdk.Context, amount sdk.Coin, burnFrom string) erro
 		return err
 	}
 
-	if k.bankKeeper.BlockedAddr(addr) {
-		return fmt.Errorf("failed to burn from blocked address: %s", addr)
+	if k.IsModuleAcc(ctx, addr) {
+		return types.ErrModuleAccount
 	}
 
 	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx,
@@ -77,36 +71,23 @@ func (k Keeper) forceTransfer(ctx sdk.Context, amount sdk.Coin, fromAddr string,
 		return err
 	}
 
-	sortedPermAddrs := make([]string, 0, len(k.permAddrs))
-	for moduleName := range k.permAddrs {
-		sortedPermAddrs = append(sortedPermAddrs, moduleName)
-	}
-	sort.Strings(sortedPermAddrs)
-
-	for _, moduleName := range sortedPermAddrs {
-		account := k.accountKeeper.GetModuleAccount(ctx, moduleName)
-		if account == nil {
-			return status.Errorf(codes.NotFound, "account %s not found", moduleName)
-		}
-
-		if account.GetAddress().Equals(fromAcc) {
-			return status.Errorf(codes.Internal, "send from module acc not available")
-		}
+	if k.IsModuleAcc(ctx, fromAcc) {
+		return types.ErrModuleAccount
 	}
 
-	fromSdkAddr, err := sdk.AccAddressFromBech32(fromAddr)
+	toAcc, err := sdk.AccAddressFromBech32(toAddr)
 	if err != nil {
 		return err
 	}
 
-	toSdkAddr, err := sdk.AccAddressFromBech32(toAddr)
-	if err != nil {
-		return err
+	if k.IsModuleAcc(ctx, toAcc) {
+		return types.ErrModuleAccount
 	}
 
-	if k.bankKeeper.BlockedAddr(toSdkAddr) {
-		return fmt.Errorf("failed to force transfer to blocked address: %s", toSdkAddr)
-	}
+	return k.bankKeeper.SendCoins(ctx, fromAcc, toAcc, sdk.NewCoins(amount))
+}
 
-	return k.bankKeeper.SendCoins(ctx, fromSdkAddr, toSdkAddr, sdk.NewCoins(amount))
+// IsModuleAcc checks if a given address is restricted
+func (k Keeper) IsModuleAcc(_ sdk.Context, addr sdk.AccAddress) bool {
+	return k.permAddrMap[addr.String()]
 }
