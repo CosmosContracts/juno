@@ -97,7 +97,6 @@ func (s *IntegrationTestSuite) TestGetContractAdminOrCreatorAddress() {
 			shouldErr:       true,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			if !tc.shouldErr {
 				_, err := s.app.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
@@ -222,7 +221,6 @@ func (s *IntegrationTestSuite) TestRegisterFeeShare() {
 			shouldErr: false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			goCtx := sdk.WrapSDKContext(s.ctx)
 			if !tc.shouldErr {
@@ -317,7 +315,6 @@ func (s *IntegrationTestSuite) TestUpdateFeeShare() {
 			shouldErr: false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			goCtx := sdk.WrapSDKContext(s.ctx)
 			if !tc.shouldErr {
@@ -383,7 +380,6 @@ func (s *IntegrationTestSuite) TestCancelFeeShare() {
 			shouldErr: false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			goCtx := sdk.WrapSDKContext(s.ctx)
 			if !tc.shouldErr {

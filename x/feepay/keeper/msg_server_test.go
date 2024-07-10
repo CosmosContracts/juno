@@ -63,8 +63,6 @@ func (s *IntegrationTestSuite) TestRegisterFeePayContract() {
 			shouldErr:       true,
 		},
 	} {
-		tc := tc
-
 		s.Run(tc.desc, func() {
 			_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
 				SenderAddress: tc.senderAddress,
@@ -138,8 +136,6 @@ func (s *IntegrationTestSuite) TestUnregisterFeePayContract() {
 			shouldErr:       true,
 		},
 	} {
-		tc := tc
-
 		s.Run(tc.desc, func() {
 			_, err := s.app.AppKeepers.FeePayKeeper.UnregisterFeePayContract(s.ctx, &types.MsgUnregisterFeePayContract{
 				SenderAddress:   tc.senderAddress,
@@ -208,8 +204,6 @@ func (s *IntegrationTestSuite) TestFundFeePayContract() {
 			shouldErr:       false,
 		},
 	} {
-		tc := tc
-
 		s.Run(tc.desc, func() {
 			_, err := s.app.AppKeepers.FeePayKeeper.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
 				SenderAddress:   tc.senderAddress,
@@ -295,8 +289,6 @@ func (s *IntegrationTestSuite) TestUpdateFeePayContractWalletLimit() {
 			shouldErr:       false,
 		},
 	} {
-		tc := tc
-
 		s.Run(tc.desc, func() {
 			_, err := s.app.AppKeepers.FeePayKeeper.UpdateFeePayContractWalletLimit(s.ctx, &types.MsgUpdateFeePayContractWalletLimit{
 				SenderAddress:   tc.senderAddress,

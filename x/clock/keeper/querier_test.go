@@ -30,7 +30,6 @@ func (s *IntegrationTestSuite) TestQueryClockParams() {
 			},
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Set params
 			err := s.app.AppKeepers.ClockKeeper.SetParams(s.ctx, tc.params)
@@ -78,7 +77,6 @@ func (s *IntegrationTestSuite) TestQueryClockContracts() {
 			},
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Loop through contracts & register
 			for _, contract := range tc.contracts {
@@ -135,7 +133,6 @@ func (s *IntegrationTestSuite) TestQueryJailedClockContracts() {
 			},
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Loop through contracts & register
 			for _, contract := range tc.contracts {
@@ -214,7 +211,6 @@ func (s *IntegrationTestSuite) TestQueryClockContract() {
 			success:  false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Query contract
 			resp, err := s.queryClient.ClockContract(s.ctx, &types.QueryClockContract{

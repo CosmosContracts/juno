@@ -75,7 +75,6 @@ func (s *IntegrationTestSuite) TestRegisterContracts() {
 			shouldErr:       false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			goCtx := sdk.WrapSDKContext(s.ctx)
 			// staking
@@ -166,7 +165,6 @@ func (s *IntegrationTestSuite) TestUnRegisterContracts() {
 			shouldErr:       true,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			goCtx := sdk.WrapSDKContext(s.ctx)
 			// staking
