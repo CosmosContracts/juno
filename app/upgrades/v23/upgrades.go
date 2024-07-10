@@ -50,7 +50,6 @@ func CreateV23UpgradeHandler(
 
 		// migrate ICQ params
 		for _, subspace := range keepers.ParamsKeeper.GetSubspaces() {
-			subspace := subspace
 
 			var keyTable paramstypes.KeyTable
 			if subspace.Name() == icqtypes.ModuleName {
