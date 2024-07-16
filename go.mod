@@ -10,10 +10,10 @@ require (
 	cosmossdk.io/tools/rosetta v0.2.1
 	github.com/CosmWasm/wasmd v0.45.0
 	github.com/CosmWasm/wasmvm v1.5.2
-	github.com/cometbft/cometbft v0.37.8
+	github.com/cometbft/cometbft v0.38.10
 	github.com/cometbft/cometbft-db v0.12.0
 	github.com/cosmos/cosmos-sdk v0.47.12
-	github.com/cosmos/gogoproto v1.4.10
+	github.com/cosmos/gogoproto v1.4.11
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.1.3
 	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.1.1
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20231017170841-8fd49ec0f017
@@ -118,7 +118,6 @@ require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.7 // indirect
-	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
 	github.com/linxGnu/grocksdb v1.8.14 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
@@ -174,19 +173,15 @@ require (
 )
 
 require (
-	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
 	github.com/DataDog/zstd v1.5.2 // indirect
 	github.com/cockroachdb/pebble v1.1.0 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
-	github.com/creachadair/taskgroup v0.4.2 // indirect
 	github.com/dgraph-io/badger/v4 v4.2.0 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/flatbuffers v1.12.1 // indirect
-	github.com/gtank/merlin v0.1.1 // indirect
-	github.com/gtank/ristretto255 v0.1.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
-	github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0 // indirect
+	github.com/oasisprotocol/curve25519-voi v0.0.0-20220708102147-0a8a51822cae // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
