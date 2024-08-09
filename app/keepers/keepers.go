@@ -680,7 +680,6 @@ func NewAppKeepers(
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule
 	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper)
-	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
 	transferStack = ibc_hooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
 	transferStack = packetforward.NewIBCMiddleware(
 		transferStack,
@@ -689,6 +688,8 @@ func NewAppKeepers(
 		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
 		packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	)
+	// ibcfee must come after PFM since PFM does not understand IncentivizedAcknowlegements (ICS29)
+	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
 
 	// initialize ICA module with mock module as the authentication module on the controller side
 	var icaControllerStack porttypes.IBCModule
