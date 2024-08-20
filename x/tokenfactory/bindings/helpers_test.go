@@ -15,7 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 
-	"github.com/CosmosContracts/juno/v23/app"
+	"github.com/CosmosContracts/juno/v24/app"
 )
 
 func CreateTestInput(t *testing.T) (*app.App, sdk.Context) {

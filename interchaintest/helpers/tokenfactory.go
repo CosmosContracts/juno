@@ -15,7 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	tokenfactorytypes "github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v24/x/tokenfactory/types"
 )
 
 func debugOutput(t *testing.T, stdout string) {

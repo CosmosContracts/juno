@@ -11,9 +11,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v23/app"
-	bindings "github.com/CosmosContracts/juno/v23/x/tokenfactory/bindings/types"
-	"github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v24/app"
+	bindings "github.com/CosmosContracts/juno/v24/x/tokenfactory/bindings/types"
+	"github.com/CosmosContracts/juno/v24/x/tokenfactory/types"
 )
 
 func TestCreateDenomMsg(t *testing.T) {

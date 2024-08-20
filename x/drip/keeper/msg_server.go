@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v23/x/drip/types"
+	"github.com/CosmosContracts/juno/v24/x/drip/types"
 )
 
 var _ types.MsgServer = &Keeper{}

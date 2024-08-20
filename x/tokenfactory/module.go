@@ -26,11 +26,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosContracts/juno/v23/x/tokenfactory/client/cli"
-	"github.com/CosmosContracts/juno/v23/x/tokenfactory/exported"
-	"github.com/CosmosContracts/juno/v23/x/tokenfactory/keeper"
-	simulation "github.com/CosmosContracts/juno/v23/x/tokenfactory/simulation"
-	"github.com/CosmosContracts/juno/v23/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v24/x/tokenfactory/client/cli"
+	"github.com/CosmosContracts/juno/v24/x/tokenfactory/exported"
+	"github.com/CosmosContracts/juno/v24/x/tokenfactory/keeper"
+	simulation "github.com/CosmosContracts/juno/v24/x/tokenfactory/simulation"
+	"github.com/CosmosContracts/juno/v24/x/tokenfactory/types"
 )
 
 var (

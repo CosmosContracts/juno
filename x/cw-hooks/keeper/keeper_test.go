@@ -19,9 +19,9 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/CosmosContracts/juno/v23/app"
-	"github.com/CosmosContracts/juno/v23/x/cw-hooks/keeper"
-	"github.com/CosmosContracts/juno/v23/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v24/app"
+	"github.com/CosmosContracts/juno/v24/x/cw-hooks/keeper"
+	"github.com/CosmosContracts/juno/v24/x/cw-hooks/types"
 )
 
 var _ = embed.FS{}

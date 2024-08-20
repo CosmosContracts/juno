@@ -7,8 +7,8 @@ import (
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	"github.com/CosmosContracts/juno/v23/app"
-	"github.com/CosmosContracts/juno/v23/cmd/junod/cmd"
+	"github.com/CosmosContracts/juno/v24/app"
+	"github.com/CosmosContracts/juno/v24/cmd/junod/cmd"
 )
 
 func main() {
