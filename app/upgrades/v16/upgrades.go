@@ -87,7 +87,9 @@ func CreateV16UpgradeHandler(
 
 			// wasm
 			case wasmtypes.ModuleName:
-				keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
+				// keyTable = wasmtypes.ParamKeyTable() //nolint:staticcheck
+				// deprecated and old code
+				continue
 
 			// POB
 			case buildertypes.ModuleName:
