@@ -64,30 +64,31 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v23/app/keepers"
-	"github.com/CosmosContracts/juno/v23/app/openapiconsole"
-	upgrades "github.com/CosmosContracts/juno/v23/app/upgrades"
-	testnetV18alpha2 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v18.0.0-alpha.2"
-	testnetV18alpha3 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v18.0.0-alpha.3"
-	testnetV18alpha4 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v18.0.0-alpha.4"
-	testnetV19alpha3 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v19.0.0-alpha.3"
-	testnetV21alpha1 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v21.0.0-alpha.1"
-	testnetV22alpha1 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v22.0.0-alpha.1"
-	testnetV23alpha1 "github.com/CosmosContracts/juno/v23/app/upgrades/testnet/v23.0.0-alpha.1"
-	v10 "github.com/CosmosContracts/juno/v23/app/upgrades/v10"
-	v11 "github.com/CosmosContracts/juno/v23/app/upgrades/v11"
-	v12 "github.com/CosmosContracts/juno/v23/app/upgrades/v12"
-	v13 "github.com/CosmosContracts/juno/v23/app/upgrades/v13"
-	v14 "github.com/CosmosContracts/juno/v23/app/upgrades/v14"
-	v15 "github.com/CosmosContracts/juno/v23/app/upgrades/v15"
-	v16 "github.com/CosmosContracts/juno/v23/app/upgrades/v16"
-	v17 "github.com/CosmosContracts/juno/v23/app/upgrades/v17"
-	v18 "github.com/CosmosContracts/juno/v23/app/upgrades/v18"
-	v19 "github.com/CosmosContracts/juno/v23/app/upgrades/v19"
-	v21 "github.com/CosmosContracts/juno/v23/app/upgrades/v21"
-	v22 "github.com/CosmosContracts/juno/v23/app/upgrades/v22"
-	v23 "github.com/CosmosContracts/juno/v23/app/upgrades/v23"
-	"github.com/CosmosContracts/juno/v23/docs"
+	"github.com/CosmosContracts/juno/v24/app/keepers"
+	"github.com/CosmosContracts/juno/v24/app/openapiconsole"
+	upgrades "github.com/CosmosContracts/juno/v24/app/upgrades"
+	testnetV18alpha2 "github.com/CosmosContracts/juno/v24/app/upgrades/testnet/v18.0.0-alpha.2"
+	testnetV18alpha3 "github.com/CosmosContracts/juno/v24/app/upgrades/testnet/v18.0.0-alpha.3"
+	testnetV18alpha4 "github.com/CosmosContracts/juno/v24/app/upgrades/testnet/v18.0.0-alpha.4"
+	testnetV19alpha3 "github.com/CosmosContracts/juno/v24/app/upgrades/testnet/v19.0.0-alpha.3"
+	testnetV21alpha1 "github.com/CosmosContracts/juno/v24/app/upgrades/testnet/v21.0.0-alpha.1"
+	testnetV22alpha1 "github.com/CosmosContracts/juno/v24/app/upgrades/testnet/v22.0.0-alpha.1"
+	testnetV23alpha1 "github.com/CosmosContracts/juno/v24/app/upgrades/testnet/v23.0.0-alpha.1"
+	v10 "github.com/CosmosContracts/juno/v24/app/upgrades/v10"
+	v11 "github.com/CosmosContracts/juno/v24/app/upgrades/v11"
+	v12 "github.com/CosmosContracts/juno/v24/app/upgrades/v12"
+	v13 "github.com/CosmosContracts/juno/v24/app/upgrades/v13"
+	v14 "github.com/CosmosContracts/juno/v24/app/upgrades/v14"
+	v15 "github.com/CosmosContracts/juno/v24/app/upgrades/v15"
+	v16 "github.com/CosmosContracts/juno/v24/app/upgrades/v16"
+	v17 "github.com/CosmosContracts/juno/v24/app/upgrades/v17"
+	v18 "github.com/CosmosContracts/juno/v24/app/upgrades/v18"
+	v19 "github.com/CosmosContracts/juno/v24/app/upgrades/v19"
+	v21 "github.com/CosmosContracts/juno/v24/app/upgrades/v21"
+	v22 "github.com/CosmosContracts/juno/v24/app/upgrades/v22"
+	v23 "github.com/CosmosContracts/juno/v24/app/upgrades/v23"
+	v24 "github.com/CosmosContracts/juno/v24/app/upgrades/v24"
+	"github.com/CosmosContracts/juno/v24/docs"
 )
 
 const (
@@ -131,6 +132,7 @@ var (
 		v21.Upgrade,
 		v22.Upgrade,
 		v23.Upgrade,
+		v24.Upgrade,
 	}
 )
 

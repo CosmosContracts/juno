@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v23/x/cw-hooks/keeper"
-	"github.com/CosmosContracts/juno/v23/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v24/x/cw-hooks/keeper"
+	"github.com/CosmosContracts/juno/v24/x/cw-hooks/types"
 )
 
 // NewGenesisState - Create a new genesis state

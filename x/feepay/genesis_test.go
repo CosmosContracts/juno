@@ -10,9 +10,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v23/app"
-	"github.com/CosmosContracts/juno/v23/x/feepay"
-	"github.com/CosmosContracts/juno/v23/x/feepay/types"
+	"github.com/CosmosContracts/juno/v24/app"
+	"github.com/CosmosContracts/juno/v24/x/feepay"
+	"github.com/CosmosContracts/juno/v24/x/feepay/types"
 )
 
 type GenesisTestSuite struct {

@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/CosmosContracts/juno/v23/app/keepers"
+	"github.com/CosmosContracts/juno/v24/app/keepers"
 )
 
 // Stops a vesting account and returns all tokens back to the community pool
