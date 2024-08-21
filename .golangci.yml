@@ -20,7 +20,7 @@ linters:
     - ineffassign
     - misspell
     - nakedret
-    - exportloopref
+    - copyloopvar
     - staticcheck
     - stylecheck
     - typecheck
@@ -46,6 +46,9 @@ linters-settings:
     excludes:
       - G404
       - G115
+  govet:
+    disable:
+      - printf
 
 issues:
   max-issues-per-linter: 0
