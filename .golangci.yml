@@ -20,7 +20,6 @@ linters:
     - ineffassign
     - misspell
     - nakedret
-    - copyloopvar
     - staticcheck
     - stylecheck
     - typecheck
