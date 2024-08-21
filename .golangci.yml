@@ -45,6 +45,7 @@ linters-settings:
   gosec:
     excludes:
       - G404
+      - G115
 
 issues:
   max-issues-per-linter: 0
