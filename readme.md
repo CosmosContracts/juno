@@ -34,7 +34,7 @@ STAKE_TOKEN=ujunox UNSAFE_CORS=true TIMEOUT_COMMIT=1s docker-compose up
 
 We'd like to thank the following teams for their contributions to Juno:
 
-- [EVMOS](https://twitter.com/EvmosOrg) - x/feeshare
-- [tgrade](https://twitter.com/TgradeFinance) - x/globalfee
-- [confio](https://twitter.com/confio_tech) - CosmWasm
-- [osmosis](https://twitter.com) - Osmosis
+- [EVMOS](https://x.com/EvmosOrg) - x/feeshare
+- [tgrade](https://x.com/TgradeFinance) - x/globalfee
+- [confio](https://x.com/confio_tech) - CosmWasm
+- [osmosis](https://x.com) - Osmosis
