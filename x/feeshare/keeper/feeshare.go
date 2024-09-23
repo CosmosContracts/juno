@@ -4,7 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v24/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v25/x/feeshare/types"
 )
 
 // GetFeeShares returns all registered FeeShares.

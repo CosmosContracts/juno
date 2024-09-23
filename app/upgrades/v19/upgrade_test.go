@@ -11,9 +11,9 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmosContracts/juno/v24/app/apptesting"
-	decorators "github.com/CosmosContracts/juno/v24/app/decorators"
-	v19 "github.com/CosmosContracts/juno/v24/app/upgrades/v19"
+	"github.com/CosmosContracts/juno/v25/app/apptesting"
+	decorators "github.com/CosmosContracts/juno/v25/app/decorators"
+	v19 "github.com/CosmosContracts/juno/v25/app/upgrades/v19"
 )
 
 type UpgradeTestSuite struct {

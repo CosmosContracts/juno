@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v24/app/apptesting"
-	v24 "github.com/CosmosContracts/juno/v24/app/upgrades/v24"
+	"github.com/CosmosContracts/juno/v25/app/apptesting"
+	v24 "github.com/CosmosContracts/juno/v25/app/upgrades/v24"
 )
 
 type UpgradeTestSuite struct {

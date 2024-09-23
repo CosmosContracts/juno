@@ -1,9 +1,8 @@
-package v21
+package v25
 
 import (
 	"fmt"
 
-	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -12,16 +11,7 @@ import (
 	"github.com/CosmosContracts/juno/v25/app/upgrades"
 )
 
-// UpgradeName defines the on-chain upgrade name for the upgrade.
-const UpgradeName = "v2100alpha1"
-
-var Upgrade = upgrades.Upgrade{
-	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: v2100Alpha1UpgradeHandler,
-	StoreUpgrades:        store.StoreUpgrades{},
-}
-
-func v2100Alpha1UpgradeHandler(
+func CreateV25UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	_ *keepers.AppKeepers,

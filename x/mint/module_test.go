@@ -12,7 +12,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/testutil"
 
-	"github.com/CosmosContracts/juno/v24/x/mint/types"
+	"github.com/CosmosContracts/juno/v25/x/mint/types"
 )
 
 // TestItCreatesModuleAccountOnInitBlock tests that the module account is created on InitBlock

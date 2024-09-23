@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/cosmos/cosmos-sdk/std"
 
-	"github.com/CosmosContracts/juno/v24/app/params"
+	"github.com/CosmosContracts/juno/v25/app/params"
 )
 
 // MakeEncodingConfig creates an EncodingConfig for testing

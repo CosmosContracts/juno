@@ -19,9 +19,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v24/x/globalfee/client/cli"
-	"github.com/CosmosContracts/juno/v24/x/globalfee/keeper"
-	"github.com/CosmosContracts/juno/v24/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v25/x/globalfee/client/cli"
+	"github.com/CosmosContracts/juno/v25/x/globalfee/keeper"
+	"github.com/CosmosContracts/juno/v25/x/globalfee/types"
 )
 
 var (
