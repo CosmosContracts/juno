@@ -8,9 +8,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/CosmosContracts/juno/v24/x/tokenfactory/bindings"
-	bindings "github.com/CosmosContracts/juno/v24/x/tokenfactory/bindings/types"
-	"github.com/CosmosContracts/juno/v24/x/tokenfactory/types"
+	wasmbinding "github.com/CosmosContracts/juno/v25/x/tokenfactory/bindings"
+	bindings "github.com/CosmosContracts/juno/v25/x/tokenfactory/bindings/types"
+	"github.com/CosmosContracts/juno/v25/x/tokenfactory/types"
 )
 
 func TestCreateDenom(t *testing.T) {

@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v24/app/apptesting"
-	"github.com/CosmosContracts/juno/v24/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v25/app/apptesting"
+	"github.com/CosmosContracts/juno/v25/x/tokenfactory/types"
 )
 
 func (suite *KeeperTestSuite) TestMsgCreateDenom() {

@@ -19,9 +19,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	"github.com/CosmosContracts/juno/v24/app"
-	"github.com/CosmosContracts/juno/v24/x/feepay/keeper"
-	"github.com/CosmosContracts/juno/v24/x/feepay/types"
+	"github.com/CosmosContracts/juno/v25/app"
+	"github.com/CosmosContracts/juno/v25/x/feepay/keeper"
+	"github.com/CosmosContracts/juno/v25/x/feepay/types"
 )
 
 type IntegrationTestSuite struct {

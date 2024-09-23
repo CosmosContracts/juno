@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v24/app/keepers"
-	"github.com/CosmosContracts/juno/v24/app/upgrades"
+	"github.com/CosmosContracts/juno/v25/app/keepers"
+	"github.com/CosmosContracts/juno/v25/app/upgrades"
 )
 
 // UpgradeName defines the on-chain upgrade name for the upgrade.

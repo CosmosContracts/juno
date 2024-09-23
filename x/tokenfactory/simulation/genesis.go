@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	appparams "github.com/CosmosContracts/juno/v24/app/params"
-	"github.com/CosmosContracts/juno/v24/x/tokenfactory/types"
+	appparams "github.com/CosmosContracts/juno/v25/app/params"
+	"github.com/CosmosContracts/juno/v25/x/tokenfactory/types"
 )
 
 // RandDenomCreationFeeParam returns a random DenomCreationFeeParam

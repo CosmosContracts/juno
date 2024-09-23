@@ -8,7 +8,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
-	globalfeetypes "github.com/CosmosContracts/juno/v24/x/globalfee/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v25/x/globalfee/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmosproto "github.com/cosmos/gogoproto/proto"

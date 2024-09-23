@@ -19,9 +19,9 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	"github.com/CosmosContracts/juno/v24/x/feepay/client/cli"
-	"github.com/CosmosContracts/juno/v24/x/feepay/keeper"
-	"github.com/CosmosContracts/juno/v24/x/feepay/types"
+	"github.com/CosmosContracts/juno/v25/x/feepay/client/cli"
+	"github.com/CosmosContracts/juno/v25/x/feepay/keeper"
+	"github.com/CosmosContracts/juno/v25/x/feepay/types"
 )
 
 // type check to ensure the interface is properly implemented

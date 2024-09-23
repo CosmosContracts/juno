@@ -11,8 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v24/app"
-	"github.com/CosmosContracts/juno/v24/x/mint/types"
+	"github.com/CosmosContracts/juno/v25/app"
+	"github.com/CosmosContracts/juno/v25/x/mint/types"
 )
 
 type MintTestSuite struct {

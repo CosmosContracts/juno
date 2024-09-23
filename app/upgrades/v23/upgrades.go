@@ -11,8 +11,8 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v24/app/keepers"
-	"github.com/CosmosContracts/juno/v24/app/upgrades"
+	"github.com/CosmosContracts/juno/v25/app/keepers"
+	"github.com/CosmosContracts/juno/v25/app/upgrades"
 )
 
 type IndividualAccount struct {
