@@ -15,7 +15,6 @@ import (
 
 	"github.com/CosmosContracts/juno/v25/app/keepers"
 	"github.com/CosmosContracts/juno/v25/app/upgrades"
-
 	// types
 	feesharetypes "github.com/CosmosContracts/juno/v25/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v25/x/tokenfactory/types"
