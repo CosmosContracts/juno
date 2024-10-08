@@ -69,7 +69,7 @@ func CreateV19UpgradeHandler(
 	}
 }
 
-// migrateCore1Vesting moves the funds and delegations from the PeriodicVestingAccount -> the new Council (contract address).
+// migrateCore1MultisigVesting moves the funds and delegations from the PeriodicVestingAccount -> the new Council (contract address).
 // - Get the Core-1 multisig vesting account
 // - Instantly finish all redelegations, then unbond all tokens.
 // - Send all tokens to the new council (including the previously held balance)
