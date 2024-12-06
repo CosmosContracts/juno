@@ -221,4 +221,7 @@ replace (
 
 	// lock exp
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
+
+	// My fix
+	nhooyr.io/websocket => github.com/coder/websocket v1.8.7
 )

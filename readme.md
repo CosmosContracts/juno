@@ -38,3 +38,35 @@ We'd like to thank the following teams for their contributions to Juno:
 - [tgrade](https://twitter.com/TgradeFinance) - x/globalfee
 - [confio](https://twitter.com/confio_tech) - CosmWasm
 - [osmosis](https://twitter.com/osmosiszone) - Osmosis
+
+
+## My instructions
+
+```
+STAKE_TOKEN=ujunox UNSAFE_CORS=true TIMEOUT_COMMIT=1s docker-compose up
+```
+
+```
+docker exec -it juno-node-1 /bin/sh
+```
+
+Команда внутри контейнера:
+```
+junod keys add my-wallet --keyring-backend=test
+```
+Вывод:
+```
+- address: juno1k9vn7u90jk85rza66kp0gs8zfnpcwalf72yvdh
+  name: my-wallet
+  pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AvWpRLN8V9uH7h9rtQLKJ1zW2Twg/AzrO3WqsXqJ2WDr"}'
+  type: local
+```
+
+```
+junod keys list --keyring-backend=test
+junod query bank balances juno1k9vn7u90jk85rza66kp0gs8zfnpcwalf72yvdh
+```
+
+```
+junod tx tokenfactory create-denom mytoken --from=my-wallet --chain-id=local-juno --fees=500ujunox --keyring-backend=test
+```
