@@ -45,11 +45,11 @@ We'd like to thank the following teams for their contributions to Juno:
 - [confio](https://twitter.com/confio_tech) - CosmWasm
 - [osmosis](https://twitter.com/osmosiszone) - Osmosis
 
-## Моя дока
+## My docs
 
-### Базовый запуск juno
+### Run juno chain
 
-Удаляем прошлую конфигурацию
+Rm old config
 
 ```
 lsof -i :26657
@@ -59,19 +59,19 @@ kill -9 21640
 rm -rf ~/.juno
 ```
 
-Создаем новую конфигурацию
+Create old config
 
 ```
 ./bin/junod init my-node --chain-id=my-chain
 ```
 
-Создаем validator
+Create validator
 
 ```
 ./bin/junod keys add my-validator --keyring-backend=test
 ```
 
-Вывод:
+Output:
 
 ```
 - address: juno1fgt6akzfp7qls5qctmpm4n0pvfu43dvvqekz60
@@ -80,13 +80,13 @@ rm -rf ~/.juno
   type: local
 ```
 
-Пополняем баланс для validator
+Funding balance for validator
 
 ```
 ./bin/junod genesis add-genesis-account $(./bin/junod keys show my-validator -a --keyring-backend=test) 100000000stake
 ```
 
-Настраиваем validator в genesis
+Configure validator in genesis
 
 ```
 ./bin/junod genesis gentx my-validator 1000000stake \
@@ -99,13 +99,13 @@ rm -rf ~/.juno
   --min-self-delegation="1"
 ```
 
-Создаем кошелек
+Create my-wallet
 
 ```
 ./bin/junod keys add my-wallet --keyring-backend=test
 ```
 
-Вывод:
+Output:
 
 ```
 - address: juno1e3rdxdlp9zdskp3d4p03yl7ae728mz0gusrvyj
@@ -114,89 +114,41 @@ rm -rf ~/.juno
   type: local
 ```
 
-Пополняем баланс для кошелька
+Funding balance for my-wallet
 
 ```
 ./bin/junod genesis add-genesis-account $(./bin/junod keys show my-wallet -a --keyring-backend=test) 1000000000stake
 ```
 
-Проверяем, что все корректно
+Check
 
 ```
 ./bin/junod genesis collect-gentxs
 ./bin/junod genesis validate-genesis
 ```
 
-Нужно задать min gas price в app.toml или запустить с доп флагом
+Configure min gas price in app.toml and run juno
 
 ```
 ./bin/junod start
 ./bin/junod start --minimum-gas-prices=0.025stake
 ```
 
-В app.toml выставить такие значения
+### Test tokenfactory
 
-```
-[api]
-
-# Enable defines if the API server should be enabled.
-enable = true
-
-# Swagger defines if swagger documentation should automatically be registered.
-swagger = false
-
-# Address defines the API server to listen on.
-address = "tcp://0.0.0.0:1317"
-
-# MaxOpenConnections defines the number of maximum open connections.
-max-open-connections = 1000
-
-# RPCReadTimeout defines the Tendermint RPC read timeout (in seconds).
-rpc-read-timeout = 10
-
-# RPCWriteTimeout defines the Tendermint RPC write timeout (in seconds).
-rpc-write-timeout = 0
-
-# RPCMaxBodyBytes defines the Tendermint maximum request body (in bytes).
-rpc-max-body-bytes = 1000000
-
-# EnableUnsafeCORS defines if CORS should be enabled (unsafe - use it at your own risk).
-enabled-unsafe-cors = true
-```
-
-Проверить, что api работает:
-
-```
-curl http://localhost:1317/cosmos/tokenfactory/v1beta1/params
-```
-
-Вывод:
-
-```
-{"code":12,"message":"Not Implemented","details":[]}
-```
-
-Запросить статус:
-
-```
-curl http://localhost:26657/status
-```
-
-### Тестируем tokenfactory
-
-Проверяем, что баланс успешно добавлен для кошелька my-wallet
+Check balance for my-wallet
 
 ```
 ./bin/junod query bank balances $(./bin/junod keys show my-wallet -a --keyring-backend=test)
 ```
 
-Проверяем, что tokenfactory правильно настроен
+Check tokenfactory
 
 ```
 ./bin/junod query tokenfactory params
 ```
 
-Вывод:
+Output:
 
 ```
 params:
@@ -206,13 +158,13 @@ params:
   denom_creation_gas_consume: "2000000"
 ```
 
-Создаем новый токен через tokenfactory
+Create mytoken
 
 ```
 ./bin/junod tx tokenfactory create-denom mytoken --from=my-wallet --chain-id=my-chain --keyring-backend=test --gas=auto --gas-adjustment=1.5 --fees=80000stake -y
 ```
 
-Вывод:
+Output:
 
 ```
 gas estimate: 3153708
@@ -231,45 +183,45 @@ tx: null
 txhash: FDC0D05FDFFD46F82FA2201A1A31DB90BE23AA801D384C5A1E22755C3E17886B
 ```
 
-Проверяем созданный токен
+Check mytoken
 
 ```
 ./bin/junod query tokenfactory denoms-from-creator $(./bin/junod keys show my-wallet -a --keyring-backend=test)
 ```
 
-Вывод:
+Output:
 
 ```
 denoms:
 - factory/juno1e56qnzv38pdrlkqtwfkkx5cmugrw76t55thjhe/mytoken
 ```
 
-Проверяем метаданные токена
+Check mytoken metadata
 
 ```
 ./bin/junod query tokenfactory denom-authority-metadata factory/juno1e56qnzv38pdrlkqtwfkkx5cmugrw76t55thjhe/mytoken
 ```
 
-Вывод:
+Output:
 
 ```
 authority_metadata:
 admin: juno1e56qnzv38pdrlkqtwfkkx5cmugrw76t55thjhe
 ```
 
-Делаем mint для созданного токена:
+Mint mytoken
 
 ```
 ./bin/junod tx tokenfactory mint 1000factory/juno1e56qnzv38pdrlkqtwfkkx5cmugrw76t55thjhe/mytoken --from=my-wallet --chain-id=my-chain --keyring-backend=test --fees=5000stake -y
 ```
 
-Можно запустить команду с краткой версией для токена (без длинного префикса с адресом):
+Mint mytoken with short amount format
 
 ```
 ./bin/junod tx tokenfactory mint 1000mytoken --from=my-wallet --chain-id=my-chain --keyring-backend=test --fees=5000stake -y
 ```
 
-Вывод:
+Output:
 
 ```
 code: 0
@@ -287,13 +239,13 @@ tx: null
 txhash: EAD728AE54DAEB071D153EA04DA3C4B71F4091ADE413CC12AA6E4A74F8FAFBBF
 ```
 
-Проверяем баланс для кошелька my-wallet:
+Check balance for my-wallet
 
 ```
 /bin/junod query bank balances $(./bin/junod keys show my-wallet -a --keyring-backend=test)
 ```
 
-Вывод:
+Output:
 
 ```
 balances:
@@ -306,19 +258,19 @@ pagination:
   total: "0"
 ```
 
-Проверяем транзакцию:
+Check tx
 
 ```
 ./bin/junod query tx EAD728AE54DAEB071D153EA04DA3C4B71F4091ADE413CC12AA6E4A74F8FAFBBF
 ```
 
-Создаем новый кошелек recipient-wallet:
+Create recipient-wallet
 
 ```
 ./bin/junod keys add recipient-wallet --keyring-backend=test
 ```
 
-Вывод:
+Output:
 
 ```
 - address: juno1abcdefg1234567890hijklmnopqrstuvwxy
@@ -327,13 +279,13 @@ pagination:
   type: local
 ```
 
-Пополняем баланс для recipient-wallet:
+Funding balance for recipient-wallet
 
 ```
 ./bin/junod tx bank send my-wallet $(./bin/junod keys show recipient-wallet -a --keyring-backend=test) 100000stake --chain-id=my-chain --keyring-backend=test --fees=5000stake -y
 ```
 
-Вывод:
+Output:
 
 ```
 code: 0
@@ -351,13 +303,13 @@ tx: null
 txhash: 0BBF2F9DC992A85E772AD693AC7649540B377B2146945DBFBE3EAC05F8D9C0DA
 ```
 
-Проверяем баланс для recipient-wallet:
+Check balance for recipient-wallet
 
 ```
 ./bin/junod query bank balances $(./bin/junod keys show recipient-wallet -a --keyring-backend=test)
 ```
 
-Вывод:
+Output:
 
 ```
 balances:
@@ -368,13 +320,13 @@ pagination:
   total: "0"
 ```
 
-Переводим новый токен с my-wallet на recipient-wallet:
+Send mytoken from my-wallet to recipient-wallet:
 
 ```
 ./bin/junod tx bank send my-wallet $(./bin/junod keys show recipient-wallet -a --keyring-backend=test) 100factory/juno1e56qnzv38pdrlkqtwfkkx5cmugrw76t55thjhe/mytoken --chain-id=my-chain --keyring-backend=test --fees=5000stake -y
 ```
 
-Вывод:
+Output:
 
 ```
 code: 0
@@ -392,13 +344,13 @@ tx: null
 txhash: 2E7435F7A30AEF3F83E165FB1F8F387B2E4011BD98B6A8E9C73339609470493C
 ```
 
-Проверяем баланс для recipient-wallet:
+Check balance for recipient-wallet
 
 ```
 ./bin/junod query bank balances $(./bin/junod keys show recipient-wallet -a --keyring-backend=test)
 ```
 
-Вывод:
+Output:
 
 ```
 balances:
@@ -411,7 +363,7 @@ pagination:
   total: "0"
 ```
 
-### Тестируем smart-contract на Rust
+### Test Rust smart-contract
 
 Install and configure Rust:
 
