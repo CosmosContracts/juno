@@ -95,8 +95,9 @@ func NewMintCmd() *cobra.Command {
 
 			txf = txf.WithTxConfig(clientCtx.TxConfig).WithAccountRetriever(clientCtx.AccountRetriever)
 
+			amountArg := args[0]
 			// Validate and convert the amount format
-			amountStr, err := resolveAmount(args[0], clientCtx)
+			amountStr, err := resolveAmount(amountArg, clientCtx)
 			if err != nil {
 				return err
 			}
@@ -142,8 +143,9 @@ func NewMintToCmd() *cobra.Command {
 				return err
 			}
 
+			amountArg := args[1]
 			// Validate and convert the amount format
-			amountStr, err := resolveAmount(args[0], clientCtx)
+			amountStr, err := resolveAmount(amountArg, clientCtx)
 			if err != nil {
 				return err
 			}
@@ -185,8 +187,9 @@ func NewBurnCmd() *cobra.Command {
 			}
 			txf = txf.WithTxConfig(clientCtx.TxConfig).WithAccountRetriever(clientCtx.AccountRetriever)
 
+			amountArg := args[0]
 			// Validate and convert the amount format
-			amountStr, err := resolveAmount(args[0], clientCtx)
+			amountStr, err := resolveAmount(amountArg, clientCtx)
 			if err != nil {
 				return err
 			}
@@ -232,8 +235,9 @@ func NewBurnFromCmd() *cobra.Command {
 				return err
 			}
 
+			amountArg := args[1]
 			// Validate and convert the amount format
-			amountStr, err := resolveAmount(args[0], clientCtx)
+			amountStr, err := resolveAmount(amountArg, clientCtx)
 			if err != nil {
 				return err
 			}
@@ -275,8 +279,9 @@ func NewForceTransferCmd() *cobra.Command {
 			}
 			txf = txf.WithTxConfig(clientCtx.TxConfig).WithAccountRetriever(clientCtx.AccountRetriever)
 
+			amountArg := args[0]
 			// Validate and convert the amount format
-			amountStr, err := resolveAmount(args[0], clientCtx)
+			amountStr, err := resolveAmount(amountArg, clientCtx)
 			if err != nil {
 				return err
 			}

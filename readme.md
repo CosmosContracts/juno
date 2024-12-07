@@ -52,6 +52,10 @@ We'd like to thank the following teams for their contributions to Juno:
 Удаляем прошлую конфигурацию
 
 ```
+lsof -i :26657
+kill -9 21640
+./bin/junod reset app
+./bin/junod reset wasm
 rm -rf ~/.juno
 ```
 
@@ -405,4 +409,55 @@ balances:
 pagination:
   next_key: null
   total: "0"
+```
+
+### Тестируем smart-contract на Rust
+
+Install and configure Rust:
+
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+rustup target add wasm32-unknown-unknown
+
+rustup update stable
+```
+
+Build
+
+```
+cd smartcontracts/hello_world
+cargo build --release --target wasm32-unknown-unknown
+```
+
+Optimize with docker
+
+```
+docker run --rm -v "$(pwd)":/code \
+  --mount type=volume,source="$(basename "$(pwd)")_cache",target=/target \
+  --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
+  cosmwasm/optimizer:0.16.1
+```
+
+Upload contract to juno chain
+
+```
+cd ../..
+./bin/junod tx wasm store smartcontracts/hello_world/artifacts/hello_world.wasm --from my-wallet --chain-id my-chain --gas=auto --fees=500stake -y
+```
+
+Instantiate the Contract
+
+```
+junod tx wasm instantiate <code_id> '{}' --from my-wallet --label "HelloWorld" --no-admin --chain-id my-chain --gas=auto --fees=500stake -y
+```
+
+Interact with the Contract
+```
+junod query wasm contract-state smart <contract_address> '{}'
+```
+
+Output:
+```
+"Hello, World!"
 ```
