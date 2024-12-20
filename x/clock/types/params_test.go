@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v25/x/clock/types"
+	"github.com/CosmosContracts/juno/v26/x/clock/types"
 )
 
 func TestParamsValidate(t *testing.T) {

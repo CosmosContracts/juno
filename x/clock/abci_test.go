@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	"github.com/CosmosContracts/juno/v25/app"
-	clock "github.com/CosmosContracts/juno/v25/x/clock"
-	"github.com/CosmosContracts/juno/v25/x/clock/types"
+	"github.com/CosmosContracts/juno/v26/app"
+	clock "github.com/CosmosContracts/juno/v26/x/clock"
+	"github.com/CosmosContracts/juno/v26/x/clock/types"
 )
 
 type EndBlockerTestSuite struct {

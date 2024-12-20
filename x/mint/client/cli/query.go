@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/CosmosContracts/juno/v25/x/mint/types"
+	"github.com/CosmosContracts/juno/v26/x/mint/types"
 )
 
 // GetQueryCmd returns the cli query commands for the minting module.

@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v25/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v26/x/feeshare/types"
 )
 
 // GetParams returns the total set of fees parameters.

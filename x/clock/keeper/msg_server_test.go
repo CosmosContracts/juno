@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v25/x/clock/types"
+	"github.com/CosmosContracts/juno/v26/x/clock/types"
 )
 
 // Test register clock contract.
