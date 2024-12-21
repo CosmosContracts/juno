@@ -90,7 +90,6 @@ import (
 	v24 "github.com/CosmosContracts/juno/v26/app/upgrades/v24"
 	v25 "github.com/CosmosContracts/juno/v26/app/upgrades/v25"
 	v26 "github.com/CosmosContracts/juno/v26/app/upgrades/v26"
-
 	"github.com/CosmosContracts/juno/v26/docs"
 )
 
