@@ -4,8 +4,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v25/x/tokenfactory/exported"
-	"github.com/CosmosContracts/juno/v25/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v26/x/tokenfactory/exported"
+	"github.com/CosmosContracts/juno/v26/x/tokenfactory/types"
 )
 
 const ModuleName = "tokenfactory"

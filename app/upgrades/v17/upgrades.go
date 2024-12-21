@@ -14,10 +14,10 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v25/app/keepers"
-	"github.com/CosmosContracts/juno/v25/app/upgrades"
-	clocktypes "github.com/CosmosContracts/juno/v25/x/clock/types"
-	driptypes "github.com/CosmosContracts/juno/v25/x/drip/types"
+	"github.com/CosmosContracts/juno/v26/app/keepers"
+	"github.com/CosmosContracts/juno/v26/app/upgrades"
+	clocktypes "github.com/CosmosContracts/juno/v26/x/clock/types"
+	driptypes "github.com/CosmosContracts/juno/v26/x/drip/types"
 )
 
 // Verify the following with:

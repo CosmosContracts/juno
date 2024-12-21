@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v25/x/feepay/types"
+	"github.com/CosmosContracts/juno/v26/x/feepay/types"
 )
 
 // Get the parameters for the fee pay module.

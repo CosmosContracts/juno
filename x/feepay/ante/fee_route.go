@@ -6,9 +6,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	feepayhelpers "github.com/CosmosContracts/juno/v25/x/feepay/helpers"
-	feepaykeeper "github.com/CosmosContracts/juno/v25/x/feepay/keeper"
-	globalfeeante "github.com/CosmosContracts/juno/v25/x/globalfee/ante"
+	feepayhelpers "github.com/CosmosContracts/juno/v26/x/feepay/helpers"
+	feepaykeeper "github.com/CosmosContracts/juno/v26/x/feepay/keeper"
+	globalfeeante "github.com/CosmosContracts/juno/v26/x/globalfee/ante"
 )
 
 // MsgIsFeePayTx defines an AnteHandler decorator that only checks and saves if a

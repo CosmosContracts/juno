@@ -13,8 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v25/x/mint/client/cli"
-	minttypes "github.com/CosmosContracts/juno/v25/x/mint/types"
+	"github.com/CosmosContracts/juno/v26/x/mint/client/cli"
+	minttypes "github.com/CosmosContracts/juno/v26/x/mint/types"
 )
 
 type IntegrationTestSuite struct {

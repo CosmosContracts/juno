@@ -10,7 +10,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v25/x/clock/types"
+	"github.com/CosmosContracts/juno/v26/x/clock/types"
 )
 
 // Keeper of the clock store

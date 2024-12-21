@@ -1,4 +1,4 @@
-package v22
+package v26
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"github.com/CosmosContracts/juno/v26/app/upgrades"
 )
 
-func CreateV22UpgradeHandler(
+func CreateV26UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	_ *keepers.AppKeepers,
