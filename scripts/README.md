@@ -20,7 +20,7 @@ To generate protobuf files from their respective `.proto` files, run the followi
 sh ./scripts/protocgen.sh
 ```
 
-You can also run it manually if you open the file. In some cases, you have to use the `sudo` command for the recursive copy (from temp to the proto file locations in `x/`).
+You can also run it manually if you open the file. In some cases, you have to use the `sudo` command for the recursive copy (from temp to the proto file locations in `x/` directory).
 
 ---
 
