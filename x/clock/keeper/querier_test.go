@@ -4,7 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v26/x/clock/types"
+	"github.com/CosmosContracts/juno/v27/x/clock/types"
 )
 
 // Query Clock Params

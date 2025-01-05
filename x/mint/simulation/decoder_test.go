@@ -9,9 +9,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
-	"github.com/CosmosContracts/juno/v26/app"
-	"github.com/CosmosContracts/juno/v26/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v26/x/mint/types"
+	"github.com/CosmosContracts/juno/v27/app"
+	"github.com/CosmosContracts/juno/v27/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v27/x/mint/types"
 )
 
 // TestDecodeStore tests the decoding of the store

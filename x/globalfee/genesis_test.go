@@ -15,9 +15,9 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	appparams "github.com/CosmosContracts/juno/v26/app/params"
-	globalfeekeeper "github.com/CosmosContracts/juno/v26/x/globalfee/keeper"
-	"github.com/CosmosContracts/juno/v26/x/globalfee/types"
+	appparams "github.com/CosmosContracts/juno/v27/app/params"
+	globalfeekeeper "github.com/CosmosContracts/juno/v27/x/globalfee/keeper"
+	"github.com/CosmosContracts/juno/v27/x/globalfee/types"
 )
 
 func TestDefaultGenesis(t *testing.T) {

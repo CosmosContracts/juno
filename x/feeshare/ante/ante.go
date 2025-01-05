@@ -12,7 +12,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	feeshare "github.com/CosmosContracts/juno/v26/x/feeshare/types"
+	feeshare "github.com/CosmosContracts/juno/v27/x/feeshare/types"
 )
 
 // FeeSharePayoutDecorator Run his after we already deduct the fee from the account with
