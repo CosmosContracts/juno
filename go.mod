@@ -1,6 +1,6 @@
 module github.com/CosmosContracts/juno/v26
 
-go 1.22.2
+go 1.23.4
 
 require (
 	cosmossdk.io/api v0.3.1
