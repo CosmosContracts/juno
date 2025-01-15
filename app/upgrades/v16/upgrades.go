@@ -6,11 +6,11 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
-	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
-	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
-	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	exported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
+	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
+	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	exported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 
 	// External modules
 	"cosmossdk.io/math"

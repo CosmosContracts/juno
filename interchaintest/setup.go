@@ -17,7 +17,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
+	ibclocalhost "github.com/cosmos/ibc-go/v8/modules/light-clients/09-localhost"
 
 	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
 	feepaytypes "github.com/CosmosContracts/juno/v27/x/feepay/types"

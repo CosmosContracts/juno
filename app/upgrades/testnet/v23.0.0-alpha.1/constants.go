@@ -3,7 +3,7 @@ package v23
 import (
 	"fmt"
 
-	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
 
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
