@@ -8,10 +8,10 @@ import (
 
 	"cosmossdk.io/math"
 
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	decorators "github.com/CosmosContracts/juno/v27/app/decorators"
 	"github.com/CosmosContracts/juno/v27/app/keepers"

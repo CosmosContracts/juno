@@ -1,7 +1,7 @@
 package v17
 
 import (
-	store "github.com/cosmos/cosmos-sdk/store/types"
+	store "cosmossdk.io/store/types"
 
 	"github.com/CosmosContracts/juno/v27/app/upgrades"
 	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"

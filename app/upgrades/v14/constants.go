@@ -1,9 +1,9 @@
 package v14
 
 import (
-	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
+	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/types"
 
-	store "github.com/cosmos/cosmos-sdk/store/types"
+	store "cosmossdk.io/store/types"
 
 	"github.com/CosmosContracts/juno/v27/app/upgrades"
 	"github.com/CosmosContracts/juno/v27/x/globalfee"

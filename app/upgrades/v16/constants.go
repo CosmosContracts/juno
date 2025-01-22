@@ -5,10 +5,10 @@ import (
 
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
 
-	store "github.com/cosmos/cosmos-sdk/store/types"
+	store "cosmossdk.io/store/types"
+	"cosmossdk.io/x/nft"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	"github.com/cosmos/cosmos-sdk/x/nft"
 
 	"github.com/CosmosContracts/juno/v27/app/upgrades"
 	globalfeettypes "github.com/CosmosContracts/juno/v27/x/globalfee/types"
