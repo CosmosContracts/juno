@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
+	// buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
@@ -13,8 +13,6 @@ import (
 	exported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 
 	// External modules
-	"cosmossdk.io/math"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -91,10 +89,10 @@ func CreateV16UpgradeHandler(
 				// deprecated and old code
 				continue
 
-			// POB
-			case buildertypes.ModuleName:
-				// already SDK v47
-				continue
+			// // POB
+			// case buildertypes.ModuleName:
+			// 	// already SDK v47
+			// 	continue
 
 			// juno modules
 			case feesharetypes.ModuleName:
@@ -151,20 +149,20 @@ func CreateV16UpgradeHandler(
 			return nil, err
 		}
 
-		// x/POB
-		pobAddr := keepers.AccountKeeper.GetModuleAddress(buildertypes.ModuleName)
+		// // x/POB
+		// pobAddr := keepers.AccountKeeper.GetModuleAddress(buildertypes.ModuleName)
 
-		builderParams := buildertypes.DefaultGenesisState().GetParams()
-		builderParams.EscrowAccountAddress = pobAddr
-		builderParams.MaxBundleSize = 4
-		builderParams.FrontRunningProtection = false
-		builderParams.MinBidIncrement.Denom = nativeDenom
-		builderParams.MinBidIncrement.Amount = math.NewInt(1000000)
-		builderParams.ReserveFee.Denom = nativeDenom
-		builderParams.ReserveFee.Amount = math.NewInt(1000000)
-		if err := keepers.BuildKeeper.SetParams(ctx, builderParams); err != nil {
-			return nil, err
-		}
+		// builderParams := buildertypes.DefaultGenesisState().GetParams()
+		// builderParams.EscrowAccountAddress = pobAddr
+		// builderParams.MaxBundleSize = 4
+		// builderParams.FrontRunningProtection = false
+		// builderParams.MinBidIncrement.Denom = nativeDenom
+		// builderParams.MinBidIncrement.Amount = math.NewInt(1000000)
+		// builderParams.ReserveFee.Denom = nativeDenom
+		// builderParams.ReserveFee.Amount = math.NewInt(1000000)
+		// if err := keepers.BuildKeeper.SetParams(ctx, builderParams); err != nil {
+		// 	return nil, err
+		// }
 
 		return versionMap, err
 	}

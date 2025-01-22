@@ -2,7 +2,6 @@ package keepers
 
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
@@ -60,7 +59,6 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		feepaytypes.StoreKey,
 		feesharetypes.StoreKey,
 		globalfeetypes.StoreKey,
-		buildertypes.StoreKey,
 		driptypes.StoreKey,
 		clocktypes.StoreKey,
 		cwhookstypes.StoreKey,

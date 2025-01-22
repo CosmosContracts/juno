@@ -12,8 +12,6 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	wasmvm "github.com/CosmWasm/wasmvm/v2"
-	builderkeeper "github.com/skip-mev/pob/x/builder/keeper"
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
 	"github.com/spf13/cast"
 
 	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
@@ -136,9 +134,9 @@ var maccPerms = map[string][]string{
 	wasmtypes.ModuleName:           {},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfee.ModuleName:           nil,
-	buildertypes.ModuleName:        nil,
-	feepaytypes.ModuleName:         nil,
-	junoburn.ModuleName:            {authtypes.Burner},
+	// buildertypes.ModuleName:        nil,
+	feepaytypes.ModuleName: nil,
+	junoburn.ModuleName:    {authtypes.Burner},
 }
 
 type AppKeepers struct {
@@ -150,7 +148,6 @@ type AppKeepers struct {
 	// keepers
 	AccountKeeper       authkeeper.AccountKeeper
 	BankKeeper          bankkeeper.Keeper
-	BuildKeeper         builderkeeper.Keeper
 	CapabilityKeeper    *capabilitykeeper.Keeper
 	StakingKeeper       *stakingkeeper.Keeper
 	SlashingKeeper      slashingkeeper.Keeper
@@ -474,17 +471,6 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,
 		tokenFactoryCapabilities,
-		govModAddress,
-	)
-
-	// Create the Skip Builder Keeper
-	appKeepers.BuildKeeper = builderkeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[buildertypes.StoreKey],
-		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
-		appKeepers.DistrKeeper,
-		stakingKeeper,
 		govModAddress,
 	)
 

@@ -13,8 +13,6 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/prometheus/client_golang/prometheus"
-	pobabci "github.com/skip-mev/pob/abci"
-	pobmempool "github.com/skip-mev/pob/mempool"
 	"github.com/spf13/cast"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -387,10 +385,8 @@ func New(
 			GlobalFeeKeeper:      app.AppKeepers.GlobalFeeKeeper,
 			StakingKeeper:        *app.AppKeepers.StakingKeeper,
 
-			TxEncoder:     app.txConfig.TxEncoder(),
-			BuilderKeeper: app.AppKeepers.BuildKeeper,
-			Mempool:       mempool,
-			BondDenom:     app.GetChainBondDenom(),
+			TxEncoder: app.txConfig.TxEncoder(),
+			BondDenom: app.GetChainBondDenom(),
 		},
 	)
 	if err != nil {
