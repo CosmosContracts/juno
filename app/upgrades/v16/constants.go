@@ -1,7 +1,7 @@
 package v16
 
 import (
-	buildertypes "github.com/skip-mev/pob/x/builder/types"
+	// buildertypes "github.com/skip-mev/pob/x/builder/types"
 
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
 
