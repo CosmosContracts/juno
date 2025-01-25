@@ -12,7 +12,7 @@ Juno is a **sovereign public blockchain** in the Cosmos Ecosystem. It aims to pr
 
 Juno originates from a **community-driven initiative**, prompted by developers, validators and delegators in the Cosmos Ecosystem. The common vision is to preserve the neutrality, performance, and reliability of the Cosmos Hub. This is achieved by offloading smart contract deployment to a dedicated sister Hub.
 
-**Juno** is a blockchain built using Cosmos SDK and Tendermint.
+**Juno** is a blockchain built using Cosmos SDK and Comet BFT.
 
 ## Get started
 

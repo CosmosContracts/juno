@@ -13,7 +13,7 @@ package app
 // 	abci "github.com/cometbft/cometbft/abci/types"
 // 	"github.com/cometbft/cometbft/crypto"
 // 	"github.com/cometbft/cometbft/crypto/ed25519"
-// 	"github.com/cometbft/cometbft/libs/log"
+// 	"cosmossdk.io/log"
 // 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 // 	tmtypes "github.com/cometbft/cometbft/types"
 
