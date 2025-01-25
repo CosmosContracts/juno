@@ -1,6 +1,8 @@
 package app
 
 import (
+	"errors"
+
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -9,7 +11,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
-	storetypes "cosmossdk.io/store/types"
+	corestoretypes "cosmossdk.io/core/store"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -34,24 +36,28 @@ const maxBypassMinFeeMsgGasUsage = 2_000_000
 // channel keeper and a BankKeeper with an added method for fee sharing.
 type HandlerOptions struct {
 	ante.HandlerOptions
-
-	GovKeeper         govkeeper.Keeper
-	IBCKeeper         *ibckeeper.Keeper
-	FeePayKeeper      feepaykeeper.Keeper
-	FeeShareKeeper    feesharekeeper.Keeper
-	BankKeeper        bankkeeper.Keeper
-	TxCounterStoreKey storetypes.StoreKey
-	WasmConfig        wasmtypes.WasmConfig
-	Cdc               codec.BinaryCodec
-
-	BypassMinFeeMsgTypes []string
-
-	GlobalFeeKeeper globalfeekeeper.Keeper
-	StakingKeeper   stakingkeeper.Keeper
-
+	Cdc       codec.BinaryCodec
 	TxEncoder sdk.TxEncoder
 
-	BondDenom string
+	// cosmos sdk
+	GovKeeper     govkeeper.Keeper
+	StakingKeeper stakingkeeper.Keeper
+	BondDenom     string
+	BankKeeper    bankkeeper.Keeper
+
+	// ibc
+	IBCKeeper *ibckeeper.Keeper
+
+	// wasm
+	TXCounterStoreService corestoretypes.KVStoreService
+	NodeConfig            *wasmtypes.NodeConfig
+	WasmKeeper            *wasmkeeper.Keeper
+
+	// fee modules
+	FeePayKeeper         feepaykeeper.Keeper
+	FeeShareKeeper       feesharekeeper.Keeper
+	GlobalFeeKeeper      globalfeekeeper.Keeper
+	BypassMinFeeMsgTypes []string
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -61,15 +67,18 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.AccountKeeper == nil {
 		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
 	}
-
 	if options.BankKeeper == nil {
 		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
 	}
-
 	if options.SignModeHandler == nil {
 		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
-
+	if options.NodeConfig == nil {
+		return nil, errors.New("wasm config is required for ante builder")
+	}
+	if options.TXCounterStoreService == nil {
+		return nil, errors.New("wasm store service is required for ante builder")
+	}
 	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
@@ -86,29 +95,41 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	gfd := globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage, &isFeePayTx)
 
 	anteDecorators := []sdk.AnteDecorator{
-		// GlobalFee query params for minimum fee
-		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
-		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
-		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+		// outermost AnteDecorator. SetUpContext must be called first
+		ante.NewSetUpContextDecorator(),
+
+		// wasm
+		wasmkeeper.NewLimitSimulationGasDecorator(options.NodeConfig.SimulationGasLimit),
+		wasmkeeper.NewCountTXDecorator(options.TXCounterStoreService),
+		wasmkeeper.NewGasRegisterDecorator(options.WasmKeeper.GetGasRegister()),
+		wasmkeeper.NewTxContractsDecorator(),
+
+		// custom decorators
 		decorators.MsgFilterDecorator{},
-		ante.NewValidateBasicDecorator(),
 		decorators.NewChangeRateDecorator(&options.StakingKeeper),
+
+		// cosmos sdk
+		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
+		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 
+		// juno custom modules
 		// Fee route decorator calls FeePay and Global Fee decorators in different orders
 		// depending on the type of incoming tx.
 		feepayante.NewFeeRouteDecorator(options.FeePayKeeper, &fpd, &gfd, &isFeePayTx),
-
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
+
+		// signatures
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, sigGasConsumer),
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+
+		// ibc
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 	}
 
