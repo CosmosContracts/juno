@@ -382,8 +382,6 @@ github.com/cosmos/ibc-apps/modules/async-icq/v8 v8.0.1-0.20240124225747-f055ce5b
 github.com/cosmos/ibc-apps/modules/async-icq/v8 v8.0.1-0.20240124225747-f055ce5b405c/go.mod h1:D3Q380FpWRFtmUQWLosPxachi6w24Og2t5u/Tww5wtY=
 github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 v8.0.0-20241122170711-64c5cd5a9fb9 h1:EHrOVL4oSuygFjgb6lnKv6ZRqwwTzOe/GeYod0EH+W4=
 github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 v8.0.0-20241122170711-64c5cd5a9fb9/go.mod h1:9+Z14xz3Y+5uEn5i1CvLcDN1aTthEhYUdI7pphySkY8=
-github.com/cosmos/ibc-go/modules/apps/callbacks v0.2.1-0.20231113120333-342c00b0f8bd h1:Lx+/5dZ/nN6qPXP2Ofog6u1fmlkCFA1ElcOconnofEM=
-github.com/cosmos/ibc-go/modules/apps/callbacks v0.2.1-0.20231113120333-342c00b0f8bd/go.mod h1:JWfpWVKJKiKtd53/KbRoKfxWl8FsT2GPcNezTOk0o5Q=
 github.com/cosmos/ibc-go/modules/capability v1.0.1 h1:ibwhrpJ3SftEEZRxCRkH0fQZ9svjthrX2+oXdZvzgGI=
 github.com/cosmos/ibc-go/modules/capability v1.0.1/go.mod h1:rquyOV262nGJplkumH+/LeYs04P3eV8oB7ZM4Ygqk4E=
 github.com/cosmos/ibc-go/modules/light-clients/08-wasm v0.4.2-0.20240730185033-ccd4dc278e72 h1:QjCi4bJoy9AXLL1e4jqi+4rHYN0gGZAQxf937cdWhw4=
@@ -1606,10 +1604,10 @@ google.golang.org/genproto v0.0.0-20221014213838-99cd37c6964a/go.mod h1:1vXfmgAz
 google.golang.org/genproto v0.0.0-20221025140454-527a21cfbd71/go.mod h1:9qHF0xnpdSfF6knlcsnpzUu5y+rpwgbvsyGAZPBMg4s=
 google.golang.org/genproto v0.0.0-20240701130421-f6361c86f094 h1:6whtk83KtD3FkGrVb2hFXuQ+ZMbCNdakARIn/aHMmG8=
 google.golang.org/genproto v0.0.0-20240701130421-f6361c86f094/go.mod h1:Zs4wYw8z1zr6RNF4cwYb31mvN/EGaKAdQjNCF3DW6K4=
-google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422 h1:GVIKPyP/kLIyVOgOnTwFOrvQaQUzOzGMCxgFUOEmm24=
-google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422/go.mod h1:b6h1vNKhxaSoEI+5jc3PJUCustfli/mRab7295pY7rw=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20250102185135-69823020774d h1:xJJRGY7TJcvIlpSrN3K6LAWgNFUILlO+OMAqtg9aqnw=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20250102185135-69823020774d/go.mod h1:3ENsm/5D1mzDyhpzeRi1NR784I0BcofWBoSc5QqqMK4=
+google.golang.org/genproto/googleapis/api v0.0.0-20250124145028-65684f501c47 h1:5iw9XJTD4thFidQmFVvx0wi4g5yOHk76rNRUxz1ZG5g=
+google.golang.org/genproto/googleapis/api v0.0.0-20250124145028-65684f501c47/go.mod h1:AfA77qWLcidQWywD0YgqfpJzf50w2VjzBml3TybHeJU=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f h1:OxYkA3wjPsZyBylwymxSHa7ViiW1Sml4ToBrncvFehI=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f/go.mod h1:+2Yz8+CLJbIfL9z73EW45avw8Lmge3xVElCP9zEKi50=
 google.golang.org/grpc v1.17.0/go.mod h1:6QZJwpn2B+Zp71q/5VxRsJ6NXXVCE5NRUHRo+f3cWCs=
 google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZiDr8c=
 google.golang.org/grpc v1.20.0/go.mod h1:chYK+tFQF0nDUGJgXMSgLCQk3phJEuONr2DCgLDdAQM=

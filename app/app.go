@@ -526,6 +526,11 @@ func (app *App) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
+// InterfaceRegistry returns Juno's TxConfig
+func (app *App) TxConfig() client.TxConfig {
+	return app.txConfig
+}
+
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: Still used in ibc-go, wait for them to remove params usage before removing this.

@@ -7,17 +7,17 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/gogo/protobuf/codec"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/log"
+
 	cmtcfg "github.com/cometbft/cometbft/config"
 	cmtcli "github.com/cometbft/cometbft/libs/cli"
-	dbm "github.com/cosmos/cosmos-db"
 
 	confixcmd "cosmossdk.io/tools/confix/cmd"
+	dbm "github.com/cosmos/cosmos-db"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -25,6 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
+	codec "github.com/cosmos/cosmos-sdk/codec"
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -40,7 +41,6 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	"github.com/CosmosContracts/juno/v27/app"
-	"github.com/CosmosContracts/juno/v27/app/params"
 )
 
 var (
@@ -62,7 +62,8 @@ var (
 
 // NewRootCmd creates a new root command for junod. It is called once in the
 // main function.
-func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
+func NewRootCmd() *cobra.Command {
+	tempDir := tempDir()
 	cfg := sdk.GetConfig()
 	cfg.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
 	cfg.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
@@ -70,12 +71,11 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	cfg.SetAddressVerifier(wasmtypes.VerifyAddressLen())
 	cfg.Seal()
 
-	tempDir := tempDir()
 	tempApp := app.New(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
 		nil,
-		false,
+		true,
 		simtestutil.NewAppOptionsWithFlagHome(tempDir),
 		[]wasmkeeper.Option{},
 	)
@@ -91,7 +91,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	initClientCtx := client.Context{}.
 		WithCodec(tempApp.AppCodec()).
 		WithInterfaceRegistry(tempApp.InterfaceRegistry()).
-		WithTxConfig(tempApp.txConfig).
+		WithTxConfig(tempApp.TxConfig()).
 		WithLegacyAmino(tempApp.LegacyAmino()).
 		WithInput(os.Stdin).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
@@ -146,9 +146,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 			// 2 seconds + 1 second comet = 3 second blocks
 			timeoutCommit := 2 * time.Second
-
 			customAppTemplate, customAppConfig := initAppConfig()
-
 			customCmtConfig := initCometConfig(timeoutCommit)
 
 			// Force faster block times
@@ -158,7 +156,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		},
 	}
 
-	autoCliOpts := enrichAutoCliOpts(tempApp.AutoCliOpts(), initClientCtx)
+	autoCliOpts := enrichAutoCliOpts(tempApp.AutoCLIOpts(initClientCtx), initClientCtx)
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
 	}
@@ -168,7 +166,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		tempApp.BasicModuleManager,
 		tempApp.AppCodec(),
 		tempApp.InterfaceRegistry(),
-		tempApp.GetTxConfig(),
+		tempApp.TxConfig(),
 	)
 
 	return rootCmd
