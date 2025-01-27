@@ -86,7 +86,7 @@ BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 ifeq (,$(findstring nostrip,$(JUNO_BUILD_OPTIONS)))
   BUILD_FLAGS += -trimpath
 endif
- 
+
 #$(info $$BUILD_FLAGS is [$(BUILD_FLAGS)])
 include contrib/devtools/Makefile
 
@@ -204,28 +204,34 @@ endif
 ###                                Protobuf                                 ###
 ###############################################################################
 
-protoVer=0.13.1
+protoVer=0.15.3
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 
 proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
-	@echo "Generating Protobuf files"
+	@echo "🛠️ - Generating Protobuf"
 	@$(protoImage) sh ./scripts/protocgen.sh
 
+proto-gen-2:
+	@echo "🛠️ - Generating Protobuf v2"
+	@$(protoImage) sh ./scripts/protocgen2.sh
+
 proto-swagger-gen:
-	@echo "Generating Protobuf Swagger"
+	@echo "📖 - Generating Protobuf Swagger"
 	@$(protoImage) sh ./scripts/protoc-swagger-gen.sh
 	$(MAKE) update-swagger-docs
 
 proto-format:
+	@echo "🖊️ - Formatting Protobuf Swagger"
 	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
 
 proto-lint:
+	@echo "🔎 - Linting Protobuf Swagger"
 	@$(protoImage) buf lint --error-format=json
 
 proto-check-breaking:
 	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
 
-.PHONY: proto-all proto-gen proto-gen-any proto-swagger-gen proto-format proto-lint proto-check-breaking proto-update-deps docs
+.PHONY: proto-all proto-gen proto-gen-2 proto-swagger-gen proto-format proto-lint proto-check-breaking
