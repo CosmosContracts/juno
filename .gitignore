@@ -11,6 +11,8 @@ tmp-swagger-gen
 
 heighliner*
 
+tmp_deps/
+
 **/data/**/*
 
 # emacs editor config

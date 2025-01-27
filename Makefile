@@ -212,15 +212,15 @@ proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
 	@echo "🛠️ - Generating Protobuf"
-	@$(protoImage) sh ./scripts/protocgen.sh
+	@$(protoImage) sh ./scripts/protoc/protocgen.sh
 
 proto-gen-2:
 	@echo "🛠️ - Generating Protobuf v2"
-	@$(protoImage) sh ./scripts/protocgen2.sh
+	@$(protoImage) sh ./scripts/protoc/protocgen2.sh
 
 proto-swagger-gen:
 	@echo "📖 - Generating Protobuf Swagger"
-	@$(protoImage) sh ./scripts/protoc-swagger-gen.sh
+	@$(protoImage) sh ./scripts/protoc/protoc-swagger-gen.sh
 	$(MAKE) update-swagger-docs
 
 proto-format:
