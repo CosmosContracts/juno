@@ -43,7 +43,7 @@ func subMsg(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user i
 	fmt.Println("First", res)
 	require.NoError(t, err)
 
-	// this purposely will fail with the current, we are just validating the messsage is not unknown.
+	// this purposely will fail with the current, we are just validating the message is not unknown.
 	// sub message of unknown means the `wasmkeeper.WithMessageHandlerDecorator` is not setup properly.
 	fail := "ImZhaWwi"
 	res2, err := helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, user, senderContractAddr, "", "10000"+chain.Config().Denom, fmt.Sprintf(`{"send_nft": { "contract": "%s", "token_id": "00000", "msg": "%s" }}`, receiverContractAddr, fail))
