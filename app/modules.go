@@ -29,9 +29,10 @@ import (
 	nftmodule "cosmossdk.io/x/nft/module"
 	"cosmossdk.io/x/upgrade"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -58,7 +59,6 @@ import (
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
-	encparams "github.com/CosmosContracts/juno/v27/app/params"
 	"github.com/CosmosContracts/juno/v27/x/clock"
 	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
 	cwhooks "github.com/CosmosContracts/juno/v27/x/cw-hooks"
@@ -75,104 +75,58 @@ import (
 	tokenfactorytypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
 )
 
-// ModuleBasics defines the module BasicManager is in charge of setting up basic,
-// non-dependant module elements, such as codec registration
-// and genesis verification.
-func newBasicManagerFromManager(app *App) module.BasicManager {
-	basicManager := module.NewBasicManagerFromManager(
-		app.mm,
-		map[string]module.AppModuleBasic{
-			genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
-		})
-	basicManager.RegisterLegacyAminoCodec(app.legacyAmino)
-	basicManager.RegisterInterfaces(app.interfaceRegistry)
-	return basicManager
-}
-
 func appModules(
 	app *App,
-	encodingConfig encparams.EncodingConfig,
+	txConfig client.TxConfig,
+	appCodec codec.Codec,
 	skipGenesisInvariants bool,
 ) []module.AppModule {
-	appCodec := encodingConfig.Marshaler
-
 	bondDenom := app.GetChainBondDenom()
 
 	return []module.AppModule{
+		// Cosmos SDK modules
 		genutil.NewAppModule(
 			app.AppKeepers.AccountKeeper,
 			app.AppKeepers.StakingKeeper,
-			app.BaseApp.DeliverTx,
-			encodingConfig.TxConfig,
+			app,
+			txConfig,
 		),
 		auth.NewAppModule(appCodec, app.AppKeepers.AccountKeeper, nil, app.GetSubspace(authtypes.ModuleName)),
 		vesting.NewAppModule(app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper),
 		bank.NewAppModule(appCodec, app.AppKeepers.BankKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
-		capability.NewAppModule(appCodec, *app.AppKeepers.CapabilityKeeper, false),
 		feegrantmodule.NewAppModule(appCodec, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.FeeGrantKeeper, app.interfaceRegistry),
 		gov.NewAppModule(appCodec, &app.AppKeepers.GovKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
-		mint.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper, bondDenom),
 		slashing.NewAppModule(appCodec, app.AppKeepers.SlashingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName)),
 		distr.NewAppModule(appCodec, app.AppKeepers.DistrKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
 		staking.NewAppModule(appCodec, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
-		upgrade.NewAppModule(app.AppKeepers.UpgradeKeeper),
+		upgrade.NewAppModule(app.AppKeepers.UpgradeKeeper, app.AppKeepers.AccountKeeper.AddressCodec()),
 		evidence.NewAppModule(app.AppKeepers.EvidenceKeeper),
-		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
 		params.NewAppModule(app.AppKeepers.ParamsKeeper),
 		authzmodule.NewAppModule(appCodec, app.AppKeepers.AuthzKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
 		nftmodule.NewAppModule(appCodec, app.AppKeepers.NFTKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(appCodec, app.AppKeepers.ConsensusParamsKeeper),
-		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
-		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
+		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
+		// Juno modules
+		mint.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper, bondDenom),
 		tokenfactory.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		globalfee.NewAppModule(appCodec, app.AppKeepers.GlobalFeeKeeper, bondDenom),
 		feepay.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper),
 		feeshare.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(feesharetypes.ModuleName)),
-		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
-		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
-		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
-		buildermodule.NewAppModule(appCodec, app.AppKeepers.BuildKeeper),
 		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
 		clock.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
 		cwhooks.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
+		capability.NewAppModule(appCodec, *app.AppKeepers.CapabilityKeeper, false),
+		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
+		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
+		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
+		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
 		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper, app.GetSubspace(icqtypes.ModuleName)),
 		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
-		wasmlc.NewAppModule(app.AppKeepers.WasmClientKeeper),
-	}
-}
-
-// simulationModules returns modules for simulation manager
-// define the order of the modules for deterministic simulationss
-func simulationModules(
-	app *App,
-	encodingConfig encparams.EncodingConfig,
-	_ bool,
-) []module.AppModuleSimulation {
-	appCodec := encodingConfig.Marshaler
-
-	bondDenom := app.GetChainBondDenom()
-
-	return []module.AppModuleSimulation{
-		auth.NewAppModule(appCodec, app.AppKeepers.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
-		bank.NewAppModule(appCodec, app.AppKeepers.BankKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
-		capability.NewAppModule(appCodec, *app.AppKeepers.CapabilityKeeper, false),
-		feegrantmodule.NewAppModule(appCodec, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.FeeGrantKeeper, app.interfaceRegistry),
-		authzmodule.NewAppModule(appCodec, app.AppKeepers.AuthzKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
-		gov.NewAppModule(appCodec, &app.AppKeepers.GovKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
-		mint.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper, bondDenom),
-		staking.NewAppModule(appCodec, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
-		distr.NewAppModule(appCodec, app.AppKeepers.DistrKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
-		slashing.NewAppModule(appCodec, app.AppKeepers.SlashingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(stakingtypes.ModuleName)),
-		params.NewAppModule(app.AppKeepers.ParamsKeeper),
-		evidence.NewAppModule(app.AppKeepers.EvidenceKeeper),
+		// Wasm modules
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
-		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
-		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
-		feepay.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper),
-		feeshare.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(feesharetypes.ModuleName)),
-		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
+		wasmlc.NewAppModule(app.AppKeepers.WasmClientKeeper),
 	}
 }
 
@@ -180,7 +134,6 @@ func simulationModules(
 // BeginBlockers, which are run at the beginning of every block.
 func orderBeginBlockers() []string {
 	return []string{
-		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		distrtypes.ModuleName,
@@ -198,7 +151,6 @@ func orderBeginBlockers() []string {
 		vestingtypes.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
-		buildertypes.ModuleName,
 		// additional modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
@@ -239,7 +191,6 @@ func orderEndBlockers() []string {
 		vestingtypes.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
-		buildertypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
@@ -260,6 +211,12 @@ func orderEndBlockers() []string {
 	}
 }
 
+// NOTE: The genutils module must occur after staking so that pools are
+// properly initialized with tokens from genesis accounts.
+//
+// NOTE: Capability module must occur first so that it can initialize any capabilities
+// so that other modules that want to create or claim capabilities afterwards in InitChain
+// can do so safely.
 func orderInitBlockers() []string {
 	return []string{
 		capabilitytypes.ModuleName,
@@ -280,7 +237,6 @@ func orderInitBlockers() []string {
 		feegrant.ModuleName,
 		nft.ModuleName,
 		consensusparamtypes.ModuleName,
-		buildertypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,

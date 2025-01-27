@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	wasmapp "github.com/CosmWasm/wasmd/app"
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	wasmvm "github.com/CosmWasm/wasmvm/v2"
+	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/spf13/cast"
 
@@ -110,7 +110,7 @@ import (
 )
 
 var (
-	wasmCapabilities = strings.Join(append(wasmapp.AllCapabilities(), "token_factory"), ",")
+	wasmCapabilities = strings.Join(append(wasmkeeper.BuiltInCapabilities(), "token_factory"), ",")
 
 	tokenFactoryCapabilities = []string{
 		tokenfactorytypes.EnableBurnFrom,
@@ -541,6 +541,11 @@ func NewAppKeepers(
 	})
 	wasmOpts = append(wasmOpts, burnMessageHandler)
 
+	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
+		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
+	}
+	wasmOpts = append(wasmOpts, wasmkeeper.WithGasRegister(app.NewJunoWasmGasRegister()))
+
 	mainWasmer, err := wasmvm.NewVM(path.Join(dataDir, "wasm"), wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create juno wasm vm: %s", err))
@@ -553,7 +558,7 @@ func NewAppKeepers(
 
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[wasmtypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[wasmtypes.StoreKey]),
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		stakingKeeper,
@@ -737,7 +742,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName)
 	paramsKeeper.Subspace(crisistypes.ModuleName)
-
 	paramsKeeper.Subspace(stakingtypes.ModuleName).WithKeyTable(stakingtypes.ParamKeyTable()) // Used for GlobalFee
 	paramsKeeper.Subspace(minttypes.ModuleName)
 

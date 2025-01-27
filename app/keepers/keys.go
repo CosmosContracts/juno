@@ -18,7 +18,6 @@ import (
 	"cosmossdk.io/x/feegrant"
 	nftkeeper "cosmossdk.io/x/nft/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -42,19 +41,40 @@ import (
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
-	appKeepers.keys = sdk.NewKVStoreKeys(
-		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey, crisistypes.StoreKey,
-		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey, consensusparamtypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey,
-		authzkeeper.StoreKey, nftkeeper.StoreKey, wasmlctypes.StoreKey,
+	appKeepers.keys = storetypes.NewKVStoreKeys(
+		// cosmos sdk store keys
+		authtypes.StoreKey,
+		banktypes.StoreKey,
+		stakingtypes.StoreKey,
+		crisistypes.StoreKey,
+		minttypes.StoreKey,
+		distrtypes.StoreKey,
+		slashingtypes.StoreKey,
+		govtypes.StoreKey,
+		paramstypes.StoreKey,
+		consensusparamtypes.StoreKey,
+		upgradetypes.StoreKey,
+		feegrant.StoreKey,
+		evidencetypes.StoreKey,
+		authzkeeper.StoreKey,
+		nftkeeper.StoreKey,
 
-		// non sdk store keys
-		ibcexported.StoreKey, ibctransfertypes.StoreKey, ibcfeetypes.StoreKey,
-		wasmtypes.StoreKey, icahosttypes.StoreKey,
-		icacontrollertypes.StoreKey, icqtypes.StoreKey,
+		// ibc store keys
+		capabilitytypes.StoreKey,
+		ibcexported.StoreKey,
+		ibctransfertypes.StoreKey,
+		ibcfeetypes.StoreKey,
+		icahosttypes.StoreKey,
+		icacontrollertypes.StoreKey,
+		icqtypes.StoreKey,
 		packetforwardtypes.StoreKey,
 		ibchookstypes.StoreKey,
+
+		// wasm store keys
+		wasmtypes.StoreKey,
+		wasmlctypes.StoreKey,
+
+		// juno store keys
 		tokenfactorytypes.StoreKey,
 		feepaytypes.StoreKey,
 		feesharetypes.StoreKey,
@@ -64,39 +84,30 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		cwhookstypes.StoreKey,
 	)
 
-	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
-	appKeepers.memKeys = sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
+	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 }
 
-func (appKeepers *AppKeepers) GetKVStoreKey() map[string]*storetypes.KVStoreKey {
+func (appKeepers *AppKeepers) GetKVStoreKeys() map[string]*storetypes.KVStoreKey {
 	return appKeepers.keys
 }
 
-func (appKeepers *AppKeepers) GetTransientStoreKey() map[string]*storetypes.TransientStoreKey {
+func (appKeepers *AppKeepers) GetTransientStoreKeys() map[string]*storetypes.TransientStoreKey {
 	return appKeepers.tkeys
 }
 
-func (appKeepers *AppKeepers) GetMemoryStoreKey() map[string]*storetypes.MemoryStoreKey {
+func (appKeepers *AppKeepers) GetMemoryStoreKeys() map[string]*storetypes.MemoryStoreKey {
 	return appKeepers.memKeys
 }
 
-// GetKey returns the KVStoreKey for the provided store key.
-//
-// NOTE: This is solely to be used for testing purposes.
 func (appKeepers *AppKeepers) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return appKeepers.keys[storeKey]
 }
 
-// GetTKey returns the TransientStoreKey for the provided store key.
-//
-// NOTE: This is solely to be used for testing purposes.
 func (appKeepers *AppKeepers) GetTKey(storeKey string) *storetypes.TransientStoreKey {
 	return appKeepers.tkeys[storeKey]
 }
 
-// GetMemKey returns the MemStoreKey for the provided mem key.
-//
-// NOTE: This is solely used for testing purposes.
 func (appKeepers *AppKeepers) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	return appKeepers.memKeys[storeKey]
 }
