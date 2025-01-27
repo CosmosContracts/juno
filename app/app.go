@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -68,7 +67,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/CosmosContracts/juno/v27/app/keepers"
-	"github.com/CosmosContracts/juno/v27/app/openapiconsole"
 	upgrades "github.com/CosmosContracts/juno/v27/app/upgrades"
 	testnetV18alpha2 "github.com/CosmosContracts/juno/v27/app/upgrades/testnet/v18.0.0-alpha.2"
 	testnetV18alpha3 "github.com/CosmosContracts/juno/v27/app/upgrades/testnet/v18.0.0-alpha.3"
@@ -93,7 +91,6 @@ import (
 	v24 "github.com/CosmosContracts/juno/v27/app/upgrades/v24"
 	v25 "github.com/CosmosContracts/juno/v27/app/upgrades/v25"
 	v26 "github.com/CosmosContracts/juno/v27/app/upgrades/v26"
-	"github.com/CosmosContracts/juno/v27/docs"
 )
 
 const (
@@ -559,10 +556,6 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
-
-	// register app's OpenAPI routes.
-	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
-	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
