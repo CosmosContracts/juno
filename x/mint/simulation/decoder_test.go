@@ -6,20 +6,21 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
-	"github.com/CosmosContracts/juno/v27/app"
+	appparams "github.com/CosmosContracts/juno/v27/app/params"
+
 	"github.com/CosmosContracts/juno/v27/x/mint/simulation"
 	"github.com/CosmosContracts/juno/v27/x/mint/types"
 )
 
 // TestDecodeStore tests the decoding of the store
 func TestDecodeStore(t *testing.T) {
-	cdc := app.MakeEncodingConfig().Marshaler
+	cdc := appparams.MakeEncodingConfig().Marshaler
 	dec := simulation.NewDecodeStore(cdc)
 
-	minter := types.NewMinter(sdk.OneDec(), sdk.NewDec(15), 1, 1, sdk.NewInt(1))
+	minter := types.NewMinter(sdkmath.LegacyOneDec(), sdkmath.LegacyNewDec(15), 1, 1, sdkmath.NewInt(1))
 
 	kvPairs := kv.Pairs{
 		Pairs: []kv.Pair{

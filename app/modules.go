@@ -96,7 +96,7 @@ func appModules(
 		bank.NewAppModule(appCodec, app.AppKeepers.BankKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
 		feegrantmodule.NewAppModule(appCodec, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.FeeGrantKeeper, app.interfaceRegistry),
 		gov.NewAppModule(appCodec, &app.AppKeepers.GovKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
-		slashing.NewAppModule(appCodec, app.AppKeepers.SlashingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName)),
+		slashing.NewAppModule(appCodec, app.AppKeepers.SlashingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName), app.interfaceRegistry),
 		distr.NewAppModule(appCodec, app.AppKeepers.DistrKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.AppKeepers.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
 		staking.NewAppModule(appCodec, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		upgrade.NewAppModule(app.AppKeepers.UpgradeKeeper, app.AppKeepers.AccountKeeper.AddressCodec()),
@@ -256,3 +256,47 @@ func orderInitBlockers() []string {
 		wasmlctypes.ModuleName,
 	}
 }
+
+// AppModuleBasics returns AppModuleBasics for the module BasicManager.
+// used only for pre-init stuff like DefaultGenesis generation.
+var AppModuleBasics = module.NewBasicManager(
+	// Cosmos SDK modules
+	genutil.AppModuleBasic{},
+	auth.AppModuleBasic{},
+	vesting.AppModuleBasic{},
+	bank.AppModuleBasic{},
+	feegrantmodule.AppModuleBasic{},
+	gov.AppModuleBasic{},
+	// Replace .NewAppModule with .AppModuleBasic{}
+	slashing.AppModuleBasic{},
+	distr.AppModuleBasic{},
+	staking.AppModuleBasic{},
+	upgrade.AppModuleBasic{},
+	evidence.AppModuleBasic{},
+	params.AppModuleBasic{},
+	authzmodule.AppModuleBasic{},
+	nftmodule.AppModuleBasic{},
+	consensus.AppModuleBasic{},
+	crisis.AppModuleBasic{},
+	// Juno modules
+	mint.AppModuleBasic{},
+	tokenfactory.AppModuleBasic{},
+	globalfee.AppModuleBasic{},
+	feepay.AppModuleBasic{},
+	feeshare.AppModuleBasic{},
+	drip.AppModuleBasic{},
+	clock.AppModuleBasic{},
+	cwhooks.AppModuleBasic{},
+	// IBC modules
+	capability.AppModuleBasic{},
+	ibc.AppModuleBasic{},
+	transfer.AppModuleBasic{},
+	ica.AppModuleBasic{},
+	ibcfee.AppModuleBasic{},
+	ibc_hooks.AppModuleBasic{},
+	icq.AppModuleBasic{},
+	packetforward.AppModuleBasic{},
+	// Wasm modules
+	wasm.AppModuleBasic{},
+	wasmlc.AppModuleBasic{},
+)

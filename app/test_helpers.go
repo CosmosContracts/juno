@@ -1,268 +1,241 @@
 package app
 
-// import (
-// 	"encoding/json"
-// 	"path/filepath"
-// 	"testing"
-// 	"time"
+import (
+	"encoding/json"
+	"os"
+	"testing"
+	"time"
 
-// 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-// 	"github.com/stretchr/testify/require"
+	"cosmossdk.io/log"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/secp256k1"
+	cosmosdb "github.com/cosmos/cosmos-db"
 
-// 	dbm "github.com/cometbft/cometbft-db"
-// 	abci "github.com/cometbft/cometbft/abci/types"
-// 	"github.com/cometbft/cometbft/crypto"
-// 	"github.com/cometbft/cometbft/crypto/ed25519"
-// 	"cosmossdk.io/log"
-// 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-// 	tmtypes "github.com/cometbft/cometbft/types"
+	sdkmath "cosmossdk.io/math"
+	tmtypes "github.com/cometbft/cometbft/types"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	cosmoserver "github.com/cosmos/cosmos-sdk/server"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/testutil/mock"
+	sims "github.com/cosmos/cosmos-sdk/testutil/sims"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+)
 
-// 	"cosmossdk.io/math"
+func GenesisStateWithValSet(app *App) GenesisState {
+	privVal := mock.NewPV()
+	pubKey, _ := privVal.GetPubKey()
+	validator := tmtypes.NewValidator(pubKey, 1)
+	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
 
-// 	bam "github.com/cosmos/cosmos-sdk/baseapp"
-// 	"github.com/cosmos/cosmos-sdk/client/flags"
-// 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-// 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-// 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-// 	// "github.com/cosmos/cosmos-sdk/snapshots"
-// 	// snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
-// 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-// 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-// 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	// generate genesis account
+	senderPrivKey := secp256k1.GenPrivKey()
+	senderPrivKey.PubKey().Address()
+	acc := authtypes.NewBaseAccountWithAddress(senderPrivKey.PubKey().Address().Bytes())
 
-// 	apphelpers "github.com/CosmosContracts/juno/v27/app/helpers"
-// 	appparams "github.com/CosmosContracts/juno/v27/app/params"
-// )
+	//////////////////////
+	balances := []banktypes.Balance{}
+	genesisState := NewDefaultGenesisState()
+	genAccs := []authtypes.GenesisAccount{acc}
+	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
+	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
 
-// // SimAppChainID hardcoded chainID for simulation
-// const (
-// 	SimAppChainID = "testing"
-// )
+	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
+	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-// // EmptyBaseAppOptions is a stub implementing AppOptions
-// type EmptyBaseAppOptions struct{}
+	bondAmt := sdk.DefaultPowerReduction
+	initValPowers := []abci.ValidatorUpdate{}
 
-// // Get implements AppOptions
-// func (ao EmptyBaseAppOptions) Get(_ string) interface{} {
-// 	return nil
-// }
+	for _, val := range valSet.Validators {
+		pk, _ := cryptocodec.FromCmtPubKeyInterface(val.PubKey)
+		pkAny, _ := codectypes.NewAnyWithValue(pk)
+		validator := stakingtypes.Validator{
+			OperatorAddress:   sdk.ValAddress(val.Address).String(),
+			ConsensusPubkey:   pkAny,
+			Jailed:            false,
+			Status:            stakingtypes.Bonded,
+			Tokens:            bondAmt,
+			DelegatorShares:   sdkmath.LegacyOneDec(),
+			Description:       stakingtypes.Description{},
+			UnbondingHeight:   int64(0),
+			UnbondingTime:     time.Unix(0, 0).UTC(),
+			Commission:        stakingtypes.NewCommission(sdkmath.LegacyZeroDec(), sdkmath.LegacyZeroDec(), sdkmath.LegacyZeroDec()),
+			MinSelfDelegation: sdkmath.ZeroInt(),
+		}
+		validators = append(validators, validator)
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), sdk.ValAddress(val.Address).String(), sdkmath.LegacyOneDec()))
 
-// // DefaultConsensusParams defines the default Tendermint consensus params used
-// // in junoApp testing.
-// var DefaultConsensusParams = &tmproto.ConsensusParams{
-// 	Block: &tmproto.BlockParams{
-// 		MaxBytes: 200000,
-// 		MaxGas:   2000000,
-// 	},
-// 	Evidence: &tmproto.EvidenceParams{
-// 		MaxAgeNumBlocks: 302400,
-// 		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
-// 		MaxBytes:        10000,
-// 	},
-// 	Validator: &tmproto.ValidatorParams{
-// 		PubKeyTypes: []string{
-// 			tmtypes.ABCIPubKeyTypeEd25519,
-// 		},
-// 	},
-// }
+		// add initial validator powers so consumer InitGenesis runs correctly
+		pub, _ := val.ToProto()
+		initValPowers = append(initValPowers, abci.ValidatorUpdate{
+			Power:  val.VotingPower,
+			PubKey: pub.PubKey,
+		})
+	}
+	// set validators and delegations
+	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
+	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
-// type EmptyAppOptions struct{}
+	totalSupply := sdk.NewCoins()
+	for _, b := range balances {
+		// add genesis acc tokens to total supply
+		totalSupply = totalSupply.Add(b.Coins...)
+	}
 
-// func (EmptyAppOptions) Get(_ string) interface{} { return nil }
+	for range delegations {
+		// add delegated tokens to total supply
+		totalSupply = totalSupply.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))
+	}
 
-// func Setup(t *testing.T) *App {
-// 	t.Helper()
+	// add bonded amount to bonded pool module account
+	balances = append(balances, banktypes.Balance{
+		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
+		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, bondAmt)},
+	})
 
-// 	privVal := apphelpers.NewPV()
-// 	pubKey, err := privVal.GetPubKey()
-// 	require.NoError(t, err)
+	// update total supply
+	bankGenesis := banktypes.NewGenesisState(
+		banktypes.DefaultGenesisState().Params,
+		balances,
+		totalSupply,
+		[]banktypes.Metadata{},
+		[]banktypes.SendEnabled{},
+	)
+	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
-// 	// create validator set with single validator
-// 	validator := tmtypes.NewValidator(pubKey, 1)
-// 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+	_, err := tmtypes.PB2TM.ValidatorUpdates(initValPowers)
+	if err != nil {
+		panic("failed to get vals")
+	}
 
-// 	// generate genesis account
-// 	senderPrivKey := secp256k1.GenPrivKey()
-// 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
-// 	balance := banktypes.Balance{
-// 		Address: acc.GetAddress().String(),
-// 		Coins:   sdk.NewCoins(sdk.NewCoin(appparams.BondDenom, sdk.NewInt(100000000000000))),
-// 	}
+	return genesisState
+}
 
-// 	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
+var defaultGenesisStatebytes = []byte{}
 
-// 	return app
-// }
+// SetupWithCustomHome initializes a new OsmosisApp with a custom home directory
+func SetupWithCustomHome(isCheckTx bool, dir string, t ...*testing.T) *App {
+	return SetupWithCustomHomeAndChainId(isCheckTx, dir, "osmosis-1", t...)
+}
 
-// // SetupWithGenesisValSet initializes a new junoApp with a validator set and genesis accounts
-// // that also act as delegators. For simplicity, each validator is bonded with a delegation
-// // of one consensus engine unit in the default token of the JunoApp from first genesis
-// // account. A Nop logger is set in JunoApp.
-// func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *App {
-// 	t.Helper()
+// DebugAppOptions is a stub implementing AppOptions
+type DebugAppOptions struct{}
 
-// 	junoApp, genesisState := setup(t, true)
-// 	genesisState = genesisStateWithValSet(t, junoApp, genesisState, valSet, genAccs, balances...)
+// Get implements AppOptions
+func (ao DebugAppOptions) Get(o string) interface{} {
+	if o == cosmoserver.FlagTrace {
+		return true
+	}
+	return nil
+}
 
-// 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
-// 	require.NoError(t, err)
+func IsDebugLogEnabled() bool {
+	return os.Getenv("OSMO_KEEPER_DEBUG") != ""
+}
 
-// 	// init chain will set the validator set and initialize the genesis accounts
-// 	junoApp.InitChain(
-// 		abci.RequestInitChain{
-// 			Validators:      []abci.ValidatorUpdate{},
-// 			ConsensusParams: DefaultConsensusParams,
-// 			AppStateBytes:   stateBytes,
-// 			ChainId:         "testing",
-// 			Time:            time.Now().UTC(),
-// 			InitialHeight:   1,
-// 		},
-// 	)
+func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string, t ...*testing.T) *App {
+	db := cosmosdb.NewMemDB()
+	var (
+		l       log.Logger
+		appOpts servertypes.AppOptions
+	)
+	if IsDebugLogEnabled() {
+		appOpts = DebugAppOptions{}
+	} else {
+		appOpts = sims.EmptyAppOptions{}
+	}
+	if len(t) > 0 {
+		testEnv := t[0]
+		testEnv.Log("Using test environment logger")
+		l = log.NewTestLogger(testEnv)
+	} else {
+		l = log.NewNopLogger()
+	}
+	app := New(
+		l,
+		db,
+		nil,
+		true,
+		appOpts,
+		[]wasmkeeper.Option{},
+		baseapp.SetChainID(chainId),
+	)
+	if !isCheckTx {
+		if len(defaultGenesisStatebytes) == 0 {
+			var err error
+			genesisState := GenesisStateWithValSet(app)
+			defaultGenesisStatebytes, err = json.Marshal(genesisState)
+			if err != nil {
+				panic(err)
+			}
+		}
 
-// 	// commit genesis changes
-// 	junoApp.Commit()
-// 	junoApp.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
-// 		ChainID:            "testing",
-// 		Height:             junoApp.LastBlockHeight() + 1,
-// 		AppHash:            junoApp.LastCommitID().Hash,
-// 		ValidatorsHash:     valSet.Hash(),
-// 		NextValidatorsHash: valSet.Hash(),
-// 		Time:               time.Now().UTC(),
-// 	}})
+		_, err := app.InitChain(
+			&abci.RequestInitChain{
+				Validators:      []abci.ValidatorUpdate{},
+				ConsensusParams: sims.DefaultConsensusParams,
+				AppStateBytes:   defaultGenesisStatebytes,
+				ChainId:         chainId,
+			},
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
 
-// 	return junoApp
-// }
+	return app
+}
 
-// func setup(t *testing.T, withGenesis bool, opts ...wasmkeeper.Option) (*App, GenesisState) {
-// 	db := dbm.NewMemDB()
-// 	nodeHome := t.TempDir()
-// 	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
+// Setup initializes a new App.
+func Setup(isCheckTx bool) *App {
+	return SetupWithCustomHome(isCheckTx, DefaultNodeHome)
+}
 
-// 	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
-// 	require.NoError(t, err)
-// 	t.Cleanup(func() { snapshotDB.Close() })
-// 	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
-// 	require.NoError(t, err)
+// SetupTestingAppWithLevelDb initializes a new App intended for testing,
+// with LevelDB as a db.
+func SetupTestingAppWithLevelDb(isCheckTx bool) (app *App, cleanupFn func()) {
+	dir, err := os.MkdirTemp(os.TempDir(), "juno_leveldb_testing")
+	if err != nil {
+		panic(err)
+	}
+	db, err := cosmosdb.NewGoLevelDB("juno_leveldb_testing", dir, nil)
+	if err != nil {
+		panic(err)
+	}
 
-// 	// var emptyWasmOpts []wasm.Option
-// 	appOptions := make(simtestutil.AppOptionsMap, 0)
-// 	appOptions[flags.FlagHome] = nodeHome // ensure unique folder
+	app = New(log.NewNopLogger(), db, nil, true, sims.EmptyAppOptions{}, []wasmkeeper.Option{}, baseapp.SetChainID("juno-1"))
+	if !isCheckTx {
+		genesisState := GenesisStateWithValSet(app)
+		stateBytes, err := json.MarshalIndent(genesisState, "", " ")
+		if err != nil {
+			panic(err)
+		}
 
-// 	app := New(
-// 		log.NewNopLogger(),
-// 		db,
-// 		nil,
-// 		true,
-// 		EmptyAppOptions{},
-// 		opts,
-// 		bam.SetChainID("testing"),
-// 		bam.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}),
-// 	)
-// 	if withGenesis {
-// 		return app, NewDefaultGenesisState(app.AppCodec())
-// 	}
+		_, err = app.InitChain(
+			&abci.RequestInitChain{
+				Validators:      []abci.ValidatorUpdate{},
+				ConsensusParams: sims.DefaultConsensusParams,
+				AppStateBytes:   stateBytes,
+				ChainId:         "osmosis-1",
+			},
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
 
-// 	return app, GenesisState{}
-// }
+	cleanupFn = func() {
+		db.Close()
+		err = os.RemoveAll(dir)
+		if err != nil {
+			panic(err)
+		}
+	}
 
-// func genesisStateWithValSet(t *testing.T,
-// 	app *App, genesisState GenesisState,
-// 	valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
-// 	balances ...banktypes.Balance,
-// ) GenesisState {
-// 	codec := app.AppCodec()
-
-// 	// set genesis accounts
-// 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
-// 	genesisState[authtypes.ModuleName] = codec.MustMarshalJSON(authGenesis)
-
-// 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
-// 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
-
-// 	bondAmt := sdk.DefaultPowerReduction
-
-// 	for _, val := range valSet.Validators {
-// 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
-// 		require.NoError(t, err)
-// 		pkAny, err := codectypes.NewAnyWithValue(pk)
-// 		require.NoError(t, err)
-// 		validator := stakingtypes.Validator{
-// 			OperatorAddress:   sdk.ValAddress(val.Address).String(),
-// 			ConsensusPubkey:   pkAny,
-// 			Jailed:            false,
-// 			Status:            stakingtypes.Bonded,
-// 			Tokens:            bondAmt,
-// 			DelegatorShares:   math.LegacyOneDec(),
-// 			Description:       stakingtypes.Description{},
-// 			UnbondingHeight:   int64(0),
-// 			UnbondingTime:     time.Unix(0, 0).UTC(),
-// 			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
-// 			MinSelfDelegation: math.ZeroInt(),
-// 		}
-// 		validators = append(validators, validator)
-// 		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
-
-// 	}
-
-// 	defaultStParams := stakingtypes.DefaultParams()
-// 	stParams := stakingtypes.NewParams(
-// 		defaultStParams.UnbondingTime,
-// 		defaultStParams.MaxValidators,
-// 		defaultStParams.MaxEntries,
-// 		defaultStParams.HistoricalEntries,
-// 		appparams.BondDenom,
-// 		defaultStParams.MinCommissionRate, // 5%
-// 	)
-
-// 	// set validators and delegations
-// 	stakingGenesis := stakingtypes.NewGenesisState(stParams, validators, delegations)
-// 	genesisState[stakingtypes.ModuleName] = codec.MustMarshalJSON(stakingGenesis)
-
-// 	// add bonded amount to bonded pool module account
-// 	balances = append(balances, banktypes.Balance{
-// 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-// 		Coins:   sdk.Coins{sdk.NewCoin(appparams.BondDenom, bondAmt.MulRaw(int64(len(valSet.Validators))))},
-// 	})
-
-// 	totalSupply := sdk.NewCoins()
-// 	for _, b := range balances {
-// 		// add genesis acc tokens to total supply
-// 		totalSupply = totalSupply.Add(b.Coins...)
-// 	}
-
-// 	// update total supply
-// 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
-// 	genesisState[banktypes.ModuleName] = codec.MustMarshalJSON(bankGenesis)
-// 	// println("genesisStateWithValSet bankState:", string(genesisState[banktypes.ModuleName]))
-
-// 	return genesisState
-// }
-
-// func keyPubAddr() (crypto.PrivKey, crypto.PubKey, sdk.AccAddress) {
-// 	key := ed25519.GenPrivKey()
-// 	pub := key.PubKey()
-// 	addr := sdk.AccAddress(pub.Address())
-// 	return key, pub, addr
-// }
-
-// func RandomAccountAddress() sdk.AccAddress {
-// 	_, _, addr := keyPubAddr()
-// 	return addr
-// }
-
-// func ExecuteRawCustom(t *testing.T, ctx sdk.Context, app *App, contract sdk.AccAddress, sender sdk.AccAddress, msg json.RawMessage, funds sdk.Coin) error {
-// 	t.Helper()
-// 	oracleBz, err := json.Marshal(msg)
-// 	require.NoError(t, err)
-// 	// no funds sent if amount is 0
-// 	var coins sdk.Coins
-// 	if !funds.Amount.IsNil() {
-// 		coins = sdk.Coins{funds}
-// 	}
-
-// 	contractKeeper := wasmkeeper.NewDefaultPermissionKeeper(app.AppKeepers.WasmKeeper)
-// 	_, err = contractKeeper.Execute(ctx, contract, sender, oracleBz, coins)
-// 	return err
-// }
+	return app, cleanupFn
+}

@@ -3,14 +3,11 @@ package decorators_test
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/suite"
 	protov2 "google.golang.org/protobuf/proto"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -21,7 +18,6 @@ import (
 
 	"github.com/CosmosContracts/juno/v27/app"
 	decorators "github.com/CosmosContracts/juno/v27/app/decorators"
-	appparams "github.com/CosmosContracts/juno/v27/app/params"
 )
 
 // Define an empty ante handle
@@ -41,13 +37,8 @@ type AnteTestSuite struct {
 
 func (s *AnteTestSuite) SetupTest() {
 	isCheckTx := false
-	s.app = app.Setup(s.T())
-
-	s.ctx = s.app.BaseApp.NewContext(isCheckTx, tmproto.Header{
-		ChainID: "testing",
-		Height:  10,
-		Time:    time.Now().UTC(),
-	})
+	s.app = app.Setup(false)
+	s.ctx = s.app.BaseApp.NewContext(isCheckTx)
 
 	s.stakingKeeper = s.app.AppKeepers.StakingKeeper
 }
@@ -116,7 +107,7 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 
 		// Create the validator
 		val, err := stakingtypes.NewValidator(
-			sdk.ValAddress(valPub.Address()),
+			valPub.Address().String(),
 			valPub,
 			createMsg.Description,
 		)
@@ -128,12 +119,12 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 
 		// Edit validator params
 		valAddr := sdk.ValAddress(valPub.Address())
-		newRate := math.LegacyMustNewDecFromStr(maxChangeRate)
-		minDelegation := sdk.OneInt()
+		newRate := sdkmath.LegacyMustNewDecFromStr(maxChangeRate)
+		minDelegation := sdkmath.OneInt()
 
 		// Edit existing validator msg
 		editMsg := stakingtypes.NewMsgEditValidator(
-			valAddr,
+			valAddr.String(),
 			createMsg.Description,
 			&newRate,
 			&minDelegation,
@@ -170,24 +161,24 @@ func createValidatorMsg(maxChangeRate string) (cryptotypes.PubKey, *stakingtypes
 	// Create validator params
 	valPub := secp256k1.GenPrivKey().PubKey()
 	valAddr := sdk.ValAddress(valPub.Address())
-	bondDenom := appparams.BondDenom
-	selfBond := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100), Denom: bondDenom})
+	bondDenom := "ujuno"
+	selfBond := sdk.NewCoins(sdk.Coin{Amount: sdkmath.NewInt(100), Denom: bondDenom})
 	stakingCoin := sdk.NewCoin(bondDenom, selfBond[0].Amount)
 	description := stakingtypes.NewDescription("test_moniker", "", "", "", "")
 	commission := stakingtypes.NewCommissionRates(
-		math.LegacyMustNewDecFromStr("0.1"),
-		math.LegacyMustNewDecFromStr("1"),
-		math.LegacyMustNewDecFromStr(maxChangeRate),
+		sdkmath.LegacyMustNewDecFromStr("0.1"),
+		sdkmath.LegacyMustNewDecFromStr("1"),
+		sdkmath.LegacyMustNewDecFromStr(maxChangeRate),
 	)
 
 	// Creating a Validator
 	msg, err := stakingtypes.NewMsgCreateValidator(
-		valAddr,
+		valAddr.String(),
 		valPub,
 		stakingCoin,
 		description,
 		commission,
-		sdk.OneInt(),
+		sdkmath.OneInt(),
 	)
 
 	// Return generated pub address, creation msg, and err

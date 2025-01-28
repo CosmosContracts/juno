@@ -23,8 +23,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	appparams "github.com/CosmosContracts/juno/v27/app/params"
 )
 
 const (
@@ -173,8 +171,8 @@ Example:
 				// account.Bonded = underlyingCoins(account.Bonded)
 				account.TotalBalances = sdk.NewCoins().
 					Add(account.LiquidBalances...).
-					Add(sdk.NewCoin(appparams.BondDenom, account.Staked)).
-					Add(sdk.NewCoin(appparams.BondDenom, account.UnbondingStake)).
+					Add(sdk.NewCoin("ujuno", account.Staked)).
+					Add(sdk.NewCoin("ujuno", account.UnbondingStake)).
 					Add(account.Bonded...)
 				snapshotAccs[addr] = account
 			}
