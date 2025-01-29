@@ -5701,7 +5701,7 @@ paths:
                 type: object
                 properties:
                   commission:
-                    description: commission defines the commision the validator received.
+                    description: commission defines the commission the validator received.
                     type: object
                     properties:
                       commission:
@@ -20163,7 +20163,7 @@ components:
       type: object
       properties:
         commission:
-          description: commission defines the commision the validator received.
+          description: commission defines the commission the validator received.
           type: object
           properties:
             commission:
