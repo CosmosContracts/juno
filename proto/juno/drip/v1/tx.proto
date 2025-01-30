@@ -7,6 +7,7 @@ import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+
 import "juno/drip/v1/genesis.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/drip/types";

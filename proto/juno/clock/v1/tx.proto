@@ -1,14 +1,14 @@
 syntax = "proto3";
 package juno.clock.v1;
 
-option go_package = "github.com/CosmosContracts/juno/x/clock/types";
-
 import "cosmos/msg/v1/msg.proto";
 import "juno/clock/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos_proto/cosmos.proto";
 import "amino/amino.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/clock/types";
 
 // Msg defines the Msg service.
 service Msg {

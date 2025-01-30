@@ -1,8 +1,6 @@
 syntax = "proto3";
 package juno.cwhooks.v1;
 
-option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
-
 import "gogoproto/gogo.proto";
 import "amino/amino.proto";
 import "cosmos_proto/cosmos.proto";
@@ -10,6 +8,8 @@ import "cosmos/query/v1/query.proto";
 import "google/api/annotations.proto";
 
 import "juno/cwhooks/v1/genesis.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
 
 // Query defines the gRPC querier service.
 service Query {

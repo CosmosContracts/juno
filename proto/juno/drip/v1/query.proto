@@ -5,6 +5,7 @@ import "amino/amino.proto";
 import "cosmos/query/v1/query.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+
 import "juno/drip/v1/genesis.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/drip/types";

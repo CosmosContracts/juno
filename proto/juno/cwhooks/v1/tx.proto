@@ -2,10 +2,11 @@ syntax = "proto3";
 package juno.cwhooks.v1;
 
 import "cosmos/msg/v1/msg.proto";
-import "juno/cwhooks/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 import "amino/amino.proto";
+
+import "juno/cwhooks/v1/genesis.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
 

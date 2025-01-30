@@ -1,10 +1,10 @@
 syntax = "proto3";
 package juno.clock.v1;
 
-option go_package = "github.com/CosmosContracts/juno/x/clock/types";
-
 import "gogoproto/gogo.proto";
 import "amino/amino.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/clock/types";
 
 // GenesisState - initial state of module
 message GenesisState {
