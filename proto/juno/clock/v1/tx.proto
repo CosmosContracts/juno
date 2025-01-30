@@ -37,7 +37,7 @@ message MsgRegisterClockContract {
   option (cosmos.msg.v1.signer) = "sender_address";
   option (amino.name)           = "juno/x/clock/MsgRegisterClockContract";
 
-  option (gogoproto.equal)           = true;
+  option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
   // The address of the sender.
@@ -55,7 +55,7 @@ message MsgUnregisterClockContract {
   option (cosmos.msg.v1.signer) = "sender_address";
   option (amino.name)           = "juno/x/clock/MsgUnregisterClockContract";
 
-  option (gogoproto.equal)           = true;
+  option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
   // The address of the sender.
@@ -73,7 +73,7 @@ message MsgUnjailClockContract {
   option (cosmos.msg.v1.signer) = "sender_address";
   option (amino.name)           = "juno/x/clock/MsgUnjailClockContract";
 
-  option (gogoproto.equal)           = true;
+  option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
   // The address of the sender.
@@ -90,6 +90,10 @@ message MsgUnjailClockContractResponse {}
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "juno/x/clock/MsgUpdateParams";
+
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
   // authority is the address of the governance account.
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 

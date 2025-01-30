@@ -34,7 +34,7 @@ message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "juno/x/cwhooks/MsgUpdateParams";
 
-  option (gogoproto.equal)           = true;
+  option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
   // authority is the address of the governance account.

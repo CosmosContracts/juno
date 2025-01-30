@@ -15,6 +15,7 @@ message GenesisState {
 
 // Params defines the drip module params
 message Params {
+  option (gogoproto.equal) = true;
   // enable_drip defines a parameter to enable the drip module
   bool enable_drip = 1;
 
