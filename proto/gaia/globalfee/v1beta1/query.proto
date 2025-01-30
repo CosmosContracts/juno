@@ -1,6 +1,8 @@
 syntax = "proto3";
 package gaia.globalfee.v1beta1;
 
+import "amino/amino.proto";
+import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/v1beta1/coin.proto";
@@ -9,10 +11,9 @@ option go_package = "github.com/cosmos/gaia/x/globalfee/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  rpc MinimumGasPrices(QueryMinimumGasPricesRequest)
-      returns (QueryMinimumGasPricesResponse) {
-    option (google.api.http).get =
-        "/gaia/globalfee/v1beta1/minimum_gas_prices";
+  // MinimumGasPrices queries the minimum gas prices.
+  rpc MinimumGasPrices(QueryMinimumGasPricesRequest) returns (QueryMinimumGasPricesResponse) {
+    option (google.api.http).get = "/gaia/globalfee/v1beta1/minimum_gas_prices";
   }
 }
 
@@ -24,9 +25,9 @@ message QueryMinimumGasPricesRequest {}
 // Query/MinimumGasPrices RPC method.
 message QueryMinimumGasPricesResponse {
   repeated cosmos.base.v1beta1.DecCoin minimum_gas_prices = 1 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag) = "minimum_gas_prices,omitempty",
-    (gogoproto.moretags) = "yaml:\"minimum_gas_prices\"",
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false,
+    (amino.dont_omitempty)  = true
   ];
 }
