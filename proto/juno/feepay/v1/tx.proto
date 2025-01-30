@@ -42,6 +42,9 @@ service Msg {
 
 // The message to register a fee pay contract.
 message MsgRegisterFeePayContract {
+  option (cosmos.msg.v1.signer) = "sender_address";
+  option (amino.name)           = "juno/x/feepay/MsgRegisterFeePayContract";
+
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -57,6 +60,9 @@ message MsgRegisterFeePayContractResponse {}
 
 // The message to unregister a fee pay contract.
 message MsgUnregisterFeePayContract {
+  option (cosmos.msg.v1.signer) = "sender_address";
+  option (amino.name)           = "juno/x/feepay/MsgUnregisterFeePayContract";
+
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -72,6 +78,9 @@ message MsgUnregisterFeePayContractResponse {}
 
 // The message to fund a fee pay contract
 message MsgFundFeePayContract {
+  option (cosmos.msg.v1.signer) = "sender_address";
+  option (amino.name)           = "juno/x/feepay/MsgFundFeePayContract";
+
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -95,6 +104,9 @@ message MsgFundFeePayContractResponse {}
 
 // The message to update a fee pay contract wallet limit.
 message MsgUpdateFeePayContractWalletLimit {
+  option (cosmos.msg.v1.signer) = "sender_address";
+  option (amino.name)           = "juno/x/feepay/MsgUpdateFeePayContractWalletLimit";
+
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -114,6 +126,7 @@ message MsgUpdateFeePayContractWalletLimitResponse {}
 // MsgUpdateParams is the Msg/UpdateParams request type.
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "juno/x/feepay/MsgUpdateParams";
 
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
@@ -124,7 +137,7 @@ message MsgUpdateParams {
   // params defines the x/feepay parameters to update.
   //
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false];
+  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // MsgUpdateParamsResponse defines the response structure for executing a

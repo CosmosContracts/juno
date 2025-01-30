@@ -17,7 +17,8 @@ service Msg {
   // registering a new clock contract.
   rpc RegisterClockContract(MsgRegisterClockContract) returns (MsgRegisterClockContractResponse) {
     option (google.api.http).post = "/juno/clock/v1/tx/register";
-  };  // UnregisterClockContract defines the endpoint for
+  };
+  // UnregisterClockContract defines the endpoint for
   // unregistering a clock contract.
   rpc UnregisterClockContract(MsgUnregisterClockContract) returns (MsgUnregisterClockContractResponse) {
     option (google.api.http).post = "/juno/clock/v1/tx/unregister";

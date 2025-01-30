@@ -1,18 +1,22 @@
 syntax = "proto3";
 package juno.feeshare.v1;
 
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+
 option go_package = "github.com/CosmosContracts/juno/x/feeshare/types";
 
 // FeeShare defines an instance that organizes fee distribution conditions for
 // the owner of a given smart contract
 message FeeShare {
+  option (gogoproto.equal) = true;
   // contract_address is the bech32 address of a registered contract in string
   // form
-  string contract_address = 1;
+  string contract_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // deployer_address is the bech32 address of message sender. It must be the
   // same as the contracts admin address.
-  string deployer_address = 2;
+  string deployer_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // withdrawer_address is the bech32 address of account receiving the
   // transaction fees.
-  string withdrawer_address = 3;
+  string withdrawer_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
