@@ -11,16 +11,19 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	"github.com/spf13/cast"
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/log"
+	dbm "github.com/cosmos/cosmos-db"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmos "github.com/cometbft/cometbft/libs/os"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	dbm "github.com/cosmos/cosmos-db"
+
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/std"
@@ -31,7 +34,6 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
-	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 
 	"cosmossdk.io/x/tx/signing"
@@ -69,29 +71,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v27/app/keepers"
 	upgrades "github.com/CosmosContracts/juno/v27/app/upgrades"
-	testnetV18alpha2 "github.com/CosmosContracts/juno/v27/app/upgrades/testnet/v18.0.0-alpha.2"
-	testnetV18alpha3 "github.com/CosmosContracts/juno/v27/app/upgrades/testnet/v18.0.0-alpha.3"
-	testnetV18alpha4 "github.com/CosmosContracts/juno/v27/app/upgrades/testnet/v18.0.0-alpha.4"
-	testnetV19alpha3 "github.com/CosmosContracts/juno/v27/app/upgrades/testnet/v19.0.0-alpha.3"
-	testnetV21alpha1 "github.com/CosmosContracts/juno/v27/app/upgrades/testnet/v21.0.0-alpha.1"
-	testnetV22alpha1 "github.com/CosmosContracts/juno/v27/app/upgrades/testnet/v22.0.0-alpha.1"
-	testnetV23alpha1 "github.com/CosmosContracts/juno/v27/app/upgrades/testnet/v23.0.0-alpha.1"
-	v10 "github.com/CosmosContracts/juno/v27/app/upgrades/v10"
-	v11 "github.com/CosmosContracts/juno/v27/app/upgrades/v11"
-	v12 "github.com/CosmosContracts/juno/v27/app/upgrades/v12"
-	v13 "github.com/CosmosContracts/juno/v27/app/upgrades/v13"
-	v14 "github.com/CosmosContracts/juno/v27/app/upgrades/v14"
-	v15 "github.com/CosmosContracts/juno/v27/app/upgrades/v15"
-	v16 "github.com/CosmosContracts/juno/v27/app/upgrades/v16"
-	v17 "github.com/CosmosContracts/juno/v27/app/upgrades/v17"
-	v18 "github.com/CosmosContracts/juno/v27/app/upgrades/v18"
-	v19 "github.com/CosmosContracts/juno/v27/app/upgrades/v19"
-	v21 "github.com/CosmosContracts/juno/v27/app/upgrades/v21"
-	v22 "github.com/CosmosContracts/juno/v27/app/upgrades/v22"
-	v23 "github.com/CosmosContracts/juno/v27/app/upgrades/v23"
-	v24 "github.com/CosmosContracts/juno/v27/app/upgrades/v24"
-	v25 "github.com/CosmosContracts/juno/v27/app/upgrades/v25"
-	v26 "github.com/CosmosContracts/juno/v27/app/upgrades/v26"
+	v27 "github.com/CosmosContracts/juno/v27/app/upgrades/v27"
 )
 
 const (
@@ -112,31 +92,7 @@ var (
 	EnableSpecificProposals = ""
 
 	Upgrades = []upgrades.Upgrade{
-		// testnet
-		testnetV18alpha2.Upgrade,
-		testnetV18alpha3.Upgrade,
-		testnetV18alpha4.Upgrade,
-		testnetV19alpha3.Upgrade,
-		testnetV21alpha1.Upgrade,
-		testnetV22alpha1.Upgrade,
-		testnetV23alpha1.Upgrade,
-
-		v10.Upgrade,
-		v11.Upgrade,
-		v12.Upgrade,
-		v13.Upgrade,
-		v14.Upgrade,
-		v15.Upgrade,
-		v16.Upgrade,
-		v17.Upgrade,
-		v18.Upgrade,
-		v19.Upgrade,
-		v21.Upgrade,
-		v22.Upgrade,
-		v23.Upgrade,
-		v24.Upgrade,
-		v25.Upgrade,
-		v26.Upgrade,
+		v27.Upgrade,
 	}
 
 	_ runtime.AppI            = (*App)(nil)
@@ -283,10 +239,6 @@ func New(
 	app.MountTransientStores(app.AppKeepers.GetTransientStoreKeys())
 	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKeys())
 
-	autocliv1.RegisterQueryServer(
-		app.GRPCQueryRouter(),
-		runtimeservices.NewAutoCLIQueryService(app.ModuleManager.Modules),
-	)
 	reflectionSvc, err := runtimeservices.NewReflectionService()
 	if err != nil {
 		panic(err)
