@@ -1,24 +1,15 @@
 package upgrades
 
 import (
+	"context"
 	"strings"
-
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	store "cosmossdk.io/store/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/CosmosContracts/juno/v27/app/keepers"
 )
-
-// BaseAppParamManager defines an interrace that BaseApp is expected to fulfil
-// that allows upgrade handlers to modify BaseApp parameters.
-type BaseAppParamManager interface {
-	GetConsensusParams(ctx sdk.Context) *tmproto.ConsensusParams
-	StoreConsensusParams(ctx sdk.Context, cp *tmproto.ConsensusParams)
-}
 
 // Upgrade defines a struct containing necessary fields that a SoftwareUpgradeProposal
 // must have written, in order for the state migration to go smoothly.
@@ -53,7 +44,7 @@ func CreateBlankUpgradeHandler(
 	cfg module.Configurator,
 	_ *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	return func(ctx context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return mm.RunMigrations(ctx, cfg, vm)
 	}
 }
