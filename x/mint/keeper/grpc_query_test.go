@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"context"
-	gocontext "context"
 	"testing"
 
 	storetypes "cosmossdk.io/store/types"

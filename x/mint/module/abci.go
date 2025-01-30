@@ -21,7 +21,7 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) error {
 	minter := k.GetMinter(ctx)
 
 	if minter.Inflation.Equal(sdkmath.LegacyZeroDec()) {
-		return
+		return nil
 	}
 
 	params := k.GetParams(ctx)
