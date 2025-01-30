@@ -1,38 +1,43 @@
 syntax = "proto3";
 package juno.cwhooks.v1;
 
-import "gogoproto/gogo.proto";
-import "google/api/annotations.proto";
-import "cosmos/base/v1beta1/coin.proto";
-import "juno/cwhooks/v1/genesis.proto";
-
 option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
+
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/query/v1/query.proto";
+import "google/api/annotations.proto";
+
+import "juno/cwhooks/v1/genesis.proto";
 
 // Query defines the gRPC querier service.
 service Query {
   // Params
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/juno/cwhooks/v1/params";
   }
 
   // StakingContracts
   rpc StakingContracts(QueryStakingContractsRequest) returns (QueryStakingContractsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/juno/cwhooks/v1/staking_contracts";
   }
 
   // GovernanceContracts
   rpc GovernanceContracts(QueryGovernanceContractsRequest) returns (QueryGovernanceContractsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get = "/juno/cwhooks/v1/governance_contracts";
   }
 }
-
 
 // QueryParams is the request type to get all module params.
 message QueryParamsRequest {}
 
 // QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
 message QueryParamsResponse {
-  Params params = 1 [(gogoproto.jsontag) = "params", (gogoproto.moretags) = "yaml:\"params\""];
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // QueryStakingContractsRequest
@@ -40,7 +45,7 @@ message QueryStakingContractsRequest {}
 
 // QueryStakingContractsResponse
 message QueryStakingContractsResponse {
-  repeated string contracts = 1 [(gogoproto.jsontag) = "contracts", (gogoproto.moretags) = "yaml:\"contracts\""];
+  repeated string contracts = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // QueryStakingContractsRequest
@@ -48,5 +53,5 @@ message QueryGovernanceContractsRequest {}
 
 // QueryGovernanceContractsResponse
 message QueryGovernanceContractsResponse {
-  repeated string contracts = 1 [(gogoproto.jsontag) = "contracts", (gogoproto.moretags) = "yaml:\"contracts\""];
+  repeated string contracts = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
