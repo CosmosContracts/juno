@@ -1,13 +1,16 @@
 syntax = "proto3";
 package juno.drip.v1;
 
+import "amino/amino.proto";
 import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+
 option go_package = "github.com/CosmosContracts/juno/x/drip/types";
 
 // GenesisState defines the module's genesis state.
 message GenesisState {
   // params are the drip module parameters
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // Params defines the drip module params
@@ -16,5 +19,8 @@ message Params {
   bool enable_drip = 1;
 
   // allowed_addresses defines the list of addresses authorized to use the module
-  repeated string allowed_addresses = 3 [ (gogoproto.moretags) = "yaml:\"addresses\"" ];
+  repeated string allowed_addresses = 3 [
+    (cosmos_proto.scalar) = "cosmos.AddressString",
+    (gogoproto.moretags) = "yaml:\"addresses\""
+  ];
 }
