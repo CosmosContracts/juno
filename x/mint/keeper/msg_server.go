@@ -29,6 +29,10 @@ func (ms msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdatePara
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", ms.authority, req.Authority)
 	}
 
+	if _, err := sdk.AccAddressFromBech32(req.Authority); err != nil {
+		return nil, errors.Wrap(err, "invalid authority address")
+	}
+
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	if err := ms.SetParams(ctx, req.Params); err != nil {
 		return nil, err

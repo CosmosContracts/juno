@@ -12,10 +12,10 @@ The minter is a space for holding current inflation information.
 
 ```go
 type Minter struct {
- Inflation        sdk.Dec   // current annual inflation rate
+ Inflation        sdk.LegacyDec   // current annual inflation rate
  Phase            uint64    // current phase inflation
  StartPhaseBlock  uint64    // current phase start block
- AnnualProvisions sdk.Dec   // current annual expected provisions
+ AnnualProvisions sdk.LegacyDec   // current annual expected provisions
 }
 ```
 

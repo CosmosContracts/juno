@@ -1,23 +1,24 @@
-package mint
+package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"context"
 
-	"github.com/CosmosContracts/juno/v27/x/mint/keeper"
 	"github.com/CosmosContracts/juno/v27/x/mint/types"
 )
 
 // InitGenesis new mint genesis
-func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, ak types.AccountKeeper, data *types.GenesisState) {
+func (keeper Keeper) InitGenesis(ctx context.Context, ak types.AccountKeeper, data *types.GenesisState) {
 	keeper.SetMinter(ctx, data.Minter)
+
 	if err := keeper.SetParams(ctx, data.Params); err != nil {
 		panic(err)
 	}
+
 	ak.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) *types.GenesisState {
+func (keeper Keeper) ExportGenesis(ctx context.Context) *types.GenesisState {
 	minter := keeper.GetMinter(ctx)
 	params := keeper.GetParams(ctx)
 	return types.NewGenesisState(minter, params)

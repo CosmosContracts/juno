@@ -1,13 +1,13 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	"cosmossdk.io/log"
+	sdkmath "cosmossdk.io/math"
 
-	"cosmossdk.io/math"
-
-	storetypes "cosmossdk.io/store/types"
+	storetypes "cosmossdk.io/core/store"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -16,22 +16,21 @@ import (
 
 // Keeper of the mint store
 type Keeper struct {
-	cdc              codec.BinaryCodec
-	storeKey         storetypes.StoreKey
-	stakingKeeper    types.StakingKeeper
-	accountKeeper    types.AccountKeeper
-	bankKeeper       types.BankKeeper
-	feeCollectorName string
+	cdc          codec.BinaryCodec
+	storeService storetypes.KVStoreService
 
-	// the address capable of executing a MsgUpdateParams message. Typically, this
-	// should be the x/gov module account.
-	authority string
+	stakingKeeper types.StakingKeeper
+	accountKeeper types.AccountKeeper
+	bankKeeper    types.BankKeeper
+
+	feeCollectorName string
+	authority        string
 }
 
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	key storetypes.StoreKey,
+	ss storetypes.KVStoreService,
 	sk types.StakingKeeper,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
@@ -45,7 +44,7 @@ func NewKeeper(
 
 	return Keeper{
 		cdc:              cdc,
-		storeKey:         key,
+		storeService:     ss,
 		stakingKeeper:    sk,
 		bankKeeper:       bk,
 		accountKeeper:    ak,
@@ -62,16 +61,20 @@ func (k Keeper) GetAuthority() string {
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", "x/"+types.ModuleName)
+func (k Keeper) Logger(ctx context.Context) log.Logger {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	return sdkCtx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // get the minter
-func (k Keeper) GetMinter(ctx sdk.Context) (minter types.Minter) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.MinterKey)
+func (k Keeper) GetMinter(ctx context.Context) (minter types.Minter) {
+	store := k.storeService.OpenKVStore(ctx)
+	bz, err := store.Get(types.MinterKey)
 	if bz == nil {
 		panic("stored minter should not have been nil")
+	}
+	if err != nil {
+		panic(err)
 	}
 
 	k.cdc.MustUnmarshal(bz, &minter)
@@ -79,32 +82,41 @@ func (k Keeper) GetMinter(ctx sdk.Context) (minter types.Minter) {
 }
 
 // set the minter
-func (k Keeper) SetMinter(ctx sdk.Context, minter types.Minter) {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) SetMinter(ctx context.Context, minter types.Minter) {
+	store := k.storeService.OpenKVStore(ctx)
 	bz := k.cdc.MustMarshal(&minter)
-	store.Set(types.MinterKey, bz)
+	err := store.Set(types.MinterKey, bz)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // ______________________________________________________________________
 
 // SetParams sets the x/mint module parameters.
-func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
+func (k Keeper) SetParams(ctx context.Context, p types.Params) error {
 	if err := p.Validate(); err != nil {
 		return err
 	}
 
-	store := ctx.KVStore(k.storeKey)
+	store := k.storeService.OpenKVStore(ctx)
 	bz := k.cdc.MustMarshal(&p)
-	store.Set(types.ParamsKey, bz)
+	err := store.Set(types.ParamsKey, bz)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // GetParams returns the current x/mint module parameters.
-func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.ParamsKey)
+func (k Keeper) GetParams(ctx context.Context) (p types.Params) {
+	store := k.storeService.OpenKVStore(ctx)
+	bz, err := store.Get(types.ParamsKey)
 	if bz == nil {
+		return p
+	}
+	if err != nil {
 		return p
 	}
 
@@ -120,31 +132,39 @@ func (k Keeper) GetAccountKeeper() types.AccountKeeper {
 
 // StakingTokenSupply implements an alias call to the underlying staking keeper's
 // StakingTokenSupply to be used in BeginBlocker.
-func (k Keeper) StakingTokenSupply(ctx sdk.Context) math.Int {
-	return k.stakingKeeper.StakingTokenSupply(ctx)
+func (k Keeper) StakingTokenSupply(ctx context.Context) sdkmath.Int {
+	supply, err := k.stakingKeeper.StakingTokenSupply(ctx)
+	if err != nil {
+		return sdkmath.ZeroInt()
+	}
+	return supply
 }
 
 // TokenSupply implements an alias call to the underlying bank keeper's
 // TokenSupply to be used in BeginBlocker.
-func (k Keeper) TokenSupply(ctx sdk.Context, denom string) math.Int {
+func (k Keeper) TokenSupply(ctx context.Context, denom string) sdkmath.Int {
 	return k.bankKeeper.GetSupply(ctx, denom).Amount
 }
 
 // GetBalance implements an alias call to the underlying bank keeper's
 // GetBalance to be used in BeginBlocker.
-func (k Keeper) GetBalance(ctx sdk.Context, address sdk.AccAddress, denom string) math.Int {
+func (k Keeper) GetBalance(ctx context.Context, address sdk.AccAddress, denom string) sdkmath.Int {
 	return k.bankKeeper.GetBalance(ctx, address, denom).Amount
 }
 
 // BondedRatio implements an alias call to the underlying staking keeper's
 // BondedRatio to be used in BeginBlocker.
-func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
-	return k.stakingKeeper.BondedRatio(ctx)
+func (k Keeper) BondedRatio(ctx context.Context) sdkmath.LegacyDec {
+	br, err := k.stakingKeeper.BondedRatio(ctx)
+	if err != nil {
+		return sdkmath.LegacyZeroDec()
+	}
+	return br
 }
 
 // MintCoins implements an alias call to the underlying supply keeper's
 // MintCoins to be used in BeginBlocker.
-func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
+func (k Keeper) MintCoins(ctx context.Context, newCoins sdk.Coins) error {
 	if newCoins.Empty() {
 		// skip as no coins need to be minted
 		return nil
@@ -153,7 +173,7 @@ func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
 	return k.bankKeeper.MintCoins(ctx, types.ModuleName, newCoins)
 }
 
-func (k Keeper) ReduceTargetSupply(ctx sdk.Context, burnCoin sdk.Coin) error {
+func (k Keeper) ReduceTargetSupply(ctx context.Context, burnCoin sdk.Coin) error {
 	params := k.GetParams(ctx)
 
 	if burnCoin.Denom != params.MintDenom {
@@ -169,6 +189,6 @@ func (k Keeper) ReduceTargetSupply(ctx sdk.Context, burnCoin sdk.Coin) error {
 
 // AddCollectedFees implements an alias call to the underlying supply keeper's
 // AddCollectedFees to be used in BeginBlocker.
-func (k Keeper) AddCollectedFees(ctx sdk.Context, fees sdk.Coins) error {
+func (k Keeper) AddCollectedFees(ctx context.Context, fees sdk.Coins) error {
 	return k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, k.feeCollectorName, fees)
 }
