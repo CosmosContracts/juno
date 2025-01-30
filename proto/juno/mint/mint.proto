@@ -1,7 +1,8 @@
 syntax = "proto3";
-
 package juno.mint;
 
+import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/mint/types";
@@ -10,32 +11,31 @@ option go_package = "github.com/CosmosContracts/juno/x/mint/types";
 message Minter {
   // current annual inflation rate
   string inflation = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false
   ];
   uint64 phase = 2;
-  uint64 start_phase_block = 3
-      [ (gogoproto.moretags) = "yaml:\"start_phase_block\"" ];
+  uint64 start_phase_block = 3;
   // current annual expected provisions
   string annual_provisions = 4 [
-    (gogoproto.moretags) = "yaml:\"annual_provisions\"",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false
   ];
   string target_supply = 5 [
-    (gogoproto.moretags) = "yaml:\"target_supply\"",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
+    (cosmos_proto.scalar)  = "cosmos.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable)   = false
   ];
 }
 
 // Params holds parameters for the mint module.
 message Params {
-  option (gogoproto.goproto_stringer) = false;
+   option (amino.name) = "cosmos-sdk/x/mint/Params";
 
   // type of coin to mint
   string mint_denom = 1;
   // expected blocks per year
-  uint64 blocks_per_year = 2
-      [ (gogoproto.moretags) = "yaml:\"blocks_per_year\"" ];
+  uint64 blocks_per_year = 2;
 }
