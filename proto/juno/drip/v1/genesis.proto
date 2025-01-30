@@ -20,8 +20,5 @@ message Params {
   bool enable_drip = 1;
 
   // allowed_addresses defines the list of addresses authorized to use the module
-  repeated string allowed_addresses = 3 [
-    (cosmos_proto.scalar) = "cosmos.AddressString",
-    (gogoproto.moretags) = "yaml:\"addresses\""
-  ];
+  repeated string allowed_addresses = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
