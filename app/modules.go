@@ -69,7 +69,8 @@ import (
 	feeshare "github.com/CosmosContracts/juno/v27/x/feeshare"
 	feesharetypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
 	"github.com/CosmosContracts/juno/v27/x/globalfee"
-	"github.com/CosmosContracts/juno/v27/x/mint"
+	mint "github.com/CosmosContracts/juno/v27/x/mint/module"
+	mintmodule "github.com/CosmosContracts/juno/v27/x/mint/module"
 	minttypes "github.com/CosmosContracts/juno/v27/x/mint/types"
 	"github.com/CosmosContracts/juno/v27/x/tokenfactory"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
@@ -107,7 +108,7 @@ func appModules(
 		consensus.NewAppModule(appCodec, app.AppKeepers.ConsensusParamsKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		// Juno modules
-		mint.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper, bondDenom),
+		mintmodule.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
 		tokenfactory.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		globalfee.NewAppModule(appCodec, app.AppKeepers.GlobalFeeKeeper, bondDenom),
 		feepay.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper),

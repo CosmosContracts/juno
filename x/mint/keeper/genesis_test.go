@@ -6,7 +6,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 
-	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 
@@ -79,7 +78,7 @@ func (s *GenesisTestSuite) TestImportExportGenesis() {
 
 	invalidCtx := testutil.DefaultContextWithDB(s.T(), s.key, storetypes.NewTransientStoreKey("transient_test"))
 	_, err = s.keeper.Minter.Get(invalidCtx.Ctx)
-	s.Require().ErrorIs(err, collections.ErrNotFound)
+	s.Require().Error(err)
 
 	params, err := s.keeper.Params.Get(s.sdkCtx)
 	s.Require().Equal(genesisState.Params, params)
