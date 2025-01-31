@@ -1,12 +1,12 @@
 syntax = "proto3";
-package juno.mint;
+package juno.mint.v1;
 
 import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 
-import "juno/mint/mint.proto";
+import "juno/mint/v1/mint.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/mint/types";
 

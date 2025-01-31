@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: juno/mint/tx.proto
+// source: juno/mint/v1/tx.proto
 
-package mint
+package mintv1
 
 import (
 	context "context"
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Msg_UpdateParams_FullMethodName = "/juno.mint.Msg/UpdateParams"
+	Msg_UpdateParams_FullMethodName = "/juno.mint.v1.Msg/UpdateParams"
 )
 
 // MsgClient is the client API for Msg service.
@@ -116,7 +116,7 @@ func _Msg_UpdateParams_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Msg_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "juno.mint.Msg",
+	ServiceName: "juno.mint.v1.Msg",
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -125,5 +125,5 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "juno/mint/tx.proto",
+	Metadata: "juno/mint/v1/tx.proto",
 }

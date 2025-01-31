@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: juno/mint/query.proto
+// source: juno/mint/v1/query.proto
 
-package mint
+package mintv1
 
 import (
 	context "context"
@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Query_Params_FullMethodName           = "/juno.mint.Query/Params"
-	Query_Inflation_FullMethodName        = "/juno.mint.Query/Inflation"
-	Query_AnnualProvisions_FullMethodName = "/juno.mint.Query/AnnualProvisions"
-	Query_TargetSupply_FullMethodName     = "/juno.mint.Query/TargetSupply"
+	Query_Params_FullMethodName           = "/juno.mint.v1.Query/Params"
+	Query_Inflation_FullMethodName        = "/juno.mint.v1.Query/Inflation"
+	Query_AnnualProvisions_FullMethodName = "/juno.mint.v1.Query/AnnualProvisions"
+	Query_TargetSupply_FullMethodName     = "/juno.mint.v1.Query/TargetSupply"
 )
 
 // QueryClient is the client API for Query service.
@@ -222,7 +222,7 @@ func _Query_TargetSupply_Handler(srv interface{}, ctx context.Context, dec func(
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "juno.mint.Query",
+	ServiceName: "juno.mint.v1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -243,5 +243,5 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "juno/mint/query.proto",
+	Metadata: "juno/mint/v1/query.proto",
 }
