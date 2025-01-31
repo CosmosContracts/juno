@@ -25,7 +25,7 @@ import (
 )
 
 var tempDir = func() string {
-	dir, err := os.MkdirTemp("", "vector")
+	dir, err := os.MkdirTemp("", "juno")
 	if err != nil {
 		panic("failed to create temp dir: " + err.Error())
 	}

@@ -88,6 +88,7 @@ import (
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
+	"github.com/CosmosContracts/juno/v27/app"
 	junoburn "github.com/CosmosContracts/juno/v27/x/burn"
 	clockkeeper "github.com/CosmosContracts/juno/v27/x/clock/keeper"
 	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
@@ -284,7 +285,7 @@ func NewAppKeepers(
 
 	appKeepers.MintKeeper = mintkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[minttypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[minttypes.StoreKey]),
 		stakingKeeper,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
