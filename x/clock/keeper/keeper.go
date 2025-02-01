@@ -1,12 +1,15 @@
 package keeper
 
 import (
+	"context"
+
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"cosmossdk.io/log"
 
-	storetypes "cosmossdk.io/store/types"
+	storetypes "cosmossdk.io/core/store"
+	legacystoretypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -15,8 +18,10 @@ import (
 
 // Keeper of the clock store
 type Keeper struct {
-	storeKey storetypes.StoreKey
-	cdc      codec.BinaryCodec
+	cdc          codec.BinaryCodec
+	storeService storetypes.KVStoreService
+	// TODO: Migrate module to collections, then remove this
+	legacyKey legacystoretypes.StoreKey
 
 	wasmKeeper     wasmkeeper.Keeper
 	contractKeeper wasmtypes.ContractOpsKeeper
@@ -25,15 +30,17 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	key storetypes.StoreKey,
 	cdc codec.BinaryCodec,
+	ss storetypes.KVStoreService,
+	legacyKey legacystoretypes.StoreKey,
 	wasmKeeper wasmkeeper.Keeper,
 	contractKeeper wasmtypes.ContractOpsKeeper,
 	authority string,
 ) Keeper {
 	return Keeper{
 		cdc:            cdc,
-		storeKey:       key,
+		storeService:   ss,
+		legacyKey:      legacyKey,
 		wasmKeeper:     wasmKeeper,
 		contractKeeper: contractKeeper,
 		authority:      authority,
@@ -41,8 +48,9 @@ func NewKeeper(
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", "x/"+types.ModuleName)
+func (k Keeper) Logger(ctx context.Context) log.Logger {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	return sdkCtx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // GetAuthority returns the x/clock module's authority.
@@ -51,23 +59,29 @@ func (k Keeper) GetAuthority() string {
 }
 
 // SetParams sets the x/clock module parameters.
-func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
+func (k Keeper) SetParams(ctx context.Context, p types.Params) error {
 	if err := p.Validate(); err != nil {
 		return err
 	}
 
-	store := ctx.KVStore(k.storeKey)
+	store := k.storeService.OpenKVStore(ctx)
 	bz := k.cdc.MustMarshal(&p)
-	store.Set(types.ParamsKey, bz)
+	err := store.Set(types.ParamsKey, bz)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // GetParams returns the current x/clock module parameters.
-func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.ParamsKey)
+func (k Keeper) GetParams(ctx context.Context) (p types.Params) {
+	store := k.storeService.OpenKVStore(ctx)
+	bz, err := store.Get(types.ParamsKey)
 	if bz == nil {
+		return p
+	}
+	if err != nil {
 		return p
 	}
 
@@ -86,6 +100,6 @@ func (k Keeper) GetCdc() codec.BinaryCodec {
 }
 
 // GetStore returns the x/clock module's store key.
-func (k Keeper) GetStore() storetypes.StoreKey {
-	return k.storeKey
+func (k Keeper) GetLegacyStore() legacystoretypes.StoreKey {
+	return k.legacyKey
 }

@@ -26,9 +26,7 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 }
 
 // RegisterClockContract handles incoming transactions to register clock contracts.
-func (k msgServer) RegisterClockContract(goCtx context.Context, req *types.MsgRegisterClockContract) (*types.MsgRegisterClockContractResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) RegisterClockContract(ctx context.Context, req *types.MsgRegisterClockContract) (*types.MsgRegisterClockContractResponse, error) {
 	// Validate request
 	if err := req.ValidateBasic(); err != nil {
 		return nil, err

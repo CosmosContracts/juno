@@ -1,23 +1,26 @@
-package clock
+package keeper
 
 import (
-	"time"
+	"context"
 
 	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	helpers "github.com/CosmosContracts/juno/v27/app/helpers"
-	"github.com/CosmosContracts/juno/v27/x/clock/keeper"
 	"github.com/CosmosContracts/juno/v27/x/clock/types"
 )
 
 var endBlockSudoMessage = []byte(types.EndBlockSudoMessage)
 
 // EndBlocker executes on contracts at the end of the block.
-func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
-	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
+func EndBlocker(ctx context.Context, k Keeper) error {
+	start := telemetry.Now()
+	defer telemetry.ModuleMeasureSince(types.ModuleName, start, telemetry.MetricKeyEndBlocker)
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	logger := k.Logger(ctx)
 	p := k.GetParams(ctx)
@@ -26,7 +29,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	contracts, err := k.GetAllContracts(ctx)
 	if err != nil {
 		logger.Error("Failed to get contracts", "error", err)
-		return
+		return err
 	}
 
 	// Track errors
@@ -48,7 +51,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		}
 
 		// Create context with gas limit
-		childCtx := ctx.WithGasMeter(sdk.NewGasMeter(p.ContractGasLimit))
+		childCtx := sdkCtx.WithGasMeter(storetypes.NewGasMeter(p.ContractGasLimit))
 
 		// Execute contract
 		helpers.ExecuteContract(k.GetContractKeeper(), childCtx, contractAddr, endBlockSudoMessage, &err)
@@ -61,12 +64,14 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	if errorExists {
 		logger.Error("Failed to execute contracts", "contracts", errorExecs)
 	}
+
+	return nil
 }
 
 // Function to handle contract execution errors. Returns true if error is present, false otherwise.
 func handleError(
-	ctx sdk.Context,
-	k keeper.Keeper,
+	ctx context.Context,
+	k Keeper,
 	logger log.Logger,
 	errorExecs []string,
 	errorExists *bool,

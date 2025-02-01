@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -8,7 +9,7 @@ import (
 )
 
 // Query Clock Params
-func (s *IntegrationTestSuite) TestQueryClockParams() {
+func (s *KeeperTestSuite) TestQueryClockParams() {
 	for _, tc := range []struct {
 		desc   string
 		params types.Params
@@ -43,15 +44,15 @@ func (s *IntegrationTestSuite) TestQueryClockParams() {
 			// Response check
 			s.Require().NoError(err)
 			s.Require().NotNil(resp)
-			s.Require().Equal(tc.params, *resp.Params)
+			s.Require().Equal(tc.params, resp.Params)
 		})
 	}
 }
 
 // Query Clock Contracts
-func (s *IntegrationTestSuite) TestQueryClockContracts() {
+func (s *KeeperTestSuite) TestQueryClockContracts() {
 	_, _, addr := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	s.StoreCode()
 
@@ -86,8 +87,7 @@ func (s *IntegrationTestSuite) TestQueryClockContracts() {
 			}
 
 			// Contracts check
-			goCtx := sdk.WrapSDKContext(s.ctx)
-			resp, err := s.queryClient.ClockContracts(goCtx, &types.QueryClockContracts{})
+			resp, err := s.queryClient.ClockContracts(s.ctx, &types.QueryClockContractsRequest{})
 
 			// Response check
 			s.Require().NoError(err)
@@ -106,9 +106,9 @@ func (s *IntegrationTestSuite) TestQueryClockContracts() {
 }
 
 // Query Jailed Clock Contracts
-func (s *IntegrationTestSuite) TestQueryJailedClockContracts() {
+func (s *KeeperTestSuite) TestQueryJailedClockContracts() {
 	_, _, addr := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	s.StoreCode()
 
@@ -145,7 +145,7 @@ func (s *IntegrationTestSuite) TestQueryJailedClockContracts() {
 
 			// Contracts check
 			goCtx := sdk.WrapSDKContext(s.ctx)
-			resp, err := s.queryClient.ClockContracts(goCtx, &types.QueryClockContracts{})
+			resp, err := s.queryClient.ClockContracts(goCtx, &types.QueryClockContractsRequest{})
 
 			// Response check
 			s.Require().NoError(err)
@@ -164,9 +164,9 @@ func (s *IntegrationTestSuite) TestQueryJailedClockContracts() {
 }
 
 // Query Clock Contract
-func (s *IntegrationTestSuite) TestQueryClockContract() {
+func (s *KeeperTestSuite) TestQueryClockContract() {
 	_, _, addr := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 	_, _, invalidAddr := testdata.KeyTestPubAddr()
 
 	s.StoreCode()
@@ -217,7 +217,7 @@ func (s *IntegrationTestSuite) TestQueryClockContract() {
 		tc := tc
 		s.Run(tc.desc, func() {
 			// Query contract
-			resp, err := s.queryClient.ClockContract(s.ctx, &types.QueryClockContract{
+			resp, err := s.queryClient.ClockContract(s.ctx, &types.QueryClockContractRequest{
 				ContractAddress: tc.contract,
 			})
 

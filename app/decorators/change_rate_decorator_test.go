@@ -18,6 +18,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v27/app"
 	decorators "github.com/CosmosContracts/juno/v27/app/decorators"
+	"github.com/CosmosContracts/juno/v27/testutil"
 )
 
 // Define an empty ante handle
@@ -37,7 +38,7 @@ type AnteTestSuite struct {
 
 func (s *AnteTestSuite) SetupTest() {
 	isCheckTx := false
-	s.app = app.Setup(false)
+	s.app = testutil.Setup(isCheckTx, s.T())
 	s.ctx = s.app.BaseApp.NewContext(isCheckTx)
 
 	s.stakingKeeper = s.app.AppKeepers.StakingKeeper

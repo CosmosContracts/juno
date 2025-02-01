@@ -1,4 +1,4 @@
-package clock_test
+package keeper_test
 
 import (
 	"fmt"
@@ -6,12 +6,10 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v27/app"
-	clock "github.com/CosmosContracts/juno/v27/x/clock"
+	"github.com/CosmosContracts/juno/v27/testutil"
 	"github.com/CosmosContracts/juno/v27/x/clock/types"
 )
 
@@ -19,7 +17,6 @@ type GenesisTestSuite struct {
 	suite.Suite
 
 	ctx sdk.Context
-
 	app *app.App
 }
 
@@ -27,17 +24,15 @@ func TestGenesisTestSuite(t *testing.T) {
 	suite.Run(t, new(GenesisTestSuite))
 }
 
-func (suite *GenesisTestSuite) SetupTest() {
-	app := app.Setup(suite.T())
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{
-		ChainID: "testing",
-	})
+func (s *GenesisTestSuite) SetupTest() {
+	app := testutil.Setup(false, s.T())
+	ctx := app.BaseApp.NewContext(false)
 
-	suite.app = app
-	suite.ctx = ctx
+	s.app = app
+	s.ctx = ctx
 }
 
-func (suite *GenesisTestSuite) TestClockInitGenesis() {
+func (s *GenesisTestSuite) TestClockInitGenesis() {
 	testCases := []struct {
 		name    string
 		genesis types.GenesisState
@@ -45,7 +40,7 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 	}{
 		{
 			"Success - Default Genesis",
-			*clock.DefaultGenesisState(),
+			*types.DefaultGenesisState(),
 			true,
 		},
 		{
@@ -69,19 +64,19 @@ func (suite *GenesisTestSuite) TestClockInitGenesis() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			s.SetupTest() // reset
 
 			if tc.success {
-				suite.Require().NotPanics(func() {
-					clock.InitGenesis(suite.ctx, suite.app.AppKeepers.ClockKeeper, tc.genesis)
+				s.Require().NotPanics(func() {
+					s.app.AppKeepers.ClockKeeper.InitGenesis(s.ctx, tc.genesis)
 				})
 
-				params := suite.app.AppKeepers.ClockKeeper.GetParams(suite.ctx)
-				suite.Require().Equal(tc.genesis.Params, params)
+				params := s.app.AppKeepers.ClockKeeper.GetParams(s.ctx)
+				s.Require().Equal(tc.genesis.Params, params)
 			} else {
-				suite.Require().Panics(func() {
-					clock.InitGenesis(suite.ctx, suite.app.AppKeepers.ClockKeeper, tc.genesis)
+				s.Require().Panics(func() {
+					s.app.AppKeepers.ClockKeeper.InitGenesis(s.ctx, tc.genesis)
 				})
 			}
 		})

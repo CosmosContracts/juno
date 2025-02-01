@@ -3,6 +3,7 @@ package keeper_test
 import (
 	_ "embed"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -10,10 +11,10 @@ import (
 )
 
 // Test register clock contract.
-func (s *IntegrationTestSuite) TestRegisterClockContract() {
+func (s *KeeperTestSuite) TestRegisterClockContract() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Store code
 	s.StoreCode()
@@ -106,10 +107,10 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 }
 
 // Test standard unregistration of clock contracts.
-func (s *IntegrationTestSuite) TestUnregisterClockContract() {
+func (s *KeeperTestSuite) TestUnregisterClockContract() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	s.StoreCode()
 	contractAddress := s.InstantiateContract(addr.String(), "")
@@ -189,9 +190,9 @@ func (s *IntegrationTestSuite) TestUnregisterClockContract() {
 }
 
 // Test duplicate register/unregister clock contracts.
-func (s *IntegrationTestSuite) TestDuplicateRegistrationChecks() {
+func (s *KeeperTestSuite) TestDuplicateRegistrationChecks() {
 	_, _, addr := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	s.StoreCode()
 	contractAddress := s.InstantiateContract(addr.String(), "")
@@ -224,10 +225,10 @@ func (s *IntegrationTestSuite) TestDuplicateRegistrationChecks() {
 }
 
 // Test unjailing clock contracts.
-func (s *IntegrationTestSuite) TestUnjailClockContract() {
+func (s *KeeperTestSuite) TestUnjailClockContract() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	s.StoreCode()
 	contractAddress := s.InstantiateContract(addr.String(), "")
