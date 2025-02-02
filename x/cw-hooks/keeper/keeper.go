@@ -1,14 +1,15 @@
 package keeper
 
 import (
-	"fmt"
+	"context"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"cosmossdk.io/log"
 
-	storetypes "cosmossdk.io/store/types"
+	storetypes "cosmossdk.io/core/store"
+	legacystoretypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -18,8 +19,10 @@ import (
 )
 
 type Keeper struct {
-	storeKey storetypes.StoreKey
-	cdc      codec.BinaryCodec
+	cdc          codec.BinaryCodec
+	storeService storetypes.KVStoreService
+	// TODO: Migrate module to collections, then remove this
+	legacyKey legacystoretypes.StoreKey
 
 	stakingKeeper  slashingtypes.StakingKeeper
 	govKeeper      govkeeper.Keeper
@@ -30,8 +33,9 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	key storetypes.StoreKey,
 	cdc codec.BinaryCodec,
+	ss storetypes.KVStoreService,
+	legacyKey legacystoretypes.StoreKey,
 	stakingKeeper slashingtypes.StakingKeeper,
 	govKeeper govkeeper.Keeper,
 	wasmkeeper wasmkeeper.Keeper,
@@ -40,7 +44,8 @@ func NewKeeper(
 ) Keeper {
 	return Keeper{
 		cdc:            cdc,
-		storeKey:       key,
+		storeService:   ss,
+		legacyKey:      legacyKey,
 		stakingKeeper:  stakingKeeper,
 		govKeeper:      govKeeper,
 		contractKeeper: contractKeeper,
@@ -67,6 +72,13 @@ func (k Keeper) GetStakingKeeper() slashingtypes.StakingKeeper {
 	return k.stakingKeeper
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+// Logger returns a module-specific logger.
+func (k Keeper) Logger(ctx context.Context) log.Logger {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	return sdkCtx.Logger().With("module", "x/"+types.ModuleName)
+}
+
+// GetStore returns the x/clock module's store key.
+func (k Keeper) GetLegacyStore() legacystoretypes.StoreKey {
+	return k.legacyKey
 }

@@ -1,16 +1,14 @@
 package keeper_test
 
 import (
+	"context"
 	"crypto/sha256"
 	"embed"
 	"testing"
-	"time"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/suite"
-
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -20,16 +18,17 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/CosmosContracts/juno/v27/app"
+	"github.com/CosmosContracts/juno/v27/testutil"
 	"github.com/CosmosContracts/juno/v27/x/cw-hooks/keeper"
 	"github.com/CosmosContracts/juno/v27/x/cw-hooks/types"
 )
 
 var _ = embed.FS{}
 
-//go:embed contract/juno_staking_hooks_example.wasm
+//go:embed testdata/juno_staking_hooks_example.wasm
 var wasmContract []byte
 
-type IntegrationTestSuite struct {
+type KeeperTestSuite struct {
 	suite.Suite
 
 	ctx           sdk.Context
@@ -42,18 +41,13 @@ type IntegrationTestSuite struct {
 	wasmMsgServer wasmtypes.MsgServer
 }
 
-func (s *IntegrationTestSuite) SetupTest() {
+func (s *KeeperTestSuite) SetupTest() {
 	isCheckTx := false
-	s.app = app.Setup(s.T())
-
-	s.ctx = s.app.BaseApp.NewContext(isCheckTx, tmproto.Header{
-		ChainID: "testing",
-		Height:  9,
-		Time:    time.Now().UTC(),
-	})
+	s.app = testutil.Setup(isCheckTx, s.T())
+	s.ctx = s.app.BaseApp.NewContext(isCheckTx)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQuerier(s.app.AppKeepers.CWHooksKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServerImpl(s.app.AppKeepers.CWHooksKeeper))
 
 	s.bankKeeper = s.app.AppKeepers.BankKeeper
 	s.stakingKeeper = *s.app.AppKeepers.StakingKeeper
@@ -65,7 +59,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl(&s.wasmKeeper)
 }
 
-func (s *IntegrationTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
+func (s *KeeperTestSuite) FundAccount(ctx context.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
 	if err := s.bankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
 		return err
 	}
@@ -73,7 +67,7 @@ func (s *IntegrationTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress,
 	return s.bankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
 }
 
-func (s *IntegrationTestSuite) StoreCode() {
+func (s *KeeperTestSuite) StoreCode() {
 	_, _, sender := testdata.KeyTestPubAddr()
 	msg := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
 		m.WASMByteCode = wasmContract
@@ -94,7 +88,7 @@ func (s *IntegrationTestSuite) StoreCode() {
 	s.Require().Equal(wasmtypes.DefaultParams().InstantiateDefaultPermission.With(sender), info.InstantiateConfig)
 }
 
-func (s *IntegrationTestSuite) InstantiateContract(sender string, admin string) string {
+func (s *KeeperTestSuite) InstantiateContract(sender string, admin string) string {
 	msgStoreCode := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
 		m.WASMByteCode = wasmContract
 		m.Sender = sender
@@ -120,5 +114,5 @@ func (s *IntegrationTestSuite) InstantiateContract(sender string, admin string) 
 }
 
 func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(IntegrationTestSuite))
+	suite.Run(t, new(KeeperTestSuite))
 }

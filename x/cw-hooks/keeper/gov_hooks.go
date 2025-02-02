@@ -1,10 +1,12 @@
 package keeper
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
 
+	"cosmossdk.io/collections"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -74,76 +76,85 @@ type SudoAfterProposalVotingPeriodEnded struct {
 	AfterProposalVotingPeriodEnded string `json:"after_proposal_voting_period_ended"`
 }
 
-func (h GovHooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
-	prop, found := h.k.govKeeper.GetProposal(ctx, proposalID)
-	if !found {
-		return
+func (h GovHooks) AfterProposalSubmission(ctx context.Context, proposalID uint64) error {
+	prop, err := h.k.govKeeper.Proposals.Get(ctx, proposalID)
+	if err != nil {
+		return err
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterProposalSubmission{
 		AfterProposalSubmission: NewProposal(prop),
 	})
 	if err != nil {
-		return
+		return err
 	}
 
 	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
 		fmt.Println("AfterProposalSubmission: ", err)
-		return
+		return err
 	}
+
+	return nil
 }
 
-func (h GovHooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
-	prop, found := h.k.govKeeper.GetProposal(ctx, proposalID)
-	if !found {
-		return
+func (h GovHooks) AfterProposalDeposit(ctx context.Context, proposalID uint64, _ sdk.AccAddress) error {
+	prop, err := h.k.govKeeper.Proposals.Get(ctx, proposalID)
+	if err != nil {
+		return err
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterProposalDeposit{
 		AfterProposalDeposit: NewProposal(prop),
 	})
 	if err != nil {
-		return
+		return err
 	}
 
 	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
 		fmt.Println("AfterProposalDeposit: ", err)
-		return
+		return err
 	}
+
+	return nil
 }
 
-func (h GovHooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
-	vote, found := h.k.govKeeper.GetVote(ctx, proposalID, voterAddr)
-	if !found {
-		return
+func (h GovHooks) AfterProposalVote(ctx context.Context, proposalID uint64, voterAddr sdk.AccAddress) error {
+	vote, err := h.k.govKeeper.Votes.Get(ctx, collections.Join(proposalID, voterAddr))
+	if err != nil {
+		return err
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterProposalVote{
 		AfterProposalVote: NewVote(vote),
 	})
 	if err != nil {
-		return
+		return err
 	}
 
 	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
 		fmt.Println("AfterProposalVote: ", err)
-		return
+		return err
 	}
+
+	return nil
 }
 
-func (h GovHooks) AfterProposalFailedMinDeposit(_ sdk.Context, _ uint64) {
+func (h GovHooks) AfterProposalFailedMinDeposit(_ context.Context, _ uint64) error {
+	return nil
 }
 
-func (h GovHooks) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64) {
+func (h GovHooks) AfterProposalVotingPeriodEnded(ctx context.Context, proposalID uint64) error {
 	msgBz, err := json.Marshal(SudoAfterProposalVotingPeriodEnded{
 		AfterProposalVotingPeriodEnded: strconv.Itoa(int(proposalID)),
 	})
 	if err != nil {
-		return
+		return err
 	}
 
 	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
 		fmt.Println("AfterProposalVotingPeriodEnded: ", err)
-		return
+		return err
 	}
+
+	return nil
 }

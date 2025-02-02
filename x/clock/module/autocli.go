@@ -12,12 +12,12 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 			Service: clockv1.Query_ServiceDesc.ServiceName,
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
-					RpcMethod: "ShowContracts",
+					RpcMethod: "ClockContracts",
 					Use:       "contracts",
 					Short:     "Show addresses of all current clock contracts",
 				},
 				{
-					RpcMethod: "ShowContract",
+					RpcMethod: "ClockContract",
 					Use:       "contract [contract_address]",
 					Short:     "Get contract by address",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{

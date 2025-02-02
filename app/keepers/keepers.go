@@ -88,7 +88,6 @@ import (
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
-	"github.com/CosmosContracts/juno/v27/app"
 	junoburn "github.com/CosmosContracts/juno/v27/x/burn"
 	clockkeeper "github.com/CosmosContracts/juno/v27/x/clock/keeper"
 	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
@@ -214,8 +213,8 @@ func NewAppKeepers(
 
 	// Set keys KVStoreKey, TransientStoreKey, MemoryStoreKey
 	appKeepers.GenerateKeys()
-	keys := appKeepers.GetKVStoreKey()
-	tkeys := appKeepers.GetTransientStoreKey()
+	keys := appKeepers.GetKVStoreKeys()
+	tkeys := appKeepers.GetTransientStoreKeys()
 
 	appKeepers.ParamsKeeper = initParamsKeeper(
 		appCodec,
