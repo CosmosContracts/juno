@@ -1,46 +1,12 @@
-package drip_test
+package keeper_test
 
 import (
 	"fmt"
-	"testing"
 
-	"github.com/stretchr/testify/suite"
-
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/CosmosContracts/juno/v27/app"
-	drip "github.com/CosmosContracts/juno/v27/x/drip"
 	"github.com/CosmosContracts/juno/v27/x/drip/types"
 )
 
-type GenesisTestSuite struct {
-	suite.Suite
-
-	ctx sdk.Context
-
-	app     *app.App
-	genesis types.GenesisState
-}
-
-func TestGenesisTestSuite(t *testing.T) {
-	suite.Run(t, new(GenesisTestSuite))
-}
-
-func (suite *GenesisTestSuite) SetupTest() {
-	app := app.Setup(suite.T())
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{
-		ChainID: "testing",
-	})
-
-	suite.app = app
-	suite.ctx = ctx
-
-	suite.genesis = *types.DefaultGenesisState()
-}
-
-func (suite *GenesisTestSuite) TestDripInitGenesis() {
+func (s *KeeperTestSuite) TestDripInitGenesis() {
 	testCases := []struct {
 		name     string
 		genesis  types.GenesisState
@@ -48,7 +14,7 @@ func (suite *GenesisTestSuite) TestDripInitGenesis() {
 	}{
 		{
 			"default genesis",
-			suite.genesis,
+			s.genesis,
 			false,
 		},
 		{
@@ -94,20 +60,20 @@ func (suite *GenesisTestSuite) TestDripInitGenesis() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
+		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			s.SetupTest() // reset
 
 			if tc.expPanic {
-				suite.Require().Panics(func() {
-					drip.InitGenesis(suite.ctx, suite.app.AppKeepers.DripKeeper, tc.genesis)
+				s.Require().Panics(func() {
+					s.app.AppKeepers.DripKeeper.InitGenesis(s.ctx, tc.genesis)
 				})
 			} else {
-				suite.Require().NotPanics(func() {
-					drip.InitGenesis(suite.ctx, suite.app.AppKeepers.DripKeeper, tc.genesis)
+				s.Require().NotPanics(func() {
+					s.app.AppKeepers.DripKeeper.InitGenesis(s.ctx, tc.genesis)
 				})
 
-				params := suite.app.AppKeepers.DripKeeper.GetParams(suite.ctx)
-				suite.Require().Equal(tc.genesis.Params, params)
+				params := s.app.AppKeepers.DripKeeper.GetParams(s.ctx)
+				s.Require().Equal(tc.genesis.Params, params)
 			}
 		})
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/CosmosContracts/juno/v27/x/drip/types"
 )
 
-func (s *IntegrationTestSuite) TestDripQueryParams() {
+func (s *KeeperTestSuite) TestDripQueryParams() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
 

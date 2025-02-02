@@ -6,7 +6,7 @@ import (
 	"github.com/CosmosContracts/juno/v27/x/cw-hooks/types"
 )
 
-// SetParams sets the x/mint module parameters.
+// SetParams sets the x/cw-hooks module parameters.
 func (k Keeper) SetParams(ctx context.Context, p types.Params) error {
 	if err := p.Validate(); err != nil {
 		return err
@@ -22,7 +22,7 @@ func (k Keeper) SetParams(ctx context.Context, p types.Params) error {
 	return nil
 }
 
-// GetParams returns the current x/mint module parameters.
+// GetParams returns the current x/cw-hooks module parameters.
 func (k Keeper) GetParams(ctx context.Context) (p types.Params) {
 	store := k.storeService.OpenKVStore(ctx)
 	bz, err := store.Get(types.ParamsKey)

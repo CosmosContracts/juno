@@ -1,16 +1,14 @@
-package drip
+package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v27/x/drip/keeper"
 	"github.com/CosmosContracts/juno/v27/x/drip/types"
 )
 
 // InitGenesis import module genesis
-func InitGenesis(
+func (k Keeper) InitGenesis(
 	ctx sdk.Context,
-	k keeper.Keeper,
 	data types.GenesisState,
 ) {
 	if err := k.SetParams(ctx, data.Params); err != nil {
@@ -19,7 +17,7 @@ func InitGenesis(
 }
 
 // ExportGenesis export module state
-func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
 		Params: k.GetParams(ctx),
 	}

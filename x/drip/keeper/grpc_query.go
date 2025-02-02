@@ -3,29 +3,24 @@ package keeper
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/CosmosContracts/juno/v27/x/drip/types"
 )
 
-var _ types.QueryServer = Querier{}
+var _ types.QueryServer = queryServer{}
 
-// Querier defines a wrapper around the x/FeeShare keeper providing gRPC method
-// handlers.
-type Querier struct {
-	Keeper
+func NewQueryServerImpl(k Keeper) types.QueryServer {
+	return queryServer{k}
 }
 
-func NewQuerier(k Keeper) Querier {
-	return Querier{Keeper: k}
+type queryServer struct {
+	k Keeper
 }
 
 // Params returns the fees module params
-func (q Querier) Params(
+func (q queryServer) Params(
 	c context.Context,
 	_ *types.QueryParamsRequest,
 ) (*types.QueryParamsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-	params := q.GetParams(ctx)
+	params := q.k.GetParams(c)
 	return &types.QueryParamsResponse{Params: params}, nil
 }

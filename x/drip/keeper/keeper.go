@@ -1,19 +1,20 @@
 package keeper
 
 import (
-	storetypes "cosmossdk.io/store/types"
+	"context"
+
+	storetypes "cosmossdk.io/core/store"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	driptypes "github.com/CosmosContracts/juno/v27/x/drip/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
 // Keeper of this module maintains distributing tokens to all stakers.
 type Keeper struct {
-	storeKey storetypes.StoreKey
-	cdc      codec.BinaryCodec
+	cdc          codec.BinaryCodec
+	storeService storetypes.KVStoreService
 
-	bankKeeper driptypes.BankKeeper
+	bankKeeper bankkeeper.Keeper
 
 	feeCollectorName string
 	// the address capable of executing a MsgUpdateParams message. Typically, this
@@ -23,14 +24,14 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the Keeper
 func NewKeeper(
-	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
-	bk driptypes.BankKeeper,
+	ss storetypes.KVStoreService,
+	bk bankkeeper.Keeper,
 	feeCollector string,
 	authority string,
 ) Keeper {
 	return Keeper{
-		storeKey:         storeKey,
+		storeService:     ss,
 		cdc:              cdc,
 		bankKeeper:       bk,
 		feeCollectorName: feeCollector,
@@ -44,6 +45,6 @@ func (k Keeper) GetAuthority() string {
 }
 
 // SendCoinsFromAccountToFeeCollector transfers amt to the fee collector account, where it will be catch up by the distribution module at the next block
-func (k Keeper) SendCoinsFromAccountToFeeCollector(ctx sdk.Context, senderAddr sdk.AccAddress, amt sdk.Coins) error {
+func (k Keeper) SendCoinsFromAccountToFeeCollector(ctx context.Context, senderAddr sdk.AccAddress, amt sdk.Coins) error {
 	return k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, k.feeCollectorName, amt)
 }
