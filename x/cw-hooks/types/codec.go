@@ -10,12 +10,12 @@ import (
 
 // RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(Params{}, "cwhooks/Params", nil)
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "cwhooks/MsgUpdateParams")
-	legacy.RegisterAminoMsg(cdc, &MsgRegisterStaking{}, "cwhooks/MsgRegisterStaking")
-	legacy.RegisterAminoMsg(cdc, &MsgRegisterGovernance{}, "cwhooks/MsgRegisterGovernance")
-	legacy.RegisterAminoMsg(cdc, &MsgUnregisterGovernance{}, "cwhooks/MsgUnregisterGovernance")
-	legacy.RegisterAminoMsg(cdc, &MsgUnregisterStaking{}, "cwhooks/MsgUnregisterStaking")
+	cdc.RegisterConcrete(Params{}, "juno/x/cwhooks/Params", nil)
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "juno/x/cwhooks/MsgUpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgRegisterStaking{}, "juno/x/cwhooks/MsgRegisterStaking")
+	legacy.RegisterAminoMsg(cdc, &MsgRegisterGovernance{}, "juno/x/cwhooks/MsgRegisterGovernance")
+	legacy.RegisterAminoMsg(cdc, &MsgUnregisterGovernance{}, "juno/x/cwhooks/MsgUnregisterGovernance")
+	legacy.RegisterAminoMsg(cdc, &MsgUnregisterStaking{}, "juno/x/cwhooks/MsgUnregisterStaking")
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -24,6 +24,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgUpdateParams{},
 		&MsgRegisterGovernance{},
 		&MsgRegisterStaking{},
+		&MsgUnregisterGovernance{},
+		&MsgUnregisterStaking{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
