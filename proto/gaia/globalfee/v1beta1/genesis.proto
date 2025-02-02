@@ -1,7 +1,6 @@
 syntax = "proto3";
 package gaia.globalfee.v1beta1;
 
-import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "amino/amino.proto";
@@ -23,9 +22,8 @@ message Params {
   // values allowed. For more information see
   // https://docs.cosmos.network/main/modules/auth#concepts
   repeated cosmos.base.v1beta1.DecCoin minimum_gas_prices = 1 [
-    (cosmos_proto.scalar)  = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable)   = false,
-    (amino.dont_omitempty)  = true
+    (amino.dont_omitempty)  = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
   ];
 }

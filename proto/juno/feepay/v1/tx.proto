@@ -52,7 +52,7 @@ message MsgRegisterFeePayContract {
   string sender_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // The fee pay contract to register.
-  FeePayContract fee_pay_contract = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  FeePayContract fee_pay_contract = 2;
 }
 
 // The response message for registering a fee pay contract.

@@ -3,15 +3,12 @@ package keeper_test
 import (
 	"crypto/sha256"
 	"testing"
-	"time"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/suite"
 
 	_ "embed"
-
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -20,41 +17,41 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
 	"github.com/CosmosContracts/juno/v27/app"
+	"github.com/CosmosContracts/juno/v27/testutil"
 	"github.com/CosmosContracts/juno/v27/x/feepay/keeper"
 	"github.com/CosmosContracts/juno/v27/x/feepay/types"
 )
 
-type IntegrationTestSuite struct {
+type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx           sdk.Context
-	app           *app.App
-	bankKeeper    bankkeeper.Keeper
+	ctx     sdk.Context
+	app     *app.App
+	genesis types.GenesisState
+
+	bankKeeper bankkeeper.Keeper
+
 	queryClient   types.QueryClient
 	msgServer     types.MsgServer
 	wasmMsgServer wasmtypes.MsgServer
 }
 
-func (s *IntegrationTestSuite) SetupTest() {
+func (s *KeeperTestSuite) SetupTest() {
 	isCheckTx := false
-	s.app = app.Setup(s.T())
-
-	s.ctx = s.app.BaseApp.NewContext(isCheckTx, tmproto.Header{
-		ChainID: "testing",
-		Height:  9,
-		Time:    time.Now().UTC(),
-	})
+	s.app = testutil.Setup(isCheckTx, s.T())
+	s.ctx = s.app.BaseApp.NewContext(isCheckTx)
+	s.genesis = *types.DefaultGenesisState()
 
 	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQuerier(s.app.AppKeepers.FeePayKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServerImpl(s.app.AppKeepers.FeePayKeeper))
 
 	s.queryClient = types.NewQueryClient(queryHelper)
 	s.bankKeeper = s.app.AppKeepers.BankKeeper
-	s.msgServer = s.app.AppKeepers.FeePayKeeper
+	s.msgServer = keeper.NewMsgServerImpl(s.app.AppKeepers.FeePayKeeper)
 	s.wasmMsgServer = wasmkeeper.NewMsgServerImpl(&s.app.AppKeepers.WasmKeeper)
 }
 
-func (s *IntegrationTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
+func (s *KeeperTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
 	if err := s.bankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
 		return err
 	}
@@ -63,13 +60,13 @@ func (s *IntegrationTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress,
 }
 
 func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(IntegrationTestSuite))
+	suite.Run(t, new(KeeperTestSuite))
 }
 
 //go:embed testdata/clock_example.wasm
 var wasmContract []byte
 
-func (s *IntegrationTestSuite) StoreCode() {
+func (s *KeeperTestSuite) StoreCode() {
 	_, _, sender := testdata.KeyTestPubAddr()
 	msg := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
 		m.WASMByteCode = wasmContract
@@ -90,7 +87,7 @@ func (s *IntegrationTestSuite) StoreCode() {
 	s.Require().Equal(wasmtypes.DefaultParams().InstantiateDefaultPermission.With(sender), info.InstantiateConfig)
 }
 
-func (s *IntegrationTestSuite) InstantiateContract(sender string, admin string) string {
+func (s *KeeperTestSuite) InstantiateContract(sender string, admin string) string {
 	msgStoreCode := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
 		m.WASMByteCode = wasmContract
 		m.Sender = sender
@@ -116,8 +113,8 @@ func (s *IntegrationTestSuite) InstantiateContract(sender string, admin string) 
 }
 
 // Helper method for quickly registering a fee pay contract
-func (s *IntegrationTestSuite) registerFeePayContract(senderAddress string, contractAddress string, balance uint64, walletLimit uint64) {
-	_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
+func (s *KeeperTestSuite) registerFeePayContract(senderAddress string, contractAddress string, balance uint64, walletLimit uint64) {
+	_, err := s.msgServer.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
 		SenderAddress: senderAddress,
 		FeePayContract: &types.FeePayContract{
 			ContractAddress: contractAddress,

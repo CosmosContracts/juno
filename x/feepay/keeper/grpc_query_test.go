@@ -5,14 +5,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/CosmosContracts/juno/v27/testutil/nullify"
+	sdkmath "cosmossdk.io/math"
+	"github.com/CosmosContracts/juno/v27/testutil/common/nullify"
 	"github.com/CosmosContracts/juno/v27/x/feepay/types"
 )
 
-func (s *IntegrationTestSuite) TestQueryContract() {
+func (s *KeeperTestSuite) TestQueryContract() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Instantiate the contractAddr
 	contractAddr := s.InstantiateContract(sender.String(), "")
@@ -21,14 +22,14 @@ func (s *IntegrationTestSuite) TestQueryContract() {
 
 	s.Run("QueryContract", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContract{
+		res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContractRequest{
 			ContractAddress: contractAddr,
 		})
 
 		// Ensure no error and response exists
 		s.Require().NoError(err)
 		s.Require().Equal(res, &types.QueryFeePayContractResponse{
-			FeePayContract: &types.FeePayContract{
+			FeePayContract: types.FeePayContract{
 				ContractAddress: contractAddr,
 				WalletLimit:     1,
 			},
@@ -37,10 +38,10 @@ func (s *IntegrationTestSuite) TestQueryContract() {
 }
 
 // Test that when a Fee Pay contract is registered, the balance is always 0.
-func (s *IntegrationTestSuite) TestQueryContractBalance() {
+func (s *KeeperTestSuite) TestQueryContractBalance() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	s.Run("QueryContract", func() {
 		for _, bal := range []struct {
@@ -56,14 +57,14 @@ func (s *IntegrationTestSuite) TestQueryContractBalance() {
 			s.registerFeePayContract(sender.String(), contractAddr, bal.balance, 1)
 
 			// Query for the contract
-			res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContract{
+			res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContractRequest{
 				ContractAddress: contractAddr,
 			})
 
 			// Ensure no error and response exists
 			s.Require().NoError(err)
 			s.Require().Equal(res, &types.QueryFeePayContractResponse{
-				FeePayContract: &types.FeePayContract{
+				FeePayContract: types.FeePayContract{
 					ContractAddress: contractAddr,
 					Balance:         0,
 					WalletLimit:     1,
@@ -73,10 +74,10 @@ func (s *IntegrationTestSuite) TestQueryContractBalance() {
 	})
 }
 
-func (s *IntegrationTestSuite) TestQueryContracts() {
+func (s *KeeperTestSuite) TestQueryContracts() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Instantiate & register multiple fee pay contracts
 	var contractAddressList []string
@@ -89,14 +90,14 @@ func (s *IntegrationTestSuite) TestQueryContracts() {
 		s.registerFeePayContract(sender.String(), contractAddr, 0, 1)
 
 		// Query for the contract
-		res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContract{
+		res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContractRequest{
 			ContractAddress: contractAddr,
 		})
 
 		// Ensure no error and response exists
 		s.Require().NoError(err)
 		s.Require().Equal(res, &types.QueryFeePayContractResponse{
-			FeePayContract: &types.FeePayContract{
+			FeePayContract: types.FeePayContract{
 				ContractAddress: contractAddr,
 				WalletLimit:     1,
 			},
@@ -104,11 +105,11 @@ func (s *IntegrationTestSuite) TestQueryContracts() {
 
 		// Append to lists
 		contractAddressList = append(contractAddressList, contractAddr)
-		feePayContracts = append(feePayContracts, *res.FeePayContract)
+		feePayContracts = append(feePayContracts, res.FeePayContract)
 	}
 
-	request := func(next []byte, offset, limit uint64, total bool) *types.QueryFeePayContracts {
-		return &types.QueryFeePayContracts{
+	request := func(next []byte, offset, limit uint64, total bool) *types.QueryFeePayContractsRequest {
+		return &types.QueryFeePayContractsRequest{
 			Pagination: &query.PageRequest{
 				Key:        next,
 				Offset:     offset,
@@ -120,9 +121,8 @@ func (s *IntegrationTestSuite) TestQueryContracts() {
 
 	s.Run("ByOffset", func() {
 		step := 2
-		goCtx := sdk.WrapSDKContext(s.ctx)
 		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.FeePayContracts(goCtx, request(nil, uint64(i), uint64(step), false))
+			resp, err := s.queryClient.FeePayContracts(s.ctx, request(nil, uint64(i), uint64(step), false))
 			s.Require().NoError(err)
 			s.Require().LessOrEqual(len(resp.FeePayContracts), step)
 			s.Require().Subset(nullify.Fill(feePayContracts), nullify.Fill(resp.FeePayContracts))
@@ -132,9 +132,8 @@ func (s *IntegrationTestSuite) TestQueryContracts() {
 	s.Run("ByKey", func() {
 		step := 2
 		var next []byte
-		goCtx := sdk.WrapSDKContext(s.ctx)
 		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.FeePayContracts(goCtx, request(next, 0, uint64(step), false))
+			resp, err := s.queryClient.FeePayContracts(s.ctx, request(next, 0, uint64(step), false))
 			s.Require().NoError(err)
 			s.Require().LessOrEqual(len(resp.FeePayContracts), step)
 			s.Require().Subset(nullify.Fill(feePayContracts), nullify.Fill(resp.FeePayContracts))
@@ -143,18 +142,17 @@ func (s *IntegrationTestSuite) TestQueryContracts() {
 	})
 
 	s.Run("Total", func() {
-		goCtx := sdk.WrapSDKContext(s.ctx)
-		resp, err := s.queryClient.FeePayContracts(goCtx, request(nil, 0, 0, true))
+		resp, err := s.queryClient.FeePayContracts(s.ctx, request(nil, 0, 0, true))
 		s.Require().NoError(err)
 		s.Require().Equal(len(contractAddressList), int(resp.Pagination.Total))
 		s.Require().ElementsMatch(nullify.Fill(feePayContracts), nullify.Fill(resp.FeePayContracts))
 	})
 }
 
-func (s *IntegrationTestSuite) TestQueryEligibility() {
+func (s *KeeperTestSuite) TestQueryEligibility() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdk.NewInt(100_000_000))))
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
 
 	// Instantiate the contractAddr
 	contractAddr := s.InstantiateContract(sender.String(), "")
@@ -164,7 +162,7 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 
 	s.Run("QueryEligibilityNoFunds", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayWalletIsEligible(s.ctx, &types.QueryFeePayWalletIsEligible{
+		res, err := s.queryClient.FeePayWalletIsEligible(s.ctx, &types.QueryFeePayWalletIsEligibleRequest{
 			ContractAddress: contractAddr,
 			WalletAddress:   sender.String(),
 		})
@@ -175,16 +173,16 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 	})
 
 	// Add funds
-	_, err := s.app.AppKeepers.FeePayKeeper.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
+	_, err := s.msgServer.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
 		SenderAddress:   sender.String(),
 		ContractAddress: contractAddr,
-		Amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1_000_000))),
+		Amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))),
 	})
 	s.Require().NoError(err)
 
 	s.Run("QueryEligibilityWithFunds", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayWalletIsEligible(s.ctx, &types.QueryFeePayWalletIsEligible{
+		res, err := s.queryClient.FeePayWalletIsEligible(s.ctx, &types.QueryFeePayWalletIsEligibleRequest{
 			ContractAddress: contractAddr,
 			WalletAddress:   sender.String(),
 		})
@@ -195,7 +193,7 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 	})
 
 	// Update usage limit to 0
-	_, err = s.app.AppKeepers.FeePayKeeper.UpdateFeePayContractWalletLimit(s.ctx, &types.MsgUpdateFeePayContractWalletLimit{
+	_, err = s.msgServer.UpdateFeePayContractWalletLimit(s.ctx, &types.MsgUpdateFeePayContractWalletLimit{
 		SenderAddress:   sender.String(),
 		ContractAddress: contractAddr,
 		WalletLimit:     0,
@@ -204,7 +202,7 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 
 	s.Run("QueryEligibilityWithLimit", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayWalletIsEligible(s.ctx, &types.QueryFeePayWalletIsEligible{
+		res, err := s.queryClient.FeePayWalletIsEligible(s.ctx, &types.QueryFeePayWalletIsEligibleRequest{
 			ContractAddress: contractAddr,
 			WalletAddress:   sender.String(),
 		})
@@ -215,10 +213,10 @@ func (s *IntegrationTestSuite) TestQueryEligibility() {
 	})
 }
 
-func (s *IntegrationTestSuite) TestQueryUses() {
+func (s *KeeperTestSuite) TestQueryUses() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Instantiate the contractAddr
 	contractAddr := s.InstantiateContract(sender.String(), "")
@@ -228,7 +226,7 @@ func (s *IntegrationTestSuite) TestQueryUses() {
 
 	s.Run("QueryUses", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayContractUses(s.ctx, &types.QueryFeePayContractUses{
+		res, err := s.queryClient.FeePayContractUses(s.ctx, &types.QueryFeePayContractUsesRequest{
 			ContractAddress: contractAddr,
 			WalletAddress:   sender.String(),
 		})

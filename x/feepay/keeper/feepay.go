@@ -1,11 +1,14 @@
 package keeper
 
 import (
+	"context"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"cosmossdk.io/math"
 
 	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
@@ -14,19 +17,21 @@ import (
 )
 
 // Check if a contract is registered as a fee pay contract
-func (k Keeper) IsContractRegistered(ctx sdk.Context, contractAddr string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
+func (k Keeper) IsContractRegistered(ctx context.Context, contractAddr string) bool {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
 	return store.Has([]byte(contractAddr))
 }
 
 // Get a contract from KV store
-func (k Keeper) GetContract(ctx sdk.Context, contractAddress string) (*types.FeePayContract, error) {
+func (k Keeper) GetContract(ctx context.Context, contractAddress string) (*types.FeePayContract, error) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Return nil, contract not registered
 	if !k.IsContractRegistered(ctx, contractAddress) {
 		return nil, globalerrors.ErrContractNotRegistered
 	}
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
 
 	key := []byte(contractAddress)
 	bz := store.Get(key)
@@ -40,8 +45,9 @@ func (k Keeper) GetContract(ctx sdk.Context, contractAddress string) (*types.Fee
 }
 
 // Get all registered fee pay contracts
-func (k Keeper) GetContracts(ctx sdk.Context, pag *query.PageRequest) (*types.QueryFeePayContractsResponse, error) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
+func (k Keeper) GetContracts(ctx context.Context, pag *query.PageRequest) (*types.QueryFeePayContractsResponse, error) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
 
 	// Filter and paginate all contracts
 	results, pageRes, err := query.GenericFilteredPaginate(
@@ -72,11 +78,12 @@ func (k Keeper) GetContracts(ctx sdk.Context, pag *query.PageRequest) (*types.Qu
 }
 
 // GetAllContracts returns all the registered FeePay contracts.
-func (k Keeper) GetAllContracts(ctx sdk.Context) []types.FeePayContract {
+func (k Keeper) GetAllContracts(ctx context.Context) []types.FeePayContract {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	contracts := []types.FeePayContract{}
 
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, StoreKeyContracts)
+	store := sdkCtx.KVStore(k.legacyStoreKey)
+	iterator := storetypes.KVStorePrefixIterator(store, StoreKeyContracts)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -90,7 +97,16 @@ func (k Keeper) GetAllContracts(ctx sdk.Context) []types.FeePayContract {
 }
 
 // Register the contract in the module store
-func (k Keeper) RegisterContract(ctx sdk.Context, rfp *types.MsgRegisterFeePayContract) error {
+func (k Keeper) RegisterContract(ctx context.Context, rfp *types.MsgRegisterFeePayContract) error {
+	_, err := sdk.AccAddressFromBech32(rfp.SenderAddress)
+	if err != nil {
+		return err
+	}
+
+	if rfp.FeePayContract.WalletLimit > 1_000_000 {
+		return types.ErrInvalidWalletLimit
+	}
+
 	// Return false because the contract was already registered
 	if k.IsContractRegistered(ctx, rfp.FeePayContract.ContractAddress) {
 		return globalerrors.ErrContractAlreadyRegistered
@@ -119,15 +135,21 @@ func (k Keeper) RegisterContract(ctx sdk.Context, rfp *types.MsgRegisterFeePayCo
 }
 
 // Set a contract in the KV Store
-func (k Keeper) SetFeePayContract(ctx sdk.Context, feepay types.FeePayContract) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
+func (k Keeper) SetFeePayContract(ctx context.Context, feepay types.FeePayContract) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
 	key := []byte(feepay.ContractAddress)
 	bz := k.cdc.MustMarshal(&feepay)
 	store.Set(key, bz)
 }
 
 // Unregister contract (loop through usage store & remove all usage entries for contract)
-func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeePayContract) error {
+func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregisterFeePayContract) error {
+	if _, err := sdk.AccAddressFromBech32(rfp.SenderAddress); err != nil {
+		return err
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Get fee pay contract
 	contract, err := k.GetContract(ctx, rfp.ContractAddress)
 	if err != nil {
@@ -154,12 +176,12 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 	}
 
 	// Remove contract from KV store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
 	store.Delete([]byte(rfp.ContractAddress))
 
 	// Remove all usage entries for contract
-	store = prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContractUses)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(rfp.ContractAddress))
+	store = prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContractUses)
+	iterator := storetypes.KVStorePrefixIterator(store, []byte(rfp.ContractAddress))
 
 	for ; iterator.Valid(); iterator.Next() {
 		store.Delete(iterator.Key())
@@ -181,9 +203,10 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, rfp *types.MsgUnregisterFeeP
 }
 
 // Set the contract balance in the KV store
-func (k Keeper) SetContractBalance(ctx sdk.Context, fpc *types.FeePayContract, newBalance uint64) {
+func (k Keeper) SetContractBalance(ctx context.Context, fpc *types.FeePayContract, newBalance uint64) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Get the existing contract in KV store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
 
 	// Set new balance and save to KV store
 	fpc.Balance = newBalance
@@ -191,7 +214,7 @@ func (k Keeper) SetContractBalance(ctx sdk.Context, fpc *types.FeePayContract, n
 }
 
 // Fund an existing fee pay contract
-func (k Keeper) FundContract(ctx sdk.Context, fpc *types.FeePayContract, senderAddr sdk.AccAddress, coins sdk.Coins) error {
+func (k Keeper) FundContract(ctx context.Context, fpc *types.FeePayContract, senderAddr sdk.AccAddress, coins sdk.Coins) error {
 	// Only transfer the bond denom
 	var transferCoin sdk.Coin
 	for _, c := range coins {
@@ -221,9 +244,10 @@ func (k Keeper) CanContractCoverFee(fpc *types.FeePayContract, fee uint64) bool 
 }
 
 // Get the number of times a wallet has interacted with a fee pay contract (err only if contract not registered)
-func (k Keeper) GetContractUses(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string) (uint64, error) {
+func (k Keeper) GetContractUses(ctx context.Context, fpc *types.FeePayContract, walletAddress string) (uint64, error) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Get usage from store
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContractUses)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContractUses)
 	key := []byte(fpc.ContractAddress + "-" + walletAddress)
 	bz := store.Get(key)
 
@@ -236,14 +260,15 @@ func (k Keeper) GetContractUses(ctx sdk.Context, fpc *types.FeePayContract, wall
 }
 
 // Set the number of times a wallet has interacted with a fee pay contract
-func (k Keeper) IncrementContractUses(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string, increment uint64) error {
+func (k Keeper) IncrementContractUses(ctx context.Context, fpc *types.FeePayContract, walletAddress string, increment uint64) error {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	uses, err := k.GetContractUses(ctx, fpc, walletAddress)
 	if err != nil {
 		return err
 	}
 
 	// Get store, key, & value for setting usage
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContractUses)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContractUses)
 	key := []byte(fpc.ContractAddress + "-" + walletAddress)
 	bz, err := k.cdc.Marshal(&types.FeePayWalletUsage{
 		ContractAddress: fpc.ContractAddress,
@@ -259,7 +284,7 @@ func (k Keeper) IncrementContractUses(ctx sdk.Context, fpc *types.FeePayContract
 }
 
 // Check if a wallet exceeded usage limit (defaults to true if contract not registered)
-func (k Keeper) HasWalletExceededUsageLimit(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string) bool {
+func (k Keeper) HasWalletExceededUsageLimit(ctx context.Context, fpc *types.FeePayContract, walletAddress string) bool {
 	// Get account uses
 	uses, err := k.GetContractUses(ctx, fpc, walletAddress)
 	if err != nil {
@@ -271,7 +296,8 @@ func (k Keeper) HasWalletExceededUsageLimit(ctx sdk.Context, fpc *types.FeePayCo
 }
 
 // Update the wallet limit of an existing fee pay contract
-func (k Keeper) UpdateContractWalletLimit(ctx sdk.Context, fpc *types.FeePayContract, senderAddress string, walletLimit uint64) error {
+func (k Keeper) UpdateContractWalletLimit(ctx context.Context, fpc *types.FeePayContract, senderAddress string, walletLimit uint64) error {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Check if a cw contract
 	contractAddr, err := sdk.AccAddressFromBech32(fpc.ContractAddress)
 	if err != nil {
@@ -290,7 +316,7 @@ func (k Keeper) UpdateContractWalletLimit(ctx sdk.Context, fpc *types.FeePayCont
 	}
 
 	// Update the store with the new limit
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
 	fpc.WalletLimit = walletLimit
 	store.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
 
@@ -298,7 +324,7 @@ func (k Keeper) UpdateContractWalletLimit(ctx sdk.Context, fpc *types.FeePayCont
 }
 
 // Check if a wallet is eligible to interact with a contract
-func (k Keeper) IsWalletEligible(ctx sdk.Context, fpc *types.FeePayContract, walletAddress string) (bool, error) {
+func (k Keeper) IsWalletEligible(ctx context.Context, fpc *types.FeePayContract, walletAddress string) (bool, error) {
 	// Check if wallet has exceeded usage limit
 	if k.HasWalletExceededUsageLimit(ctx, fpc, walletAddress) {
 		return false, types.ErrWalletExceededUsageLimit

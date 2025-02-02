@@ -9,42 +9,36 @@ import (
 	"github.com/CosmosContracts/juno/v27/x/feepay/types"
 )
 
-var _ types.QueryServer = Querier{}
+var _ types.QueryServer = queryServer{}
 
-// Querier defines a wrapper around the x/feepay keeper providing gRPC method
-// handlers.
-type Querier struct {
-	Keeper
+func NewQueryServerImpl(k Keeper) types.QueryServer {
+	return queryServer{k}
 }
 
-func NewQuerier(k Keeper) Querier {
-	return Querier{Keeper: k}
+type queryServer struct {
+	k Keeper
 }
 
 // FeePayContract implements types.QueryServer.
-func (q Querier) FeePayContract(ctx context.Context, req *types.QueryFeePayContract) (*types.QueryFeePayContractResponse, error) {
+func (q queryServer) FeePayContract(ctx context.Context, req *types.QueryFeePayContractRequest) (*types.QueryFeePayContractResponse, error) {
 	// Check if contract address are valid
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
 		return nil, globalerrors.ErrInvalidAddress
 	}
 
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
-	contract, err := q.Keeper.GetContract(sdkCtx, req.ContractAddress)
+	contract, err := q.k.GetContract(ctx, req.ContractAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.QueryFeePayContractResponse{
-		FeePayContract: contract,
+		FeePayContract: *contract,
 	}, nil
 }
 
 // FeePayContracts implements types.QueryServer.
-func (q Querier) FeePayContracts(ctx context.Context, req *types.QueryFeePayContracts) (*types.QueryFeePayContractsResponse, error) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
-	res, err := q.Keeper.GetContracts(sdkCtx, req.Pagination)
+func (q queryServer) FeePayContracts(ctx context.Context, req *types.QueryFeePayContractsRequest) (*types.QueryFeePayContractsResponse, error) {
+	res, err := q.k.GetContracts(ctx, req.Pagination)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +47,7 @@ func (q Querier) FeePayContracts(ctx context.Context, req *types.QueryFeePayCont
 }
 
 // FeePayContractUses implements types.QueryServer.
-func (q Querier) FeePayContractUses(ctx context.Context, req *types.QueryFeePayContractUses) (*types.QueryFeePayContractUsesResponse, error) {
+func (q queryServer) FeePayContractUses(ctx context.Context, req *types.QueryFeePayContractUsesRequest) (*types.QueryFeePayContractUsesResponse, error) {
 	// Check if wallet & contract address are valid
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
 		return nil, globalerrors.ErrInvalidAddress
@@ -63,15 +57,13 @@ func (q Querier) FeePayContractUses(ctx context.Context, req *types.QueryFeePayC
 		return nil, globalerrors.ErrInvalidAddress
 	}
 
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
 	// Get contract from KV store
-	fpc, err := q.Keeper.GetContract(sdkCtx, req.ContractAddress)
+	fpc, err := q.k.GetContract(ctx, req.ContractAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	uses, err := q.Keeper.GetContractUses(sdkCtx, fpc, req.WalletAddress)
+	uses, err := q.k.GetContractUses(ctx, fpc, req.WalletAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +74,7 @@ func (q Querier) FeePayContractUses(ctx context.Context, req *types.QueryFeePayC
 }
 
 // FeePayContractEligible implements types.QueryServer.
-func (q Querier) FeePayWalletIsEligible(ctx context.Context, req *types.QueryFeePayWalletIsEligible) (*types.QueryFeePayWalletIsEligibleResponse, error) {
+func (q queryServer) FeePayWalletIsEligible(ctx context.Context, req *types.QueryFeePayWalletIsEligibleRequest) (*types.QueryFeePayWalletIsEligibleResponse, error) {
 	// Check if wallet & contract address are valid
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
 		return nil, globalerrors.ErrInvalidAddress
@@ -92,16 +84,14 @@ func (q Querier) FeePayWalletIsEligible(ctx context.Context, req *types.QueryFee
 		return nil, globalerrors.ErrInvalidAddress
 	}
 
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
 	// Get fee pay contract
-	fpc, err := q.Keeper.GetContract(sdkCtx, req.ContractAddress)
+	fpc, err := q.k.GetContract(ctx, req.ContractAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	// Return if wallet is eligible
-	isEligible, err := q.Keeper.IsWalletEligible(sdkCtx, fpc, req.WalletAddress)
+	isEligible, err := q.k.IsWalletEligible(ctx, fpc, req.WalletAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -112,11 +102,10 @@ func (q Querier) FeePayWalletIsEligible(ctx context.Context, req *types.QueryFee
 }
 
 // Params returns the feepay module params
-func (q Querier) Params(
+func (q queryServer) Params(
 	c context.Context,
 	_ *types.QueryParamsRequest,
 ) (*types.QueryParamsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-	params := q.GetParams(ctx)
+	params := q.k.GetParams(c)
 	return &types.QueryParamsResponse{Params: params}, nil
 }

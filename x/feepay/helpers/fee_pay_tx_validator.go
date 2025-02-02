@@ -1,6 +1,8 @@
 package helpers
 
 import (
+	"context"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,7 +15,7 @@ import (
 // executes a CW contract.
 //
 // TODO: Future allow for multiple msgs.
-func IsValidFeePayTransaction(ctx sdk.Context, feePayKeeper feepaykeeper.Keeper, feeTx sdk.FeeTx) bool {
+func IsValidFeePayTransaction(ctx context.Context, feePayKeeper feepaykeeper.Keeper, feeTx sdk.FeeTx) bool {
 	// Defaults to false
 	isValid := false
 

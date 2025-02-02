@@ -1,27 +1,34 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"context"
 
 	"github.com/CosmosContracts/juno/v27/x/feepay/types"
 )
 
-// Get the parameters for the fee pay module.
-func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.ParamsKey)
+// SetParams sets the x/feepay module parameters.
+func (k Keeper) SetParams(ctx context.Context, p types.Params) error {
+	store := k.storeService.OpenKVStore(ctx)
+	bz := k.cdc.MustMarshal(&p)
+	err := store.Set(types.ParamsKey, bz)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetParams returns the current x/feepay module parameters.
+func (k Keeper) GetParams(ctx context.Context) (p types.Params) {
+	store := k.storeService.OpenKVStore(ctx)
+	bz, err := store.Get(types.ParamsKey)
 	if bz == nil {
+		return p
+	}
+	if err != nil {
 		return p
 	}
 
 	k.cdc.MustUnmarshal(bz, &p)
 	return p
-}
-
-// Set the params for the fee pay module.
-func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
-	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshal(&p)
-	store.Set(types.ParamsKey, bz)
-	return nil
 }
