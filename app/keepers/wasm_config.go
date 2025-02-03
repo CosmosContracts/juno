@@ -1,4 +1,4 @@
-package app
+package keepers
 
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"

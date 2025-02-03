@@ -1,8 +1,6 @@
 package ante
 
 import (
-	"context"
-
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -40,7 +38,7 @@ var (
 
 // This handle is responsible for routing the transaction to the fee decorators
 // in the right order.
-func (mfd MsgIsFeePayTx) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx context.Context, err error) {
+func (mfd MsgIsFeePayTx) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// Check if a fee tx
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {

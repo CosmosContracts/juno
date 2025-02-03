@@ -59,19 +59,21 @@ import (
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
-	"github.com/CosmosContracts/juno/v27/x/clock"
+	clockmodule "github.com/CosmosContracts/juno/v27/x/clock/module"
 	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
-	cwhooks "github.com/CosmosContracts/juno/v27/x/cw-hooks"
-	"github.com/CosmosContracts/juno/v27/x/drip"
+	cwhooksmodule "github.com/CosmosContracts/juno/v27/x/cw-hooks/module"
+	cwhookstypes "github.com/CosmosContracts/juno/v27/x/cw-hooks/types"
+	dripmodule "github.com/CosmosContracts/juno/v27/x/drip/module"
 	driptypes "github.com/CosmosContracts/juno/v27/x/drip/types"
-	feepay "github.com/CosmosContracts/juno/v27/x/feepay"
+	feepaymodule "github.com/CosmosContracts/juno/v27/x/feepay/module"
 	feepaytypes "github.com/CosmosContracts/juno/v27/x/feepay/types"
-	feeshare "github.com/CosmosContracts/juno/v27/x/feeshare"
+	feesharemodule "github.com/CosmosContracts/juno/v27/x/feeshare/module"
 	feesharetypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v27/x/globalfee"
-	"github.com/CosmosContracts/juno/v27/x/mint"
+	globalfeemodule "github.com/CosmosContracts/juno/v27/x/globalfee/module"
+	globalfeetypes "github.com/CosmosContracts/juno/v27/x/globalfee/types"
+	mintmodule "github.com/CosmosContracts/juno/v27/x/mint/module"
 	minttypes "github.com/CosmosContracts/juno/v27/x/mint/types"
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory"
+	tokenfactorymodule "github.com/CosmosContracts/juno/v27/x/tokenfactory/module"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
 )
 
@@ -107,14 +109,14 @@ func appModules(
 		consensus.NewAppModule(appCodec, app.AppKeepers.ConsensusParamsKeeper),
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		// Juno modules
-		mint.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper, bondDenom),
-		tokenfactory.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
-		globalfee.NewAppModule(appCodec, app.AppKeepers.GlobalFeeKeeper, bondDenom),
-		feepay.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper),
-		feeshare.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper, app.GetSubspace(feesharetypes.ModuleName)),
-		drip.NewAppModule(app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
-		clock.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
-		cwhooks.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
+		mintmodule.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
+		tokenfactorymodule.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper),
+		globalfeemodule.NewAppModule(appCodec, app.AppKeepers.GlobalFeeKeeper, bondDenom),
+		feepaymodule.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper),
+		feesharemodule.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper),
+		dripmodule.NewAppModule(appCodec, app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
+		clockmodule.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
+		cwhooksmodule.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
 		capability.NewAppModule(appCodec, *app.AppKeepers.CapabilityKeeper, false),
 		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
@@ -162,11 +164,11 @@ func orderBeginBlockers() []string {
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfee.ModuleName,
+		globalfeetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
-		cwhooks.ModuleName,
+		cwhookstypes.ModuleName,
 		wasmlctypes.ModuleName,
 	}
 }
@@ -202,11 +204,11 @@ func orderEndBlockers() []string {
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfee.ModuleName,
+		globalfeetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
-		cwhooks.ModuleName,
+		cwhookstypes.ModuleName,
 		wasmlctypes.ModuleName,
 	}
 }
@@ -248,11 +250,11 @@ func orderInitBlockers() []string {
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfee.ModuleName,
+		globalfeetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
-		cwhooks.ModuleName,
+		cwhookstypes.ModuleName,
 		wasmlctypes.ModuleName,
 	}
 }
@@ -279,14 +281,14 @@ var AppModuleBasics = module.NewBasicManager(
 	consensus.AppModuleBasic{},
 	crisis.AppModuleBasic{},
 	// Juno modules
-	mint.AppModuleBasic{},
-	tokenfactory.AppModuleBasic{},
-	globalfee.AppModuleBasic{},
-	feepay.AppModuleBasic{},
-	feeshare.AppModuleBasic{},
-	drip.AppModuleBasic{},
-	clock.AppModuleBasic{},
-	cwhooks.AppModuleBasic{},
+	mintmodule.AppModuleBasic{},
+	tokenfactorymodule.AppModuleBasic{},
+	globalfeemodule.AppModuleBasic{},
+	feepaymodule.AppModuleBasic{},
+	feesharemodule.AppModuleBasic{},
+	dripmodule.AppModuleBasic{},
+	clockmodule.AppModuleBasic{},
+	cwhooksmodule.AppModuleBasic{},
 	// IBC modules
 	capability.AppModuleBasic{},
 	ibc.AppModuleBasic{},

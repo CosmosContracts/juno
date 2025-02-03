@@ -5,7 +5,6 @@ import (
 	"math"
 	"path"
 	"path/filepath"
-	"strings"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -39,8 +38,6 @@ import (
 	transfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcclient "github.com/cosmos/ibc-go/v8/modules/core/02-client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
@@ -52,7 +49,6 @@ import (
 	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
 	"cosmossdk.io/x/nft"
 	nftkeeper "cosmossdk.io/x/nft/keeper"
-	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -99,7 +95,6 @@ import (
 	feepaytypes "github.com/CosmosContracts/juno/v27/x/feepay/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v27/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
-	"github.com/CosmosContracts/juno/v27/x/globalfee"
 	globalfeekeeper "github.com/CosmosContracts/juno/v27/x/globalfee/keeper"
 	globalfeetypes "github.com/CosmosContracts/juno/v27/x/globalfee/types"
 	mintkeeper "github.com/CosmosContracts/juno/v27/x/mint/keeper"
@@ -110,7 +105,7 @@ import (
 )
 
 var (
-	wasmCapabilities = strings.Join(append(wasmkeeper.BuiltInCapabilities(), "token_factory"), ",")
+	wasmCapabilities = (append(wasmkeeper.BuiltInCapabilities(), "token_factory"))
 
 	tokenFactoryCapabilities = []string{
 		tokenfactorytypes.EnableBurnFrom,
@@ -134,7 +129,7 @@ var maccPerms = map[string][]string{
 	ibcfeetypes.ModuleName:         nil,
 	wasmtypes.ModuleName:           {},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
-	globalfee.ModuleName:           nil,
+	globalfeetypes.ModuleName:      nil,
 	// buildertypes.ModuleName:        nil,
 	feepaytypes.ModuleName: nil,
 	junoburn.ModuleName:    {authtypes.Burner},
@@ -361,10 +356,9 @@ func NewAppKeepers(
 
 	// register the proposal types
 	govRouter := govv1beta.NewRouter()
-	govRouter.AddRoute(govtypes.RouterKey, govv1beta.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper)). // This should be removed. It is still in place to avoid failures of modules that have not yet been upgraded
-		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(appKeepers.UpgradeKeeper)).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(appKeepers.IBCKeeper.ClientKeeper))
+	govRouter.
+		AddRoute(govtypes.RouterKey, govv1beta.ProposalHandler).
+		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper)) // This should be removed. It is still in place to avoid failures of modules that have not yet been upgraded
 
 	// Update the max metadata length to be >255
 	govConfig := govtypes.DefaultConfig()
@@ -502,7 +496,7 @@ func NewAppKeepers(
 	// Create the TokenFactory Keeper
 	appKeepers.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[tokenfactorytypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[tokenfactorytypes.StoreKey]),
 		maccPerms,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
@@ -544,7 +538,7 @@ func NewAppKeepers(
 	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
-	wasmOpts = append(wasmOpts, wasmkeeper.WithGasRegister(app.NewJunoWasmGasRegister()))
+	wasmOpts = append(wasmOpts, wasmkeeper.WithGasRegister(NewJunoWasmGasRegister()))
 
 	mainWasmer, err := wasmvm.NewVM(path.Join(dataDir, "wasm"), wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
@@ -565,13 +559,14 @@ func NewAppKeepers(
 		distrkeeper.NewQuerier(appKeepers.DistrKeeper),
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
-		&appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.IBCKeeper.PortKeeper,
 		scopedWasmKeeper,
 		appKeepers.TransferKeeper,
 		bApp.MsgServiceRouter(),
 		bApp.GRPCQueryRouter(),
 		dataDir,
 		wasmConfig,
+		wasmtypes.VMConfig{},
 		wasmCapabilities,
 		govModAddress,
 		append(wasmOpts, wasmkeeper.WithWasmEngine(mainWasmer))...,
@@ -603,8 +598,8 @@ func NewAppKeepers(
 	)
 
 	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
-		appKeepers.keys[feepaytypes.StoreKey],
 		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[feepaytypes.StoreKey]),
 		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
@@ -617,8 +612,8 @@ func NewAppKeepers(
 	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
 
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(
-		appKeepers.keys[feesharetypes.StoreKey],
 		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[feesharetypes.StoreKey]),
 		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
@@ -628,29 +623,29 @@ func NewAppKeepers(
 
 	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[globalfeetypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[globalfeetypes.StoreKey]),
 		govModAddress,
 	)
 
 	appKeepers.DripKeeper = dripkeeper.NewKeeper(
-		appKeepers.keys[driptypes.StoreKey],
 		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[driptypes.StoreKey]),
 		appKeepers.BankKeeper,
 		authtypes.FeeCollectorName,
 		govModAddress,
 	)
 
 	appKeepers.ClockKeeper = clockkeeper.NewKeeper(
-		appKeepers.keys[clocktypes.StoreKey],
 		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[clocktypes.StoreKey]),
 		appKeepers.WasmKeeper,
 		appKeepers.ContractKeeper,
 		govModAddress,
 	)
 
 	appKeepers.CWHooksKeeper = cwhookskeeper.NewKeeper(
-		appKeepers.keys[cwhookstypes.StoreKey],
 		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[cwhookstypes.StoreKey]),
 		stakingKeeper,
 		*govKeeper,
 		appKeepers.WasmKeeper,
@@ -751,7 +746,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icqtypes.ModuleName)
-	paramsKeeper.Subspace(globalfee.ModuleName)
+	paramsKeeper.Subspace(globalfeetypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(feesharetypes.ModuleName)
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
