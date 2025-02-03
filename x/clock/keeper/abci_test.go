@@ -11,6 +11,7 @@ import (
 	_ "embed"
 
 	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -232,7 +233,8 @@ func (s *EndBlockerTestSuite) updateGasLimit(gasLimit uint64) {
 	params.ContractGasLimit = gasLimit
 	k := s.app.AppKeepers.ClockKeeper
 
-	store := s.ctx.KVStore(k.GetLegacyStore())
+	kv := k.GetStoreService()
+	store := runtime.KVStoreAdapter(kv.OpenKVStore(s.ctx))
 	bz := k.GetCdc().MustMarshal(&params)
 	store.Set(types.ParamsKey, bz)
 

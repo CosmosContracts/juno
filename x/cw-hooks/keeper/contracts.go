@@ -5,21 +5,22 @@ import (
 
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	helpers "github.com/CosmosContracts/juno/v27/app/helpers"
 )
 
 func (k Keeper) SetContract(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyKey), keyPrefix)
-	store.Set(contractAddr.Bytes(), []byte{})
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, keyPrefix)
+	prefix.Set(contractAddr.Bytes(), []byte{})
 }
 
 func (k Keeper) IsContractRegistered(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) bool {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyKey), keyPrefix)
-	return store.Has(contractAddr.Bytes())
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, keyPrefix)
+	return prefix.Has(contractAddr.Bytes())
 }
 
 func (k Keeper) IterateContracts(
@@ -27,8 +28,7 @@ func (k Keeper) IterateContracts(
 	keyPrefix []byte,
 	handlerFn func(contractAddr []byte) (stop bool),
 ) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	store := sdkCtx.KVStore(k.legacyKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	iterator := storetypes.KVStorePrefixIterator(store, keyPrefix)
 	defer iterator.Close()
 
@@ -61,9 +61,9 @@ func (k Keeper) GetAllContractsBech32(ctx context.Context, keyPrefix []byte) []s
 }
 
 func (k Keeper) DeleteContract(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyKey), keyPrefix)
-	store.Delete(contractAddr)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, keyPrefix)
+	prefix.Delete(contractAddr)
 }
 
 func (k Keeper) ExecuteMessageOnContracts(ctx context.Context, keyPrefix []byte, msgBz []byte) error {

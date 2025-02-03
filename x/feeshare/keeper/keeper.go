@@ -9,7 +9,6 @@ import (
 	"cosmossdk.io/log"
 
 	storetypes "cosmossdk.io/core/store"
-	legacystoretypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -21,9 +20,8 @@ import (
 // Keeper of this module maintains collections of feeshares for contracts
 // registered to receive transaction fees.
 type Keeper struct {
-	cdc            codec.BinaryCodec
-	storeService   storetypes.KVStoreService
-	legacyStoreKey legacystoretypes.StoreKey
+	cdc          codec.BinaryCodec
+	storeService storetypes.KVStoreService
 
 	bankKeeper    bankkeeper.Keeper
 	wasmKeeper    wasmkeeper.Keeper
@@ -38,9 +36,8 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the fees Keeper
 func NewKeeper(
-	legacyStoreKey legacystoretypes.StoreKey,
-	ss storetypes.KVStoreService,
 	cdc codec.BinaryCodec,
+	ss storetypes.KVStoreService,
 	bk bankkeeper.Keeper,
 	wk wasmkeeper.Keeper,
 	ak authkeeper.AccountKeeper,
@@ -48,9 +45,8 @@ func NewKeeper(
 	authority string,
 ) Keeper {
 	return Keeper{
-		legacyStoreKey:   legacyStoreKey,
-		storeService:     ss,
 		cdc:              cdc,
+		storeService:     ss,
 		bankKeeper:       bk,
 		wasmKeeper:       wk,
 		accountKeeper:    ak,

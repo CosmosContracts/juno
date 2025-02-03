@@ -9,7 +9,6 @@ import (
 	"cosmossdk.io/log"
 
 	storetypes "cosmossdk.io/core/store"
-	legacystoretypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -20,8 +19,6 @@ import (
 type Keeper struct {
 	cdc          codec.BinaryCodec
 	storeService storetypes.KVStoreService
-	// TODO: Migrate module to collections, then remove this
-	legacyKey legacystoretypes.StoreKey
 
 	wasmKeeper     wasmkeeper.Keeper
 	contractKeeper wasmtypes.ContractOpsKeeper
@@ -32,7 +29,6 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	ss storetypes.KVStoreService,
-	legacyKey legacystoretypes.StoreKey,
 	wasmKeeper wasmkeeper.Keeper,
 	contractKeeper wasmtypes.ContractOpsKeeper,
 	authority string,
@@ -40,7 +36,6 @@ func NewKeeper(
 	return Keeper{
 		cdc:            cdc,
 		storeService:   ss,
-		legacyKey:      legacyKey,
 		wasmKeeper:     wasmKeeper,
 		contractKeeper: contractKeeper,
 		authority:      authority,
@@ -99,7 +94,7 @@ func (k Keeper) GetCdc() codec.BinaryCodec {
 	return k.cdc
 }
 
-// GetStore returns the x/clock module's store key.
-func (k Keeper) GetLegacyStore() legacystoretypes.StoreKey {
-	return k.legacyKey
+// GetStore returns the x/clock module's store service.
+func (k Keeper) GetStoreService() storetypes.KVStoreService {
+	return k.storeService
 }

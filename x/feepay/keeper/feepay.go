@@ -9,6 +9,7 @@ import (
 
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
@@ -18,23 +19,23 @@ import (
 
 // Check if a contract is registered as a fee pay contract
 func (k Keeper) IsContractRegistered(ctx context.Context, contractAddr string) bool {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
-	return store.Has([]byte(contractAddr))
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, StoreKeyContracts)
+	return prefix.Has([]byte(contractAddr))
 }
 
 // Get a contract from KV store
 func (k Keeper) GetContract(ctx context.Context, contractAddress string) (*types.FeePayContract, error) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Return nil, contract not registered
 	if !k.IsContractRegistered(ctx, contractAddress) {
 		return nil, globalerrors.ErrContractNotRegistered
 	}
 
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, StoreKeyContracts)
 
 	key := []byte(contractAddress)
-	bz := store.Get(key)
+	bz := prefix.Get(key)
 
 	var fpc types.FeePayContract
 	if err := k.cdc.Unmarshal(bz, &fpc); err != nil {
@@ -46,13 +47,13 @@ func (k Keeper) GetContract(ctx context.Context, contractAddress string) (*types
 
 // Get all registered fee pay contracts
 func (k Keeper) GetContracts(ctx context.Context, pag *query.PageRequest) (*types.QueryFeePayContractsResponse, error) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, StoreKeyContracts)
 
 	// Filter and paginate all contracts
 	results, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
-		store,
+		prefix,
 		pag,
 		func(_ []byte, value *types.FeePayContract) (*types.FeePayContract, error) {
 			return value, nil
@@ -79,10 +80,9 @@ func (k Keeper) GetContracts(ctx context.Context, pag *query.PageRequest) (*type
 
 // GetAllContracts returns all the registered FeePay contracts.
 func (k Keeper) GetAllContracts(ctx context.Context) []types.FeePayContract {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	contracts := []types.FeePayContract{}
 
-	store := sdkCtx.KVStore(k.legacyStoreKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	iterator := storetypes.KVStorePrefixIterator(store, StoreKeyContracts)
 	defer iterator.Close()
 
@@ -136,11 +136,11 @@ func (k Keeper) RegisterContract(ctx context.Context, rfp *types.MsgRegisterFeeP
 
 // Set a contract in the KV Store
 func (k Keeper) SetFeePayContract(ctx context.Context, feepay types.FeePayContract) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, StoreKeyContracts)
 	key := []byte(feepay.ContractAddress)
 	bz := k.cdc.MustMarshal(&feepay)
-	store.Set(key, bz)
+	prefix.Set(key, bz)
 }
 
 // Unregister contract (loop through usage store & remove all usage entries for contract)
@@ -149,7 +149,6 @@ func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregister
 		return err
 	}
 
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Get fee pay contract
 	contract, err := k.GetContract(ctx, rfp.ContractAddress)
 	if err != nil {
@@ -176,12 +175,13 @@ func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregister
 	}
 
 	// Remove contract from KV store
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
-	store.Delete([]byte(rfp.ContractAddress))
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefixStore := prefix.NewStore(store, StoreKeyContracts)
+	prefixStore.Delete([]byte(rfp.ContractAddress))
 
 	// Remove all usage entries for contract
-	store = prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContractUses)
-	iterator := storetypes.KVStorePrefixIterator(store, []byte(rfp.ContractAddress))
+	prefixStore = prefix.NewStore(store, StoreKeyContractUses)
+	iterator := storetypes.KVStorePrefixIterator(prefixStore, []byte(rfp.ContractAddress))
 
 	for ; iterator.Valid(); iterator.Next() {
 		store.Delete(iterator.Key())
@@ -204,13 +204,13 @@ func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregister
 
 // Set the contract balance in the KV store
 func (k Keeper) SetContractBalance(ctx context.Context, fpc *types.FeePayContract, newBalance uint64) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Get the existing contract in KV store
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, StoreKeyContracts)
 
 	// Set new balance and save to KV store
 	fpc.Balance = newBalance
-	store.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
+	prefix.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
 }
 
 // Fund an existing fee pay contract
@@ -245,11 +245,11 @@ func (k Keeper) CanContractCoverFee(fpc *types.FeePayContract, fee uint64) bool 
 
 // Get the number of times a wallet has interacted with a fee pay contract (err only if contract not registered)
 func (k Keeper) GetContractUses(ctx context.Context, fpc *types.FeePayContract, walletAddress string) (uint64, error) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Get usage from store
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContractUses)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, StoreKeyContractUses)
 	key := []byte(fpc.ContractAddress + "-" + walletAddress)
-	bz := store.Get(key)
+	bz := prefix.Get(key)
 
 	var walletUsage types.FeePayWalletUsage
 	if err := k.cdc.Unmarshal(bz, &walletUsage); err != nil {
@@ -261,14 +261,14 @@ func (k Keeper) GetContractUses(ctx context.Context, fpc *types.FeePayContract, 
 
 // Set the number of times a wallet has interacted with a fee pay contract
 func (k Keeper) IncrementContractUses(ctx context.Context, fpc *types.FeePayContract, walletAddress string, increment uint64) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	uses, err := k.GetContractUses(ctx, fpc, walletAddress)
 	if err != nil {
 		return err
 	}
 
 	// Get store, key, & value for setting usage
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContractUses)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, StoreKeyContractUses)
 	key := []byte(fpc.ContractAddress + "-" + walletAddress)
 	bz, err := k.cdc.Marshal(&types.FeePayWalletUsage{
 		ContractAddress: fpc.ContractAddress,
@@ -279,7 +279,7 @@ func (k Keeper) IncrementContractUses(ctx context.Context, fpc *types.FeePayCont
 		return err
 	}
 
-	store.Set(key, bz)
+	prefix.Set(key, bz)
 	return nil
 }
 
@@ -297,7 +297,6 @@ func (k Keeper) HasWalletExceededUsageLimit(ctx context.Context, fpc *types.FeeP
 
 // Update the wallet limit of an existing fee pay contract
 func (k Keeper) UpdateContractWalletLimit(ctx context.Context, fpc *types.FeePayContract, senderAddress string, walletLimit uint64) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Check if a cw contract
 	contractAddr, err := sdk.AccAddressFromBech32(fpc.ContractAddress)
 	if err != nil {
@@ -316,9 +315,10 @@ func (k Keeper) UpdateContractWalletLimit(ctx context.Context, fpc *types.FeePay
 	}
 
 	// Update the store with the new limit
-	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), StoreKeyContracts)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefix := prefix.NewStore(store, StoreKeyContracts)
 	fpc.WalletLimit = walletLimit
-	store.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
+	prefix.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
 
 	return nil
 }

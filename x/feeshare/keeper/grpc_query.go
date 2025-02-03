@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"cosmossdk.io/store/prefix"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
@@ -32,9 +33,9 @@ func (q queryServer) FeeShares(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	var feeshares []types.FeeShare
-	store := prefix.NewStore(sdkCtx.KVStore(q.k.legacyStoreKey), types.KeyPrefixFeeShare)
+	key := runtime.KVStoreAdapter(q.k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(key, types.KeyPrefixFeeShare)
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(_, value []byte) error {
 		var feeshare types.FeeShare
@@ -112,9 +113,9 @@ func (q queryServer) DeployerFeeShares( // nolint: dupl
 	}
 
 	var contracts []string
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	key := runtime.KVStoreAdapter(q.k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(
-		sdkCtx.KVStore(q.k.legacyStoreKey),
+		key,
 		types.GetKeyPrefixDeployer(deployer),
 	)
 
@@ -150,9 +151,9 @@ func (q queryServer) WithdrawerFeeShares( // nolint: dupl
 	}
 
 	var contracts []string
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	key := runtime.KVStoreAdapter(q.k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(
-		sdkCtx.KVStore(q.k.legacyStoreKey),
+		key,
 		types.GetKeyPrefixWithdrawer(deployer),
 	)
 

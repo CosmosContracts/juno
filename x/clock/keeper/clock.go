@@ -5,6 +5,7 @@ import (
 
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
@@ -19,8 +20,8 @@ var (
 
 // Get the store for the clock contracts.
 func (k Keeper) getStore(ctx context.Context) prefix.Store {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	return prefix.NewStore(sdkCtx.KVStore(k.legacyKey), StoreKeyContracts)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	return prefix.NewStore(store, StoreKeyContracts)
 }
 
 // Set a clock contract address in the KV store.
