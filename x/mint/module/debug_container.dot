@@ -1,0 +1,284 @@
+digraph "" {
+    subgraph "cluster_auth" {
+      graph [fontsize="12.0", label="Module: auth", penwidth="0.5", style="rounded"];
+      "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+    }
+
+    subgraph "cluster_bank" {
+      graph [fontsize="12.0", label="Module: bank", penwidth="0.5", style="rounded"];
+      "github.com/cosmos/cosmos-sdk/x/bank.ProvideModule"[color="red", fontcolor="red", penwidth="0.5", shape="box"];
+    }
+
+    subgraph "cluster_consensus" {
+      graph [fontsize="12.0", label="Module: consensus", penwidth="0.5", style="rounded"];
+      "github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+    }
+
+    subgraph "cluster_genutil" {
+      graph [fontsize="12.0", label="Module: genutil", penwidth="0.5", style="rounded"];
+      "github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule"[color="red", fontcolor="red", penwidth="0.5", shape="box"];
+    }
+
+    subgraph "cluster_mint" {
+      graph [fontsize="12.0", label="Module: mint", penwidth="0.5", style="rounded"];
+      "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+    }
+
+    subgraph "cluster_nft" {
+      graph [fontsize="12.0", label="Module: nft", penwidth="0.5", style="rounded"];
+      "cosmossdk.io/x/nft/module.ProvideModule"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+    }
+
+    subgraph "cluster_params" {
+      graph [fontsize="12.0", label="Module: params", penwidth="0.5", style="rounded"];
+      "github.com/cosmos/cosmos-sdk/x/params.ProvideModule"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+    }
+
+    subgraph "cluster_runtime" {
+      graph [fontsize="12.0", label="Module: runtime", penwidth="0.5", style="rounded"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideApp"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideBasicManager"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideCometInfoService"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideEventService"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideGenesisTxHandler"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideHeaderInfoService"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreKey"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreService"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreKey"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreService"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/runtime.SetupAppBuilder"[color="red", fontcolor="red", penwidth="0.5", shape="box"];
+    }
+
+    subgraph "cluster_staking" {
+      graph [fontsize="12.0", label="Module: staking", penwidth="0.5", style="rounded"];
+      "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule"[color="red", fontcolor="red", penwidth="0.5", shape="box"];
+    }
+
+    subgraph "cluster_tx" {
+      graph [fontsize="12.0", label="Module: tx", penwidth="0.5", style="rounded"];
+      "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+      "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideProtoRegistry"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5", shape="box"];
+    }
+
+  "*cosmossdk.io/api/cosmos/app/runtime/v1alpha1.Module"[color="black", fontcolor="black", penwidth="1.5"];
+  "*cosmossdk.io/api/cosmos/app/v1alpha1.Config"[color="black", fontcolor="black", penwidth="1.5"];
+  "*cosmossdk.io/api/cosmos/auth/module/v1.Module"[color="black", fontcolor="black", penwidth="1.5"];
+  "*cosmossdk.io/api/cosmos/bank/module/v1.Module"[color="black", fontcolor="black", penwidth="1.5"];
+  "*cosmossdk.io/api/cosmos/consensus/module/v1.Module"[color="black", fontcolor="black", penwidth="1.5"];
+  "*cosmossdk.io/api/cosmos/genutil/module/v1.Module"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "*cosmossdk.io/api/cosmos/mint/module/v1.Module"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "*cosmossdk.io/api/cosmos/nft/module/v1.Module"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "*cosmossdk.io/api/cosmos/params/module/v1.Module"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "*cosmossdk.io/api/cosmos/staking/module/v1.Module"[color="black", fontcolor="black", penwidth="1.5"];
+  "*cosmossdk.io/api/cosmos/tx/config/v1.Config"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "*cosmossdk.io/store/types.KVStoreKey"[color="black", fontcolor="black", penwidth="1.5"];
+  "*cosmossdk.io/store/types.MemoryStoreKey"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "*cosmossdk.io/store/types.TransientStoreKey"[color="black", fontcolor="black", penwidth="1.5"];
+  "*github.com/cosmos/cosmos-sdk/baseapp.GRPCQueryRouter"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "*github.com/cosmos/cosmos-sdk/baseapp.MsgServiceRouter"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "*github.com/cosmos/cosmos-sdk/codec.LegacyAmino"[color="black", fontcolor="black", penwidth="1.5"];
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder"[color="black", fontcolor="black", penwidth="1.5"];
+  "*github.com/cosmos/cosmos-sdk/x/staking/keeper.Keeper"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "[]cosmossdk.io/x/tx/signing.CustomGetSigner"[color="black", comment="many-per-container", fontcolor="black", penwidth="1.5"];
+  "[]github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1.HandlerRoute"[color="lightgrey", comment="many-per-container", fontcolor="dimgrey", penwidth="0.5"];
+  "[]runtime.BaseAppOption"[color="lightgrey", comment="many-per-container", fontcolor="dimgrey", penwidth="0.5"];
+  "cosmossdk.io/core/address.Codec"[color="black", fontcolor="black", penwidth="1.5"];
+  "cosmossdk.io/core/comet.BlockInfoService"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "cosmossdk.io/core/event.Service"[color="black", fontcolor="black", penwidth="1.5"];
+  "cosmossdk.io/core/genesis.TxHandler"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "cosmossdk.io/core/header.Service"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "cosmossdk.io/core/store.KVStoreService"[color="black", fontcolor="black", penwidth="1.5"];
+  "cosmossdk.io/core/store.MemoryStoreService"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "cosmossdk.io/core/store.TransientStoreService"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "cosmossdk.io/depinject.ModuleKey"[color="black", fontcolor="black", penwidth="1.5"];
+  "cosmossdk.io/depinject.OwnModuleKey"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "cosmossdk.io/depinject/appconfig.Compose"[color="black", fontcolor="black", penwidth="1.5", shape="box"];
+  "cosmossdk.io/log.Logger"[color="red", fontcolor="red", penwidth="0.5"];
+  "cosmossdk.io/x/nft/keeper.Keeper"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "cosmossdk.io/x/tx/signing.ProtoFileResolver"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "func() []signing.SignModeHandler"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "func() address.Codec"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "func() runtime.ConsensusAddressCodec"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "func() runtime.ValidatorAddressCodec"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "func() types.AccountI"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/client.TxConfig"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/codec.Codec"[color="black", fontcolor="black", penwidth="1.5"];
+  "github.com/cosmos/cosmos-sdk/codec/types.InterfaceRegistry"[color="black", fontcolor="black", penwidth="1.5"];
+  "github.com/cosmos/cosmos-sdk/runtime.ConsensusAddressCodec"[color="black", fontcolor="black", penwidth="1.5"];
+  "github.com/cosmos/cosmos-sdk/runtime.ValidatorAddressCodec"[color="black", fontcolor="black", penwidth="1.5"];
+  "github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration"[color="black", fontcolor="black", penwidth="1.5", shape="hexagon"];
+  "github.com/cosmos/cosmos-sdk/x/auth/ante.FeegrantKeeper"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/x/auth/exported.Subspace"[color="black", fontcolor="black", penwidth="1.5"];
+  "github.com/cosmos/cosmos-sdk/x/auth/keeper.AccountKeeper"[color="black", fontcolor="black", penwidth="1.5"];
+  "github.com/cosmos/cosmos-sdk/x/auth/tx.ConfigOptions"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/x/bank/exported.Subspace"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/x/bank/keeper.BaseKeeper"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/x/consensus/keeper.Keeper"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/x/genutil/types.AccountKeeper"[color="black", fontcolor="black", penwidth="1.5"];
+  "github.com/cosmos/cosmos-sdk/x/genutil/types.StakingKeeper"[color="red", fontcolor="red", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/x/mint/keeper.Keeper"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/x/params/keeper.Keeper"[color="black", fontcolor="black", penwidth="1.5"];
+  "github.com/cosmos/cosmos-sdk/x/params/types.Subspace"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/x/staking/exported.Subspace"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "github.com/cosmos/cosmos-sdk/x/staking/types.AccountKeeper"[color="black", fontcolor="black", penwidth="1.5"];
+  "github.com/cosmos/cosmos-sdk/x/staking/types.BankKeeper"[color="red", fontcolor="red", penwidth="0.5"];
+  "google.golang.org/protobuf/reflect/protodesc.Resolver"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "google.golang.org/protobuf/reflect/protoregistry.MessageTypeResolver"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "map[string]cosmossdk.io/core/appmodule.AppModule"[color="red", comment="one-per-module", fontcolor="red", penwidth="0.5"];
+  "map[string]github.com/cosmos/cosmos-sdk/types/module.AppModuleBasic"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "map[string]github.com/cosmos/cosmos-sdk/x/params/types.KeyTable"[color="black", comment="one-per-module", fontcolor="black", penwidth="1.5"];
+  "types.InflationCalculationFn"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "types.RandomGenesisAccountsFn"[color="lightgrey", fontcolor="dimgrey", penwidth="0.5"];
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/app/v1alpha1.Config";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/app/runtime/v1alpha1.Module";
+  "github.com/cosmos/cosmos-sdk/codec/types.InterfaceRegistry" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideApp";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideApp" -> "github.com/cosmos/cosmos-sdk/codec.Codec";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideApp" -> "*github.com/cosmos/cosmos-sdk/codec.LegacyAmino";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideApp" -> "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideApp" -> "*github.com/cosmos/cosmos-sdk/baseapp.MsgServiceRouter";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideApp" -> "*github.com/cosmos/cosmos-sdk/baseapp.GRPCQueryRouter";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideApp" -> "map[string]cosmossdk.io/core/appmodule.AppModule";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideApp" -> "google.golang.org/protobuf/reflect/protodesc.Resolver";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideApp" -> "google.golang.org/protobuf/reflect/protoregistry.MessageTypeResolver";
+  "cosmossdk.io/core/address.Codec" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry";
+  "github.com/cosmos/cosmos-sdk/runtime.ValidatorAddressCodec" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry";
+  "[]cosmossdk.io/x/tx/signing.CustomGetSigner" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry" -> "github.com/cosmos/cosmos-sdk/codec/types.InterfaceRegistry";
+  "*cosmossdk.io/api/cosmos/app/runtime/v1alpha1.Module" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey";
+  "cosmossdk.io/depinject.ModuleKey" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey" -> "*cosmossdk.io/store/types.KVStoreKey";
+  "cosmossdk.io/depinject.ModuleKey" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreKey";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreKey";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreKey" -> "*cosmossdk.io/store/types.TransientStoreKey";
+  "cosmossdk.io/depinject.ModuleKey" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreKey";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreKey";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreKey" -> "*cosmossdk.io/store/types.MemoryStoreKey";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideGenesisTxHandler";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideGenesisTxHandler" -> "cosmossdk.io/core/genesis.TxHandler";
+  "*cosmossdk.io/api/cosmos/app/runtime/v1alpha1.Module" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService";
+  "cosmossdk.io/depinject.ModuleKey" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService" -> "cosmossdk.io/core/store.KVStoreService";
+  "cosmossdk.io/depinject.ModuleKey" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreService";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreService";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreService" -> "cosmossdk.io/core/store.MemoryStoreService";
+  "cosmossdk.io/depinject.ModuleKey" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreService";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreService";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreService" -> "cosmossdk.io/core/store.TransientStoreService";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideEventService" -> "cosmossdk.io/core/event.Service";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideHeaderInfoService";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideHeaderInfoService" -> "cosmossdk.io/core/header.Service";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideCometInfoService" -> "cosmossdk.io/core/comet.BlockInfoService";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideBasicManager";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideBasicManager" -> "map[string]github.com/cosmos/cosmos-sdk/types/module.AppModuleBasic";
+  "*cosmossdk.io/api/cosmos/auth/module/v1.Module" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec";
+  "*cosmossdk.io/api/cosmos/staking/module/v1.Module" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec";
+  "func() address.Codec" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec";
+  "func() runtime.ValidatorAddressCodec" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec";
+  "func() runtime.ConsensusAddressCodec" -> "github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec" -> "cosmossdk.io/core/address.Codec";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec" -> "github.com/cosmos/cosmos-sdk/runtime.ValidatorAddressCodec";
+  "github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec" -> "github.com/cosmos/cosmos-sdk/runtime.ConsensusAddressCodec";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/auth/module/v1.Module";
+  "*cosmossdk.io/api/cosmos/auth/module/v1.Module" -> "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule";
+  "cosmossdk.io/core/store.KVStoreService" -> "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/codec.Codec" -> "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule";
+  "cosmossdk.io/core/address.Codec" -> "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule";
+  "types.RandomGenesisAccountsFn" -> "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule";
+  "func() types.AccountI" -> "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/auth/exported.Subspace" -> "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule" -> "github.com/cosmos/cosmos-sdk/x/auth/keeper.AccountKeeper";
+  "github.com/cosmos/cosmos-sdk/x/auth.ProvideModule" -> "map[string]cosmossdk.io/core/appmodule.AppModule";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/bank/module/v1.Module";
+  "*cosmossdk.io/api/cosmos/bank/module/v1.Module" -> "github.com/cosmos/cosmos-sdk/x/bank.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/codec.Codec" -> "github.com/cosmos/cosmos-sdk/x/bank.ProvideModule";
+  "cosmossdk.io/core/store.KVStoreService" -> "github.com/cosmos/cosmos-sdk/x/bank.ProvideModule";
+  "cosmossdk.io/log.Logger" -> "github.com/cosmos/cosmos-sdk/x/bank.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/auth/keeper.AccountKeeper" -> "github.com/cosmos/cosmos-sdk/x/bank.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/bank/exported.Subspace" -> "github.com/cosmos/cosmos-sdk/x/bank.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/bank.ProvideModule" -> "github.com/cosmos/cosmos-sdk/x/bank/keeper.BaseKeeper";
+  "github.com/cosmos/cosmos-sdk/x/bank.ProvideModule" -> "map[string]cosmossdk.io/core/appmodule.AppModule";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/staking/module/v1.Module";
+  "*cosmossdk.io/api/cosmos/staking/module/v1.Module" -> "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/runtime.ValidatorAddressCodec" -> "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/runtime.ConsensusAddressCodec" -> "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/auth/keeper.AccountKeeper" -> "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/bank/keeper.BaseKeeper" -> "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/codec.Codec" -> "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule";
+  "cosmossdk.io/core/store.KVStoreService" -> "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/staking/exported.Subspace" -> "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule" -> "*github.com/cosmos/cosmos-sdk/x/staking/keeper.Keeper";
+  "github.com/cosmos/cosmos-sdk/x/staking.ProvideModule" -> "map[string]cosmossdk.io/core/appmodule.AppModule";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/tx/config/v1.Config";
+  "*cosmossdk.io/api/cosmos/tx/config/v1.Config" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "cosmossdk.io/core/address.Codec" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/runtime.ValidatorAddressCodec" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/codec.Codec" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "cosmossdk.io/x/tx/signing.ProtoFileResolver" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/bank/keeper.BaseKeeper" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/bank/keeper.BaseKeeper" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/auth/keeper.AccountKeeper" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/auth/ante.FeegrantKeeper" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "func() []signing.SignModeHandler" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "[]cosmossdk.io/x/tx/signing.CustomGetSigner" -> "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule" -> "github.com/cosmos/cosmos-sdk/client.TxConfig";
+  "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule" -> "github.com/cosmos/cosmos-sdk/x/auth/tx.ConfigOptions";
+  "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule" -> "[]runtime.BaseAppOption";
+  "github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideProtoRegistry" -> "cosmossdk.io/x/tx/signing.ProtoFileResolver";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/consensus/module/v1.Module";
+  "*cosmossdk.io/api/cosmos/consensus/module/v1.Module" -> "github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/codec.Codec" -> "github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule";
+  "cosmossdk.io/core/store.KVStoreService" -> "github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule";
+  "cosmossdk.io/core/event.Service" -> "github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule" -> "github.com/cosmos/cosmos-sdk/x/consensus/keeper.Keeper";
+  "github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule" -> "map[string]cosmossdk.io/core/appmodule.AppModule";
+  "github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule" -> "[]runtime.BaseAppOption";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/params/module/v1.Module";
+  "*cosmossdk.io/store/types.KVStoreKey" -> "github.com/cosmos/cosmos-sdk/x/params.ProvideModule";
+  "*cosmossdk.io/store/types.TransientStoreKey" -> "github.com/cosmos/cosmos-sdk/x/params.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/codec.Codec" -> "github.com/cosmos/cosmos-sdk/x/params.ProvideModule";
+  "*github.com/cosmos/cosmos-sdk/codec.LegacyAmino" -> "github.com/cosmos/cosmos-sdk/x/params.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/params.ProvideModule" -> "github.com/cosmos/cosmos-sdk/x/params/keeper.Keeper";
+  "github.com/cosmos/cosmos-sdk/x/params.ProvideModule" -> "map[string]cosmossdk.io/core/appmodule.AppModule";
+  "github.com/cosmos/cosmos-sdk/x/params.ProvideModule" -> "[]github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1.HandlerRoute";
+  "cosmossdk.io/depinject.ModuleKey" -> "github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace";
+  "github.com/cosmos/cosmos-sdk/x/params/keeper.Keeper" -> "github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace";
+  "map[string]github.com/cosmos/cosmos-sdk/x/params/types.KeyTable" -> "github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace";
+  "github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace" -> "github.com/cosmos/cosmos-sdk/x/params/types.Subspace";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/genutil/module/v1.Module";
+  "github.com/cosmos/cosmos-sdk/x/auth/keeper.AccountKeeper" -> "github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule";
+  "*github.com/cosmos/cosmos-sdk/x/staking/keeper.Keeper" -> "github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule";
+  "cosmossdk.io/core/genesis.TxHandler" -> "github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/client.TxConfig" -> "github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule" -> "map[string]cosmossdk.io/core/appmodule.AppModule";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/mint/module/v1.Module";
+  "cosmossdk.io/depinject.OwnModuleKey" -> "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule";
+  "*cosmossdk.io/api/cosmos/mint/module/v1.Module" -> "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule";
+  "cosmossdk.io/core/store.KVStoreService" -> "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/codec.Codec" -> "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule";
+  "types.InflationCalculationFn" -> "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/params/types.Subspace" -> "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/auth/keeper.AccountKeeper" -> "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/bank/keeper.BaseKeeper" -> "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule";
+  "*github.com/cosmos/cosmos-sdk/x/staking/keeper.Keeper" -> "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule" -> "github.com/cosmos/cosmos-sdk/x/mint/keeper.Keeper";
+  "github.com/cosmos/cosmos-sdk/x/mint.ProvideModule" -> "map[string]cosmossdk.io/core/appmodule.AppModule";
+  "cosmossdk.io/depinject/appconfig.Compose" -> "*cosmossdk.io/api/cosmos/nft/module/v1.Module";
+  "cosmossdk.io/core/store.KVStoreService" -> "cosmossdk.io/x/nft/module.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/codec.Codec" -> "cosmossdk.io/x/nft/module.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/codec/types.InterfaceRegistry" -> "cosmossdk.io/x/nft/module.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/auth/keeper.AccountKeeper" -> "cosmossdk.io/x/nft/module.ProvideModule";
+  "github.com/cosmos/cosmos-sdk/x/bank/keeper.BaseKeeper" -> "cosmossdk.io/x/nft/module.ProvideModule";
+  "cosmossdk.io/x/nft/module.ProvideModule" -> "cosmossdk.io/x/nft/keeper.Keeper";
+  "cosmossdk.io/x/nft/module.ProvideModule" -> "map[string]cosmossdk.io/core/appmodule.AppModule";
+  "github.com/cosmos/cosmos-sdk/x/auth/keeper.AccountKeeper" -> "github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration";
+  "*github.com/cosmos/cosmos-sdk/runtime.AppBuilder" -> "github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration";
+  "github.com/cosmos/cosmos-sdk/codec.Codec" -> "github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration";
+}
+

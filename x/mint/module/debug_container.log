@@ -1,0 +1,215 @@
+Initializing logger
+Registering providers
+ Registering github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84)
+  Registering resolver for simple type codec.Codec
+  Registering resolver for simple type *codec.LegacyAmino
+  Registering resolver for simple type *runtime.AppBuilder
+  Registering resolver for simple type *baseapp.MsgServiceRouter
+  Registering resolver for simple type *baseapp.GRPCQueryRouter
+  Registering resolver for one-per-module type appmodule.AppModule
+  Found resolver for appmodule.AppModule: *depinject.onePerModuleResolver
+  Registering resolver for simple type protodesc.Resolver
+  Registering resolver for simple type protoregistry.MessageTypeResolver
+ Registering resolver for many-per-container type signing.CustomGetSigner
+ Registering github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:164)
+  Registering resolver for simple type types.InterfaceRegistry
+ Registering module-scoped provider: github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:201)
+  Registering resolver for module-scoped type *types.KVStoreKey
+ Registering module-scoped provider: github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreKey (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:216)
+  Registering resolver for module-scoped type *types.TransientStoreKey
+ Registering module-scoped provider: github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreKey (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:222)
+  Registering resolver for module-scoped type *types.MemoryStoreKey
+ Registering github.com/cosmos/cosmos-sdk/runtime.ProvideGenesisTxHandler (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:229)
+  Registering resolver for simple type genesis.TxHandler
+ Registering module-scoped provider: github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232)
+  Registering resolver for module-scoped type store.KVStoreService
+ Registering module-scoped provider: github.com/cosmos/cosmos-sdk/runtime.ProvideMemoryStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:237)
+  Registering resolver for module-scoped type store.MemoryStoreService
+ Registering module-scoped provider: github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:242)
+  Registering resolver for module-scoped type store.TransientStoreService
+ Registering github.com/cosmos/cosmos-sdk/runtime.ProvideEventService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:247)
+  Registering resolver for simple type event.Service
+ Registering github.com/cosmos/cosmos-sdk/runtime.ProvideHeaderInfoService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:256)
+  Registering resolver for simple type header.Service
+ Registering github.com/cosmos/cosmos-sdk/runtime.ProvideCometInfoService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:252)
+  Registering resolver for simple type comet.BlockInfoService
+ Registering github.com/cosmos/cosmos-sdk/runtime.ProvideBasicManager (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:260)
+  Registering resolver for simple type module.BasicManager
+ Registering github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:284)
+  Registering resolver for simple type address.Codec
+  Registering resolver for simple type runtime.ValidatorAddressCodec
+  Registering resolver for simple type runtime.ConsensusAddressCodec
+ Registering github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209)
+  Registering resolver for simple type keeper.AccountKeeper
+  Found resolver for appmodule.AppModule: *depinject.onePerModuleResolver
+ Implicitly registering resolver keeper.AccountKeeper for interface type types.AccountKeeper
+ Registering github.com/cosmos/cosmos-sdk/x/bank.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/bank/module.go:227)
+  Registering resolver for simple type keeper.BaseKeeper
+  Found resolver for appmodule.AppModule: *depinject.onePerModuleResolver
+ Implicitly registering resolver keeper.AccountKeeper for interface type types.AccountKeeper
+ Implicitly registering resolver keeper.BaseKeeper for interface type types.BankKeeper
+ Registering github.com/cosmos/cosmos-sdk/x/staking.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/staking/module.go:221)
+  Registering resolver for simple type *keeper.Keeper
+  Found resolver for appmodule.AppModule: *depinject.onePerModuleResolver
+ Implicitly registering resolver keeper.BaseKeeper for interface type types.BankKeeper
+ Implicitly registering resolver keeper.BaseKeeper for interface type tx.BankKeeper
+ Implicitly registering resolver keeper.AccountKeeper for interface type ante.AccountKeeper
+ Registering github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/tx/config/config.go:70)
+  Registering resolver for simple type client.TxConfig
+  Registering resolver for simple type tx.ConfigOptions
+  Registering resolver for many-per-container type runtime.BaseAppOption
+  Found resolver for runtime.BaseAppOption: *depinject.groupResolver
+ Registering github.com/cosmos/cosmos-sdk/x/auth/tx/config.ProvideProtoRegistry (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/tx/config/config.go:67)
+  Registering resolver for simple type signing.ProtoFileResolver
+ Registering github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/consensus/module.go:117)
+  Registering resolver for simple type keeper.Keeper
+  Found resolver for appmodule.AppModule: *depinject.onePerModuleResolver
+  Found resolver for runtime.BaseAppOption: *depinject.groupResolver
+ Registering github.com/cosmos/cosmos-sdk/x/params.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:129)
+  Registering resolver for simple type keeper.Keeper
+  Found resolver for appmodule.AppModule: *depinject.onePerModuleResolver
+  Registering resolver for many-per-container type v1beta1.HandlerRoute
+  Found resolver for v1beta1.HandlerRoute: *depinject.groupResolver
+ Registering resolver for one-per-module type types.KeyTable
+ Registering module-scoped provider: github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:146)
+  Registering resolver for module-scoped type types.Subspace
+ Implicitly registering resolver keeper.AccountKeeper for interface type types.AccountKeeper
+ Implicitly registering resolver *keeper.Keeper for interface type types.StakingKeeper
+ Registering github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/genutil/module.go:138)
+  Found resolver for appmodule.AppModule: *depinject.onePerModuleResolver
+ Implicitly registering resolver types.Subspace for interface type exported.Subspace
+ Implicitly registering resolver keeper.AccountKeeper for interface type types.AccountKeeper
+ Implicitly registering resolver keeper.BaseKeeper for interface type types.BankKeeper
+ Implicitly registering resolver *keeper.Keeper for interface type types.StakingKeeper
+ Registering github.com/cosmos/cosmos-sdk/x/mint.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/mint/module.go:221)
+  Registering resolver for simple type keeper.Keeper
+  Found resolver for appmodule.AppModule: *depinject.onePerModuleResolver
+ Implicitly registering resolver keeper.AccountKeeper for interface type nft.AccountKeeper
+ Implicitly registering resolver keeper.BaseKeeper for interface type nft.BankKeeper
+ Registering cosmossdk.io/x/nft/module.ProvideModule (/Users/vexx/go/pkg/mod/cosmossdk.io/x/nft@v0.1.1/module/module.go:183)
+  Registering resolver for simple type keeper.Keeper
+  Found resolver for appmodule.AppModule: *depinject.onePerModuleResolver
+Registering outputs
+ Registering github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/testutil/sims/app_helpers.go:151)
+Building container
+Resolving dependencies for github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/testutil/sims/app_helpers.go:151)
+ Providing keeper.AccountKeeper from github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209) to github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration
+ Resolving dependencies for github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209)
+  Supplying *modulev1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/x/auth.ProvideModule
+  Providing store.KVStoreService from github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232) to github.com/cosmos/cosmos-sdk/x/auth.ProvideModule
+  Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232)
+   Supplying *runtimev1alpha1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService
+   Providing ModuleKey auth
+   Providing *runtime.AppBuilder from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService
+   Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84)
+    Providing types.InterfaceRegistry from github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:164) to github.com/cosmos/cosmos-sdk/runtime.ProvideApp
+    Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:164)
+     Providing address.Codec from github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:284) to github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry
+     Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:284)
+      Supplying *modulev1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec
+      Supplying *modulev1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec
+      Providing zero value for optional dependency func() address.Codec
+      Providing zero value for optional dependency func() runtime.ValidatorAddressCodec
+      Providing zero value for optional dependency func() runtime.ConsensusAddressCodec
+     Calling github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:284)
+     Providing runtime.ValidatorAddressCodec from github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:284) to github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry
+     Providing many-per-container type slice []signing.CustomGetSigner to github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry from:
+    Calling github.com/cosmos/cosmos-sdk/runtime.ProvideInterfaceRegistry (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:164)
+   Calling github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84)
+  Calling github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232)
+  Providing codec.Codec from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/x/auth.ProvideModule
+  Providing address.Codec from github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:284) to github.com/cosmos/cosmos-sdk/x/auth.ProvideModule
+  Providing zero value for optional dependency types.RandomGenesisAccountsFn
+  Providing zero value for optional dependency func() types.AccountI
+  Implicitly registering resolver types.Subspace for interface type exported.Subspace
+  Providing types.Subspace from github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:146) to github.com/cosmos/cosmos-sdk/x/auth.ProvideModule
+  Resolving dependencies for github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:146)
+   Providing ModuleKey auth
+   Providing keeper.Keeper from github.com/cosmos/cosmos-sdk/x/params.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:129) to github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace
+   Resolving dependencies for github.com/cosmos/cosmos-sdk/x/params.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:129)
+    Providing *types.KVStoreKey from github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:201) to github.com/cosmos/cosmos-sdk/x/params.ProvideModule
+    Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:201)
+     Supplying *runtimev1alpha1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey
+     Providing ModuleKey params
+     Providing *runtime.AppBuilder from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey
+    Calling github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreKey (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:201)
+    Providing *types.TransientStoreKey from github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreKey (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:216) to github.com/cosmos/cosmos-sdk/x/params.ProvideModule
+    Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreKey (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:216)
+     Providing ModuleKey params
+     Providing *runtime.AppBuilder from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreKey
+    Calling github.com/cosmos/cosmos-sdk/runtime.ProvideTransientStoreKey (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:216)
+    Providing codec.Codec from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/x/params.ProvideModule
+    Providing *codec.LegacyAmino from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/x/params.ProvideModule
+   Calling github.com/cosmos/cosmos-sdk/x/params.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:129)
+   Providing one-per-module type map map[string]types.KeyTable to github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace from:
+  Calling github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:146)
+ Calling github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209)
+ Providing *runtime.AppBuilder from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration
+ Providing codec.Codec from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration
+Calling github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/testutil/sims/app_helpers.go:151)
+Done building container
+Calling invokers
+Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.SetupAppBuilder (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:141)
+ Supplying *appv1alpha1.Config from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:89) to github.com/cosmos/cosmos-sdk/runtime.SetupAppBuilder
+ Supplying *runtimev1alpha1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/runtime.SetupAppBuilder
+ Providing *runtime.AppBuilder from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/runtime.SetupAppBuilder
+ Providing one-per-module type map map[string]appmodule.AppModule to github.com/cosmos/cosmos-sdk/runtime.SetupAppBuilder from:
+  auth: github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209)
+  bank: github.com/cosmos/cosmos-sdk/x/bank.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/bank/module.go:227)
+  staking: github.com/cosmos/cosmos-sdk/x/staking.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/staking/module.go:221)
+  mint: github.com/cosmos/cosmos-sdk/x/mint.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/mint/module.go:221)
+  runtime: github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84)
+  consensus: github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/consensus/module.go:117)
+  params: github.com/cosmos/cosmos-sdk/x/params.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:129)
+  genutil: github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/genutil/module.go:138)
+  nft: cosmossdk.io/x/nft/module.ProvideModule (/Users/vexx/go/pkg/mod/cosmossdk.io/x/nft@v0.1.1/module/module.go:183)
+ Resolving dependencies for github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/consensus/module.go:117)
+  Supplying *modulev1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule
+  Providing codec.Codec from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule
+  Providing store.KVStoreService from github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232) to github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule
+  Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232)
+   Supplying *runtimev1alpha1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService
+   Providing ModuleKey consensus
+   Providing *runtime.AppBuilder from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService
+  Calling github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232)
+  Providing event.Service from github.com/cosmos/cosmos-sdk/runtime.ProvideEventService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:247) to github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule
+  Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.ProvideEventService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:247)
+  Calling github.com/cosmos/cosmos-sdk/runtime.ProvideEventService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:247)
+ Calling github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/consensus/module.go:117)
+ Resolving dependencies for github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/genutil/module.go:138)
+  Providing keeper.AccountKeeper from github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209) to github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule
+  Providing *keeper.Keeper from github.com/cosmos/cosmos-sdk/x/staking.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/staking/module.go:221) to github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule
+  Resolving dependencies for github.com/cosmos/cosmos-sdk/x/staking.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/staking/module.go:221)
+   Supplying *modulev1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/x/staking.ProvideModule
+   Providing runtime.ValidatorAddressCodec from github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:284) to github.com/cosmos/cosmos-sdk/x/staking.ProvideModule
+   Providing runtime.ConsensusAddressCodec from github.com/cosmos/cosmos-sdk/runtime.ProvideAddressCodec (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:284) to github.com/cosmos/cosmos-sdk/x/staking.ProvideModule
+   Providing keeper.AccountKeeper from github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209) to github.com/cosmos/cosmos-sdk/x/staking.ProvideModule
+   Providing keeper.BaseKeeper from github.com/cosmos/cosmos-sdk/x/bank.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/bank/module.go:227) to github.com/cosmos/cosmos-sdk/x/staking.ProvideModule
+   Resolving dependencies for github.com/cosmos/cosmos-sdk/x/bank.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/bank/module.go:227)
+    Supplying *modulev1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/x/bank.ProvideModule
+    Providing codec.Codec from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/x/bank.ProvideModule
+    Providing store.KVStoreService from github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232) to github.com/cosmos/cosmos-sdk/x/bank.ProvideModule
+    Resolving dependencies for github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232)
+     Supplying *runtimev1alpha1.Module from cosmossdk.io/depinject/appconfig.Compose (/Users/vexx/go/pkg/mod/cosmossdk.io/depinject@v1.1.0/appconfig/config.go:145) to github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService
+     Providing ModuleKey bank
+     Providing *runtime.AppBuilder from github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84) to github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService
+    Calling github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232)
+    Error: can't resolve type cosmossdk.io/log/log.Logger for github.com/cosmos/cosmos-sdk/x/bank.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/bank/module.go:227):
+	while resolving:
+		log.Logger for github.com/cosmos/cosmos-sdk/x/bank.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/bank/module.go:227)
+		store.KVStoreService for github.com/cosmos/cosmos-sdk/x/bank.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/bank/module.go:227)
+		types.BankKeeper for github.com/cosmos/cosmos-sdk/x/staking.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/staking/module.go:221)
+		types.StakingKeeper for github.com/cosmos/cosmos-sdk/x/genutil.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/genutil/module.go:138)
+		store.KVStoreService for github.com/cosmos/cosmos-sdk/x/consensus.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/consensus/module.go:117)
+		map[string]appmodule.AppModule for github.com/cosmos/cosmos-sdk/runtime.SetupAppBuilder (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:141)
+		depinject.ModuleKey for github.com/cosmos/cosmos-sdk/x/params.ProvideSubspace (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/params/module.go:146)
+		exported.Subspace for github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209)
+		func() types.AccountI for github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209)
+		types.RandomGenesisAccountsFn for github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209)
+		types.InterfaceRegistry for github.com/cosmos/cosmos-sdk/runtime.ProvideApp (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:84)
+		*runtime.AppBuilder for github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232)
+		depinject.ModuleKey for github.com/cosmos/cosmos-sdk/runtime.ProvideKVStoreService (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/runtime/module.go:232)
+		store.KVStoreService for github.com/cosmos/cosmos-sdk/x/auth.ProvideModule (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/x/auth/module.go:209)
+		keeper.AccountKeeper for github.com/cosmos/cosmos-sdk/testutil/sims.SetupWithConfiguration (/Users/vexx/go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.50.11/testutil/sims/app_helpers.go:151)
+
+    Saved graph of container to /Users/vexx/Repos/juno/x/mint/module/debug_container.dot

@@ -107,19 +107,17 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 		s.Require().NoError(err)
 
 		// Create the validator
+		valAddr := sdk.ValAddress(valPub.Address().Bytes())
 		val, err := stakingtypes.NewValidator(
-			valPub.Address().String(),
+			valAddr.String(),
 			valPub,
 			createMsg.Description,
 		)
 		s.Require().NoError(err)
 
 		// Set the validator
-		s.stakingKeeper.SetValidator(s.ctx, val)
+		err = s.stakingKeeper.SetValidator(s.ctx, val)
 		s.Require().NoError(err)
-
-		// Edit validator params
-		valAddr := sdk.ValAddress(valPub.Address())
 		newRate := sdkmath.LegacyMustNewDecFromStr(maxChangeRate)
 		minDelegation := sdkmath.OneInt()
 
@@ -161,7 +159,7 @@ func getChangeRate(i int) string {
 func createValidatorMsg(maxChangeRate string) (cryptotypes.PubKey, *stakingtypes.MsgCreateValidator, error) {
 	// Create validator params
 	valPub := secp256k1.GenPrivKey().PubKey()
-	valAddr := sdk.ValAddress(valPub.Address())
+	valAddr := sdk.ValAddress(valPub.Address().Bytes())
 	bondDenom := "ujuno"
 	selfBond := sdk.NewCoins(sdk.Coin{Amount: sdkmath.NewInt(100), Denom: bondDenom})
 	stakingCoin := sdk.NewCoin(bondDenom, selfBond[0].Amount)
