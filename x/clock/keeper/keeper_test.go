@@ -33,7 +33,7 @@ type KeeperTestSuite struct {
 
 func (s *KeeperTestSuite) SetupTest() {
 	isCheckTx := false
-	s.app = testutil.Setup(isCheckTx, s.T())
+	s.app = testutil.Setup(isCheckTx, s.T(), false)
 	s.ctx = s.app.BaseApp.NewContext(false)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
@@ -55,9 +55,12 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 //go:embed testdata/clock_example.wasm
-var wasmContract []byte
+var clockContract []byte
 
-func (s *KeeperTestSuite) StoreCode() {
+//go:embed testdata/cw_testburn.wasm
+var burnContract []byte
+
+func (s *KeeperTestSuite) StoreCode(wasmContract []byte) {
 	_, _, sender := testdata.KeyTestPubAddr()
 	msg := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
 		m.WASMByteCode = wasmContract
@@ -78,7 +81,7 @@ func (s *KeeperTestSuite) StoreCode() {
 	s.Require().Equal(wasmtypes.DefaultParams().InstantiateDefaultPermission.With(sender), info.InstantiateConfig)
 }
 
-func (s *KeeperTestSuite) InstantiateContract(sender string, admin string) string {
+func (s *KeeperTestSuite) InstantiateContract(sender string, admin string, wasmContract []byte) string {
 	msgStoreCode := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
 		m.WASMByteCode = wasmContract
 		m.Sender = sender

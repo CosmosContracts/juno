@@ -43,7 +43,7 @@ type KeeperTestSuite struct {
 
 func (s *KeeperTestSuite) SetupTest() {
 	isCheckTx := false
-	s.app = testutil.Setup(isCheckTx, s.T())
+	s.app = testutil.Setup(isCheckTx, s.T(), false)
 	s.ctx = s.app.BaseApp.NewContext(isCheckTx)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())

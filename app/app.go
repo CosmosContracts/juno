@@ -108,6 +108,7 @@ type App struct {
 	appCodec          codec.Codec
 	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
+	homePath          string
 
 	// keepers
 	AppKeepers keepers.AppKeepers
@@ -127,6 +128,7 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
+	homePath string,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
@@ -167,6 +169,7 @@ func New(
 		txConfig:          txConfig,
 		interfaceRegistry: interfaceRegistry,
 	}
+	app.homePath = homePath
 
 	app.AppKeepers = keepers.NewAppKeepers(
 		appCodec,
@@ -176,6 +179,7 @@ func New(
 		appOpts,
 		wasmOpts,
 		app.GetChainBondDenom(),
+		app.homePath,
 	)
 
 	// load state streaming if enabled
@@ -294,8 +298,6 @@ func New(
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(
 			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
-			// https://github.com/cosmos/ibc-go/pull/5439
-			wasmlckeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmClientKeeper),
 		)
 		if err != nil {
 			panic("failed to register snapshot extension: " + err.Error())

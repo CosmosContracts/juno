@@ -38,7 +38,7 @@ type AnteTestSuite struct {
 
 func (s *AnteTestSuite) SetupTest() {
 	isCheckTx := false
-	s.app = testutil.Setup(isCheckTx, s.T())
+	s.app = testutil.Setup(isCheckTx, s.T(), false)
 	s.ctx = s.app.BaseApp.NewContext(isCheckTx)
 
 	s.stakingKeeper = s.app.AppKeepers.StakingKeeper

@@ -43,7 +43,7 @@ func CreateV27UpgradeHandler(
 func sendMEVtoCommunityPool(ctx context.Context, k *keepers.AppKeepers, logger log.Logger) error {
 	mevModuleAddress := sdk.MustAccAddressFromBech32(mevModuleAccount)
 	mevModuleTokenAmount, ok := sdkmath.NewIntFromString(mevModuleAmount)
-	if ok != true {
+	if !ok {
 		return fmt.Errorf("v27: failed to parse MEV module token amount")
 	}
 	coins := sdk.NewCoins(

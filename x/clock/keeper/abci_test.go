@@ -1,12 +1,7 @@
 package keeper_test
 
 import (
-	"crypto/sha256"
 	"encoding/json"
-	"testing"
-
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/stretchr/testify/suite"
 
 	_ "embed"
 
@@ -14,96 +9,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-
-	"github.com/CosmosContracts/juno/v27/app"
-	"github.com/CosmosContracts/juno/v27/testutil"
 
 	"github.com/CosmosContracts/juno/v27/x/clock/keeper"
 	"github.com/CosmosContracts/juno/v27/x/clock/types"
 )
 
-type EndBlockerTestSuite struct {
-	suite.Suite
-
-	ctx sdk.Context
-	app *app.App
-}
-
-func TestEndBlockerTestSuite(t *testing.T) {
-	suite.Run(t, new(EndBlockerTestSuite))
-}
-
-func (s *EndBlockerTestSuite) SetupTest() {
-	app := testutil.Setup(false, s.T())
-	ctx := app.BaseApp.NewContext(false)
-
-	s.app = app
-	s.ctx = ctx
-}
-
-func (s *EndBlockerTestSuite) StoreCode(wasmContract []byte) {
-	_, _, sender := testdata.KeyTestPubAddr()
-	msg := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
-		m.WASMByteCode = wasmContract
-		m.Sender = sender.String()
-	})
-	rsp, err := s.app.MsgServiceRouter().Handler(msg)(s.ctx, msg)
-	s.Require().NoError(err)
-	var result wasmtypes.MsgStoreCodeResponse
-	s.Require().NoError(s.app.AppCodec().Unmarshal(rsp.Data, &result))
-	s.Require().Equal(uint64(1), result.CodeID)
-	expHash := sha256.Sum256(wasmContract)
-	s.Require().Equal(expHash[:], result.Checksum)
-	// and
-	info := s.app.AppKeepers.WasmKeeper.GetCodeInfo(s.ctx, 1)
-	s.Require().NotNil(info)
-	s.Require().Equal(expHash[:], info.CodeHash)
-	s.Require().Equal(sender.String(), info.Creator)
-	s.Require().Equal(wasmtypes.DefaultParams().InstantiateDefaultPermission.With(sender), info.InstantiateConfig)
-}
-
-//go:embed testdata/clock_example.wasm
-var clockContract []byte
-
-//go:embed testdata/cw_testburn.wasm
-var burnContract []byte
-
-func (s *EndBlockerTestSuite) InstantiateContract(sender string, admin string) string {
-	msgStoreCode := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
-		m.WASMByteCode = clockContract
-		m.Sender = sender
-	})
-	_, err := s.app.MsgServiceRouter().Handler(msgStoreCode)(s.ctx, msgStoreCode)
-	s.Require().NoError(err)
-
-	msgInstantiate := wasmtypes.MsgInstantiateContractFixture(func(m *wasmtypes.MsgInstantiateContract) {
-		m.Sender = sender
-		m.Admin = admin
-		m.Msg = []byte(`{}`)
-	})
-	resp, err := s.app.MsgServiceRouter().Handler(msgInstantiate)(s.ctx, msgInstantiate)
-	s.Require().NoError(err)
-	var result wasmtypes.MsgInstantiateContractResponse
-	s.Require().NoError(s.app.AppCodec().Unmarshal(resp.Data, &result))
-	contractInfo := s.app.AppKeepers.WasmKeeper.GetContractInfo(s.ctx, sdk.MustAccAddressFromBech32(result.Address))
-	s.Require().Equal(contractInfo.CodeID, uint64(1))
-	s.Require().Equal(contractInfo.Admin, admin)
-	s.Require().Equal(contractInfo.Creator, sender)
-
-	return result.Address
-}
-
-func (s *EndBlockerTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
-	if err := s.app.AppKeepers.BankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
-		return err
-	}
-
-	return s.app.AppKeepers.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
-}
-
 // Register a contract. You must store the contract code before registering.
-func (s *EndBlockerTestSuite) registerContract() string {
+func (s *KeeperTestSuite) registerContract() string {
 	// Create & fund accounts
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
@@ -111,7 +23,7 @@ func (s *EndBlockerTestSuite) registerContract() string {
 	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Instantiate contract
-	contractAddress := s.InstantiateContract(sender.String(), admin.String())
+	contractAddress := s.InstantiateContract(sender.String(), admin.String(), clockContract)
 
 	// Register contract
 	clockKeeper := s.app.AppKeepers.ClockKeeper
@@ -131,7 +43,7 @@ func (s *EndBlockerTestSuite) registerContract() string {
 
 // Test the end blocker. This test registers a contract, executes it with enough gas,
 // too little gas, and also ensures the unjailing process functions.
-func (s *EndBlockerTestSuite) TestEndBlocker() {
+func (s *KeeperTestSuite) TestEndBlocker() {
 	// Setup test
 	clockKeeper := s.app.AppKeepers.ClockKeeper
 	s.StoreCode(clockContract)
@@ -183,7 +95,7 @@ func (s *EndBlockerTestSuite) TestEndBlocker() {
 }
 
 // Test a contract which does not handle the sudo EndBlock msg.
-func (s *EndBlockerTestSuite) TestInvalidContract() {
+func (s *KeeperTestSuite) TestInvalidContract() {
 	// Setup test
 	clockKeeper := s.app.AppKeepers.ClockKeeper
 	s.StoreCode(burnContract)
@@ -199,7 +111,7 @@ func (s *EndBlockerTestSuite) TestInvalidContract() {
 }
 
 // Test the endblocker with numerous contracts that all panic
-func (s *EndBlockerTestSuite) TestPerformance() {
+func (s *KeeperTestSuite) TestPerformance() {
 	s.StoreCode(burnContract)
 
 	numContracts := 1000
@@ -228,7 +140,7 @@ func (s *EndBlockerTestSuite) TestPerformance() {
 }
 
 // Update the gas limit
-func (s *EndBlockerTestSuite) updateGasLimit(gasLimit uint64) {
+func (s *KeeperTestSuite) updateGasLimit(gasLimit uint64) {
 	params := types.DefaultParams()
 	params.ContractGasLimit = gasLimit
 	k := s.app.AppKeepers.ClockKeeper
@@ -241,14 +153,14 @@ func (s *EndBlockerTestSuite) updateGasLimit(gasLimit uint64) {
 }
 
 // Call the end blocker, incrementing the block height
-func (s *EndBlockerTestSuite) callEndBlocker() {
+func (s *KeeperTestSuite) callEndBlocker() {
 	err := keeper.EndBlocker(s.ctx, s.app.AppKeepers.ClockKeeper)
 	s.Require().NoError(err)
 	s.ctx = s.ctx.WithBlockHeight(s.ctx.BlockHeight() + 1)
 }
 
 // Query the clock contract
-func (s *EndBlockerTestSuite) queryContract(contractAddress string) int64 {
+func (s *KeeperTestSuite) queryContract(contractAddress string) int64 {
 	query := `{"get_config":{}}`
 	output, err := s.app.AppKeepers.WasmKeeper.QuerySmart(s.ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(query))
 	s.Require().NoError(err)

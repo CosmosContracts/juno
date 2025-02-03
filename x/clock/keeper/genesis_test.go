@@ -2,37 +2,11 @@ package keeper_test
 
 import (
 	"fmt"
-	"testing"
 
-	"github.com/stretchr/testify/suite"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/CosmosContracts/juno/v27/app"
-	"github.com/CosmosContracts/juno/v27/testutil"
 	"github.com/CosmosContracts/juno/v27/x/clock/types"
 )
 
-type GenesisTestSuite struct {
-	suite.Suite
-
-	ctx sdk.Context
-	app *app.App
-}
-
-func TestGenesisTestSuite(t *testing.T) {
-	suite.Run(t, new(GenesisTestSuite))
-}
-
-func (s *GenesisTestSuite) SetupTest() {
-	app := testutil.Setup(false, s.T())
-	ctx := app.BaseApp.NewContext(false)
-
-	s.app = app
-	s.ctx = ctx
-}
-
-func (s *GenesisTestSuite) TestClockInitGenesis() {
+func (s *KeeperTestSuite) TestClockInitGenesis() {
 	testCases := []struct {
 		name    string
 		genesis types.GenesisState

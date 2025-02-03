@@ -3,46 +3,22 @@ package testutil
 import (
 	"crypto/rand"
 	"fmt"
+	"time"
 
+	coreheader "cosmossdk.io/core/header"
 	log2 "cosmossdk.io/log"
 	"cosmossdk.io/store"
 	"cosmossdk.io/store/metrics"
 	"cosmossdk.io/store/rootmulti"
-	"cosmossdk.io/store/types"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	db2 "github.com/cosmos/cosmos-db"
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/suite"
 
 	"github.com/CosmosContracts/juno/v27/app"
-	minttypes "github.com/CosmosContracts/juno/v27/x/mint/types"
 )
-
-type KeeperTestHelper struct {
-	suite.Suite
-
-	App *app.App
-	Ctx sdk.Context
-	// Used for testing queries end to end.
-	// You can wrap this in a module-specific QueryClient()
-	// and then make calls as you would a normal GRPC client.
-	QueryHelper *baseapp.QueryServiceTestHelper
-}
-
-// Setup sets up basic environment for suite (App, Ctx, and test accounts)
-func (s *KeeperTestHelper) Setup() {
-	s.App = Setup(false, s.T())
-	ctx := s.App.BaseApp.NewUncachedContext(false, tmtypes.Header{})
-	s.Ctx = ctx.WithBlockGasMeter(types.NewInfiniteGasMeter())
-
-	s.QueryHelper = &baseapp.QueryServiceTestHelper{
-		GRPCQueryRouter: s.App.GRPCQueryRouter(),
-		Ctx:             s.Ctx,
-	}
-}
 
 // SetupAddr takes a balance, prefix, and address number. Then returns the respective account address byte array.
 // If prefix is left blank, it will be replaced with a random prefix.
@@ -54,20 +30,12 @@ func SetupAddr(index int) sdk.AccAddress {
 	return addr
 }
 
-func (s *KeeperTestHelper) SetupAddr(index int) sdk.AccAddress {
-	return SetupAddr(index)
-}
-
 func SetupAddrs(numAddrs int) []sdk.AccAddress {
 	addrs := make([]sdk.AccAddress, numAddrs)
 	for i := 0; i < numAddrs; i++ {
 		addrs[i] = SetupAddr(i)
 	}
 	return addrs
-}
-
-func (s *KeeperTestHelper) SetupAddrs(numAddrs int) []sdk.AccAddress {
-	return SetupAddrs(numAddrs)
 }
 
 // These are for testing msg.ValidateBasic() functions
@@ -82,13 +50,13 @@ func GenerateTestAddrs() (string, string) {
 }
 
 // CreateTestContext creates a test context.
-func (s *KeeperTestHelper) CreateTestContext() sdk.Context {
-	ctx, _ := s.CreateTestContextWithMultiStore()
+func CreateTestContext() sdk.Context {
+	ctx, _ := CreateTestContextWithMultiStore()
 	return ctx
 }
 
 // CreateTestContextWithMultiStore creates a test context and returns it together with multi store.
-func (s *KeeperTestHelper) CreateTestContextWithMultiStore() (sdk.Context, store.CommitMultiStore) {
+func CreateTestContextWithMultiStore() (sdk.Context, store.CommitMultiStore) {
 	db := db2.NewMemDB()
 	logger := log2.NewNopLogger()
 
@@ -98,27 +66,24 @@ func (s *KeeperTestHelper) CreateTestContextWithMultiStore() (sdk.Context, store
 }
 
 // CreateTestContext creates a test context.
-func (s *KeeperTestHelper) Commit() {
-	// TODO: s.App.EndBlock(abci.RequestEndBlock{Height: s.Ctx.BlockHeight()})
-	// oldHeight := s.Ctx.BlockHeight()
-	// oldHeader := s.Ctx.BlockHeader()
-	if _, err := s.App.Commit(); err != nil {
+func Commit(app *app.App, ctx sdk.Context) sdk.Context {
+	_, err := app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: ctx.BlockHeight(), Time: ctx.BlockTime()})
+	if err != nil {
 		panic(err)
 	}
-	// newHeader := tmtypes.Header{
-	//	Height:  oldHeight + 1,
-	//	ChainID: oldHeader.ChainID,
-	//	Time:    oldHeader.Time.Add(time.Minute),
-	//}
-	//TODO: s.App.BeginBlock(abci.RequestBeginBlock{Header: newHeader})
-	s.Ctx = s.App.BaseApp.NewContext(false)
-}
+	_, err = app.Commit()
+	if err != nil {
+		panic(err)
+	}
 
-// FundAcc funds target address with specified amount.
-func (s *KeeperTestHelper) FundAcc(acc sdk.AccAddress, amounts sdk.Coins) {
-	err := s.App.AppKeepers.BankKeeper.MintCoins(s.Ctx, minttypes.ModuleName, amounts)
-	s.Require().NoError(err)
+	newBlockTime := ctx.BlockTime().Add(time.Second)
 
-	err = s.App.AppKeepers.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, minttypes.ModuleName, acc, amounts)
-	s.Require().NoError(err)
+	header := ctx.BlockHeader()
+	header.Time = newBlockTime
+	header.Height++
+
+	return app.BaseApp.NewUncachedContext(false, header).WithHeaderInfo(coreheader.Info{
+		Height: header.Height,
+		Time:   header.Time,
+	})
 }

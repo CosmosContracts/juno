@@ -145,8 +145,10 @@ func GenerateGenesisAccounts(numAccounts int) []authtypes.GenesisAccount {
 	return genAccs
 }
 
-func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string, t *testing.T) *junoapp.App {
-	t.Helper()
+func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string, t *testing.T, simultaneously bool) *junoapp.App {
+	if simultaneously {
+		t.Helper()
+	}
 
 	db := cosmosdb.NewMemDB()
 	var (
@@ -167,6 +169,7 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string, t *testi
 		db,
 		nil,
 		true,
+		dir,
 		appOpts,
 		[]wasmkeeper.Option{},
 		baseapp.SetChainID(chainId),
@@ -204,8 +207,8 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string, t *testi
 }
 
 // Setup initializes a new App.
-func Setup(isCheckTx bool, t *testing.T) *junoapp.App {
-	return SetupWithCustomHomeAndChainId(isCheckTx, junoapp.DefaultNodeHome, "juno-1", t)
+func Setup(isCheckTx bool, t *testing.T, simultaneously bool) *junoapp.App {
+	return SetupWithCustomHomeAndChainId(isCheckTx, junoapp.DefaultNodeHome, "juno-1", t, simultaneously)
 }
 
 // SetupTestingAppWithLevelDb initializes a new App intended for testing,
@@ -220,7 +223,7 @@ func SetupTestingAppWithLevelDb(isCheckTx bool) (app *junoapp.App, cleanupFn fun
 		panic(err)
 	}
 
-	app = junoapp.New(log.NewNopLogger(), db, nil, true, sims.EmptyAppOptions{}, []wasmkeeper.Option{}, baseapp.SetChainID("juno-1"))
+	app = junoapp.New(log.NewNopLogger(), db, nil, true, dir, sims.EmptyAppOptions{}, []wasmkeeper.Option{}, baseapp.SetChainID("juno-1"))
 	if !isCheckTx {
 		valSet := GenerateValidatorSet(1)
 		genesisState := junoapp.NewDefaultGenesisState(app.AppCodec())

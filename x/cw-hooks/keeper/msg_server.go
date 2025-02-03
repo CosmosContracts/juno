@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/errors"
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,7 +32,7 @@ func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.Authority); err != nil {
-		return nil, errors.Wrap(err, "invalid authority address")
+		return nil, errorsmod.Wrap(err, "invalid authority address")
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -48,11 +47,11 @@ func (k msgServer) RegisterStaking(goCtx context.Context, req *types.MsgRegister
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if _, err := sdk.AccAddressFromBech32(req.RegisterAddress); err != nil {
-		return nil, errors.Wrap(err, "invalid register address")
+		return nil, errorsmod.Wrap(err, "invalid register address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, errors.Wrap(err, "invalid contract address")
+		return nil, errorsmod.Wrap(err, "invalid contract address")
 	}
 
 	if err := k.handleContractRegister(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixStaking, "staking"); err != nil {
@@ -66,11 +65,11 @@ func (k msgServer) RegisterGovernance(goCtx context.Context, req *types.MsgRegis
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if _, err := sdk.AccAddressFromBech32(req.RegisterAddress); err != nil {
-		return nil, errors.Wrap(err, "invalid register address")
+		return nil, errorsmod.Wrap(err, "invalid register address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, errors.Wrap(err, "invalid contract address")
+		return nil, errorsmod.Wrap(err, "invalid contract address")
 	}
 
 	if err := k.handleContractRegister(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixGov, "governance"); err != nil {
@@ -84,11 +83,11 @@ func (k msgServer) UnregisterGovernance(goCtx context.Context, req *types.MsgUnr
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if _, err := sdk.AccAddressFromBech32(req.RegisterAddress); err != nil {
-		return nil, errors.Wrap(err, "invalid register address")
+		return nil, errorsmod.Wrap(err, "invalid register address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, errors.Wrap(err, "invalid contract address")
+		return nil, errorsmod.Wrap(err, "invalid contract address")
 	}
 
 	if err := k.handleContractRemoval(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixGov, "governance"); err != nil {
@@ -102,11 +101,11 @@ func (k msgServer) UnregisterStaking(goCtx context.Context, req *types.MsgUnregi
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if _, err := sdk.AccAddressFromBech32(req.RegisterAddress); err != nil {
-		return nil, errors.Wrap(err, "invalid register address")
+		return nil, errorsmod.Wrap(err, "invalid register address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, errors.Wrap(err, "invalid contract address")
+		return nil, errorsmod.Wrap(err, "invalid contract address")
 	}
 
 	if err := k.handleContractRemoval(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixStaking, "staking"); err != nil {

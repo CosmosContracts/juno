@@ -20,7 +20,7 @@ import (
 )
 
 func CreateTestInput(t *testing.T) (*app.App, sdk.Context) {
-	osmosis := testutil.Setup(false, t)
+	osmosis := testutil.Setup(false, t, false)
 	ctx := osmosis.BaseApp.NewContext(false)
 	return osmosis, ctx
 }

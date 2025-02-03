@@ -3,6 +3,8 @@ package v27
 import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/CosmosContracts/juno/v27/app/upgrades"
+
+	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 )
 
 const UpgradeName = "v27"
@@ -15,5 +17,10 @@ const (
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateV27UpgradeHandler,
-	StoreUpgrades:        storetypes.StoreUpgrades{},
+	StoreUpgrades: storetypes.StoreUpgrades{
+		Deleted: []string{
+			wasmlctypes.ModuleName,
+			"builder",
+		},
+	},
 }

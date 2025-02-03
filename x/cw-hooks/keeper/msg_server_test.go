@@ -214,7 +214,6 @@ func (s *KeeperTestSuite) TestContractExecution() {
 
 	c := types.Contract{
 		ContractAddress: contractAddress,
-		RegisterAddress: sender.String(),
 	}
 
 	_, err := s.msgServer.RegisterStaking(s.ctx, &types.MsgRegisterStaking{
@@ -229,6 +228,7 @@ func (s *KeeperTestSuite) TestContractExecution() {
 	s.Require().Contains(resp.Contracts, c.ContractAddress)
 
 	vals, err := s.stakingKeeper.GetValidators(s.ctx, 1)
+	s.Require().NoError(err)
 	val := vals[0]
 
 	// == Delegate Tokens ==

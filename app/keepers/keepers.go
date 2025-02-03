@@ -3,7 +3,6 @@ package keepers
 import (
 	"fmt"
 	"math"
-	"path"
 	"path/filepath"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -23,8 +22,6 @@ import (
 	ibc_hooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
 	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/keeper"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/types"
-	wasmlckeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
-	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	icacontroller "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
@@ -52,7 +49,6 @@ import (
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -169,7 +165,6 @@ type AppKeepers struct {
 	ContractKeeper      wasmtypes.ContractOpsKeeper
 	ClockKeeper         clockkeeper.Keeper
 	CWHooksKeeper       cwhookskeeper.Keeper
-	WasmClientKeeper    wasmlckeeper.Keeper
 
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -203,6 +198,7 @@ func NewAppKeepers(
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
 	bondDenom string,
+	homePath string,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -222,6 +218,8 @@ func NewAppKeepers(
 	bech32Prefix := sdk.GetConfig().GetBech32AccountAddrPrefix()
 	ac := authcodec.NewBech32Codec(bech32Prefix)
 	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
+	dataDir := filepath.Join(homePath, "data")
+	wasmDir := filepath.Join(dataDir, "wasm")
 
 	// set the BaseApp's parameter store
 	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(
@@ -319,8 +317,7 @@ func NewAppKeepers(
 	for _, h := range cast.ToIntSlice(appOpts.Get(server.FlagUnsafeSkipUpgrades)) {
 		skipUpgradeHeights[int64(h)] = true
 	}
-	homePath := cast.ToString(appOpts.Get(flags.FlagHome))
-	// set the governance module account as the authority for conducting upgrades
+
 	appKeepers.UpgradeKeeper = upgradekeeper.NewKeeper(
 		skipUpgradeHeights,
 		runtime.NewKVStoreService(appKeepers.keys[upgradetypes.StoreKey]),
@@ -505,8 +502,6 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	dataDir := filepath.Join(homePath, "data")
-
 	wasmConfig, err := wasm.ReadNodeConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
@@ -540,15 +535,15 @@ func NewAppKeepers(
 	}
 	wasmOpts = append(wasmOpts, wasmkeeper.WithGasRegister(NewJunoWasmGasRegister()))
 
-	mainWasmer, err := wasmvm.NewVM(path.Join(dataDir, "wasm"), wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	mainWasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create juno wasm vm: %s", err))
 	}
 
-	lcWasmer, err := wasmvm.NewVM(filepath.Join(dataDir, "light-client-wasm"), wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
-	if err != nil {
-		panic(fmt.Sprintf("failed to create juno wasm vm for 08-wasm: %s", err))
-	}
+	// lcWasmer, err := wasmvm.NewVM(lcDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	// if err != nil {
+	// 	panic(fmt.Sprintf("failed to create juno wasm vm for 08-wasm: %s", err))
+	// }
 
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
@@ -570,31 +565,6 @@ func NewAppKeepers(
 		wasmCapabilities,
 		govModAddress,
 		append(wasmOpts, wasmkeeper.WithWasmEngine(mainWasmer))...,
-	)
-
-	// 08-wasm light client
-	accepted := make([]string, 0)
-	for k := range acceptedQueries {
-		accepted = append(accepted, k)
-	}
-
-	wasmLightClientQuerier := wasmlctypes.QueryPlugins{
-		// Custom: MyCustomQueryPlugin(),
-		// `myAcceptList` is a `[]string` containing the list of gRPC query paths that the chain wants to allow for the `08-wasm` module to query.
-		// These queries must be registered in the chain's gRPC query router, be deterministic, and track their gas usage.
-		// The `AcceptListStargateQuerier` function will return a query plugin that will only allow queries for the paths in the `myAcceptList`.
-		// The query responses are encoded in protobuf unlike the implementation in `x/wasm`.
-		Stargate: wasmlctypes.AcceptListStargateQuerier(accepted),
-	}
-
-	appKeepers.WasmClientKeeper = wasmlckeeper.NewKeeperWithVM(
-		appCodec,
-		runtime.NewKVStoreService(appKeepers.keys[wasmlctypes.StoreKey]),
-		appKeepers.IBCKeeper.ClientKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		lcWasmer,
-		bApp.GRPCQueryRouter(),
-		wasmlckeeper.WithQueryPlugins(&wasmLightClientQuerier),
 	)
 
 	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
@@ -758,26 +728,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 func (appKeepers *AppKeepers) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := appKeepers.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
-}
-
-// GetStakingKeeper implements the TestingApp interface.
-func (appKeepers *AppKeepers) GetStakingKeeper() *stakingkeeper.Keeper {
-	return appKeepers.StakingKeeper
-}
-
-// GetIBCKeeper implements the TestingApp interface.
-func (appKeepers *AppKeepers) GetIBCKeeper() *ibckeeper.Keeper {
-	return appKeepers.IBCKeeper
-}
-
-// GetScopedIBCKeeper implements the TestingApp interface.
-func (appKeepers *AppKeepers) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
-	return appKeepers.ScopedIBCKeeper
-}
-
-// GetWasmKeeper implements the TestingApp interface.
-func (appKeepers *AppKeepers) GetWasmKeeper() wasmkeeper.Keeper {
-	return appKeepers.WasmKeeper
 }
 
 // BlockedAddresses returns all the app's blocked account addresses.

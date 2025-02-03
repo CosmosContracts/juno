@@ -54,7 +54,7 @@ func (s *KeeperTestSuite) TestQueryClockContracts() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	s.StoreCode()
+	s.StoreCode(clockContract)
 
 	for _, tc := range []struct {
 		desc      string
@@ -67,15 +67,15 @@ func (s *KeeperTestSuite) TestQueryClockContracts() {
 		{
 			desc: "On Single",
 			contracts: []string{
-				s.InstantiateContract(addr.String(), ""),
+				s.InstantiateContract(addr.String(), "", clockContract),
 			},
 		},
 		{
 			desc: "On Multiple",
 			contracts: []string{
-				s.InstantiateContract(addr.String(), ""),
-				s.InstantiateContract(addr.String(), ""),
-				s.InstantiateContract(addr.String(), ""),
+				s.InstantiateContract(addr.String(), "", clockContract),
+				s.InstantiateContract(addr.String(), "", clockContract),
+				s.InstantiateContract(addr.String(), "", clockContract),
 			},
 		},
 	} {
@@ -110,7 +110,7 @@ func (s *KeeperTestSuite) TestQueryJailedClockContracts() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	s.StoreCode()
+	s.StoreCode(clockContract)
 
 	for _, tc := range []struct {
 		desc      string
@@ -123,15 +123,15 @@ func (s *KeeperTestSuite) TestQueryJailedClockContracts() {
 		{
 			desc: "On Single",
 			contracts: []string{
-				s.InstantiateContract(addr.String(), ""),
+				s.InstantiateContract(addr.String(), "", clockContract),
 			},
 		},
 		{
 			desc: "On Multiple",
 			contracts: []string{
-				s.InstantiateContract(addr.String(), ""),
-				s.InstantiateContract(addr.String(), ""),
-				s.InstantiateContract(addr.String(), ""),
+				s.InstantiateContract(addr.String(), "", clockContract),
+				s.InstantiateContract(addr.String(), "", clockContract),
+				s.InstantiateContract(addr.String(), "", clockContract),
 			},
 		},
 	} {
@@ -144,8 +144,7 @@ func (s *KeeperTestSuite) TestQueryJailedClockContracts() {
 			}
 
 			// Contracts check
-			goCtx := sdk.WrapSDKContext(s.ctx)
-			resp, err := s.queryClient.ClockContracts(goCtx, &types.QueryClockContractsRequest{})
+			resp, err := s.queryClient.ClockContracts(s.ctx, &types.QueryClockContractsRequest{})
 
 			// Response check
 			s.Require().NoError(err)
@@ -169,15 +168,15 @@ func (s *KeeperTestSuite) TestQueryClockContract() {
 	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 	_, _, invalidAddr := testdata.KeyTestPubAddr()
 
-	s.StoreCode()
+	s.StoreCode(clockContract)
 
-	unjailedContract := s.InstantiateContract(addr.String(), "")
+	unjailedContract := s.InstantiateContract(addr.String(), "", clockContract)
 	_ = s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
 		ContractAddress: unjailedContract,
 		IsJailed:        false,
 	})
 
-	jailedContract := s.InstantiateContract(addr.String(), "")
+	jailedContract := s.InstantiateContract(addr.String(), "", clockContract)
 	_ = s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
 		ContractAddress: jailedContract,
 		IsJailed:        true,

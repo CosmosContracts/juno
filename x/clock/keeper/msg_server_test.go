@@ -17,9 +17,9 @@ func (s *KeeperTestSuite) TestRegisterClockContract() {
 	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Store code
-	s.StoreCode()
-	contractAddress := s.InstantiateContract(addr.String(), "")
-	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String())
+	s.StoreCode(clockContract)
+	contractAddress := s.InstantiateContract(addr.String(), "", clockContract)
+	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String(), clockContract)
 
 	for _, tc := range []struct {
 		desc     string
@@ -112,9 +112,9 @@ func (s *KeeperTestSuite) TestUnregisterClockContract() {
 	_, _, addr2 := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	s.StoreCode()
-	contractAddress := s.InstantiateContract(addr.String(), "")
-	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String())
+	s.StoreCode(clockContract)
+	contractAddress := s.InstantiateContract(addr.String(), "", clockContract)
+	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String(), clockContract)
 
 	for _, tc := range []struct {
 		desc     string
@@ -194,8 +194,8 @@ func (s *KeeperTestSuite) TestDuplicateRegistrationChecks() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	s.StoreCode()
-	contractAddress := s.InstantiateContract(addr.String(), "")
+	s.StoreCode(clockContract)
+	contractAddress := s.InstantiateContract(addr.String(), "", clockContract)
 
 	// Test double register, first succeed, second fail
 	_, err := s.clockMsgServer.RegisterClockContract(s.ctx, &types.MsgRegisterClockContract{
@@ -230,9 +230,9 @@ func (s *KeeperTestSuite) TestUnjailClockContract() {
 	_, _, addr2 := testdata.KeyTestPubAddr()
 	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	s.StoreCode()
-	contractAddress := s.InstantiateContract(addr.String(), "")
-	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String())
+	s.StoreCode(clockContract)
+	contractAddress := s.InstantiateContract(addr.String(), "", clockContract)
+	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String(), clockContract)
 
 	for _, tc := range []struct {
 		desc     string

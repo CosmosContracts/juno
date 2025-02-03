@@ -76,6 +76,7 @@ func NewRootCmd() *cobra.Command {
 		dbm.NewMemDB(),
 		nil,
 		true,
+		tempDir,
 		simtestutil.NewAppOptionsWithFlagHome(tempDir),
 		[]wasmkeeper.Option{},
 	)

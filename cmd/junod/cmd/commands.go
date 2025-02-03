@@ -124,11 +124,17 @@ func newApp(
 
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		homePath = app.DefaultNodeHome
+	}
+
 	return app.New(
 		logger,
 		db,
 		traceStore,
 		loadLatest,
+		homePath,
 		appOpts,
 		wasmOpts,
 		baseappOptions...,
@@ -158,6 +164,7 @@ func appExport(
 		db,
 		traceStore,
 		loadLatest,
+		homePath,
 		appOpts,
 		emptyWasmOpts,
 	)
