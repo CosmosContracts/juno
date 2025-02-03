@@ -206,10 +206,6 @@ func New(
 
 	app.configurator = module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.ModuleManager = module.NewManager(appModules(app, txConfig, appCodec, skipGenesisInvariants)...)
-	err = app.ModuleManager.RegisterServices(app.configurator)
-	if err != nil {
-		panic(err)
-	}
 
 	app.BasicModuleManager = module.NewBasicManagerFromManager(
 		app.ModuleManager,
@@ -225,6 +221,10 @@ func New(
 	app.BasicModuleManager.RegisterLegacyAminoCodec(legacyAmino)
 	app.BasicModuleManager.RegisterInterfaces(interfaceRegistry)
 
+	err = app.ModuleManager.RegisterServices(app.configurator)
+	if err != nil {
+		panic(err)
+	}
 	app.ModuleManager.SetOrderPreBlockers(
 		upgradetypes.ModuleName,
 	)
@@ -259,21 +259,23 @@ func New(
 				SignModeHandler: app.txConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			GovKeeper:             app.AppKeepers.GovKeeper,
-			IBCKeeper:             app.AppKeepers.IBCKeeper,
-			FeePayKeeper:          app.AppKeepers.FeePayKeeper,
-			FeeShareKeeper:        app.AppKeepers.FeeShareKeeper,
-			BankKeeper:            app.AppKeepers.BankKeeper,
+			Cdc:           appCodec,
+			TxEncoder:     app.txConfig.TxEncoder(),
+			GovKeeper:     app.AppKeepers.GovKeeper,
+			StakingKeeper: *app.AppKeepers.StakingKeeper,
+			BondDenom:     app.GetChainBondDenom(),
+			BankKeeper:    app.AppKeepers.BankKeeper,
+
+			IBCKeeper: app.AppKeepers.IBCKeeper,
+
 			TXCounterStoreService: runtime.NewKVStoreService(app.AppKeepers.GetKey(wasmtypes.StoreKey)),
 			NodeConfig:            &nodeConfig,
-			Cdc:                   appCodec,
+			WasmKeeper:            &app.AppKeepers.WasmKeeper,
 
+			FeePayKeeper:         app.AppKeepers.FeePayKeeper,
+			FeeShareKeeper:       app.AppKeepers.FeeShareKeeper,
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
 			GlobalFeeKeeper:      app.AppKeepers.GlobalFeeKeeper,
-			StakingKeeper:        *app.AppKeepers.StakingKeeper,
-
-			TxEncoder: app.txConfig.TxEncoder(),
-			BondDenom: app.GetChainBondDenom(),
 		},
 	)
 	if err != nil {

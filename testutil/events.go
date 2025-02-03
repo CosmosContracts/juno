@@ -2,7 +2,6 @@ package testutil
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"golang.org/x/exp/slices"
 )
 
 // AssertEventEmitted asserts that ctx's event manager has emitted the given number of events
@@ -17,15 +16,6 @@ func (s *KeeperTestHelper) AssertEventEmitted(ctx sdk.Context, eventTypeExpected
 		}
 	}
 	s.Equal(numEventsExpected, len(actualEvents))
-}
-
-func (s *KeeperTestHelper) FindEvent(events []sdk.Event, name string) sdk.Event {
-	index := slices.IndexFunc(events, func(e sdk.Event) bool { return e.Type == name })
-	if index == -1 {
-		return sdk.Event{}
-	}
-
-	return events[index]
 }
 
 func (s *KeeperTestHelper) ExtractAttributes(event sdk.Event) map[string]string {

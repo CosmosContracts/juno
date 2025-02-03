@@ -34,38 +34,38 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod: "RegisterStaking",
-					Use:       "register-staking [sender_address] [contract_address]",
+					Use:       "register-staking [contract_address] [register_address]",
 					Short:     "Register a staking contract for sudo message updates",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "sender_address"},
 						{ProtoField: "contract_address"},
+						{ProtoField: "register_address"},
 					},
 				},
 				{
 					RpcMethod: "RegisterGovernance",
-					Use:       "register-governance [sender_address] [contract_address]",
+					Use:       "register-governance [contract_address] [register_address]",
 					Short:     "Register a governance contract for sudo message updates",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "sender_address"},
 						{ProtoField: "contract_address"},
+						{ProtoField: "register_address"},
 					},
 				},
 				{
 					RpcMethod: "UnregisterStaking",
-					Use:       "unregister-staking [sender_address] [contract_address]",
+					Use:       "unregister-staking [contract_address] [register_address]",
 					Short:     "Remove a staking contract from receiving sudo message updates",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "sender_address"},
 						{ProtoField: "contract_address"},
+						{ProtoField: "register_address"},
 					},
 				},
 				{
 					RpcMethod: "UnregisterGovernance",
-					Use:       "unregister-governance [sender_address] [contract_address]",
+					Use:       "unregister-governance [contract_address] [register_address]",
 					Short:     "Remove a governance contract from receiving sudo message updates",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "sender_address"},
 						{ProtoField: "contract_address"},
+						{ProtoField: "register_address"},
 					},
 				},
 				{

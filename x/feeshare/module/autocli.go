@@ -53,31 +53,31 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod: "RegisterFeeShare",
-					Use:       "register [sender_address] [contract_bech32] [withdraw_bech32]",
+					Use:       "register [contract_address] [deployer_address] [withdrawer_address]",
 					Short:     "Register a contract for fee distribution",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "sender_address"},
-						{ProtoField: "contract_bech32"},
-						{ProtoField: "withdraw_bech32"},
+						{ProtoField: "contract_address"},
+						{ProtoField: "deployer_address"},
+						{ProtoField: "withdrawer_address"},
 					},
 				},
 				{
 					RpcMethod: "CancelFeeShare",
-					Use:       "cancel [sender_address] [contract_bech32]",
+					Use:       "cancel [contract_address] [deployer_address]",
 					Short:     "Cancel a contract from feeshare distribution",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "sender_address"},
-						{ProtoField: "contract_bech32"},
+						{ProtoField: "contract_address"},
+						{ProtoField: "deployer_address"},
 					},
 				},
 				{
 					RpcMethod: "UpdateFeeShare",
-					Use:       "update [sender_address] [contract_bech32] [new_withdraw_bech32]",
+					Use:       "update [contract_address] [deployer_address] [withdrawer_address]",
 					Short:     "Update withdrawer address for a contract registered for feeshare distribution",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "sender_address"},
-						{ProtoField: "contract_bech32"},
-						{ProtoField: "new_withdraw_bech32"},
+						{ProtoField: "contract_address"},
+						{ProtoField: "deployer_address"},
+						{ProtoField: "withdrawer_address"},
 					},
 				},
 				{

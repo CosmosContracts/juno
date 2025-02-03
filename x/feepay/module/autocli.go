@@ -55,12 +55,11 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod: "RegisterFeePayContract",
-					Use:       "register [sender_address] [contract_address] [wallet_limit]",
+					Use:       "register [sender_address] [fee_pay_contract]",
 					Short:     "Register a contract for fee pay",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
 						{ProtoField: "sender_address"},
-						{ProtoField: "contract_address"},
-						{ProtoField: "wallet_limit"},
+						{ProtoField: "fee_pay_contract"},
 					},
 				},
 				{

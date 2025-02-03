@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -25,9 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
-	codec "github.com/cosmos/cosmos-sdk/codec"
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -64,6 +63,7 @@ var (
 // main function.
 func NewRootCmd() *cobra.Command {
 	tempDir := tempDir()
+	sdk.DefaultBondDenom = "ujuno"
 	cfg := sdk.GetConfig()
 	cfg.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
 	cfg.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
@@ -164,8 +164,6 @@ func NewRootCmd() *cobra.Command {
 	initRootCmd(
 		rootCmd,
 		tempApp.BasicModuleManager,
-		tempApp.AppCodec(),
-		tempApp.InterfaceRegistry(),
 		tempApp.TxConfig(),
 	)
 
@@ -212,7 +210,8 @@ func initAppConfig() (string, interface{}) {
 	// Optionally allow the chain developer to overwrite the SDK's default
 	// server config.
 	srvCfg := serverconfig.DefaultConfig()
-	// srvCfg.MinGasPrices = "0ujuno,0ujunox" // GlobalFee handles
+	srvCfg.MinGasPrices = strings.Join(
+		[]string{"0.075" + sdk.DefaultBondDenom}, ",")
 
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
@@ -268,8 +267,6 @@ func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
 func initRootCmd(
 	rootCmd *cobra.Command,
 	basicManager module.BasicManager,
-	cdc codec.Codec,
-	interfaceRegistry codectypes.InterfaceRegistry,
 	txConfig client.TxConfig,
 ) {
 	cfg := sdk.GetConfig()

@@ -356,10 +356,10 @@ func NewAppKeepers(
 
 	// register the proposal types
 	govRouter := govv1beta.NewRouter()
-	govRouter.
-		AddRoute(govtypes.RouterKey, govv1beta.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper)) // This should be removed. It is still in place to avoid failures of modules that have not yet been upgraded
 
+	// This should be removed. It is still in place to avoid failures of modules that have not yet been upgraded
+	govRouter.AddRoute(govtypes.RouterKey, govv1beta.ProposalHandler).
+		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper))
 	// Update the max metadata length to be >255
 	govConfig := govtypes.DefaultConfig()
 	govConfig.MaxMetadataLen = math.MaxUint64

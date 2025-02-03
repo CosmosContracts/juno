@@ -24,7 +24,7 @@ export PROFF=${PROFF:-"6060"}
 export P2P=${P2P:-"26656"}
 export GRPC=${GRPC:-"9090"}
 export GRPC_WEB=${GRPC_WEB:-"9091"}
-export TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-"5s"}
+export TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-"3s"}
 
 alias BINARY="$BINARY --home=$HOME_DIR"
 
@@ -81,14 +81,6 @@ from_scratch () {
 
   # FeeShare
   update_test_genesis '.app_state["feeshare"]["params"]["allowed_denoms"]=["ujuno"]'
-
-  # Builder keeper genesis state
-	update_test_genesis '.app_state["builder"]["params"]["front_running_protection"]=false'
-	update_test_genesis '.app_state["builder"]["params"]["max_bundle_size"]="4"'
-	update_test_genesis '.app_state["builder"]["params"]["min_bid_increment"]["denom"]="ujuno"'
-	update_test_genesis '.app_state["builder"]["params"]["min_bid_increment"]["amount"]="1000000"'
-	update_test_genesis '.app_state["builder"]["params"]["reserve_fee"]["denom"]="ujuno"'
-	update_test_genesis '.app_state["builder"]["params"]["reserve_fee"]["amount"]="1000000"'
 
   # Allocate genesis accounts
   BINARY genesis add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
