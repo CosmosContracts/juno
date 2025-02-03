@@ -233,8 +233,7 @@ func (s *EndBlockerTestSuite) updateGasLimit(gasLimit uint64) {
 	params.ContractGasLimit = gasLimit
 	k := s.app.AppKeepers.ClockKeeper
 
-	kv := k.GetStoreService()
-	store := runtime.KVStoreAdapter(kv.OpenKVStore(s.ctx))
+	store := runtime.KVStoreAdapter(k.GetStoreService().OpenKVStore(s.ctx))
 	bz := k.GetCdc().MustMarshal(&params)
 	store.Set(types.ParamsKey, bz)
 

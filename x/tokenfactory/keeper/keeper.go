@@ -109,5 +109,6 @@ func (k Keeper) GetCreatorsPrefixStore(ctx context.Context) legacystoretypes.KVS
 // and sends to the relevant address.
 func (k Keeper) CreateModuleAccount(ctx context.Context) {
 	moduleAcc := authtypes.NewEmptyModuleAccount(types.ModuleName, authtypes.Minter, authtypes.Burner)
-	k.accountKeeper.SetModuleAccount(ctx, moduleAcc)
+	moduleAccI := (k.accountKeeper.NewAccount(ctx, moduleAcc)).(sdk.ModuleAccountI)
+	k.accountKeeper.SetModuleAccount(ctx, moduleAccI)
 }
