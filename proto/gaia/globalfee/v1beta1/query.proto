@@ -25,9 +25,8 @@ message QueryMinimumGasPricesRequest {}
 // Query/MinimumGasPrices RPC method.
 message QueryMinimumGasPricesResponse {
   repeated cosmos.base.v1beta1.DecCoin minimum_gas_prices = 1 [
-    (cosmos_proto.scalar)  = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable)   = false,
-    (amino.dont_omitempty)  = true
+    (amino.dont_omitempty)  = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
   ];
 }
