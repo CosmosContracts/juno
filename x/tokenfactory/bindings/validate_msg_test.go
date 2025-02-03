@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	wasmbinding "github.com/CosmosContracts/juno/v27/x/tokenfactory/bindings"
@@ -196,7 +197,7 @@ func TestMint(t *testing.T) {
 	balances := junoapp.AppKeepers.BankKeeper.GetAllBalances(ctx, lucky)
 	require.Empty(t, balances)
 
-	amount, ok := sdk.NewIntFromString("8080")
+	amount, ok := sdkmath.NewIntFromString("8080")
 	require.True(t, ok)
 
 	specs := map[string]struct {
@@ -237,7 +238,7 @@ func TestMint(t *testing.T) {
 		"zero amount": {
 			mint: &bindings.MintTokens{
 				Denom:         validDenomStr,
-				Amount:        sdk.ZeroInt(),
+				Amount:        sdkmath.ZeroInt(),
 				MintToAddress: lucky.String(),
 			},
 			expErr: true,
@@ -314,7 +315,7 @@ func TestBurn(t *testing.T) {
 
 	validDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), validDenom.Subdenom)
 	emptyDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), emptyDenom.Subdenom)
-	mintAmount, ok := sdk.NewIntFromString("8080")
+	mintAmount, ok := sdkmath.NewIntFromString("8080")
 	require.True(t, ok)
 
 	specs := map[string]struct {
@@ -364,7 +365,7 @@ func TestBurn(t *testing.T) {
 		"zero amount": {
 			burn: &bindings.BurnTokens{
 				Denom:           validDenomStr,
-				Amount:          sdk.ZeroInt(),
+				Amount:          sdkmath.ZeroInt(),
 				BurnFromAddress: creator.String(),
 			},
 			expErr: true,

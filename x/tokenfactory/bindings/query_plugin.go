@@ -101,8 +101,8 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 }
 
 // ConvertSdkCoinsToWasmCoins converts sdk type coins to wasm vm type coins
-func ConvertSdkCoinsToWasmCoins(coins []sdk.Coin) wasmvmtypes.Coins {
-	var toSend wasmvmtypes.Coins
+func ConvertSdkCoinsToWasmCoins(coins []sdk.Coin) []wasmvmtypes.Coin {
+	var toSend []wasmvmtypes.Coin
 	for _, coin := range coins {
 		c := ConvertSdkCoinToWasmCoin(coin)
 		toSend = append(toSend, c)

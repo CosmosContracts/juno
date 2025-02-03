@@ -1,8 +1,9 @@
-package types
+package types_test
 
 import (
 	"testing"
 
+	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
 	"github.com/stretchr/testify/suite"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -20,7 +21,7 @@ func TestCodecSuite(t *testing.T) {
 func (suite *CodecTestSuite) TestRegisterInterfaces() {
 	registry := codectypes.NewInterfaceRegistry()
 	registry.RegisterInterface(sdk.MsgInterfaceProtoName, (*sdk.Msg)(nil))
-	RegisterInterfaces(registry)
+	types.RegisterInterfaces(registry)
 
 	impls := registry.ListImplementations(sdk.MsgInterfaceProtoName)
 	suite.Require().Equal(7, len(impls))

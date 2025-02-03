@@ -31,10 +31,10 @@ var (
 // ConsensusVersion defines the current x/feeshare module consensus version.
 const ConsensusVersion = 2
 
-// AppModuleBasic type for the fees module
+// AppModuleBasic type for the feeshare module
 type AppModuleBasic struct{}
 
-// Name returns the fees module's name.
+// Name returns the feeshare module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
