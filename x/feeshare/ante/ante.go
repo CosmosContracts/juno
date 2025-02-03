@@ -6,23 +6,26 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	feeshare "github.com/CosmosContracts/juno/v27/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v27/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v27/x/feeshare/types"
 )
 
 // FeeSharePayoutDecorator Run his after we already deduct the fee from the account with
 // the ante.NewDeductFeeDecorator() decorator. We pull funds from the FeeCollector ModuleAccount
 type FeeSharePayoutDecorator struct {
-	bankKeeper     BankKeeper
-	feesharekeeper FeeShareKeeper
+	bankKeeper     bankkeeper.Keeper
+	feesharekeeper keeper.Keeper
 }
 
-func NewFeeSharePayoutDecorator(bk BankKeeper, fs FeeShareKeeper) FeeSharePayoutDecorator {
+func NewFeeSharePayoutDecorator(bk bankkeeper.Keeper, fs keeper.Keeper) FeeSharePayoutDecorator {
 	return FeeSharePayoutDecorator{
 		bankKeeper:     bk,
 		feesharekeeper: fs,
@@ -37,7 +40,7 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 	err = fsd.FeeSharePayout(ctx, fsd.bankKeeper, feeTx.GetFee(), fsd.feesharekeeper, tx.GetMsgs())
 	if err != nil {
-		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
+		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, "%s", err.Error())
 	}
 
 	return next(ctx, tx, simulate)
@@ -47,7 +50,7 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 // and the number of contracts we are executing on.
 // This returns the amount of fees each contract developer should get.
 // tested in ante_test.go
-func FeePayLogic(fees sdk.Coins, govPercent sdk.Dec, numPairs int) sdk.Coins {
+func FeePayLogic(fees sdk.Coins, govPercent sdkmath.LegacyDec, numPairs int) sdk.Coins {
 	var splitFees sdk.Coins
 	for _, c := range fees.Sort() {
 		rewardAmount := govPercent.MulInt(c.Amount).QuoInt64(int64(numPairs)).RoundInt()
@@ -65,7 +68,7 @@ type FeeSharePayoutEventOutput struct {
 
 // Loop through all messages and add the withdraw address to the list of addresses to pay
 // if the contract opted-in to fee sharing
-func addNewFeeSharePayoutsForMsgs(ctx sdk.Context, fsk FeeShareKeeper, toPay *[]sdk.AccAddress, msgs []sdk.Msg) error {
+func addNewFeeSharePayoutsForMsgs(ctx sdk.Context, fsk keeper.Keeper, toPay *[]sdk.AccAddress, msgs []sdk.Msg) error {
 	for _, msg := range msgs {
 
 		// Check if an authz message, loop through all inner messages, and recursively call this function
@@ -106,7 +109,7 @@ func addNewFeeSharePayoutsForMsgs(ctx sdk.Context, fsk FeeShareKeeper, toPay *[]
 
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
-func (fsd FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper BankKeeper, totalFees sdk.Coins, fsk FeeShareKeeper, msgs []sdk.Msg) error {
+func (fsd FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper bankkeeper.Keeper, totalFees sdk.Coins, fsk keeper.Keeper, msgs []sdk.Msg) error {
 	params := fsk.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil
@@ -157,20 +160,20 @@ func (fsd FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper Ba
 			}
 
 			if err != nil {
-				return errorsmod.Wrapf(feeshare.ErrFeeSharePayment, "failed to pay fees to contract developer: %s", err.Error())
+				return errorsmod.Wrapf(types.ErrFeeSharePayment, "failed to pay fees to contract developer: %s", err.Error())
 			}
 		}
 	}
 
 	bz, err := json.Marshal(feesPaidOutput)
 	if err != nil {
-		return errorsmod.Wrapf(feeshare.ErrFeeSharePayment, "failed to marshal feesPaidOutput: %s", err.Error())
+		return errorsmod.Wrapf(types.ErrFeeSharePayment, "failed to marshal feesPaidOutput: %s", err.Error())
 	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			feeshare.EventTypePayoutFeeShare,
-			sdk.NewAttribute(feeshare.AttributeWithdrawPayouts, string(bz))),
+			types.EventTypePayoutFeeShare,
+			sdk.NewAttribute(types.AttributeWithdrawPayouts, string(bz))),
 	)
 
 	return nil

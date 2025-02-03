@@ -12,10 +12,10 @@ import (
 	legacystoretypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	feepaytypes "github.com/CosmosContracts/juno/v27/x/feepay/types"
-	feesharetypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
 )
 
 var (
@@ -32,7 +32,7 @@ type Keeper struct {
 
 	bankKeeper    bankkeeper.Keeper
 	wasmKeeper    wasmkeeper.Keeper
-	accountKeeper feesharetypes.AccountKeeper
+	accountKeeper authkeeper.AccountKeeper
 
 	bondDenom string
 
@@ -48,7 +48,7 @@ func NewKeeper(
 	ss storetypes.KVStoreService,
 	bk bankkeeper.Keeper,
 	wk wasmkeeper.Keeper,
-	ak feesharetypes.AccountKeeper,
+	ak authkeeper.AccountKeeper,
 	bondDenom string,
 	authority string,
 ) Keeper {

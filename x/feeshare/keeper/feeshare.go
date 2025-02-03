@@ -1,18 +1,22 @@
 package keeper
 
 import (
+	"context"
+
 	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v27/x/feeshare/types"
 )
 
 // GetFeeShares returns all registered FeeShares.
-func (k Keeper) GetFeeShares(ctx sdk.Context) []types.FeeShare {
+func (k Keeper) GetFeeShares(ctx context.Context) []types.FeeShare {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	feeshares := []types.FeeShare{}
 
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixFeeShare)
+	store := sdkCtx.KVStore(k.legacyStoreKey)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixFeeShare)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -28,11 +32,12 @@ func (k Keeper) GetFeeShares(ctx sdk.Context) []types.FeeShare {
 // IterateFeeShares iterates over all registered contracts and performs a
 // callback with the corresponding FeeShare.
 func (k Keeper) IterateFeeShares(
-	ctx sdk.Context,
+	ctx context.Context,
 	handlerFn func(fee types.FeeShare) (stop bool),
 ) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixFeeShare)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := sdkCtx.KVStore(k.legacyStoreKey)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixFeeShare)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -47,10 +52,11 @@ func (k Keeper) IterateFeeShares(
 
 // GetFeeShare returns the FeeShare for a registered contract
 func (k Keeper) GetFeeShare(
-	ctx sdk.Context,
+	ctx context.Context,
 	contract sdk.Address,
 ) (types.FeeShare, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeShare)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixFeeShare)
 	bz := store.Get(contract.Bytes())
 	if len(bz) == 0 {
 		return types.FeeShare{}, false
@@ -62,60 +68,66 @@ func (k Keeper) GetFeeShare(
 }
 
 // SetFeeShare stores the FeeShare for a registered contract.
-func (k Keeper) SetFeeShare(ctx sdk.Context, feeshare types.FeeShare) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeShare)
+func (k Keeper) SetFeeShare(ctx context.Context, feeshare types.FeeShare) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixFeeShare)
 	key := feeshare.GetContractAddr()
 	bz := k.cdc.MustMarshal(&feeshare)
 	store.Set(key.Bytes(), bz)
 }
 
 // DeleteFeeShare deletes a FeeShare of a registered contract.
-func (k Keeper) DeleteFeeShare(ctx sdk.Context, fee types.FeeShare) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeShare)
+func (k Keeper) DeleteFeeShare(ctx context.Context, fee types.FeeShare) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixFeeShare)
 	key := fee.GetContractAddr()
 	store.Delete(key.Bytes())
 }
 
 // SetDeployerMap stores a contract-by-deployer mapping
 func (k Keeper) SetDeployerMap(
-	ctx sdk.Context,
+	ctx context.Context,
 	deployer sdk.AccAddress,
 	contract sdk.Address,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixDeployer)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixDeployer)
 	key := append(deployer.Bytes(), contract.Bytes()...)
 	store.Set(key, []byte{1})
 }
 
 // DeleteDeployerMap deletes a contract-by-deployer mapping
 func (k Keeper) DeleteDeployerMap(
-	ctx sdk.Context,
+	ctx context.Context,
 	deployer sdk.AccAddress,
 	contract sdk.Address,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixDeployer)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixDeployer)
 	key := append(deployer.Bytes(), contract.Bytes()...)
 	store.Delete(key)
 }
 
 // SetWithdrawerMap stores a contract-by-withdrawer mapping
 func (k Keeper) SetWithdrawerMap(
-	ctx sdk.Context,
+	ctx context.Context,
 	withdrawer sdk.AccAddress,
 	contract sdk.Address,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdrawer)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixWithdrawer)
 	key := append(withdrawer.Bytes(), contract.Bytes()...)
 	store.Set(key, []byte{1})
 }
 
 // DeleteWithdrawMap deletes a contract-by-withdrawer mapping
 func (k Keeper) DeleteWithdrawerMap(
-	ctx sdk.Context,
+	ctx context.Context,
 	withdrawer sdk.AccAddress,
 	contract sdk.Address,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdrawer)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixWithdrawer)
 	key := append(withdrawer.Bytes(), contract.Bytes()...)
 	store.Delete(key)
 }
@@ -123,21 +135,23 @@ func (k Keeper) DeleteWithdrawerMap(
 // IsFeeShareRegistered checks if a contract was registered for receiving
 // transaction fees
 func (k Keeper) IsFeeShareRegistered(
-	ctx sdk.Context,
+	ctx context.Context,
 	contract sdk.Address,
 ) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixFeeShare)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixFeeShare)
 	return store.Has(contract.Bytes())
 }
 
 // IsDeployerMapSet checks if a given contract-by-withdrawer mapping is set in
 // store
 func (k Keeper) IsDeployerMapSet(
-	ctx sdk.Context,
+	ctx context.Context,
 	deployer sdk.AccAddress,
 	contract sdk.Address,
 ) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixDeployer)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixDeployer)
 	key := append(deployer.Bytes(), contract.Bytes()...)
 	return store.Has(key)
 }
@@ -145,11 +159,12 @@ func (k Keeper) IsDeployerMapSet(
 // IsWithdrawerMapSet checks if a give contract-by-withdrawer mapping is set in
 // store
 func (k Keeper) IsWithdrawerMapSet(
-	ctx sdk.Context,
+	ctx context.Context,
 	withdrawer sdk.AccAddress,
 	contract sdk.Address,
 ) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixWithdrawer)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	store := prefix.NewStore(sdkCtx.KVStore(k.legacyStoreKey), types.KeyPrefixWithdrawer)
 	key := append(withdrawer.Bytes(), contract.Bytes()...)
 	return store.Has(key)
 }
