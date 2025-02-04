@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	bindingstypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/bindings/types"
+	types "github.com/CosmosContracts/juno/v27/wasmbindings/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v27/x/tokenfactory/keeper"
 )
 
@@ -24,33 +24,33 @@ func NewQueryPlugin(b bankkeeper.Keeper, tfk *tokenfactorykeeper.Keeper) *QueryP
 }
 
 // GetDenomAdmin is a query to get denom admin.
-func (qp QueryPlugin) GetDenomAdmin(ctx sdk.Context, denom string) (*bindingstypes.AdminResponse, error) {
+func (qp QueryPlugin) GetDenomAdmin(ctx sdk.Context, denom string) (*types.AdminResponse, error) {
 	metadata, err := qp.tokenFactoryKeeper.GetAuthorityMetadata(ctx, denom)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get admin for denom: %s", denom)
 	}
-	return &bindingstypes.AdminResponse{Admin: metadata.Admin}, nil
+	return &types.AdminResponse{Admin: metadata.Admin}, nil
 }
 
-func (qp QueryPlugin) GetDenomsByCreator(ctx sdk.Context, creator string) (*bindingstypes.DenomsByCreatorResponse, error) {
+func (qp QueryPlugin) GetDenomsByCreator(ctx sdk.Context, creator string) (*types.DenomsByCreatorResponse, error) {
 	// TODO: validate creator address
 	denoms := qp.tokenFactoryKeeper.GetDenomsFromCreator(ctx, creator)
-	return &bindingstypes.DenomsByCreatorResponse{Denoms: denoms}, nil
+	return &types.DenomsByCreatorResponse{Denoms: denoms}, nil
 }
 
-func (qp QueryPlugin) GetMetadata(ctx sdk.Context, denom string) (*bindingstypes.MetadataResponse, error) {
+func (qp QueryPlugin) GetMetadata(ctx sdk.Context, denom string) (*types.MetadataResponse, error) {
 	metadata, found := qp.bankKeeper.GetDenomMetaData(ctx, denom)
-	var parsed *bindingstypes.Metadata
+	var parsed *types.Metadata
 	if found {
 		parsed = SdkMetadataToWasm(metadata)
 	}
-	return &bindingstypes.MetadataResponse{Metadata: parsed}, nil
+	return &types.MetadataResponse{Metadata: parsed}, nil
 }
 
-func (qp QueryPlugin) GetParams(ctx sdk.Context) (*bindingstypes.ParamsResponse, error) {
+func (qp QueryPlugin) GetParams(ctx sdk.Context) (*types.ParamsResponse, error) {
 	params := qp.tokenFactoryKeeper.GetParams(ctx)
-	return &bindingstypes.ParamsResponse{
-		Params: bindingstypes.Params{
+	return &types.ParamsResponse{
+		Params: types.Params{
 			DenomCreationFee: ConvertSdkCoinsToWasmCoins(params.DenomCreationFee),
 		},
 	}, nil

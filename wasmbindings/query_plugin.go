@@ -10,13 +10,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bindingstypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/bindings/types"
+	types "github.com/CosmosContracts/juno/v27/wasmbindings/types"
 )
 
 // CustomQuerier dispatches custom CosmWasm bindings queries.
 func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
 	return func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
-		var contractQuery bindingstypes.TokenFactoryQuery
+		var contractQuery types.TokenFactoryQuery
 		if err := json.Unmarshal(request, &contractQuery); err != nil {
 			return nil, errorsmod.Wrap(err, "osmosis query")
 		}
@@ -31,7 +31,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 				return nil, errorsmod.Wrap(err, "osmo full denom query")
 			}
 
-			res := bindingstypes.FullDenomResponse{
+			res := types.FullDenomResponse{
 				Denom: fullDenom,
 			}
 

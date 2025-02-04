@@ -2,18 +2,16 @@ package bindings_test
 
 import (
 	"fmt"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/CosmosContracts/juno/v27/x/tokenfactory/bindings"
+	bindings "github.com/CosmosContracts/juno/v27/wasmbindings"
 )
 
-func TestFullDenom(t *testing.T) {
-	actor := RandomAccountAddress()
+func (s *BindingsTestSuite) TestFullDenom() {
+	actor := s.RandomAccountAddress()
 
 	specs := map[string]struct {
 		addr         string
@@ -41,45 +39,43 @@ func TestFullDenom(t *testing.T) {
 			subdenom:     "",
 			expFullDenom: fmt.Sprintf("factory/%s/", actor.String()),
 		},
-		"valid sub-denom (contains underscore)": {
-			addr:         actor.String(),
-			subdenom:     "sub_denom",
-			expFullDenom: fmt.Sprintf("factory/%s/sub_denom", actor.String()),
+		"invalid sub-denom (contains exclamation point)": {
+			addr:     actor.String(),
+			subdenom: "subdenom!",
+			expErr:   true,
 		},
 	}
 	for name, spec := range specs {
-		t.Run(name, func(t *testing.T) {
+		s.Run(name, func() {
 			// when
-			gotFullDenom, gotErr := wasmbinding.GetFullDenom(spec.addr, spec.subdenom)
+			gotFullDenom, gotErr := bindings.GetFullDenom(spec.addr, spec.subdenom)
 			// then
 			if spec.expErr {
-				require.Error(t, gotErr)
+				s.Require().Error(gotErr)
 				return
 			}
-			require.NoError(t, gotErr)
-			assert.Equal(t, spec.expFullDenom, gotFullDenom, "exp %s but got %s", spec.expFullDenom, gotFullDenom)
+			s.Require().NoError(gotErr)
+			assert.Equal(s.T(), spec.expFullDenom, gotFullDenom, "exp %s but got %s", spec.expFullDenom, gotFullDenom)
 		})
 	}
 }
 
-func TestDenomAdmin(t *testing.T) {
-	addr := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, addr)
+func (s *BindingsTestSuite) TestDenomAdmin() {
+	addr := s.RandomAccountAddress()
+	s.StoreReflectCode(addr)
 
 	// set token creation fee to zero to make testing easier
-	tfParams := app.AppKeepers.TokenFactoryKeeper.GetParams(ctx)
+	tfParams := s.App.AppKeepers.TokenFactoryKeeper.GetParams(s.Ctx)
 	tfParams.DenomCreationFee = sdk.NewCoins()
-	if err := app.AppKeepers.TokenFactoryKeeper.SetParams(ctx, tfParams); err != nil {
-		t.Fatal(err)
-	}
+	s.App.AppKeepers.TokenFactoryKeeper.SetParams(s.Ctx, tfParams)
 
 	// create a subdenom via the token factory
 	admin := sdk.AccAddress([]byte("addr1_______________"))
-	tfDenom, err := app.AppKeepers.TokenFactoryKeeper.CreateDenom(ctx, admin.String(), "subdenom")
-	require.NoError(t, err)
-	require.NotEmpty(t, tfDenom)
+	tfDenom, err := s.App.AppKeepers.TokenFactoryKeeper.CreateDenom(s.Ctx, admin.String(), "subdenom")
+	s.Require().NoError(err)
+	s.Require().NotEmpty(tfDenom)
 
-	queryPlugin := wasmbinding.NewQueryPlugin(app.AppKeepers.BankKeeper, &app.AppKeepers.TokenFactoryKeeper)
+	queryPlugin := bindings.NewQueryPlugin(s.App.AppKeepers.BankKeeper, &s.App.AppKeepers.TokenFactoryKeeper)
 
 	testCases := []struct {
 		name        string
@@ -94,7 +90,7 @@ func TestDenomAdmin(t *testing.T) {
 		},
 		{
 			name:        "invalid token factory denom",
-			denom:       "uosmo",
+			denom:       sdk.DefaultBondDenom,
 			expectErr:   false,
 			expectAdmin: "",
 		},
@@ -103,14 +99,14 @@ func TestDenomAdmin(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 
-		t.Run(tc.name, func(t *testing.T) {
-			resp, err := queryPlugin.GetDenomAdmin(ctx, tc.denom)
+		s.Run(tc.name, func() {
+			resp, err := queryPlugin.GetDenomAdmin(s.Ctx, tc.denom)
 			if tc.expectErr {
-				require.Error(t, err)
+				s.Require().Error(err)
 			} else {
-				require.NoError(t, err)
-				require.NotNil(t, resp)
-				require.Equal(t, tc.expectAdmin, resp.Admin)
+				s.Require().NoError(err)
+				s.Require().NotNil(resp)
+				s.Require().Equal(tc.expectAdmin, resp.Admin)
 			}
 		})
 	}

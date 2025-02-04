@@ -78,6 +78,7 @@ import (
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
+	bindings "github.com/CosmosContracts/juno/v27/wasmbindings"
 	junoburn "github.com/CosmosContracts/juno/v27/x/burn"
 	clockkeeper "github.com/CosmosContracts/juno/v27/x/clock/keeper"
 	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
@@ -93,7 +94,6 @@ import (
 	globalfeetypes "github.com/CosmosContracts/juno/v27/x/globalfee/types"
 	mintkeeper "github.com/CosmosContracts/juno/v27/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v27/x/mint/types"
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v27/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
 )
@@ -566,7 +566,7 @@ func NewAppKeepers(
 	)
 
 	// set the contract keeper for the Ics20WasmHooks
-	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(&appKeepers.WasmKeeper)
+	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
 	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
 
 	appKeepers.FeeShareKeeper = feesharekeeper.NewKeeper(

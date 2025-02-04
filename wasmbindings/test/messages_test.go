@@ -2,43 +2,40 @@ package bindings_test
 
 import (
 	"fmt"
-	"testing"
-
-	"github.com/stretchr/testify/require"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/CosmosContracts/juno/v27/x/tokenfactory/bindings"
-	bindings "github.com/CosmosContracts/juno/v27/x/tokenfactory/bindings/types"
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
+	bindings "github.com/CosmosContracts/juno/v27/wasmbindings"
+	types "github.com/CosmosContracts/juno/v27/wasmbindings/types"
+	tftypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
 )
 
-func TestCreateDenom(t *testing.T) {
-	actor := RandomAccountAddress()
-	junoapp, ctx := SetupCustomApp(t, actor)
+func (s *BindingsTestSuite) TestCreateDenom() {
+	actor := s.RandomAccountAddress()
+	s.StoreReflectCode(actor)
 
 	// Fund actor with 100 base denom creation fees
-	actorAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, junoapp, actor, actorAmount)
+	actorAmount := sdk.NewCoins(sdk.NewCoin(tftypes.DefaultParams().DenomCreationFee[0].Denom, tftypes.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
+	s.FundAcc(actor, actorAmount)
 
 	specs := map[string]struct {
-		createDenom *bindings.CreateDenom
+		createDenom *types.CreateDenom
 		expErr      bool
 	}{
 		"valid sub-denom": {
-			createDenom: &bindings.CreateDenom{
+			createDenom: &types.CreateDenom{
 				Subdenom: "MOON",
 			},
 		},
 		"empty sub-denom": {
-			createDenom: &bindings.CreateDenom{
+			createDenom: &types.CreateDenom{
 				Subdenom: "",
 			},
 			expErr: false,
 		},
 		"invalid sub-denom": {
-			createDenom: &bindings.CreateDenom{
+			createDenom: &types.CreateDenom{
 				Subdenom: "sub-denom_2",
 			},
 			expErr: false,
@@ -49,72 +46,78 @@ func TestCreateDenom(t *testing.T) {
 		},
 	}
 	for name, spec := range specs {
-		t.Run(name, func(t *testing.T) {
+		s.Run(name, func() {
 			// when
-			_, gotErr := wasmbinding.PerformCreateDenom(&junoapp.AppKeepers.TokenFactoryKeeper, junoapp.AppKeepers.BankKeeper, ctx, actor, spec.createDenom)
+			_, gotErr := bindings.PerformCreateDenom(
+				&s.App.AppKeepers.TokenFactoryKeeper,
+				s.App.AppKeepers.BankKeeper,
+				s.Ctx,
+				actor,
+				spec.createDenom,
+			)
 			// then
 			if spec.expErr {
-				t.Logf("validate_msg_test got error: %v", gotErr)
-				require.Error(t, gotErr)
+				s.T().Logf("validate_msg_test got error: %v", gotErr)
+				s.Require().Error(gotErr)
 				return
 			}
-			require.NoError(t, gotErr)
+			s.Require().NoError(gotErr)
 		})
 	}
 }
 
-func TestChangeAdmin(t *testing.T) {
+func (s *BindingsTestSuite) TestChangeAdmin() {
 	const validDenom = "validdenom"
 
-	tokenCreator := RandomAccountAddress()
+	tokenCreator := s.RandomAccountAddress()
 
 	specs := map[string]struct {
 		actor       sdk.AccAddress
-		changeAdmin *bindings.ChangeAdmin
+		changeAdmin *types.ChangeAdmin
 
 		expErrMsg string
 	}{
 		"valid": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &types.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), validDenom),
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: s.RandomBech32AccountAddress(),
 			},
 			actor: tokenCreator,
 		},
 		"typo in factory in denom name": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &types.ChangeAdmin{
 				Denom:           fmt.Sprintf("facory/%s/%s", tokenCreator.String(), validDenom),
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: s.RandomBech32AccountAddress(),
 			},
 			actor:     tokenCreator,
 			expErrMsg: "denom prefix is incorrect. Is: facory.  Should be: factory: invalid denom",
 		},
 		"invalid address in denom": {
-			changeAdmin: &bindings.ChangeAdmin{
-				Denom:           fmt.Sprintf("factory/%s/%s", RandomBech32AccountAddress(), validDenom),
-				NewAdminAddress: RandomBech32AccountAddress(),
+			changeAdmin: &types.ChangeAdmin{
+				Denom:           fmt.Sprintf("factory/%s/%s", s.RandomBech32AccountAddress(), validDenom),
+				NewAdminAddress: s.RandomBech32AccountAddress(),
 			},
 			actor:     tokenCreator,
 			expErrMsg: "failed changing admin from message: unauthorized account",
 		},
 		"other denom name in 3 part name": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &types.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), "invalid denom"),
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: s.RandomBech32AccountAddress(),
 			},
 			actor:     tokenCreator,
 			expErrMsg: fmt.Sprintf("invalid denom: factory/%s/invalid denom", tokenCreator.String()),
 		},
 		"empty denom": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &types.ChangeAdmin{
 				Denom:           "",
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: s.RandomBech32AccountAddress(),
 			},
 			actor:     tokenCreator,
 			expErrMsg: "invalid denom: ",
 		},
 		"empty address": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &types.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), validDenom),
 				NewAdminAddress: "",
 			},
@@ -122,15 +125,15 @@ func TestChangeAdmin(t *testing.T) {
 			expErrMsg: "address from bech32: empty address string is not allowed",
 		},
 		"creator is a different address": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &types.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), validDenom),
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: s.RandomBech32AccountAddress(),
 			},
-			actor:     RandomAccountAddress(),
+			actor:     s.RandomAccountAddress(),
 			expErrMsg: "failed changing admin from message: unauthorized account",
 		},
 		"change to the same address": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &types.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), validDenom),
 				NewAdminAddress: tokenCreator.String(),
 			},
@@ -142,77 +145,76 @@ func TestChangeAdmin(t *testing.T) {
 		},
 	}
 	for name, spec := range specs {
-		t.Run(name, func(t *testing.T) {
-			// Setup
-			junoapp, ctx := SetupCustomApp(t, tokenCreator)
+		s.Run(name, func() {
+			s.Reset()
 
 			// Fund actor with 100 base denom creation fees
-			actorAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-			fundAccount(t, ctx, junoapp, tokenCreator, actorAmount)
+			actorAmount := sdk.NewCoins(sdk.NewCoin(tftypes.DefaultParams().DenomCreationFee[0].Denom, tftypes.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
+			s.FundAcc(tokenCreator, actorAmount)
 
-			_, err := wasmbinding.PerformCreateDenom(&junoapp.AppKeepers.TokenFactoryKeeper, junoapp.AppKeepers.BankKeeper, ctx, tokenCreator, &bindings.CreateDenom{
+			_, err := bindings.PerformCreateDenom(&s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, s.Ctx, tokenCreator, &types.CreateDenom{
 				Subdenom: validDenom,
 			})
-			require.NoError(t, err)
+			s.Require().NoError(err)
 
-			err = wasmbinding.ChangeAdmin(&junoapp.AppKeepers.TokenFactoryKeeper, ctx, spec.actor, spec.changeAdmin)
+			err = bindings.ChangeAdmin(&s.App.AppKeepers.TokenFactoryKeeper, s.Ctx, spec.actor, spec.changeAdmin)
 			if len(spec.expErrMsg) > 0 {
-				require.Error(t, err)
+				s.Require().Error(err)
 				actualErrMsg := err.Error()
-				require.Equal(t, spec.expErrMsg, actualErrMsg)
+				s.Require().Equal(spec.expErrMsg, actualErrMsg)
 				return
 			}
-			require.NoError(t, err)
+			s.Require().NoError(err)
 		})
 	}
 }
 
-func TestMint(t *testing.T) {
-	creator := RandomAccountAddress()
-	junoapp, ctx := SetupCustomApp(t, creator)
+func (s *BindingsTestSuite) TestMint() {
+	creator := s.RandomAccountAddress()
+	s.StoreReflectCode(creator)
 
 	// Fund actor with 100 base denom creation fees
-	tokenCreationFeeAmt := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, junoapp, creator, tokenCreationFeeAmt)
+	tokenCreationFeeAmt := sdk.NewCoins(sdk.NewCoin(tftypes.DefaultParams().DenomCreationFee[0].Denom, tftypes.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
+	s.FundAcc(creator, tokenCreationFeeAmt)
 
 	// Create denoms for valid mint tests
-	validDenom := bindings.CreateDenom{
+	validDenom := types.CreateDenom{
 		Subdenom: "MOON",
 	}
-	_, err := wasmbinding.PerformCreateDenom(&junoapp.AppKeepers.TokenFactoryKeeper, junoapp.AppKeepers.BankKeeper, ctx, creator, &validDenom)
-	require.NoError(t, err)
+	_, err := bindings.PerformCreateDenom(&s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, s.Ctx, creator, &validDenom)
+	s.Require().NoError(err)
 
-	emptyDenom := bindings.CreateDenom{
+	emptyDenom := types.CreateDenom{
 		Subdenom: "",
 	}
-	_, err = wasmbinding.PerformCreateDenom(&junoapp.AppKeepers.TokenFactoryKeeper, junoapp.AppKeepers.BankKeeper, ctx, creator, &emptyDenom)
-	require.NoError(t, err)
+	_, err = bindings.PerformCreateDenom(&s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, s.Ctx, creator, &emptyDenom)
+	s.Require().NoError(err)
 
 	validDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), validDenom.Subdenom)
 	emptyDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), emptyDenom.Subdenom)
 
-	lucky := RandomAccountAddress()
+	lucky := s.RandomAccountAddress()
 
 	// lucky was broke
-	balances := junoapp.AppKeepers.BankKeeper.GetAllBalances(ctx, lucky)
-	require.Empty(t, balances)
+	balances := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, lucky)
+	s.Require().Empty(balances)
 
 	amount, ok := sdkmath.NewIntFromString("8080")
-	require.True(t, ok)
+	s.Require().True(ok)
 
 	specs := map[string]struct {
-		mint   *bindings.MintTokens
+		mint   *types.MintTokens
 		expErr bool
 	}{
 		"valid mint": {
-			mint: &bindings.MintTokens{
+			mint: &types.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        amount,
 				MintToAddress: lucky.String(),
 			},
 		},
 		"empty sub-denom": {
-			mint: &bindings.MintTokens{
+			mint: &types.MintTokens{
 				Denom:         emptyDenomStr,
 				Amount:        amount,
 				MintToAddress: lucky.String(),
@@ -220,7 +222,7 @@ func TestMint(t *testing.T) {
 			expErr: false,
 		},
 		"nonexistent sub-denom": {
-			mint: &bindings.MintTokens{
+			mint: &types.MintTokens{
 				Denom:         fmt.Sprintf("factory/%s/%s", creator.String(), "SUN"),
 				Amount:        amount,
 				MintToAddress: lucky.String(),
@@ -228,7 +230,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"invalid sub-denom": {
-			mint: &bindings.MintTokens{
+			mint: &types.MintTokens{
 				Denom:         "sub-denom_2",
 				Amount:        amount,
 				MintToAddress: lucky.String(),
@@ -236,7 +238,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"zero amount": {
-			mint: &bindings.MintTokens{
+			mint: &types.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        sdkmath.ZeroInt(),
 				MintToAddress: lucky.String(),
@@ -244,7 +246,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"negative amount": {
-			mint: &bindings.MintTokens{
+			mint: &types.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        amount.Neg(),
 				MintToAddress: lucky.String(),
@@ -252,7 +254,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"empty recipient": {
-			mint: &bindings.MintTokens{
+			mint: &types.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        amount,
 				MintToAddress: "",
@@ -260,7 +262,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"invalid recipient": {
-			mint: &bindings.MintTokens{
+			mint: &types.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        amount,
 				MintToAddress: "invalid",
@@ -273,57 +275,57 @@ func TestMint(t *testing.T) {
 		},
 	}
 	for name, spec := range specs {
-		t.Run(name, func(t *testing.T) {
+		s.Run(name, func() {
 			// when
-			gotErr := wasmbinding.PerformMint(&junoapp.AppKeepers.TokenFactoryKeeper, junoapp.AppKeepers.BankKeeper, ctx, creator, spec.mint)
+			gotErr := bindings.PerformMint(&s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, s.Ctx, creator, spec.mint)
 			// then
 			if spec.expErr {
-				require.Error(t, gotErr)
+				s.Require().Error(gotErr)
 				return
 			}
-			require.NoError(t, gotErr)
+			s.Require().NoError(gotErr)
 		})
 	}
 }
 
-func TestBurn(t *testing.T) {
-	creator := RandomAccountAddress()
-	junoapp, ctx := SetupCustomApp(t, creator)
+func (s *BindingsTestSuite) TestBurn() {
+	creator := s.RandomAccountAddress()
+	s.StoreReflectCode(creator)
 
 	// Fund actor with 100 base denom creation fees
-	tokenCreationFeeAmt := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, junoapp, creator, tokenCreationFeeAmt)
+	tokenCreationFeeAmt := sdk.NewCoins(sdk.NewCoin(tftypes.DefaultParams().DenomCreationFee[0].Denom, tftypes.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
+	s.FundAcc(creator, tokenCreationFeeAmt)
 
 	// Create denoms for valid burn tests
-	validDenom := bindings.CreateDenom{
+	validDenom := types.CreateDenom{
 		Subdenom: "MOON",
 	}
-	_, err := wasmbinding.PerformCreateDenom(&junoapp.AppKeepers.TokenFactoryKeeper, junoapp.AppKeepers.BankKeeper, ctx, creator, &validDenom)
-	require.NoError(t, err)
+	_, err := bindings.PerformCreateDenom(&s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, s.Ctx, creator, &validDenom)
+	s.Require().NoError(err)
 
-	emptyDenom := bindings.CreateDenom{
+	emptyDenom := types.CreateDenom{
 		Subdenom: "",
 	}
-	_, err = wasmbinding.PerformCreateDenom(&junoapp.AppKeepers.TokenFactoryKeeper, junoapp.AppKeepers.BankKeeper, ctx, creator, &emptyDenom)
-	require.NoError(t, err)
+	_, err = bindings.PerformCreateDenom(&s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, s.Ctx, creator, &emptyDenom)
+	s.Require().NoError(err)
 
-	lucky := RandomAccountAddress()
+	lucky := s.RandomAccountAddress()
 
 	// lucky was broke
-	balances := junoapp.AppKeepers.BankKeeper.GetAllBalances(ctx, lucky)
-	require.Empty(t, balances)
+	balances := s.App.AppKeepers.BankKeeper.GetAllBalances(s.Ctx, lucky)
+	s.Require().Empty(balances)
 
 	validDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), validDenom.Subdenom)
 	emptyDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), emptyDenom.Subdenom)
 	mintAmount, ok := sdkmath.NewIntFromString("8080")
-	require.True(t, ok)
+	s.Require().True(ok)
 
 	specs := map[string]struct {
-		burn   *bindings.BurnTokens
+		burn   *types.BurnTokens
 		expErr bool
 	}{
 		"valid burn": {
-			burn: &bindings.BurnTokens{
+			burn: &types.BurnTokens{
 				Denom:           validDenomStr,
 				Amount:          mintAmount,
 				BurnFromAddress: creator.String(),
@@ -331,7 +333,7 @@ func TestBurn(t *testing.T) {
 			expErr: false,
 		},
 		"non admin address": {
-			burn: &bindings.BurnTokens{
+			burn: &types.BurnTokens{
 				Denom:           validDenomStr,
 				Amount:          mintAmount,
 				BurnFromAddress: lucky.String(),
@@ -339,7 +341,7 @@ func TestBurn(t *testing.T) {
 			expErr: true,
 		},
 		"empty sub-denom": {
-			burn: &bindings.BurnTokens{
+			burn: &types.BurnTokens{
 				Denom:           emptyDenomStr,
 				Amount:          mintAmount,
 				BurnFromAddress: creator.String(),
@@ -347,7 +349,7 @@ func TestBurn(t *testing.T) {
 			expErr: false,
 		},
 		"invalid sub-denom": {
-			burn: &bindings.BurnTokens{
+			burn: &types.BurnTokens{
 				Denom:           "sub-denom_2",
 				Amount:          mintAmount,
 				BurnFromAddress: creator.String(),
@@ -355,7 +357,7 @@ func TestBurn(t *testing.T) {
 			expErr: true,
 		},
 		"non-minted denom": {
-			burn: &bindings.BurnTokens{
+			burn: &types.BurnTokens{
 				Denom:           fmt.Sprintf("factory/%s/%s", creator.String(), "SUN"),
 				Amount:          mintAmount,
 				BurnFromAddress: creator.String(),
@@ -363,7 +365,7 @@ func TestBurn(t *testing.T) {
 			expErr: true,
 		},
 		"zero amount": {
-			burn: &bindings.BurnTokens{
+			burn: &types.BurnTokens{
 				Denom:           validDenomStr,
 				Amount:          sdkmath.ZeroInt(),
 				BurnFromAddress: creator.String(),
@@ -375,7 +377,7 @@ func TestBurn(t *testing.T) {
 			expErr: true,
 		},
 		"null burn": {
-			burn: &bindings.BurnTokens{
+			burn: &types.BurnTokens{
 				Denom:           validDenomStr,
 				Amount:          mintAmount.Neg(),
 				BurnFromAddress: creator.String(),
@@ -385,32 +387,32 @@ func TestBurn(t *testing.T) {
 	}
 
 	for name, spec := range specs {
-		t.Run(name, func(t *testing.T) {
+		s.Run(name, func() {
 			// Mint valid denom str and empty denom string for burn test
-			mintBinding := &bindings.MintTokens{
+			mintBinding := &types.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        mintAmount,
 				MintToAddress: creator.String(),
 			}
-			err := wasmbinding.PerformMint(&junoapp.AppKeepers.TokenFactoryKeeper, junoapp.AppKeepers.BankKeeper, ctx, creator, mintBinding)
-			require.NoError(t, err)
+			err := bindings.PerformMint(&s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, s.Ctx, creator, mintBinding)
+			s.Require().NoError(err)
 
-			emptyDenomMintBinding := &bindings.MintTokens{
+			emptyDenomMintBinding := &types.MintTokens{
 				Denom:         emptyDenomStr,
 				Amount:        mintAmount,
 				MintToAddress: creator.String(),
 			}
-			err = wasmbinding.PerformMint(&junoapp.AppKeepers.TokenFactoryKeeper, junoapp.AppKeepers.BankKeeper, ctx, creator, emptyDenomMintBinding)
-			require.NoError(t, err)
+			err = bindings.PerformMint(&s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, s.Ctx, creator, emptyDenomMintBinding)
+			s.Require().NoError(err)
 
 			// when
-			gotErr := wasmbinding.PerformBurn(&junoapp.AppKeepers.TokenFactoryKeeper, ctx, creator, spec.burn)
+			gotErr := bindings.PerformBurn(&s.App.AppKeepers.TokenFactoryKeeper, s.Ctx, creator, spec.burn)
 			// then
 			if spec.expErr {
-				require.Error(t, gotErr)
+				s.Require().Error(gotErr)
 				return
 			}
-			require.NoError(t, gotErr)
+			s.Require().NoError(gotErr)
 		})
 	}
 }
