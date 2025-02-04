@@ -5,6 +5,7 @@ import (
 )
 
 func (s *KeeperTestSuite) TestGRPCParams() {
+	s.SetupTest()
 	params, err := s.queryClient.Params(s.Ctx, &types.QueryParamsRequest{})
 	s.Require().NoError(err)
 	kparams, err := s.mintKeeper.GetParams(s.Ctx)

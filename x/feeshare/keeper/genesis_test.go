@@ -67,7 +67,7 @@ func (s *KeeperTestSuite) TestFeeShareInitGenesis() {
 
 	for _, tc := range testCases {
 		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			s.SetupTest() // reset
+			s.Reset()
 
 			if tc.expPanic {
 				s.Require().Panics(func() {
