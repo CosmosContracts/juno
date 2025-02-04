@@ -44,15 +44,17 @@ func sendMEVtoCommunityPool(ctx context.Context, k *keepers.AppKeepers, logger l
 	mevModuleAddress := sdk.MustAccAddressFromBech32(mevModuleAccount)
 	mevModuleTokenAmount, ok := sdkmath.NewIntFromString(mevModuleAmount)
 	if !ok {
+		logger.Error(fmt.Sprintf("v27: failed to parse MEV module token amount"))
 		return fmt.Errorf("v27: failed to parse MEV module token amount")
 	}
+	params, err := k.MintKeeper.GetParams(ctx)
 	coins := sdk.NewCoins(
 		sdk.NewCoin(
-			k.MintKeeper.GetParams(ctx).MintDenom,
+			params.MintDenom,
 			mevModuleTokenAmount,
 		),
 	)
-	err := k.DistrKeeper.FundCommunityPool(ctx, coins, mevModuleAddress)
+	err = k.DistrKeeper.FundCommunityPool(ctx, coins, mevModuleAddress)
 	if err != nil {
 		logger.Error(fmt.Sprintf("v27: failed to fund community pool with MEV profits: %v", coins))
 		return err

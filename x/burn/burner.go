@@ -32,7 +32,10 @@ func (k *BurnerWasmPlugin) BurnCoins(ctx context.Context, _ string, amt sdk.Coin
 	}
 
 	// get mint params
-	params := k.mk.GetParams(ctx)
+	params, err := k.mk.GetParams(ctx)
+	if err != nil {
+		return err
+	}
 
 	// loop the burned coins
 	for _, amount := range amt {

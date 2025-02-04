@@ -34,12 +34,11 @@ func (s *KeeperTestSuite) TestQueryClockParams() {
 		tc := tc
 		s.Run(tc.desc, func() {
 			// Set params
-			err := s.app.AppKeepers.ClockKeeper.SetParams(s.ctx, tc.params)
+			err := s.App.AppKeepers.ClockKeeper.SetParams(s.Ctx, tc.params)
 			s.Require().NoError(err)
 
 			// Query params
-			goCtx := sdk.WrapSDKContext(s.ctx)
-			resp, err := s.queryClient.Params(goCtx, &types.QueryParamsRequest{})
+			resp, err := s.queryClient.Params(s.Ctx, &types.QueryParamsRequest{})
 
 			// Response check
 			s.Require().NoError(err)
@@ -52,7 +51,7 @@ func (s *KeeperTestSuite) TestQueryClockParams() {
 // Query Clock Contracts
 func (s *KeeperTestSuite) TestQueryClockContracts() {
 	_, _, addr := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	s.StoreCode(clockContract)
 
@@ -87,7 +86,7 @@ func (s *KeeperTestSuite) TestQueryClockContracts() {
 			}
 
 			// Contracts check
-			resp, err := s.queryClient.ClockContracts(s.ctx, &types.QueryClockContractsRequest{})
+			resp, err := s.queryClient.ClockContracts(s.Ctx, &types.QueryClockContractsRequest{})
 
 			// Response check
 			s.Require().NoError(err)
@@ -99,7 +98,7 @@ func (s *KeeperTestSuite) TestQueryClockContracts() {
 
 			// Remove all contracts
 			for _, contract := range tc.contracts {
-				s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contract)
+				s.App.AppKeepers.ClockKeeper.RemoveContract(s.Ctx, contract)
 			}
 		})
 	}
@@ -108,8 +107,7 @@ func (s *KeeperTestSuite) TestQueryClockContracts() {
 // Query Jailed Clock Contracts
 func (s *KeeperTestSuite) TestQueryJailedClockContracts() {
 	_, _, addr := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
-
+	s.FundAcc(addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 	s.StoreCode(clockContract)
 
 	for _, tc := range []struct {
@@ -144,7 +142,7 @@ func (s *KeeperTestSuite) TestQueryJailedClockContracts() {
 			}
 
 			// Contracts check
-			resp, err := s.queryClient.ClockContracts(s.ctx, &types.QueryClockContractsRequest{})
+			resp, err := s.queryClient.ClockContracts(s.Ctx, &types.QueryClockContractsRequest{})
 
 			// Response check
 			s.Require().NoError(err)
@@ -156,7 +154,7 @@ func (s *KeeperTestSuite) TestQueryJailedClockContracts() {
 
 			// Remove all contracts
 			for _, contract := range tc.contracts {
-				s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contract)
+				s.App.AppKeepers.ClockKeeper.RemoveContract(s.Ctx, contract)
 			}
 		})
 	}
@@ -165,19 +163,19 @@ func (s *KeeperTestSuite) TestQueryJailedClockContracts() {
 // Query Clock Contract
 func (s *KeeperTestSuite) TestQueryClockContract() {
 	_, _, addr := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 	_, _, invalidAddr := testdata.KeyTestPubAddr()
 
 	s.StoreCode(clockContract)
 
 	unjailedContract := s.InstantiateContract(addr.String(), "", clockContract)
-	_ = s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
+	_ = s.App.AppKeepers.ClockKeeper.SetClockContract(s.Ctx, types.ClockContract{
 		ContractAddress: unjailedContract,
 		IsJailed:        false,
 	})
 
 	jailedContract := s.InstantiateContract(addr.String(), "", clockContract)
-	_ = s.app.AppKeepers.ClockKeeper.SetClockContract(s.ctx, types.ClockContract{
+	_ = s.App.AppKeepers.ClockKeeper.SetClockContract(s.Ctx, types.ClockContract{
 		ContractAddress: jailedContract,
 		IsJailed:        true,
 	})
@@ -216,7 +214,7 @@ func (s *KeeperTestSuite) TestQueryClockContract() {
 		tc := tc
 		s.Run(tc.desc, func() {
 			// Query contract
-			resp, err := s.queryClient.ClockContract(s.ctx, &types.QueryClockContractRequest{
+			resp, err := s.queryClient.ClockContract(s.Ctx, &types.QueryClockContractRequest{
 				ContractAddress: tc.contract,
 			})
 

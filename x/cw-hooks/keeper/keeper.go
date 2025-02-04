@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/CosmosContracts/juno/v27/x/cw-hooks/types"
 )
@@ -21,7 +21,7 @@ type Keeper struct {
 	cdc          codec.BinaryCodec
 	storeService storetypes.KVStoreService
 
-	stakingKeeper  slashingtypes.StakingKeeper
+	stakingKeeper  stakingkeeper.Keeper
 	govKeeper      govkeeper.Keeper
 	wk             wasmkeeper.Keeper
 	contractKeeper wasmtypes.ContractOpsKeeper
@@ -32,7 +32,7 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	ss storetypes.KVStoreService,
-	stakingKeeper slashingtypes.StakingKeeper,
+	stakingKeeper stakingkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	wasmkeeper wasmkeeper.Keeper,
 	contractKeeper wasmtypes.ContractOpsKeeper,
@@ -63,7 +63,7 @@ func (k Keeper) GetWasmKeeper() wasmkeeper.Keeper {
 	return k.wk
 }
 
-func (k Keeper) GetStakingKeeper() slashingtypes.StakingKeeper {
+func (k Keeper) GetStakingKeeper() stakingkeeper.Keeper {
 	return k.stakingKeeper
 }
 

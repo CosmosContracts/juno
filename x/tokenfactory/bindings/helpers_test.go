@@ -2,8 +2,11 @@ package bindings_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
+
+	"math/rand"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -16,13 +19,15 @@ import (
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 
 	"github.com/CosmosContracts/juno/v27/app"
-	"github.com/CosmosContracts/juno/v27/testutil"
+	"github.com/CosmosContracts/juno/v27/testutil/setup"
 )
 
 func CreateTestInput(t *testing.T) (*app.App, sdk.Context) {
-	osmosis := testutil.Setup(false, t, false)
-	ctx := osmosis.BaseApp.NewContext(false)
-	return osmosis, ctx
+	randomInt := rand.Intn(2048)
+	homeDir := fmt.Sprintf("%d", randomInt)
+	app := setup.Setup(false, homeDir, "juno-1", t)
+	ctx := app.BaseApp.NewContext(false)
+	return app, ctx
 }
 
 func FundAccount(t *testing.T, ctx context.Context, junoapp *app.App, acct sdk.AccAddress) {

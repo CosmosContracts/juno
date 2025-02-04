@@ -16,7 +16,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmosContracts/juno/v27/app"
 	decorators "github.com/CosmosContracts/juno/v27/app/decorators"
 	"github.com/CosmosContracts/juno/v27/testutil"
 )
@@ -29,19 +28,14 @@ var (
 )
 
 type AnteTestSuite struct {
-	suite.Suite
+	testutil.KeeperTestHelper
 
-	ctx           sdk.Context
-	app           *app.App
 	stakingKeeper *stakingkeeper.Keeper
 }
 
 func (s *AnteTestSuite) SetupTest() {
-	isCheckTx := false
-	s.app = testutil.Setup(isCheckTx, s.T(), false)
-	s.ctx = s.app.BaseApp.NewContext(isCheckTx)
-
-	s.stakingKeeper = s.app.AppKeepers.StakingKeeper
+	s.Setup()
+	s.stakingKeeper = s.App.AppKeepers.StakingKeeper
 }
 
 func TestAnteTestSuite(t *testing.T) {
@@ -51,6 +45,7 @@ func TestAnteTestSuite(t *testing.T) {
 // Test the change rate decorator with standard create msgs,
 // authz create messages, and inline authz create messages
 func (s *AnteTestSuite) TestAnteCreateValidator() {
+	s.SetupTest()
 	// Grantee used for authz msgs
 	grantee := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
 
@@ -68,17 +63,17 @@ func (s *AnteTestSuite) TestAnteCreateValidator() {
 		s.Require().NoError(err)
 
 		// Submit the creation tx
-		_, err = ante.AnteHandle(s.ctx, NewMockTx(msg), false, EmptyAnte)
+		_, err = ante.AnteHandle(s.Ctx, NewMockTx(msg), false, EmptyAnte)
 		validateCreateMsg(s, err, i)
 
 		// Submit the creation tx with authz
 		authzMsg := authz.NewMsgExec(grantee, []sdk.Msg{msg})
-		_, err = ante.AnteHandle(s.ctx, NewMockTx(&authzMsg), false, EmptyAnte)
+		_, err = ante.AnteHandle(s.Ctx, NewMockTx(&authzMsg), false, EmptyAnte)
 		validateCreateMsg(s, err, i)
 
 		// Submit the creation tx with inline authz
 		inlineAuthzMsg := authz.NewMsgExec(grantee, []sdk.Msg{&authzMsg})
-		_, err = ante.AnteHandle(s.ctx, NewMockTx(&inlineAuthzMsg), false, EmptyAnte)
+		_, err = ante.AnteHandle(s.Ctx, NewMockTx(&inlineAuthzMsg), false, EmptyAnte)
 		validateCreateMsg(s, err, i)
 	}
 }
@@ -86,6 +81,7 @@ func (s *AnteTestSuite) TestAnteCreateValidator() {
 // Test the change rate decorator with standard edit msgs,
 // authz edit messages, and inline authz edit messages
 func (s *AnteTestSuite) TestAnteEditValidator() {
+	s.SetupTest()
 	// Grantee used for authz msgs
 	grantee := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
 
@@ -103,7 +99,7 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 		s.Require().NoError(err)
 
 		// Submit the creation tx
-		_, err = ante.AnteHandle(s.ctx, NewMockTx(createMsg), false, EmptyAnte)
+		_, err = ante.AnteHandle(s.Ctx, NewMockTx(createMsg), false, EmptyAnte)
 		s.Require().NoError(err)
 
 		// Create the validator
@@ -116,7 +112,7 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 		s.Require().NoError(err)
 
 		// Set the validator
-		err = s.stakingKeeper.SetValidator(s.ctx, val)
+		err = s.stakingKeeper.SetValidator(s.Ctx, val)
 		s.Require().NoError(err)
 		newRate := sdkmath.LegacyMustNewDecFromStr(maxChangeRate)
 		minDelegation := sdkmath.OneInt()
@@ -130,17 +126,17 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 		)
 
 		// Submit the edit tx
-		_, err = ante.AnteHandle(s.ctx, NewMockTx(editMsg), false, EmptyAnte)
+		_, err = ante.AnteHandle(s.Ctx, NewMockTx(editMsg), false, EmptyAnte)
 		validateEditMsg(s, err, i)
 
 		// Submit the edit tx with authz
 		authzMsg := authz.NewMsgExec(grantee, []sdk.Msg{editMsg})
-		_, err = ante.AnteHandle(s.ctx, NewMockTx(&authzMsg), false, EmptyAnte)
+		_, err = ante.AnteHandle(s.Ctx, NewMockTx(&authzMsg), false, EmptyAnte)
 		validateEditMsg(s, err, i)
 
 		// Submit the edit tx with inline authz
 		inlineAuthzMsg := authz.NewMsgExec(grantee, []sdk.Msg{&authzMsg})
-		_, err = ante.AnteHandle(s.ctx, NewMockTx(&inlineAuthzMsg), false, EmptyAnte)
+		_, err = ante.AnteHandle(s.Ctx, NewMockTx(&inlineAuthzMsg), false, EmptyAnte)
 		validateEditMsg(s, err, i)
 	}
 }

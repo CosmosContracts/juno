@@ -30,10 +30,10 @@ func (s *KeeperTestSuite) TestFeeShareInitGenesis() {
 			s.SetupTest() // reset
 
 			s.Require().NotPanics(func() {
-				s.app.AppKeepers.FeePayKeeper.InitGenesis(s.ctx, tc.genesis)
+				s.App.AppKeepers.FeePayKeeper.InitGenesis(s.Ctx, tc.genesis)
 			})
 
-			params := s.app.AppKeepers.FeePayKeeper.GetParams(s.ctx)
+			params := s.App.AppKeepers.FeePayKeeper.GetParams(s.Ctx)
 			s.Require().Equal(tc.genesis.Params, params)
 		})
 	}

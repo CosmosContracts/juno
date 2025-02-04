@@ -13,10 +13,10 @@ import (
 func (s *KeeperTestSuite) TestDripDistributeTokensMsgs() {
 	_, _, allowedSender := testdata.KeyTestPubAddr()
 	_, _, notAllowedSender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, allowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, notAllowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(allowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(notAllowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	_ = s.app.AppKeepers.DripKeeper.SetParams(s.ctx, types.Params{
+	_ = s.App.AppKeepers.DripKeeper.SetParams(s.Ctx, types.Params{
 		EnableDrip: true,
 		AllowedAddresses: []string{
 			allowedSender.String(),
@@ -78,7 +78,7 @@ func (s *KeeperTestSuite) TestDripDistributeTokensMsgs() {
 				SenderAddress: tc.senderAddr,
 				Amount:        tc.coins,
 			}
-			_, err := s.dripMsgServer.DistributeTokens(s.ctx, &msg)
+			_, err := s.msgServer.DistributeTokens(s.Ctx, &msg)
 
 			if !tc.success {
 				s.Require().Error(err)
@@ -142,7 +142,7 @@ func (s *KeeperTestSuite) TestUpdateDripParams() {
 				EnableDrip:       tc.isEnabled,
 				AllowedAddresses: tc.AllowedAddresses,
 			}
-			err := s.app.AppKeepers.DripKeeper.SetParams(s.ctx, params)
+			err := s.App.AppKeepers.DripKeeper.SetParams(s.Ctx, params)
 
 			if !tc.success {
 				s.Require().Error(err)

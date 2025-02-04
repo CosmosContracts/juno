@@ -13,16 +13,16 @@ import (
 func (s *KeeperTestSuite) TestQueryContract() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Instantiate the contractAddr
-	contractAddr := s.InstantiateContract(sender.String(), "")
+	contractAddr := s.InstantiateContract(sender.String(), "", wasmContract)
 
 	s.registerFeePayContract(sender.String(), contractAddr, 0, 1)
 
 	s.Run("QueryContract", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContractRequest{
+		res, err := s.queryClient.FeePayContract(s.Ctx, &types.QueryFeePayContractRequest{
 			ContractAddress: contractAddr,
 		})
 
@@ -41,7 +41,7 @@ func (s *KeeperTestSuite) TestQueryContract() {
 func (s *KeeperTestSuite) TestQueryContractBalance() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	s.Run("QueryContract", func() {
 		for _, bal := range []struct {
@@ -53,11 +53,11 @@ func (s *KeeperTestSuite) TestQueryContractBalance() {
 			bal := bal
 
 			// Instantiate the contractAddr
-			contractAddr := s.InstantiateContract(sender.String(), "")
+			contractAddr := s.InstantiateContract(sender.String(), "", wasmContract)
 			s.registerFeePayContract(sender.String(), contractAddr, bal.balance, 1)
 
 			// Query for the contract
-			res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContractRequest{
+			res, err := s.queryClient.FeePayContract(s.Ctx, &types.QueryFeePayContractRequest{
 				ContractAddress: contractAddr,
 			})
 
@@ -77,20 +77,20 @@ func (s *KeeperTestSuite) TestQueryContractBalance() {
 func (s *KeeperTestSuite) TestQueryContracts() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Instantiate & register multiple fee pay contracts
 	var contractAddressList []string
 	var feePayContracts []types.FeePayContract
 	for index := 0; index < 5; index++ {
 		// Instantiate the contractAddr
-		contractAddr := s.InstantiateContract(sender.String(), "")
+		contractAddr := s.InstantiateContract(sender.String(), "", wasmContract)
 
 		// Register the fee pay contract
 		s.registerFeePayContract(sender.String(), contractAddr, 0, 1)
 
 		// Query for the contract
-		res, err := s.queryClient.FeePayContract(s.ctx, &types.QueryFeePayContractRequest{
+		res, err := s.queryClient.FeePayContract(s.Ctx, &types.QueryFeePayContractRequest{
 			ContractAddress: contractAddr,
 		})
 
@@ -122,7 +122,7 @@ func (s *KeeperTestSuite) TestQueryContracts() {
 	s.Run("ByOffset", func() {
 		step := 2
 		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.FeePayContracts(s.ctx, request(nil, uint64(i), uint64(step), false))
+			resp, err := s.queryClient.FeePayContracts(s.Ctx, request(nil, uint64(i), uint64(step), false))
 			s.Require().NoError(err)
 			s.Require().LessOrEqual(len(resp.FeePayContracts), step)
 			s.Require().Subset(nullify.Fill(feePayContracts), nullify.Fill(resp.FeePayContracts))
@@ -133,7 +133,7 @@ func (s *KeeperTestSuite) TestQueryContracts() {
 		step := 2
 		var next []byte
 		for i := 0; i < len(contractAddressList); i += step {
-			resp, err := s.queryClient.FeePayContracts(s.ctx, request(next, 0, uint64(step), false))
+			resp, err := s.queryClient.FeePayContracts(s.Ctx, request(next, 0, uint64(step), false))
 			s.Require().NoError(err)
 			s.Require().LessOrEqual(len(resp.FeePayContracts), step)
 			s.Require().Subset(nullify.Fill(feePayContracts), nullify.Fill(resp.FeePayContracts))
@@ -142,7 +142,7 @@ func (s *KeeperTestSuite) TestQueryContracts() {
 	})
 
 	s.Run("Total", func() {
-		resp, err := s.queryClient.FeePayContracts(s.ctx, request(nil, 0, 0, true))
+		resp, err := s.queryClient.FeePayContracts(s.Ctx, request(nil, 0, 0, true))
 		s.Require().NoError(err)
 		s.Require().Equal(len(contractAddressList), int(resp.Pagination.Total))
 		s.Require().ElementsMatch(nullify.Fill(feePayContracts), nullify.Fill(resp.FeePayContracts))
@@ -152,17 +152,17 @@ func (s *KeeperTestSuite) TestQueryContracts() {
 func (s *KeeperTestSuite) TestQueryEligibility() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
 
 	// Instantiate the contractAddr
-	contractAddr := s.InstantiateContract(sender.String(), "")
+	contractAddr := s.InstantiateContract(sender.String(), "", wasmContract)
 
 	// Register the fee pay contract
 	s.registerFeePayContract(sender.String(), contractAddr, 0, 1)
 
 	s.Run("QueryEligibilityNoFunds", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayWalletIsEligible(s.ctx, &types.QueryFeePayWalletIsEligibleRequest{
+		res, err := s.queryClient.FeePayWalletIsEligible(s.Ctx, &types.QueryFeePayWalletIsEligibleRequest{
 			ContractAddress: contractAddr,
 			WalletAddress:   sender.String(),
 		})
@@ -173,7 +173,7 @@ func (s *KeeperTestSuite) TestQueryEligibility() {
 	})
 
 	// Add funds
-	_, err := s.msgServer.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
+	_, err := s.msgServer.FundFeePayContract(s.Ctx, &types.MsgFundFeePayContract{
 		SenderAddress:   sender.String(),
 		ContractAddress: contractAddr,
 		Amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))),
@@ -182,7 +182,7 @@ func (s *KeeperTestSuite) TestQueryEligibility() {
 
 	s.Run("QueryEligibilityWithFunds", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayWalletIsEligible(s.ctx, &types.QueryFeePayWalletIsEligibleRequest{
+		res, err := s.queryClient.FeePayWalletIsEligible(s.Ctx, &types.QueryFeePayWalletIsEligibleRequest{
 			ContractAddress: contractAddr,
 			WalletAddress:   sender.String(),
 		})
@@ -193,7 +193,7 @@ func (s *KeeperTestSuite) TestQueryEligibility() {
 	})
 
 	// Update usage limit to 0
-	_, err = s.msgServer.UpdateFeePayContractWalletLimit(s.ctx, &types.MsgUpdateFeePayContractWalletLimit{
+	_, err = s.msgServer.UpdateFeePayContractWalletLimit(s.Ctx, &types.MsgUpdateFeePayContractWalletLimit{
 		SenderAddress:   sender.String(),
 		ContractAddress: contractAddr,
 		WalletLimit:     0,
@@ -202,7 +202,7 @@ func (s *KeeperTestSuite) TestQueryEligibility() {
 
 	s.Run("QueryEligibilityWithLimit", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayWalletIsEligible(s.ctx, &types.QueryFeePayWalletIsEligibleRequest{
+		res, err := s.queryClient.FeePayWalletIsEligible(s.Ctx, &types.QueryFeePayWalletIsEligibleRequest{
 			ContractAddress: contractAddr,
 			WalletAddress:   sender.String(),
 		})
@@ -216,17 +216,17 @@ func (s *KeeperTestSuite) TestQueryEligibility() {
 func (s *KeeperTestSuite) TestQueryUses() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Instantiate the contractAddr
-	contractAddr := s.InstantiateContract(sender.String(), "")
+	contractAddr := s.InstantiateContract(sender.String(), "", wasmContract)
 
 	// Register the fee pay contract
 	s.registerFeePayContract(sender.String(), contractAddr, 0, 1)
 
 	s.Run("QueryUses", func() {
 		// Query for the contract
-		res, err := s.queryClient.FeePayContractUses(s.ctx, &types.QueryFeePayContractUsesRequest{
+		res, err := s.queryClient.FeePayContractUses(s.Ctx, &types.QueryFeePayContractUsesRequest{
 			ContractAddress: contractAddr,
 			WalletAddress:   sender.String(),
 		})

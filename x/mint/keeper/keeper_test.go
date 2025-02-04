@@ -5,22 +5,20 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
 	"github.com/CosmosContracts/juno/v27/testutil"
-	"github.com/CosmosContracts/juno/v27/x/drip/keeper"
-	"github.com/CosmosContracts/juno/v27/x/drip/types"
+	"github.com/CosmosContracts/juno/v27/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v27/x/mint/types"
 )
 
 type KeeperTestSuite struct {
 	testutil.KeeperTestHelper
 
-	genesis types.GenesisState
-
-	bankKeeper bankkeeper.Keeper
+	mintKeeper    keeper.Keeper
+	accountKeeper authkeeper.AccountKeeper
 
 	queryClient types.QueryClient
-	msgServer   types.MsgServer
 }
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -29,10 +27,8 @@ func TestKeeperTestSuite(t *testing.T) {
 
 func (s *KeeperTestSuite) SetupTest() {
 	s.Setup()
-	s.genesis = *types.DefaultGenesisState()
-
-	s.bankKeeper = s.App.AppKeepers.BankKeeper
+	s.mintKeeper = s.App.AppKeepers.MintKeeper
+	s.accountKeeper = s.App.AppKeepers.AccountKeeper
 
 	s.queryClient = types.NewQueryClient(s.QueryHelper)
-	s.msgServer = keeper.NewMsgServerImpl(s.App.AppKeepers.DripKeeper)
 }

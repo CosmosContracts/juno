@@ -12,14 +12,15 @@ import (
 )
 
 func (s *KeeperTestSuite) TestRegisterFeePayContract() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	noAdminContractAddress := s.InstantiateContract(sender.String(), "")
-	withAdminContractAddress := s.InstantiateContract(sender.String(), admin.String())
-	tContract := s.InstantiateContract(sender.String(), admin.String())
+	noAdminContractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
+	withAdminContractAddress := s.InstantiateContract(sender.String(), admin.String(), wasmContract)
+	tContract := s.InstantiateContract(sender.String(), admin.String(), wasmContract)
 
 	for _, tc := range []struct {
 		desc            string
@@ -67,7 +68,7 @@ func (s *KeeperTestSuite) TestRegisterFeePayContract() {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-			_, err := s.msgServer.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
+			_, err := s.msgServer.RegisterFeePayContract(s.Ctx, &types.MsgRegisterFeePayContract{
 				SenderAddress: tc.senderAddress,
 				FeePayContract: &types.FeePayContract{
 					ContractAddress: tc.contractAddress,
@@ -85,13 +86,14 @@ func (s *KeeperTestSuite) TestRegisterFeePayContract() {
 }
 
 func (s *KeeperTestSuite) TestUnregisterFeePayContract() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	creatorContract := s.InstantiateContract(sender.String(), "")
-	adminContract := s.InstantiateContract(sender.String(), admin.String())
+	creatorContract := s.InstantiateContract(sender.String(), "", wasmContract)
+	adminContract := s.InstantiateContract(sender.String(), admin.String(), wasmContract)
 
 	s.registerFeePayContract(sender.String(), creatorContract, 0, 1)
 	s.registerFeePayContract(admin.String(), adminContract, 0, 0)
@@ -142,7 +144,7 @@ func (s *KeeperTestSuite) TestUnregisterFeePayContract() {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-			_, err := s.msgServer.UnregisterFeePayContract(s.ctx, &types.MsgUnregisterFeePayContract{
+			_, err := s.msgServer.UnregisterFeePayContract(s.Ctx, &types.MsgUnregisterFeePayContract{
 				SenderAddress:   tc.senderAddress,
 				ContractAddress: tc.contractAddress,
 			})
@@ -157,12 +159,13 @@ func (s *KeeperTestSuite) TestUnregisterFeePayContract() {
 }
 
 func (s *KeeperTestSuite) TestFundFeePayContract() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	contract := s.InstantiateContract(sender.String(), "")
+	contract := s.InstantiateContract(sender.String(), "", wasmContract)
 
 	s.registerFeePayContract(sender.String(), contract, 0, 1)
 
@@ -212,7 +215,7 @@ func (s *KeeperTestSuite) TestFundFeePayContract() {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-			_, err := s.msgServer.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
+			_, err := s.msgServer.FundFeePayContract(s.Ctx, &types.MsgFundFeePayContract{
 				SenderAddress:   tc.senderAddress,
 				ContractAddress: tc.contractAddress,
 				Amount:          tc.amount,
@@ -228,13 +231,14 @@ func (s *KeeperTestSuite) TestFundFeePayContract() {
 }
 
 func (s *KeeperTestSuite) TestUpdateFeePayContractWalletLimit() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	creatorContract := s.InstantiateContract(sender.String(), "")
-	adminContract := s.InstantiateContract(sender.String(), admin.String())
+	creatorContract := s.InstantiateContract(sender.String(), "", wasmContract)
+	adminContract := s.InstantiateContract(sender.String(), admin.String(), wasmContract)
 
 	s.registerFeePayContract(sender.String(), creatorContract, 0, 1)
 	s.registerFeePayContract(admin.String(), adminContract, 0, 0)
@@ -299,7 +303,7 @@ func (s *KeeperTestSuite) TestUpdateFeePayContractWalletLimit() {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-			_, err := s.msgServer.UpdateFeePayContractWalletLimit(s.ctx, &types.MsgUpdateFeePayContractWalletLimit{
+			_, err := s.msgServer.UpdateFeePayContractWalletLimit(s.Ctx, &types.MsgUpdateFeePayContractWalletLimit{
 				SenderAddress:   tc.senderAddress,
 				ContractAddress: tc.contractAddress,
 				WalletLimit:     tc.walletLimit,

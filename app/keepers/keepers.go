@@ -604,7 +604,7 @@ func NewAppKeepers(
 	appKeepers.CWHooksKeeper = cwhookskeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[cwhookstypes.StoreKey]),
-		stakingKeeper,
+		*stakingKeeper,
 		*govKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.ContractKeeper,

@@ -35,7 +35,7 @@ func (h StakingHooks) AfterValidatorCreated(ctx context.Context, valAddr sdk.Val
 	val, err := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	h.k.Logger(ctx).Debug("AfterValidatorCreated: ", val)
 	if val == nil {
-		return nil
+		return err
 	}
 	if err != nil {
 		return err

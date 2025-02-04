@@ -71,14 +71,14 @@ func (s *KeeperTestSuite) TestFeeShareInitGenesis() {
 
 			if tc.expPanic {
 				s.Require().Panics(func() {
-					s.app.AppKeepers.FeeShareKeeper.InitGenesis(s.ctx, tc.genesis)
+					s.App.AppKeepers.FeeShareKeeper.InitGenesis(s.Ctx, tc.genesis)
 				})
 			} else {
 				s.Require().NotPanics(func() {
-					s.app.AppKeepers.FeeShareKeeper.InitGenesis(s.ctx, tc.genesis)
+					s.App.AppKeepers.FeeShareKeeper.InitGenesis(s.Ctx, tc.genesis)
 				})
 
-				params := s.app.AppKeepers.FeeShareKeeper.GetParams(s.ctx)
+				params := s.App.AppKeepers.FeeShareKeeper.GetParams(s.Ctx)
 				s.Require().Equal(tc.genesis.Params, params)
 			}
 		})

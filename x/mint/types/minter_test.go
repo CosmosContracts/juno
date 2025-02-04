@@ -58,28 +58,30 @@ func TestNextPhase(t *testing.T) {
 	minter := DefaultInitialMinter()
 	params := DefaultParams()
 
-	blocksPerYear := uint64(6311520)
+	blocksPerYear := uint64(100)
 	tests := []struct {
-		currentBlock, currentPhase, startPhaseBlock, blocksYear, expPhase, currentSupply, targetSupply uint64
+		currentBlock, currentPhase, startPhaseBlock, blocksYear, expPhase uint64
+		currentSupply                                                     sdkmath.Int
+		targetSupply                                                      sdkmath.Int
 	}{
-		{1, 0, 0, blocksPerYear, 1, 10000, 14000},
-		{50, 1, 1, blocksPerYear, 1, 12000, 14000},
+		{1, 0, 0, blocksPerYear, 1, sdkmath.NewInt(10000), sdkmath.NewInt(14000)},
+		{50, 1, 1, blocksPerYear, 1, sdkmath.NewInt(12000), sdkmath.NewInt(14000)},
 		// if targetSupply is > currentSupply it doesn't
 		// matter how much by
-		{99, 1, 1, blocksPerYear, 1, 13960, 1140000},
-		{100, 1, 1, blocksPerYear, 2, 14000, 14000},
-		{101, 1, 1, blocksPerYear, 2, 16000, 14000},
+		{99, 1, 1, blocksPerYear, 1, sdkmath.NewInt(13960), sdkmath.NewInt(1140000)},
+		{100, 1, 1, blocksPerYear, 2, sdkmath.NewInt(14000), sdkmath.NewInt(14000)},
+		{101, 1, 1, blocksPerYear, 2, sdkmath.NewInt(16000), sdkmath.NewInt(14000)},
 		// since currentSupply is larger than targetSupply
 		// next phase returns phase + 1 regardless of inputs
-		{102, 2, 101, blocksPerYear, 3, 29000, 14000},
+		{102, 2, 101, blocksPerYear, 3, sdkmath.NewInt(29000), sdkmath.NewInt(14000)},
 	}
 	for i, tc := range tests {
 		minter.Phase = tc.currentPhase
 		minter.StartPhaseBlock = tc.startPhaseBlock
-		minter.TargetSupply = sdkmath.NewIntFromUint64(tc.targetSupply)
+		minter.TargetSupply = tc.targetSupply
 		params.BlocksPerYear = tc.blocksYear
 
-		phase := minter.NextPhase(params, sdkmath.NewIntFromUint64(tc.currentBlock))
+		phase := minter.NextPhase(params, tc.currentSupply)
 
 		require.True(t, phase == tc.expPhase,
 			"Test Index: %v\nPhase:  %v\nExpected: %v\n", i, phase, tc.expPhase)

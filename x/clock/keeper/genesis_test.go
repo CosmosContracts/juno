@@ -39,18 +39,17 @@ func (s *KeeperTestSuite) TestClockInitGenesis() {
 
 	for _, tc := range testCases {
 		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			s.SetupTest() // reset
-
+			s.Reset()
 			if tc.success {
 				s.Require().NotPanics(func() {
-					s.app.AppKeepers.ClockKeeper.InitGenesis(s.ctx, tc.genesis)
+					s.App.AppKeepers.ClockKeeper.InitGenesis(s.Ctx, tc.genesis)
 				})
 
-				params := s.app.AppKeepers.ClockKeeper.GetParams(s.ctx)
+				params := s.App.AppKeepers.ClockKeeper.GetParams(s.Ctx)
 				s.Require().Equal(tc.genesis.Params, params)
 			} else {
 				s.Require().Panics(func() {
-					s.app.AppKeepers.ClockKeeper.InitGenesis(s.ctx, tc.genesis)
+					s.App.AppKeepers.ClockKeeper.InitGenesis(s.Ctx, tc.genesis)
 				})
 			}
 		})

@@ -11,17 +11,14 @@ import (
 	"github.com/CosmosContracts/juno/v27/x/feeshare/types"
 )
 
-//go:embed testdata/reflect.wasm
-var wasmContract []byte
-
 func (s *KeeperTestSuite) TestGetContractAdminOrCreatorAddress() {
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	noAdminContractAddress := s.InstantiateContract(sender.String(), "")
-	withAdminContractAddress := s.InstantiateContract(sender.String(), admin.String())
+	noAdminContractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
+	withAdminContractAddress := s.InstantiateContract(sender.String(), admin.String(), wasmContract)
 
 	for _, tc := range []struct {
 		desc            string
@@ -51,10 +48,10 @@ func (s *KeeperTestSuite) TestGetContractAdminOrCreatorAddress() {
 		tc := tc
 		s.Run(tc.desc, func() {
 			if !tc.shouldErr {
-				_, err := s.app.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
+				_, err := s.App.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.Ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
 				s.Require().NoError(err)
 			} else {
-				_, err := s.app.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
+				_, err := s.App.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.Ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
 				s.Require().Error(err)
 			}
 		})
@@ -63,16 +60,16 @@ func (s *KeeperTestSuite) TestGetContractAdminOrCreatorAddress() {
 
 func (s *KeeperTestSuite) TestRegisterFeeShare() {
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	gov := s.accountKeeper.GetModuleAddress(govtypes.ModuleName).String()
-	govContract := s.InstantiateContract(sender.String(), gov)
+	govContract := s.InstantiateContract(sender.String(), gov, wasmContract)
 
-	contractAddress := s.InstantiateContract(sender.String(), "")
-	contractAddress2 := s.InstantiateContract(contractAddress, contractAddress)
+	contractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
+	contractAddress2 := s.InstantiateContract(contractAddress, contractAddress, wasmContract)
 
-	DAODAO := s.InstantiateContract(sender.String(), "")
-	subContract := s.InstantiateContract(DAODAO, DAODAO)
+	DAODAO := s.InstantiateContract(sender.String(), "", wasmContract)
+	subContract := s.InstantiateContract(DAODAO, DAODAO, wasmContract)
 
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
@@ -175,13 +172,13 @@ func (s *KeeperTestSuite) TestRegisterFeeShare() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			goCtx := sdk.WrapSDKContext(s.ctx)
+			goCtx := sdk.WrapSDKContext(s.Ctx)
 			if !tc.shouldErr {
-				resp, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, tc.msg)
+				resp, err := s.msgServer.RegisterFeeShare(goCtx, tc.msg)
 				s.Require().NoError(err)
 				s.Require().Equal(resp, tc.resp)
 			} else {
-				resp, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, tc.msg)
+				resp, err := s.msgServer.RegisterFeeShare(goCtx, tc.msg)
 				s.Require().Error(err)
 				s.Require().Nil(resp)
 			}
@@ -191,22 +188,22 @@ func (s *KeeperTestSuite) TestRegisterFeeShare() {
 
 func (s *KeeperTestSuite) TestUpdateFeeShare() {
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	contractAddress := s.InstantiateContract(sender.String(), "")
+	contractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
-	contractAddressNoRegisFeeShare := s.InstantiateContract(sender.String(), "")
+	contractAddressNoRegisFeeShare := s.InstantiateContract(sender.String(), "", wasmContract)
 	s.Require().NotEqual(contractAddress, contractAddressNoRegisFeeShare)
 
 	// RegsisFeeShare
-	goCtx := sdk.WrapSDKContext(s.ctx)
+	goCtx := sdk.WrapSDKContext(s.Ctx)
 	msg := &types.MsgRegisterFeeShare{
 		ContractAddress:   contractAddress,
 		DeployerAddress:   sender.String(),
 		WithdrawerAddress: withdrawer.String(),
 	}
-	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
+	_, err := s.msgServer.RegisterFeeShare(goCtx, msg)
 	s.Require().NoError(err)
 	_, _, newWithdrawer := testdata.KeyTestPubAddr()
 	s.Require().NotEqual(withdrawer, newWithdrawer)
@@ -270,12 +267,12 @@ func (s *KeeperTestSuite) TestUpdateFeeShare() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			goCtx := sdk.WrapSDKContext(s.ctx)
+			goCtx := sdk.WrapSDKContext(s.Ctx)
 			if !tc.shouldErr {
-				_, err := s.feeShareMsgServer.UpdateFeeShare(goCtx, tc.msg)
+				_, err := s.msgServer.UpdateFeeShare(goCtx, tc.msg)
 				s.Require().NoError(err)
 			} else {
-				resp, err := s.feeShareMsgServer.UpdateFeeShare(goCtx, tc.msg)
+				resp, err := s.msgServer.UpdateFeeShare(goCtx, tc.msg)
 				s.Require().Error(err)
 				s.Require().Nil(resp)
 			}
@@ -285,19 +282,18 @@ func (s *KeeperTestSuite) TestUpdateFeeShare() {
 
 func (s *KeeperTestSuite) TestCancelFeeShare() {
 	_, _, sender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	contractAddress := s.InstantiateContract(sender.String(), "")
+	contractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
 	// RegsisFeeShare
-	goCtx := sdk.WrapSDKContext(s.ctx)
 	msg := &types.MsgRegisterFeeShare{
 		ContractAddress:   contractAddress,
 		DeployerAddress:   sender.String(),
 		WithdrawerAddress: withdrawer.String(),
 	}
-	_, err := s.feeShareMsgServer.RegisterFeeShare(goCtx, msg)
+	_, err := s.msgServer.RegisterFeeShare(s.Ctx, msg)
 	s.Require().NoError(err)
 
 	for _, tc := range []struct {
@@ -336,13 +332,12 @@ func (s *KeeperTestSuite) TestCancelFeeShare() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			goCtx := sdk.WrapSDKContext(s.ctx)
 			if !tc.shouldErr {
-				resp, err := s.feeShareMsgServer.CancelFeeShare(goCtx, tc.msg)
+				resp, err := s.msgServer.CancelFeeShare(s.Ctx, tc.msg)
 				s.Require().NoError(err)
 				s.Require().Equal(resp, tc.resp)
 			} else {
-				resp, err := s.feeShareMsgServer.CancelFeeShare(goCtx, tc.msg)
+				resp, err := s.msgServer.CancelFeeShare(s.Ctx, tc.msg)
 				s.Require().Error(err)
 				s.Require().Equal(resp, tc.resp)
 			}

@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v27/x/clock/keeper"
 	"github.com/CosmosContracts/juno/v27/x/clock/types"
 )
 
@@ -19,24 +18,24 @@ func (s *KeeperTestSuite) registerContract() string {
 	// Create & fund accounts
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Instantiate contract
 	contractAddress := s.InstantiateContract(sender.String(), admin.String(), clockContract)
 
 	// Register contract
-	clockKeeper := s.app.AppKeepers.ClockKeeper
-	err := clockKeeper.RegisterContract(s.ctx, admin.String(), contractAddress)
+	clockKeeper := s.App.AppKeepers.ClockKeeper
+	err := clockKeeper.RegisterContract(s.Ctx, admin.String(), contractAddress)
 	s.Require().NoError(err)
 
 	// Assert contract is registered
-	contract, err := clockKeeper.GetClockContract(s.ctx, contractAddress)
+	contract, err := clockKeeper.GetClockContract(s.Ctx, contractAddress)
 	s.Require().NoError(err)
 	s.Require().Equal(contractAddress, contract.ContractAddress)
 
 	// Increment block height
-	s.ctx = s.ctx.WithBlockHeight(11)
+	s.Ctx = s.Ctx.WithBlockHeight(11)
 
 	return contract.ContractAddress
 }
@@ -45,7 +44,7 @@ func (s *KeeperTestSuite) registerContract() string {
 // too little gas, and also ensures the unjailing process functions.
 func (s *KeeperTestSuite) TestEndBlocker() {
 	// Setup test
-	clockKeeper := s.app.AppKeepers.ClockKeeper
+	clockKeeper := s.App.AppKeepers.ClockKeeper
 	s.StoreCode(clockContract)
 	contractAddress := s.registerContract()
 
@@ -54,7 +53,7 @@ func (s *KeeperTestSuite) TestEndBlocker() {
 	s.Require().Equal(int64(0), val)
 
 	// Call end blocker
-	s.callEndBlocker()
+	s.EndBlock()
 
 	// Query contract
 	val = s.queryContract(contractAddress)
@@ -64,10 +63,10 @@ func (s *KeeperTestSuite) TestEndBlocker() {
 	s.updateGasLimit(65_000)
 
 	// Call end blocker
-	s.callEndBlocker()
+	s.EndBlock()
 
 	// Ensure contract is now jailed
-	contract, err := clockKeeper.GetClockContract(s.ctx, contractAddress)
+	contract, err := clockKeeper.GetClockContract(s.Ctx, contractAddress)
 	s.Require().NoError(err)
 	s.Require().True(contract.IsJailed)
 
@@ -75,19 +74,19 @@ func (s *KeeperTestSuite) TestEndBlocker() {
 	s.updateGasLimit(types.DefaultParams().ContractGasLimit)
 
 	// Call end blocker
-	s.callEndBlocker()
+	s.EndBlock()
 
 	// Unjail contract
-	err = clockKeeper.SetJailStatus(s.ctx, contractAddress, false)
+	err = clockKeeper.SetJailStatus(s.Ctx, contractAddress, false)
 	s.Require().NoError(err)
 
 	// Ensure contract is no longer jailed
-	contract, err = clockKeeper.GetClockContract(s.ctx, contractAddress)
+	contract, err = clockKeeper.GetClockContract(s.Ctx, contractAddress)
 	s.Require().NoError(err)
 	s.Require().False(contract.IsJailed)
 
 	// Call end blocker
-	s.callEndBlocker()
+	s.EndBlock()
 
 	// Query contract
 	val = s.queryContract(contractAddress)
@@ -97,15 +96,15 @@ func (s *KeeperTestSuite) TestEndBlocker() {
 // Test a contract which does not handle the sudo EndBlock msg.
 func (s *KeeperTestSuite) TestInvalidContract() {
 	// Setup test
-	clockKeeper := s.app.AppKeepers.ClockKeeper
+	clockKeeper := s.App.AppKeepers.ClockKeeper
 	s.StoreCode(burnContract)
 	contractAddress := s.registerContract()
 
 	// Run the end blocker
-	s.callEndBlocker()
+	s.EndBlock()
 
 	// Ensure contract is now jailed
-	contract, err := clockKeeper.GetClockContract(s.ctx, contractAddress)
+	contract, err := clockKeeper.GetClockContract(s.Ctx, contractAddress)
 	s.Require().NoError(err)
 	s.Require().True(contract.IsJailed)
 }
@@ -123,16 +122,16 @@ func (s *KeeperTestSuite) TestPerformance() {
 	}
 
 	// Ensure contracts exist
-	clockKeeper := s.app.AppKeepers.ClockKeeper
-	contracts, err := clockKeeper.GetAllContracts(s.ctx)
+	clockKeeper := s.App.AppKeepers.ClockKeeper
+	contracts, err := clockKeeper.GetAllContracts(s.Ctx)
 	s.Require().NoError(err)
 	s.Require().Len(contracts, numContracts)
 
 	// Call end blocker
-	s.callEndBlocker()
+	s.EndBlock()
 
 	// Ensure contracts are jailed
-	contracts, err = clockKeeper.GetAllContracts(s.ctx)
+	contracts, err = clockKeeper.GetAllContracts(s.Ctx)
 	s.Require().NoError(err)
 	for _, contract := range contracts {
 		s.Require().True(contract.IsJailed)
@@ -143,26 +142,19 @@ func (s *KeeperTestSuite) TestPerformance() {
 func (s *KeeperTestSuite) updateGasLimit(gasLimit uint64) {
 	params := types.DefaultParams()
 	params.ContractGasLimit = gasLimit
-	k := s.app.AppKeepers.ClockKeeper
+	k := s.App.AppKeepers.ClockKeeper
 
-	store := runtime.KVStoreAdapter(k.GetStoreService().OpenKVStore(s.ctx))
+	store := runtime.KVStoreAdapter(k.GetStoreService().OpenKVStore(s.Ctx))
 	bz := k.GetCdc().MustMarshal(&params)
 	store.Set(types.ParamsKey, bz)
 
-	s.ctx = s.ctx.WithBlockHeight(s.ctx.BlockHeight() + 1)
-}
-
-// Call the end blocker, incrementing the block height
-func (s *KeeperTestSuite) callEndBlocker() {
-	err := keeper.EndBlocker(s.ctx, s.app.AppKeepers.ClockKeeper)
-	s.Require().NoError(err)
-	s.ctx = s.ctx.WithBlockHeight(s.ctx.BlockHeight() + 1)
+	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
 }
 
 // Query the clock contract
 func (s *KeeperTestSuite) queryContract(contractAddress string) int64 {
 	query := `{"get_config":{}}`
-	output, err := s.app.AppKeepers.WasmKeeper.QuerySmart(s.ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(query))
+	output, err := s.App.AppKeepers.WasmKeeper.QuerySmart(s.Ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(query))
 	s.Require().NoError(err)
 
 	var val struct {

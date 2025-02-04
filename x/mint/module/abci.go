@@ -18,13 +18,19 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// fetch stored minter & params
-	minter := k.GetMinter(ctx)
+	minter, err := k.GetMinter(ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	if minter.Inflation.Equal(sdkmath.LegacyZeroDec()) {
 		return nil
 	}
 
-	params := k.GetParams(ctx)
+	params, err := k.GetParams(ctx)
+	if err != nil {
+		panic(err)
+	}
 	currentBlock := uint64(sdkCtx.BlockHeight())
 	totalSupply := k.TokenSupply(ctx, params.MintDenom)
 	nextPhase := minter.NextPhase(params, totalSupply)
@@ -43,7 +49,7 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) error {
 	mintedCoin := minter.BlockProvision(params, totalSupply)
 	mintedCoins := sdk.NewCoins(mintedCoin)
 
-	err := k.MintCoins(ctx, mintedCoins)
+	err = k.MintCoins(ctx, mintedCoins)
 	if err != nil {
 		panic(err)
 	}

@@ -53,8 +53,6 @@ func NewKeeper(
 	}
 }
 
-// ______________________________________________________________________
-
 // GetAuthority returns the x/mint module's authority.
 func (k Keeper) GetAuthority() string {
 	return k.authority
@@ -67,14 +65,14 @@ func (k Keeper) Logger(ctx context.Context) log.Logger {
 }
 
 // get the minter
-func (k Keeper) GetMinter(ctx context.Context) (minter types.Minter) {
+func (k Keeper) GetMinter(ctx context.Context) (minter types.Minter, err error) {
 	store := k.storeService.OpenKVStore(ctx)
 	bz, err := store.Get(types.MinterKey)
 	if bz == nil {
-		panic("stored minter should not have been nil")
+		return minter, err
 	}
 	if err != nil {
-		panic(err)
+		return minter, err
 	}
 
 	k.cdc.MustUnmarshal(bz, &minter)
@@ -82,13 +80,15 @@ func (k Keeper) GetMinter(ctx context.Context) (minter types.Minter) {
 }
 
 // set the minter
-func (k Keeper) SetMinter(ctx context.Context, minter types.Minter) {
+func (k Keeper) SetMinter(ctx context.Context, minter types.Minter) error {
 	store := k.storeService.OpenKVStore(ctx)
 	bz := k.cdc.MustMarshal(&minter)
 	err := store.Set(types.MinterKey, bz)
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 // ______________________________________________________________________
@@ -110,18 +110,18 @@ func (k Keeper) SetParams(ctx context.Context, p types.Params) error {
 }
 
 // GetParams returns the current x/mint module parameters.
-func (k Keeper) GetParams(ctx context.Context) (p types.Params) {
+func (k Keeper) GetParams(ctx context.Context) (p types.Params, err error) {
 	store := k.storeService.OpenKVStore(ctx)
 	bz, err := store.Get(types.ParamsKey)
 	if bz == nil {
-		return p
+		return p, err
 	}
 	if err != nil {
-		return p
+		return p, err
 	}
 
 	k.cdc.MustUnmarshal(bz, &p)
-	return p
+	return p, err
 }
 
 func (k Keeper) GetAccountKeeper() types.AccountKeeper {
@@ -174,15 +174,24 @@ func (k Keeper) MintCoins(ctx context.Context, newCoins sdk.Coins) error {
 }
 
 func (k Keeper) ReduceTargetSupply(ctx context.Context, burnCoin sdk.Coin) error {
-	params := k.GetParams(ctx)
+	params, err := k.GetParams(ctx)
+	if err != nil {
+		return err
+	}
 
 	if burnCoin.Denom != params.MintDenom {
 		return fmt.Errorf("tried reducing target supply with non staking token")
 	}
 
-	minter := k.GetMinter(ctx)
+	minter, err := k.GetMinter(ctx)
+	if err != nil {
+		return err
+	}
 	minter.TargetSupply = minter.TargetSupply.Sub(burnCoin.Amount)
-	k.SetMinter(ctx, minter)
+	err = k.SetMinter(ctx, minter)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

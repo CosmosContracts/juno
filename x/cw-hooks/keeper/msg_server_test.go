@@ -14,16 +14,17 @@ import (
 )
 
 func (s *KeeperTestSuite) TestRegisterContracts() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, notAuthorizedAcc := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, notAuthorizedAcc, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(notAuthorizedAcc, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	contractAddress := s.InstantiateContract(sender.String(), "")
-	contractAddressWithAdmin := s.InstantiateContract(notAuthorizedAcc.String(), sender.String())
+	contractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
+	contractAddressWithAdmin := s.InstantiateContract(notAuthorizedAcc.String(), sender.String(), wasmContract)
 
-	DAODAO := s.InstantiateContract(sender.String(), "")
-	daodaoSubContract := s.InstantiateContract(DAODAO, DAODAO)
+	DAODAO := s.InstantiateContract(sender.String(), "", wasmContract)
+	daodaoSubContract := s.InstantiateContract(DAODAO, DAODAO, wasmContract)
 
 	for _, tc := range []struct {
 		desc string
@@ -79,7 +80,7 @@ func (s *KeeperTestSuite) TestRegisterContracts() {
 		tc := tc
 		s.Run(tc.desc, func() {
 			// staking
-			sResp, err := s.msgServer.RegisterStaking(s.ctx, &types.MsgRegisterStaking{
+			sResp, err := s.msgServer.RegisterStaking(s.Ctx, &types.MsgRegisterStaking{
 				ContractAddress: tc.ContractAddress,
 				RegisterAddress: tc.RegisterAddress,
 			})
@@ -92,7 +93,7 @@ func (s *KeeperTestSuite) TestRegisterContracts() {
 			}
 
 			// governance
-			gResp, err := s.msgServer.RegisterGovernance(s.ctx, &types.MsgRegisterGovernance{
+			gResp, err := s.msgServer.RegisterGovernance(s.Ctx, &types.MsgRegisterGovernance{
 				ContractAddress: tc.ContractAddress,
 				RegisterAddress: tc.RegisterAddress,
 			})
@@ -108,20 +109,21 @@ func (s *KeeperTestSuite) TestRegisterContracts() {
 }
 
 func (s *KeeperTestSuite) TestUnRegisterContracts() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, notAuthorizedAcc := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, notAuthorizedAcc, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(notAuthorizedAcc, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	contractAddress := s.InstantiateContract(sender.String(), "")
+	contractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
 
-	_, err := s.msgServer.RegisterStaking(s.ctx, &types.MsgRegisterStaking{
+	_, err := s.msgServer.RegisterStaking(s.Ctx, &types.MsgRegisterStaking{
 		ContractAddress: contractAddress,
 		RegisterAddress: sender.String(),
 	})
 	s.Require().NoError(err)
 
-	_, err = s.msgServer.RegisterGovernance(s.ctx, &types.MsgRegisterGovernance{
+	_, err = s.msgServer.RegisterGovernance(s.Ctx, &types.MsgRegisterGovernance{
 		ContractAddress: contractAddress,
 		RegisterAddress: sender.String(),
 	})
@@ -168,7 +170,7 @@ func (s *KeeperTestSuite) TestUnRegisterContracts() {
 		tc := tc
 		s.Run(tc.desc, func() {
 			// staking
-			sResp, err := s.msgServer.UnregisterStaking(s.ctx, &types.MsgUnregisterStaking{
+			sResp, err := s.msgServer.UnregisterStaking(s.Ctx, &types.MsgUnregisterStaking{
 				ContractAddress: tc.ContractAddress,
 				RegisterAddress: tc.RegisterAddress,
 			})
@@ -181,7 +183,7 @@ func (s *KeeperTestSuite) TestUnRegisterContracts() {
 			}
 
 			// governance
-			gResp, err := s.msgServer.UnregisterGovernance(s.ctx, &types.MsgUnregisterGovernance{
+			gResp, err := s.msgServer.UnregisterGovernance(s.Ctx, &types.MsgUnregisterGovernance{
 				ContractAddress: tc.ContractAddress,
 				RegisterAddress: tc.RegisterAddress,
 			})
@@ -195,11 +197,11 @@ func (s *KeeperTestSuite) TestUnRegisterContracts() {
 		})
 	}
 
-	sc, err := s.queryClient.StakingContracts(s.ctx, &types.QueryStakingContractsRequest{})
+	sc, err := s.queryClient.StakingContracts(s.Ctx, &types.QueryStakingContractsRequest{})
 	s.Require().NoError(err)
 	s.Require().Nil(sc.Contracts)
 
-	gc, err := s.queryClient.GovernanceContracts(s.ctx, &types.QueryGovernanceContractsRequest{})
+	gc, err := s.queryClient.GovernanceContracts(s.Ctx, &types.QueryGovernanceContractsRequest{})
 	s.Require().NoError(err)
 	s.Require().Nil(gc.Contracts)
 }
@@ -208,35 +210,35 @@ func (s *KeeperTestSuite) TestContractExecution() {
 	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	coin := sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(10_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(10_000_000)))
-	_ = s.FundAccount(s.ctx, sender, coin)
+	s.FundAcc(sender, coin)
 
-	contractAddress := s.InstantiateContract(sender.String(), "")
+	contractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
 
 	c := types.Contract{
 		ContractAddress: contractAddress,
 	}
 
-	_, err := s.msgServer.RegisterStaking(s.ctx, &types.MsgRegisterStaking{
+	_, err := s.msgServer.RegisterStaking(s.Ctx, &types.MsgRegisterStaking{
 		ContractAddress: contractAddress,
 		RegisterAddress: sender.String(),
 	})
 	s.Require().NoError(err)
 
 	// staking
-	resp, err := s.queryClient.StakingContracts(s.ctx, &types.QueryStakingContractsRequest{})
+	resp, err := s.queryClient.StakingContracts(s.Ctx, &types.QueryStakingContractsRequest{})
 	s.Require().NoError(err)
 	s.Require().Contains(resp.Contracts, c.ContractAddress)
 
-	vals, err := s.stakingKeeper.GetValidators(s.ctx, 1)
+	vals, err := s.stakingKeeper.GetValidators(s.Ctx, 1)
 	s.Require().NoError(err)
 	val := vals[0]
 
 	// == Delegate Tokens ==
-	_, err = s.stakingKeeper.Delegate(s.ctx, sender, sdkmath.NewInt(1), stakingtypes.Bonded, val, false)
+	_, err = s.stakingKeeper.Delegate(s.Ctx, sender, sdkmath.NewInt(1), stakingtypes.Bonded, val, false)
 	s.Require().NoError(err)
 
 	// query the contract to get the last modified shares (delegation)
-	v, err := s.wasmKeeper.QuerySmart(s.ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_delegation_change":{}}`))
+	v, err := s.wasmKeeper.QuerySmart(s.Ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_delegation_change":{}}`))
 	s.Require().NoError(err)
 
 	shares := "0.000001000000000000"
@@ -247,8 +249,8 @@ func (s *KeeperTestSuite) TestContractExecution() {
 	cons, err := val.GetConsAddr()
 	s.Require().NoError(err)
 
-	s.stakingKeeper.Slash(s.ctx, cons, s.ctx.BlockHeight(), 1, sdkmath.LegacyNewDecWithPrec(5, 1))
+	s.stakingKeeper.Slash(s.Ctx, cons, s.Ctx.BlockHeight(), 1, sdkmath.LegacyNewDecWithPrec(5, 1))
 
-	_, err = s.wasmKeeper.QuerySmart(s.ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_validator_slash":{}}`))
+	_, err = s.wasmKeeper.QuerySmart(s.Ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_validator_slash":{}}`))
 	s.Require().NoError(err)
 }
