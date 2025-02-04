@@ -38,7 +38,7 @@ var (
 )
 
 func request_Query_ClockContracts_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryClockContracts
+	var protoReq QueryClockContractsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -54,7 +54,7 @@ func request_Query_ClockContracts_0(ctx context.Context, marshaler runtime.Marsh
 }
 
 func local_request_Query_ClockContracts_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryClockContracts
+	var protoReq QueryClockContractsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -70,7 +70,7 @@ func local_request_Query_ClockContracts_0(ctx context.Context, marshaler runtime
 }
 
 func request_Query_ClockContract_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryClockContract
+	var protoReq QueryClockContractRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -97,7 +97,7 @@ func request_Query_ClockContract_0(ctx context.Context, marshaler runtime.Marsha
 }
 
 func local_request_Query_ClockContract_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryClockContract
+	var protoReq QueryClockContractRequest
 	var metadata runtime.ServerMetadata
 
 	var (

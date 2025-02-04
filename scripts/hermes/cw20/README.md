@@ -22,7 +22,7 @@ run 2 nodes from the Juno repo + relayer
 ```bash
 # Start both chains
 CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
-CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
+CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
 
 # then run the run script to upload, init, and execute on the above chains
 sh ./scripts/hermes/cw20/run.sh

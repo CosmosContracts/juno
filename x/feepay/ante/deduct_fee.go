@@ -1,6 +1,7 @@
 package ante
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 
@@ -15,9 +16,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	feepaykeeper "github.com/CosmosContracts/juno/v26/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v26/x/feepay/types"
-	globalfeekeeper "github.com/CosmosContracts/juno/v26/x/globalfee/keeper"
+	feepaykeeper "github.com/CosmosContracts/juno/v27/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v27/x/feepay/types"
+	globalfeekeeper "github.com/CosmosContracts/juno/v27/x/globalfee/keeper"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx
@@ -100,7 +101,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	if feeGranter != nil {
 		if dfd.feegrantKeeper == nil {
 			return sdkerrors.ErrInvalidRequest.Wrap("fee grants are not enabled")
-		} else if !feeGranter.Equals(feePayer) {
+		} else if !bytes.Equal(feeGranter, feePayer) {
 			err := dfd.feegrantKeeper.UseGrantedFees(ctx, feeGranter, feePayer, fee, sdkTx.GetMsgs())
 			if err != nil {
 				return errorsmod.Wrapf(err, "%s does not allow to pay fees for %s", feeGranter, feePayer)
@@ -137,6 +138,8 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 	}
 
+	addrStr := sdk.AccAddress(deductFeesFrom).String()
+
 	// If no fee pay error exists, the tx processed successfully. If
 	// a sdk error is present, return all errors.
 	if sdkErr != nil {
@@ -150,7 +153,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		sdk.NewEvent(
 			sdk.EventTypeTx,
 			sdk.NewAttribute(sdk.AttributeKeyFee, fee.String()),
-			sdk.NewAttribute(sdk.AttributeKeyFeePayer, deductFeesFrom.String()),
+			sdk.NewAttribute(sdk.AttributeKeyFeePayer, addrStr),
 		),
 	}
 	ctx.EventManager().EmitEvents(events)
@@ -218,7 +221,7 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 }
 
 // DeductFees deducts fees from the given account.
-func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc types.AccountI, fees sdk.Coins) error {
+func DeductFees(bankKeeper types.BankKeeper, ctx sdk.Context, acc sdk.AccountI, fees sdk.Coins) error {
 	if !fees.IsValid() {
 		return errorsmod.Wrapf(sdkerrors.ErrInsufficientFee, "invalid fee amount: %s", fees)
 	}

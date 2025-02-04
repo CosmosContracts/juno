@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	yaml "gopkg.in/yaml.v2"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -35,12 +33,6 @@ func (p Params) Validate() error {
 	err := validateBlocksPerYear(p.BlocksPerYear)
 
 	return err
-}
-
-// String implements the Stringer interface.
-func (p Params) String() string {
-	out, _ := yaml.Marshal(p)
-	return string(out)
 }
 
 func validateMintDenom(i interface{}) error {

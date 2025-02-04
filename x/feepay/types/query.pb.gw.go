@@ -34,7 +34,7 @@ var _ = descriptor.ForMessage
 var _ = metadata.Join
 
 func request_Query_FeePayContract_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryFeePayContract
+	var protoReq QueryFeePayContractRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -61,7 +61,7 @@ func request_Query_FeePayContract_0(ctx context.Context, marshaler runtime.Marsh
 }
 
 func local_request_Query_FeePayContract_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryFeePayContract
+	var protoReq QueryFeePayContractRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -92,7 +92,7 @@ var (
 )
 
 func request_Query_FeePayContracts_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryFeePayContracts
+	var protoReq QueryFeePayContractsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -108,7 +108,7 @@ func request_Query_FeePayContracts_0(ctx context.Context, marshaler runtime.Mars
 }
 
 func local_request_Query_FeePayContracts_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryFeePayContracts
+	var protoReq QueryFeePayContractsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -124,7 +124,7 @@ func local_request_Query_FeePayContracts_0(ctx context.Context, marshaler runtim
 }
 
 func request_Query_FeePayContractUses_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryFeePayContractUses
+	var protoReq QueryFeePayContractUsesRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -162,7 +162,7 @@ func request_Query_FeePayContractUses_0(ctx context.Context, marshaler runtime.M
 }
 
 func local_request_Query_FeePayContractUses_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryFeePayContractUses
+	var protoReq QueryFeePayContractUsesRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -200,7 +200,7 @@ func local_request_Query_FeePayContractUses_0(ctx context.Context, marshaler run
 }
 
 func request_Query_FeePayWalletIsEligible_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryFeePayWalletIsEligible
+	var protoReq QueryFeePayWalletIsEligibleRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -238,7 +238,7 @@ func request_Query_FeePayWalletIsEligible_0(ctx context.Context, marshaler runti
 }
 
 func local_request_Query_FeePayWalletIsEligible_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryFeePayWalletIsEligible
+	var protoReq QueryFeePayWalletIsEligibleRequest
 	var metadata runtime.ServerMetadata
 
 	var (
