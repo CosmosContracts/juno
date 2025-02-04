@@ -29,7 +29,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/gogoproto/proto"
 
-	wasmlckeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
@@ -325,11 +324,6 @@ func New(
 			tmos.Exit(err.Error())
 		}
 		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
-
-		// https://github.com/cosmos/ibc-go/pull/5439
-		if err := wasmlckeeper.InitializePinnedCodes(ctx); err != nil {
-			tmos.Exit(fmt.Sprintf("wasmlckeeper failed initialize pinned codes %s", err))
-		}
 
 		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
 			tmos.Exit(fmt.Sprintf("app.AppKeepers.WasmKeeper failed initialize pinned codes %s", err))

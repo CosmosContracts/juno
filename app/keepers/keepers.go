@@ -1,14 +1,12 @@
 package keepers
 
 import (
-	"fmt"
 	"math"
 	"path/filepath"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	wasmvm "github.com/CosmWasm/wasmvm/v2"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/spf13/cast"
@@ -535,16 +533,6 @@ func NewAppKeepers(
 	}
 	wasmOpts = append(wasmOpts, wasmkeeper.WithGasRegister(NewJunoWasmGasRegister()))
 
-	mainWasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
-	if err != nil {
-		panic(fmt.Sprintf("failed to create juno wasm vm: %s", err))
-	}
-
-	// lcWasmer, err := wasmvm.NewVM(lcDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
-	// if err != nil {
-	// 	panic(fmt.Sprintf("failed to create juno wasm vm for 08-wasm: %s", err))
-	// }
-
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[wasmtypes.StoreKey]),
@@ -559,12 +547,12 @@ func NewAppKeepers(
 		appKeepers.TransferKeeper,
 		bApp.MsgServiceRouter(),
 		bApp.GRPCQueryRouter(),
-		dataDir,
+		wasmDir,
 		wasmConfig,
 		wasmtypes.VMConfig{},
 		wasmCapabilities,
 		govModAddress,
-		append(wasmOpts, wasmkeeper.WithWasmEngine(mainWasmer))...,
+		wasmOpts...,
 	)
 
 	appKeepers.FeePayKeeper = feepaykeeper.NewKeeper(
