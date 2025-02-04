@@ -5,7 +5,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v26/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v27/x/globalfee/types"
 )
 
 // Keeper of the globalfee store

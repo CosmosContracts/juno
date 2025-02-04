@@ -13,10 +13,10 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	decorators "github.com/CosmosContracts/juno/v26/app/decorators"
-	"github.com/CosmosContracts/juno/v26/app/keepers"
-	"github.com/CosmosContracts/juno/v26/app/upgrades"
-	clocktypes "github.com/CosmosContracts/juno/v26/x/clock/types"
+	decorators "github.com/CosmosContracts/juno/v27/app/decorators"
+	"github.com/CosmosContracts/juno/v27/app/keepers"
+	"github.com/CosmosContracts/juno/v27/app/upgrades"
+	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
 )
 
 func CreateV19UpgradeHandler(

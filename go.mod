@@ -1,4 +1,4 @@
-module github.com/CosmosContracts/juno/v26
+module github.com/CosmosContracts/juno/v27
 
 go 1.22.2
 
@@ -9,7 +9,7 @@ require (
 	cosmossdk.io/math v1.4.0
 	cosmossdk.io/tools/rosetta v0.2.1
 	github.com/CosmWasm/wasmd v0.46.0
-	github.com/CosmWasm/wasmvm v1.5.5
+	github.com/CosmWasm/wasmvm v1.5.8
 	github.com/cometbft/cometbft v0.37.8
 	github.com/cometbft/cometbft-db v0.12.0
 	github.com/cosmos/cosmos-sdk v0.47.15

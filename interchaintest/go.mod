@@ -4,7 +4,7 @@ go 1.22.2
 
 replace (
 	// For this nested module, you always want to replace the parent reference with the current worktree.
-	github.com/CosmosContracts/juno/v26 v26.0.0-00010101000000-000000000000 => ../
+	github.com/CosmosContracts/juno/v27 v27.0.0-00010101000000-000000000000 => ../
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/misko9/go-substrate-rpc-client/v4 => github.com/faddat/go-substrate-rpc-client/v4 v4.0.1-0.20240402155230-48db8c110afe
 
@@ -15,7 +15,7 @@ replace (
 require (
 	cosmossdk.io/math v1.4.0
 	github.com/CosmWasm/wasmd v0.46.0
-	github.com/CosmosContracts/juno/v26 v26.0.0-00010101000000-000000000000
+	github.com/CosmosContracts/juno/v27 v27.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk v0.47.15
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/cosmos/ibc-go/v7 v7.6.0
@@ -65,7 +65,7 @@ require (
 	github.com/99designs/keyring v1.2.2 // indirect
 	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/ChainSafe/go-schnorrkel v1.0.0 // indirect
-	github.com/CosmWasm/wasmvm v1.5.5 // indirect
+	github.com/CosmWasm/wasmvm v1.5.8 // indirect
 	github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e // indirect
 	github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect

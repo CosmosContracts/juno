@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v26/x/mint/types"
+	"github.com/CosmosContracts/juno/v27/x/mint/types"
 )
 
 // Simulation parameter constants

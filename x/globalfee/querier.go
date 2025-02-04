@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v26/x/globalfee/keeper"
-	"github.com/CosmosContracts/juno/v26/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v27/x/globalfee/keeper"
+	"github.com/CosmosContracts/juno/v27/x/globalfee/types"
 )
 
 var _ types.QueryServer = &GrpcQuerier{}
