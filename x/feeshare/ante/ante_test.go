@@ -221,11 +221,11 @@ func (tx MockTx) GetFee() sdk.Coins {
 	return sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(500)))
 }
 
-func (tx MockTx) FeePayer() sdk.AccAddress {
+func (tx MockTx) FeePayer() []byte {
 	return tx.feePayer
 }
 
-func (tx MockTx) FeeGranter() sdk.AccAddress {
+func (tx MockTx) FeeGranter() []byte {
 	return nil
 }
 
