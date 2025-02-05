@@ -10,7 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bindingstypes "github.com/CosmosContracts/juno/v26/x/tokenfactory/bindings/types"
+	bindingstypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/bindings/types"
 )
 
 // CustomQuerier dispatches custom CosmWasm bindings queries.

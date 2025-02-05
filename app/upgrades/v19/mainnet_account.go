@@ -9,7 +9,7 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 
-	"github.com/CosmosContracts/juno/v26/app/keepers"
+	"github.com/CosmosContracts/juno/v27/app/keepers"
 )
 
 const (

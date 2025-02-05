@@ -14,9 +14,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	"github.com/CosmosContracts/juno/v26/app"
-	"github.com/CosmosContracts/juno/v26/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v26/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v27/app"
+	"github.com/CosmosContracts/juno/v27/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v27/x/feeshare/types"
 )
 
 // BankKeeper defines the expected interface needed to retrieve account balances.

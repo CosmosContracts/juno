@@ -19,8 +19,8 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	junoapp "github.com/CosmosContracts/juno/v26/app"
-	"github.com/CosmosContracts/juno/v26/x/mint/types"
+	junoapp "github.com/CosmosContracts/juno/v27/app"
+	"github.com/CosmosContracts/juno/v27/x/mint/types"
 )
 
 // returns context and an app with updated mint keeper
