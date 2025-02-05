@@ -27,7 +27,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 				},
 				{
 					RpcMethod: "DenomsFromCreator",
-					Use:       "denoms-from-creator [creator_address]",
+					Use:       "denoms-from-creator [creator",
 					Short:     "Returns a list of all tokens created by a specific creator address",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
 						{ProtoField: "creator"},

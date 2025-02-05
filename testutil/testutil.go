@@ -5,11 +5,6 @@ import (
 	"os"
 	"time"
 
-	"cosmossdk.io/log"
-	"cosmossdk.io/store/metrics"
-	"cosmossdk.io/store/rootmulti"
-	db "github.com/cosmos/cosmos-db"
-
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -136,6 +131,14 @@ func (s *KeeperTestHelper) Reset() {
 	}
 }
 
+func (s *KeeperTestHelper) SetupTestForInitGenesis() {
+	dir, _ := os.MkdirTemp("", "junod-test-home")
+	// Setting to True, leads to init genesis not running
+	s.App = setup.Setup(true, dir, "juno-1")
+	s.Ctx = s.App.BaseApp.NewContextLegacy(true, tmtypes.Header{})
+	s.hasUsedAbci = true
+}
+
 func (s *KeeperTestHelper) SetupWithLevelDb() func() {
 	app, cleanup := setup.SetupTestingAppWithLevelDb(false)
 	s.App = app
@@ -151,14 +154,4 @@ func (s *KeeperTestHelper) SetupWithLevelDb() func() {
 	s.TestAccs = append(s.TestAccs, baseTestAccts...)
 	s.hasUsedAbci = false
 	return cleanup
-}
-
-// CreateTestContext creates a test context.
-func (s *KeeperTestHelper) CreateTestContext() sdk.Context {
-	db := db.NewMemDB()
-	logger := log.NewNopLogger()
-
-	ms := rootmulti.NewStore(db, logger, metrics.NewNoOpMetrics())
-
-	return sdk.NewContext(ms, tmtypes.Header{}, false, logger)
 }
