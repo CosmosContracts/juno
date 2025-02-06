@@ -233,7 +233,7 @@ install-heighliner:
 
 local-image: install-heighliner
 	@echo "🔄 - Building Docker Image..."
-	heighliner build -c juno --local -f ./chains.yaml
+	heighliner build --chain juno --local -f ./chains.yaml
 	@echo "✅ - Built Docker Image successfully!"
 
 .PHONY: install-heighliner local-image

@@ -3,7 +3,7 @@
 
 - name: juno
   dockerfile: cosmos
-  build-target: make install
+  build-target: "sh -c './scripts/heighliner/pre_build.sh' && make install"
   binaries:
     - /go/bin/junod
   build-env:

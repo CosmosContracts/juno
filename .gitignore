@@ -1,22 +1,5 @@
-vue/node_modules
-vue/dist
-secret.yml
-cosmoshub3.json
-exchanges.json
-juno_out.json
 bin
 .vscode
-.ash_history
-tmp-swagger-gen
-
-heighliner*
-
-tmp_deps/
-
-**/data/**/*
-
-# emacs editor config
-\#*\#
-.\#*
-
 .DS_Store
+heighliner*
+!scripts/heighliner
