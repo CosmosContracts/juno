@@ -126,8 +126,8 @@ install-format:
 	@if ! command -v gofumpt > /dev/null; then \
    	echo "🔄 - Installing gofumpt $(gofumpt_version)..."; \
       go install $(gofumpt)@$(gofumpt_version); \
-		@echo "✅ - Installed gofumpt successfully!"; \
-		@echo ""; \
+		echo "✅ - Installed gofumpt successfully!"; \
+		echo ""; \
    fi
 
 format: install-format
@@ -139,14 +139,14 @@ install-lint:
 	@if ! command -v golangci-lint > /dev/null; then \
    	echo "🔄 - Installing golangci-lint $(golangci_lint_version)..."; \
       go install $(golangci_lint)@$(golangci_lint_version); \
-		@echo "✅ - Installed golangci-lint successfully!"; \
-		@echo ""; \
+		echo "✅ - Installed golangci-lint successfully!"; \
+		echo ""; \
    fi
 	@if ! command -v goimports > /dev/null; then \
    	echo "🔄 - Installing goimports $(goimports_version)..."; \
       go install $(goimports)@$(goimports_version); \
-		@echo "✅ - Installed goimports successfully!"; \
-		@echo ""; \
+		echo "✅ - Installed goimports successfully!"; \
+		echo ""; \
    fi
 
 lint: install-lint
@@ -226,8 +226,8 @@ local-image:
 		git clone https://github.com/strangelove-ventures/heighliner.git; \
 		cd heighliner && go install; \
 		cd ..; \
-		@echo "✅ - Installed heighliner successfully!"; \
-		@echo ""; \
+		echo "✅ - Installed heighliner successfully!"; \
+		echo ""; \
 	fi
 	@echo "🔄 - Building Docker Image..."
 	heighliner build -c juno --local -f ./chains.yaml
