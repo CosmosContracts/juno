@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/stretchr/testify/require"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"

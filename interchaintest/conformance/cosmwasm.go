@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/CosmosContracts/juno/tests/interchaintest/helpers"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/stretchr/testify/require"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"

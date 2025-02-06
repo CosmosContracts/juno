@@ -8,10 +8,10 @@ import (
 	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/docker/docker/client"
-	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
+	interchaintest "github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
@@ -42,7 +42,7 @@ var (
 	JunoImage = ibc.DockerImage{
 		Repository: junoRepo,
 		Version:    junoVersion,
-		UidGid:     "1025:1025",
+		UIDGID:     "1025:1025",
 	}
 
 	// SDK v47 Genesis

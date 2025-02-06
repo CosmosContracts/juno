@@ -11,11 +11,10 @@ import (
 	globalfeetypes "github.com/CosmosContracts/juno/v27/x/globalfee/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	cosmosproto "github.com/cosmos/gogoproto/proto"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/testutil"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,7 +27,7 @@ func TestJunoGlobalFee(t *testing.T) {
 	cfg.GasAdjustment = 2.5
 
 	// 0.002500000000000000
-	coin := sdk.NewDecCoinFromDec(cfg.Denom, sdk.NewDecWithPrec(3, 3))
+	coin := sdk.NewDecCoinFromDec(cfg.Denom, sdkmath.LegacyNewDecWithPrec(3, 3))
 	cfg.ModifyGenesis = cosmos.ModifyGenesis(append(defaultGenesisKV, []cosmos.GenesisKV{
 		{
 			Key:   "app_state.globalfee.params.minimum_gas_prices",
@@ -74,9 +73,9 @@ func TestJunoGlobalFee(t *testing.T) {
 
 	// param change proposal (lower fee), then validate it still works
 	propID := submitGlobalFeeParamChangeProposal(t, ctx, juno, sender)
-	propIDInt64, err := strconv.ParseInt(propID, 10, 64)
+	propIDUint64, err := strconv.ParseUint(propID, 10, 64)
 	require.NoError(t, err, "error converting propID to int64")
-	helpers.ValidatorVote(t, ctx, juno, propIDInt64, 25)
+	helpers.ValidatorVote(t, ctx, juno, propIDUint64, 25)
 
 	// success: validate the new value is in effect (200k gas * 0.005 = 200ujuno)
 	std = bankSendWithFees(t, ctx, juno, sender, receiver, "3"+nativeDenom, "1000"+nativeDenom, 200000)
@@ -116,19 +115,19 @@ func bankSendWithFees(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 }
 
 func submitGlobalFeeParamChangeProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) string {
-	upgradeMsg := []cosmosproto.Message{
+	upgradeMsg := []cosmos.ProtoMessage{
 		&globalfeetypes.MsgUpdateParams{
 			Authority: "juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730",
 			Params: globalfeetypes.Params{
 				MinimumGasPrices: sdk.DecCoins{
 					// 0.005ujuno
-					sdk.NewDecCoinFromDec(chain.Config().Denom, sdk.NewDecWithPrec(5, 3)),
+					sdk.NewDecCoinFromDec(chain.Config().Denom, sdkmath.LegacyNewDecWithPrec(5, 3)),
 				},
 			},
 		},
 	}
 
-	proposal, err := chain.BuildProposal(upgradeMsg, "New Global Fee", "Summary desc", "ipfs://CID", fmt.Sprintf(`500000000%s`, chain.Config().Denom))
+	proposal, err := chain.BuildProposal(upgradeMsg, "New Global Fee", "Summary desc", "ipfs://CID", fmt.Sprintf(`500000000%s`, chain.Config().Denom), sdk.MustBech32ifyAddressBytes("juno", user.Address()), false)
 	require.NoError(t, err, "error building proposal")
 
 	txProp, err := chain.SubmitProposal(ctx, user.KeyName(), proposal)

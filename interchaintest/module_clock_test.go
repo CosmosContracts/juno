@@ -8,11 +8,11 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	cosmosproto "github.com/cosmos/gogoproto/proto"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/stretchr/testify/require"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
@@ -138,7 +138,7 @@ func TestJunoClock(t *testing.T) {
 
 func SubmitParamChangeProp(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, gasLimit uint64) string {
 	govAcc := "juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730"
-	updateParams := []cosmosproto.Message{
+	updateParams := []cosmos.ProtoMessage{
 		&clocktypes.MsgUpdateParams{
 			Authority: govAcc,
 			Params: clocktypes.Params{
@@ -147,7 +147,7 @@ func SubmitParamChangeProp(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 		},
 	}
 
-	proposal, err := chain.BuildProposal(updateParams, "Params Update Gas Limit", "params", "ipfs://CID", fmt.Sprintf(`500000000%s`, chain.Config().Denom))
+	proposal, err := chain.BuildProposal(updateParams, "Params Update Gas Limit", "params", "ipfs://CID", fmt.Sprintf(`500000000%s`, chain.Config().Denom), sdk.MustBech32ifyAddressBytes("juno", user.Address()), false)
 	require.NoError(t, err, "error building proposal")
 
 	txProp, err := chain.SubmitProposal(ctx, user.KeyName(), proposal)
@@ -156,7 +156,7 @@ func SubmitParamChangeProp(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 
 	height, _ := chain.Height(ctx)
 
-	proposalID, err := strconv.ParseInt(txProp.ProposalID, 10, 64)
+	proposalID, err := strconv.ParseUint(txProp.ProposalID, 10, 64)
 	require.NoError(t, err, "failed to parse proposal ID")
 
 	err = chain.VoteOnProposalAllValidators(ctx, proposalID, cosmos.ProposalVoteYes)

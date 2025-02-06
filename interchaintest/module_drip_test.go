@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
@@ -44,7 +43,7 @@ func TestJunoDrip(t *testing.T) {
 
 	// New TF token to distributes
 	tfDenom := helpers.CreateTokenFactoryDenom(t, ctx, juno, user, "dripme", fmt.Sprintf("0%s", Denom))
-	distributeAmt := math.NewInt(1_000_000)
+	distributeAmt := sdkmath.NewInt(1_000_000)
 	helpers.MintTokenFactoryDenom(t, ctx, juno, user, distributeAmt.Uint64(), tfDenom)
 
 	// Stake some tokens
@@ -62,7 +61,7 @@ func TestJunoDrip(t *testing.T) {
 	helpers.ClaimStakingRewards(t, ctx, juno, user, valoper)
 
 	// Check balances has the TF Denom from the claim
-	bals, _ := juno.AllBalances(ctx, user.FormattedAddress())
+	bals, _ := juno.BankQueryAllBalances(ctx, user.FormattedAddress())
 	fmt.Println("balances", bals)
 
 	found := false
