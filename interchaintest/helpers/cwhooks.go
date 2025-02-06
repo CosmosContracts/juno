@@ -16,6 +16,7 @@ import (
 func RegisterCwHooksStaking(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	cwHooksCmd(t, ctx, chain, user, "register", "staking", contractAddr)
 }
+
 func RegisterCwHooksGovernance(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	cwHooksCmd(t, ctx, chain, user, "register", "governance", contractAddr)
 }
@@ -24,6 +25,7 @@ func RegisterCwHooksGovernance(t *testing.T, ctx context.Context, chain *cosmos.
 func UnregisterCwHooksStaking(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	cwHooksCmd(t, ctx, chain, user, "unregister", "staking", contractAddr)
 }
+
 func UnregisterCwHooksGovernance(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	cwHooksCmd(t, ctx, chain, user, "unregister", "governance", contractAddr)
 }
@@ -32,6 +34,7 @@ func UnregisterCwHooksGovernance(t *testing.T, ctx context.Context, chain *cosmo
 func GetCwHooksStakingContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) []string {
 	return getContracts(t, ctx, chain, "staking-contracts")
 }
+
 func GetCwHooksGovernanceContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) []string {
 	return getContracts(t, ctx, chain, "governance-contracts")
 }

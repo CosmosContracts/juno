@@ -75,7 +75,8 @@ type Vals struct {
 func GetValidators(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) Vals {
 	var res Vals
 
-	cmd := []string{"junod", "query", "staking", "validators",
+	cmd := []string{
+		"junod", "query", "staking", "validators",
 		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
@@ -104,7 +105,8 @@ type FeePayUses struct {
 func GetFeePayUses(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract, wallet string) FeePayUses {
 	var res FeePayUses
 
-	cmd := []string{"junod", "query", "feepay", "uses", contract, wallet,
+	cmd := []string{
+		"junod", "query", "feepay", "uses", contract, wallet,
 		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
@@ -137,7 +139,8 @@ type FeePayContracts struct {
 func GetFeePayContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) FeePayContracts {
 	var res FeePayContracts
 
-	cmd := []string{"junod", "query", "feepay", "contracts",
+	cmd := []string{
+		"junod", "query", "feepay", "contracts",
 		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
@@ -166,7 +169,8 @@ type FeePayContract struct {
 func GetFeePayContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) FeePayContract {
 	var res FeePayContract
 
-	cmd := []string{"junod", "query", "feepay", "contract", contract,
+	cmd := []string{
+		"junod", "query", "feepay", "contract", contract,
 		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
 		"--output", "json",

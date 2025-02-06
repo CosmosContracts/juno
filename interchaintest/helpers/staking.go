@@ -13,7 +13,8 @@ import (
 
 func StakeTokens(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, valoper, coinAmt string) {
 	// amount is #utoken
-	cmd := []string{"junod", "tx", "staking", "delegate", valoper, coinAmt,
+	cmd := []string{
+		"junod", "tx", "staking", "delegate", valoper, coinAmt,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
@@ -34,7 +35,8 @@ func StakeTokens(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, u
 }
 
 func ClaimStakingRewards(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, valoper string) {
-	cmd := []string{"junod", "tx", "distribution", "withdraw-rewards", valoper,
+	cmd := []string{
+		"junod", "tx", "distribution", "withdraw-rewards", valoper,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,

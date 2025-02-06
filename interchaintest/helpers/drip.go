@@ -13,7 +13,8 @@ import (
 
 func DripTokens(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, coinAmt string) {
 	// amount is #utoken
-	cmd := []string{"junod", "tx", "drip", "distribute-tokens", coinAmt,
+	cmd := []string{
+		"junod", "tx", "drip", "distribute-tokens", coinAmt,
 		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,

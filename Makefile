@@ -113,7 +113,7 @@ test-node:
 ###                                 Tooling                                 ###
 ###############################################################################
 
-gofumpt_cmd=mvdan.cc/gofumpt
+gofumpt_cmd=mvdan.cc/gofumpt@v0.7.0
 golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint
 
 format:

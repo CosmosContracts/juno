@@ -30,14 +30,12 @@ const (
 	blocksAfterUpgrade = int64(7)
 )
 
-var (
-	// baseChain is the current version of the chain that will be upgraded from
-	baseChain = ibc.DockerImage{
-		Repository: JunoMainRepo,
-		Version:    "v26.0.0",
-		UIDGID:     "1025:1025",
-	}
-)
+// baseChain is the current version of the chain that will be upgraded from
+var baseChain = ibc.DockerImage{
+	Repository: JunoMainRepo,
+	Version:    "v26.0.0",
+	UIDGID:     "1025:1025",
+}
 
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()

@@ -119,7 +119,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	require.Equal(t, genesisWalletAmount, gaiaOrigBal)
 
 	// Compose an IBC transfer and send from Juno -> Gaia
-	var transferAmount = math.NewInt(1_000)
+	transferAmount := math.NewInt(1_000)
 	transfer := ibc.WalletAmount{
 		Address: gaiaUserAddr,
 		Denom:   juno.Config().Denom,

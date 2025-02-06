@@ -9,7 +9,6 @@ import (
 )
 
 func (m MsgCreateDenom) ValidateBasic() error {
-
 	return nil
 }
 
