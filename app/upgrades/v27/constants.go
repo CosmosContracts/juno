@@ -1,10 +1,11 @@
 package v27
 
 import (
-	storetypes "cosmossdk.io/store/types"
-	"github.com/CosmosContracts/juno/v27/app/upgrades"
-
 	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
+
+	storetypes "cosmossdk.io/store/types"
+
+	"github.com/CosmosContracts/juno/v27/app/upgrades"
 )
 
 const UpgradeName = "v27"

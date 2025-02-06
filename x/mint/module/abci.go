@@ -1,14 +1,16 @@
-package mint
+package module
 
 import (
 	"context"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/CosmosContracts/juno/v27/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v27/x/mint/types"
+
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v27/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v27/x/mint/types"
 )
 
 // BeginBlocker mints new tokens for the previous block.
@@ -42,7 +44,10 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) error {
 		minter.StartPhaseBlock = currentBlock
 		minter.AnnualProvisions = minter.NextAnnualProvisions(params, totalSupply)
 		minter.TargetSupply = totalSupply.Add(minter.AnnualProvisions.TruncateInt())
-		k.SetMinter(ctx, minter)
+		err = k.SetMinter(ctx, minter)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// mint coins, update supply

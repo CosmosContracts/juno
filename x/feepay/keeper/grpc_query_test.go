@@ -1,11 +1,12 @@
 package keeper_test
 
 import (
+	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/CosmosContracts/juno/v27/testutil/common/nullify"
 	"github.com/CosmosContracts/juno/v27/x/feepay/types"
 )

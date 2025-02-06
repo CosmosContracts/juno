@@ -5,6 +5,7 @@ import (
 
 	store "cosmossdk.io/store/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/CosmosContracts/juno/v27/app/keepers"

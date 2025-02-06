@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -44,10 +45,14 @@ func sendMEVtoCommunityPool(ctx context.Context, k *keepers.AppKeepers, logger l
 	mevModuleAddress := sdk.MustAccAddressFromBech32(mevModuleAccount)
 	mevModuleTokenAmount, ok := sdkmath.NewIntFromString(mevModuleAmount)
 	if !ok {
-		logger.Error(fmt.Sprintf("v27: failed to parse MEV module token amount"))
+		logger.Error("v27: failed to parse MEV module token amount")
 		return fmt.Errorf("v27: failed to parse MEV module token amount")
 	}
 	params, err := k.MintKeeper.GetParams(ctx)
+	if err != nil {
+		logger.Error("v27: failed to get x/mint params")
+		return err
+	}
 	coins := sdk.NewCoins(
 		sdk.NewCoin(
 			params.MintDenom,

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	types "github.com/CosmosContracts/juno/v27/wasmbindings/types"

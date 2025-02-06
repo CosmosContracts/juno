@@ -4,6 +4,7 @@ import (
 	_ "embed"
 
 	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -172,13 +173,12 @@ func (s *KeeperTestSuite) TestRegisterFeeShare() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			goCtx := sdk.WrapSDKContext(s.Ctx)
 			if !tc.shouldErr {
-				resp, err := s.msgServer.RegisterFeeShare(goCtx, tc.msg)
+				resp, err := s.msgServer.RegisterFeeShare(s.Ctx, tc.msg)
 				s.Require().NoError(err)
 				s.Require().Equal(resp, tc.resp)
 			} else {
-				resp, err := s.msgServer.RegisterFeeShare(goCtx, tc.msg)
+				resp, err := s.msgServer.RegisterFeeShare(s.Ctx, tc.msg)
 				s.Require().Error(err)
 				s.Require().Nil(resp)
 			}
@@ -197,13 +197,12 @@ func (s *KeeperTestSuite) TestUpdateFeeShare() {
 	s.Require().NotEqual(contractAddress, contractAddressNoRegisFeeShare)
 
 	// RegsisFeeShare
-	goCtx := sdk.WrapSDKContext(s.Ctx)
 	msg := &types.MsgRegisterFeeShare{
 		ContractAddress:   contractAddress,
 		DeployerAddress:   sender.String(),
 		WithdrawerAddress: withdrawer.String(),
 	}
-	_, err := s.msgServer.RegisterFeeShare(goCtx, msg)
+	_, err := s.msgServer.RegisterFeeShare(s.Ctx, msg)
 	s.Require().NoError(err)
 	_, _, newWithdrawer := testdata.KeyTestPubAddr()
 	s.Require().NotEqual(withdrawer, newWithdrawer)
@@ -267,12 +266,11 @@ func (s *KeeperTestSuite) TestUpdateFeeShare() {
 	} {
 		tc := tc
 		s.Run(tc.desc, func() {
-			goCtx := sdk.WrapSDKContext(s.Ctx)
 			if !tc.shouldErr {
-				_, err := s.msgServer.UpdateFeeShare(goCtx, tc.msg)
+				_, err := s.msgServer.UpdateFeeShare(s.Ctx, tc.msg)
 				s.Require().NoError(err)
 			} else {
-				resp, err := s.msgServer.UpdateFeeShare(goCtx, tc.msg)
+				resp, err := s.msgServer.UpdateFeeShare(s.Ctx, tc.msg)
 				s.Require().Error(err)
 				s.Require().Nil(resp)
 			}

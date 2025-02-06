@@ -4,16 +4,18 @@ import (
 	"encoding/json"
 	"os"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
-	"cosmossdk.io/log"
 	db "github.com/cosmos/cosmos-db"
+
+	"cosmossdk.io/log"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	junoapp "github.com/CosmosContracts/juno/v27/app"
 	"github.com/CosmosContracts/juno/v27/testutil/common"
@@ -21,7 +23,7 @@ import (
 
 // SetupTestingAppWithLevelDb initializes a new App intended for testing,
 // with LevelDB as a db.
-func SetupTestingAppWithLevelDb(isCheckTx bool) (app *junoapp.App, cleanupFn func()) {
+func SetupTestingAppWithLevelDB(isCheckTx bool) (app *junoapp.App, cleanupFn func()) { // nolint:revive
 	dir, err := os.MkdirTemp(os.TempDir(), "juno_leveldb_testing")
 	if err != nil {
 		panic(err)

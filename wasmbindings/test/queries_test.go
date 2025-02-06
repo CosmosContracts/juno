@@ -67,7 +67,8 @@ func (s *BindingsTestSuite) TestDenomAdmin() {
 	// set token creation fee to zero to make testing easier
 	tfParams := s.App.AppKeepers.TokenFactoryKeeper.GetParams(s.Ctx)
 	tfParams.DenomCreationFee = sdk.NewCoins()
-	s.App.AppKeepers.TokenFactoryKeeper.SetParams(s.Ctx, tfParams)
+	err := s.App.AppKeepers.TokenFactoryKeeper.SetParams(s.Ctx, tfParams)
+	s.Require().NoError(err)
 
 	// create a subdenom via the token factory
 	admin := sdk.AccAddress([]byte("addr1_______________"))

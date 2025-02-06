@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"testing"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
-	"cosmossdk.io/log"
 	cosmosdb "github.com/cosmos/cosmos-db"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -24,7 +25,7 @@ import (
 var defaultGenesisStateBytes = []byte{}
 
 // Setup initializes a new App.
-func Setup(isCheckTx bool, homePath, chainId string, t ...*testing.T) *junoapp.App {
+func Setup(isCheckTx bool, homePath, chainID string, t ...*testing.T) *junoapp.App {
 	db := cosmosdb.NewMemDB()
 	var (
 		l       log.Logger
@@ -52,7 +53,7 @@ func Setup(isCheckTx bool, homePath, chainId string, t ...*testing.T) *junoapp.A
 		homePath,
 		appOpts,
 		[]wasmkeeper.Option{},
-		baseapp.SetChainID(chainId),
+		baseapp.SetChainID(chainID),
 	)
 	if !isCheckTx {
 		if len(defaultGenesisStateBytes) == 0 {
@@ -75,7 +76,7 @@ func Setup(isCheckTx bool, homePath, chainId string, t ...*testing.T) *junoapp.A
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: sims.DefaultConsensusParams,
 				AppStateBytes:   defaultGenesisStateBytes,
-				ChainId:         chainId,
+				ChainId:         chainID,
 			},
 		)
 		if err != nil {

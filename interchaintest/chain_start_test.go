@@ -5,10 +5,11 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
-	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/stretchr/testify/require"
+
+	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
 )
 
 // TestBasicJunoStart is a basic test to assert that spinning up a Juno network with one validator works properly.

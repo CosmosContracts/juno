@@ -3,8 +3,9 @@ package types_test
 import (
 	"testing"
 
-	"github.com/CosmosContracts/juno/v27/x/clock/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/CosmosContracts/juno/v27/x/clock/types"
 )
 
 func TestParamsValidate(t *testing.T) {

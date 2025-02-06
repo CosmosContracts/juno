@@ -3,17 +3,19 @@ package simulation
 import (
 	"math/rand"
 
-	"github.com/CosmosContracts/juno/v27/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
+
+	"github.com/CosmosContracts/juno/v27/x/mint/types"
 )
 
 // Simulation operation weights constants
 const (
 	DefaultWeightMsgUpdateParams int = 100
 
+	// nolint:gosec
 	OpWeightMsgUpdateParams = "op_weight_msg_update_params"
 )
 

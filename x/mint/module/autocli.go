@@ -1,7 +1,8 @@
-package mint
+package module
 
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+
 	mintv1 "github.com/CosmosContracts/juno/v27/api/juno/mint/v1"
 )
 

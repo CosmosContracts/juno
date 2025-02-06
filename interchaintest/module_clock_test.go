@@ -7,13 +7,14 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/stretchr/testify/require"
+
+	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )

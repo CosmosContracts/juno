@@ -3,17 +3,16 @@ package keeper_test
 import (
 	"testing"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/suite"
 
-	sdkmath "cosmossdk.io/math"
-
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"github.com/CosmosContracts/juno/v27/testutil"
 	"github.com/CosmosContracts/juno/v27/x/tokenfactory/keeper"

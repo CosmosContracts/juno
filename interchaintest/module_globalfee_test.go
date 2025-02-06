@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
-	globalfeetypes "github.com/CosmosContracts/juno/v27/x/globalfee/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/strangelove-ventures/interchaintest/v8"
@@ -16,6 +14,9 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
+
+	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
+	globalfeetypes "github.com/CosmosContracts/juno/v27/x/globalfee/types"
 )
 
 // TestJunoGlobalFee

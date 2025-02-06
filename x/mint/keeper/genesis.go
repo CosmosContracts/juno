@@ -7,10 +7,12 @@ import (
 )
 
 // InitGenesis new mint genesis
-func (keeper Keeper) InitGenesis(ctx context.Context, ak types.AccountKeeper, data *types.GenesisState) {
-	keeper.SetMinter(ctx, data.Minter)
+func (k Keeper) InitGenesis(ctx context.Context, ak types.AccountKeeper, data *types.GenesisState) {
+	if err := k.SetMinter(ctx, data.Minter); err != nil {
+		panic(err)
+	}
 
-	if err := keeper.SetParams(ctx, data.Params); err != nil {
+	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
 	}
 
@@ -18,12 +20,12 @@ func (keeper Keeper) InitGenesis(ctx context.Context, ak types.AccountKeeper, da
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func (keeper Keeper) ExportGenesis(ctx context.Context) *types.GenesisState {
-	minter, err := keeper.GetMinter(ctx)
+func (k Keeper) ExportGenesis(ctx context.Context) *types.GenesisState {
+	minter, err := k.GetMinter(ctx)
 	if err != nil {
 		panic(err)
 	}
-	params, err := keeper.GetParams(ctx)
+	params, err := k.GetParams(ctx)
 	if err != nil {
 		panic(err)
 	}

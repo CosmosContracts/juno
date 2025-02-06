@@ -3,10 +3,10 @@ package keeper_test
 import (
 	"fmt"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	sdkmath "cosmossdk.io/math"
 
 	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
 )
@@ -22,7 +22,8 @@ func (s *KeeperTestSuite) TestMsgCreateDenom() {
 	// of gas charge by default.
 	params := s.App.AppKeepers.TokenFactoryKeeper.GetParams(s.Ctx)
 	params.DenomCreationFee = denomCreationFee
-	s.App.AppKeepers.TokenFactoryKeeper.SetParams(s.Ctx, params)
+	err := s.App.AppKeepers.TokenFactoryKeeper.SetParams(s.Ctx, params)
+	s.Require().NoError(err)
 
 	// Fund denom creation fee for every execution of MsgCreateDenom.
 	s.FundAcc(s.TestAccs[0], denomCreationFee)
@@ -163,7 +164,8 @@ func (s *KeeperTestSuite) TestCreateDenom() {
 
 			// Set denom creation fee in params
 			s.FundAcc(s.TestAccs[0], defaultDenomCreationFee.DenomCreationFee)
-			tokenFactoryKeeper.SetParams(s.Ctx, tc.denomCreationFee)
+			err := tokenFactoryKeeper.SetParams(s.Ctx, tc.denomCreationFee)
+			s.Require().NoError(err)
 			denomCreationFee := tokenFactoryKeeper.GetParams(s.Ctx).DenomCreationFee
 			s.Require().Equal(tc.denomCreationFee.DenomCreationFee, denomCreationFee)
 

@@ -6,6 +6,7 @@ import (
 	_ "embed"
 
 	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -249,7 +250,8 @@ func (s *KeeperTestSuite) TestContractExecution() {
 	cons, err := val.GetConsAddr()
 	s.Require().NoError(err)
 
-	s.stakingKeeper.Slash(s.Ctx, cons, s.Ctx.BlockHeight(), 1, sdkmath.LegacyNewDecWithPrec(5, 1))
+	_, err = s.stakingKeeper.Slash(s.Ctx, cons, s.Ctx.BlockHeight(), 1, sdkmath.LegacyNewDecWithPrec(5, 1))
+	s.Require().NoError(err)
 
 	_, err = s.wasmKeeper.QuerySmart(s.Ctx, sdk.MustAccAddressFromBech32(contractAddress), []byte(`{"last_validator_slash":{}}`))
 	s.Require().NoError(err)

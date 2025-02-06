@@ -8,8 +8,6 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
-	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
-	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/docker/docker/client"
@@ -18,6 +16,9 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
+
+	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
+	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 )

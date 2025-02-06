@@ -3,11 +3,12 @@ package types_test
 import (
 	"testing"
 
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
 	"github.com/stretchr/testify/suite"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
 )
 
 type CodecTestSuite struct {

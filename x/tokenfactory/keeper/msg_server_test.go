@@ -67,7 +67,8 @@ func (s *KeeperTestSuite) TestBurnDenomMsg() {
 		Amount:        sdk.NewInt64Coin(s.defaultDenom, 10),
 		MintToAddress: s.TestAccs[0].String(),
 	}
-	s.msgServer.Mint(s.Ctx, mintMsg)
+	_, err := s.msgServer.Mint(s.Ctx, mintMsg)
+	s.Require().NoError(err)
 
 	for _, tc := range []struct {
 		desc                  string

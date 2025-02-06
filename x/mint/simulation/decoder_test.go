@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
 	appparams "github.com/CosmosContracts/juno/v27/app/params"
-
 	"github.com/CosmosContracts/juno/v27/x/mint/simulation"
 	"github.com/CosmosContracts/juno/v27/x/mint/types"
 )

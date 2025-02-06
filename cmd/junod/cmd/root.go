@@ -11,14 +11,14 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
-	"cosmossdk.io/client/v2/autocli"
-	"cosmossdk.io/log"
-
 	cmtcfg "github.com/cometbft/cometbft/config"
 	cmtcli "github.com/cometbft/cometbft/libs/cli"
 
-	confixcmd "cosmossdk.io/tools/confix/cmd"
 	dbm "github.com/cosmos/cosmos-db"
+
+	"cosmossdk.io/client/v2/autocli"
+	"cosmossdk.io/log"
+	confixcmd "cosmossdk.io/tools/confix/cmd"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"

@@ -5,15 +5,14 @@ import (
 	"os"
 	"time"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/stretchr/testify/suite"
+
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-
-	"github.com/stretchr/testify/suite"
-
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"github.com/CosmosContracts/juno/v27/app"
 	"github.com/CosmosContracts/juno/v27/cmd/junod/cmd"
@@ -139,8 +138,8 @@ func (s *KeeperTestHelper) SetupTestForInitGenesis() {
 	s.hasUsedAbci = true
 }
 
-func (s *KeeperTestHelper) SetupWithLevelDb() func() {
-	app, cleanup := setup.SetupTestingAppWithLevelDb(false)
+func (s *KeeperTestHelper) SetupWithLevelDB() func() {
+	app, cleanup := setup.SetupTestingAppWithLevelDB(false)
 	s.App = app
 	s.Ctx = s.App.BaseApp.NewContextLegacy(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: defaultTestStartTime})
 	if s.withCaching {

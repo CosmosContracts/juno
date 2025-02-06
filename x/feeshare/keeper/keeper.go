@@ -6,15 +6,15 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
+	storetypes "cosmossdk.io/core/store"
 	"cosmossdk.io/log"
 
-	storetypes "cosmossdk.io/core/store"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	revtypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
+	revtypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
 )
 
 // Keeper of this module maintains collections of feeshares for contracts

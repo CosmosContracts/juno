@@ -67,7 +67,7 @@ BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 
 verify:
 	@echo "🔎 - Verifying Dependencies ..."
-	@go mod verify
+	@go mod verify > /dev/null 2>&1
 	@go mod tidy
 	@echo "✅ - Verified dependencies successfully!"
 	@echo ""
@@ -113,20 +113,49 @@ test-node:
 ###                                 Tooling                                 ###
 ###############################################################################
 
-gofumpt_cmd=mvdan.cc/gofumpt@v0.7.0
-golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint
+gofumpt=mvdan.cc/gofumpt
+gofumpt_version=v0.7.0
 
-format:
+golangci_lint=github.com/golangci/golangci-lint/cmd/golangci-lint
+golangci_lint_version=v1.63.4
+
+goimports=golang.org/x/tools/cmd/goimports
+goimports_version=v0.29.0
+
+install-format:
+	@if ! command -v gofumpt > /dev/null; then \
+   	echo "🔄 - Installing gofumpt $(gofumpt_version)..."; \
+      go install $(gofumpt)@$(gofumpt_version); \
+		@echo "✅ - Installed gofumpt successfully!"; \
+		@echo ""; \
+   fi
+
+format: install-format
 	@echo "🔄 - Formatting code..."
-	@go run $(gofumpt_cmd) -l -w .
+	@gofumpt -l -w .
 	@echo "✅ - Formatted code successfully!"
 
-lint:
-	@echo "🔄 - Linting code..."
-	@go run $(golangci_lint_cmd) run --timeout=10m
-	@echo "✅ Linted code successfully!"
+install-lint:
+	@if ! command -v golangci-lint > /dev/null; then \
+   	echo "🔄 - Installing golangci-lint $(golangci_lint_version)..."; \
+      go install $(golangci_lint)@$(golangci_lint_version); \
+		@echo "✅ - Installed golangci-lint successfully!"; \
+		@echo ""; \
+   fi
+	@if ! command -v goimports > /dev/null; then \
+   	echo "🔄 - Installing goimports $(goimports_version)..."; \
+      go install $(goimports)@$(goimports_version); \
+		@echo "✅ - Installed goimports successfully!"; \
+		@echo ""; \
+   fi
 
-.PHONY: format lint
+lint: install-lint
+	@echo "🔄 - Linting code..."
+	@find . -name '*.go' -type f -not -path "*.git*" -not -name "*.pb.go" -not -name "*.pb.gw.go" -not -name "*.pulsar.go" -not -path "./crypto/keys/secp256k1/*" | xargs -I % sh -c 'gofumpt -w -l % && goimports -w -local github.com/CosmosContracts %'
+	@golangci-lint run --timeout=10m --fix --exclude-files ".*.pb.go"
+	@echo "✅ - Linted code successfully!"
+
+.PHONY: install-format format install-lint lint
 
 ###############################################################################
 ###                             e2e interchain test                         ###
@@ -191,20 +220,20 @@ rm-testcache:
 ###                                  heighliner                             ###
 ###############################################################################
 
-get-heighliner:
-	git clone https://github.com/strangelove-ventures/heighliner.git
-	cd heighliner && go install
-
 local-image:
-ifeq (,$(shell which heighliner))
-	@echo 'heighliner' binary not found. Consider running `make get-heighliner`
-else
+	@if ! command -v heighliner > /dev/null; then \
+	   echo "🔄 - Installing heighliner..."; \
+		git clone https://github.com/strangelove-ventures/heighliner.git; \
+		cd heighliner && go install; \
+		cd ..; \
+		@echo "✅ - Installed heighliner successfully!"; \
+		@echo ""; \
+	fi
 	@echo "🔄 - Building Docker Image..."
 	heighliner build -c juno --local -f ./chains.yaml
 	@echo "✅ - Built Docker Image successfully!"
-endif
 
-.PHONY: get-heighliner local-image
+.PHONY: local-image
 
 ###############################################################################
 ###                                Protobuf                                 ###
@@ -244,5 +273,6 @@ proto-lint:
 proto-check-breaking:
 	@echo "🔎 - Checking breaking Protobuf changes"
 	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
+	@echo "✅ - Checked Protobuf changes successfully!"
 
 .PHONY: proto-all proto-gen proto-gen-2 proto-swagger-gen proto-format proto-lint proto-check-breaking

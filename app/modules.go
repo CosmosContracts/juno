@@ -10,6 +10,8 @@ import (
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
 	ibc_hooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/types"
+	"github.com/cosmos/ibc-go/modules/capability"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	ica "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	ibcfee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
@@ -27,6 +29,7 @@ import (
 	nftmodule "cosmossdk.io/x/nft/module"
 	"cosmossdk.io/x/upgrade"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -54,8 +57,6 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/ibc-go/modules/capability"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
 	clockmodule "github.com/CosmosContracts/juno/v27/x/clock/module"
 	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
@@ -81,8 +82,6 @@ func appModules(
 	appCodec codec.Codec,
 	skipGenesisInvariants bool,
 ) []module.AppModule {
-	bondDenom := app.GetChainBondDenom()
-
 	return []module.AppModule{
 		// Cosmos SDK modules
 		genutil.NewAppModule(
@@ -109,7 +108,7 @@ func appModules(
 		// Juno modules
 		mintmodule.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
 		tokenfactorymodule.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper),
-		globalfeemodule.NewAppModule(appCodec, app.AppKeepers.GlobalFeeKeeper, bondDenom),
+		globalfeemodule.NewAppModule(appCodec, app.AppKeepers.GlobalFeeKeeper),
 		feepaymodule.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper),
 		feesharemodule.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper),
 		dripmodule.NewAppModule(appCodec, app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),

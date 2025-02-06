@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	coreheader "cosmossdk.io/core/header"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	coreheader "cosmossdk.io/core/header"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"

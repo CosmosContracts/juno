@@ -53,7 +53,8 @@ func (s *KeeperTestSuite) TestGenesis() {
 	tokenfactoryModuleAccount := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
 	s.Require().Nil(tokenfactoryModuleAccount)
 
-	s.App.AppKeepers.TokenFactoryKeeper.SetParams(s.Ctx, types.Params{DenomCreationFee: sdk.Coins{sdk.NewInt64Coin("ujuno", 100)}})
+	err := s.App.AppKeepers.TokenFactoryKeeper.SetParams(s.Ctx, types.Params{DenomCreationFee: sdk.Coins{sdk.NewInt64Coin("ujuno", 100)}})
+	s.Require().NoError(err)
 	s.App.AppKeepers.TokenFactoryKeeper.InitGenesis(s.Ctx, genesisState)
 
 	// check that the module account is now initialized
@@ -65,7 +66,8 @@ func (s *KeeperTestSuite) TestGenesis() {
 	s.Require().Equal(genesisState, *exportedGenesis)
 
 	// verify that the exported bank genesis is valid
-	s.App.AppKeepers.BankKeeper.SetParams(s.Ctx, banktypes.DefaultParams())
+	err = s.App.AppKeepers.BankKeeper.SetParams(s.Ctx, banktypes.DefaultParams())
+	s.Require().NoError(err)
 	exportedBankGenesis := s.App.AppKeepers.BankKeeper.ExportGenesis(s.Ctx)
 	s.Require().NoError(exportedBankGenesis.Validate())
 

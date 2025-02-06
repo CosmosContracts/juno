@@ -1,9 +1,10 @@
 package testutil
 
 import (
-	minttypes "github.com/CosmosContracts/juno/v27/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
+
+	minttypes "github.com/CosmosContracts/juno/v27/x/mint/types"
 )
 
 // FundAcc funds target address with specified amount.

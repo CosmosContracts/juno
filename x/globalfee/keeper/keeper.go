@@ -2,6 +2,7 @@ package keeper
 
 import (
 	storetypes "cosmossdk.io/core/store"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
