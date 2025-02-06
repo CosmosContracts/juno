@@ -220,20 +220,23 @@ rm-testcache:
 ###                                  heighliner                             ###
 ###############################################################################
 
-local-image:
+heighliner=github.com/strangelove-ventures/heighliner
+heighliner_version=v1.7.1
+
+install-heighliner:
 	@if ! command -v heighliner > /dev/null; then \
-	   echo "🔄 - Installing heighliner..."; \
-		git clone https://github.com/strangelove-ventures/heighliner.git; \
-		cd heighliner && go install; \
-		cd ..; \
+   	echo "🔄 - Installing heighliner $(heighliner_version)..."; \
+      go install $(heighliner)@$(heighliner_version); \
 		echo "✅ - Installed heighliner successfully!"; \
 		echo ""; \
-	fi
+   fi
+
+local-image: install-heighliner
 	@echo "🔄 - Building Docker Image..."
 	heighliner build -c juno --local -f ./chains.yaml
 	@echo "✅ - Built Docker Image successfully!"
 
-.PHONY: local-image
+.PHONY: install-heighliner local-image
 
 ###############################################################################
 ###                                Protobuf                                 ###
@@ -266,7 +269,7 @@ proto-format:
 	@echo "✅ - Formated Protobuf successfully!"
 
 proto-lint:
-	@echo "🔎 - Linting Protobuf Swagger"
+	@echo "🔎 - Linting Protobuf"
 	@$(protoImage) buf lint --error-format=json
 	@echo "✅ - Linted Protobuf successfully!"
 
