@@ -1,11 +1,8 @@
 #!/usr/bin/make -f
 
+# set variables
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
-BINDIR ?= $(GOPATH)/bin
-APP = ./app
-
-# don't override user values
 ifeq (,$(VERSION))
   VERSION := $(shell git describe --tags)
   # if VERSION is empty, then populate it with branch's name and raw commit hash
@@ -13,27 +10,21 @@ ifeq (,$(VERSION))
     VERSION := $(BRANCH)-$(COMMIT)
   endif
 endif
-
-PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
 LEDGER_ENABLED ?= true
-SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
-BFT_VERSION := $(shell go list -m github.com/cometbft/cometbft | sed 's:.* ::') # grab everything after the space in "github.com/cometbft/cometbft v0.34.7"
+COSMOS_SDK_VERSION := $(shell go list -m github.com/cosmos/cosmos-sdk | sed 's:.* ::')
+CMT_VERSION := $(shell go list -m github.com/cometbft/cometbft | sed 's:.* ::')
 DOCKER := $(shell which docker)
-DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
-BUILDDIR ?= $(CURDIR)/build
-export GO111MODULE = on
 
 # process build tags
-
 build_tags = netgo
 ifeq ($(LEDGER_ENABLED),true)
-  ifeq ($(OS),Windows_NT)
+	ifeq ($(OS),Windows_NT)
     GCCEXE = $(shell where gcc.exe 2> NUL)
     ifeq ($(GCCEXE),)
       $(error gcc.exe not installed for ledger support, please install or set LEDGER_ENABLED=false)
     else
       build_tags += ledger
-    endif
+   endif
   else
     UNAME_S = $(shell uname -s)
     ifeq ($(UNAME_S),OpenBSD)
@@ -49,78 +40,98 @@ ifeq ($(LEDGER_ENABLED),true)
   endif
 endif
 
-ifeq (cleveldb,$(findstring cleveldb,$(JUNO_BUILD_OPTIONS)))
-  build_tags += gcc cleveldb
-endif
-build_tags += $(BUILD_TAGS)
-build_tags := $(strip $(build_tags))
-
 whitespace :=
 whitespace += $(whitespace)
 comma := ,
 build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 # process linker flags
-
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=juno \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=junod \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
-			-X github.com/cometbft/cometbft/version.TMCoreSemVer=$(BFT_VERSION)
+		  -X github.com/cometbft/cometbft/version.TMCoreSemVer=$(CMT_VERSION)
 
-ifeq (cleveldb,$(findstring cleveldb,$(JUNO_BUILD_OPTIONS)))
-  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
-endif
 ifeq ($(LINK_STATICALLY),true)
   ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
-endif
-ifeq (,$(findstring nostrip,$(JUNO_BUILD_OPTIONS)))
-  ldflags += -w -s
 endif
 ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
-# check for nostrip option
-ifeq (,$(findstring nostrip,$(JUNO_BUILD_OPTIONS)))
-  BUILD_FLAGS += -trimpath
-endif
 
-#$(info $$BUILD_FLAGS is [$(BUILD_FLAGS)])
-include contrib/devtools/Makefile
+###############################################################################
+###                                  Build                                  ###
+###############################################################################
 
-all: install
-	@echo "--> project root: go mod tidy"	
-	@go mod tidy			
-	@echo "--> project root: linting --fix"	
-	@GOGC=1 golangci-lint run --fix --timeout=8m
+verify:
+	@echo "🔎 - Verifying Dependencies ..."
+	@go mod verify
+	@go mod tidy
+	@echo "✅ - Verified dependencies successfully!"
+	@echo ""
 
-install: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/junod
+go-cache: verify
+	@echo "📥 - Downloading and caching dependencies..."
+	@go mod download
+	@echo "✅ - Downloaded and cached dependencies successfully!"
+	@echo ""
 
-build:
-	go build $(BUILD_FLAGS) -o bin/junod ./cmd/junod
+install: go-cache
+	@echo "🔄 - Installing Juno..."
+	@go install $(BUILD_FLAGS) -mod=readonly ./cmd/junod
+	@echo "✅ - Installed Juno successfully! Run it using 'junod'!"
+	@echo ""
+	@echo "====== Install Summary ======"
+	@echo "Juno: $(VERSION)"
+	@echo "Cosmos SDK: $(COSMOS_SDK_VERSION)"
+	@echo "Comet: $(CMT_VERSION)"
+	@echo "============================="
+
+build: go-cache
+	@echo "🔄 - Building Juno..."
+	@if [ "$(OS)" = "Windows_NT" ]; then \
+		GOOS=windows GOARCH=amd64 go build -mod=readonly $(BUILD_FLAGS) -o bin/junod.exe ./cmd/junod; \
+	else \
+		go build -mod=readonly $(BUILD_FLAGS) -o bin/junod ./cmd/junod; \
+	fi
+	@echo "✅ - Built Juno successfully! Run it using './bin/junod'!"
+	@echo ""
+	@echo "====== Install Summary ======"
+	@echo "Juno: $(VERSION)"
+	@echo "Cosmos SDK: $(COSMOS_SDK_VERSION)"
+	@echo "Comet: $(CMT_VERSION)"
+	@echo "============================="
 
 test-node:
 	CHAIN_ID="local-1" HOME_DIR="~/.juno1" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
 
+.PHONY: verify go-cache install build test-node
+
 ###############################################################################
-###                                Testing                                  ###
+###                                 Tooling                                 ###
 ###############################################################################
 
-test-sim-multi-seed-short: runsim
-	@echo "Running short multi-seed application simulation. This may take awhile!"
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(APP) -ExitOnFail 50 10 TestFullAppSimulation
+gofumpt_cmd=mvdan.cc/gofumpt
+golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint
 
-benchmark:
-	@go test -mod=readonly -bench=. $(PACKAGES_UNIT)
+format:
+	@echo "🔄 - Formatting code..."
+	@go run $(gofumpt_cmd) -l -w .
+	@echo "✅ - Formatted code successfully!"
+
+lint:
+	@echo "🔄 - Linting code..."
+	@go run $(golangci_lint_cmd) run --timeout=10m
+	@echo "✅ Linted code successfully!"
+
+.PHONY: format lint
 
 ###############################################################################
 ###                             e2e interchain test                         ###
 ###############################################################################
 
-# Executes basic chain tests via interchaintest
 ictest-basic: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoStart .
 
@@ -142,26 +153,19 @@ ictest-pfm: rm-testcache
 ictest-globalfee: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoGlobalFee .
 
-# Executes a basic chain upgrade test via interchaintest
 ictest-upgrade: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
 
-# Executes a basic chain upgrade locally via interchaintest after compiling a local image as juno:local
 ictest-upgrade-local: local-image ictest-upgrade
 
-# Executes IBC tests via interchaintest
 ictest-ibc: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
 
-# Unity contract CI
 ictest-unity-deploy: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoUnityContractDeploy .
 
 ictest-unity-gov: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoUnityContractGovSubmit .
-
-ictest-pob: rm-testcache
-	cd interchaintest &&  go test -race -v -run TestJunoPOB .
 
 ictest-drip: rm-testcache
 	cd interchaintest &&  go test -race -v -run TestJunoDrip .
@@ -181,7 +185,7 @@ ictest-clock: rm-testcache
 rm-testcache:
 	go clean -testcache
 
-.PHONY: test-mutation ictest-basic ictest-upgrade ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-pob
+.PHONY: ictest-basic ictest-statesync ictest-ibchooks ictest-tokenfactory ictest-feeshare ictest-pfm ictest-globalfee ictest-upgrade ictest-upgrade-local ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-drip ictest-burn ictest-feepay ictest-cwhooks ictest-clock rm-testcache
 
 ###############################################################################
 ###                                  heighliner                             ###
@@ -193,9 +197,11 @@ get-heighliner:
 
 local-image:
 ifeq (,$(shell which heighliner))
-	echo 'heighliner' binary not found. Consider running `make get-heighliner`
+	@echo 'heighliner' binary not found. Consider running `make get-heighliner`
 else
+	@echo "🔄 - Building Docker Image..."
 	heighliner build -c juno --local -f ./chains.yaml
+	@echo "✅ - Built Docker Image successfully!"
 endif
 
 .PHONY: get-heighliner local-image
@@ -208,30 +214,35 @@ protoVer=0.15.3
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 
-proto-all: proto-format proto-lint proto-gen
+proto-all: proto-format proto-lint proto-gen proto-gen-2 proto-swagger-gen
 
 proto-gen:
 	@echo "🛠️ - Generating Protobuf"
 	@$(protoImage) sh ./scripts/protoc/protocgen.sh
+	@echo "✅ - Generated Protobuf successfully!"
 
 proto-gen-2:
 	@echo "🛠️ - Generating Protobuf v2"
 	@$(protoImage) sh ./scripts/protoc/protocgen2.sh
+	@echo "✅ - Generated Protobuf v2 successfully!"
 
 proto-swagger-gen:
 	@echo "📖 - Generating Protobuf Swagger"
 	@$(protoImage) sh ./scripts/protoc/protoc-swagger-gen.sh
-	$(MAKE) update-swagger-docs
+	@echo "✅ - Generated Protobuf Swagger successfully!"
 
 proto-format:
 	@echo "🖊️ - Formatting Protobuf Swagger"
 	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
+	@echo "✅ - Formated Protobuf successfully!"
 
 proto-lint:
 	@echo "🔎 - Linting Protobuf Swagger"
 	@$(protoImage) buf lint --error-format=json
+	@echo "✅ - Linted Protobuf successfully!"
 
 proto-check-breaking:
+	@echo "🔎 - Checking breaking Protobuf changes"
 	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
 
 .PHONY: proto-all proto-gen proto-gen-2 proto-swagger-gen proto-format proto-lint proto-check-breaking

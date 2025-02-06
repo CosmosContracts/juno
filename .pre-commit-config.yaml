@@ -8,17 +8,17 @@
 # - pre-commit run --all-files
 
 repos:
-- repo: local  
-  hooks:    
-    - id: go-mod-tidy
-      name: "go mod tidy"
-      files: go.*
-      entry: ./scripts/git/tidy.sh
-      language: "script"
+  - repo: local
+    hooks:
+      - id: go-mod-tidy
+        name: "go mod tidy"
+        files: go.*
+        entry: ./scripts/git/tidy.sh
+        language: "script"
 
-    - id: golangci-lint
-      name: "lint"
-      files: .*go
-      entry: ./scripts/git/linter.sh
-      require_serial: true
-      language: "script"
+      - id: golangci-lint
+        name: "lint"
+        files: .*go
+        entry: ./scripts/git/linter.sh
+        require_serial: true
+        language: "script"
