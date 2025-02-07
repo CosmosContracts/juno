@@ -21,7 +21,6 @@ func ExecuteAuthzGrantMsg(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 		"junod", "tx", "authz", "grant", grantee.FormattedAddress(), "generic",
 		"--msg-type", msgType,
 		"--home", chain.HomeDir(),
-		"--from", granter.KeyName(),
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
@@ -45,7 +44,6 @@ func ExecuteAuthzExecMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos
 	generateMsg := []string{
 		"junod", "tx", "wasm", "execute", contractAddr, message,
 		"--home", chain.HomeDir(),
-		"--from", grantee.KeyName(),
 		"--gas", "500000",
 		"--fees", feeCoin,
 		"--keyring-dir", chain.HomeDir(),
@@ -72,7 +70,6 @@ func ExecuteAuthzExecMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos
 	cmd := []string{
 		"junod", "tx", "authz", "exec", node.HomeDir() + "/" + filePath,
 		"--home", chain.HomeDir(),
-		"--from", grantee.KeyName(),
 		"--gas", "500000",
 		"--fees", feeCoin,
 		"--keyring-dir", chain.HomeDir(),

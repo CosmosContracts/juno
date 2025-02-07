@@ -29,7 +29,6 @@ func CreateTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Co
 	cmd := []string{
 		"junod", "tx", "tokenfactory", "create-denom", subDenomName,
 		"--home", chain.HomeDir(),
-		"--from", user.KeyName(),
 		"--gas", "2500000",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
@@ -58,7 +57,6 @@ func MintTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 	cmd := []string{
 		"junod", "tx", "tokenfactory", "mint", denom,
 		"--home", chain.HomeDir(),
-		"--from", admin.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -83,7 +81,6 @@ func MintToTokenFactoryDenom(t *testing.T, ctx context.Context, chain *cosmos.Co
 	cmd := []string{
 		"junod", "tx", "tokenfactory", "mint-to", receiver, denom,
 		"--home", chain.HomeDir(),
-		"--from", admin.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -102,7 +99,6 @@ func UpdateTokenFactoryMetadata(t *testing.T, ctx context.Context, chain *cosmos
 	cmd := []string{
 		"junod", "tx", "tokenfactory", "modify-metadata", fullDenom, ticker, fmt.Sprintf("'%s'", desc), exponent,
 		"--home", chain.HomeDir(),
-		"--from", admin.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -120,7 +116,6 @@ func TransferTokenFactoryAdmin(t *testing.T, ctx context.Context, chain *cosmos.
 	cmd := []string{
 		"junod", "tx", "tokenfactory", "change-admin", fullDenom, newAdminBech32,
 		"--home", chain.HomeDir(),
-		"--from", currentAdmin.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",

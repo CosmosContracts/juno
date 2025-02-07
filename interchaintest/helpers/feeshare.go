@@ -17,8 +17,6 @@ func RegisterFeeShare(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 	cmd := []string{
 		"junod", "tx", "feeshare", "register", contract, withdrawAddr,
 		"--home", chain.HomeDir(),
-		"--from", user.KeyName(),
-		// "--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",

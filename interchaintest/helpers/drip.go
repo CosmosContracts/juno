@@ -16,7 +16,6 @@ func DripTokens(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, us
 	cmd := []string{
 		"junod", "tx", "drip", "distribute-tokens", coinAmt,
 		"--home", chain.HomeDir(),
-		"--from", user.KeyName(),
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,

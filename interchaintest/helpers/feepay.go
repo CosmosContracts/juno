@@ -18,7 +18,6 @@ func RegisterFeePay(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain
 		"junod", "tx", "feepay", "register", contract, fmt.Sprintf("%d", walletLimit),
 		"--home", chain.HomeDir(),
 		"--fees", "500ujuno",
-		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -37,7 +36,6 @@ func FundFeePayContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosC
 		"junod", "tx", "feepay", "fund", contract, amountCoin,
 		"--home", chain.HomeDir(),
 		"--fees", "500ujuno",
-		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -55,7 +53,6 @@ func UpdateFeePayWalletLimit(t *testing.T, ctx context.Context, chain *cosmos.Co
 	cmd := []string{
 		"junod", "tx", "feepay", "update-wallet-limit", contract, fmt.Sprintf("%d", newLimit),
 		"--home", chain.HomeDir(),
-		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",

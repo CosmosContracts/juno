@@ -30,7 +30,8 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 			},
 		},
 		Tx: &autocliv1.ServiceCommandDescriptor{
-			Service: cwhooksv1.Msg_ServiceDesc.ServiceName,
+			Service:              cwhooksv1.Msg_ServiceDesc.ServiceName,
+			EnhanceCustomCommand: true,
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod: "RegisterStaking",
