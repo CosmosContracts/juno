@@ -1,16 +1,19 @@
 syntax = "proto3";
 package gaia.globalfee.v1beta1;
 
-import "gogoproto/gogo.proto";
-import "cosmos/base/v1beta1/coin.proto";
 import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/cosmos/gaia/x/globalfee/types";
 
 // GenesisState - initial state of module
 message GenesisState {
   // Params of this module
-  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // Params defines the set of module parameters.
@@ -22,8 +25,8 @@ message Params {
   // values allowed. For more information see
   // https://docs.cosmos.network/main/modules/auth#concepts
   repeated cosmos.base.v1beta1.DecCoin minimum_gas_prices = 1 [
-    (gogoproto.nullable)   = false,
-    (amino.dont_omitempty)  = true,
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
   ];
 }

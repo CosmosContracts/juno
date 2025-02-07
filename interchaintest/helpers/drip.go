@@ -15,9 +15,7 @@ func DripTokens(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, us
 	// amount is #utoken
 	cmd := []string{
 		"junod", "tx", "drip", "distribute-tokens", coinAmt,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--from", user.KeyName(),
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),

@@ -1,24 +1,26 @@
 syntax = "proto3";
 package osmosis.tokenfactory.v1beta1;
 
-import "gogoproto/gogo.proto";
 import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/tokenfactory/types";
 
 // Params defines the parameters for the tokenfactory module.
 message Params {
   repeated cosmos.base.v1beta1.Coin denom_creation_fee = 1 [
-    (amino.encoding)         = "legacy_coins",
+    (amino.encoding) = "legacy_coins",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true
-
   ];
 
   // if denom_creation_fee is an empty array, then this field is used to add more gas consumption
   // to the base cost.
   // https://github.com/CosmWasm/token-factory/issues/11
-  uint64 denom_creation_gas_consume = 2 [(gogoproto.nullable) = true, (amino.dont_omitempty) = true];
+  uint64 denom_creation_gas_consume = 2 [
+    (gogoproto.nullable) = true,
+    (amino.dont_omitempty) = true
+  ];
 }

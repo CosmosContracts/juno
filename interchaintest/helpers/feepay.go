@@ -16,9 +16,7 @@ import (
 func RegisterFeePay(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string, walletLimit int) {
 	cmd := []string{
 		"junod", "tx", "feepay", "register", contract, fmt.Sprintf("%d", walletLimit),
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--fees", "500ujuno",
 		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
@@ -37,9 +35,7 @@ func RegisterFeePay(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain
 func FundFeePayContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string, amountCoin string) {
 	cmd := []string{
 		"junod", "tx", "feepay", "fund", contract, amountCoin,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--fees", "500ujuno",
 		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
@@ -58,9 +54,7 @@ func FundFeePayContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosC
 func UpdateFeePayWalletLimit(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string, newLimit uint64) {
 	cmd := []string{
 		"junod", "tx", "feepay", "update-wallet-limit", contract, fmt.Sprintf("%d", newLimit),
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,

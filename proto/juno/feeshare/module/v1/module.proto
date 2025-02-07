@@ -6,9 +6,7 @@ import "cosmos/app/v1alpha1/module.proto";
 
 // Module is the config object of the mint module.
 message Module {
-  option (cosmos.app.v1alpha1.module) = {
-    go_import : "github.com/CosmosContracts/juno/v27/x/feeshare"
-  };
+  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/CosmosContracts/juno/v27/x/feeshare"};
 
   // authority defines the custom module authority. If not set, defaults to the
   // governance module.

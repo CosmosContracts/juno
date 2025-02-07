@@ -1,15 +1,14 @@
 syntax = "proto3";
 package juno.feeshare.v1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "cosmos/query/v1/query.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
-import "amino/amino.proto";
 import "google/api/annotations.proto";
-
-import "juno/feeshare/v1/genesis.proto";
 import "juno/feeshare/v1/feeshare.proto";
+import "juno/feeshare/v1/genesis.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/feeshare/types";
 
@@ -58,7 +57,10 @@ message QueryFeeSharesRequest {
 // method.
 message QueryFeeSharesResponse {
   // FeeShare is a slice of all stored Reveneue
-  repeated FeeShare feeshare = 1 [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  repeated FeeShare feeshare = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -72,7 +74,10 @@ message QueryFeeShareRequest {
 // QueryFeeShareResponse is the response type for the Query/FeeShare RPC method.
 message QueryFeeShareResponse {
   // FeeShare is a stored Reveneue for the queried contract
-  FeeShare feeshare = 1 [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  FeeShare feeshare = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -81,7 +86,10 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params is the returned FeeShare parameter
-  Params params = 1 [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // QueryDeployerFeeSharesRequest is the request type for the

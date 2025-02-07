@@ -2,11 +2,10 @@ syntax = "proto3";
 package osmosis.tokenfactory.v1beta1;
 
 import "amino/amino.proto";
-import "gogoproto/gogo.proto";
 import "cosmos/query/v1/query.proto";
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-
 import "osmosis/tokenfactory/v1beta1/authority_metadata.proto";
 import "osmosis/tokenfactory/v1beta1/params.proto";
 
@@ -42,7 +41,10 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params defines the parameters of the module.
-  Params params = 1 [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // QueryDenomAuthorityMetadataRequest defines the request structure for the
@@ -54,7 +56,10 @@ message QueryDenomAuthorityMetadataRequest {
 // QueryDenomAuthorityMetadataResponse defines the response structure for the
 // DenomAuthorityMetadata gRPC query.
 message QueryDenomAuthorityMetadataResponse {
-  DenomAuthorityMetadata authority_metadata = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  DenomAuthorityMetadata authority_metadata = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // QueryDenomsFromCreatorRequest defines the request structure for the

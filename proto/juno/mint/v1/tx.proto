@@ -3,9 +3,8 @@ package juno.mint.v1;
 
 import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
-import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
-
+import "gogoproto/gogo.proto";
 import "juno/mint/v1/mint.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/mint/types";
@@ -21,9 +20,9 @@ service Msg {
 // MsgUpdateParams is the Msg/UpdateParams request type.
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "juno/x/mint/MsgUpdateParams";
+  option (amino.name) = "juno/x/mint/MsgUpdateParams";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // authority is the address of the governance account.
@@ -32,7 +31,10 @@ message MsgUpdateParams {
   // params defines the x/mint parameters to update.
   //
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  Params params = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // MsgUpdateParamsResponse defines the response structure for executing a

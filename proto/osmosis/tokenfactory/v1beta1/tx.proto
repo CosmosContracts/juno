@@ -2,12 +2,12 @@ syntax = "proto3";
 package osmosis.tokenfactory.v1beta1;
 
 import "amino/amino.proto";
-import "gogoproto/gogo.proto";
-import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/bank/v1beta1/bank.proto";
-import "osmosis/tokenfactory/v1beta1/params.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "osmosis/tokenfactory/v1beta1/params.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/tokenfactory/types";
 
@@ -42,9 +42,9 @@ service Msg {
 // denom does not indicate the current admin.
 message MsgCreateDenom {
   option (cosmos.msg.v1.signer) = "sender";
-  option (amino.name)           = "juno/x/tokenfactory/MsgCreateDenom";
+  option (amino.name) = "juno/x/tokenfactory/MsgCreateDenom";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -62,13 +62,16 @@ message MsgCreateDenomResponse {
 // more of a token.  For now, we only support minting to the sender account
 message MsgMint {
   option (cosmos.msg.v1.signer) = "sender";
-  option (amino.name)           = "juno/x/tokenfactory/MsgMint";
+  option (amino.name) = "juno/x/tokenfactory/MsgMint";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
   string mint_to_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
@@ -80,13 +83,16 @@ message MsgMintResponse {}
 // a token.  For now, we only support burning from the sender account.
 message MsgBurn {
   option (cosmos.msg.v1.signer) = "sender";
-  option (amino.name)           = "juno/x/tokenfactory/MsgBurn";
+  option (amino.name) = "juno/x/tokenfactory/MsgBurn";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
   string burn_from_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
@@ -98,9 +104,9 @@ message MsgBurnResponse {}
 // adminship of a denom to a new account
 message MsgChangeAdmin {
   option (cosmos.msg.v1.signer) = "sender";
-  option (amino.name)           = "juno/x/tokenfactory/MsgChangeAdmin";
+  option (amino.name) = "juno/x/tokenfactory/MsgChangeAdmin";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -116,13 +122,16 @@ message MsgChangeAdminResponse {}
 // the denom's bank metadata
 message MsgSetDenomMetadata {
   option (cosmos.msg.v1.signer) = "sender";
-  option (amino.name)           = "juno/x/tokenfactory/MsgSetDenomMetadata";
+  option (amino.name) = "juno/x/tokenfactory/MsgSetDenomMetadata";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  cosmos.bank.v1beta1.Metadata metadata = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  cosmos.bank.v1beta1.Metadata metadata = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // MsgSetDenomMetadataResponse defines the response structure for an executed
@@ -133,13 +142,16 @@ message MsgSetDenomMetadataResponse {}
 // forcefully transfer a token from one account to another
 message MsgForceTransfer {
   option (cosmos.msg.v1.signer) = "sender";
-  option (amino.name)           = "juno/x/tokenfactory/MsgForceTransfer";
+  option (amino.name) = "juno/x/tokenfactory/MsgForceTransfer";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
   string transfer_from_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string transfer_to_address = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
@@ -151,9 +163,9 @@ message MsgForceTransferResponse {}
 // MsgUpdateParams is the Msg/UpdateParams request type.
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "juno/x/tokenfactory/MsgUpdateParams";
+  option (amino.name) = "juno/x/tokenfactory/MsgUpdateParams";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // authority is the address of the governance account.

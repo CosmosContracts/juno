@@ -1,12 +1,11 @@
 syntax = "proto3";
 package juno.cwhooks.v1;
 
-import "gogoproto/gogo.proto";
 import "amino/amino.proto";
-import "cosmos_proto/cosmos.proto";
 import "cosmos/query/v1/query.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-
 import "juno/cwhooks/v1/genesis.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
@@ -37,7 +36,10 @@ message QueryParamsRequest {}
 
 // QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
 message QueryParamsResponse {
-  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // QueryStakingContractsRequest

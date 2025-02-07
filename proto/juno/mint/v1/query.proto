@@ -1,12 +1,11 @@
 syntax = "proto3";
 package juno.mint.v1;
 
-import "gogoproto/gogo.proto";
-import "google/api/annotations.proto";
+import "amino/amino.proto";
 import "cosmos/query/v1/query.proto";
 import "cosmos_proto/cosmos.proto";
-import "amino/amino.proto";
-
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 import "juno/mint/v1/mint.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/mint/types";
@@ -44,7 +43,10 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params defines the parameters of the module.
-  Params params = 1 [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // QueryInflationRequest is the request type for the Query/Inflation RPC method.
@@ -55,9 +57,9 @@ message QueryInflationRequest {}
 message QueryInflationResponse {
   // inflation is the current minting inflation value.
   bytes inflation = 1 [
-    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable)   = false,
+    (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true
   ];
 }
@@ -71,9 +73,9 @@ message QueryAnnualProvisionsRequest {}
 message QueryAnnualProvisionsResponse {
   // annual_provisions is the current minting annual provisions value.
   bytes annual_provisions = 1 [
-    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable)   = false,
+    (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true
   ];
 }
@@ -87,9 +89,9 @@ message QueryTargetSupplyRequest {}
 message QueryTargetSupplyResponse {
   // target_supply is the target supply for this phase value.
   bytes target_supply = 1 [
-    (cosmos_proto.scalar)  = "cosmos.Int",
+    (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable)   = false,
+    (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true
   ];
 }

@@ -95,9 +95,7 @@ func TestJunoGlobalFee(t *testing.T) {
 func bankSendWithFees(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, from ibc.Wallet, toAddr, coins, feeCoin string, gasAmt int64) string {
 	cmd := []string{
 		"junod", "tx", "bank", "send", from.KeyName(), toAddr, coins,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--gas", fmt.Sprintf("%d", gasAmt),
 		"--fees", feeCoin,
 		"--keyring-dir", chain.HomeDir(),

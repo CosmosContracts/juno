@@ -60,9 +60,7 @@ func MigrateContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 	// Execute migrate tx
 	cmd := []string{
 		"junod", "tx", "wasm", "migrate", contractAddr, codeId, message,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--from", keyname,
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
@@ -88,9 +86,7 @@ func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 	// There has to be a way to do this in ictest?
 	cmd := []string{
 		"junod", "tx", "wasm", "execute", contractAddr, message,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--from", user.KeyName(),
 		"--gas", "500000",
 		"--amount", amount,
@@ -114,9 +110,7 @@ func ExecuteMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos.CosmosCh
 	// There has to be a way to do this in ictest?
 	cmd := []string{
 		"junod", "tx", "wasm", "execute", contractAddr, message,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--from", user.KeyName(),
 		"--gas", "500000",
 		"--fees", feeCoin,
@@ -145,7 +139,6 @@ func ExecuteMsgWithFeeReturn(t *testing.T, ctx context.Context, chain *cosmos.Co
 	cmd := []string{
 		"wasm", "execute", contractAddr, message,
 		"--output", "json",
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
 		"--gas", "500000",
 		"--fees", feeCoin,

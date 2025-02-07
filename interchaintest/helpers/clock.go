@@ -17,9 +17,7 @@ import (
 func RegisterClockContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string) {
 	cmd := []string{
 		"junod", "tx", "clock", "register", contract,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--fees", "500ujuno",
 		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
@@ -39,9 +37,7 @@ func RegisterClockContract(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 func UnregisterClockContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string) {
 	cmd := []string{
 		"junod", "tx", "clock", "unregister", contract,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--fees", "500ujuno",
 		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
@@ -61,9 +57,7 @@ func UnregisterClockContract(t *testing.T, ctx context.Context, chain *cosmos.Co
 func UnjailClockContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string) {
 	cmd := []string{
 		"junod", "tx", "clock", "unjail", contract,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--fees", "500ujuno",
 		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
@@ -90,7 +84,7 @@ type ClockContract struct {
 func GetClockContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) ClockContract {
 	var res ClockContract
 
-	cmd := getClockQueryCommand(chain, contract)
+	cmd := getClockQueryCommand(contract)
 	stdout, _, err := chain.Exec(ctx, cmd, nil)
 	require.NoError(t, err)
 
@@ -105,17 +99,15 @@ func GetClockContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 
 // Validate a contract is not registered with the clock module
 func ValidateNoClockContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) {
-	cmd := getClockQueryCommand(chain, contract)
+	cmd := getClockQueryCommand(contract)
 	_, _, err := chain.Exec(ctx, cmd, nil)
 	require.Error(t, err)
 }
 
 // Get the clock query command
-func getClockQueryCommand(chain *cosmos.CosmosChain, contract string) []string {
+func getClockQueryCommand(contract string) []string {
 	return []string{
 		"junod", "query", "clock", "contract", contract,
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
 	}
 }

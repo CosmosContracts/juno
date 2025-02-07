@@ -1,12 +1,12 @@
 syntax = "proto3";
 package juno.clock.v1;
 
+import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
-import "juno/clock/v1/genesis.proto";
+import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "cosmos_proto/cosmos.proto";
-import "amino/amino.proto";
+import "juno/clock/v1/genesis.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/clock/types";
 
@@ -17,17 +17,17 @@ service Msg {
   // registering a new clock contract.
   rpc RegisterClockContract(MsgRegisterClockContract) returns (MsgRegisterClockContractResponse) {
     option (google.api.http).post = "/juno/clock/v1/tx/register";
-  };
+  }
   // UnregisterClockContract defines the endpoint for
   // unregistering a clock contract.
   rpc UnregisterClockContract(MsgUnregisterClockContract) returns (MsgUnregisterClockContractResponse) {
     option (google.api.http).post = "/juno/clock/v1/tx/unregister";
-  };
+  }
   // UnjailClockContract defines the endpoint for
   // unjailing a clock contract.
   rpc UnjailClockContract(MsgUnjailClockContract) returns (MsgUnjailClockContractResponse) {
     option (google.api.http).post = "/juno/clock/v1/tx/unjail";
-  };
+  }
   // UpdateParams defines a governance operation for updating the x/clock module
   // parameters. The authority is hard-coded to the x/gov module account.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -36,9 +36,9 @@ service Msg {
 // MsgRegisterClockContract is the Msg/RegisterClockContract request type.
 message MsgRegisterClockContract {
   option (cosmos.msg.v1.signer) = "sender_address";
-  option (amino.name)           = "juno/x/clock/MsgRegisterClockContract";
+  option (amino.name) = "juno/x/clock/MsgRegisterClockContract";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // The address of the sender.
@@ -54,9 +54,9 @@ message MsgRegisterClockContractResponse {}
 // MsgUnregisterClockContract is the Msg/UnregisterClockContract request type.
 message MsgUnregisterClockContract {
   option (cosmos.msg.v1.signer) = "sender_address";
-  option (amino.name)           = "juno/x/clock/MsgUnregisterClockContract";
+  option (amino.name) = "juno/x/clock/MsgUnregisterClockContract";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // The address of the sender.
@@ -72,9 +72,9 @@ message MsgUnregisterClockContractResponse {}
 // MsgUnjailClockContract is the Msg/UnjailClockContract request type.
 message MsgUnjailClockContract {
   option (cosmos.msg.v1.signer) = "sender_address";
-  option (amino.name)           = "juno/x/clock/MsgUnjailClockContract";
+  option (amino.name) = "juno/x/clock/MsgUnjailClockContract";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // The address of the sender.
@@ -90,9 +90,9 @@ message MsgUnjailClockContractResponse {}
 // MsgUpdateParams is the Msg/UpdateParams request type.
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "juno/x/clock/MsgUpdateParams";
+  option (amino.name) = "juno/x/clock/MsgUpdateParams";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // authority is the address of the governance account.
@@ -101,7 +101,10 @@ message MsgUpdateParams {
   // params defines the x/clock parameters to update.
   //
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  Params params = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // MsgUpdateParamsResponse defines the response structure for executing a

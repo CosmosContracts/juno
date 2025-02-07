@@ -1,15 +1,14 @@
 syntax = "proto3";
 package juno.feepay.v1;
 
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "amino/amino.proto";
-import "cosmos/msg/v1/msg.proto";
-import "cosmos/base/v1beta1/coin.proto";
-import "cosmos_proto/cosmos.proto";
-
-import "juno/feepay/v1/genesis.proto";
 import "juno/feepay/v1/feepay.proto";
+import "juno/feepay/v1/genesis.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/feepay/types";
 
@@ -19,22 +18,22 @@ service Msg {
   // RegisterFeeShare registers a new contract for receiving transaction fees
   rpc RegisterFeePayContract(MsgRegisterFeePayContract) returns (MsgRegisterFeePayContractResponse) {
     option (google.api.http).post = "/juno/feepay/v1/tx/register";
-  };
+  }
 
   // UnregisterFeeShare unregisters a contract for receiving transaction fees
   rpc UnregisterFeePayContract(MsgUnregisterFeePayContract) returns (MsgUnregisterFeePayContractResponse) {
     option (google.api.http).post = "/juno/feepay/v1/tx/unregister";
-  };
+  }
 
   // Fund a fee pay contract
   rpc FundFeePayContract(MsgFundFeePayContract) returns (MsgFundFeePayContractResponse) {
     option (google.api.http).post = "/juno/feepay/v1/tx/fund";
-  };
+  }
 
   // Update a fee pay contract wallet limit
   rpc UpdateFeePayContractWalletLimit(MsgUpdateFeePayContractWalletLimit) returns (MsgUpdateFeePayContractWalletLimitResponse) {
     option (google.api.http).post = "/juno/feepay/v1/tx/update_wallet_limit";
-  };
+  }
 
   // Update the params of the module through gov v1 type.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -43,9 +42,9 @@ service Msg {
 // The message to register a fee pay contract.
 message MsgRegisterFeePayContract {
   option (cosmos.msg.v1.signer) = "sender_address";
-  option (amino.name)           = "juno/x/feepay/MsgRegisterFeePayContract";
+  option (amino.name) = "juno/x/feepay/MsgRegisterFeePayContract";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // The wallet address of the sender.
@@ -61,9 +60,9 @@ message MsgRegisterFeePayContractResponse {}
 // The message to unregister a fee pay contract.
 message MsgUnregisterFeePayContract {
   option (cosmos.msg.v1.signer) = "sender_address";
-  option (amino.name)           = "juno/x/feepay/MsgUnregisterFeePayContract";
+  option (amino.name) = "juno/x/feepay/MsgUnregisterFeePayContract";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // The wallet address of the sender.
@@ -79,9 +78,9 @@ message MsgUnregisterFeePayContractResponse {}
 // The message to fund a fee pay contract
 message MsgFundFeePayContract {
   option (cosmos.msg.v1.signer) = "sender_address";
-  option (amino.name)           = "juno/x/feepay/MsgFundFeePayContract";
+  option (amino.name) = "juno/x/feepay/MsgFundFeePayContract";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // The wallet address of the sender.
@@ -92,9 +91,9 @@ message MsgFundFeePayContract {
 
   // The coins to fund the contract with.
   repeated cosmos.base.v1beta1.Coin amount = 3 [
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true,
-    (amino.encoding)         = "legacy_coins",
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (amino.encoding) = "legacy_coins",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
@@ -105,9 +104,9 @@ message MsgFundFeePayContractResponse {}
 // The message to update a fee pay contract wallet limit.
 message MsgUpdateFeePayContractWalletLimit {
   option (cosmos.msg.v1.signer) = "sender_address";
-  option (amino.name)           = "juno/x/feepay/MsgUpdateFeePayContractWalletLimit";
+  option (amino.name) = "juno/x/feepay/MsgUpdateFeePayContractWalletLimit";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // The wallet address of the sender.
@@ -126,9 +125,9 @@ message MsgUpdateFeePayContractWalletLimitResponse {}
 // MsgUpdateParams is the Msg/UpdateParams request type.
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "juno/x/feepay/MsgUpdateParams";
+  option (amino.name) = "juno/x/feepay/MsgUpdateParams";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // authority is the address that controls the module (defaults to x/gov unless overwritten).
@@ -137,7 +136,10 @@ message MsgUpdateParams {
   // params defines the x/feepay parameters to update.
   //
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  Params params = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // MsgUpdateParamsResponse defines the response structure for executing a

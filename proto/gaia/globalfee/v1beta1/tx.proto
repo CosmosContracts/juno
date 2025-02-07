@@ -1,11 +1,11 @@
 syntax = "proto3";
 package gaia.globalfee.v1beta1;
 
+import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
 import "gaia/globalfee/v1beta1/genesis.proto";
 import "gogoproto/gogo.proto";
-import "cosmos_proto/cosmos.proto";
-import "amino/amino.proto";
 
 option go_package = "github.com/cosmos/gaia/x/globalfee/types";
 
@@ -20,9 +20,9 @@ service Msg {
 // MsgUpdateParams is the Msg/UpdateParams request type.
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "gaia/x/globalfee/MsgUpdateParams";
+  option (amino.name) = "gaia/x/globalfee/MsgUpdateParams";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   // authority is the address of the governance account.
@@ -31,7 +31,10 @@ message MsgUpdateParams {
   // params defines the x/mint parameters to update.
   //
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  Params params = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // MsgUpdateParamsResponse defines the response structure for executing a

@@ -2,15 +2,18 @@ syntax = "proto3";
 package juno.drip.v1;
 
 import "amino/amino.proto";
-import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/drip/types";
 
 // GenesisState defines the module's genesis state.
 message GenesisState {
   // params are the drip module parameters
-  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // Params defines the drip module params

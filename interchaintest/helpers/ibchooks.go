@@ -10,11 +10,9 @@ import (
 )
 
 func GetIBCHooksUserAddress(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, channel, uaddr string) string {
-	// junod q ibchooks wasm-sender channel-0 "juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl" --node http://localhost:26657
+	// junod q ibchooks wasm-sender channel-0 "juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl"
 	cmd := []string{
 		"junod", "query", "ibchooks", "wasm-sender", channel, uaddr,
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
 	}
 

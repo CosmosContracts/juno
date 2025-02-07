@@ -77,8 +77,6 @@ func GetValidators(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain)
 
 	cmd := []string{
 		"junod", "query", "staking", "validators",
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
 	}
 
@@ -107,8 +105,6 @@ func GetFeePayUses(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain,
 
 	cmd := []string{
 		"junod", "query", "feepay", "uses", contract, wallet,
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
 	}
 
@@ -141,8 +137,6 @@ func GetFeePayContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosC
 
 	cmd := []string{
 		"junod", "query", "feepay", "contracts",
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
 	}
 
@@ -171,8 +165,6 @@ func GetFeePayContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosCh
 
 	cmd := []string{
 		"junod", "query", "feepay", "contract", contract,
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
 	}
 

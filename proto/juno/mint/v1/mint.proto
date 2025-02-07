@@ -1,8 +1,8 @@
 syntax = "proto3";
 package juno.mint.v1;
 
-import "cosmos_proto/cosmos.proto";
 import "amino/amino.proto";
+import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/mint/types";
@@ -11,28 +11,28 @@ option go_package = "github.com/CosmosContracts/juno/x/mint/types";
 message Minter {
   // current annual inflation rate
   string inflation = 1 [
-    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable)   = false
+    (gogoproto.nullable) = false
   ];
   uint64 phase = 2;
   uint64 start_phase_block = 3;
   // current annual expected provisions
   string annual_provisions = 4 [
-    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable)   = false
+    (gogoproto.nullable) = false
   ];
   string target_supply = 5 [
-    (cosmos_proto.scalar)  = "cosmos.Int",
+    (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable)   = false
+    (gogoproto.nullable) = false
   ];
 }
 
 // Params holds parameters for the mint module.
 message Params {
-   option (amino.name) = "cosmos-sdk/x/mint/Params";
+  option (amino.name) = "cosmos-sdk/x/mint/Params";
 
   // type of coin to mint
   string mint_denom = 1;

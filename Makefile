@@ -197,19 +197,19 @@ ictest-unity-gov: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoUnityContractGovSubmit .
 
 ictest-drip: rm-testcache
-	cd interchaintest &&  go test -race -v -run TestJunoDrip .
+	cd interchaintest && go test -race -v -run TestJunoDrip .
 
 ictest-feepay: rm-testcache
-	cd interchaintest &&  go test -race -v -run TestJunoFeePay .
+	cd interchaintest && go test -race -v -run TestJunoFeePay .
 
 ictest-burn: rm-testcache
-	cd interchaintest &&  go test -race -v -run TestJunoBurnModule .
+	cd interchaintest && go test -race -v -run TestJunoBurnModule .
 
 ictest-cwhooks: rm-testcache
-	cd interchaintest &&  go test -race -v -run TestJunoCwHooks .
+	cd interchaintest && go test -race -v -run TestJunoCwHooks .
 
 ictest-clock: rm-testcache
-	cd interchaintest &&  go test -race -v -run TestJunoClock .
+	cd interchaintest && go test -race -v -run TestJunoClock .
 
 rm-testcache:
 	go clean -testcache

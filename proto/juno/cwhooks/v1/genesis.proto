@@ -1,16 +1,19 @@
 syntax = "proto3";
 package juno.cwhooks.v1;
 
-import "gogoproto/gogo.proto";
 import "amino/amino.proto";
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
 
 // GenesisState - initial state of module
 message GenesisState {
   // Params of this module
-  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 
   // staking_contract_addresses
   repeated string staking_contract_addresses = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];

@@ -20,9 +20,7 @@ func ExecuteAuthzGrantMsg(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 	cmd := []string{
 		"junod", "tx", "authz", "grant", grantee.FormattedAddress(), "generic",
 		"--msg-type", msgType,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--from", granter.KeyName(),
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
@@ -47,7 +45,6 @@ func ExecuteAuthzExecMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos
 	generateMsg := []string{
 		"junod", "tx", "wasm", "execute", contractAddr, message,
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--from", grantee.KeyName(),
 		"--gas", "500000",
 		"--fees", feeCoin,
@@ -74,9 +71,7 @@ func ExecuteAuthzExecMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos
 	// Execute the command
 	cmd := []string{
 		"junod", "tx", "authz", "exec", node.HomeDir() + "/" + filePath,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--from", grantee.KeyName(),
 		"--gas", "500000",
 		"--fees", feeCoin,
