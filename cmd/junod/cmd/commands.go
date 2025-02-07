@@ -44,16 +44,15 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 }
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
-func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.GenesisCoreCommand(
+func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager) *cobra.Command {
+	cmd := genutilcli.Commands(
 		txConfig,
 		basicManager,
 		app.DefaultNodeHome,
 	)
 
-	for _, subCmd := range cmds {
-		cmd.AddCommand(subCmd)
-	}
+	cmd.AddCommand(AddGenesisIcaCmd(app.DefaultNodeHome))
+
 	return cmd
 }
 
@@ -76,12 +75,10 @@ func queryCommand() *cobra.Command {
 		authcmd.QueryTxCmd(),
 	)
 
-	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
-
 	return cmd
 }
 
-func txCommand(basicManager module.BasicManager) *cobra.Command {
+func txCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
 		Short:                      "Transactions subcommands",
@@ -101,9 +98,6 @@ func txCommand(basicManager module.BasicManager) *cobra.Command {
 		authcmd.GetEncodeCommand(),
 		authcmd.GetDecodeCommand(),
 	)
-
-	basicManager.AddTxCommands(cmd)
-	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
 }

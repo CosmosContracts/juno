@@ -105,7 +105,7 @@ build: go-cache
 	@echo "============================="
 
 test-node:
-	CHAIN_ID="local-1" HOME_DIR="~/.juno1" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
+	CHAIN_ID="local-1" HOME_DIR="~/.juno" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
 
 .PHONY: verify go-cache install build test-node
 

@@ -26,7 +26,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -57,6 +56,8 @@ var (
 	Bech32PrefixConsAddr = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus
 	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
 	Bech32PrefixConsPub = Bech32Prefix + sdk.PrefixValidator + sdk.PrefixConsensus + sdk.PrefixPublic
+
+	autoCliOpts autocli.AppOptions
 )
 
 // NewRootCmd creates a new root command for junod. It is called once in the
@@ -157,28 +158,24 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	autoCliOpts := enrichAutoCliOpts(tempApp.AutoCLIOpts(initClientCtx), initClientCtx)
-	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
-		panic(err)
-	}
-
 	initRootCmd(
 		rootCmd,
 		tempApp.BasicModuleManager,
 		tempApp.TxConfig(),
 	)
 
+	autoCliOpts = tempApp.AutoCLIOpts(initClientCtx)
+	initClientCtx, err := config.ReadFromClientConfig(initClientCtx)
+	if err != nil {
+		panic(err)
+	}
+	autoCliOpts.ClientCtx = initClientCtx
+
+	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
+		panic(err)
+	}
+
 	return rootCmd
-}
-
-func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context) autocli.AppOptions {
-	autoCliOpts.AddressCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
-	autoCliOpts.ValidatorAddressCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix())
-	autoCliOpts.ConsensusAddressCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix())
-
-	autoCliOpts.ClientCtx = clientCtx
-
-	return autoCliOpts
 }
 
 // initCometConfig helps to override default Comet Config values.
@@ -270,16 +267,11 @@ func initRootCmd(
 	basicManager module.BasicManager,
 	txConfig client.TxConfig,
 ) {
-	cfg := sdk.GetConfig()
-	cfg.Seal()
-
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
-		cmtcli.NewCompletionCmd(rootCmd, true),
-		AddGenesisIcaCmd(app.DefaultNodeHome),
+		cmtcli.NewCompletionCmd(rootCmd, false),
 		DebugCmd(),
 		confixcmd.ConfigCommand(),
-		ConfigCmd(),
 		pruning.Cmd(
 			newApp,
 			app.DefaultNodeHome,
@@ -298,9 +290,12 @@ func initRootCmd(
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
 		server.StatusCommand(),
+		server.ShowValidatorCmd(),
+		server.ShowNodeIDCmd(),
+		server.ShowAddressCmd(),
 		genesisCommand(txConfig, basicManager),
 		queryCommand(),
-		txCommand(basicManager),
+		txCommand(),
 		keys.Commands(),
 		ResetCmd(),
 	)

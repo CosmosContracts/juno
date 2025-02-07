@@ -36,13 +36,14 @@ require (
 	github.com/prometheus/client_golang v1.20.5
 	github.com/spf13/cast v1.7.1
 	github.com/spf13/cobra v1.8.1
-	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/mock v0.4.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250124145028-65684f501c47
 	google.golang.org/grpc v1.68.1
 	gotest.tools/v3 v3.5.1
 )
+
+require github.com/spf13/viper v1.19.0 // indirect
 
 require (
 	cloud.google.com/go v0.115.0 // indirect
