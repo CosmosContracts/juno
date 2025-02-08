@@ -22,10 +22,12 @@ func ConformanceCosmWasm(t *testing.T, ctx context.Context, chain *cosmos.Cosmos
 
 func StdExecute(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) (contractAddr string) {
 	_, contractAddr = helpers.SetupContract(t, ctx, chain, user.KeyName(), "contracts/cw_template.wasm", `{"count":0}`)
-	helpers.ExecuteMsgWithFee(t, ctx, chain, user, contractAddr, "", "10000"+chain.Config().Denom, `{"increment":{}}`)
+	tx, err := helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, user, contractAddr, "", "100000"+chain.Config().Denom, `{"increment":{}}`)
+	require.NoError(t, err)
+	t.Log(tx)
 
 	var res helpers.GetCountResponse
-	err := helpers.SmartQueryString(t, ctx, chain, contractAddr, `{"get_count":{}}`, &res)
+	err = helpers.SmartQueryString(t, ctx, chain, contractAddr, `{"get_count":{}}`, &res)
 	require.NoError(t, err)
 	require.Equal(t, int64(1), res.Data.Count)
 

@@ -41,7 +41,10 @@ func TestJunoFeeShare(t *testing.T) {
 	}
 
 	// execute with a 10000 fee (so 5000 denom should be in the contract now with 50% feeshare default)
-	helpers.ExecuteMsgWithFee(t, ctx, juno, granter, contractAddr, "", "10000"+nativeDenom, `{"increment":{}}`)
+	_, err := helpers.ExecuteMsgWithFeeReturn(t, ctx, juno, granter, contractAddr, "", "10000"+nativeDenom, `{"increment":{}}`)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// check balance of nativeDenom now
 	if balance, err := juno.GetBalance(ctx, feeRcvAddr, nativeDenom); err != nil {

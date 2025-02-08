@@ -38,8 +38,8 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 			NumFullNodes:  &numFullNodes,
 		},
 		{
-			Name:          "gaia",
-			Version:       "v9.1.0",
+			Name:          "juno-ibc",
+			ChainConfig:   junoIbcConfig,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},
@@ -57,7 +57,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 
 	juno, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
-	relayerType, relayerName := ibc.CosmosRly, "relay"
+	relayerType, relayerName := ibc.CosmosRly, "rly"
 
 	// Get a relayer instance
 	rf := interchaintest.NewBuiltinRelayerFactory(

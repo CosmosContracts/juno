@@ -83,6 +83,24 @@ var (
 		ModifyGenesis:       cosmos.ModifyGenesis(defaultGenesisKV),
 	}
 
+	junoIbcConfig = ibc.ChainConfig{
+		Type:                "cosmos",
+		Name:                "juno",
+		ChainID:             "juno-ibc-2",
+		Images:              []ibc.DockerImage{JunoImage},
+		Bin:                 "junod",
+		Bech32Prefix:        "juno",
+		Denom:               Denom,
+		CoinType:            "118",
+		GasPrices:           fmt.Sprintf("0%s", Denom),
+		GasAdjustment:       2.0,
+		TrustingPeriod:      "112h",
+		NoHostMount:         false,
+		ConfigFileOverrides: nil,
+		EncodingConfig:      junoEncoding(),
+		ModifyGenesis:       cosmos.ModifyGenesis(defaultGenesisKV),
+	}
+
 	genesisWalletAmount = sdkmath.NewInt(10_000_000)
 )
 

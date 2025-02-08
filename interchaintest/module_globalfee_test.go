@@ -96,6 +96,8 @@ func bankSendWithFees(t *testing.T, ctx context.Context, chain *cosmos.CosmosCha
 	cmd := []string{
 		"junod", "tx", "bank", "send", from.KeyName(), toAddr, coins,
 		"--home", chain.HomeDir(),
+		"--node", chain.GetRPCAddress(),
+		"--chain-id", chain.Config().ChainID,
 		"--gas", fmt.Sprintf("%d", gasAmt),
 		"--fees", feeCoin,
 		"--keyring-dir", chain.HomeDir(),

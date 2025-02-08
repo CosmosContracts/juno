@@ -14,6 +14,7 @@ func GetIBCHooksUserAddress(t *testing.T, ctx context.Context, chain *cosmos.Cos
 	cmd := []string{
 		"junod", "query", "ibchooks", "wasm-sender", channel, uaddr,
 		"--output", "json",
+		"--node", chain.GetRPCAddress(),
 	}
 
 	// This query does not return a type, just prints the string.

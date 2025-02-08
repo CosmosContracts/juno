@@ -59,9 +59,10 @@ func MigrateContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 
 	// Execute migrate tx
 	cmd := []string{
-		"junod", "tx", "wasm", "migrate", contractAddr, codeId, message,
+		"junod", "tx", "wasm", "migrate", keyname, contractAddr, codeId, message,
 		"--home", chain.HomeDir(),
-		"--from", keyname,
+		"--node", chain.GetRPCAddress(),
+		"--chain-id", chain.Config().ChainID,
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
@@ -80,12 +81,12 @@ func MigrateContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 	return codeId, contractAddr
 }
 
-func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr, amount, message string) {
+func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr, amount, message string) (*sdk.TxResponse, error) {
 	// amount is #utoken
 
 	// There has to be a way to do this in ictest?
 	cmd := []string{
-		"junod", "tx", "wasm", "execute", contractAddr, message,
+		"wasm", "execute", contractAddr, message,
 		"--home", chain.HomeDir(),
 		"--from", user.KeyName(),
 		"--gas", "500000",
@@ -94,46 +95,26 @@ func ExecuteMsgWithAmount(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
 	}
-	stdout, _, err := chain.Exec(ctx, cmd, nil)
-	require.NoError(t, err)
-
-	debugOutput(t, string(stdout))
+	node := chain.GetNode()
+	txHash, err := node.ExecTx(ctx, user.KeyName(), cmd...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// convert stdout into a TxResponse
+	txRes, err := chain.GetTransaction(txHash)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if err := testutil.WaitForBlocks(ctx, 2, chain); err != nil {
 		t.Fatal(err)
 	}
-}
 
-func ExecuteMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr, amount, feeCoin, message string) {
-	// amount is #utoken
-
-	// There has to be a way to do this in ictest?
-	cmd := []string{
-		"junod", "tx", "wasm", "execute", contractAddr, message,
-		"--home", chain.HomeDir(),
-		"--from", user.KeyName(),
-		"--gas", "500000",
-		"--fees", feeCoin,
-		"--keyring-dir", chain.HomeDir(),
-		"--keyring-backend", keyring.BackendTest,
-		"-y",
-	}
-
-	if amount != "" {
-		cmd = append(cmd, "--amount", amount)
-	}
-
-	stdout, _, _ := chain.Exec(ctx, cmd, nil)
-
-	debugOutput(t, string(stdout))
-
-	if err := testutil.WaitForBlocks(ctx, 2, chain); err != nil {
-		t.Fatal(err)
-	}
+	return txRes, err
 }
 
 func ExecuteMsgWithFeeReturn(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr, amount, feeCoin, message string) (*sdk.TxResponse, error) {
-	// amount is #utoken
+	// amount is #utoken (e.g. "1000ujuno")
 
 	// There has to be a way to do this in ictest? (there is, use node.ExecTx)
 	cmd := []string{

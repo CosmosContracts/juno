@@ -185,16 +185,11 @@ ictest-globalfee: rm-testcache
 ictest-upgrade: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
 
-ictest-upgrade-local: local-image ictest-upgrade
-
 ictest-ibc: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
 
 ictest-unity-deploy: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoUnityContractDeploy .
-
-ictest-unity-gov: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoUnityContractGovSubmit .
 
 ictest-drip: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoDrip .

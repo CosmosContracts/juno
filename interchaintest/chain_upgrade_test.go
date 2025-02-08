@@ -103,7 +103,8 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, upgradeBranchVersion)
 
 	// confirm we can execute against the beforeContract (ref: v20 upgrade patch)
-	helpers.ExecuteMsgWithFee(t, ctx, chain, chainUser, beforeContract, "", "10000"+chain.Config().Denom, `{"increment":{}}`)
+	_, err = helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, chainUser, beforeContract, "", "10000"+chain.Config().Denom, `{"increment":{}}`)
+	require.NoError(t, err)
 
 	// Post Upgrade: Conformance Validation
 	junoconformance.ConformanceCosmWasm(t, ctx, chain, chainUser)

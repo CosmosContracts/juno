@@ -52,6 +52,8 @@ func cwHooksCmd(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, co
 	cmd := []string{
 		"junod", "tx", "cw-hooks", command, contractAddr, user.FormattedAddress(),
 		"--home", chain.HomeDir(),
+		"--node", chain.GetRPCAddress(),
+		"--chain-id", chain.Config().ChainID,
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
@@ -71,6 +73,7 @@ func getContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, 
 	cmd := []string{
 		"junod", "query", "cw-hooks", subCmd,
 		"--output", "json",
+		"--node", chain.GetRPCAddress(),
 	}
 
 	stdout, _, err := chain.Exec(ctx, cmd, nil)

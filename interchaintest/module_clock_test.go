@@ -51,7 +51,8 @@ func TestJunoClock(t *testing.T) {
 	require.Equal(t, uint32(0), res.Data.Val)
 
 	// Register the contract
-	helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	_, err := helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 
 	// Validate contract is not jailed
 	contract := helpers.GetClockContract(t, ctx, juno, contractAddr)
@@ -63,7 +64,8 @@ func TestJunoClock(t *testing.T) {
 	require.GreaterOrEqual(t, res.Data.Val, uint32(1))
 
 	// Unregister the contract & ensure it is removed from the store
-	helpers.UnregisterClockContract(t, ctx, juno, user, contractAddr)
+	_, err = helpers.UnregisterClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 	helpers.ValidateNoClockContract(t, ctx, juno, contractAddr)
 
 	//
@@ -80,7 +82,8 @@ func TestJunoClock(t *testing.T) {
 	require.Equal(t, uint32(0), res.Data.Val)
 
 	// Register the contract
-	helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	_, err = helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 
 	// Validate contract is jailed
 	contract = helpers.GetClockContract(t, ctx, juno, contractAddr)
@@ -96,7 +99,8 @@ func TestJunoClock(t *testing.T) {
 	helpers.MigrateContract(t, ctx, juno, user.KeyName(), contractAddr, "contracts/clock_example_migrate.wasm", `{}`)
 
 	// Unjail the contract
-	helpers.UnjailClockContract(t, ctx, juno, user, contractAddr)
+	_, err = helpers.UnjailClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 
 	// Validate contract is not jailed
 	contract = helpers.GetClockContract(t, ctx, juno, contractAddr)
@@ -121,7 +125,8 @@ func TestJunoClock(t *testing.T) {
 	require.Equal(t, uint32(0), res.Data.Val)
 
 	// Register the contract
-	helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	_, err = helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 
 	// Validate contract is jailed
 	contract = helpers.GetClockContract(t, ctx, juno, contractAddr)
