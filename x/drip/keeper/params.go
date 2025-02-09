@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/CosmosContracts/juno/v27/x/drip/types"
+	"github.com/CosmosContracts/juno/v28/x/drip/types"
 )
 
 // SetParams sets the x/drip module parameters.

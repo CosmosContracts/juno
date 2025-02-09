@@ -14,7 +14,7 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	tokenfactorytypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
 )
 
 func AcceptedQueries() map[string]func() proto.Message {

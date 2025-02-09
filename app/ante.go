@@ -20,13 +20,13 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	decorators "github.com/CosmosContracts/juno/v27/app/decorators"
-	feepayante "github.com/CosmosContracts/juno/v27/x/feepay/ante"
-	feepaykeeper "github.com/CosmosContracts/juno/v27/x/feepay/keeper"
-	feeshareante "github.com/CosmosContracts/juno/v27/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v27/x/feeshare/keeper"
-	globalfeeante "github.com/CosmosContracts/juno/v27/x/globalfee/ante"
-	globalfeekeeper "github.com/CosmosContracts/juno/v27/x/globalfee/keeper"
+	decorators "github.com/CosmosContracts/juno/v28/app/decorators"
+	feepayante "github.com/CosmosContracts/juno/v28/x/feepay/ante"
+	feepaykeeper "github.com/CosmosContracts/juno/v28/x/feepay/keeper"
+	feeshareante "github.com/CosmosContracts/juno/v28/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v28/x/feeshare/keeper"
+	globalfeeante "github.com/CosmosContracts/juno/v28/x/globalfee/ante"
+	globalfeekeeper "github.com/CosmosContracts/juno/v28/x/globalfee/keeper"
 )
 
 // Lower back to 1 mil after https://github.com/cosmos/relayer/issues/1255

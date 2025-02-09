@@ -239,7 +239,7 @@ local-image: install-heighliner
 
 protoVer=0.15.3
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
-protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace -v /var/run/docker.sock:/var/run/docker.sock --workdir /workspace $(protoImageName)
 
 proto-all: proto-format proto-lint proto-gen proto-gen-2 proto-swagger-gen
 

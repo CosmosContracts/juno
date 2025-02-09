@@ -14,7 +14,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	revtypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
+	revtypes "github.com/CosmosContracts/juno/v28/x/feeshare/types"
 )
 
 // Keeper of this module maintains collections of feeshares for contracts

@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
-	globalfeetypes "github.com/CosmosContracts/juno/v27/x/globalfee/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v28/x/globalfee/types"
 )
 
 // TestJunoGlobalFee

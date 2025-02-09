@@ -1,14 +1,12 @@
-package v27
+package v28
 
 import (
-	wasmlctypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
-
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/CosmosContracts/juno/v27/app/upgrades"
+	"github.com/CosmosContracts/juno/v28/app/upgrades"
 )
 
-const UpgradeName = "v27"
+const UpgradeName = "v28"
 
 const (
 	mevModuleAmount  = "17343396309"
@@ -17,10 +15,10 @@ const (
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: CreateV27UpgradeHandler,
+	CreateUpgradeHandler: CreateV28UpgradeHandler,
 	StoreUpgrades: storetypes.StoreUpgrades{
 		Deleted: []string{
-			wasmlctypes.ModuleName,
+			"08-wasm",
 			"builder",
 		},
 	},

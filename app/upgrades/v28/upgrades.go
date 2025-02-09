@@ -1,4 +1,4 @@
-package v27
+package v28
 
 import (
 	"context"
@@ -11,10 +11,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v27/app/keepers"
+	"github.com/CosmosContracts/juno/v28/app/keepers"
 )
 
-func CreateV27UpgradeHandler(
+func CreateV28UpgradeHandler(
 	mm *module.Manager,
 	cfg module.Configurator,
 	k *keepers.AppKeepers,
@@ -24,12 +24,12 @@ func CreateV27UpgradeHandler(
 		logger := sdkCtx.Logger().With("upgrade", UpgradeName)
 
 		// Run migrations
-		logger.Info(fmt.Sprintf("v27: running migrations for: %v", vm))
+		logger.Info(fmt.Sprintf("v28: running migrations for: %v", vm))
 		versionMap, err := mm.RunMigrations(ctx, cfg, vm)
 		if err != nil {
 			return nil, err
 		}
-		logger.Info(fmt.Sprintf("v27: post migration check: %v", versionMap))
+		logger.Info(fmt.Sprintf("v28: post migration check: %v", versionMap))
 
 		// Send MEV profits from module account to community pool
 		err = sendMEVtoCommunityPool(ctx, k, logger)
@@ -45,12 +45,12 @@ func sendMEVtoCommunityPool(ctx context.Context, k *keepers.AppKeepers, logger l
 	mevModuleAddress := sdk.MustAccAddressFromBech32(mevModuleAccount)
 	mevModuleTokenAmount, ok := sdkmath.NewIntFromString(mevModuleAmount)
 	if !ok {
-		logger.Error("v27: failed to parse MEV module token amount")
-		return fmt.Errorf("v27: failed to parse MEV module token amount")
+		logger.Error("v28: failed to parse MEV module token amount")
+		return fmt.Errorf("v28: failed to parse MEV module token amount")
 	}
 	params, err := k.MintKeeper.GetParams(ctx)
 	if err != nil {
-		logger.Error("v27: failed to get x/mint params")
+		logger.Error("v28: failed to get x/mint params")
 		return err
 	}
 	coins := sdk.NewCoins(
@@ -61,7 +61,7 @@ func sendMEVtoCommunityPool(ctx context.Context, k *keepers.AppKeepers, logger l
 	)
 	err = k.DistrKeeper.FundCommunityPool(ctx, coins, mevModuleAddress)
 	if err != nil {
-		logger.Error(fmt.Sprintf("v27: failed to fund community pool with MEV profits: %v", coins))
+		logger.Error(fmt.Sprintf("v28: failed to fund community pool with MEV profits: %v", coins))
 		return err
 	}
 

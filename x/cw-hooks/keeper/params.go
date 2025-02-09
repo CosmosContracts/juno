@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/CosmosContracts/juno/v27/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v28/x/cw-hooks/types"
 )
 
 // SetParams sets the x/cw-hooks module parameters.

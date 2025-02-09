@@ -25,7 +25,7 @@ import (
 
 const (
 	chainName   = "juno"
-	upgradeName = "v27"
+	upgradeName = "v28"
 
 	haltHeightDelta    = int64(9) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = int64(7)
@@ -34,7 +34,7 @@ const (
 // baseChain is the current version of the chain that will be upgraded from
 var baseChain = ibc.DockerImage{
 	Repository: JunoMainRepo,
-	Version:    "v26.0.0",
+	Version:    "v27.0.0",
 	UIDGID:     "1025:1025",
 }
 

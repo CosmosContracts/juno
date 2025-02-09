@@ -3,7 +3,7 @@ package module
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	globalfeev1beta1 "github.com/CosmosContracts/juno/v27/api/gaia/globalfee/v1beta1"
+	globalfeev1beta1 "github.com/CosmosContracts/juno/v28/api/gaia/globalfee/v1beta1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.

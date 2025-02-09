@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v27/x/clock/types"
+	"github.com/CosmosContracts/juno/v28/x/clock/types"
 )
 
 func (s *KeeperTestSuite) TestClockInitGenesis() {

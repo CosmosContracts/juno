@@ -3,7 +3,7 @@ package module
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	clockv1 "github.com/CosmosContracts/juno/v27/api/juno/clock/v1"
+	clockv1 "github.com/CosmosContracts/juno/v28/api/juno/clock/v1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.

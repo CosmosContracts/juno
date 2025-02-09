@@ -14,8 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/CosmosContracts/juno/v27/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v27/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v28/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v28/x/feeshare/types"
 )
 
 // FeeSharePayoutDecorator Run his after we already deduct the fee from the account with

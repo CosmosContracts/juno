@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v27/x/clock/types"
+	"github.com/CosmosContracts/juno/v28/x/clock/types"
 )
 
 // Keeper of the clock store

@@ -14,8 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosContracts/juno/v27/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v27/x/mint/types"
+	"github.com/CosmosContracts/juno/v28/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v28/x/mint/types"
 )
 
 // TestRandomizedGenState tests the normal scenario of applying RandomizedGenState.

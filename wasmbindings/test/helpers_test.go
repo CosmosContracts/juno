@@ -15,8 +15,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v27/testutil"
-	types "github.com/CosmosContracts/juno/v27/wasmbindings/types"
+	"github.com/CosmosContracts/juno/v28/testutil"
+	types "github.com/CosmosContracts/juno/v28/wasmbindings/types"
 )
 
 type ReflectExec struct {

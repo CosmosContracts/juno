@@ -7,7 +7,7 @@ import (
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v27/x/mint/types"
+	"github.com/CosmosContracts/juno/v28/x/mint/types"
 )
 
 var _ types.MsgServer = msgServer{}

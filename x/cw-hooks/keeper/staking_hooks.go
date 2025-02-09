@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmosContracts/juno/v27/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v28/x/cw-hooks/types"
 )
 
 // skipUntilHeight allows us to skip gentxs.

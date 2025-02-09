@@ -65,9 +65,9 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/CosmosContracts/juno/v27/app/keepers"
-	upgrades "github.com/CosmosContracts/juno/v27/app/upgrades"
-	v27 "github.com/CosmosContracts/juno/v27/app/upgrades/v27"
+	"github.com/CosmosContracts/juno/v28/app/keepers"
+	upgrades "github.com/CosmosContracts/juno/v28/app/upgrades"
+	v28 "github.com/CosmosContracts/juno/v28/app/upgrades/v28"
 )
 
 const (
@@ -88,7 +88,7 @@ var (
 	EnableSpecificProposals = ""
 
 	Upgrades = []upgrades.Upgrade{
-		v27.Upgrade,
+		v28.Upgrade,
 	}
 
 	_ runtime.AppI            = (*App)(nil)

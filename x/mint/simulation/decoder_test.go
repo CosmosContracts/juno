@@ -19,8 +19,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/kv"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	"github.com/CosmosContracts/juno/v27/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v27/x/mint/types"
+	"github.com/CosmosContracts/juno/v28/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v28/x/mint/types"
 )
 
 type EncodingConfig struct {
