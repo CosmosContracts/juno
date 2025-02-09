@@ -49,7 +49,6 @@ func (s *IntegrationTestSuite) TestQueryContractBalance() {
 			{balance: 0},
 			{balance: 1_000_000},
 		} {
-			bal := bal
 
 			// Instantiate the contractAddr
 			contractAddr := s.InstantiateContract(sender.String(), "")
