@@ -17,7 +17,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	ibclocalhost "github.com/cosmos/ibc-go/v8/modules/light-clients/09-localhost"
 
 	clocktypes "github.com/CosmosContracts/juno/v28/x/clock/types"
 	feepaytypes "github.com/CosmosContracts/juno/v28/x/feepay/types"
@@ -33,9 +32,6 @@ var (
 
 	JunoE2ERepo  = "ghcr.io/cosmoscontracts/juno-e2e"
 	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
-
-	IBCRelayerImage   = "ghcr.io/cosmos/relayer"
-	IBCRelayerVersion = "main"
 
 	junoRepo, junoVersion = GetDockerImageInfo()
 
@@ -83,14 +79,14 @@ var (
 		ModifyGenesis:       cosmos.ModifyGenesis(defaultGenesisKV),
 	}
 
-	junoIbcConfig = ibc.ChainConfig{
+	ibcConfig = ibc.ChainConfig{
 		Type:                "cosmos",
-		Name:                "juno",
-		ChainID:             "juno-ibc-2",
+		Name:                "ibc-chain",
+		ChainID:             "ibc-1",
 		Images:              []ibc.DockerImage{JunoImage},
 		Bin:                 "junod",
-		Bech32Prefix:        "juno",
-		Denom:               Denom,
+		Bech32Prefix:        "ibc",
+		Denom:               "uibc",
 		CoinType:            "118",
 		GasPrices:           fmt.Sprintf("0%s", Denom),
 		GasAdjustment:       2.0,
@@ -117,7 +113,6 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 
 	// register custom types
-	ibclocalhost.RegisterInterfaces(cfg.InterfaceRegistry)
 	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)

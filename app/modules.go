@@ -20,6 +20,7 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 
 	"cosmossdk.io/x/evidence"
 	evidencetypes "cosmossdk.io/x/evidence/types"
@@ -115,6 +116,7 @@ func appModules(
 		clockmodule.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
 		cwhooksmodule.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
+		ibctm.NewAppModule(),
 		capability.NewAppModule(appCodec, *app.AppKeepers.CapabilityKeeper, false),
 		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
 		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
@@ -283,6 +285,7 @@ var AppModuleBasics = module.NewBasicManager(
 	clockmodule.AppModuleBasic{},
 	cwhooksmodule.AppModuleBasic{},
 	// IBC modules
+	ibctm.AppModuleBasic{},
 	capability.AppModuleBasic{},
 	ibc.AppModuleBasic{},
 	transfer.AppModuleBasic{},

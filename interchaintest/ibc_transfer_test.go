@@ -38,8 +38,8 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 			NumFullNodes:  &numFullNodes,
 		},
 		{
-			Name:          "juno-ibc",
-			ChainConfig:   junoIbcConfig,
+			Name:          "ibc",
+			ChainConfig:   ibcConfig,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},
@@ -58,15 +58,12 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	juno, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
 	relayerType, relayerName := ibc.CosmosRly, "rly"
-
 	// Get a relayer instance
 	rf := interchaintest.NewBuiltinRelayerFactory(
 		relayerType,
 		zaptest.NewLogger(t),
-		interchaintestrelayer.CustomDockerImage(IBCRelayerImage, IBCRelayerVersion, "100:1000"),
 		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
-
 	r := rf.Build(t, client, network)
 
 	ic := interchaintest.NewInterchain().
@@ -86,11 +83,11 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	eRep := rep.RelayerExecReporter(t)
 
 	require.NoError(t, ic.Build(ctx, eRep, interchaintest.InterchainBuildOptions{
-		TestName:          t.Name(),
-		Client:            client,
-		NetworkID:         network,
-		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
-		SkipPathCreation:  false,
+		TestName:  t.Name(),
+		Client:    client,
+		NetworkID: network,
+		// BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
+		SkipPathCreation: false,
 	}))
 	t.Cleanup(func() {
 		_ = ic.Close()

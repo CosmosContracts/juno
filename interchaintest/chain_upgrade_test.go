@@ -15,6 +15,7 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
+
 	"github.com/stretchr/testify/require"
 
 	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
@@ -108,7 +109,6 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 
 	// Post Upgrade: Conformance Validation
 	junoconformance.ConformanceCosmWasm(t, ctx, chain, chainUser)
-	// TODO: ibc conformance test
 }
 
 func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight int64, upgradeRepo, upgradeBranchVersion string) {
