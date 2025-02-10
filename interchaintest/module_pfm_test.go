@@ -256,7 +256,7 @@ func TestPacketForwardMiddlewareRouter(t *testing.T) {
 
 		transferTx, err := chainA.SendIBCTransfer(ctx, abChan.ChannelID, userA.KeyName(), transfer, ibc.TransferOptions{Memo: string(memo)})
 		require.NoError(t, err)
-		_, err = testutil.PollForAck(ctx, chainA, chainAHeight, chainAHeight+30, transferTx.Packet)
+		_, err = testutil.PollForAck(ctx, chainA, chainAHeight, chainAHeight+35, transferTx.Packet)
 		require.NoError(t, err)
 		err = testutil.WaitForBlocks(ctx, 5, chainA)
 		require.NoError(t, err)

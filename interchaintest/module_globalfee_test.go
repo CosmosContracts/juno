@@ -3,6 +3,7 @@ package interchaintest
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 	"testing"
 
@@ -65,8 +66,8 @@ func TestJunoGlobalFee(t *testing.T) {
 
 	// success: send with enough fee (200k gas * 0.003 = 600)
 	std = bankSendWithFees(t, ctx, juno, sender, receiver, "2"+nativeDenom, "600"+nativeDenom, 200000)
-	require.Contains(t, std, "raw_log: '[]'")
-	require.Contains(t, std, "code: 0")
+	require.Regexp(t, regexp.MustCompile(`raw_log:\s*""`), std)
+	require.Regexp(t, regexp.MustCompile(`code:\s*0`), std)
 
 	afterBal, err := juno.GetBalance(ctx, receiver, nativeDenom)
 	require.NoError(t, err)
@@ -80,8 +81,8 @@ func TestJunoGlobalFee(t *testing.T) {
 
 	// success: validate the new value is in effect (200k gas * 0.005 = 200ujuno)
 	std = bankSendWithFees(t, ctx, juno, sender, receiver, "3"+nativeDenom, "1000"+nativeDenom, 200000)
-	require.Contains(t, std, "raw_log: '[]'")
-	require.Contains(t, std, "code: 0")
+	require.Regexp(t, regexp.MustCompile(`raw_log:\s*""`), std)
+	require.Regexp(t, regexp.MustCompile(`code:\s*0`), std)
 
 	afterBal, err = juno.GetBalance(ctx, receiver, nativeDenom)
 	require.NoError(t, err)

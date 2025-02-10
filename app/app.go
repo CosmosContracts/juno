@@ -74,7 +74,6 @@ const (
 	Name = "juno"
 )
 
-// We pull these out so we can set them with LDFLAGS in the Makefile
 var (
 	NodeDir = ".juno"
 	// DefaultNodeHome default home directories for Juno
@@ -301,7 +300,7 @@ func New(
 		}
 	}
 
-	app.setupUpgradeHandlers(app.configurator)
+	app.setupUpgradeHandlers()
 	app.setupUpgradeStoreLoaders()
 
 	// At startup, after all modules have been registered, check that all proto
@@ -536,7 +535,7 @@ func (app *App) RegisterNodeService(clientCtx client.Context, cfg config.Config)
 func (app *App) setupUpgradeStoreLoaders() {
 	upgradeInfo, err := app.AppKeepers.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
-		panic("failed to read upgrade info from disk" + err.Error())
+		panic("failed to read upgrade info from disk: " + err.Error())
 	}
 
 	if app.AppKeepers.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
@@ -553,13 +552,13 @@ func (app *App) setupUpgradeStoreLoaders() {
 	}
 }
 
-func (app *App) setupUpgradeHandlers(cfg module.Configurator) {
+func (app *App) setupUpgradeHandlers() {
 	for _, upgrade := range Upgrades {
 		app.AppKeepers.UpgradeKeeper.SetUpgradeHandler(
 			upgrade.UpgradeName,
 			upgrade.CreateUpgradeHandler(
 				app.ModuleManager,
-				cfg,
+				app.configurator,
 				&app.AppKeepers,
 			),
 		)
