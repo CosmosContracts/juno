@@ -53,10 +53,26 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 
 	t.Log(chainName, upgradeBranchVersion, upgradeRepo, upgradeName)
 
+	previousVersionGenesis := []cosmos.GenesisKV{
+		{
+			Key:   "app_state.gov.params.voting_period",
+			Value: VotingPeriod,
+		},
+		{
+			Key:   "app_state.gov.params.max_deposit_period",
+			Value: MaxDepositPeriod,
+		},
+		{
+			Key:   "app_state.gov.params.min_deposit.0.denom",
+			Value: Denom,
+		},
+	}
+
 	cfg := junoConfig
+	cfg.ModifyGenesis = cosmos.ModifyGenesis(previousVersionGenesis)
 	cfg.Images = []ibc.DockerImage{baseChain}
 
-	numVals, numNodes := 2, 0
+	numVals, numNodes := 4, 0
 	chains := CreateChainWithCustomConfig(t, numVals, numNodes, cfg)
 	chain := chains[0].(*cosmos.CosmosChain)
 

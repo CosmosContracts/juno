@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	VotingPeriod     = "15s"
+	VotingPeriod     = "10s"
 	MaxDepositPeriod = "10s"
 	Denom            = "ujuno"
 
