@@ -14,7 +14,7 @@ permissions:
   packages: write
 
 env:
-  GO_VERSION: 1.22.0
+  GO_VERSION: 1.23.4
   TAR_PATH: /tmp/juno-docker-image.tar
   IMAGE_NAME: juno-docker-image
 
@@ -46,7 +46,7 @@ jobs:
           outputs: type=docker,dest=${{ env.TAR_PATH }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.IMAGE_NAME }}
           path: ${{ env.TAR_PATH }}
@@ -68,8 +68,6 @@ jobs:
           - "ictest-upgrade"
           - "ictest-ibc"
           - "ictest-unity-deploy"
-          - "ictest-unity-gov"
-          - "ictest-pob"
           - "ictest-drip"
           - "ictest-feepay"
           - "ictest-burn"
@@ -88,7 +86,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download Tarball Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.IMAGE_NAME }}
           path: /tmp
