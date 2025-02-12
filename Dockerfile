@@ -17,27 +17,16 @@ WORKDIR /code
 
 # Download dependencies and CosmWasm libwasmvm if found.
 ADD go.mod go.sum ./
+
 RUN set -eux; \
-  export ARCH=$(uname -m); \
-  WASM_VERSION=$(go list -m all | grep github.com/CosmWasm/wasmvm | awk '{print $2}'); \
-  if [ ! -z "${WASM_VERSION}" ]; then \
-  wget -O /lib/libwasmvm_muslc.a https://github.com/CosmWasm/wasmvm/releases/download/${WASM_VERSION}/libwasmvm_muslc.${ARCH}.a; \
-  fi; \
-  go mod download; \
-  LIB_DIR="/lib" \
-  if [ -e "$LIB_DIR/libwasmvm_muslc.x86_64.a" ]; then \
-    ln -sf "$LIB_DIR/libwasmvm_muslc.x86_64.a" "$LIB_DIR/libwasmvm.x86_64.a" \
-    echo "Created symlink: libwasmvm.x86_64.a -> libwasmvm_muslc.x86_64.a" \
-  else \
-    echo "Source file libwasmvm_muslc.x86_64.a not found, skipping." \
-  fi \
-  # Symlink for aarch64
-  if [ -e "$LIB_DIR/libwasmvm_muslc.aarch64.a" ]; then \
-    ln -sf "$LIB_DIR/libwasmvm_muslc.aarch64.a" "$LIB_DIR/libwasmvm.aarch64.a" \
-    echo "Created symlink: libwasmvm.aarch64.a -> libwasmvm_muslc.aarch64.a" \
-  else \
-    echo "Source file libwasmvm_muslc.aarch64.a not found, skipping." \
-  fi;
+  ARCH=$(uname -m); \
+  WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm/v2 | cut -d ' ' -f 2); \
+  wget "https://github.com/CosmWasm/wasmvm/releases/download/${WASMVM_VERSION}/libwasmvm_muslc.${ARCH}.a" -O /lib/libwasmvm_muslc.${ARCH}.a; \
+  wget "https://github.com/CosmWasm/wasmvm/releases/download/${WASMVM_VERSION}/checksums.txt" -O /tmp/checksums.txt && \
+  sha256sum /lib/libwasmvm_muslc.${ARCH}.a | grep $(grep "libwasmvm_muslc.${ARCH}.a" /tmp/checksums.txt | awk '{print $1}'); \
+  ln -sf "/lib/libwasmvm_muslc.${ARCH}.a" "/lib/libwasmvm.${ARCH}.a"; \
+  go mod download
+
 # Copy over code
 COPY . /code/
 
