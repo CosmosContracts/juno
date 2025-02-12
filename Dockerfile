@@ -17,14 +17,27 @@ WORKDIR /code
 
 # Download dependencies and CosmWasm libwasmvm if found.
 ADD go.mod go.sum ./
-RUN set -eux; \    
+RUN set -eux; \
   export ARCH=$(uname -m); \
   WASM_VERSION=$(go list -m all | grep github.com/CosmWasm/wasmvm | awk '{print $2}'); \
   if [ ! -z "${WASM_VERSION}" ]; then \
-  wget -O /lib/libwasmvm_muslc.a https://github.com/CosmWasm/wasmvm/releases/download/${WASM_VERSION}/libwasmvm_muslc.${ARCH}.a; \      
+  wget -O /lib/libwasmvm_muslc.a https://github.com/CosmWasm/wasmvm/releases/download/${WASM_VERSION}/libwasmvm_muslc.${ARCH}.a; \
   fi; \
-  go mod download;
-
+  go mod download; \
+  LIB_DIR="/lib" \
+  if [ -e "$LIB_DIR/libwasmvm_muslc.x86_64.a" ]; then \
+    ln -sf "$LIB_DIR/libwasmvm_muslc.x86_64.a" "$LIB_DIR/libwasmvm.x86_64.a" \
+    echo "Created symlink: libwasmvm.x86_64.a -> libwasmvm_muslc.x86_64.a" \
+  else \
+    echo "Source file libwasmvm_muslc.x86_64.a not found, skipping." \
+  fi \
+  # Symlink for aarch64
+  if [ -e "$LIB_DIR/libwasmvm_muslc.aarch64.a" ]; then \
+    ln -sf "$LIB_DIR/libwasmvm_muslc.aarch64.a" "$LIB_DIR/libwasmvm.aarch64.a" \
+    echo "Created symlink: libwasmvm.aarch64.a -> libwasmvm_muslc.aarch64.a" \
+  else \
+    echo "Source file libwasmvm_muslc.aarch64.a not found, skipping." \
+  fi;
 # Copy over code
 COPY . /code/
 
@@ -37,7 +50,8 @@ RUN LEDGER_ENABLED=false BUILD_TAGS=muslc LINK_STATICALLY=true make build \
   && (file /code/bin/junod | grep "statically linked")
 
 # --------------------------------------------------------
-FROM alpine:3.16
+
+FROM alpine:3.21
 
 COPY --from=go-builder /code/bin/junod /usr/bin/junod
 
