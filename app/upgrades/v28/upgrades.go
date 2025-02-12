@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"cosmossdk.io/log"
-	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -43,27 +42,25 @@ func CreateV28UpgradeHandler(
 
 func sendMEVtoCommunityPool(ctx context.Context, k *keepers.AppKeepers, logger log.Logger) error {
 	mevModuleAddress := sdk.MustAccAddressFromBech32(mevModuleAccount)
-	mevModuleTokenAmount, ok := sdkmath.NewIntFromString(mevModuleAmount)
-	if !ok {
-		logger.Error("v28: failed to parse MEV module token amount")
-		return fmt.Errorf("v28: failed to parse MEV module token amount")
-	}
-	params, err := k.MintKeeper.GetParams(ctx)
+
+	// get mev module account balance
+	mintParams, err := k.MintKeeper.GetParams(ctx)
 	if err != nil {
 		logger.Error("v28: failed to get x/mint params")
-		return err
-	}
-	coins := sdk.NewCoins(
-		sdk.NewCoin(
-			params.MintDenom,
-			mevModuleTokenAmount,
-		),
-	)
-	err = k.DistrKeeper.FundCommunityPool(ctx, coins, mevModuleAddress)
-	if err != nil {
-		logger.Error(fmt.Sprintf("v28: failed to fund community pool with MEV profits: %v", coins))
-		return err
+		return fmt.Errorf("v28: failed to get x/mint params")
 	}
 
+	mevModuleTokenAmount := k.BankKeeper.GetBalance(ctx, mevModuleAddress, mintParams.MintDenom)
+
+	// skip if balance is 0 (testnet etc)
+	if !mevModuleTokenAmount.IsZero() {
+
+		coins := sdk.NewCoins(mevModuleTokenAmount)
+		err = k.DistrKeeper.FundCommunityPool(ctx, coins, mevModuleAddress)
+		if err != nil {
+			logger.Error(fmt.Sprintf("v28: failed to fund community pool with MEV profits: %v", coins))
+			return err
+		}
+	}
 	return nil
 }
