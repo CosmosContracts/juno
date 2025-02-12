@@ -261,7 +261,7 @@ proto-swagger-gen:
 proto-format:
 	@echo "🖊️ - Formatting Protobuf Swagger"
 	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
-	@echo "✅ - Formated Protobuf successfully!"
+	@echo "✅ - Formatted Protobuf successfully!"
 
 proto-lint:
 	@echo "🔎 - Linting Protobuf"

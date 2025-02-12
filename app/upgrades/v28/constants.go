@@ -9,7 +9,6 @@ import (
 const UpgradeName = "v28"
 
 const (
-	mevModuleAmount  = "17343396309"
 	mevModuleAccount = "juno1ma4sw9m2nvtucny6lsjhh4qywvh86zdh5dlkd4"
 )
 
