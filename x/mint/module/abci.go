@@ -22,7 +22,7 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) error {
 	// fetch stored minter & params
 	minter, err := k.GetMinter(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if minter.Inflation.Equal(sdkmath.LegacyZeroDec()) {
@@ -31,7 +31,7 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) error {
 
 	params, err := k.GetParams(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	currentBlock := uint64(sdkCtx.BlockHeight())
 	totalSupply := k.TokenSupply(ctx, params.MintDenom)
@@ -46,7 +46,7 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) error {
 		minter.TargetSupply = totalSupply.Add(minter.AnnualProvisions.TruncateInt())
 		err = k.SetMinter(ctx, minter)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
 
@@ -56,13 +56,13 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) error {
 
 	err = k.MintCoins(ctx, mintedCoins)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// send the minted coins to the fee collector account
 	err = k.AddCollectedFees(ctx, mintedCoins)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	bondedRatio := k.BondedRatio(ctx)
