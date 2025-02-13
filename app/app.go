@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -68,6 +70,7 @@ import (
 	"github.com/CosmosContracts/juno/v28/app/keepers"
 	upgrades "github.com/CosmosContracts/juno/v28/app/upgrades"
 	v28 "github.com/CosmosContracts/juno/v28/app/upgrades/v28"
+	"github.com/CosmosContracts/juno/v28/docs"
 )
 
 const (
@@ -489,6 +492,18 @@ func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
 	return subspace
 }
 
+func (app *App) RegisterSwaggerUI(apiSvr *api.Server) error {
+	staticSubDir, err := fs.Sub(docs.Docs, "static")
+	if err != nil {
+		return err
+	}
+
+	staticServer := http.FileServer(http.FS(staticSubDir))
+	apiSvr.Router.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
+
+	return nil
+}
+
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
 func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
@@ -505,8 +520,8 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	// Register grpc-gateway routes for all modules.
 	app.BasicModuleManager.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
-	// register swagger API from root so that other applications can override easily
-	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
+	// Register Swagger UI to <address>:<port>/swagger
+	if err := app.RegisterSwaggerUI(apiSvr); err != nil {
 		panic(err)
 	}
 }
