@@ -130,7 +130,7 @@ func ValidateNoClockContract(t *testing.T, ctx context.Context, chain *cosmos.Co
 // Get the clock query command
 func getClockQueryCommand(contract string, chain *cosmos.CosmosChain) []string {
 	return []string{
-		"junod", "query", "clock", "contract", contract,
+		"clock", "contract", contract,
 		"--output", "json",
 		"--node", chain.GetRPCAddress(),
 	}
