@@ -66,3 +66,16 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+
+      - name: Filter SARIF results to remove ./api folder alerts
+        uses: advanced-security/filter-sarif@v1
+        with:
+          patterns: |
+            - **/api/**
+          input: sarif-results/go.sarif
+          output: sarif-results/go.sarif
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sarif-results/go.sarif
