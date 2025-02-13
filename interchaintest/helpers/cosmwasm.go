@@ -59,9 +59,10 @@ func MigrateContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 
 	// Execute migrate tx
 	cmd := []string{
-		"junod", "tx", "wasm", "migrate", keyname, contractAddr, codeId, message,
+		"junod", "tx", "wasm", "migrate", contractAddr, codeId, message,
 		"--home", chain.HomeDir(),
 		"--node", chain.GetRPCAddress(),
+		"--from", keyname,
 		"--chain-id", chain.Config().ChainID,
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
