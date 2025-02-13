@@ -20,24 +20,22 @@ import (
 	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
 )
 
-type (
-	Keeper struct {
-		cdc          codec.BinaryCodec
-		storeService storetypes.KVStoreService
-		permAddrs    map[string]authtypes.PermissionsForAddress
-		permAddrMap  map[string]bool
+type Keeper struct {
+	cdc          codec.BinaryCodec
+	storeService storetypes.KVStoreService
+	permAddrs    map[string]authtypes.PermissionsForAddress
+	permAddrMap  map[string]bool
 
-		accountKeeper      authkeeper.AccountKeeper
-		bankKeeper         bankkeeper.Keeper
-		distributionKeeper distrkeeper.Keeper
+	accountKeeper      authkeeper.AccountKeeper
+	bankKeeper         bankkeeper.Keeper
+	distributionKeeper distrkeeper.Keeper
 
-		enabledCapabilities []string
+	enabledCapabilities []string
 
-		// the address capable of executing a MsgUpdateParams message. Typically, this
-		// should be the x/gov module account.
-		authority string
-	}
-)
+	// the address capable of executing a MsgUpdateParams message. Typically, this
+	// should be the x/gov module account.
+	authority string
+}
 
 // NewKeeper returns a new instance of the x/tokenfactory keeper
 func NewKeeper(
