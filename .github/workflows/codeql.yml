@@ -32,15 +32,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: "go"
-          queries: crypto-com/cosmos-sdk-codeql@main,security-and-quality
+          queries: +security-and-quality,github/codeql/go/ql/src/experimental/InconsistentCode/DeferInLoop.ql@main,github/codeql/go/ql/src/experimental/Unsafe/WrongUsageOfUnsafe.ql@main,github/codeql/go/ql/src/experimental/CWE-369/DivideByZero.ql@main
+          packs: +crypto-com/cosmos-sdk-codeql
           # If you wish to specify custom queries, you can do so here or in a config file.
           # By default, queries listed here will override any specified in a config file.
           # Prefix the list here with "+" to use these queries and those in the config file.
@@ -64,4 +65,4 @@ jobs:
         run: make build
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
