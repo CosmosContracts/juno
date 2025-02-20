@@ -27,6 +27,7 @@ STAKE_TOKEN=ujunox UNSAFE_CORS=true TIMEOUT_COMMIT=1s docker-compose up
 - [Juno](https://junonetwork.io)
 - [Discord](https://discord.gg/QcWPfK4gJ2)
 - [Telegram](https://t.me/JunoNetwork)
+- [YouTube](https://www.youtube.com/channel/UCNptx502adgY35LY28-zK4Q)
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
 
