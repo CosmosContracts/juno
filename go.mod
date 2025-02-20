@@ -7,8 +7,8 @@ replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 require (
 	cosmossdk.io/api v0.7.6
 	cosmossdk.io/client/v2 v2.0.0-beta.8
-	cosmossdk.io/collections v0.4.0
-	cosmossdk.io/core v0.11.1
+	cosmossdk.io/collections v1.1.0
+	cosmossdk.io/core v1.0.0
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.5.0
 	cosmossdk.io/math v1.5.0
@@ -41,6 +41,8 @@ require (
 	google.golang.org/grpc v1.70.0
 	gotest.tools/v3 v3.5.1
 )
+
+require cosmossdk.io/schema v1.0.0 // indirect
 
 require (
 	cloud.google.com/go v0.115.0 // indirect
