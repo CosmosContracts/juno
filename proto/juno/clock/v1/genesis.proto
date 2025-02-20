@@ -1,9 +1,8 @@
 syntax = "proto3";
 package juno.clock.v1;
 
+import "amino/amino.proto";
 import "gogoproto/gogo.proto";
-import "cosmos/base/v1beta1/coin.proto";
-import "juno/clock/v1/clock.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/clock/types";
 
@@ -12,15 +11,13 @@ message GenesisState {
   // Params of this module
   Params params = 1 [
     (gogoproto.nullable) = false,
-    (gogoproto.jsontag) = "params,omitempty"
+    (amino.dont_omitempty) = true
   ];
 }
 
 // Params defines the set of module parameters.
 message Params {
+  option (gogoproto.equal) = true;
   // contract_gas_limit defines the maximum amount of gas that can be used by a contract.
-  uint64 contract_gas_limit = 1 [
-    (gogoproto.jsontag) = "contract_gas_limit,omitempty",
-    (gogoproto.moretags) = "yaml:\"contract_gas_limit\""
-  ];
+  uint64 contract_gas_limit = 1;
 }

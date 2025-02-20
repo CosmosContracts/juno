@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -23,7 +23,7 @@ func TestJunoFeePay(t *testing.T) {
 	cfg.GasPrices = "0.0025ujuno"
 
 	// 0.002500000000000000
-	coin := sdk.NewDecCoinFromDec(cfg.Denom, sdk.NewDecWithPrec(25, 4))
+	coin := sdk.NewDecCoinFromDec(cfg.Denom, sdkmath.LegacyNewDecWithPrec(25, 4))
 	cfg.ModifyGenesis = cosmos.ModifyGenesis(append(defaultGenesisKV, []cosmos.GenesisKV{
 		{
 			Key:   "app_state.globalfee.params.minimum_gas_prices",

@@ -7,13 +7,14 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	cosmosproto "github.com/cosmos/gogoproto/proto"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/stretchr/testify/require"
+
+	clocktypes "github.com/CosmosContracts/juno/v28/x/clock/types"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )
@@ -50,7 +51,8 @@ func TestJunoClock(t *testing.T) {
 	require.Equal(t, uint32(0), res.Data.Val)
 
 	// Register the contract
-	helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	_, err := helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 
 	// Validate contract is not jailed
 	contract := helpers.GetClockContract(t, ctx, juno, contractAddr)
@@ -62,7 +64,8 @@ func TestJunoClock(t *testing.T) {
 	require.GreaterOrEqual(t, res.Data.Val, uint32(1))
 
 	// Unregister the contract & ensure it is removed from the store
-	helpers.UnregisterClockContract(t, ctx, juno, user, contractAddr)
+	_, err = helpers.UnregisterClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 	helpers.ValidateNoClockContract(t, ctx, juno, contractAddr)
 
 	//
@@ -79,7 +82,8 @@ func TestJunoClock(t *testing.T) {
 	require.Equal(t, uint32(0), res.Data.Val)
 
 	// Register the contract
-	helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	_, err = helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 
 	// Validate contract is jailed
 	contract = helpers.GetClockContract(t, ctx, juno, contractAddr)
@@ -95,7 +99,8 @@ func TestJunoClock(t *testing.T) {
 	helpers.MigrateContract(t, ctx, juno, user.KeyName(), contractAddr, "contracts/clock_example_migrate.wasm", `{}`)
 
 	// Unjail the contract
-	helpers.UnjailClockContract(t, ctx, juno, user, contractAddr)
+	_, err = helpers.UnjailClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 
 	// Validate contract is not jailed
 	contract = helpers.GetClockContract(t, ctx, juno, contractAddr)
@@ -120,7 +125,8 @@ func TestJunoClock(t *testing.T) {
 	require.Equal(t, uint32(0), res.Data.Val)
 
 	// Register the contract
-	helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	_, err = helpers.RegisterClockContract(t, ctx, juno, user, contractAddr)
+	require.NoError(t, err)
 
 	// Validate contract is jailed
 	contract = helpers.GetClockContract(t, ctx, juno, contractAddr)
@@ -138,7 +144,7 @@ func TestJunoClock(t *testing.T) {
 
 func SubmitParamChangeProp(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, gasLimit uint64) string {
 	govAcc := "juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730"
-	updateParams := []cosmosproto.Message{
+	updateParams := []cosmos.ProtoMessage{
 		&clocktypes.MsgUpdateParams{
 			Authority: govAcc,
 			Params: clocktypes.Params{
@@ -147,7 +153,7 @@ func SubmitParamChangeProp(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 		},
 	}
 
-	proposal, err := chain.BuildProposal(updateParams, "Params Update Gas Limit", "params", "ipfs://CID", fmt.Sprintf(`500000000%s`, chain.Config().Denom))
+	proposal, err := chain.BuildProposal(updateParams, "Params Update Gas Limit", "params", "ipfs://CID", fmt.Sprintf(`500000000%s`, chain.Config().Denom), sdk.MustBech32ifyAddressBytes("juno", user.Address()), false)
 	require.NoError(t, err, "error building proposal")
 
 	txProp, err := chain.SubmitProposal(ctx, user.KeyName(), proposal)
@@ -156,7 +162,7 @@ func SubmitParamChangeProp(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 
 	height, _ := chain.Height(ctx)
 
-	proposalID, err := strconv.ParseInt(txProp.ProposalID, 10, 64)
+	proposalID, err := strconv.ParseUint(txProp.ProposalID, 10, 64)
 	require.NoError(t, err, "failed to parse proposal ID")
 
 	err = chain.VoteOnProposalAllValidators(ctx, proposalID, cosmos.ProposalVoteYes)

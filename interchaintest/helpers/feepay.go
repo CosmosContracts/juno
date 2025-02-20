@@ -2,25 +2,36 @@ package helpers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"testing"
 
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/testutil"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+
+	feepaytypes "github.com/CosmosContracts/juno/v28/x/feepay/types"
 )
 
 func RegisterFeePay(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string, walletLimit int) {
+	feePayContract := &feepaytypes.FeePayContract{
+		ContractAddress: contract,
+		Balance:         0,
+		WalletLimit:     uint64(walletLimit),
+	}
+
+	metadataJSON, err := json.Marshal(feePayContract)
+	require.NoError(t, err)
+
 	cmd := []string{
-		"junod", "tx", "feepay", "register", contract, fmt.Sprintf("%d", walletLimit),
-		"--node", chain.GetRPCAddress(),
+		"junod", "tx", "feepay", "register", user.FormattedAddress(), string(metadataJSON),
 		"--home", chain.HomeDir(),
+		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
 		"--fees", "500ujuno",
-		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -36,12 +47,11 @@ func RegisterFeePay(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain
 
 func FundFeePayContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string, amountCoin string) {
 	cmd := []string{
-		"junod", "tx", "feepay", "fund", contract, amountCoin,
-		"--node", chain.GetRPCAddress(),
+		"junod", "tx", "feepay", "fund", user.FormattedAddress(), contract, amountCoin,
 		"--home", chain.HomeDir(),
+		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
 		"--fees", "500ujuno",
-		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -57,11 +67,10 @@ func FundFeePayContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosC
 
 func UpdateFeePayWalletLimit(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string, newLimit uint64) {
 	cmd := []string{
-		"junod", "tx", "feepay", "update-wallet-limit", contract, fmt.Sprintf("%d", newLimit),
-		"--node", chain.GetRPCAddress(),
+		"junod", "tx", "feepay", "update-wallet-limit", user.FormattedAddress(), contract, fmt.Sprintf("%d", newLimit),
 		"--home", chain.HomeDir(),
+		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
-		"--from", user.KeyName(),
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",

@@ -3,19 +3,21 @@ package keeper_test
 import (
 	_ "embed"
 
+	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v27/x/drip/types"
+	"github.com/CosmosContracts/juno/v28/x/drip/types"
 )
 
-func (s *IntegrationTestSuite) TestDripDistributeTokensMsgs() {
+func (s *KeeperTestSuite) TestDripDistributeTokensMsgs() {
 	_, _, allowedSender := testdata.KeyTestPubAddr()
 	_, _, notAllowedSender := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, allowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, notAllowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	s.FundAcc(allowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(notAllowedSender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	_ = s.app.AppKeepers.DripKeeper.SetParams(s.ctx, types.Params{
+	_ = s.App.AppKeepers.DripKeeper.SetParams(s.Ctx, types.Params{
 		EnableDrip: true,
 		AllowedAddresses: []string{
 			allowedSender.String(),
@@ -31,13 +33,13 @@ func (s *IntegrationTestSuite) TestDripDistributeTokensMsgs() {
 		{
 			desc:       "Success - Allowed sender with proper funds",
 			senderAddr: allowedSender.String(),
-			coins:      sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1))),
+			coins:      sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1))),
 			success:    true,
 		},
 		{
 			desc:       "Fail - Allowed sender no proper funds",
 			senderAddr: allowedSender.String(),
-			coins:      sdk.NewCoins(sdk.NewCoin("notarealtoken", sdk.NewInt(1))),
+			coins:      sdk.NewCoins(sdk.NewCoin("notarealtoken", sdkmath.NewInt(1))),
 			success:    false,
 		},
 		{
@@ -55,19 +57,19 @@ func (s *IntegrationTestSuite) TestDripDistributeTokensMsgs() {
 		{
 			desc:       "Fail - No sender withproper funds",
 			senderAddr: "",
-			coins:      sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1))),
+			coins:      sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1))),
 			success:    false,
 		},
 		{
 			desc:       "Fail - Non Allowed sender proper funds",
 			senderAddr: notAllowedSender.String(),
-			coins:      sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1))),
+			coins:      sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1))),
 			success:    false,
 		},
 		{
 			desc:       "Fail - Non Allowed sender improper funds",
 			senderAddr: notAllowedSender.String(),
-			coins:      sdk.NewCoins(sdk.NewCoin("notarealtoken", sdk.NewInt(1))),
+			coins:      sdk.NewCoins(sdk.NewCoin("notarealtoken", sdkmath.NewInt(1))),
 			success:    false,
 		},
 	} {
@@ -77,7 +79,7 @@ func (s *IntegrationTestSuite) TestDripDistributeTokensMsgs() {
 				SenderAddress: tc.senderAddr,
 				Amount:        tc.coins,
 			}
-			_, err := s.app.AppKeepers.DripKeeper.DistributeTokens(s.ctx, &msg)
+			_, err := s.msgServer.DistributeTokens(s.Ctx, &msg)
 
 			if !tc.success {
 				s.Require().Error(err)
@@ -88,7 +90,7 @@ func (s *IntegrationTestSuite) TestDripDistributeTokensMsgs() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestUpdateDripParams() {
+func (s *KeeperTestSuite) TestUpdateDripParams() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
 
@@ -141,7 +143,7 @@ func (s *IntegrationTestSuite) TestUpdateDripParams() {
 				EnableDrip:       tc.isEnabled,
 				AllowedAddresses: tc.AllowedAddresses,
 			}
-			err := s.app.AppKeepers.DripKeeper.SetParams(s.ctx, params)
+			err := s.App.AppKeepers.DripKeeper.SetParams(s.Ctx, params)
 
 			if !tc.success {
 				s.Require().Error(err)

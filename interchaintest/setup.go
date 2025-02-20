@@ -8,41 +8,37 @@ import (
 	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/docker/docker/client"
-	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
+	interchaintest "github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	ibclocalhost "github.com/cosmos/ibc-go/v7/modules/light-clients/09-localhost"
 
-	clocktypes "github.com/CosmosContracts/juno/v27/x/clock/types"
-	feepaytypes "github.com/CosmosContracts/juno/v27/x/feepay/types"
-	feesharetypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v27/x/globalfee/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
+	clocktypes "github.com/CosmosContracts/juno/v28/x/clock/types"
+	feepaytypes "github.com/CosmosContracts/juno/v28/x/feepay/types"
+	feesharetypes "github.com/CosmosContracts/juno/v28/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v28/x/globalfee/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
 )
 
 var (
-	VotingPeriod     = "15s"
+	VotingPeriod     = "10s"
 	MaxDepositPeriod = "10s"
 	Denom            = "ujuno"
 
 	JunoE2ERepo  = "ghcr.io/cosmoscontracts/juno-e2e"
 	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
 
-	IBCRelayerImage   = "ghcr.io/cosmos/relayer"
-	IBCRelayerVersion = "main"
-
 	junoRepo, junoVersion = GetDockerImageInfo()
 
 	JunoImage = ibc.DockerImage{
 		Repository: junoRepo,
 		Version:    junoVersion,
-		UidGid:     "1025:1025",
+		UIDGID:     "1025:1025",
 	}
 
 	// SDK v47 Genesis
@@ -83,6 +79,24 @@ var (
 		ModifyGenesis:       cosmos.ModifyGenesis(defaultGenesisKV),
 	}
 
+	ibcConfig = ibc.ChainConfig{
+		Type:                "cosmos",
+		Name:                "ibc-chain",
+		ChainID:             "ibc-1",
+		Images:              []ibc.DockerImage{JunoImage},
+		Bin:                 "junod",
+		Bech32Prefix:        "juno",
+		Denom:               "ujuno",
+		CoinType:            "118",
+		GasPrices:           fmt.Sprintf("0%s", Denom),
+		GasAdjustment:       2.0,
+		TrustingPeriod:      "112h",
+		NoHostMount:         false,
+		ConfigFileOverrides: nil,
+		EncodingConfig:      junoEncoding(),
+		ModifyGenesis:       cosmos.ModifyGenesis(defaultGenesisKV),
+	}
+
 	genesisWalletAmount = sdkmath.NewInt(10_000_000)
 )
 
@@ -99,7 +113,6 @@ func junoEncoding() *testutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 
 	// register custom types
-	ibclocalhost.RegisterInterfaces(cfg.InterfaceRegistry)
 	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	feesharetypes.RegisterInterfaces(cfg.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(cfg.InterfaceRegistry)

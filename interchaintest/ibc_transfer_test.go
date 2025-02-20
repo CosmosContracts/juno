@@ -5,16 +5,16 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	interchaintestrelayer "github.com/strangelove-ventures/interchaintest/v7/relayer"
-	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
-	"github.com/strangelove-ventures/interchaintest/v7/testutil"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	interchaintestrelayer "github.com/strangelove-ventures/interchaintest/v8/relayer"
+	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 )
 
 // TestJunoGaiaIBCTransfer spins up a Juno and Gaia network, initializes an IBC connection between them,
@@ -38,8 +38,8 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 			NumFullNodes:  &numFullNodes,
 		},
 		{
-			Name:          "gaia",
-			Version:       "v9.1.0",
+			Name:          "ibc",
+			ChainConfig:   ibcConfig,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},
@@ -57,16 +57,13 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 
 	juno, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
-	relayerType, relayerName := ibc.CosmosRly, "relay"
-
+	relayerType, relayerName := ibc.CosmosRly, "rly"
 	// Get a relayer instance
 	rf := interchaintest.NewBuiltinRelayerFactory(
 		relayerType,
 		zaptest.NewLogger(t),
-		interchaintestrelayer.CustomDockerImage(IBCRelayerImage, IBCRelayerVersion, "100:1000"),
 		interchaintestrelayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
-
 	r := rf.Build(t, client, network)
 
 	ic := interchaintest.NewInterchain().
@@ -86,11 +83,11 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	eRep := rep.RelayerExecReporter(t)
 
 	require.NoError(t, ic.Build(ctx, eRep, interchaintest.InterchainBuildOptions{
-		TestName:          t.Name(),
-		Client:            client,
-		NetworkID:         network,
-		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
-		SkipPathCreation:  false,
+		TestName:  t.Name(),
+		Client:    client,
+		NetworkID: network,
+		// BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
+		SkipPathCreation: false,
 	}))
 	t.Cleanup(func() {
 		_ = ic.Close()
@@ -119,7 +116,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	require.Equal(t, genesisWalletAmount, gaiaOrigBal)
 
 	// Compose an IBC transfer and send from Juno -> Gaia
-	var transferAmount = math.NewInt(1_000)
+	transferAmount := math.NewInt(1_000)
 	transfer := ibc.WalletAmount{
 		Address: gaiaUserAddr,
 		Denom:   juno.Config().Denom,

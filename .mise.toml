@@ -1,0 +1,29 @@
+# macOS/Linux with curl (recommended):
+# curl https://mise.run | sh
+#
+# Using Homebrew on macOS:
+# brew install mise
+#
+# For Bash (~/.bashrc):
+# eval "$(mise activate bash)"
+#
+# For Zsh (~/.zshrc):
+# eval "$(mise activate zsh)"
+#
+# For Fish (~/.config/fish/config.fish):
+# mise activate fish | source
+#
+# Verify Installation:
+# mise --version
+#
+# Troubleshooting:
+# - Ensure PATH includes: $HOME/.local/bin
+# - Run: mise doctor
+# - For permissions issues: chmod +x $(which mise)
+#
+# Usage:
+# mise install    # Install all tools defined in .mise.toml
+# mise ls         # List installed tools
+
+[tools]
+go = "1.23.4"

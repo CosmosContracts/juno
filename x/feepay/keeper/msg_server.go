@@ -8,31 +8,47 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	globalerrors "github.com/CosmosContracts/juno/v27/app/helpers"
-	"github.com/CosmosContracts/juno/v27/x/feepay/types"
+	globalerrors "github.com/CosmosContracts/juno/v28/app/helpers"
+	"github.com/CosmosContracts/juno/v28/x/feepay/types"
 )
 
-var _ types.MsgServer = &Keeper{}
+var _ types.MsgServer = &msgServer{}
 
-// Register a new fee pay contract.
-func (k Keeper) RegisterFeePayContract(goCtx context.Context, msg *types.MsgRegisterFeePayContract) (*types.MsgRegisterFeePayContractResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	// Prevent client from overriding initial contract balance of zero
-	msg.FeePayContract.Balance = uint64(0)
-	return &types.MsgRegisterFeePayContractResponse{}, k.RegisterContract(ctx, msg)
+// msgServer is a wrapper of Keeper.
+type msgServer struct {
+	Keeper
 }
 
-func (k Keeper) UnregisterFeePayContract(goCtx context.Context, msg *types.MsgUnregisterFeePayContract) (*types.MsgUnregisterFeePayContractResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	return &types.MsgUnregisterFeePayContractResponse{}, k.UnregisterContract(ctx, msg)
+// NewMsgServerImpl returns an implementation of the x/cw-hooks MsgServer interface.
+func NewMsgServerImpl(k Keeper) types.MsgServer {
+	return &msgServer{
+		Keeper: k,
+	}
+}
+
+// Register a new fee pay contract.
+func (ms msgServer) RegisterFeePayContract(ctx context.Context, msg *types.MsgRegisterFeePayContract) (*types.MsgRegisterFeePayContractResponse, error) {
+	// Prevent client from overriding initial contract balance of zero
+	msg.FeePayContract.Balance = uint64(0)
+	return &types.MsgRegisterFeePayContractResponse{}, ms.RegisterContract(ctx, msg)
+}
+
+func (ms msgServer) UnregisterFeePayContract(ctx context.Context, msg *types.MsgUnregisterFeePayContract) (*types.MsgUnregisterFeePayContractResponse, error) {
+	return &types.MsgUnregisterFeePayContractResponse{}, ms.UnregisterContract(ctx, msg)
 }
 
 // FundFeePayContract funds a contract with the given amount of tokens.
-func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeePayContract) (*types.MsgFundFeePayContractResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+func (ms msgServer) FundFeePayContract(ctx context.Context, msg *types.MsgFundFeePayContract) (*types.MsgFundFeePayContractResponse, error) {
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return nil, err
+	}
+
+	if len(msg.Amount) != 1 {
+		return nil, types.ErrInvalidJunoFundAmount
+	}
 
 	// Get the contract
-	contract, err := k.GetContract(ctx, msg.ContractAddress)
+	contract, err := ms.GetContract(ctx, msg.ContractAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -43,15 +59,21 @@ func (k Keeper) FundFeePayContract(goCtx context.Context, msg *types.MsgFundFeeP
 		return nil, errorsmod.Wrapf(globalerrors.ErrInvalidAddress, "invalid sender address: %s", msg.SenderAddress)
 	}
 
-	return &types.MsgFundFeePayContractResponse{}, k.FundContract(ctx, contract, senderAddr, msg.Amount)
+	return &types.MsgFundFeePayContractResponse{}, ms.FundContract(ctx, contract, senderAddr, msg.Amount)
 }
 
 // Update the wallet limit of a fee pay contract.
-func (k Keeper) UpdateFeePayContractWalletLimit(goCtx context.Context, msg *types.MsgUpdateFeePayContractWalletLimit) (*types.MsgUpdateFeePayContractWalletLimitResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+func (ms msgServer) UpdateFeePayContractWalletLimit(ctx context.Context, msg *types.MsgUpdateFeePayContractWalletLimit) (*types.MsgUpdateFeePayContractWalletLimitResponse, error) {
+	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
+		return nil, err
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return nil, err
+	}
 
 	// Get the contract
-	contract, err := k.GetContract(ctx, msg.ContractAddress)
+	contract, err := ms.GetContract(ctx, msg.ContractAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -60,17 +82,16 @@ func (k Keeper) UpdateFeePayContractWalletLimit(goCtx context.Context, msg *type
 		return nil, errorsmod.Wrapf(types.ErrInvalidWalletLimit, "invalid wallet limit: %d", msg.WalletLimit)
 	}
 
-	return &types.MsgUpdateFeePayContractWalletLimitResponse{}, k.UpdateContractWalletLimit(ctx, contract, msg.SenderAddress, msg.WalletLimit)
+	return &types.MsgUpdateFeePayContractWalletLimitResponse{}, ms.UpdateContractWalletLimit(ctx, contract, msg.SenderAddress, msg.WalletLimit)
 }
 
 // UpdateParams updates the parameters of the module.
-func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
-	if k.authority != req.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
+func (ms msgServer) UpdateParams(ctx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+	if ms.authority != req.Authority {
+		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", ms.authority, req.Authority)
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.SetParams(ctx, req.Params); err != nil {
+	if err := ms.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
 

@@ -15,6 +15,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 )
 
+var flagBech32Prefix = "prefix"
+
 // Cmd creates a main CLI command
 func DebugCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -24,6 +26,8 @@ func DebugCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
+		CodecCmd(),
+		PrefixesCmd(),
 		PubkeyCmd(),
 		AddrCmd(),
 		RawBytesCmd(),
@@ -35,7 +39,69 @@ func DebugCmd() *cobra.Command {
 	return cmd
 }
 
-var flagBech32Prefix = "prefix"
+func PrefixesCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:     "prefixes",
+		Short:   "List prefixes used for Human-Readable Part (HRP) in Bech32",
+		Long:    "List prefixes used in Bech32 addresses.",
+		Example: fmt.Sprintf("$ %s debug prefixes", version.AppName),
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			cmd.Printf("Bech32 Acc: %s\n", sdk.GetConfig().GetBech32AccountAddrPrefix())
+			cmd.Printf("Bech32 Val: %s\n", sdk.GetConfig().GetBech32ValidatorAddrPrefix())
+			cmd.Printf("Bech32 Con: %s\n", sdk.GetConfig().GetBech32ConsensusAddrPrefix())
+			return nil
+		},
+	}
+}
+
+// CodecCmd creates and returns a new codec debug cmd.
+func CodecCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "codec",
+		Short: "Tool for helping with debugging your application codec",
+		RunE:  client.ValidateCmd,
+	}
+
+	cmd.AddCommand(getCodecInterfaces())
+	cmd.AddCommand(getCodecInterfaceImpls())
+
+	return cmd
+}
+
+// getCodecInterfaces creates and returns a new cmd used for listing all registered interfaces on the application codec.
+func getCodecInterfaces() *cobra.Command {
+	return &cobra.Command{
+		Use:   "list-interfaces",
+		Short: "List all registered interface type URLs",
+		Long:  "List all registered interface type URLs using the application codec",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			iFaces := clientCtx.Codec.InterfaceRegistry().ListAllInterfaces()
+			for _, iFace := range iFaces {
+				cmd.Println(iFace)
+			}
+			return nil
+		},
+	}
+}
+
+// getCodecInterfaceImpls creates and returns a new cmd used for listing all registered implementations of a given interface on the application codec.
+func getCodecInterfaceImpls() *cobra.Command {
+	return &cobra.Command{
+		Use:   "list-implementations [interface]",
+		Short: "List the registered type URLs for the provided interface",
+		Long:  "List the registered type URLs that can be used for the provided interface name using the application codec",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			impls := clientCtx.Codec.InterfaceRegistry().ListImplementations(args[0])
+			for _, imp := range impls {
+				cmd.Println(imp)
+			}
+			return nil
+		},
+	}
+}
 
 // get cmd to convert any bech32 address to a juno prefix.
 func ConvertBech32Cmd() *cobra.Command {

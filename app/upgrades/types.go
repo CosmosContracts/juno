@@ -1,24 +1,13 @@
 package upgrades
 
 import (
-	"strings"
+	store "cosmossdk.io/store/types"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
-	store "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmosContracts/juno/v27/app/keepers"
+	"github.com/CosmosContracts/juno/v28/app/keepers"
 )
-
-// BaseAppParamManager defines an interrace that BaseApp is expected to fulfil
-// that allows upgrade handlers to modify BaseApp parameters.
-type BaseAppParamManager interface {
-	GetConsensusParams(ctx sdk.Context) *tmproto.ConsensusParams
-	StoreConsensusParams(ctx sdk.Context, cp *tmproto.ConsensusParams)
-}
 
 // Upgrade defines a struct containing necessary fields that a SoftwareUpgradeProposal
 // must have written, in order for the state migration to go smoothly.
@@ -37,23 +26,4 @@ type Upgrade struct {
 
 	// Store upgrades, should be used for any new modules introduced, new modules deleted, or store names renamed.
 	StoreUpgrades store.StoreUpgrades
-}
-
-// Returns "ujunox" if the chain is uni, else returns the standard ujuno token denom.
-func GetChainsDenomToken(chainID string) string {
-	if strings.HasPrefix(chainID, "uni-") {
-		return "ujunox"
-	}
-	return "ujuno"
-}
-
-// A blank upgrade handler with no logic, just a migration.
-func CreateBlankUpgradeHandler(
-	mm *module.Manager,
-	cfg module.Configurator,
-	_ *keepers.AppKeepers,
-) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		return mm.RunMigrations(ctx, cfg, vm)
-	}
 }

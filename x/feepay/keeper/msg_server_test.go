@@ -3,22 +3,25 @@ package keeper_test
 import (
 	_ "embed"
 
+	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/CosmosContracts/juno/v27/x/feepay/types"
+	"github.com/CosmosContracts/juno/v28/x/feepay/types"
 )
 
-func (s *IntegrationTestSuite) TestRegisterFeePayContract() {
+func (s *KeeperTestSuite) TestRegisterFeePayContract() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	noAdminContractAddress := s.InstantiateContract(sender.String(), "")
-	withAdminContractAddress := s.InstantiateContract(sender.String(), admin.String())
-	tContract := s.InstantiateContract(sender.String(), admin.String())
+	noAdminContractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
+	withAdminContractAddress := s.InstantiateContract(sender.String(), admin.String(), wasmContract)
+	tContract := s.InstantiateContract(sender.String(), admin.String(), wasmContract)
 
 	for _, tc := range []struct {
 		desc            string
@@ -66,7 +69,7 @@ func (s *IntegrationTestSuite) TestRegisterFeePayContract() {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-			_, err := s.app.AppKeepers.FeePayKeeper.RegisterFeePayContract(s.ctx, &types.MsgRegisterFeePayContract{
+			_, err := s.msgServer.RegisterFeePayContract(s.Ctx, &types.MsgRegisterFeePayContract{
 				SenderAddress: tc.senderAddress,
 				FeePayContract: &types.FeePayContract{
 					ContractAddress: tc.contractAddress,
@@ -83,14 +86,15 @@ func (s *IntegrationTestSuite) TestRegisterFeePayContract() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestUnregisterFeePayContract() {
+func (s *KeeperTestSuite) TestUnregisterFeePayContract() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	creatorContract := s.InstantiateContract(sender.String(), "")
-	adminContract := s.InstantiateContract(sender.String(), admin.String())
+	creatorContract := s.InstantiateContract(sender.String(), "", wasmContract)
+	adminContract := s.InstantiateContract(sender.String(), admin.String(), wasmContract)
 
 	s.registerFeePayContract(sender.String(), creatorContract, 0, 1)
 	s.registerFeePayContract(admin.String(), adminContract, 0, 0)
@@ -141,7 +145,7 @@ func (s *IntegrationTestSuite) TestUnregisterFeePayContract() {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-			_, err := s.app.AppKeepers.FeePayKeeper.UnregisterFeePayContract(s.ctx, &types.MsgUnregisterFeePayContract{
+			_, err := s.msgServer.UnregisterFeePayContract(s.Ctx, &types.MsgUnregisterFeePayContract{
 				SenderAddress:   tc.senderAddress,
 				ContractAddress: tc.contractAddress,
 			})
@@ -155,13 +159,14 @@ func (s *IntegrationTestSuite) TestUnregisterFeePayContract() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestFundFeePayContract() {
+func (s *KeeperTestSuite) TestFundFeePayContract() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdk.NewInt(100_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	contract := s.InstantiateContract(sender.String(), "")
+	contract := s.InstantiateContract(sender.String(), "", wasmContract)
 
 	s.registerFeePayContract(sender.String(), contract, 0, 1)
 
@@ -176,42 +181,42 @@ func (s *IntegrationTestSuite) TestFundFeePayContract() {
 			desc:            "Fail - Invalid Contract Address",
 			contractAddress: "Invalid",
 			senderAddress:   sender.String(),
-			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1_000_000))),
+			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))),
 			shouldErr:       true,
 		},
 		{
 			desc:            "Fail - Invalid Sender Address",
 			contractAddress: contract,
 			senderAddress:   "Invalid",
-			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1_000_000))),
+			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))),
 			shouldErr:       true,
 		},
 		{
 			desc:            "Fail - Invalid Funds",
 			contractAddress: contract,
 			senderAddress:   sender.String(),
-			amount:          sdk.NewCoins(sdk.NewCoin("invalid-denom", sdk.NewInt(1_000_000))),
+			amount:          sdk.NewCoins(sdk.NewCoin("invalid-denom", sdkmath.NewInt(1_000_000))),
 			shouldErr:       true,
 		},
 		{
 			desc:            "Fail - Wallet Not Enough Funds",
 			contractAddress: contract,
 			senderAddress:   sender.String(),
-			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(100_000_000_000))),
+			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000_000))),
 			shouldErr:       true,
 		},
 		{
 			desc:            "Success - Contract Funded",
 			contractAddress: contract,
 			senderAddress:   sender.String(),
-			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1_000_000))),
+			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))),
 			shouldErr:       false,
 		},
 	} {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-			_, err := s.app.AppKeepers.FeePayKeeper.FundFeePayContract(s.ctx, &types.MsgFundFeePayContract{
+			_, err := s.msgServer.FundFeePayContract(s.Ctx, &types.MsgFundFeePayContract{
 				SenderAddress:   tc.senderAddress,
 				ContractAddress: tc.contractAddress,
 				Amount:          tc.amount,
@@ -226,14 +231,15 @@ func (s *IntegrationTestSuite) TestFundFeePayContract() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestUpdateFeePayContractWalletLimit() {
+func (s *KeeperTestSuite) TestUpdateFeePayContractWalletLimit() {
+	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, sender, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
-	_ = s.FundAccount(s.ctx, admin, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	creatorContract := s.InstantiateContract(sender.String(), "")
-	adminContract := s.InstantiateContract(sender.String(), admin.String())
+	creatorContract := s.InstantiateContract(sender.String(), "", wasmContract)
+	adminContract := s.InstantiateContract(sender.String(), admin.String(), wasmContract)
 
 	s.registerFeePayContract(sender.String(), creatorContract, 0, 1)
 	s.registerFeePayContract(admin.String(), adminContract, 0, 0)
@@ -298,7 +304,7 @@ func (s *IntegrationTestSuite) TestUpdateFeePayContractWalletLimit() {
 		tc := tc
 
 		s.Run(tc.desc, func() {
-			_, err := s.app.AppKeepers.FeePayKeeper.UpdateFeePayContractWalletLimit(s.ctx, &types.MsgUpdateFeePayContractWalletLimit{
+			_, err := s.msgServer.UpdateFeePayContractWalletLimit(s.Ctx, &types.MsgUpdateFeePayContractWalletLimit{
 				SenderAddress:   tc.senderAddress,
 				ContractAddress: tc.contractAddress,
 				WalletLimit:     tc.walletLimit,

@@ -7,16 +7,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosContracts/juno/v27/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v27/x/mint/types"
+	"github.com/CosmosContracts/juno/v28/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v28/x/mint/types"
 )
 
 // TestRandomizedGenState tests the normal scenario of applying RandomizedGenState.
@@ -34,7 +33,7 @@ func TestRandomizedGenState(t *testing.T) {
 		Rand:         r,
 		NumBonded:    3,
 		Accounts:     simtypes.RandomAccounts(r, 3),
-		InitialStake: math.NewInt(1_000),
+		InitialStake: sdkmath.NewInt(1_000),
 		GenState:     make(map[string]json.RawMessage),
 	}
 
@@ -45,11 +44,11 @@ func TestRandomizedGenState(t *testing.T) {
 
 	require.Equal(t, uint64(6311520), mintGenesis.Params.BlocksPerYear)
 	require.Equal(t, "stake", mintGenesis.Params.MintDenom)
-	require.Equal(t, "0stake", mintGenesis.Minter.BlockProvision(mintGenesis.Params, sdk.NewInt(0)).String())
-	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.NextAnnualProvisions(mintGenesis.Params, sdk.OneInt()).String())
+	require.Equal(t, "0stake", mintGenesis.Minter.BlockProvision(mintGenesis.Params, sdkmath.NewInt(0)).String())
+	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.NextAnnualProvisions(mintGenesis.Params, sdkmath.OneInt()).String())
 	require.Equal(t, "0.400000000000000000", mintGenesis.Minter.PhaseInflationRate(1).String())
 	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.Inflation.String())
-	require.Equal(t, uint64(1), mintGenesis.Minter.NextPhase(mintGenesis.Params, sdk.NewInt(1)))
+	require.Equal(t, uint64(1), mintGenesis.Minter.NextPhase(mintGenesis.Params, sdkmath.NewInt(1)))
 	require.Equal(t, uint64(0), mintGenesis.Minter.Phase)
 	require.Equal(t, "0.000000000000000000", mintGenesis.Minter.AnnualProvisions.String())
 }

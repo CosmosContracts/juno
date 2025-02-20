@@ -2,25 +2,23 @@ package ante_test
 
 import (
 	"testing"
-	"time"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/suite"
 	protov2 "google.golang.org/protobuf/proto"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	"github.com/CosmosContracts/juno/v27/app"
-	ante "github.com/CosmosContracts/juno/v27/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v27/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v28/testutil"
+	ante "github.com/CosmosContracts/juno/v28/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v28/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v28/x/feeshare/types"
 )
 
 // Define an empty ante handle
@@ -31,26 +29,16 @@ var (
 )
 
 type AnteTestSuite struct {
-	suite.Suite
+	testutil.KeeperTestHelper
 
-	ctx            sdk.Context
-	app            *app.App
 	bankKeeper     bankkeeper.Keeper
 	feeshareKeeper feesharekeeper.Keeper
 }
 
 func (s *AnteTestSuite) SetupTest() {
-	isCheckTx := false
-	s.app = app.Setup(s.T())
-
-	s.ctx = s.app.BaseApp.NewContext(isCheckTx, tmproto.Header{
-		ChainID: "testing",
-		Height:  10,
-		Time:    time.Now().UTC(),
-	})
-
-	s.bankKeeper = s.app.AppKeepers.BankKeeper
-	s.feeshareKeeper = s.app.AppKeepers.FeeShareKeeper
+	s.Setup()
+	s.bankKeeper = s.App.AppKeepers.BankKeeper
+	s.feeshareKeeper = s.App.AppKeepers.FeeShareKeeper
 }
 
 func TestAnteSuite(t *testing.T) {
@@ -58,14 +46,13 @@ func TestAnteSuite(t *testing.T) {
 }
 
 func (s *AnteTestSuite) TestAnteHandle() {
+	s.SetupTest()
 	// Mint coins to FeeCollector to cover fees
-	err := s.FundModule(s.ctx, authtypes.FeeCollectorName, sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(1_000_000))))
-	s.Require().NoError(err)
+	s.FundModuleAcc(authtypes.FeeCollectorName, sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))))
 
 	// Create & fund deployer
 	_, _, deployer := testdata.KeyTestPubAddr()
-	err = s.FundAccount(s.ctx, deployer, sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(100_000_000))))
-	s.Require().NoError(err)
+	s.FundAcc(deployer, sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
 
 	// Create funds receiver account
 	_, _, receiver := testdata.KeyTestPubAddr()
@@ -79,125 +66,126 @@ func (s *AnteTestSuite) TestAnteHandle() {
 		DeployerAddress:   deployer.String(),
 		WithdrawerAddress: receiver.String(),
 	}
-	s.feeshareKeeper.SetFeeShare(s.ctx, registerMsg)
+	s.feeshareKeeper.SetFeeShare(s.Ctx, registerMsg)
 
 	// Create execute msg
 	executeMsg := &wasmtypes.MsgExecuteContract{
 		Sender:   deployer.String(),
 		Contract: contractAddr.String(),
 		Msg:      []byte("{}"),
-		Funds:    sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(0))),
+		Funds:    sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(0))),
 	}
 	tx := NewMockTx(deployer, executeMsg)
 
 	// Run normal msg through ante handle
 	ante := ante.NewFeeSharePayoutDecorator(s.bankKeeper, s.feeshareKeeper)
-	_, err = ante.AnteHandle(s.ctx, tx, false, EmptyAnte)
+	_, err := ante.AnteHandle(s.Ctx, tx, false, EmptyAnte)
 	s.Require().NoError(err)
 
 	// Check that the receiver account was paid
-	receiverBal := s.bankKeeper.GetBalance(s.ctx, receiver, "ujuno")
-	s.Require().Equal(sdk.NewInt(250).Int64(), receiverBal.Amount.Int64())
+	receiverBal := s.bankKeeper.GetBalance(s.Ctx, receiver, "ujuno")
+	s.Require().Equal(sdkmath.NewInt(250).Int64(), receiverBal.Amount.Int64())
 
 	// Create & handle authz msg
 	authzMsg := authz.NewMsgExec(deployer, []sdk.Msg{executeMsg})
-	_, err = ante.AnteHandle(s.ctx, NewMockTx(deployer, &authzMsg), false, EmptyAnte)
+	_, err = ante.AnteHandle(s.Ctx, NewMockTx(deployer, &authzMsg), false, EmptyAnte)
 	s.Require().NoError(err)
 
 	// Check that the receiver account was paid
-	receiverBal = s.bankKeeper.GetBalance(s.ctx, receiver, "ujuno")
-	s.Require().Equal(sdk.NewInt(500).Int64(), receiverBal.Amount.Int64())
+	receiverBal = s.bankKeeper.GetBalance(s.Ctx, receiver, "ujuno")
+	s.Require().Equal(sdkmath.NewInt(500).Int64(), receiverBal.Amount.Int64())
 
 	// Create & handle authz msg with nested authz msg
 	nestedAuthzMsg := authz.NewMsgExec(deployer, []sdk.Msg{&authzMsg})
-	_, err = ante.AnteHandle(s.ctx, NewMockTx(deployer, &nestedAuthzMsg), false, EmptyAnte)
+	_, err = ante.AnteHandle(s.Ctx, NewMockTx(deployer, &nestedAuthzMsg), false, EmptyAnte)
 	s.Require().NoError(err)
 
 	// Check that the receiver account was paid
-	receiverBal = s.bankKeeper.GetBalance(s.ctx, receiver, "ujuno")
-	s.Require().Equal(sdk.NewInt(750).Int64(), receiverBal.Amount.Int64())
+	receiverBal = s.bankKeeper.GetBalance(s.Ctx, receiver, "ujuno")
+	s.Require().Equal(sdkmath.NewInt(750).Int64(), receiverBal.Amount.Int64())
 }
 
 func (s *AnteTestSuite) TestFeeLogic() {
+	s.SetupTest()
 	// We expect all to pass
-	feeCoins := sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(500)), sdk.NewCoin("utoken", sdk.NewInt(250)))
+	feeCoins := sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(500)), sdk.NewCoin("utoken", sdkmath.NewInt(250)))
 
 	testCases := []struct {
 		name               string
 		incomingFee        sdk.Coins
-		govPercent         sdk.Dec
+		govPercent         sdkmath.LegacyDec
 		numContracts       int
 		expectedFeePayment sdk.Coins
 	}{
 		{
 			"100% fee / 1 contract",
 			feeCoins,
-			sdk.NewDecWithPrec(100, 2),
+			sdkmath.LegacyNewDecWithPrec(100, 2),
 			1,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(500)), sdk.NewCoin("utoken", sdk.NewInt(250))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(500)), sdk.NewCoin("utoken", sdkmath.NewInt(250))),
 		},
 		{
 			"100% fee / 2 contracts",
 			feeCoins,
-			sdk.NewDecWithPrec(100, 2),
+			sdkmath.LegacyNewDecWithPrec(100, 2),
 			2,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(250)), sdk.NewCoin("utoken", sdk.NewInt(125))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(250)), sdk.NewCoin("utoken", sdkmath.NewInt(125))),
 		},
 		{
 			"100% fee / 10 contracts",
 			feeCoins,
-			sdk.NewDecWithPrec(100, 2),
+			sdkmath.LegacyNewDecWithPrec(100, 2),
 			10,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(50)), sdk.NewCoin("utoken", sdk.NewInt(25))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(50)), sdk.NewCoin("utoken", sdkmath.NewInt(25))),
 		},
 		{
 			"67% fee / 7 contracts",
 			feeCoins,
-			sdk.NewDecWithPrec(67, 2),
+			sdkmath.LegacyNewDecWithPrec(67, 2),
 			7,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(48)), sdk.NewCoin("utoken", sdk.NewInt(24))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(48)), sdk.NewCoin("utoken", sdkmath.NewInt(24))),
 		},
 		{
 			"50% fee / 1 contracts",
 			feeCoins,
-			sdk.NewDecWithPrec(50, 2),
+			sdkmath.LegacyNewDecWithPrec(50, 2),
 			1,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(250)), sdk.NewCoin("utoken", sdk.NewInt(125))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(250)), sdk.NewCoin("utoken", sdkmath.NewInt(125))),
 		},
 		{
 			"50% fee / 2 contracts",
 			feeCoins,
-			sdk.NewDecWithPrec(50, 2),
+			sdkmath.LegacyNewDecWithPrec(50, 2),
 			2,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(125)), sdk.NewCoin("utoken", sdk.NewInt(62))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(125)), sdk.NewCoin("utoken", sdkmath.NewInt(62))),
 		},
 		{
 			"50% fee / 3 contracts",
 			feeCoins,
-			sdk.NewDecWithPrec(50, 2),
+			sdkmath.LegacyNewDecWithPrec(50, 2),
 			3,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(83)), sdk.NewCoin("utoken", sdk.NewInt(42))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(83)), sdk.NewCoin("utoken", sdkmath.NewInt(42))),
 		},
 		{
 			"25% fee / 2 contracts",
 			feeCoins,
-			sdk.NewDecWithPrec(25, 2),
+			sdkmath.LegacyNewDecWithPrec(25, 2),
 			2,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(62)), sdk.NewCoin("utoken", sdk.NewInt(31))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(62)), sdk.NewCoin("utoken", sdkmath.NewInt(31))),
 		},
 		{
 			"15% fee / 3 contracts",
 			feeCoins,
-			sdk.NewDecWithPrec(15, 2),
+			sdkmath.LegacyNewDecWithPrec(15, 2),
 			3,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(25)), sdk.NewCoin("utoken", sdk.NewInt(12))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(25)), sdk.NewCoin("utoken", sdkmath.NewInt(12))),
 		},
 		{
 			"1% fee / 2 contracts",
 			feeCoins,
-			sdk.NewDecWithPrec(1, 2),
+			sdkmath.LegacyNewDecWithPrec(1, 2),
 			2,
-			sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(2)), sdk.NewCoin("utoken", sdk.NewInt(1))),
+			sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(2)), sdk.NewCoin("utoken", sdkmath.NewInt(1))),
 		},
 	}
 
@@ -212,22 +200,6 @@ func (s *AnteTestSuite) TestFeeLogic() {
 			}
 		}
 	}
-}
-
-func (s *AnteTestSuite) FundAccount(ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
-	if err := s.bankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
-		return err
-	}
-
-	return s.bankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
-}
-
-func (s *AnteTestSuite) FundModule(ctx sdk.Context, moduleName string, amounts sdk.Coins) error {
-	if err := s.bankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
-		return err
-	}
-
-	return s.bankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, moduleName, amounts)
 }
 
 type MockTx struct {
@@ -247,14 +219,14 @@ func (tx MockTx) GetGas() uint64 {
 }
 
 func (tx MockTx) GetFee() sdk.Coins {
-	return sdk.NewCoins(sdk.NewCoin("ujuno", sdk.NewInt(500)))
+	return sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(500)))
 }
 
-func (tx MockTx) FeePayer() sdk.AccAddress {
+func (tx MockTx) FeePayer() []byte {
 	return tx.feePayer
 }
 
-func (tx MockTx) FeeGranter() sdk.AccAddress {
+func (tx MockTx) FeeGranter() []byte {
 	return nil
 }
 

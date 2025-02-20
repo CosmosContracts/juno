@@ -1,12 +1,14 @@
 package burn
 
 import (
+	"context"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	mintkeeper "github.com/CosmosContracts/juno/v27/x/mint/keeper"
+	mintkeeper "github.com/CosmosContracts/juno/v28/x/mint/keeper"
 )
 
 // used to override Wasmd's NewBurnCoinMessageHandler
@@ -22,7 +24,7 @@ func NewBurnerPlugin(bk bankkeeper.Keeper, mk mintkeeper.Keeper) *BurnerWasmPlug
 	return &BurnerWasmPlugin{bk: bk, mk: mk}
 }
 
-func (k *BurnerWasmPlugin) BurnCoins(ctx sdk.Context, _ string, amt sdk.Coins) error {
+func (k *BurnerWasmPlugin) BurnCoins(ctx context.Context, _ string, amt sdk.Coins) error {
 	// first, try to burn the coins on bank module
 	err := k.bk.BurnCoins(ctx, ModuleName, amt)
 	if err != nil {
@@ -30,7 +32,10 @@ func (k *BurnerWasmPlugin) BurnCoins(ctx sdk.Context, _ string, amt sdk.Coins) e
 	}
 
 	// get mint params
-	params := k.mk.GetParams(ctx)
+	params, err := k.mk.GetParams(ctx)
+	if err != nil {
+		return err
+	}
 
 	// loop the burned coins
 	for _, amount := range amt {
@@ -45,6 +50,6 @@ func (k *BurnerWasmPlugin) BurnCoins(ctx sdk.Context, _ string, amt sdk.Coins) e
 	return nil
 }
 
-func (k *BurnerWasmPlugin) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, _ string, amt sdk.Coins) error {
+func (k *BurnerWasmPlugin) SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, _ string, amt sdk.Coins) error {
 	return k.bk.SendCoinsFromAccountToModule(ctx, senderAddr, ModuleName, amt)
 }

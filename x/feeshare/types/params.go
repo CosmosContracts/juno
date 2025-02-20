@@ -3,13 +3,19 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmath "cosmossdk.io/math"
+)
+
+var (
+	DefaultEnableFeeShare  = true
+	DefaultDeveloperShares = sdkmath.LegacyNewDecWithPrec(50, 2) // 50%
+	DefaultAllowedDenoms   = []string(nil)                       // all allowed
 )
 
 // NewParams creates a new Params object
 func NewParams(
 	enableFeeShare bool,
-	developerShares sdk.Dec,
+	developerShares sdkmath.LegacyDec,
 	allowedDenoms []string,
 ) Params {
 	return Params{
@@ -37,7 +43,7 @@ func validateBool(i interface{}) error {
 }
 
 func validateShares(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(sdkmath.LegacyDec)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -51,7 +57,7 @@ func validateShares(i interface{}) error {
 		return fmt.Errorf("value cannot be negative: %T", i)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(sdkmath.LegacyOneDec()) {
 		return fmt.Errorf("value cannot be greater than 1: %T", i)
 	}
 

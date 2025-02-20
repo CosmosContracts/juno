@@ -1,12 +1,14 @@
 package keeper
 
 import (
+	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
 )
 
-func (k Keeper) mintTo(ctx sdk.Context, amount sdk.Coin, mintTo string) error {
+func (k Keeper) mintTo(ctx context.Context, amount sdk.Coin, mintTo string) error {
 	// verify that denom is an x/tokenfactory denom
 	_, _, err := types.DeconstructDenom(amount.Denom)
 	if err != nil {
@@ -23,7 +25,7 @@ func (k Keeper) mintTo(ctx sdk.Context, amount sdk.Coin, mintTo string) error {
 		return err
 	}
 
-	if k.IsModuleAcc(ctx, addr) {
+	if k.IsModuleAcc(addr) {
 		return types.ErrModuleAccount
 	}
 
@@ -32,7 +34,7 @@ func (k Keeper) mintTo(ctx sdk.Context, amount sdk.Coin, mintTo string) error {
 		sdk.NewCoins(amount))
 }
 
-func (k Keeper) burnFrom(ctx sdk.Context, amount sdk.Coin, burnFrom string) error {
+func (k Keeper) burnFrom(ctx context.Context, amount sdk.Coin, burnFrom string) error {
 	// verify that denom is an x/tokenfactory denom
 	_, _, err := types.DeconstructDenom(amount.Denom)
 	if err != nil {
@@ -44,7 +46,7 @@ func (k Keeper) burnFrom(ctx sdk.Context, amount sdk.Coin, burnFrom string) erro
 		return err
 	}
 
-	if k.IsModuleAcc(ctx, addr) {
+	if k.IsModuleAcc(addr) {
 		return types.ErrModuleAccount
 	}
 
@@ -59,7 +61,7 @@ func (k Keeper) burnFrom(ctx sdk.Context, amount sdk.Coin, burnFrom string) erro
 	return k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(amount))
 }
 
-func (k Keeper) forceTransfer(ctx sdk.Context, amount sdk.Coin, fromAddr string, toAddr string) error {
+func (k Keeper) forceTransfer(ctx context.Context, amount sdk.Coin, fromAddr string, toAddr string) error {
 	// verify that denom is an x/tokenfactory denom
 	_, _, err := types.DeconstructDenom(amount.Denom)
 	if err != nil {
@@ -71,7 +73,7 @@ func (k Keeper) forceTransfer(ctx sdk.Context, amount sdk.Coin, fromAddr string,
 		return err
 	}
 
-	if k.IsModuleAcc(ctx, fromAcc) {
+	if k.IsModuleAcc(fromAcc) {
 		return types.ErrModuleAccount
 	}
 
@@ -80,7 +82,7 @@ func (k Keeper) forceTransfer(ctx sdk.Context, amount sdk.Coin, fromAddr string,
 		return err
 	}
 
-	if k.IsModuleAcc(ctx, toAcc) {
+	if k.IsModuleAcc(toAcc) {
 		return types.ErrModuleAccount
 	}
 
@@ -88,6 +90,6 @@ func (k Keeper) forceTransfer(ctx sdk.Context, amount sdk.Coin, fromAddr string,
 }
 
 // IsModuleAcc checks if a given address is restricted
-func (k Keeper) IsModuleAcc(_ sdk.Context, addr sdk.AccAddress) bool {
+func (k Keeper) IsModuleAcc(addr sdk.AccAddress) bool {
 	return k.permAddrMap[addr.String()]
 }

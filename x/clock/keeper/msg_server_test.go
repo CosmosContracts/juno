@@ -3,22 +3,24 @@ package keeper_test
 import (
 	_ "embed"
 
+	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v27/x/clock/types"
+	"github.com/CosmosContracts/juno/v28/x/clock/types"
 )
 
 // Test register clock contract.
-func (s *IntegrationTestSuite) TestRegisterClockContract() {
+func (s *KeeperTestSuite) TestRegisterClockContract() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	s.FundAcc(addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	// Store code
-	s.StoreCode()
-	contractAddress := s.InstantiateContract(addr.String(), "")
-	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String())
+	s.StoreCode(clockContract)
+	contractAddress := s.InstantiateContract(addr.String(), "", clockContract)
+	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String(), clockContract)
 
 	for _, tc := range []struct {
 		desc     string
@@ -75,18 +77,18 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 		s.Run(tc.desc, func() {
 			// Set params
 			params := types.DefaultParams()
-			err := s.app.AppKeepers.ClockKeeper.SetParams(s.ctx, params)
+			err := s.App.AppKeepers.ClockKeeper.SetParams(s.Ctx, params)
 			s.Require().NoError(err)
 
 			// Jail contract if needed
 			if tc.isJailed {
 				s.RegisterClockContract(tc.sender, tc.contract)
-				err := s.app.AppKeepers.ClockKeeper.SetJailStatus(s.ctx, tc.contract, true)
+				err := s.App.AppKeepers.ClockKeeper.SetJailStatus(s.Ctx, tc.contract, true)
 				s.Require().NoError(err)
 			}
 
 			// Try to register contract
-			res, err := s.clockMsgServer.RegisterClockContract(s.ctx, &types.MsgRegisterClockContract{
+			res, err := s.msgServer.RegisterClockContract(s.Ctx, &types.MsgRegisterClockContract{
 				SenderAddress:   tc.sender,
 				ContractAddress: tc.contract,
 			})
@@ -99,21 +101,21 @@ func (s *IntegrationTestSuite) TestRegisterClockContract() {
 			}
 
 			// Ensure contract is unregistered
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress)
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin)
+			s.App.AppKeepers.ClockKeeper.RemoveContract(s.Ctx, contractAddress)
+			s.App.AppKeepers.ClockKeeper.RemoveContract(s.Ctx, contractAddressWithAdmin)
 		})
 	}
 }
 
 // Test standard unregistration of clock contracts.
-func (s *IntegrationTestSuite) TestUnregisterClockContract() {
+func (s *KeeperTestSuite) TestUnregisterClockContract() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	s.FundAcc(addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	s.StoreCode()
-	contractAddress := s.InstantiateContract(addr.String(), "")
-	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String())
+	s.StoreCode(clockContract)
+	contractAddress := s.InstantiateContract(addr.String(), "", clockContract)
+	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String(), clockContract)
 
 	for _, tc := range []struct {
 		desc     string
@@ -165,11 +167,11 @@ func (s *IntegrationTestSuite) TestUnregisterClockContract() {
 
 			// Set params
 			params := types.DefaultParams()
-			err := s.app.AppKeepers.ClockKeeper.SetParams(s.ctx, params)
+			err := s.App.AppKeepers.ClockKeeper.SetParams(s.Ctx, params)
 			s.Require().NoError(err)
 
 			// Try to register all contracts
-			res, err := s.clockMsgServer.UnregisterClockContract(s.ctx, &types.MsgUnregisterClockContract{
+			res, err := s.msgServer.UnregisterClockContract(s.Ctx, &types.MsgUnregisterClockContract{
 				SenderAddress:   tc.sender,
 				ContractAddress: tc.contract,
 			})
@@ -182,41 +184,41 @@ func (s *IntegrationTestSuite) TestUnregisterClockContract() {
 			}
 
 			// Ensure contract is unregistered
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress)
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin)
+			s.App.AppKeepers.ClockKeeper.RemoveContract(s.Ctx, contractAddress)
+			s.App.AppKeepers.ClockKeeper.RemoveContract(s.Ctx, contractAddressWithAdmin)
 		})
 	}
 }
 
 // Test duplicate register/unregister clock contracts.
-func (s *IntegrationTestSuite) TestDuplicateRegistrationChecks() {
+func (s *KeeperTestSuite) TestDuplicateRegistrationChecks() {
 	_, _, addr := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	s.FundAcc(addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	s.StoreCode()
-	contractAddress := s.InstantiateContract(addr.String(), "")
+	s.StoreCode(clockContract)
+	contractAddress := s.InstantiateContract(addr.String(), "", clockContract)
 
 	// Test double register, first succeed, second fail
-	_, err := s.clockMsgServer.RegisterClockContract(s.ctx, &types.MsgRegisterClockContract{
+	_, err := s.msgServer.RegisterClockContract(s.Ctx, &types.MsgRegisterClockContract{
 		SenderAddress:   addr.String(),
 		ContractAddress: contractAddress,
 	})
 	s.Require().NoError(err)
 
-	_, err = s.clockMsgServer.RegisterClockContract(s.ctx, &types.MsgRegisterClockContract{
+	_, err = s.msgServer.RegisterClockContract(s.Ctx, &types.MsgRegisterClockContract{
 		SenderAddress:   addr.String(),
 		ContractAddress: contractAddress,
 	})
 	s.Require().Error(err)
 
 	// Test double unregister, first succeed, second fail
-	_, err = s.clockMsgServer.UnregisterClockContract(s.ctx, &types.MsgUnregisterClockContract{
+	_, err = s.msgServer.UnregisterClockContract(s.Ctx, &types.MsgUnregisterClockContract{
 		SenderAddress:   addr.String(),
 		ContractAddress: contractAddress,
 	})
 	s.Require().NoError(err)
 
-	_, err = s.clockMsgServer.UnregisterClockContract(s.ctx, &types.MsgUnregisterClockContract{
+	_, err = s.msgServer.UnregisterClockContract(s.Ctx, &types.MsgUnregisterClockContract{
 		SenderAddress:   addr.String(),
 		ContractAddress: contractAddress,
 	})
@@ -224,14 +226,14 @@ func (s *IntegrationTestSuite) TestDuplicateRegistrationChecks() {
 }
 
 // Test unjailing clock contracts.
-func (s *IntegrationTestSuite) TestUnjailClockContract() {
+func (s *KeeperTestSuite) TestUnjailClockContract() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
-	_ = s.FundAccount(s.ctx, addr, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+	s.FundAcc(addr, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	s.StoreCode()
-	contractAddress := s.InstantiateContract(addr.String(), "")
-	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String())
+	s.StoreCode(clockContract)
+	contractAddress := s.InstantiateContract(addr.String(), "", clockContract)
+	contractAddressWithAdmin := s.InstantiateContract(addr.String(), addr2.String(), clockContract)
 
 	for _, tc := range []struct {
 		desc     string
@@ -299,11 +301,11 @@ func (s *IntegrationTestSuite) TestUnjailClockContract() {
 
 			// Set params
 			params := types.DefaultParams()
-			err := s.app.AppKeepers.ClockKeeper.SetParams(s.ctx, params)
+			err := s.App.AppKeepers.ClockKeeper.SetParams(s.Ctx, params)
 			s.Require().NoError(err)
 
 			// Try to register all contracts
-			res, err := s.clockMsgServer.UnjailClockContract(s.ctx, &types.MsgUnjailClockContract{
+			res, err := s.msgServer.UnjailClockContract(s.Ctx, &types.MsgUnjailClockContract{
 				SenderAddress:   tc.sender,
 				ContractAddress: tc.contract,
 			})
@@ -316,8 +318,8 @@ func (s *IntegrationTestSuite) TestUnjailClockContract() {
 			}
 
 			// Ensure contract is unregistered
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddress)
-			s.app.AppKeepers.ClockKeeper.RemoveContract(s.ctx, contractAddressWithAdmin)
+			s.App.AppKeepers.ClockKeeper.RemoveContract(s.Ctx, contractAddress)
+			s.App.AppKeepers.ClockKeeper.RemoveContract(s.Ctx, contractAddressWithAdmin)
 		})
 	}
 }

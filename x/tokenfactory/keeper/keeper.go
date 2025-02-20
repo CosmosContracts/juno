@@ -1,46 +1,50 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
+	storetypes "cosmossdk.io/core/store"
+	"cosmossdk.io/log"
+	"cosmossdk.io/store/prefix"
+	legacystoretypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
 )
 
-type (
-	Keeper struct {
-		cdc         codec.BinaryCodec
-		storeKey    storetypes.StoreKey
-		permAddrs   map[string]authtypes.PermissionsForAddress
-		permAddrMap map[string]bool
+type Keeper struct {
+	cdc          codec.BinaryCodec
+	storeService storetypes.KVStoreService
+	permAddrs    map[string]authtypes.PermissionsForAddress
+	permAddrMap  map[string]bool
 
-		accountKeeper       types.AccountKeeper
-		bankKeeper          types.BankKeeper
-		communityPoolKeeper types.CommunityPoolKeeper
+	accountKeeper      authkeeper.AccountKeeper
+	bankKeeper         bankkeeper.Keeper
+	distributionKeeper distrkeeper.Keeper
 
-		enabledCapabilities []string
+	enabledCapabilities []string
 
-		// the address capable of executing a MsgUpdateParams message. Typically, this
-		// should be the x/gov module account.
-		authority string
-	}
-)
+	// the address capable of executing a MsgUpdateParams message. Typically, this
+	// should be the x/gov module account.
+	authority string
+}
 
 // NewKeeper returns a new instance of the x/tokenfactory keeper
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storetypes.StoreKey,
+	storeService storetypes.KVStoreService,
 	maccPerms map[string][]string,
-	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
-	communityPoolKeeper types.CommunityPoolKeeper,
+	accountKeeper authkeeper.AccountKeeper,
+	bankKeeper bankkeeper.Keeper,
+	distributionKeeper distrkeeper.Keeper,
 	enabledCapabilities []string,
 	authority string,
 ) Keeper {
@@ -53,14 +57,14 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
+		cdc:          cdc,
+		storeService: storeService,
 
-		permAddrs:           permAddrs,
-		permAddrMap:         permAddrMap,
-		accountKeeper:       accountKeeper,
-		bankKeeper:          bankKeeper,
-		communityPoolKeeper: communityPoolKeeper,
+		permAddrs:          permAddrs,
+		permAddrMap:        permAddrMap,
+		accountKeeper:      accountKeeper,
+		bankKeeper:         bankKeeper,
+		distributionKeeper: distributionKeeper,
 
 		enabledCapabilities: enabledCapabilities,
 
@@ -74,25 +78,26 @@ func (k Keeper) GetAuthority() string {
 }
 
 // Logger returns a logger for the x/tokenfactory module
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func (k Keeper) Logger(ctx context.Context) log.Logger {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	return sdkCtx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 // GetDenomPrefixStore returns the substore for a specific denom
-func (k Keeper) GetDenomPrefixStore(ctx sdk.Context, denom string) sdk.KVStore {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) GetDenomPrefixStore(ctx context.Context, denom string) legacystoretypes.KVStore {
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	return prefix.NewStore(store, types.GetDenomPrefixStore(denom))
 }
 
 // GetCreatorPrefixStore returns the substore for a specific creator address
-func (k Keeper) GetCreatorPrefixStore(ctx sdk.Context, creator string) sdk.KVStore {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) GetCreatorPrefixStore(ctx context.Context, creator string) legacystoretypes.KVStore {
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	return prefix.NewStore(store, types.GetCreatorPrefix(creator))
 }
 
 // GetCreatorsPrefixStore returns the substore that contains a list of creators
-func (k Keeper) GetCreatorsPrefixStore(ctx sdk.Context) sdk.KVStore {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) GetCreatorsPrefixStore(ctx context.Context) legacystoretypes.KVStore {
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	return prefix.NewStore(store, types.GetCreatorsPrefix())
 }
 
@@ -100,7 +105,8 @@ func (k Keeper) GetCreatorsPrefixStore(ctx sdk.Context) sdk.KVStore {
 // This account isn't intended to store any coins,
 // it purely mints and burns them on behalf of the admin of respective denoms,
 // and sends to the relevant address.
-func (k Keeper) CreateModuleAccount(ctx sdk.Context) {
+func (k Keeper) CreateModuleAccount(ctx context.Context) {
 	moduleAcc := authtypes.NewEmptyModuleAccount(types.ModuleName, authtypes.Minter, authtypes.Burner)
-	k.accountKeeper.SetModuleAccount(ctx, moduleAcc)
+	moduleAccI := (k.accountKeeper.NewAccount(ctx, moduleAcc)).(sdk.ModuleAccountI)
+	k.accountKeeper.SetModuleAccount(ctx, moduleAccI)
 }

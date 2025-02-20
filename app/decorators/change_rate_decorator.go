@@ -3,6 +3,8 @@ package decorators
 import (
 	"fmt"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -17,12 +19,12 @@ const (
 // that create validators and exceed the max change rate of 5%.
 type MsgChangeRateDecorator struct {
 	sk                      *stakingkeeper.Keeper
-	maxCommissionChangeRate sdk.Dec
+	maxCommissionChangeRate sdkmath.LegacyDec
 }
 
 // Create new Change Rate Decorator
 func NewChangeRateDecorator(sk *stakingkeeper.Keeper) MsgChangeRateDecorator {
-	rate, err := sdk.NewDecFromStr(MaxChangeRate)
+	rate, err := sdkmath.LegacyNewDecFromStr(MaxChangeRate)
 	if err != nil {
 		panic(err)
 	}
@@ -98,9 +100,9 @@ func (mcr MsgChangeRateDecorator) isInvalidEditMessage(ctx sdk.Context, msg *sta
 	}
 
 	// Get validator info, if exists
-	valInfo, found := mcr.sk.GetValidator(ctx, bech32Addr)
-	if !found {
-		return fmt.Errorf("validator not found")
+	valInfo, err := mcr.sk.GetValidator(ctx, bech32Addr)
+	if err != nil {
+		return err
 	}
 
 	// Check if new commission rate is out of bounds of the max change rate

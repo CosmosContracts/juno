@@ -1,7 +1,8 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmath "cosmossdk.io/math"
+
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -17,7 +18,7 @@ type Validator struct {
 func NewValidator(val stakingtypes.ValidatorI) *Validator {
 	return &Validator{
 		Moniker:          val.GetMoniker(),
-		ValidatorAddress: val.GetOperator().String(),
+		ValidatorAddress: val.GetOperator(),
 		Commission:       val.GetCommission().String(),
 		ValidatorTokens:  val.GetTokens().String(),
 		BondedTokens:     val.GetBondedTokens().String(),
@@ -31,10 +32,10 @@ type ValidatorSlashed struct {
 	SlashedAmount    string `json:"slashed_amount"`
 }
 
-func NewValidatorSlashed(val stakingtypes.ValidatorI, fraction sdk.Dec) *ValidatorSlashed {
+func NewValidatorSlashed(val stakingtypes.ValidatorI, fraction sdkmath.LegacyDec) *ValidatorSlashed {
 	return &ValidatorSlashed{
 		Moniker:          val.GetMoniker(),
-		ValidatorAddress: val.GetOperator().String(),
+		ValidatorAddress: val.GetOperator(),
 		SlashedAmount:    fraction.String(),
 	}
 }
@@ -47,8 +48,8 @@ type Delegation struct {
 
 func NewDelegation(del stakingtypes.DelegationI) *Delegation {
 	return &Delegation{
-		ValidatorAddress: del.GetValidatorAddr().String(),
-		DelegatorAddress: del.GetDelegatorAddr().String(),
+		ValidatorAddress: del.GetValidatorAddr(),
+		DelegatorAddress: del.GetDelegatorAddr(),
 		Shares:           del.GetShares().String(),
 	}
 }

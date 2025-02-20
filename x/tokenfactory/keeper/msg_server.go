@@ -8,36 +8,42 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
 )
+
+var _ types.MsgServer = msgServer{}
 
 type msgServer struct {
 	Keeper
 }
 
-// NewMsgServerImpl returns an implementation of the MsgServer interface
-// for the provided Keeper.
-func NewMsgServerImpl(keeper Keeper) types.MsgServer {
-	return &msgServer{Keeper: keeper}
+// NewMsgServerImpl returns an implementation of the x/mint MsgServer interface.
+func NewMsgServerImpl(k Keeper) types.MsgServer {
+	return &msgServer{
+		Keeper: k,
+	}
 }
 
-var _ types.MsgServer = msgServer{}
-
-func (server msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom) (*types.MsgCreateDenomResponse, error) {
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, err
+func (ms msgServer) CreateDenom(ctx context.Context, msg *types.MsgCreateDenom) (*types.MsgCreateDenomResponse, error) {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, errors.Wrapf(types.ErrInvalidCreator, "Invalid sender address (%s)", err)
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
+	_, err = types.GetTokenDenom(msg.Sender, msg.Subdenom)
+	if err != nil {
+		return nil, errors.Wrap(types.ErrInvalidDenom, err.Error())
+	}
 
-	denom, err := server.Keeper.CreateDenom(ctx, msg.Sender, msg.Subdenom)
+	denom, err := ms.Keeper.CreateDenom(ctx, msg.Sender, msg.Subdenom)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvents(sdk.Events{
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	sdkCtx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.TypeMsgCreateDenom,
+			"create_denom",
 			sdk.NewAttribute(types.AttributeCreator, msg.Sender),
 			sdk.NewAttribute(types.AttributeNewTokenDenom, denom),
 		),
@@ -48,16 +54,14 @@ func (server msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateD
 	}, nil
 }
 
-func (server msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMintResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (ms msgServer) Mint(ctx context.Context, msg *types.MsgMint) (*types.MsgMintResponse, error) {
 	// pay some extra gas cost to give a better error here.
-	_, denomExists := server.bankKeeper.GetDenomMetaData(ctx, msg.Amount.Denom)
+	_, denomExists := ms.bankKeeper.GetDenomMetaData(ctx, msg.Amount.Denom)
 	if !denomExists {
 		return nil, types.ErrDenomDoesNotExist.Wrapf("denom: %s", msg.Amount.Denom)
 	}
 
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
+	authorityMetadata, err := ms.Keeper.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
 	if err != nil {
 		return nil, err
 	}
@@ -70,14 +74,15 @@ func (server msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.
 		msg.MintToAddress = msg.Sender
 	}
 
-	err = server.Keeper.mintTo(ctx, msg.Amount, msg.MintToAddress)
+	err = ms.Keeper.mintTo(ctx, msg.Amount, msg.MintToAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvents(sdk.Events{
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	sdkCtx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.TypeMsgMint,
+			"tf_mint",
 			sdk.NewAttribute(types.AttributeMintToAddress, msg.Sender),
 			sdk.NewAttribute(types.AttributeAmount, msg.Amount.String()),
 		),
@@ -86,10 +91,8 @@ func (server msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.
 	return &types.MsgMintResponse{}, nil
 }
 
-func (server msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBurnResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
+func (ms msgServer) Burn(ctx context.Context, msg *types.MsgBurn) (*types.MsgBurnResponse, error) {
+	authorityMetadata, err := ms.Keeper.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
 	if err != nil {
 		return nil, err
 	}
@@ -100,18 +103,19 @@ func (server msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.
 
 	if msg.BurnFromAddress == "" {
 		msg.BurnFromAddress = msg.Sender
-	} else if !types.IsCapabilityEnabled(server.Keeper.enabledCapabilities, types.EnableBurnFrom) {
+	} else if !types.IsCapabilityEnabled(ms.Keeper.enabledCapabilities, types.EnableBurnFrom) {
 		return nil, types.ErrCapabilityNotEnabled
 	}
 
-	err = server.Keeper.burnFrom(ctx, msg.Amount, msg.BurnFromAddress)
+	err = ms.Keeper.burnFrom(ctx, msg.Amount, msg.BurnFromAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvents(sdk.Events{
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	sdkCtx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.TypeMsgBurn,
+			"tf_burn",
 			sdk.NewAttribute(types.AttributeBurnFromAddress, msg.Sender),
 			sdk.NewAttribute(types.AttributeAmount, msg.Amount.String()),
 		),
@@ -120,14 +124,12 @@ func (server msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.
 	return &types.MsgBurnResponse{}, nil
 }
 
-func (server msgServer) ForceTransfer(goCtx context.Context, msg *types.MsgForceTransfer) (*types.MsgForceTransferResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	if !types.IsCapabilityEnabled(server.Keeper.enabledCapabilities, types.EnableForceTransfer) {
+func (ms msgServer) ForceTransfer(ctx context.Context, msg *types.MsgForceTransfer) (*types.MsgForceTransferResponse, error) {
+	if !types.IsCapabilityEnabled(ms.Keeper.enabledCapabilities, types.EnableForceTransfer) {
 		return nil, types.ErrCapabilityNotEnabled
 	}
 
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
+	authorityMetadata, err := ms.Keeper.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
 	if err != nil {
 		return nil, err
 	}
@@ -136,14 +138,15 @@ func (server msgServer) ForceTransfer(goCtx context.Context, msg *types.MsgForce
 		return nil, types.ErrUnauthorized
 	}
 
-	err = server.Keeper.forceTransfer(ctx, msg.Amount, msg.TransferFromAddress, msg.TransferToAddress)
+	err = ms.Keeper.forceTransfer(ctx, msg.Amount, msg.TransferFromAddress, msg.TransferToAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvents(sdk.Events{
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	sdkCtx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.TypeMsgForceTransfer,
+			"force_transfer",
 			sdk.NewAttribute(types.AttributeTransferFromAddress, msg.TransferFromAddress),
 			sdk.NewAttribute(types.AttributeTransferToAddress, msg.TransferToAddress),
 			sdk.NewAttribute(types.AttributeAmount, msg.Amount.String()),
@@ -153,10 +156,8 @@ func (server msgServer) ForceTransfer(goCtx context.Context, msg *types.MsgForce
 	return &types.MsgForceTransferResponse{}, nil
 }
 
-func (server msgServer) ChangeAdmin(goCtx context.Context, msg *types.MsgChangeAdmin) (*types.MsgChangeAdminResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Denom)
+func (ms msgServer) ChangeAdmin(ctx context.Context, msg *types.MsgChangeAdmin) (*types.MsgChangeAdminResponse, error) {
+	authorityMetadata, err := ms.Keeper.GetAuthorityMetadata(ctx, msg.Denom)
 	if err != nil {
 		return nil, err
 	}
@@ -165,14 +166,16 @@ func (server msgServer) ChangeAdmin(goCtx context.Context, msg *types.MsgChangeA
 		return nil, types.ErrUnauthorized
 	}
 
-	err = server.Keeper.setAdmin(ctx, msg.Denom, msg.NewAdmin)
+	err = ms.Keeper.setAdmin(ctx, msg.Denom, msg.NewAdmin)
 	if err != nil {
 		return nil, err
 	}
-	ctx.EventManager().EmitEvents(sdk.Events{
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	sdkCtx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.TypeMsgChangeAdmin,
-			sdk.NewAttribute(types.AttributeDenom, msg.GetDenom()),
+			"change_admin",
+			sdk.NewAttribute(types.AttributeDenom, msg.Denom),
 			sdk.NewAttribute(types.AttributeNewAdmin, msg.NewAdmin),
 		),
 	})
@@ -180,10 +183,8 @@ func (server msgServer) ChangeAdmin(goCtx context.Context, msg *types.MsgChangeA
 	return &types.MsgChangeAdminResponse{}, nil
 }
 
-func (server msgServer) SetDenomMetadata(goCtx context.Context, msg *types.MsgSetDenomMetadata) (*types.MsgSetDenomMetadataResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	if !types.IsCapabilityEnabled(server.Keeper.enabledCapabilities, types.EnableSetMetadata) {
+func (ms msgServer) SetDenomMetadata(ctx context.Context, msg *types.MsgSetDenomMetadata) (*types.MsgSetDenomMetadataResponse, error) {
+	if !types.IsCapabilityEnabled(ms.Keeper.enabledCapabilities, types.EnableSetMetadata) {
 		return nil, types.ErrCapabilityNotEnabled
 	}
 
@@ -193,7 +194,7 @@ func (server msgServer) SetDenomMetadata(goCtx context.Context, msg *types.MsgSe
 		return nil, err
 	}
 
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Metadata.Base)
+	authorityMetadata, err := ms.Keeper.GetAuthorityMetadata(ctx, msg.Metadata.Base)
 	if err != nil {
 		return nil, err
 	}
@@ -202,11 +203,12 @@ func (server msgServer) SetDenomMetadata(goCtx context.Context, msg *types.MsgSe
 		return nil, types.ErrUnauthorized
 	}
 
-	server.Keeper.bankKeeper.SetDenomMetaData(ctx, msg.Metadata)
+	ms.Keeper.bankKeeper.SetDenomMetaData(ctx, msg.Metadata)
 
-	ctx.EventManager().EmitEvents(sdk.Events{
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	sdkCtx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.TypeMsgSetDenomMetadata,
+			"set_denom_metadata",
 			sdk.NewAttribute(types.AttributeDenom, msg.Metadata.Base),
 			sdk.NewAttribute(types.AttributeDenomMetadata, msg.Metadata.String()),
 		),
@@ -215,13 +217,12 @@ func (server msgServer) SetDenomMetadata(goCtx context.Context, msg *types.MsgSe
 	return &types.MsgSetDenomMetadataResponse{}, nil
 }
 
-func (server msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
-	if server.authority != req.Authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", server.authority, req.Authority)
+func (ms msgServer) UpdateParams(ctx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+	if ms.authority != req.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", ms.authority, req.Authority)
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := server.SetParams(ctx, req.Params); err != nil {
+	if err := ms.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
 

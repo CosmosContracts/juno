@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v27/x/clock/types"
+	"github.com/CosmosContracts/juno/v28/x/clock/types"
 )
 
 var _ types.MsgServer = &msgServer{}
@@ -26,9 +26,7 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 }
 
 // RegisterClockContract handles incoming transactions to register clock contracts.
-func (k msgServer) RegisterClockContract(goCtx context.Context, req *types.MsgRegisterClockContract) (*types.MsgRegisterClockContractResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) RegisterClockContract(ctx context.Context, req *types.MsgRegisterClockContract) (*types.MsgRegisterClockContractResponse, error) {
 	// Validate request
 	if err := req.ValidateBasic(); err != nil {
 		return nil, err

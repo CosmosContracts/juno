@@ -2,12 +2,11 @@ package keeper_test
 
 import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v27/x/drip/types"
+	"github.com/CosmosContracts/juno/v28/x/drip/types"
 )
 
-func (s *IntegrationTestSuite) TestDripQueryParams() {
+func (s *KeeperTestSuite) TestDripQueryParams() {
 	_, _, addr := testdata.KeyTestPubAddr()
 	_, _, addr2 := testdata.KeyTestPubAddr()
 
@@ -47,11 +46,10 @@ func (s *IntegrationTestSuite) TestDripQueryParams() {
 		tc := tc
 		s.Run(tc.desc, func() {
 			// Set the params to what is expected, then query and ensure the query is the same
-			err := s.app.AppKeepers.DripKeeper.SetParams(s.ctx, tc.Expected)
+			err := s.App.AppKeepers.DripKeeper.SetParams(s.Ctx, tc.Expected)
 			s.Require().NoError(err)
 
-			goCtx := sdk.WrapSDKContext(s.ctx)
-			resp, err := s.queryClient.Params(goCtx, &types.QueryParamsRequest{})
+			resp, err := s.queryClient.Params(s.Ctx, &types.QueryParamsRequest{})
 			s.Require().NoError(err)
 			s.Require().Equal(tc.Expected, resp.Params)
 		})

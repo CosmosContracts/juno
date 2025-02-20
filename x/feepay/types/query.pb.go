@@ -6,7 +6,9 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	_ "github.com/cosmos/cosmos-proto"
 	query "github.com/cosmos/cosmos-sdk/types/query"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -30,24 +32,24 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryFeePayContract retrieves a single fee pay contract
-type QueryFeePayContract struct {
+// QueryFeePayContractRequest retrieves a single fee pay contract
+type QueryFeePayContractRequest struct {
 	// contract_address defines the address of the fee pay contract
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 }
 
-func (m *QueryFeePayContract) Reset()         { *m = QueryFeePayContract{} }
-func (m *QueryFeePayContract) String() string { return proto.CompactTextString(m) }
-func (*QueryFeePayContract) ProtoMessage()    {}
-func (*QueryFeePayContract) Descriptor() ([]byte, []int) {
+func (m *QueryFeePayContractRequest) Reset()         { *m = QueryFeePayContractRequest{} }
+func (m *QueryFeePayContractRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeePayContractRequest) ProtoMessage()    {}
+func (*QueryFeePayContractRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d6539df905bf35ca, []int{0}
 }
-func (m *QueryFeePayContract) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeePayContractRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeePayContract) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeePayContractRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeePayContract.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeePayContractRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -57,19 +59,19 @@ func (m *QueryFeePayContract) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *QueryFeePayContract) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeePayContract.Merge(m, src)
+func (m *QueryFeePayContractRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeePayContractRequest.Merge(m, src)
 }
-func (m *QueryFeePayContract) XXX_Size() int {
+func (m *QueryFeePayContractRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeePayContract) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeePayContract.DiscardUnknown(m)
+func (m *QueryFeePayContractRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeePayContractRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeePayContract proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeePayContractRequest proto.InternalMessageInfo
 
-func (m *QueryFeePayContract) GetContractAddress() string {
+func (m *QueryFeePayContractRequest) GetContractAddress() string {
 	if m != nil {
 		return m.ContractAddress
 	}
@@ -79,7 +81,7 @@ func (m *QueryFeePayContract) GetContractAddress() string {
 // QueryFeePayContractResponse defines the response for retrieving a single fee pay contract
 type QueryFeePayContractResponse struct {
 	// contract defines the fee pay contract
-	FeePayContract *FeePayContract `protobuf:"bytes,1,opt,name=fee_pay_contract,json=feePayContract,proto3" json:"fee_pay_contract,omitempty"`
+	FeePayContract FeePayContract `protobuf:"bytes,1,opt,name=fee_pay_contract,json=feePayContract,proto3" json:"fee_pay_contract"`
 }
 
 func (m *QueryFeePayContractResponse) Reset()         { *m = QueryFeePayContractResponse{} }
@@ -115,31 +117,31 @@ func (m *QueryFeePayContractResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryFeePayContractResponse proto.InternalMessageInfo
 
-func (m *QueryFeePayContractResponse) GetFeePayContract() *FeePayContract {
+func (m *QueryFeePayContractResponse) GetFeePayContract() FeePayContract {
 	if m != nil {
 		return m.FeePayContract
 	}
-	return nil
+	return FeePayContract{}
 }
 
 // Message for querying a list of fee pay contracts
-type QueryFeePayContracts struct {
+type QueryFeePayContractsRequest struct {
 	// Pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryFeePayContracts) Reset()         { *m = QueryFeePayContracts{} }
-func (m *QueryFeePayContracts) String() string { return proto.CompactTextString(m) }
-func (*QueryFeePayContracts) ProtoMessage()    {}
-func (*QueryFeePayContracts) Descriptor() ([]byte, []int) {
+func (m *QueryFeePayContractsRequest) Reset()         { *m = QueryFeePayContractsRequest{} }
+func (m *QueryFeePayContractsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeePayContractsRequest) ProtoMessage()    {}
+func (*QueryFeePayContractsRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d6539df905bf35ca, []int{2}
 }
-func (m *QueryFeePayContracts) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeePayContractsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeePayContracts) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeePayContractsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeePayContracts.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeePayContractsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -149,19 +151,19 @@ func (m *QueryFeePayContracts) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryFeePayContracts) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeePayContracts.Merge(m, src)
+func (m *QueryFeePayContractsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeePayContractsRequest.Merge(m, src)
 }
-func (m *QueryFeePayContracts) XXX_Size() int {
+func (m *QueryFeePayContractsRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeePayContracts) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeePayContracts.DiscardUnknown(m)
+func (m *QueryFeePayContractsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeePayContractsRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeePayContracts proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeePayContractsRequest proto.InternalMessageInfo
 
-func (m *QueryFeePayContracts) GetPagination() *query.PageRequest {
+func (m *QueryFeePayContractsRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
@@ -224,25 +226,25 @@ func (m *QueryFeePayContractsResponse) GetPagination() *query.PageResponse {
 }
 
 // Message for querying the number of uses on a fee pay contract by wallet
-type QueryFeePayContractUses struct {
+type QueryFeePayContractUsesRequest struct {
 	// The contract address.
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// The wallet address.
 	WalletAddress string `protobuf:"bytes,2,opt,name=wallet_address,json=walletAddress,proto3" json:"wallet_address,omitempty"`
 }
 
-func (m *QueryFeePayContractUses) Reset()         { *m = QueryFeePayContractUses{} }
-func (m *QueryFeePayContractUses) String() string { return proto.CompactTextString(m) }
-func (*QueryFeePayContractUses) ProtoMessage()    {}
-func (*QueryFeePayContractUses) Descriptor() ([]byte, []int) {
+func (m *QueryFeePayContractUsesRequest) Reset()         { *m = QueryFeePayContractUsesRequest{} }
+func (m *QueryFeePayContractUsesRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeePayContractUsesRequest) ProtoMessage()    {}
+func (*QueryFeePayContractUsesRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d6539df905bf35ca, []int{4}
 }
-func (m *QueryFeePayContractUses) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeePayContractUsesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeePayContractUses) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeePayContractUsesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeePayContractUses.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeePayContractUsesRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -252,26 +254,26 @@ func (m *QueryFeePayContractUses) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *QueryFeePayContractUses) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeePayContractUses.Merge(m, src)
+func (m *QueryFeePayContractUsesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeePayContractUsesRequest.Merge(m, src)
 }
-func (m *QueryFeePayContractUses) XXX_Size() int {
+func (m *QueryFeePayContractUsesRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeePayContractUses) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeePayContractUses.DiscardUnknown(m)
+func (m *QueryFeePayContractUsesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeePayContractUsesRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeePayContractUses proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeePayContractUsesRequest proto.InternalMessageInfo
 
-func (m *QueryFeePayContractUses) GetContractAddress() string {
+func (m *QueryFeePayContractUsesRequest) GetContractAddress() string {
 	if m != nil {
 		return m.ContractAddress
 	}
 	return ""
 }
 
-func (m *QueryFeePayContractUses) GetWalletAddress() string {
+func (m *QueryFeePayContractUsesRequest) GetWalletAddress() string {
 	if m != nil {
 		return m.WalletAddress
 	}
@@ -325,25 +327,25 @@ func (m *QueryFeePayContractUsesResponse) GetUses() uint64 {
 }
 
 // Message for querying if a wallet is eligible for fee pay contract interactions
-type QueryFeePayWalletIsEligible struct {
+type QueryFeePayWalletIsEligibleRequest struct {
 	// The contract address.
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// The wallet address.
 	WalletAddress string `protobuf:"bytes,2,opt,name=wallet_address,json=walletAddress,proto3" json:"wallet_address,omitempty"`
 }
 
-func (m *QueryFeePayWalletIsEligible) Reset()         { *m = QueryFeePayWalletIsEligible{} }
-func (m *QueryFeePayWalletIsEligible) String() string { return proto.CompactTextString(m) }
-func (*QueryFeePayWalletIsEligible) ProtoMessage()    {}
-func (*QueryFeePayWalletIsEligible) Descriptor() ([]byte, []int) {
+func (m *QueryFeePayWalletIsEligibleRequest) Reset()         { *m = QueryFeePayWalletIsEligibleRequest{} }
+func (m *QueryFeePayWalletIsEligibleRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeePayWalletIsEligibleRequest) ProtoMessage()    {}
+func (*QueryFeePayWalletIsEligibleRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d6539df905bf35ca, []int{6}
 }
-func (m *QueryFeePayWalletIsEligible) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeePayWalletIsEligibleRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeePayWalletIsEligible) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeePayWalletIsEligibleRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeePayWalletIsEligible.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeePayWalletIsEligibleRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -353,26 +355,26 @@ func (m *QueryFeePayWalletIsEligible) XXX_Marshal(b []byte, deterministic bool) 
 		return b[:n], nil
 	}
 }
-func (m *QueryFeePayWalletIsEligible) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeePayWalletIsEligible.Merge(m, src)
+func (m *QueryFeePayWalletIsEligibleRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeePayWalletIsEligibleRequest.Merge(m, src)
 }
-func (m *QueryFeePayWalletIsEligible) XXX_Size() int {
+func (m *QueryFeePayWalletIsEligibleRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeePayWalletIsEligible) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeePayWalletIsEligible.DiscardUnknown(m)
+func (m *QueryFeePayWalletIsEligibleRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeePayWalletIsEligibleRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeePayWalletIsEligible proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeePayWalletIsEligibleRequest proto.InternalMessageInfo
 
-func (m *QueryFeePayWalletIsEligible) GetContractAddress() string {
+func (m *QueryFeePayWalletIsEligibleRequest) GetContractAddress() string {
 	if m != nil {
 		return m.ContractAddress
 	}
 	return ""
 }
 
-func (m *QueryFeePayWalletIsEligible) GetWalletAddress() string {
+func (m *QueryFeePayWalletIsEligibleRequest) GetWalletAddress() string {
 	if m != nil {
 		return m.WalletAddress
 	}
@@ -509,13 +511,13 @@ func (m *QueryParamsResponse) GetParams() Params {
 }
 
 func init() {
-	proto.RegisterType((*QueryFeePayContract)(nil), "juno.feepay.v1.QueryFeePayContract")
+	proto.RegisterType((*QueryFeePayContractRequest)(nil), "juno.feepay.v1.QueryFeePayContractRequest")
 	proto.RegisterType((*QueryFeePayContractResponse)(nil), "juno.feepay.v1.QueryFeePayContractResponse")
-	proto.RegisterType((*QueryFeePayContracts)(nil), "juno.feepay.v1.QueryFeePayContracts")
+	proto.RegisterType((*QueryFeePayContractsRequest)(nil), "juno.feepay.v1.QueryFeePayContractsRequest")
 	proto.RegisterType((*QueryFeePayContractsResponse)(nil), "juno.feepay.v1.QueryFeePayContractsResponse")
-	proto.RegisterType((*QueryFeePayContractUses)(nil), "juno.feepay.v1.QueryFeePayContractUses")
+	proto.RegisterType((*QueryFeePayContractUsesRequest)(nil), "juno.feepay.v1.QueryFeePayContractUsesRequest")
 	proto.RegisterType((*QueryFeePayContractUsesResponse)(nil), "juno.feepay.v1.QueryFeePayContractUsesResponse")
-	proto.RegisterType((*QueryFeePayWalletIsEligible)(nil), "juno.feepay.v1.QueryFeePayWalletIsEligible")
+	proto.RegisterType((*QueryFeePayWalletIsEligibleRequest)(nil), "juno.feepay.v1.QueryFeePayWalletIsEligibleRequest")
 	proto.RegisterType((*QueryFeePayWalletIsEligibleResponse)(nil), "juno.feepay.v1.QueryFeePayWalletIsEligibleResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "juno.feepay.v1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "juno.feepay.v1.QueryParamsResponse")
@@ -524,50 +526,54 @@ func init() {
 func init() { proto.RegisterFile("juno/feepay/v1/query.proto", fileDescriptor_d6539df905bf35ca) }
 
 var fileDescriptor_d6539df905bf35ca = []byte{
-	// 680 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0x4f, 0x4f, 0xd4, 0x40,
-	0x14, 0xdf, 0x22, 0x6e, 0x70, 0x8c, 0x0b, 0x8e, 0x04, 0x49, 0xc1, 0x62, 0x8a, 0x88, 0x8a, 0x76,
-	0xb2, 0xa0, 0x77, 0x81, 0xf0, 0x2f, 0xc6, 0x64, 0x6d, 0x62, 0x4c, 0x3c, 0x48, 0x66, 0x97, 0xb7,
-	0xb5, 0x5a, 0x3a, 0x65, 0xa7, 0x8b, 0x6e, 0x08, 0x17, 0xcf, 0x1e, 0x4c, 0x3c, 0xf8, 0x21, 0xfc,
-	0x04, 0x7c, 0x03, 0xbc, 0x91, 0x78, 0xf1, 0x64, 0x0c, 0xf8, 0x41, 0x4c, 0x67, 0xa6, 0xc5, 0x8e,
-	0x65, 0xd9, 0x3d, 0x78, 0x9b, 0x7d, 0xf3, 0x9b, 0xdf, 0xfb, 0xbd, 0xf7, 0x7e, 0xaf, 0x8b, 0xcc,
-	0x37, 0xed, 0x90, 0x91, 0x26, 0x40, 0x44, 0x3b, 0x64, 0xb7, 0x4a, 0x76, 0xda, 0xd0, 0xea, 0x38,
-	0x51, 0x8b, 0xc5, 0x0c, 0x57, 0x92, 0x3b, 0x47, 0xde, 0x39, 0xbb, 0x55, 0xf3, 0x5e, 0x83, 0xf1,
-	0x6d, 0xc6, 0x49, 0x9d, 0x72, 0x90, 0x40, 0xb2, 0x5b, 0xad, 0x43, 0x4c, 0xab, 0x24, 0xa2, 0x9e,
-	0x1f, 0xd2, 0xd8, 0x67, 0xa1, 0x7c, 0x6b, 0x4e, 0x6a, 0xbc, 0x1e, 0x84, 0xc0, 0x7d, 0xae, 0x6e,
-	0x27, 0xb4, 0x5b, 0x95, 0x43, 0x5e, 0x8e, 0x7a, 0xcc, 0x63, 0xe2, 0x48, 0x92, 0x53, 0x4a, 0xe8,
-	0x31, 0xe6, 0x05, 0x40, 0x68, 0xe4, 0x13, 0x1a, 0x86, 0x2c, 0x16, 0xd9, 0x14, 0xa1, 0xfd, 0x18,
-	0x5d, 0x7b, 0x96, 0x08, 0x5a, 0x05, 0xa8, 0xd1, 0xce, 0x32, 0x0b, 0xe3, 0x16, 0x6d, 0xc4, 0xf8,
-	0x2e, 0x1a, 0x69, 0xa8, 0xf3, 0x26, 0xdd, 0xda, 0x6a, 0x01, 0xe7, 0xe3, 0xc6, 0x4d, 0xe3, 0xce,
-	0x25, 0x77, 0x38, 0x8d, 0x2f, 0xca, 0xb0, 0xed, 0xa1, 0x89, 0x02, 0x06, 0x17, 0x78, 0xc4, 0x42,
-	0x0e, 0x78, 0x1d, 0x8d, 0x34, 0x01, 0x36, 0x23, 0xda, 0xd9, 0x4c, 0x5f, 0x0a, 0xa6, 0xcb, 0xf3,
-	0x96, 0x93, 0x6f, 0x93, 0xa3, 0x31, 0x54, 0x9a, 0xb9, 0xdf, 0xf6, 0x2b, 0x34, 0x5a, 0x90, 0x88,
-	0xe3, 0x55, 0x84, 0x4e, 0xbb, 0xa8, 0xb8, 0x6f, 0x3b, 0xb2, 0xe5, 0x4e, 0xd2, 0x72, 0x47, 0xce,
-	0x46, 0xb5, 0xdc, 0xa9, 0x51, 0x0f, 0x5c, 0xd8, 0x69, 0x03, 0x8f, 0xdd, 0xbf, 0x5e, 0xda, 0x07,
-	0x06, 0x9a, 0x2c, 0x4a, 0x90, 0x95, 0x52, 0x43, 0x57, 0xf5, 0x52, 0x92, 0xae, 0x5c, 0x38, 0xbf,
-	0x96, 0xa5, 0xc1, 0xc3, 0x9f, 0x53, 0x25, 0x77, 0xb8, 0xa9, 0x49, 0x5f, 0xcb, 0x49, 0x1f, 0x10,
-	0xd2, 0x67, 0xcf, 0x95, 0x2e, 0xe5, 0xe4, 0xb4, 0xbf, 0x45, 0xd7, 0x0b, 0xa4, 0x3f, 0xe7, 0xc0,
-	0xfb, 0x18, 0x25, 0x9e, 0x41, 0x95, 0x77, 0x34, 0x08, 0xe0, 0x14, 0x38, 0x20, 0x80, 0x57, 0x64,
-	0x34, 0x9d, 0xf8, 0x23, 0x34, 0x75, 0x46, 0xb2, 0xac, 0x55, 0x18, 0x0d, 0xb6, 0x39, 0xc8, 0x44,
-	0x83, 0xae, 0x38, 0xdb, 0x2c, 0x67, 0x94, 0x17, 0x82, 0x72, 0x83, 0xaf, 0x04, 0xbe, 0xe7, 0xd7,
-	0x03, 0xf8, 0x0f, 0x3a, 0x17, 0xd1, 0x74, 0x97, 0x84, 0x99, 0x56, 0x13, 0x0d, 0x81, 0x8a, 0x89,
-	0x84, 0x43, 0x6e, 0xf6, 0xdb, 0x1e, 0x45, 0x58, 0x50, 0xd4, 0x68, 0x8b, 0x6e, 0x73, 0xe5, 0x1a,
-	0xfb, 0x89, 0x5a, 0x9a, 0x34, 0xaa, 0x88, 0x1e, 0xa2, 0x72, 0x24, 0x22, 0xca, 0x84, 0x63, 0xba,
-	0x29, 0x24, 0x5e, 0x99, 0x41, 0x61, 0xe7, 0xbf, 0x96, 0xd1, 0x45, 0xc1, 0x86, 0xbf, 0x18, 0xa8,
-	0xa2, 0xed, 0xe1, 0xb4, 0x4e, 0x51, 0xd0, 0x78, 0x73, 0xae, 0x07, 0x50, 0x2a, 0xd2, 0x5e, 0xf8,
-	0xf0, 0xfd, 0xf7, 0xe7, 0x81, 0x07, 0x78, 0x8e, 0x68, 0x9f, 0x92, 0xb4, 0xc9, 0x64, 0x4f, 0x1f,
-	0xc3, 0x3e, 0xfe, 0x68, 0xa0, 0x61, 0x7d, 0xed, 0x6e, 0xf5, 0x90, 0x95, 0x9b, 0xf7, 0x7b, 0x41,
-	0x65, 0xe2, 0x66, 0x84, 0xb8, 0x29, 0x7c, 0x43, 0x17, 0x47, 0x83, 0xe0, 0x74, 0xe7, 0xf0, 0x81,
-	0x81, 0x70, 0x81, 0xd3, 0x67, 0x7b, 0xc8, 0x95, 0x00, 0x4d, 0xd2, 0x23, 0x30, 0xd3, 0xb5, 0x21,
-	0x74, 0x2d, 0xe3, 0xc5, 0x3e, 0x9a, 0x46, 0x12, 0xd3, 0x93, 0xbd, 0xbc, 0x51, 0xf7, 0xf1, 0x37,
-	0x03, 0x8d, 0x9d, 0xb1, 0x01, 0xdd, 0xe6, 0xa8, 0x83, 0xcd, 0x85, 0x3e, 0xc0, 0x59, 0x1d, 0x4f,
-	0x45, 0x1d, 0x6b, 0x78, 0xa5, 0x9f, 0x3a, 0xd2, 0x65, 0xf8, 0xb7, 0x96, 0x1d, 0x54, 0x96, 0x96,
-	0xc6, 0x76, 0xa1, 0x9a, 0xdc, 0xd6, 0x98, 0xd3, 0x5d, 0x31, 0x4a, 0xa1, 0x25, 0x14, 0x8e, 0xe3,
-	0x31, 0x5d, 0xa1, 0xdc, 0x96, 0xa5, 0xf5, 0xc3, 0x63, 0xcb, 0x38, 0x3a, 0xb6, 0x8c, 0x5f, 0xc7,
-	0x96, 0xf1, 0xe9, 0xc4, 0x2a, 0x1d, 0x9d, 0x58, 0xa5, 0x1f, 0x27, 0x56, 0xe9, 0xa5, 0xe3, 0xf9,
-	0xf1, 0xeb, 0x76, 0xdd, 0x69, 0xb0, 0x6d, 0xb2, 0x2c, 0xbe, 0xa0, 0x99, 0xbf, 0x24, 0xd7, 0xfb,
-	0x94, 0x2d, 0xee, 0x44, 0xc0, 0xeb, 0x65, 0xf1, 0x07, 0xb8, 0xf0, 0x27, 0x00, 0x00, 0xff, 0xff,
-	0x44, 0xa8, 0x44, 0xd2, 0xc9, 0x07, 0x00, 0x00,
+	// 744 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x55, 0xc1, 0x6b, 0x13, 0x4f,
+	0x14, 0xce, 0xf4, 0xd7, 0x5f, 0x68, 0x47, 0x4c, 0xdb, 0xb1, 0x94, 0xba, 0xad, 0x5b, 0xd9, 0x82,
+	0x4a, 0x6a, 0x77, 0x48, 0x8b, 0xa0, 0x27, 0x69, 0x43, 0x5b, 0xbd, 0x48, 0xdc, 0x52, 0x04, 0x2f,
+	0x61, 0x92, 0x4e, 0xd7, 0x95, 0xcd, 0xce, 0x76, 0x67, 0x13, 0x0d, 0xa5, 0x17, 0x4f, 0x1e, 0x05,
+	0x2f, 0xde, 0x05, 0x11, 0x4f, 0x1e, 0x3c, 0x7b, 0x13, 0x7a, 0x2c, 0x8a, 0xe0, 0x49, 0x4a, 0x2b,
+	0xf8, 0x6f, 0xc8, 0xce, 0xcc, 0x76, 0xb3, 0xdb, 0xb4, 0x4d, 0xc0, 0x83, 0x97, 0xb0, 0xf3, 0xde,
+	0xfb, 0xde, 0xfb, 0xbe, 0x79, 0xef, 0x4d, 0xa0, 0xf6, 0xb4, 0xe9, 0x31, 0xbc, 0x45, 0xa9, 0x4f,
+	0xda, 0xb8, 0x55, 0xc2, 0xdb, 0x4d, 0x1a, 0xb4, 0x4d, 0x3f, 0x60, 0x21, 0x43, 0x85, 0xc8, 0x67,
+	0x4a, 0x9f, 0xd9, 0x2a, 0x69, 0x63, 0xa4, 0xe1, 0x78, 0x0c, 0x8b, 0x5f, 0x19, 0xa2, 0x15, 0xeb,
+	0x8c, 0x37, 0x18, 0xc7, 0x35, 0xc2, 0xa9, 0xc4, 0xe2, 0x56, 0xa9, 0x46, 0x43, 0x52, 0xc2, 0x3e,
+	0xb1, 0x1d, 0x8f, 0x84, 0x0e, 0xf3, 0x54, 0xec, 0x94, 0x8a, 0x8d, 0xc3, 0x3a, 0x6b, 0x69, 0x97,
+	0xa5, 0xb3, 0x2a, 0x4e, 0x58, 0x1e, 0x94, 0x6b, 0xdc, 0x66, 0x36, 0x93, 0xf6, 0xe8, 0x4b, 0x59,
+	0xa7, 0x6d, 0xc6, 0x6c, 0x97, 0x62, 0xe2, 0x3b, 0x98, 0x78, 0x1e, 0x0b, 0x45, 0xa9, 0x18, 0x33,
+	0x95, 0x91, 0xa5, 0x44, 0x28, 0x68, 0xc6, 0x69, 0x53, 0x8f, 0x72, 0x47, 0x41, 0x0d, 0x02, 0xb5,
+	0x87, 0x11, 0xb1, 0x55, 0x4a, 0x2b, 0xa4, 0x5d, 0x66, 0x5e, 0x18, 0x90, 0x7a, 0x68, 0xd1, 0xed,
+	0x26, 0xe5, 0x21, 0x2a, 0xc3, 0xd1, 0xba, 0x32, 0x55, 0xc9, 0xe6, 0x66, 0x40, 0x39, 0x9f, 0x04,
+	0x57, 0xc1, 0x8d, 0xe1, 0xe5, 0xc9, 0xaf, 0x9f, 0xe6, 0xc7, 0x15, 0xf1, 0x25, 0xe9, 0x59, 0x0f,
+	0x03, 0xc7, 0xb3, 0xad, 0x91, 0x18, 0xa1, 0xcc, 0x46, 0x00, 0xa7, 0xba, 0x96, 0xe0, 0x3e, 0xf3,
+	0x38, 0x45, 0xeb, 0x70, 0x74, 0x8b, 0xd2, 0xaa, 0x4f, 0xda, 0xd5, 0x18, 0x29, 0x6a, 0x5c, 0x58,
+	0xd0, 0xcd, 0x74, 0x4b, 0xcc, 0x74, 0x86, 0xe5, 0xe1, 0xbd, 0x9f, 0x33, 0xb9, 0xf7, 0xbf, 0x3f,
+	0x16, 0x81, 0x55, 0xd8, 0x4a, 0xb9, 0x0c, 0xda, 0xb5, 0x26, 0x8f, 0x75, 0xad, 0x42, 0x98, 0x34,
+	0x4c, 0x55, 0xbb, 0x66, 0x2a, 0x39, 0x51, 0x77, 0x4d, 0xd9, 0x2d, 0xd5, 0x5d, 0xb3, 0x42, 0x6c,
+	0xaa, 0xb0, 0x56, 0x07, 0xd2, 0xf8, 0x0c, 0xe0, 0x74, 0xf7, 0x3a, 0x4a, 0xdc, 0x06, 0x1c, 0xcb,
+	0x8a, 0x8b, 0x6e, 0xf0, 0xbf, 0xfe, 0xd4, 0x8d, 0xa4, 0xd5, 0x71, 0xb4, 0x96, 0xe2, 0x3f, 0x20,
+	0xf8, 0x5f, 0x3f, 0x97, 0xbf, 0xe4, 0x94, 0x12, 0xf0, 0x0e, 0x40, 0xbd, 0x8b, 0x80, 0x0d, 0x4e,
+	0xf9, 0xdf, 0x9c, 0x01, 0x74, 0x17, 0x16, 0x9e, 0x11, 0xd7, 0xa5, 0x49, 0x8a, 0x81, 0x73, 0x52,
+	0x5c, 0x94, 0xf1, 0xf1, 0x10, 0xdd, 0x82, 0x33, 0xa7, 0xf2, 0x54, 0x77, 0x8d, 0xe0, 0x60, 0x93,
+	0x53, 0x49, 0x6e, 0xd0, 0x12, 0xdf, 0xc6, 0x07, 0x00, 0x8d, 0x0e, 0xdc, 0x23, 0x91, 0xf3, 0x3e,
+	0x5f, 0x71, 0x1d, 0xdb, 0xa9, 0xb9, 0xf4, 0xdf, 0xd2, 0xb8, 0x04, 0x67, 0xcf, 0xe4, 0xaa, 0x74,
+	0x6a, 0x70, 0x88, 0x2a, 0x9b, 0x20, 0x39, 0x64, 0x1d, 0x9f, 0x8d, 0x71, 0x88, 0x44, 0x8a, 0x0a,
+	0x09, 0x48, 0x23, 0x6e, 0xa1, 0x51, 0x81, 0x97, 0x52, 0x56, 0x95, 0xe8, 0x0e, 0xcc, 0xfb, 0xc2,
+	0xa2, 0x36, 0x60, 0x22, 0x3b, 0x91, 0x32, 0xbe, 0x73, 0x12, 0x15, 0x60, 0xe1, 0x20, 0x0f, 0xff,
+	0x17, 0x29, 0xd1, 0x5b, 0x00, 0x0b, 0xe9, 0xa6, 0xa0, 0x62, 0x36, 0xcf, 0xe9, 0x2f, 0x8c, 0x36,
+	0xd7, 0x53, 0xac, 0x24, 0x6c, 0xdc, 0x7e, 0x19, 0x91, 0x78, 0xf1, 0xed, 0xd7, 0xeb, 0x81, 0x79,
+	0x34, 0x87, 0x33, 0x0f, 0x5b, 0xdc, 0x0f, 0xbc, 0x93, 0xed, 0xe5, 0x2e, 0x7a, 0x03, 0xe0, 0x48,
+	0x66, 0x47, 0x51, 0x2f, 0xa5, 0xe3, 0x2b, 0xd4, 0x6e, 0xf6, 0x16, 0xac, 0x88, 0x16, 0x13, 0xa2,
+	0x33, 0xe8, 0x4a, 0x96, 0x28, 0x71, 0xdd, 0xe4, 0x35, 0x40, 0x5f, 0x00, 0x44, 0x27, 0xa7, 0x1a,
+	0x99, 0x3d, 0x14, 0xec, 0x58, 0x53, 0x0d, 0xf7, 0x1c, 0xaf, 0x38, 0x3e, 0x48, 0x38, 0x96, 0xd1,
+	0x52, 0x1f, 0x97, 0x89, 0xa3, 0xcd, 0xc2, 0x3b, 0xe9, 0x59, 0xdf, 0x45, 0xdf, 0x01, 0x9c, 0xe8,
+	0x3e, 0xb9, 0x68, 0xe1, 0x0c, 0x6e, 0xa7, 0xac, 0xa4, 0xb6, 0xd8, 0x17, 0x46, 0x69, 0xb2, 0x12,
+	0x4d, 0x6b, 0x68, 0xa5, 0x1f, 0x4d, 0xf1, 0x06, 0x9d, 0xd4, 0xd5, 0x82, 0x79, 0xb9, 0x07, 0xc8,
+	0xe8, 0x4a, 0x29, 0xb5, 0x6a, 0xda, 0xec, 0x99, 0x31, 0x8a, 0xe6, 0x6c, 0x42, 0x73, 0x12, 0x4d,
+	0x64, 0x69, 0xca, 0x15, 0x5b, 0xbe, 0xb7, 0x77, 0xa8, 0x83, 0xfd, 0x43, 0x1d, 0x1c, 0x1c, 0xea,
+	0xe0, 0xd5, 0x91, 0x9e, 0xdb, 0x3f, 0xd2, 0x73, 0x3f, 0x8e, 0xf4, 0xdc, 0x63, 0xd3, 0x76, 0xc2,
+	0x27, 0xcd, 0x9a, 0x59, 0x67, 0x0d, 0x5c, 0x16, 0xef, 0xca, 0xf1, 0x04, 0xca, 0x5c, 0xcf, 0xe3,
+	0x6c, 0x61, 0xdb, 0xa7, 0xbc, 0x96, 0x17, 0x7f, 0xf5, 0x8b, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff,
+	0xde, 0xd1, 0x93, 0xd0, 0xfe, 0x08, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -583,13 +589,13 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
 	// FeePayContract queries a single fee pay contract by address
-	FeePayContract(ctx context.Context, in *QueryFeePayContract, opts ...grpc.CallOption) (*QueryFeePayContractResponse, error)
+	FeePayContract(ctx context.Context, in *QueryFeePayContractRequest, opts ...grpc.CallOption) (*QueryFeePayContractResponse, error)
 	// Retrieve all fee pay contracts
-	FeePayContracts(ctx context.Context, in *QueryFeePayContracts, opts ...grpc.CallOption) (*QueryFeePayContractsResponse, error)
+	FeePayContracts(ctx context.Context, in *QueryFeePayContractsRequest, opts ...grpc.CallOption) (*QueryFeePayContractsResponse, error)
 	// Retrieve the number of uses on a fee pay contract by wallet
-	FeePayContractUses(ctx context.Context, in *QueryFeePayContractUses, opts ...grpc.CallOption) (*QueryFeePayContractUsesResponse, error)
+	FeePayContractUses(ctx context.Context, in *QueryFeePayContractUsesRequest, opts ...grpc.CallOption) (*QueryFeePayContractUsesResponse, error)
 	// Query if sender is eligible for fee pay contract interaction
-	FeePayWalletIsEligible(ctx context.Context, in *QueryFeePayWalletIsEligible, opts ...grpc.CallOption) (*QueryFeePayWalletIsEligibleResponse, error)
+	FeePayWalletIsEligible(ctx context.Context, in *QueryFeePayWalletIsEligibleRequest, opts ...grpc.CallOption) (*QueryFeePayWalletIsEligibleResponse, error)
 	// Params retrieves the FeePay module params
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
@@ -602,7 +608,7 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) FeePayContract(ctx context.Context, in *QueryFeePayContract, opts ...grpc.CallOption) (*QueryFeePayContractResponse, error) {
+func (c *queryClient) FeePayContract(ctx context.Context, in *QueryFeePayContractRequest, opts ...grpc.CallOption) (*QueryFeePayContractResponse, error) {
 	out := new(QueryFeePayContractResponse)
 	err := c.cc.Invoke(ctx, "/juno.feepay.v1.Query/FeePayContract", in, out, opts...)
 	if err != nil {
@@ -611,7 +617,7 @@ func (c *queryClient) FeePayContract(ctx context.Context, in *QueryFeePayContrac
 	return out, nil
 }
 
-func (c *queryClient) FeePayContracts(ctx context.Context, in *QueryFeePayContracts, opts ...grpc.CallOption) (*QueryFeePayContractsResponse, error) {
+func (c *queryClient) FeePayContracts(ctx context.Context, in *QueryFeePayContractsRequest, opts ...grpc.CallOption) (*QueryFeePayContractsResponse, error) {
 	out := new(QueryFeePayContractsResponse)
 	err := c.cc.Invoke(ctx, "/juno.feepay.v1.Query/FeePayContracts", in, out, opts...)
 	if err != nil {
@@ -620,7 +626,7 @@ func (c *queryClient) FeePayContracts(ctx context.Context, in *QueryFeePayContra
 	return out, nil
 }
 
-func (c *queryClient) FeePayContractUses(ctx context.Context, in *QueryFeePayContractUses, opts ...grpc.CallOption) (*QueryFeePayContractUsesResponse, error) {
+func (c *queryClient) FeePayContractUses(ctx context.Context, in *QueryFeePayContractUsesRequest, opts ...grpc.CallOption) (*QueryFeePayContractUsesResponse, error) {
 	out := new(QueryFeePayContractUsesResponse)
 	err := c.cc.Invoke(ctx, "/juno.feepay.v1.Query/FeePayContractUses", in, out, opts...)
 	if err != nil {
@@ -629,7 +635,7 @@ func (c *queryClient) FeePayContractUses(ctx context.Context, in *QueryFeePayCon
 	return out, nil
 }
 
-func (c *queryClient) FeePayWalletIsEligible(ctx context.Context, in *QueryFeePayWalletIsEligible, opts ...grpc.CallOption) (*QueryFeePayWalletIsEligibleResponse, error) {
+func (c *queryClient) FeePayWalletIsEligible(ctx context.Context, in *QueryFeePayWalletIsEligibleRequest, opts ...grpc.CallOption) (*QueryFeePayWalletIsEligibleResponse, error) {
 	out := new(QueryFeePayWalletIsEligibleResponse)
 	err := c.cc.Invoke(ctx, "/juno.feepay.v1.Query/FeePayWalletIsEligible", in, out, opts...)
 	if err != nil {
@@ -650,13 +656,13 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// FeePayContract queries a single fee pay contract by address
-	FeePayContract(context.Context, *QueryFeePayContract) (*QueryFeePayContractResponse, error)
+	FeePayContract(context.Context, *QueryFeePayContractRequest) (*QueryFeePayContractResponse, error)
 	// Retrieve all fee pay contracts
-	FeePayContracts(context.Context, *QueryFeePayContracts) (*QueryFeePayContractsResponse, error)
+	FeePayContracts(context.Context, *QueryFeePayContractsRequest) (*QueryFeePayContractsResponse, error)
 	// Retrieve the number of uses on a fee pay contract by wallet
-	FeePayContractUses(context.Context, *QueryFeePayContractUses) (*QueryFeePayContractUsesResponse, error)
+	FeePayContractUses(context.Context, *QueryFeePayContractUsesRequest) (*QueryFeePayContractUsesResponse, error)
 	// Query if sender is eligible for fee pay contract interaction
-	FeePayWalletIsEligible(context.Context, *QueryFeePayWalletIsEligible) (*QueryFeePayWalletIsEligibleResponse, error)
+	FeePayWalletIsEligible(context.Context, *QueryFeePayWalletIsEligibleRequest) (*QueryFeePayWalletIsEligibleResponse, error)
 	// Params retrieves the FeePay module params
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
@@ -665,16 +671,16 @@ type QueryServer interface {
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) FeePayContract(ctx context.Context, req *QueryFeePayContract) (*QueryFeePayContractResponse, error) {
+func (*UnimplementedQueryServer) FeePayContract(ctx context.Context, req *QueryFeePayContractRequest) (*QueryFeePayContractResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FeePayContract not implemented")
 }
-func (*UnimplementedQueryServer) FeePayContracts(ctx context.Context, req *QueryFeePayContracts) (*QueryFeePayContractsResponse, error) {
+func (*UnimplementedQueryServer) FeePayContracts(ctx context.Context, req *QueryFeePayContractsRequest) (*QueryFeePayContractsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FeePayContracts not implemented")
 }
-func (*UnimplementedQueryServer) FeePayContractUses(ctx context.Context, req *QueryFeePayContractUses) (*QueryFeePayContractUsesResponse, error) {
+func (*UnimplementedQueryServer) FeePayContractUses(ctx context.Context, req *QueryFeePayContractUsesRequest) (*QueryFeePayContractUsesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FeePayContractUses not implemented")
 }
-func (*UnimplementedQueryServer) FeePayWalletIsEligible(ctx context.Context, req *QueryFeePayWalletIsEligible) (*QueryFeePayWalletIsEligibleResponse, error) {
+func (*UnimplementedQueryServer) FeePayWalletIsEligible(ctx context.Context, req *QueryFeePayWalletIsEligibleRequest) (*QueryFeePayWalletIsEligibleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FeePayWalletIsEligible not implemented")
 }
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
@@ -686,7 +692,7 @@ func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 }
 
 func _Query_FeePayContract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryFeePayContract)
+	in := new(QueryFeePayContractRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -698,13 +704,13 @@ func _Query_FeePayContract_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/juno.feepay.v1.Query/FeePayContract",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).FeePayContract(ctx, req.(*QueryFeePayContract))
+		return srv.(QueryServer).FeePayContract(ctx, req.(*QueryFeePayContractRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_FeePayContracts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryFeePayContracts)
+	in := new(QueryFeePayContractsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -716,13 +722,13 @@ func _Query_FeePayContracts_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/juno.feepay.v1.Query/FeePayContracts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).FeePayContracts(ctx, req.(*QueryFeePayContracts))
+		return srv.(QueryServer).FeePayContracts(ctx, req.(*QueryFeePayContractsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_FeePayContractUses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryFeePayContractUses)
+	in := new(QueryFeePayContractUsesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -734,13 +740,13 @@ func _Query_FeePayContractUses_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/juno.feepay.v1.Query/FeePayContractUses",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).FeePayContractUses(ctx, req.(*QueryFeePayContractUses))
+		return srv.(QueryServer).FeePayContractUses(ctx, req.(*QueryFeePayContractUsesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_FeePayWalletIsEligible_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryFeePayWalletIsEligible)
+	in := new(QueryFeePayWalletIsEligibleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -752,7 +758,7 @@ func _Query_FeePayWalletIsEligible_Handler(srv interface{}, ctx context.Context,
 		FullMethod: "/juno.feepay.v1.Query/FeePayWalletIsEligible",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).FeePayWalletIsEligible(ctx, req.(*QueryFeePayWalletIsEligible))
+		return srv.(QueryServer).FeePayWalletIsEligible(ctx, req.(*QueryFeePayWalletIsEligibleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -775,6 +781,7 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+var Query_serviceDesc = _Query_serviceDesc
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "juno.feepay.v1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -804,7 +811,7 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	Metadata: "juno/feepay/v1/query.proto",
 }
 
-func (m *QueryFeePayContract) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeePayContractRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -814,12 +821,12 @@ func (m *QueryFeePayContract) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryFeePayContract) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeePayContractRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryFeePayContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeePayContractRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -854,22 +861,20 @@ func (m *QueryFeePayContractResponse) MarshalToSizedBuffer(dAtA []byte) (int, er
 	_ = i
 	var l int
 	_ = l
-	if m.FeePayContract != nil {
-		{
-			size, err := m.FeePayContract.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintQuery(dAtA, i, uint64(size))
+	{
+		size, err := m.FeePayContract.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0xa
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryFeePayContracts) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeePayContractsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -879,12 +884,12 @@ func (m *QueryFeePayContracts) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryFeePayContracts) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeePayContractsRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryFeePayContracts) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeePayContractsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -953,7 +958,7 @@ func (m *QueryFeePayContractsResponse) MarshalToSizedBuffer(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryFeePayContractUses) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeePayContractUsesRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -963,12 +968,12 @@ func (m *QueryFeePayContractUses) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryFeePayContractUses) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeePayContractUsesRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryFeePayContractUses) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeePayContractUsesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1018,7 +1023,7 @@ func (m *QueryFeePayContractUsesResponse) MarshalToSizedBuffer(dAtA []byte) (int
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryFeePayWalletIsEligible) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeePayWalletIsEligibleRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1028,12 +1033,12 @@ func (m *QueryFeePayWalletIsEligible) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryFeePayWalletIsEligible) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeePayWalletIsEligibleRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryFeePayWalletIsEligible) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeePayWalletIsEligibleRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1155,7 +1160,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryFeePayContract) Size() (n int) {
+func (m *QueryFeePayContractRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1174,14 +1179,12 @@ func (m *QueryFeePayContractResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.FeePayContract != nil {
-		l = m.FeePayContract.Size()
-		n += 1 + l + sovQuery(uint64(l))
-	}
+	l = m.FeePayContract.Size()
+	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
 
-func (m *QueryFeePayContracts) Size() (n int) {
+func (m *QueryFeePayContractsRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1213,7 +1216,7 @@ func (m *QueryFeePayContractsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryFeePayContractUses) Size() (n int) {
+func (m *QueryFeePayContractUsesRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1242,7 +1245,7 @@ func (m *QueryFeePayContractUsesResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryFeePayWalletIsEligible) Size() (n int) {
+func (m *QueryFeePayWalletIsEligibleRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1297,7 +1300,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryFeePayContract) Unmarshal(dAtA []byte) error {
+func (m *QueryFeePayContractRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1320,10 +1323,10 @@ func (m *QueryFeePayContract) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeePayContract: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeePayContractRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeePayContract: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeePayContractRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1437,9 +1440,6 @@ func (m *QueryFeePayContractResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.FeePayContract == nil {
-				m.FeePayContract = &FeePayContract{}
-			}
 			if err := m.FeePayContract.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1465,7 +1465,7 @@ func (m *QueryFeePayContractResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryFeePayContracts) Unmarshal(dAtA []byte) error {
+func (m *QueryFeePayContractsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1488,10 +1488,10 @@ func (m *QueryFeePayContracts) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeePayContracts: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeePayContractsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeePayContracts: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeePayContractsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1671,7 +1671,7 @@ func (m *QueryFeePayContractsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryFeePayContractUses) Unmarshal(dAtA []byte) error {
+func (m *QueryFeePayContractUsesRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1694,10 +1694,10 @@ func (m *QueryFeePayContractUses) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeePayContractUses: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeePayContractUsesRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeePayContractUses: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeePayContractUsesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1854,7 +1854,7 @@ func (m *QueryFeePayContractUsesResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryFeePayWalletIsEligible) Unmarshal(dAtA []byte) error {
+func (m *QueryFeePayWalletIsEligibleRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1877,10 +1877,10 @@ func (m *QueryFeePayWalletIsEligible) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeePayWalletIsEligible: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeePayWalletIsEligibleRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeePayWalletIsEligible: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeePayWalletIsEligibleRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

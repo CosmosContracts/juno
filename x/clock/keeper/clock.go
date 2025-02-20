@@ -1,12 +1,17 @@
 package keeper
 
 import (
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"context"
+
+	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	globalerrors "github.com/CosmosContracts/juno/v27/app/helpers"
-	"github.com/CosmosContracts/juno/v27/x/clock/types"
+	globalerrors "github.com/CosmosContracts/juno/v28/app/helpers"
+	"github.com/CosmosContracts/juno/v28/x/clock/types"
 )
 
 // Store Keys for clock contracts (both jailed and unjailed)
@@ -15,12 +20,13 @@ var (
 )
 
 // Get the store for the clock contracts.
-func (k Keeper) getStore(ctx sdk.Context) prefix.Store {
-	return prefix.NewStore(ctx.KVStore(k.storeKey), StoreKeyContracts)
+func (k Keeper) getStore(ctx context.Context) prefix.Store {
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	return prefix.NewStore(store, StoreKeyContracts)
 }
 
 // Set a clock contract address in the KV store.
-func (k Keeper) SetClockContract(ctx sdk.Context, contract types.ClockContract) error {
+func (k Keeper) SetClockContract(ctx context.Context, contract types.ClockContract) error {
 	// Get store, marshal content
 	store := k.getStore(ctx)
 	bz, err := k.cdc.Marshal(&contract)
@@ -34,13 +40,13 @@ func (k Keeper) SetClockContract(ctx sdk.Context, contract types.ClockContract) 
 }
 
 // Check if a clock contract address is in the KV store.
-func (k Keeper) IsClockContract(ctx sdk.Context, contractAddress string) bool {
+func (k Keeper) IsClockContract(ctx context.Context, contractAddress string) bool {
 	store := k.getStore(ctx)
 	return store.Has([]byte(contractAddress))
 }
 
 // Get a clock contract address from the KV store.
-func (k Keeper) GetClockContract(ctx sdk.Context, contractAddress string) (*types.ClockContract, error) {
+func (k Keeper) GetClockContract(ctx context.Context, contractAddress string) (*types.ClockContract, error) {
 	// Check if the contract is registered
 	if !k.IsClockContract(ctx, contractAddress) {
 		return nil, globalerrors.ErrContractNotRegistered
@@ -62,12 +68,12 @@ func (k Keeper) GetClockContract(ctx sdk.Context, contractAddress string) (*type
 }
 
 // Get all clock contract addresses from the KV store.
-func (k Keeper) GetAllContracts(ctx sdk.Context) ([]types.ClockContract, error) {
+func (k Keeper) GetAllContracts(ctx context.Context) ([]types.ClockContract, error) {
 	// Get the KV store
 	store := k.getStore(ctx)
 
 	// Create iterator for contracts
-	iterator := sdk.KVStorePrefixIterator(store, []byte(nil))
+	iterator := storetypes.KVStorePrefixIterator(store, []byte(nil))
 	defer iterator.Close()
 
 	// Iterate over all contracts
@@ -89,7 +95,7 @@ func (k Keeper) GetAllContracts(ctx sdk.Context) ([]types.ClockContract, error) 
 }
 
 // Get all registered fee pay contracts
-func (k Keeper) GetPaginatedContracts(ctx sdk.Context, pag *query.PageRequest) (*types.QueryClockContractsResponse, error) {
+func (k Keeper) GetPaginatedContracts(ctx context.Context, pag *query.PageRequest) (*types.QueryClockContractsResponse, error) {
 	store := k.getStore(ctx)
 
 	// Filter and paginate all contracts
@@ -122,7 +128,7 @@ func (k Keeper) GetPaginatedContracts(ctx sdk.Context, pag *query.PageRequest) (
 }
 
 // Remove a clock contract address from the KV store.
-func (k Keeper) RemoveContract(ctx sdk.Context, contractAddress string) {
+func (k Keeper) RemoveContract(ctx context.Context, contractAddress string) {
 	store := k.getStore(ctx)
 	key := []byte(contractAddress)
 
@@ -132,7 +138,7 @@ func (k Keeper) RemoveContract(ctx sdk.Context, contractAddress string) {
 }
 
 // Register a clock contract address in the KV store.
-func (k Keeper) RegisterContract(ctx sdk.Context, senderAddress string, contractAddress string) error {
+func (k Keeper) RegisterContract(ctx context.Context, senderAddress string, contractAddress string) error {
 	// Check if the contract is already registered
 	if k.IsClockContract(ctx, contractAddress) {
 		return globalerrors.ErrContractAlreadyRegistered
@@ -151,7 +157,7 @@ func (k Keeper) RegisterContract(ctx sdk.Context, senderAddress string, contract
 }
 
 // Unregister a clock contract from either the jailed or unjailed KV store.
-func (k Keeper) UnregisterContract(ctx sdk.Context, senderAddress string, contractAddress string) error {
+func (k Keeper) UnregisterContract(ctx context.Context, senderAddress string, contractAddress string) error {
 	// Check if the contract is registered in either store
 	if !k.IsClockContract(ctx, contractAddress) {
 		return globalerrors.ErrContractNotRegistered
@@ -168,7 +174,7 @@ func (k Keeper) UnregisterContract(ctx sdk.Context, senderAddress string, contra
 }
 
 // Set the jail status of a clock contract in the KV store.
-func (k Keeper) SetJailStatus(ctx sdk.Context, contractAddress string, isJailed bool) error {
+func (k Keeper) SetJailStatus(ctx context.Context, contractAddress string, isJailed bool) error {
 	// Get the contract
 	contract, err := k.GetClockContract(ctx, contractAddress)
 	if err != nil {
@@ -192,7 +198,7 @@ func (k Keeper) SetJailStatus(ctx sdk.Context, contractAddress string, isJailed 
 }
 
 // Set the jail status of a clock contract by the sender address.
-func (k Keeper) SetJailStatusBySender(ctx sdk.Context, senderAddress string, contractAddress string, jailStatus bool) error {
+func (k Keeper) SetJailStatusBySender(ctx context.Context, senderAddress string, contractAddress string, jailStatus bool) error {
 	// Ensure the sender is the contract admin or creator
 	if ok, err := k.IsContractManager(ctx, senderAddress, contractAddress); !ok {
 		return err
@@ -204,7 +210,7 @@ func (k Keeper) SetJailStatusBySender(ctx sdk.Context, senderAddress string, con
 // Check if the sender is the designated contract manager for the FeePay contract. If
 // an admin is present, they are considered the manager. If there is no admin, the
 // contract creator is considered the manager.
-func (k Keeper) IsContractManager(ctx sdk.Context, senderAddress string, contractAddress string) (bool, error) {
+func (k Keeper) IsContractManager(ctx context.Context, senderAddress string, contractAddress string) (bool, error) {
 	contractAddr := sdk.MustAccAddressFromBech32(contractAddress)
 
 	// Ensure the contract is a cosm wasm contract

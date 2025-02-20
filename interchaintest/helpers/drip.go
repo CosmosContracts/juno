@@ -5,19 +5,19 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/testutil"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func DripTokens(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, coinAmt string) {
 	// amount is #utoken
-	cmd := []string{"junod", "tx", "drip", "distribute-tokens", coinAmt,
-		"--node", chain.GetRPCAddress(),
+	cmd := []string{
+		"junod", "tx", "drip", "distribute-tokens", user.FormattedAddress(), coinAmt,
 		"--home", chain.HomeDir(),
+		"--node", chain.GetRPCAddress(),
 		"--chain-id", chain.Config().ChainID,
-		"--from", user.KeyName(),
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,

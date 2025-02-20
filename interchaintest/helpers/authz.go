@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/testutil"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,9 +21,9 @@ func ExecuteAuthzGrantMsg(t *testing.T, ctx context.Context, chain *cosmos.Cosmo
 		"junod", "tx", "authz", "grant", grantee.FormattedAddress(), "generic",
 		"--msg-type", msgType,
 		"--node", chain.GetRPCAddress(),
-		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
 		"--from", granter.KeyName(),
+		"--chain-id", chain.Config().ChainID,
+		"--home", chain.HomeDir(),
 		"--gas", "500000",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
@@ -48,6 +48,7 @@ func ExecuteAuthzExecMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos
 		"junod", "tx", "wasm", "execute", contractAddr, message,
 		"--home", chain.HomeDir(),
 		"--chain-id", chain.Config().ChainID,
+		"--node", chain.GetRPCAddress(),
 		"--from", grantee.KeyName(),
 		"--gas", "500000",
 		"--fees", feeCoin,
@@ -74,10 +75,10 @@ func ExecuteAuthzExecMsgWithFee(t *testing.T, ctx context.Context, chain *cosmos
 	// Execute the command
 	cmd := []string{
 		"junod", "tx", "authz", "exec", node.HomeDir() + "/" + filePath,
-		"--node", chain.GetRPCAddress(),
 		"--home", chain.HomeDir(),
-		"--chain-id", chain.Config().ChainID,
+		"--node", chain.GetRPCAddress(),
 		"--from", grantee.KeyName(),
+		"--chain-id", chain.Config().ChainID,
 		"--gas", "500000",
 		"--fees", feeCoin,
 		"--keyring-dir", chain.HomeDir(),

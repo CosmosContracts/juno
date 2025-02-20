@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/stretchr/testify/require"
 )
 
@@ -75,10 +75,10 @@ type Vals struct {
 func GetValidators(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) Vals {
 	var res Vals
 
-	cmd := []string{"junod", "query", "staking", "validators",
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
+	cmd := []string{
+		"junod", "query", "staking", "validators",
 		"--output", "json",
+		"--node", chain.GetRPCAddress(),
 	}
 
 	stdout, _, err := chain.Exec(ctx, cmd, nil)
@@ -104,10 +104,10 @@ type FeePayUses struct {
 func GetFeePayUses(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract, wallet string) FeePayUses {
 	var res FeePayUses
 
-	cmd := []string{"junod", "query", "feepay", "uses", contract, wallet,
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
+	cmd := []string{
+		"junod", "query", "feepay", "uses", contract, wallet,
 		"--output", "json",
+		"--node", chain.GetRPCAddress(),
 	}
 
 	stdout, _, err := chain.Exec(ctx, cmd, nil)
@@ -137,10 +137,10 @@ type FeePayContracts struct {
 func GetFeePayContracts(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain) FeePayContracts {
 	var res FeePayContracts
 
-	cmd := []string{"junod", "query", "feepay", "contracts",
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
+	cmd := []string{
+		"junod", "query", "feepay", "contracts",
 		"--output", "json",
+		"--node", chain.GetRPCAddress(),
 	}
 
 	stdout, _, err := chain.Exec(ctx, cmd, nil)
@@ -166,10 +166,10 @@ type FeePayContract struct {
 func GetFeePayContract(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) FeePayContract {
 	var res FeePayContract
 
-	cmd := []string{"junod", "query", "feepay", "contract", contract,
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
+	cmd := []string{
+		"junod", "query", "feepay", "contract", contract,
 		"--output", "json",
+		"--node", chain.GetRPCAddress(),
 	}
 
 	stdout, _, err := chain.Exec(ctx, cmd, nil)

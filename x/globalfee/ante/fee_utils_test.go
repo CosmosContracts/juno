@@ -5,15 +5,17 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestContainZeroCoins(t *testing.T) {
-	zeroCoin1 := sdk.NewCoin("photon", sdk.ZeroInt())
-	zeroCoin2 := sdk.NewCoin("stake", sdk.ZeroInt())
-	coin1 := sdk.NewCoin("photon", sdk.NewInt(1))
-	coin2 := sdk.NewCoin("stake", sdk.NewInt(2))
-	coin3 := sdk.NewCoin("quark", sdk.NewInt(3))
+	zeroCoin1 := sdk.NewCoin("photon", sdkmath.ZeroInt())
+	zeroCoin2 := sdk.NewCoin("stake", sdkmath.ZeroInt())
+	coin1 := sdk.NewCoin("photon", sdkmath.NewInt(1))
+	coin2 := sdk.NewCoin("stake", sdkmath.NewInt(2))
+	coin3 := sdk.NewCoin("quark", sdkmath.NewInt(3))
 	// coins must be valid !!!
 	coinsEmpty := sdk.Coins{}
 	coinsNonEmpty := sdk.Coins{coin1, coin2}
@@ -57,15 +59,15 @@ func TestContainZeroCoins(t *testing.T) {
 // This sanitizing happens when the minGasPrice is set into the context.
 // (see baseapp.SetMinGasPrices in gaia/cmd/root.go line 221)
 func TestCombinedFeeRequirement(t *testing.T) {
-	zeroCoin1 := sdk.NewCoin("photon", sdk.ZeroInt())
-	zeroCoin2 := sdk.NewCoin("stake", sdk.ZeroInt())
-	zeroCoin3 := sdk.NewCoin("quark", sdk.ZeroInt())
-	coin1 := sdk.NewCoin("photon", sdk.NewInt(1))
-	coin2 := sdk.NewCoin("stake", sdk.NewInt(2))
-	coin1High := sdk.NewCoin("photon", sdk.NewInt(10))
-	coin2High := sdk.NewCoin("stake", sdk.NewInt(20))
-	coinNewDenom1 := sdk.NewCoin("Newphoton", sdk.NewInt(1))
-	coinNewDenom2 := sdk.NewCoin("Newstake", sdk.NewInt(1))
+	zeroCoin1 := sdk.NewCoin("photon", sdkmath.ZeroInt())
+	zeroCoin2 := sdk.NewCoin("stake", sdkmath.ZeroInt())
+	zeroCoin3 := sdk.NewCoin("quark", sdkmath.ZeroInt())
+	coin1 := sdk.NewCoin("photon", sdkmath.NewInt(1))
+	coin2 := sdk.NewCoin("stake", sdkmath.NewInt(2))
+	coin1High := sdk.NewCoin("photon", sdkmath.NewInt(10))
+	coin2High := sdk.NewCoin("stake", sdkmath.NewInt(20))
+	coinNewDenom1 := sdk.NewCoin("Newphoton", sdkmath.NewInt(1))
+	coinNewDenom2 := sdk.NewCoin("Newstake", sdkmath.NewInt(1))
 	// coins must be valid !!! and sorted!!!
 	coinsEmpty := sdk.Coins{}
 	coinsNonEmpty := sdk.Coins{coin1, coin2}.Sort()
@@ -175,8 +177,8 @@ func TestSplitCoinsByDenoms(t *testing.T) {
 		"stake": true,
 	}
 
-	photon := sdk.NewCoin("photon", sdk.OneInt())
-	uatom := sdk.NewCoin("uatom", sdk.OneInt())
+	photon := sdk.NewCoin("photon", sdkmath.OneInt())
+	uatom := sdk.NewCoin("uatom", sdkmath.OneInt())
 	feeCoins := sdk.NewCoins(photon, uatom)
 
 	tests := map[string]struct {
@@ -227,10 +229,10 @@ func TestSplitCoinsByDenoms(t *testing.T) {
 }
 
 func TestSplitGlobalFees(t *testing.T) {
-	photon0 := sdk.NewCoin("photon", sdk.ZeroInt())
-	uatom0 := sdk.NewCoin("uatom", sdk.ZeroInt())
-	photon1 := sdk.NewCoin("photon", sdk.OneInt())
-	uatom1 := sdk.NewCoin("uatom", sdk.OneInt())
+	photon0 := sdk.NewCoin("photon", sdkmath.ZeroInt())
+	uatom0 := sdk.NewCoin("uatom", sdkmath.ZeroInt())
+	photon1 := sdk.NewCoin("photon", sdkmath.OneInt())
+	uatom1 := sdk.NewCoin("uatom", sdkmath.OneInt())
 
 	globalFeesEmpty := sdk.Coins{}
 	globalFees := sdk.Coins{photon1, uatom1}.Sort()
@@ -272,7 +274,7 @@ func TestSplitGlobalFees(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			nonZeroCoins, zeroCoinsMap := getNonZeroFees(test.globalfees)
-			require.True(t, nonZeroCoins.IsEqual(test.globalfeesNonZero))
+			require.True(t, nonZeroCoins.Equal(test.globalfeesNonZero))
 			require.True(t, equalMap(zeroCoinsMap, test.zeroGlobalFeesDenom))
 		})
 	}

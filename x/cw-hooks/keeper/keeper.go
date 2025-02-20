@@ -1,27 +1,27 @@
 package keeper
 
 import (
-	"fmt"
+	"context"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	"github.com/cometbft/cometbft/libs/log"
+	storetypes "cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/CosmosContracts/juno/v27/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v28/x/cw-hooks/types"
 )
 
 type Keeper struct {
-	storeKey storetypes.StoreKey
-	cdc      codec.BinaryCodec
+	cdc          codec.BinaryCodec
+	storeService storetypes.KVStoreService
 
-	stakingKeeper  slashingtypes.StakingKeeper
+	stakingKeeper  stakingkeeper.Keeper
 	govKeeper      govkeeper.Keeper
 	wk             wasmkeeper.Keeper
 	contractKeeper wasmtypes.ContractOpsKeeper
@@ -30,9 +30,9 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	key storetypes.StoreKey,
 	cdc codec.BinaryCodec,
-	stakingKeeper slashingtypes.StakingKeeper,
+	ss storetypes.KVStoreService,
+	stakingKeeper stakingkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	wasmkeeper wasmkeeper.Keeper,
 	contractKeeper wasmtypes.ContractOpsKeeper,
@@ -40,7 +40,7 @@ func NewKeeper(
 ) Keeper {
 	return Keeper{
 		cdc:            cdc,
-		storeKey:       key,
+		storeService:   ss,
 		stakingKeeper:  stakingKeeper,
 		govKeeper:      govKeeper,
 		contractKeeper: contractKeeper,
@@ -63,10 +63,12 @@ func (k Keeper) GetWasmKeeper() wasmkeeper.Keeper {
 	return k.wk
 }
 
-func (k Keeper) GetStakingKeeper() slashingtypes.StakingKeeper {
+func (k Keeper) GetStakingKeeper() stakingkeeper.Keeper {
 	return k.stakingKeeper
 }
 
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+// Logger returns a module-specific logger.
+func (k Keeper) Logger(ctx context.Context) log.Logger {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	return sdkCtx.Logger().With("module", "x/"+types.ModuleName)
 }

@@ -3,24 +3,26 @@ package keeper
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
 )
 
-var _ types.QueryServer = Keeper{}
+var _ types.QueryServer = queryServer{}
 
-func (k Keeper) Params(ctx context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	params := k.GetParams(sdkCtx)
+func NewQueryServerImpl(k Keeper) types.QueryServer {
+	return queryServer{k}
+}
 
+type queryServer struct {
+	k Keeper
+}
+
+func (q queryServer) Params(ctx context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+	params := q.k.GetParams(ctx)
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-func (k Keeper) DenomAuthorityMetadata(ctx context.Context, req *types.QueryDenomAuthorityMetadataRequest) (*types.QueryDenomAuthorityMetadataResponse, error) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-
-	authorityMetadata, err := k.GetAuthorityMetadata(sdkCtx, req.GetDenom())
+func (q queryServer) DenomAuthorityMetadata(ctx context.Context, req *types.QueryDenomAuthorityMetadataRequest) (*types.QueryDenomAuthorityMetadataResponse, error) {
+	authorityMetadata, err := q.k.GetAuthorityMetadata(ctx, req.GetDenom())
 	if err != nil {
 		return nil, err
 	}
@@ -28,8 +30,7 @@ func (k Keeper) DenomAuthorityMetadata(ctx context.Context, req *types.QueryDeno
 	return &types.QueryDenomAuthorityMetadataResponse{AuthorityMetadata: authorityMetadata}, nil
 }
 
-func (k Keeper) DenomsFromCreator(ctx context.Context, req *types.QueryDenomsFromCreatorRequest) (*types.QueryDenomsFromCreatorResponse, error) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	denoms := k.GetDenomsFromCreator(sdkCtx, req.GetCreator())
+func (q queryServer) DenomsFromCreator(ctx context.Context, req *types.QueryDenomsFromCreatorRequest) (*types.QueryDenomsFromCreatorResponse, error) {
+	denoms := q.k.GetDenomsFromCreator(ctx, req.GetCreator())
 	return &types.QueryDenomsFromCreatorResponse{Denoms: denoms}, nil
 }

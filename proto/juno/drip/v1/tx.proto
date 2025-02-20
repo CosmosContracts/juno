@@ -1,38 +1,44 @@
 syntax = "proto3";
 package juno.drip.v1;
 
-import "gogoproto/gogo.proto";
-import "google/api/annotations.proto";
 import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 import "juno/drip/v1/genesis.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/drip/types";
 
 // Msg defines the fees Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
   // DistributeTokens distribute the sent tokens to all stakers in the next block
-  rpc DistributeTokens(MsgDistributeTokens)
-      returns (MsgDistributeTokensResponse) {
+  rpc DistributeTokens(MsgDistributeTokens) returns (MsgDistributeTokensResponse) {
     option (google.api.http).post = "/juno/drip/v1/tx/distribute_tokens";
-  };
+  }
 
+  // UpdateParams defines a governance operation for updating the x/clock module
+  // parameters. The authority is hard-coded to the x/gov module account.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
 // MsgDistributeTokens defines a message that registers a Distribution of tokens.
 message MsgDistributeTokens {
+  option (cosmos.msg.v1.signer) = "sender_address";
+  option (amino.name) = "juno/x/drip/MsgDistributeTokens";
+
   option (gogoproto.equal) = false;
-  // sender_address is the bech32 address of message sender. 
-  string sender_address = 1;
-  
+
+  // sender_address is the bech32 address of message sender.
+  string sender_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
   // amount is the amount being airdropped to stakers
   repeated cosmos.base.v1beta1.Coin amount = 2 [
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true,
-    (amino.encoding)         = "legacy_coins",
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (amino.encoding) = "legacy_coins",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
@@ -41,11 +47,12 @@ message MsgDistributeTokens {
 message MsgDistributeTokensResponse {}
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
-//
-// Since: cosmos-sdk 0.47
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "cosmos-sdk/x/auth/MsgUpdateParams";
+  option (amino.name) = "juno/x/drip/MsgUpdateParams";
+
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
 
   // authority is the address that controls the module (defaults to x/gov unless overwritten).
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -53,7 +60,12 @@ message MsgUpdateParams {
   // params defines the x/auth parameters to update.
   //
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  Params params = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
 message MsgUpdateParamsResponse {}

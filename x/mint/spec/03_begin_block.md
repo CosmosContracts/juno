@@ -15,19 +15,19 @@ The target annual inflation rate is recalculated each block and stored if it cha
 func (m Minter) PhaseInflationRate(phase uint64) sdk.Dec {
  switch {
  case phase > 12:
-  return sdk.ZeroDec()
+  return sdkmath.LegacyZeroDec()
 
  case phase == 1:
-  return sdk.NewDecWithPrec(40, 2)
+  return sdkmath.LegacyNewDecWithPrec(40, 2)
 
  case phase == 2:
-  return sdk.NewDecWithPrec(20, 2)
+  return sdkmath.LegacyNewDecWithPrec(20, 2)
 
  case phase == 3:
-  return sdk.NewDecWithPrec(10, 2)
+  return sdkmath.LegacyNewDecWithPrec(10, 2)
 
  default:
-  return sdk.NewDecWithPrec(13-int64(phase), 2)
+  return sdkmath.LegacyNewDecWithPrec(13-int64(phase), 2)
  }
 }
 ```
@@ -38,7 +38,7 @@ Calculate the annual provisions based on current total supply and inflation
 rate. This parameter is calculated once per new inflation rate.
 
 ```go
-NextAnnualProvisions(params Params, totalSupply sdk.Dec) (provisions sdk.Dec) {
+NextAnnualProvisions(params Params, totalSupply sdkmath.LegacyDec) (provisions sdkmath.LegacyDec) {
  return Inflation * totalSupply
 ```
 
@@ -48,6 +48,6 @@ Calculate the provisions generated for each block based on current annual provis
 
 ```go
 BlockProvision(params Params) sdk.Coin {
- provisionAmt = AnnualProvisions/ params.BlocksPerYear
+ provisionAmt = AnnualProvisions / params.BlocksPerYear
  return sdk.NewCoin(params.MintDenom, provisionAmt.Truncate())
 ```

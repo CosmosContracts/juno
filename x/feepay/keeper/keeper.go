@@ -1,19 +1,20 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	"github.com/cometbft/cometbft/libs/log"
+	storetypes "cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	feepaytypes "github.com/CosmosContracts/juno/v27/x/feepay/types"
-	feesharetypes "github.com/CosmosContracts/juno/v27/x/feeshare/types"
+	feepaytypes "github.com/CosmosContracts/juno/v28/x/feepay/types"
 )
 
 var (
@@ -24,12 +25,12 @@ var (
 // Keeper of this module maintains collections of feeshares for contracts
 // registered to receive transaction fees.
 type Keeper struct {
-	storeKey storetypes.StoreKey
-	cdc      codec.BinaryCodec
+	cdc          codec.BinaryCodec
+	storeService storetypes.KVStoreService
 
 	bankKeeper    bankkeeper.Keeper
 	wasmKeeper    wasmkeeper.Keeper
-	accountKeeper feesharetypes.AccountKeeper
+	accountKeeper authkeeper.AccountKeeper
 
 	bondDenom string
 
@@ -40,17 +41,17 @@ type Keeper struct {
 
 // NewKeeper creates new instances of the fees Keeper
 func NewKeeper(
-	storeKey storetypes.StoreKey,
 	cdc codec.BinaryCodec,
+	ss storetypes.KVStoreService,
 	bk bankkeeper.Keeper,
 	wk wasmkeeper.Keeper,
-	ak feesharetypes.AccountKeeper,
+	ak authkeeper.AccountKeeper,
 	bondDenom string,
 	authority string,
 ) Keeper {
 	return Keeper{
-		storeKey:      storeKey,
 		cdc:           cdc,
+		storeService:  ss,
 		bankKeeper:    bk,
 		wasmKeeper:    wk,
 		accountKeeper: ak,
@@ -65,6 +66,7 @@ func (k Keeper) GetAuthority() string {
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", feepaytypes.ModuleName))
+func (k Keeper) Logger(ctx context.Context) log.Logger {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	return sdkCtx.Logger().With("module", fmt.Sprintf("x/%s", feepaytypes.ModuleName))
 }

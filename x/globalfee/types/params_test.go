@@ -1,15 +1,19 @@
-package types
+package types_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v28/x/globalfee/types"
 )
 
 func TestDefaultParams(t *testing.T) {
-	p := DefaultParams()
+	p := types.DefaultParams()
 	require.EqualValues(t, p.MinimumGasPrices, sdk.DecCoins(nil))
 }
 
@@ -19,43 +23,43 @@ func Test_validateParams(t *testing.T) {
 		expectErr bool
 	}{
 		"DefaultParams, pass": {
-			DefaultParams().MinimumGasPrices,
+			types.DefaultParams().MinimumGasPrices,
 			false,
 		},
 		"DecCoins conversion fails, fail": {
-			sdk.Coins{sdk.NewCoin("photon", sdk.OneInt())},
+			sdk.Coins{sdk.NewCoin("photon", sdkmath.OneInt())},
 			true,
 		},
 		"coins amounts are zero, pass": {
 			sdk.DecCoins{
-				sdk.NewDecCoin("atom", sdk.ZeroInt()),
-				sdk.NewDecCoin("photon", sdk.ZeroInt()),
+				sdk.NewDecCoin("atom", sdkmath.ZeroInt()),
+				sdk.NewDecCoin("photon", sdkmath.ZeroInt()),
 			},
 			false,
 		},
 		"duplicate coins denoms, fail": {
 			sdk.DecCoins{
-				sdk.NewDecCoin("photon", sdk.OneInt()),
-				sdk.NewDecCoin("photon", sdk.OneInt()),
+				sdk.NewDecCoin("photon", sdkmath.OneInt()),
+				sdk.NewDecCoin("photon", sdkmath.OneInt()),
 			},
 			true,
 		},
 		"coins are not sorted by denom alphabetically, fail": {
 			sdk.DecCoins{
-				sdk.NewDecCoin("photon", sdk.OneInt()),
-				sdk.NewDecCoin("atom", sdk.OneInt()),
+				sdk.NewDecCoin("photon", sdkmath.OneInt()),
+				sdk.NewDecCoin("atom", sdkmath.OneInt()),
 			},
 			true,
 		},
 		"negative amount, fail": {
 			sdk.DecCoins{
-				sdk.DecCoin{Denom: "photon", Amount: sdk.OneDec().Neg()},
+				sdk.DecCoin{Denom: "photon", Amount: sdkmath.LegacyOneDec().Neg()},
 			},
 			true,
 		},
 		"invalid denom, fail": {
 			sdk.DecCoins{
-				sdk.DecCoin{Denom: "photon!", Amount: sdk.OneDec().Neg()},
+				sdk.DecCoin{Denom: "photon!", Amount: sdkmath.LegacyOneDec().Neg()},
 			},
 			true,
 		},
@@ -63,7 +67,7 @@ func Test_validateParams(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			err := validateMinimumGasPrices(test.coins)
+			err := types.ValidateMinimumGasPrices(test.coins)
 			if test.expectErr {
 				require.Error(t, err)
 				return

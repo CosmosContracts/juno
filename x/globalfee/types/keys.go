@@ -7,6 +7,4 @@ const (
 	ModuleName = "globalfee"
 
 	StoreKey = ModuleName
-
-	QuerierRoute = ModuleName
 )

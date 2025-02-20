@@ -1,31 +1,34 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"context"
 
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
 )
 
-// GetParams returns the total set params.
-func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.ParamsKey)
-	if bz == nil {
-		return p
-	}
-	k.cdc.MustUnmarshal(bz, &p)
-	return p
-}
-
-// SetParams sets the total set of params.
-func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
-	if err := p.Validate(); err != nil {
+// SetParams sets the x/tokenfactory module parameters.
+func (k Keeper) SetParams(ctx context.Context, p types.Params) error {
+	store := k.storeService.OpenKVStore(ctx)
+	bz := k.cdc.MustMarshal(&p)
+	err := store.Set(types.ParamsKey, bz)
+	if err != nil {
 		return err
 	}
 
-	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshal(&p)
-	store.Set(types.ParamsKey, bz)
-
 	return nil
+}
+
+// GetParams returns the current x/tokenfactory module parameters.
+func (k Keeper) GetParams(ctx context.Context) (p types.Params) {
+	store := k.storeService.OpenKVStore(ctx)
+	bz, err := store.Get(types.ParamsKey)
+	if bz == nil {
+		return p
+	}
+	if err != nil {
+		return p
+	}
+
+	k.cdc.MustUnmarshal(bz, &p)
+	return p
 }

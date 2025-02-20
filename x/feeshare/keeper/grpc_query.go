@@ -6,42 +6,41 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/store/prefix"
+
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/CosmosContracts/juno/v27/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v28/x/feeshare/types"
 )
 
-var _ types.QueryServer = Querier{}
+var _ types.QueryServer = queryServer{}
 
-// Querier defines a wrapper around the x/FeeShare keeper providing gRPC method
-// handlers.
-type Querier struct {
-	Keeper
+func NewQueryServerImpl(k Keeper) types.QueryServer {
+	return queryServer{k}
 }
 
-func NewQuerier(k Keeper) Querier {
-	return Querier{Keeper: k}
+type queryServer struct {
+	k Keeper
 }
 
 // FeeShares returns all FeeShares that have been registered for fee distribution
-func (q Querier) FeeShares(
-	c context.Context,
+func (q queryServer) FeeShares(
+	ctx context.Context,
 	req *types.QueryFeeSharesRequest,
 ) (*types.QueryFeeSharesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(c)
-
 	var feeshares []types.FeeShare
-	store := prefix.NewStore(ctx.KVStore(q.storeKey), types.KeyPrefixFeeShare)
+	key := runtime.KVStoreAdapter(q.k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(key, types.KeyPrefixFeeShare)
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(_, value []byte) error {
 		var feeshare types.FeeShare
-		if err := q.cdc.Unmarshal(value, &feeshare); err != nil {
+		if err := q.k.cdc.Unmarshal(value, &feeshare); err != nil {
 			return err
 		}
 		feeshares = append(feeshares, feeshare)
@@ -58,15 +57,13 @@ func (q Querier) FeeShares(
 
 // FeeShare returns the FeeShare that has been registered for fee distribution for a given
 // contract
-func (q Querier) FeeShare(
-	c context.Context,
+func (q queryServer) FeeShare(
+	ctx context.Context,
 	req *types.QueryFeeShareRequest,
 ) (*types.QueryFeeShareResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-
-	ctx := sdk.UnwrapSDKContext(c)
 
 	// check if the contract is a non-zero hex address
 	contract, err := sdk.AccAddressFromBech32(req.ContractAddress)
@@ -77,7 +74,7 @@ func (q Querier) FeeShare(
 		)
 	}
 
-	feeshare, found := q.GetFeeShare(ctx, contract)
+	feeshare, found := q.k.GetFeeShare(ctx, contract)
 	if !found {
 		return nil, status.Errorf(
 			codes.NotFound,
@@ -90,26 +87,23 @@ func (q Querier) FeeShare(
 }
 
 // Params returns the fees module params
-func (q Querier) Params(
-	c context.Context,
+func (q queryServer) Params(
+	ctx context.Context,
 	_ *types.QueryParamsRequest,
 ) (*types.QueryParamsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-	params := q.GetParams(ctx)
+	params := q.k.GetParams(ctx)
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
 // DeployerFeeShares returns all contracts that have been registered for fee
 // distribution by a given deployer
-func (q Querier) DeployerFeeShares( // nolint: dupl
-	c context.Context,
+func (q queryServer) DeployerFeeShares( // nolint: dupl
+	ctx context.Context,
 	req *types.QueryDeployerFeeSharesRequest,
 ) (*types.QueryDeployerFeeSharesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-
-	ctx := sdk.UnwrapSDKContext(c)
 
 	deployer, err := sdk.AccAddressFromBech32(req.DeployerAddress)
 	if err != nil {
@@ -120,8 +114,9 @@ func (q Querier) DeployerFeeShares( // nolint: dupl
 	}
 
 	var contracts []string
+	key := runtime.KVStoreAdapter(q.k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(
-		ctx.KVStore(q.storeKey),
+		key,
 		types.GetKeyPrefixDeployer(deployer),
 	)
 
@@ -140,15 +135,13 @@ func (q Querier) DeployerFeeShares( // nolint: dupl
 }
 
 // WithdrawerFeeShares returns all fees for a given withdraw address
-func (q Querier) WithdrawerFeeShares( // nolint: dupl
-	c context.Context,
+func (q queryServer) WithdrawerFeeShares( // nolint: dupl
+	ctx context.Context,
 	req *types.QueryWithdrawerFeeSharesRequest,
 ) (*types.QueryWithdrawerFeeSharesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-
-	ctx := sdk.UnwrapSDKContext(c)
 
 	deployer, err := sdk.AccAddressFromBech32(req.WithdrawerAddress)
 	if err != nil {
@@ -159,8 +152,9 @@ func (q Querier) WithdrawerFeeShares( // nolint: dupl
 	}
 
 	var contracts []string
+	key := runtime.KVStoreAdapter(q.k.storeService.OpenKVStore(ctx))
 	store := prefix.NewStore(
-		ctx.KVStore(q.storeKey),
+		key,
 		types.GetKeyPrefixWithdrawer(deployer),
 	)
 

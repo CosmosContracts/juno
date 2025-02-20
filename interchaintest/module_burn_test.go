@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/stretchr/testify/assert"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
@@ -43,7 +43,10 @@ func TestJunoBurnModule(t *testing.T) {
 
 	// execute burn of tokens
 	burnAmt := int64(1_000_000)
-	helpers.ExecuteMsgWithAmount(t, ctx, juno, user, contractAddr, strconv.Itoa(int(burnAmt))+nativeDenom, `{"burn_token":{}}`)
+	_, err = helpers.ExecuteMsgWithAmount(t, ctx, juno, user, contractAddr, strconv.Itoa(int(burnAmt))+nativeDenom, `{"burn_token":{}}`)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// verify it is down 1_000_000 tokens since the burn
 	updatedBal, err := juno.GetBalance(ctx, user.FormattedAddress(), nativeDenom)

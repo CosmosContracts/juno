@@ -8,36 +8,36 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
-	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
-	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	cosmosproto "github.com/cosmos/gogoproto/proto"
 	"github.com/docker/docker/client"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/testutil"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
+
 	"github.com/stretchr/testify/require"
 
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
+	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
+
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 )
 
 const (
 	chainName   = "juno"
-	upgradeName = "v27"
+	upgradeName = "v28"
 
 	haltHeightDelta    = int64(9) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = int64(7)
 )
 
-var (
-	// baseChain is the current version of the chain that will be upgraded from
-	baseChain = ibc.DockerImage{
-		Repository: JunoMainRepo,
-		Version:    "v26.0.0",
-		UidGid:     "1025:1025",
-	}
-)
+// baseChain is the current version of the chain that will be upgraded from
+var baseChain = ibc.DockerImage{
+	Repository: JunoMainRepo,
+	Version:    "v27.0.0",
+	UIDGID:     "1025:1025",
+}
 
 func TestBasicJunoUpgrade(t *testing.T) {
 	repo, version := GetDockerImageInfo()
@@ -96,7 +96,7 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	haltHeight := height + haltHeightDelta
 	proposalID := SubmitUpgradeProposal(t, ctx, chain, chainUser, upgradeName, haltHeight)
 
-	proposalIDInt, err := strconv.ParseInt(proposalID, 10, 64)
+	proposalIDInt, err := strconv.ParseUint(proposalID, 10, 64)
 	require.NoError(t, err, "failed to parse proposal ID")
 
 	ValidatorVoting(t, ctx, chain, proposalIDInt, height, haltHeight)
@@ -104,11 +104,11 @@ func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgra
 	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, upgradeBranchVersion)
 
 	// confirm we can execute against the beforeContract (ref: v20 upgrade patch)
-	helpers.ExecuteMsgWithFee(t, ctx, chain, chainUser, beforeContract, "", "10000"+chain.Config().Denom, `{"increment":{}}`)
+	_, err = helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, chainUser, beforeContract, "", "10000"+chain.Config().Denom, `{"increment":{}}`)
+	require.NoError(t, err)
 
 	// Post Upgrade: Conformance Validation
 	junoconformance.ConformanceCosmWasm(t, ctx, chain, chainUser)
-	// TODO: ibc conformance test
 }
 
 func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight int64, upgradeRepo, upgradeBranchVersion string) {
@@ -140,7 +140,7 @@ func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
 }
 
-func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, proposalID int64, height int64, haltHeight int64) {
+func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, proposalID uint64, height int64, haltHeight int64) {
 	err := chain.VoteOnProposalAllValidators(ctx, proposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
@@ -164,7 +164,7 @@ func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 }
 
 func SubmitUpgradeProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, upgradeName string, haltHeight int64) string {
-	upgradeMsg := []cosmosproto.Message{
+	upgradeMsg := []cosmos.ProtoMessage{
 		&upgradetypes.MsgSoftwareUpgrade{
 			// gGov Module account
 			Authority: "juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730",
@@ -175,7 +175,14 @@ func SubmitUpgradeProposal(t *testing.T, ctx context.Context, chain *cosmos.Cosm
 		},
 	}
 
-	proposal, err := chain.BuildProposal(upgradeMsg, "Chain Upgrade 1", "Summary desc", "ipfs://CID", fmt.Sprintf(`500000000%s`, chain.Config().Denom))
+	proposal, err := chain.BuildProposal(
+		upgradeMsg,
+		"Chain Upgrade 1",
+		"Summary desc",
+		"ipfs://CID",
+		fmt.Sprintf(`500000000%s`, chain.Config().Denom),
+		sdk.MustBech32ifyAddressBytes("juno", user.Address()),
+		false)
 	require.NoError(t, err, "error building proposal")
 
 	txProp, err := chain.SubmitProposal(ctx, user.KeyName(), proposal)

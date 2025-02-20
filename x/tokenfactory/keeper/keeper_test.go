@@ -3,24 +3,31 @@ package keeper_test
 import (
 	"testing"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/suite"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v27/app/apptesting"
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/keeper"
-	"github.com/CosmosContracts/juno/v27/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v28/testutil"
+	"github.com/CosmosContracts/juno/v28/x/tokenfactory/keeper"
+	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
 )
 
 type KeeperTestSuite struct {
-	apptesting.KeeperTestHelper
+	testutil.KeeperTestHelper
 
-	queryClient     types.QueryClient
-	bankQueryClient banktypes.QueryClient
-	msgServer       types.MsgServer
+	contractKeeper wasmtypes.ContractOpsKeeper
+
+	queryClient   types.QueryClient
+	msgServer     types.MsgServer
+	bankMsgServer banktypes.MsgServer
+
 	// defaultDenom is on the suite, as it depends on the creator test address.
 	defaultDenom string
 }
@@ -29,41 +36,47 @@ func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
 
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.Setup()
+func (s *KeeperTestSuite) SetupTest() {
+	s.Setup()
 
 	// Fund every TestAcc with two denoms, one of which is the denom creation fee
-	fundAccsAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)), sdk.NewCoin(apptesting.SecondaryDenom, apptesting.SecondaryAmount))
-	for _, acc := range suite.TestAccs {
-		suite.FundAcc(acc, fundAccsAmount)
+	fundAccsAmount := sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(100000000)), sdk.NewCoin("usecond", sdkmath.NewInt(100000000)))
+	for _, acc := range s.TestAccs {
+		s.FundAcc(acc, fundAccsAmount)
 	}
 
-	suite.queryClient = types.NewQueryClient(suite.QueryHelper)
-	suite.bankQueryClient = banktypes.NewQueryClient(suite.QueryHelper)
-	suite.msgServer = keeper.NewMsgServerImpl(suite.App.AppKeepers.TokenFactoryKeeper)
+	s.contractKeeper = s.App.AppKeepers.ContractKeeper
+
+	s.queryClient = types.NewQueryClient(s.QueryHelper)
+	s.msgServer = keeper.NewMsgServerImpl(s.App.AppKeepers.TokenFactoryKeeper)
+	s.bankMsgServer = bankkeeper.NewMsgServerImpl(s.App.AppKeepers.BankKeeper)
 }
 
-func (suite *KeeperTestSuite) CreateDefaultDenom() {
-	res, _ := suite.msgServer.CreateDenom(sdk.WrapSDKContext(suite.Ctx), types.NewMsgCreateDenom(suite.TestAccs[0].String(), "bitcoin"))
-	suite.defaultDenom = res.GetNewTokenDenom()
+func (s *KeeperTestSuite) CreateDefaultDenom() {
+	res, _ := s.msgServer.CreateDenom(s.Ctx, &types.MsgCreateDenom{Sender: s.TestAccs[0].String(), Subdenom: "bitcoin"})
+	s.defaultDenom = res.GetNewTokenDenom()
 }
 
-func (suite *KeeperTestSuite) TestCreateModuleAccount() {
-	app := suite.App
+func (s *KeeperTestSuite) TestCreateModuleAccount() {
+	// setup new next account number
+	nextAccountNumber := s.App.AppKeepers.AccountKeeper.NextAccountNumber(s.Ctx)
 
 	// remove module account
-	tokenfactoryModuleAccount := app.AppKeepers.AccountKeeper.GetAccount(suite.Ctx, app.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
-	app.AppKeepers.AccountKeeper.RemoveAccount(suite.Ctx, tokenfactoryModuleAccount)
+	tokenfactoryModuleAccount := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
+	s.App.AppKeepers.AccountKeeper.RemoveAccount(s.Ctx, tokenfactoryModuleAccount)
 
 	// ensure module account was removed
-	suite.Ctx = app.BaseApp.NewContext(false, tmproto.Header{ChainID: "testing"})
-	tokenfactoryModuleAccount = app.AppKeepers.AccountKeeper.GetAccount(suite.Ctx, app.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
-	suite.Require().Nil(tokenfactoryModuleAccount)
+	s.Ctx = s.App.BaseApp.NewContextLegacy(false, cmtproto.Header{})
+	tokenfactoryModuleAccount = s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
+	s.Require().Nil(tokenfactoryModuleAccount)
 
 	// create module account
-	app.AppKeepers.TokenFactoryKeeper.CreateModuleAccount(suite.Ctx)
+	s.App.AppKeepers.TokenFactoryKeeper.CreateModuleAccount(s.Ctx)
 
 	// check that the module account is now initialized
-	tokenfactoryModuleAccount = app.AppKeepers.AccountKeeper.GetAccount(suite.Ctx, app.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
-	suite.Require().NotNil(tokenfactoryModuleAccount)
+	tokenfactoryModuleAccount = s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
+	s.Require().NotNil(tokenfactoryModuleAccount)
+
+	// check that the account number of the module account is now initialized correctly
+	s.Require().Equal(nextAccountNumber+1, tokenfactoryModuleAccount.GetAccountNumber())
 }

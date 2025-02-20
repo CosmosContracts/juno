@@ -39,12 +39,3 @@ func validateDenomCreationFee(i interface{}) error {
 
 	return nil
 }
-
-func validateDenomCreationFeeGasConsume(i interface{}) error {
-	_, ok := i.(uint64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	return nil
-}

@@ -1,7 +1,7 @@
 package cmd
 
 // modified from osmosis
-// https://github.com/CosmosContracts/juno/v26/blob/main/cmd/osmosisd/cmd/balances_from_state_export.go
+// https://github.com/CosmosContracts/juno/v28/blob/main/cmd/osmosisd/cmd/balances_from_state_export.go
 
 import (
 	"encoding/csv"
@@ -16,15 +16,13 @@ import (
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	appparams "github.com/CosmosContracts/juno/v27/app/params"
 )
 
 const (
@@ -39,12 +37,12 @@ type DeriveSnapshot struct {
 // DerivedAccount provide fields of snapshot per account
 // It is the simplified struct we are presenting in this 'balances from state export' snapshot for people.
 type DerivedAccount struct {
-	Address        string    `json:"address"`
-	LiquidBalances sdk.Coins `json:"liquid_balance"`
-	Staked         math.Int  `json:"staked"`
-	UnbondingStake math.Int  `json:"unbonding_stake"`
-	Bonded         sdk.Coins `json:"bonded"`
-	TotalBalances  sdk.Coins `json:"total_balances"`
+	Address        string      `json:"address"`
+	LiquidBalances sdk.Coins   `json:"liquid_balance"`
+	Staked         sdkmath.Int `json:"staked"`
+	UnbondingStake sdkmath.Int `json:"unbonding_stake"`
+	Bonded         sdk.Coins   `json:"bonded"`
+	TotalBalances  sdk.Coins   `json:"total_balances"`
 }
 
 // newDerivedAccount returns a new derived account.
@@ -52,8 +50,8 @@ func newDerivedAccount(address string) DerivedAccount {
 	return DerivedAccount{
 		Address:        address,
 		LiquidBalances: sdk.Coins{},
-		Staked:         sdk.ZeroInt(),
-		UnbondingStake: sdk.ZeroInt(),
+		Staked:         sdkmath.ZeroInt(),
+		UnbondingStake: sdkmath.ZeroInt(),
 		Bonded:         sdk.Coins{},
 	}
 }
@@ -135,7 +133,7 @@ Example:
 					acc = newDerivedAccount(address)
 				}
 
-				unbondingJunos := sdk.NewInt(0)
+				unbondingJunos := sdkmath.NewInt(0)
 				for _, entry := range unbonding.Entries {
 					unbondingJunos = unbondingJunos.Add(entry.Balance)
 				}
@@ -173,8 +171,8 @@ Example:
 				// account.Bonded = underlyingCoins(account.Bonded)
 				account.TotalBalances = sdk.NewCoins().
 					Add(account.LiquidBalances...).
-					Add(sdk.NewCoin(appparams.BondDenom, account.Staked)).
-					Add(sdk.NewCoin(appparams.BondDenom, account.UnbondingStake)).
+					Add(sdk.NewCoin("ujuno", account.Staked)).
+					Add(sdk.NewCoin("ujuno", account.UnbondingStake)).
 					Add(account.Bonded...)
 				snapshotAccs[addr] = account
 			}
@@ -255,7 +253,7 @@ Example:
 			// iterate through all accounts, leave out accounts that do not meet the user provided min stake amount
 			for _, r := range deriveSnapshot.Accounts {
 				var csvRow []string
-				if r.Staked.GT(sdk.NewInt(minStakeAmount)) {
+				if r.Staked.GT(sdkmath.NewInt(minStakeAmount)) {
 					csvRow = append(csvRow, r.Address, r.Staked.String())
 					if err := writer.Write(csvRow); err != nil {
 						return err

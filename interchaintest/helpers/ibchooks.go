@@ -5,17 +5,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/stretchr/testify/require"
 )
 
 func GetIBCHooksUserAddress(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, channel, uaddr string) string {
-	// junod q ibchooks wasm-sender channel-0 "juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl" --node http://localhost:26657
+	// junod q ibchooks wasm-sender channel-0 "juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl"
 	cmd := []string{
 		"junod", "query", "ibchooks", "wasm-sender", channel, uaddr,
-		"--node", chain.GetRPCAddress(),
-		"--chain-id", chain.Config().ChainID,
 		"--output", "json",
+		"--node", chain.GetRPCAddress(),
 	}
 
 	// This query does not return a type, just prints the string.

@@ -31,7 +31,7 @@ To startup 1 or 2 Juno instances quickly, you will use the `test_node.sh` script
 ```bash
 CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
 
-CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
+CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
 ```
 
 It does not require Docker. If you wish to run only 1 instance, the top line is the default for standard port mappings. Using the variable CLEAN fresh installs the tip of the branch and also resets the database and all config files for the home directory.
@@ -45,7 +45,7 @@ Here is how to use it:
 ```bash
 # Start both chains
 CHAIN_ID="local-1" HOME_DIR="~/.juno1/" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
-CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 ROSETTA=8081 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
+CHAIN_ID="local-2" HOME_DIR="~/.juno2/" CLEAN=true RPC=36657 REST=2317 PROFF=6061 P2P=36656 GRPC=8090 GRPC_WEB=8091 TIMEOUT_COMMIT="500ms" sh scripts/test_node.sh
 
 # start the relayer
 sh ./scripts/hermes/start.sh
