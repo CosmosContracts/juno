@@ -39,7 +39,7 @@ require (
 	go.uber.org/mock v0.5.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250212204824-5a70512c5d8b
 	google.golang.org/grpc v1.70.0
-	gotest.tools/v3 v3.5.1
+	gotest.tools/v3 v3.5.2
 )
 
 require (
