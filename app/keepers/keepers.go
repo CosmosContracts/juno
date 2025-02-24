@@ -549,7 +549,7 @@ func NewAppKeepers(
 		appKeepers.TransferKeeper,
 		bApp.MsgServiceRouter(),
 		bApp.GRPCQueryRouter(),
-		wasmDir,
+		dataDir,
 		wasmConfig,
 		wasmtypes.VMConfig{},
 		wasmCapabilities,
