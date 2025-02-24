@@ -219,7 +219,6 @@ func NewAppKeepers(
 	ac := authcodec.NewBech32Codec(bech32Prefix)
 	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
 	dataDir := filepath.Join(homePath, "data")
-	wasmDir := filepath.Join(dataDir, "wasm")
 
 	// set the BaseApp's parameter store
 	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(
@@ -549,7 +548,7 @@ func NewAppKeepers(
 		appKeepers.TransferKeeper,
 		bApp.MsgServiceRouter(),
 		bApp.GRPCQueryRouter(),
-		wasmDir,
+		dataDir,
 		wasmConfig,
 		wasmtypes.VMConfig{},
 		wasmCapabilities,
