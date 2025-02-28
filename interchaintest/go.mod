@@ -16,7 +16,7 @@ require (
 	github.com/CosmWasm/wasmd v0.54.0
 	github.com/CosmosContracts/juno/v28 v28.0.0
 	github.com/cosmos/cosmos-sdk v0.50.11
-	github.com/cosmos/ibc-go/v8 v8.5.3
+	github.com/cosmos/ibc-go/v8 v8.6.1
 	github.com/docker/docker v24.0.9+incompatible
 	github.com/strangelove-ventures/interchaintest/v8 v8.8.1
 	github.com/stretchr/testify v1.10.0
