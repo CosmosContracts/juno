@@ -1,12 +1,14 @@
 package keepers
 
 import (
+	"fmt"
 	"math"
-	"path/filepath"
+	"path"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	wasmvm "github.com/CosmWasm/wasmvm/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cast"
 
@@ -218,8 +220,8 @@ func NewAppKeepers(
 	bech32Prefix := sdk.GetConfig().GetBech32AccountAddrPrefix()
 	ac := authcodec.NewBech32Codec(bech32Prefix)
 	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
-	dataDir := filepath.Join(homePath, "data")
-	wasmDir := filepath.Join(dataDir, "wasm")
+	dataDir := path.Join(homePath, "data")
+	wasmDir := path.Join(dataDir, "wasm")
 
 	// set the BaseApp's parameter store
 	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(
@@ -534,6 +536,12 @@ func NewAppKeepers(
 		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 	}
 	wasmOpts = append(wasmOpts, wasmkeeper.WithGasRegister(NewJunoWasmGasRegister()))
+
+	wasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create juno wasmvm: %s", err))
+	}
+	wasmOpts = append(wasmOpts, wasmkeeper.WithWasmEngine(wasmer))
 
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
