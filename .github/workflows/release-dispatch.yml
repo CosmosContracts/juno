@@ -1,0 +1,58 @@
+name: Dispatch Release to juno-std
+
+on:
+  release:
+    types: [published]
+
+env:
+  JUNO_REPO: "https://github.com/CosmosContracts/juno.git"
+  JUNO_DIR: "../dependencies/juno/"
+  COSMOS_SDK_REPO: "https://github.com/cosmos/cosmos-sdk.git"
+  COSMOS_SDK_REV: "v0.50.11"
+  COSMOS_SDK_DIR: "../dependencies/cosmos-sdk/"
+  WASMD_REPO: "https://github.com/CosmWasm/wasmd.git"
+  WASMD_REV: "v0.54.0"
+  WASMD_DIR: "../dependencies/wasmd/"
+  COMETBFT_REPO: "https://github.com/cometbft/cometbft.git"
+  COMETBFT_REV: "v0.38.17"
+  COMETBFT_DIR: "../dependencies/cometbft/"
+  IBC_GO_REPO: "https://github.com/cosmos/ibc-go.git"
+  IBC_GO_REV: "v8.5.3"
+  IBC_GO_DIR: "../dependencies/ibc-go/"
+  ICS23_REPO: "https://github.com/cosmos/ics23.git"
+  ICS23_REV: "go/v0.11.0"
+  ICS23_DIR: "../dependencies/ics23/"
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build repo_config JSON
+        id: build_repo_config
+        env:
+          GITHUB_EVENT_RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          printf '[\n  {"name": "juno", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": true},\n  {"name": "cosmos-sdk", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": ["reflection", "autocli"], "is_main": false},\n  {"name": "wasmd", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": false},\n  {"name": "cometbft", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": false},\n  {"name": "ibc-go", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": false},\n  {"name": "ics23", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": false}\n]\n' \
+            "$JUNO_REPO" "$GITHUB_EVENT_RELEASE_TAG" "$JUNO_DIR" \
+            "$COSMOS_SDK_REPO" "$COSMOS_SDK_REV" "$COSMOS_SDK_DIR" \
+            "$WASMD_REPO" "$WASMD_REV" "$WASMD_DIR" \
+            "$COMETBFT_REPO" "$COMETBFT_REV" "$COMETBFT_DIR" \
+            "$IBC_GO_REPO" "$IBC_GO_REV" "$IBC_GO_DIR" \
+            "$ICS23_REPO" "$ICS23_REV" "$ICS23_DIR" > repo_config.json
+          cat repo_config.json
+          echo "json=$(cat repo_config.json)" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Dispatch release event with repo_config
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DISPATCH_TOKEN }}
+          repository: CosmosContracts/juno-std
+          event-type: juno-release
+          client-payload: |
+            {
+              "is_draft": "${{ github.event.release.draft }}",
+              "is_prerelease": "${{ github.event.release.prerelease }}",
+              "release_tag": "${{ github.event.release.tag_name }}",
+              "repo_config": "${{ steps.build_repo_config.outputs.json }}"
+            }
