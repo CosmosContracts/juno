@@ -32,7 +32,7 @@ jobs:
         env:
           GITHUB_EVENT_RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          printf '[\n  {"name": "juno", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": true},\n  {"name": "cosmos-sdk", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": ["reflection", "autocli"], "is_main": false},\n  {"name": "wasmd", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": false},\n  {"name": "cometbft", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": false},\n  {"name": "ibc-go", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": false},\n  {"name": "ics23", "repo": "%s", "rev": "%s", "dir": "%s", "exclude_mods": [], "is_main": false}\n]\n' \
+          printf '[{"name":"juno","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":true},{"name":"cosmos-sdk","repo":"%s","rev":"%s","dir":"%s","exclude_mods":["reflection","autocli"],"is_main":false},{"name":"wasmd","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":false},{"name":"cometbft","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":false},{"name":"ibc-go","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":false},{"name":"ics23","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":false}]\n' \
             "$JUNO_REPO" "$GITHUB_EVENT_RELEASE_TAG" "$JUNO_DIR" \
             "$COSMOS_SDK_REPO" "$COSMOS_SDK_REV" "$COSMOS_SDK_DIR" \
             "$WASMD_REPO" "$WASMD_REV" "$WASMD_DIR" \
