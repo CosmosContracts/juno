@@ -1,0 +1,78 @@
+name: Test Release Dispatch (Local)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag name to simulate (e.g., v28.0.2)'
+        required: true
+        type: string
+      is_draft:
+        description: 'Is this a draft release'
+        required: false
+        default: 'false'
+        type: string
+      is_prerelease:
+        description: 'Is this a prerelease'
+        required: false
+        default: 'false'
+        type: string
+
+env:
+  JUNO_REPO: "https://github.com/CosmosContracts/juno.git"
+  JUNO_DIR: "../dependencies/juno/"
+  COSMOS_SDK_REPO: "https://github.com/cosmos/cosmos-sdk.git"
+  COSMOS_SDK_REV: "v0.50.11"
+  COSMOS_SDK_DIR: "../dependencies/cosmos-sdk/"
+  WASMD_REPO: "https://github.com/CosmWasm/wasmd.git"
+  WASMD_REV: "v0.54.0"
+  WASMD_DIR: "../dependencies/wasmd/"
+  COMETBFT_REPO: "https://github.com/cometbft/cometbft.git"
+  COMETBFT_REV: "v0.38.17"
+  COMETBFT_DIR: "../dependencies/cometbft/"
+  IBC_GO_REPO: "https://github.com/cosmos/ibc-go.git"
+  IBC_GO_REV: "v8.5.3"
+  IBC_GO_DIR: "../dependencies/ibc-go/"
+  ICS23_REPO: "https://github.com/cosmos/ics23.git"
+  ICS23_REV: "go/v0.11.0"
+  ICS23_DIR: "../dependencies/ics23/"
+
+jobs:
+  test_dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build repo_config JSON
+        id: build_repo_config
+        env:
+          SIMULATED_TAG_NAME: ${{ github.event.inputs.tag_name }}
+        run: |
+          printf '[{"name":"juno","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":true},{"name":"cosmos-sdk","repo":"%s","rev":"%s","dir":"%s","exclude_mods":["reflection","autocli"],"is_main":false},{"name":"wasmd","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":false},{"name":"cometbft","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":false},{"name":"ibc-go","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":false},{"name":"ics23","repo":"%s","rev":"%s","dir":"%s","exclude_mods":[],"is_main":false}]\n' \
+            "$JUNO_REPO" "$SIMULATED_TAG_NAME" "$JUNO_DIR" \
+            "$COSMOS_SDK_REPO" "$COSMOS_SDK_REV" "$COSMOS_SDK_DIR" \
+            "$WASMD_REPO" "$WASMD_REV" "$WASMD_DIR" \
+            "$COMETBFT_REPO" "$COMETBFT_REV" "$COMETBFT_DIR" \
+            "$IBC_GO_REPO" "$IBC_GO_REV" "$IBC_GO_DIR" \
+            "$ICS23_REPO" "$ICS23_REV" "$ICS23_DIR" > repo_config.json
+          cat repo_config.json
+          echo "json=$(cat repo_config.json)" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Echo dispatch payload (Test Mode)
+        run: |
+          echo "This is a test run. In a real workflow, this would dispatch to juno-std."
+          echo "Client payload that would be sent:"
+          echo "{\"is_draft\": \"${{ github.event.inputs.is_draft }}\", \"is_prerelease\": \"${{ github.event.inputs.is_prerelease }}\", \"release_tag\": \"${{ github.event.inputs.tag_name }}\", \"repo_config\": \"${{ steps.build_repo_config.outputs.json }}\"}"
+
+      - name: Dispatch release event with repo_config
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DISPATCH_TOKEN }}
+          repository: CosmosContracts/juno-std
+          event-type: juno-release
+          client-payload: |
+            {
+              "is_draft": "${{ github.event.inputs.is_draft }}",
+              "is_prerelease": "${{ github.event.inputs.is_prerelease }}",
+              "release_tag": "${{ github.event.inputs.tag_name }}",
+              "repo_config": "${{ steps.build_repo_config.outputs.json }}"
+            }
