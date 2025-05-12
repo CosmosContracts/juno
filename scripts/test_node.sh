@@ -27,8 +27,8 @@ export TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-"3s"}
 command -v junod > /dev/null 2>&1 || { echo >&2 "junod command not found. Ensure this is setup / properly installed in your GOPATH (make install)."; exit 1; }
 command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
 
+junod config set client chain-id local-1
 junod config set client keyring-backend $KEYRING
-junod config set client chain-id $CHAIN_ID
 
 from_scratch () {
   # Fresh install on current branch
@@ -38,9 +38,9 @@ from_scratch () {
   rm -rf $HOME_DIR && echo "Removed $HOME_DIR"
 
   # juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk
-  echo "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry" | junod keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --recover
+  junod keys add $KEY --interactive=false --recover --source "./scripts/localdev/seed1.txt"
   # juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl
-  echo "wealth flavor believe regret funny network recall kiss grape useless pepper cram hint member few certain unveil rather brick bargain curious require crowd raise" | junod keys add $KEY2 --keyring-backend $KEYRING --algo $KEYALGO --recover
+  junod keys add $KEY2 --interactive=false --recover --source="./scripts/localdev/seed2.txt"
 
   junod init $MONIKER --chain-id $CHAIN_ID --default-denom ujuno
 
@@ -83,7 +83,6 @@ from_scratch () {
   junod genesis add-genesis-account $KEY 10000000ujuno,1000utest --keyring-backend $KEYRING
   junod genesis add-genesis-account $KEY2 1000000ujuno,1000utest --keyring-backend $KEYRING
   junod genesis add-genesis-account juno1see0htr47uapjvcvh0hu6385rp8lw3emu85lh5 100000000000ujuno --keyring-backend $KEYRING
-  # BINARY genesis add-genesis-account juno1xgj5vkjknnvwu3je3usm2fasvr6a9ust9q7gxm 100000000000ujuno --keyring-backend $KEYRING # feeprepay
 
   junod genesis gentx $KEY 1000000ujuno --keyring-backend $KEYRING --chain-id $CHAIN_ID
 

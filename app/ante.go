@@ -12,12 +12,10 @@ import (
 	corestoretypes "cosmossdk.io/core/store"
 	errorsmod "cosmossdk.io/errors"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	decorators "github.com/CosmosContracts/juno/v28/app/decorators"
@@ -36,11 +34,8 @@ const maxBypassMinFeeMsgGasUsage = 2_000_000
 // channel keeper and a BankKeeper with an added method for fee sharing.
 type HandlerOptions struct {
 	ante.HandlerOptions
-	Cdc       codec.BinaryCodec
-	TxEncoder sdk.TxEncoder
 
 	// cosmos sdk
-	GovKeeper     govkeeper.Keeper
 	StakingKeeper stakingkeeper.Keeper
 	BondDenom     string
 	BankKeeper    bankkeeper.Keeper
