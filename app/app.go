@@ -26,6 +26,7 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
+	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
@@ -239,16 +240,18 @@ func New(
 	app.ModuleManager.SetOrderExportGenesis(orderInitBlockers()...)
 	app.ModuleManager.RegisterInvariants(app.AppKeepers.CrisisKeeper)
 
-	// initialize stores
-	app.MountKVStores(app.AppKeepers.GetKVStoreKeys())
-	app.MountTransientStores(app.AppKeepers.GetTransientStoreKeys())
-	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKeys())
+	autocliv1.RegisterQueryServer(app.GRPCQueryRouter(), runtimeservices.NewAutoCLIQueryService(app.ModuleManager.Modules))
 
 	reflectionSvc, err := runtimeservices.NewReflectionService()
 	if err != nil {
 		panic(err)
 	}
 	reflectionv1.RegisterReflectionServiceServer(app.GRPCQueryRouter(), reflectionSvc)
+
+	// initialize stores
+	app.MountKVStores(app.AppKeepers.GetKVStoreKeys())
+	app.MountTransientStores(app.AppKeepers.GetTransientStoreKeys())
+	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKeys())
 
 	nodeConfig, err := wasm.ReadNodeConfig(appOpts)
 	if err != nil {
