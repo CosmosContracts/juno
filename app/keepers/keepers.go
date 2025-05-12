@@ -70,7 +70,6 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1beta "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -100,6 +99,9 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v28/x/mint/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v28/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
+
+	//wrappers
+	wrappedgovkeeper "github.com/CosmosContracts/juno/v28/x/wrappers/gov/keeper"
 )
 
 var (
@@ -128,9 +130,8 @@ var maccPerms = map[string][]string{
 	wasmtypes.ModuleName:           {},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 	globalfeetypes.ModuleName:      nil,
-	// buildertypes.ModuleName:        nil,
-	feepaytypes.ModuleName: nil,
-	junoburn.ModuleName:    {authtypes.Burner},
+	feepaytypes.ModuleName:         nil,
+	junoburn.ModuleName:            {authtypes.Burner},
 }
 
 type AppKeepers struct {
@@ -147,7 +148,7 @@ type AppKeepers struct {
 	SlashingKeeper      slashingkeeper.Keeper
 	MintKeeper          mintkeeper.Keeper
 	DistrKeeper         distrkeeper.Keeper
-	GovKeeper           govkeeper.Keeper
+	GovKeeper           *wrappedgovkeeper.KeeperWrapper // x/wrappers/gov wrapper to modify the gov module without forking it
 	CrisisKeeper        *crisiskeeper.Keeper
 	UpgradeKeeper       *upgradekeeper.Keeper
 	ParamsKeeper        paramskeeper.Keeper
@@ -355,7 +356,6 @@ func NewAppKeepers(
 
 	// register the proposal types
 	govRouter := govv1beta.NewRouter()
-
 	// This should be removed. It is still in place to avoid failures of modules that have not yet been upgraded
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(appKeepers.ParamsKeeper))
@@ -363,7 +363,7 @@ func NewAppKeepers(
 	govConfig := govtypes.DefaultConfig()
 	govConfig.MaxMetadataLen = math.MaxUint64
 
-	govKeeper := govkeeper.NewKeeper(
+	govKeeper := wrappedgovkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[govtypes.StoreKey]),
 		appKeepers.AccountKeeper,
@@ -615,7 +615,7 @@ func NewAppKeepers(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[cwhookstypes.StoreKey]),
 		*stakingKeeper,
-		*govKeeper,
+		*govKeeper.Keeper,
 		appKeepers.WasmKeeper,
 		appKeepers.ContractKeeper,
 		govModAddress,
@@ -633,14 +633,11 @@ func NewAppKeepers(
 	)
 	appKeepers.StakingKeeper = stakingKeeper
 
-	appKeepers.GovKeeper = *govKeeper.SetHooks(
+	appKeepers.GovKeeper = govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			appKeepers.CWHooksKeeper.GovHooks(),
 		),
 	)
-
-	// Set legacy router for backwards compatibility with gov v1beta1
-	appKeepers.GovKeeper.SetLegacyRouter(govRouter)
 
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule

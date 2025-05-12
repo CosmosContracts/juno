@@ -71,6 +71,8 @@ import (
 	upgrades "github.com/CosmosContracts/juno/v28/app/upgrades"
 	v28 "github.com/CosmosContracts/juno/v28/app/upgrades/v28"
 	"github.com/CosmosContracts/juno/v28/docs"
+	// wrappedgovkeeper "github.com/CosmosContracts/juno/v28/x/wrappers/gov/keeper"
+	// govmodule "github.com/CosmosContracts/juno/v28/x/wrappers/gov/module"
 )
 
 const (
@@ -262,9 +264,6 @@ func New(
 				SignModeHandler: app.txConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			Cdc:           appCodec,
-			TxEncoder:     app.txConfig.TxEncoder(),
-			GovKeeper:     app.AppKeepers.GovKeeper,
 			StakingKeeper: *app.AppKeepers.StakingKeeper,
 			BondDenom:     app.GetChainBondDenom(),
 			BankKeeper:    app.AppKeepers.BankKeeper,
