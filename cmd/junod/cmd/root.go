@@ -26,6 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -169,13 +170,23 @@ func NewRootCmd() *cobra.Command {
 	if err != nil {
 		panic(err)
 	}
-	autoCliOpts.ClientCtx = initClientCtx
 
+	autoCliOpts = enrichAutoCliOpts(autoCliOpts, initClientCtx)
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
 	}
 
 	return rootCmd
+}
+
+func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context) autocli.AppOptions {
+	autoCliOpts.AddressCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
+	autoCliOpts.ValidatorAddressCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix())
+	autoCliOpts.ConsensusAddressCodec = addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix())
+
+	autoCliOpts.ClientCtx = clientCtx
+
+	return autoCliOpts
 }
 
 // initCometConfig helps to override default Comet Config values.
