@@ -1,52 +1,57 @@
+version: "2"
+
 run:
-  # timeout for analysis, e.g. 30s, 5m, default is 1m
   timeout: 10m
   tests: true
 
 linters:
-  disable-all: true
+  default: none
   enable:
     - bodyclose
     - dogsled
     - errcheck
     - goconst
     - gocritic
-    - gofumpt
-    - gci
-    - revive
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - misspell
     - nakedret
     - staticcheck
-    - stylecheck
     - unconvert
     - unused
     - unparam
-    - misspell
+    - revive
+  settings:
+    gosec:
+      excludes:
+        - G404
+        - G115
+    govet:
+      disable:
+        - printf
 
-linters-settings:
-  gci:
-    custom-order: true
-    sections:
-      - standard # Standard section: captures all standard packages.
-      - default # Default section: contains all imports that could not be matched to another section type.
-      - blank # blank imports
-      - dot # dot imports
-      - prefix(github.com/cometbft/cometbft)
-      - prefix(github.com/cosmos)
-      - prefix(cosmossdk.io)
-      - prefix(github.com/cosmos/cosmos-sdk)
-      - prefix(github.com/CosmosContracts/juno)
-  gosec:
-    excludes:
-      - G404
-      - G115
-  govet:
-    disable:
-      - printf
+  exclusions:
+    paths:
+      - ".*.pb.go"
+
+formatters:
+  enable:
+    - gci
+    - gofumpt
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - blank
+        - dot
+        - prefix(github.com/cometbft/cometbft)
+        - prefix(github.com/cosmos)
+        - prefix(cosmossdk.io)
+        - prefix(github.com/cosmos/cosmos-sdk)
+        - prefix(github.com/CosmosContracts/juno)
+      custom-order: true
 
 issues:
   max-issues-per-linter: 0

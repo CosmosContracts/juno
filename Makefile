@@ -114,46 +114,75 @@ test-node:
 ###############################################################################
 
 gofumpt=mvdan.cc/gofumpt
-gofumpt_version=v0.7.0
+gofumpt_version=v0.8.0
 
-golangci_lint=github.com/golangci/golangci-lint/cmd/golangci-lint
-golangci_lint_version=v1.63.4
+golangci_lint=github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+golangci_lint_version=v2.1.6
 
 goimports=golang.org/x/tools/cmd/goimports
-goimports_version=v0.29.0
+goimports_version=v0.33.0
 
 install-format:
-	@if ! command -v gofumpt > /dev/null; then \
-   	echo "🔄 - Installing gofumpt $(gofumpt_version)..."; \
-      go install $(gofumpt)@$(gofumpt_version); \
-		echo "✅ - Installed gofumpt successfully!"; \
-		echo ""; \
-   fi
+	@echo "🔄 - Installing gofumpt $(gofumpt_version)..."
+	@go install $(gofumpt)@$(gofumpt_version)
+	@echo "✅ - Installed gofumpt successfully!"
+	@echo ""
 
-format: install-format
+install-lint:
+	@echo "🔄 - Installing golangci-lint $(golangci_lint_version)..."
+	@go install $(golangci_lint)@$(golangci_lint_version)
+	@echo "✅ - Installed golangci-lint successfully!"
+	@echo ""
+
+install-imports:
+	@echo "🔄 - Installing goimports $(goimports_version)..."
+	@go install $(goimports)@$(goimports_version)
+	@echo "✅ - Installed goimports successfully!"
+	@echo ""
+
+lint:
+	@if command -v golangci-lint >/dev/null 2>&1; then \
+		INSTALLED=$$(golangci-lint version | head -n1 | awk '{print $$4}'); \
+		echo "Detected golangci-lint $$INSTALLED, required $(golangci_lint_version)"; \
+		if [ "$$(printf '%s\n' "$(golangci_lint_version)" "$$INSTALLED" | sort -V | head -n1)" != "$(golangci_lint_version)" ]; then \
+	   	echo "Updating golangci-lint..."; \
+	   	$(MAKE) install-lint; \
+		fi; \
+	else \
+		echo "golangci-lint not found; installing..."; \
+		$(MAKE) install-lint; \
+	fi
+	@if command -v goimports >/dev/null 2>&1; then \
+		INSTALLED=$$(go version -m $$(command -v goimports) | awk '$$1=="mod" {print $$3; exit}'); \
+		echo "Detected goimports $$INSTALLED, required $(goimports_version)"; \
+		if [ "$$(printf '%s\n' "$(goimports_version)" "$$INSTALLED" | sort -V | head -n1)" != "$(goimports_version)" ]; then \
+	   	echo "Updating goimports..."; \
+	   	$(MAKE) install-imports; \
+		fi; \
+	else \
+		echo "goimports not found; installing..."; \
+		$(MAKE) install-imports; \
+	fi
+	@echo "🔄 - Linting code..."
+	@find . -name '*.go' -type f -not -path "*.git*" -not -name "*.pb.go" -not -name "*.pb.gw.go" -not -name "*.pulsar.go" -not -path "./crypto/keys/secp256k1/*" | xargs -I % sh -c 'gofumpt -w -l % && goimports -w -local github.com/CosmosContracts %'
+	@golangci-lint run
+	@echo "✅ - Linted code successfully!"
+
+format:
+	@if command -v gofumpt >/dev/null 2>&1; then \
+		INSTALLED=$$(go version -m $$(command -v gofumpt) | awk '$$1=="mod" {print $$3; exit}'); \
+		echo "Detected gofumpt $$INSTALLED, required $(gofumpt_version)"; \
+		if [ "$$(printf '%s\n' "$(gofumpt_version)" "$$INSTALLED" | sort -V | head -n1)" != "$(gofumpt_version)" ]; then \
+	   	echo "Updating gofumpt..."; \
+	   	$(MAKE) install-format; \
+		fi; \
+	else \
+		echo "gofumpt not found; installing..."; \
+		$(MAKE) install-format; \
+	fi
 	@echo "🔄 - Formatting code..."
 	@gofumpt -l -w .
 	@echo "✅ - Formatted code successfully!"
-
-install-lint:
-	@if ! command -v golangci-lint > /dev/null; then \
-   	echo "🔄 - Installing golangci-lint $(golangci_lint_version)..."; \
-      go install $(golangci_lint)@$(golangci_lint_version); \
-		echo "✅ - Installed golangci-lint successfully!"; \
-		echo ""; \
-   fi
-	@if ! command -v goimports > /dev/null; then \
-   	echo "🔄 - Installing goimports $(goimports_version)..."; \
-      go install $(goimports)@$(goimports_version); \
-		echo "✅ - Installed goimports successfully!"; \
-		echo ""; \
-   fi
-
-lint: install-lint
-	@echo "🔄 - Linting code..."
-	@find . -name '*.go' -type f -not -path "*.git*" -not -name "*.pb.go" -not -name "*.pb.gw.go" -not -name "*.pulsar.go" -not -path "./crypto/keys/secp256k1/*" | xargs -I % sh -c 'gofumpt -w -l % && goimports -w -local github.com/CosmosContracts %'
-	@golangci-lint run --timeout=10m --fix --exclude-files ".*.pb.go"
-	@echo "✅ - Linted code successfully!"
 
 .PHONY: install-format format install-lint lint
 
@@ -206,17 +235,20 @@ ictest-cwhooks: rm-testcache
 ictest-clock: rm-testcache
 	cd interchaintest && go test -race -v -run TestJunoClock .
 
+ictest-gov-fix: rm-testcache
+	cd interchaintest && go test -race -v -run TestFixRemovedMsgTypeQueryPanic .
+
 rm-testcache:
 	go clean -testcache
 
-.PHONY: ictest-basic ictest-statesync ictest-ibchooks ictest-tokenfactory ictest-feeshare ictest-pfm ictest-globalfee ictest-upgrade ictest-upgrade-local ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-drip ictest-burn ictest-feepay ictest-cwhooks ictest-clock rm-testcache
+.PHONY: ictest-basic ictest-statesync ictest-ibchooks ictest-tokenfactory ictest-feeshare ictest-pfm ictest-globalfee ictest-upgrade ictest-upgrade-local ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-drip ictest-burn ictest-feepay ictest-cwhooks ictest-clock ictest-gov-fix rm-testcache
 
 ###############################################################################
 ###                                  heighliner                             ###
 ###############################################################################
 
 heighliner=github.com/strangelove-ventures/heighliner
-heighliner_version=v1.7.1
+heighliner_version=v1.7.2
 
 install-heighliner:
 	@if ! command -v heighliner > /dev/null; then \
@@ -237,7 +269,7 @@ local-image: install-heighliner
 ###                                Protobuf                                 ###
 ###############################################################################
 
-protoVer=0.15.3
+protoVer=0.17.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace -v /var/run/docker.sock:/var/run/docker.sock --workdir /workspace $(protoImageName)
 
