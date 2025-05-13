@@ -14,7 +14,7 @@ permissions:
   packages: write
 
 env:
-  GO_VERSION: 1.23.4
+  GO_VERSION: 1.23.9
   TAR_PATH: /tmp/juno-docker-image.tar
   IMAGE_NAME: juno-docker-image
 
@@ -73,6 +73,7 @@ jobs:
           - "ictest-burn"
           - "ictest-cwhooks"
           - "ictest-clock"
+          - "ictest-gov-fix"
       fail-fast: false
 
     steps:

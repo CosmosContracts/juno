@@ -2,13 +2,16 @@ name: Dispatch Release to juno-std
 
 on:
   release:
-    types: [published]
+    types: [published, created, edited]
+  push:
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+'
 
 env:
   JUNO_REPO: "https://github.com/CosmosContracts/juno.git"
   JUNO_DIR: "../dependencies/juno/"
   COSMOS_SDK_REPO: "https://github.com/cosmos/cosmos-sdk.git"
-  COSMOS_SDK_REV: "v0.50.11"
+  COSMOS_SDK_REV: "v0.50.13"
   COSMOS_SDK_DIR: "../dependencies/cosmos-sdk/"
   WASMD_REPO: "https://github.com/CosmWasm/wasmd.git"
   WASMD_REV: "v0.54.0"
@@ -17,7 +20,7 @@ env:
   COMETBFT_REV: "v0.38.17"
   COMETBFT_DIR: "../dependencies/cometbft/"
   IBC_GO_REPO: "https://github.com/cosmos/ibc-go.git"
-  IBC_GO_REV: "v8.5.3"
+  IBC_GO_REV: "v8.7.0"
   IBC_GO_DIR: "../dependencies/ibc-go/"
   ICS23_REPO: "https://github.com/cosmos/ics23.git"
   ICS23_REV: "go/v0.11.0"
