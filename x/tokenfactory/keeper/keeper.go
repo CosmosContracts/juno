@@ -17,7 +17,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
-	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
 )
 
 type Keeper struct {

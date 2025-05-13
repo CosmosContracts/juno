@@ -11,7 +11,7 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	v1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/CosmosContracts/juno/v28/x/wrappers/gov/keeper"
+	"github.com/CosmosContracts/juno/v29/x/wrappers/gov/keeper"
 )
 
 type AppModuleBasic struct {

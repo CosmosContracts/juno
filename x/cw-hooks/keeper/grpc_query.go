@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/CosmosContracts/juno/v28/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v29/x/cw-hooks/types"
 )
 
 var _ types.QueryServer = queryServer{}

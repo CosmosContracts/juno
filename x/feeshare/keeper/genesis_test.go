@@ -5,7 +5,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/CosmosContracts/juno/v28/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v29/x/feeshare/types"
 )
 
 func (s *KeeperTestSuite) TestFeeShareInitGenesis() {

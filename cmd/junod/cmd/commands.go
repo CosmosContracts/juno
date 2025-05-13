@@ -25,7 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"github.com/CosmosContracts/juno/v28/app"
+	"github.com/CosmosContracts/juno/v29/app"
 )
 
 var tempDir = func() string {

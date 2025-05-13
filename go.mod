@@ -1,4 +1,4 @@
-module github.com/CosmosContracts/juno/v28
+module github.com/CosmosContracts/juno/v29
 
 go 1.23.9
 

@@ -17,8 +17,8 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/CosmosContracts/juno/v28/x/tokenfactory/keeper"
-	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v29/x/tokenfactory/keeper"
+	"github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
 )
 
 var (

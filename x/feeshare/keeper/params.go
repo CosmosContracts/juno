@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/CosmosContracts/juno/v28/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v29/x/feeshare/types"
 )
 
 // SetParams sets the x/feeshare module parameters.

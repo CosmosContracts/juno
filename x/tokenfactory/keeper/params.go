@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
 )
 
 // SetParams sets the x/tokenfactory module parameters.

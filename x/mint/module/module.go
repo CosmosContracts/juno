@@ -16,9 +16,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/CosmosContracts/juno/v28/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v28/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v28/x/mint/types"
+	"github.com/CosmosContracts/juno/v29/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v29/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v29/x/mint/types"
 )
 
 // ConsensusVersion defines the current x/mint module consensus version.

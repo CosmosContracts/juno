@@ -18,11 +18,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
-	clocktypes "github.com/CosmosContracts/juno/v28/x/clock/types"
-	feepaytypes "github.com/CosmosContracts/juno/v28/x/feepay/types"
-	feesharetypes "github.com/CosmosContracts/juno/v28/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v28/x/globalfee/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v28/x/tokenfactory/types"
+	clocktypes "github.com/CosmosContracts/juno/v29/x/clock/types"
+	feepaytypes "github.com/CosmosContracts/juno/v29/x/feepay/types"
+	feesharetypes "github.com/CosmosContracts/juno/v29/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v29/x/globalfee/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
 )
 
 var (
