@@ -30,9 +30,7 @@ var (
 	MaxDepositPeriod = "10s"
 	Denom            = "ujuno"
 
-	JunoE2ERepo  = "ghcr.io/cosmoscontracts/juno-e2e"
-	JunoMainRepo = "ghcr.io/cosmoscontracts/juno"
-
+	JunoMainRepo          = "ghcr.io/cosmoscontracts/juno"
 	junoRepo, junoVersion = GetDockerImageInfo()
 
 	JunoImage = ibc.DockerImage{
