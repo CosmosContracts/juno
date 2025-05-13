@@ -68,12 +68,11 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/CosmosContracts/juno/v28/app/keepers"
-	upgrades "github.com/CosmosContracts/juno/v28/app/upgrades"
-	v28 "github.com/CosmosContracts/juno/v28/app/upgrades/v28"
-	"github.com/CosmosContracts/juno/v28/docs"
-	// wrappedgovkeeper "github.com/CosmosContracts/juno/v28/x/wrappers/gov/keeper"
-	// govmodule "github.com/CosmosContracts/juno/v28/x/wrappers/gov/module"
+	"github.com/CosmosContracts/juno/v29/app/keepers"
+	upgrades "github.com/CosmosContracts/juno/v29/app/upgrades"
+	v28 "github.com/CosmosContracts/juno/v29/app/upgrades/v28"
+	v29 "github.com/CosmosContracts/juno/v29/app/upgrades/v29"
+	"github.com/CosmosContracts/juno/v29/docs"
 )
 
 const (
@@ -94,6 +93,7 @@ var (
 
 	Upgrades = []upgrades.Upgrade{
 		v28.Upgrade,
+		v29.Upgrade,
 	}
 
 	_ runtime.AppI            = (*App)(nil)

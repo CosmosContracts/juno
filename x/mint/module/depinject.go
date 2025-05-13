@@ -9,9 +9,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	modulev1 "github.com/CosmosContracts/juno/v28/api/juno/mint/module/v1"
-	"github.com/CosmosContracts/juno/v28/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v28/x/mint/types"
+	modulev1 "github.com/CosmosContracts/juno/v29/api/juno/mint/module/v1"
+	"github.com/CosmosContracts/juno/v29/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v29/x/mint/types"
 )
 
 func init() {

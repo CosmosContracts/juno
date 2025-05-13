@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v28/app/keepers"
+	"github.com/CosmosContracts/juno/v29/app/keepers"
 )
 
 func CreateV28UpgradeHandler(

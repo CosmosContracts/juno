@@ -15,8 +15,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v28/x/clock/keeper"
-	"github.com/CosmosContracts/juno/v28/x/clock/types"
+	"github.com/CosmosContracts/juno/v29/x/clock/keeper"
+	"github.com/CosmosContracts/juno/v29/x/clock/types"
 )
 
 const (

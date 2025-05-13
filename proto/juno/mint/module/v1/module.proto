@@ -6,7 +6,7 @@ import "cosmos/app/v1alpha1/module.proto";
 
 // Module is the config object of the mint module.
 message Module {
-  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/CosmosContracts/juno/v28/x/mint"};
+  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/CosmosContracts/juno/v29/x/mint"};
 
   string fee_collector_name = 1;
 
