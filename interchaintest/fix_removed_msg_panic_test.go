@@ -40,18 +40,16 @@ var v28Chain = ibc.DockerImage{
 }
 
 func TestFixRemovedMsgTypeQueryPanic(t *testing.T) {
-	repo, localVersion := GetDockerImageInfo()
-	SimulateQueryPanic(t, chainName, v28Chain.Version, localVersion, repo, firstUpgradeName, secondUpgradeName)
+	localRepo, localVersion := GetDockerImageInfo()
+	SimulateQueryPanic(t, chainName, v28Chain.Version, localVersion, v28Chain.Repository, localRepo, firstUpgradeName, secondUpgradeName)
 }
 
-func SimulateQueryPanic(t *testing.T, chainName, firstUpgradeBranchVersion, secondUpgradeBranchVersion, upgradeRepo, firstUpgradeName, secondUpgradeName string) {
+func SimulateQueryPanic(t *testing.T, chainName, firstUpgradeBranchVersion, secondUpgradeBranchVersion, firstUpgradeRepo, secondUpgradeRepo, firstUpgradeName, secondUpgradeName string) {
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}
 
 	t.Parallel()
-
-	t.Log(chainName, firstUpgradeBranchVersion, upgradeRepo, firstUpgradeName)
 
 	previousVersionGenesis := []cosmos.GenesisKV{
 		{
@@ -69,8 +67,9 @@ func SimulateQueryPanic(t *testing.T, chainName, firstUpgradeBranchVersion, seco
 	}
 
 	cfg := junoConfig
+	buildertypes.RegisterInterfaces(cfg.EncodingConfig.InterfaceRegistry)
 	cfg.ModifyGenesis = cosmos.ModifyGenesis(previousVersionGenesis)
-	cfg.Images = []ibc.DockerImage{v27Chain}
+	cfg.Images = []ibc.DockerImage{v27Chain, v28Chain}
 
 	numVals, numNodes := 4, 0
 	chains := CreateChainWithCustomConfig(t, numVals, numNodes, cfg)
@@ -100,7 +99,7 @@ func SimulateQueryPanic(t *testing.T, chainName, firstUpgradeBranchVersion, seco
 	proposalIDInt, err = strconv.ParseUint(proposalID, 10, 64)
 	require.NoError(t, err, "failed to parse proposal ID")
 	ValidatorVoting(t, ctx, chain, proposalIDInt, height, haltHeight)
-	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, firstUpgradeBranchVersion)
+	UpgradeNodes(t, ctx, chain, client, haltHeight, firstUpgradeRepo, firstUpgradeBranchVersion)
 	t.Log("v28 upgrade successful!")
 
 	// upgrade to v29
@@ -111,7 +110,7 @@ func SimulateQueryPanic(t *testing.T, chainName, firstUpgradeBranchVersion, seco
 	proposalIDInt, err = strconv.ParseUint(proposalID, 10, 64)
 	require.NoError(t, err, "failed to parse proposal ID")
 	ValidatorVoting(t, ctx, chain, proposalIDInt, height, haltHeight)
-	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, secondUpgradeBranchVersion)
+	UpgradeNodes(t, ctx, chain, client, haltHeight, secondUpgradeRepo, secondUpgradeBranchVersion)
 	t.Log("v29 upgrade successful!")
 
 	// query gov module to check for panic
@@ -125,7 +124,6 @@ func SubmitBuilderParamsUpdate(t *testing.T, ctx context.Context, chain *cosmos.
 
 	updateParamsMsg := []cosmos.ProtoMessage{
 		&buildertypes.MsgUpdateParams{
-			// gov module account
 			Authority: "juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730",
 			Params: buildertypes.Params{
 				FrontRunningProtection: true,
@@ -159,7 +157,7 @@ func VoteOnProp(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, pr
 	err := chain.VoteOnProposalAllValidators(ctx, proposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
-	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+10, proposalID, govtypes.StatusPassed)
+	_, err = cosmos.PollForProposalStatus(ctx, chain, height, height+20, proposalID, govtypes.StatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
 	_, timeoutCtxCancel := context.WithTimeout(ctx, time.Second*45)
