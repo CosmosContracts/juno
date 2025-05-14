@@ -87,7 +87,10 @@ func NewRootCmd() *cobra.Command {
 			panic(err)
 		}
 		if tempDir != app.DefaultNodeHome {
-			os.RemoveAll(tempDir)
+			err := os.RemoveAll(tempDir)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}()
 
@@ -153,7 +156,10 @@ func NewRootCmd() *cobra.Command {
 			customCmtConfig := initCometConfig(timeoutCommit)
 
 			// Force faster block times
-			os.Setenv("JUNOD_CONSENSUS_TIMEOUT_COMMIT", cast.ToString(timeoutCommit))
+			err = os.Setenv("JUNOD_CONSENSUS_TIMEOUT_COMMIT", cast.ToString(timeoutCommit))
+			if err != nil {
+				return err
+			}
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCmtConfig)
 		},
@@ -209,7 +215,7 @@ func initCometConfig(timeoutCommit time.Duration) *cmtcfg.Config {
 
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
-func initAppConfig() (string, interface{}) {
+func initAppConfig() (string, any) {
 	type CustomAppConfig struct {
 		serverconfig.Config
 
@@ -258,7 +264,10 @@ func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
 		val := viper.GetString(key)
 		if val != "" {
 			// Sets the env for this instance of the app only.
-			os.Setenv(envVar, val)
+			err := os.Setenv(envVar, val)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 

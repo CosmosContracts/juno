@@ -14,14 +14,14 @@ import (
 
 func (k Keeper) SetContract(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, keyPrefix)
-	prefix.Set(contractAddr.Bytes(), []byte{})
+	loadedPrefix := prefix.NewStore(store, keyPrefix)
+	loadedPrefix.Set(contractAddr.Bytes(), []byte{})
 }
 
 func (k Keeper) IsContractRegistered(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) bool {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, keyPrefix)
-	return prefix.Has(contractAddr.Bytes())
+	loadedPrefix := prefix.NewStore(store, keyPrefix)
+	return loadedPrefix.Has(contractAddr.Bytes())
 }
 
 func (k Keeper) IterateContracts(
@@ -31,7 +31,7 @@ func (k Keeper) IterateContracts(
 ) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	iterator := storetypes.KVStorePrefixIterator(store, keyPrefix)
-	defer iterator.Close()
+	defer iterator.Close() //nolint:errcheck
 
 	for ; iterator.Valid(); iterator.Next() {
 		keyAddr := iterator.Key()[len(keyPrefix):]
@@ -48,7 +48,7 @@ func (k Keeper) GetAllContracts(ctx context.Context, keyPrefix []byte) (list []s
 		list = append(list, sdk.AccAddress(addr))
 		return false
 	})
-	return
+	return list
 }
 
 func (k Keeper) GetAllContractsBech32(ctx context.Context, keyPrefix []byte) []string {
@@ -63,8 +63,8 @@ func (k Keeper) GetAllContractsBech32(ctx context.Context, keyPrefix []byte) []s
 
 func (k Keeper) DeleteContract(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, keyPrefix)
-	prefix.Delete(contractAddr)
+	loadedPrefix := prefix.NewStore(store, keyPrefix)
+	loadedPrefix.Delete(contractAddr)
 }
 
 func (k Keeper) ExecuteMessageOnContracts(ctx context.Context, keyPrefix []byte, msgBz []byte) error {

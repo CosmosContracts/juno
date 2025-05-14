@@ -28,12 +28,12 @@ func SetupTestingAppWithLevelDB(isCheckTx bool) (app *junoapp.App, cleanupFn fun
 	if err != nil {
 		panic(err)
 	}
-	db, err := db.NewGoLevelDB("juno_leveldb_testing", dir, nil)
+	leveldb, err := db.NewGoLevelDB("juno_leveldb_testing", dir, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	app = junoapp.New(log.NewNopLogger(), db, nil, true, dir, sims.EmptyAppOptions{}, []wasmkeeper.Option{}, baseapp.SetChainID("juno-1"))
+	app = junoapp.New(log.NewNopLogger(), leveldb, nil, true, dir, sims.EmptyAppOptions{}, []wasmkeeper.Option{}, baseapp.SetChainID("juno-1"))
 	if !isCheckTx {
 		valSet := common.GenerateValidatorSet(1)
 		genesisState := junoapp.NewDefaultGenesisState(app.AppCodec())
@@ -61,7 +61,10 @@ func SetupTestingAppWithLevelDB(isCheckTx bool) (app *junoapp.App, cleanupFn fun
 	}
 
 	cleanupFn = func() {
-		db.Close()
+		err = leveldb.Close()
+		if err != nil {
+			panic(err)
+		}
 		err = os.RemoveAll(dir)
 		if err != nil {
 			panic(err)

@@ -63,9 +63,12 @@ func resetWasm(dbDir string) error {
 
 	if tmos.FileExists(wasmDir) {
 		if err := os.RemoveAll(wasmDir); err == nil {
-			fmt.Println("Removed wasm", "dir", wasmDir)
+			_, err = fmt.Println("Removed wasm", "dir", wasmDir)
+			if err != nil {
+				return fmt.Errorf("error removing wasm dir: %s; err: %w", wasmDir, err)
+			}
 		} else {
-			return fmt.Errorf("error removing wasm  dir: %s; err: %w", wasmDir, err)
+			return fmt.Errorf("error removing wasm dir: %s; err: %w", wasmDir, err)
 		}
 	}
 
@@ -81,7 +84,10 @@ func resetApp(dbDir string) error {
 
 	if tmos.FileExists(appDir) {
 		if err := os.RemoveAll(appDir); err == nil {
-			fmt.Println("Removed application.db", "dir", appDir)
+			_, err = fmt.Println("Removed application.db", "dir", appDir)
+			if err != nil {
+				return fmt.Errorf("error removing application.db  dir: %s; err: %w", appDir, err)
+			}
 		} else {
 			return fmt.Errorf("error removing application.db  dir: %s; err: %w", appDir, err)
 		}

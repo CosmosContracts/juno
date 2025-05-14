@@ -85,19 +85,19 @@ type AppModule struct {
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak types.AccountKeeper) AppModule {
+func NewAppModule(cdc codec.Codec, k keeper.Keeper, ak types.AccountKeeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
-		keeper:         keeper,
+		keeper:         k,
 		authKeeper:     ak,
 	}
 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
-func (am AppModule) IsOnePerModuleType() {}
+func (AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
-func (am AppModule) IsAppModule() {}
+func (AppModule) IsAppModule() {}
 
 // RegisterServices registers a gRPC query service to respond to the
 // module-specific gRPC queries.

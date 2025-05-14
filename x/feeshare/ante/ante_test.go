@@ -78,8 +78,8 @@ func (s *AnteTestSuite) TestAnteHandle() {
 	tx := NewMockTx(deployer, executeMsg)
 
 	// Run normal msg through ante handle
-	ante := ante.NewFeeSharePayoutDecorator(s.bankKeeper, s.feeshareKeeper)
-	_, err := ante.AnteHandle(s.Ctx, tx, false, EmptyAnte)
+	anteDecorator := ante.NewFeeSharePayoutDecorator(s.bankKeeper, s.feeshareKeeper)
+	_, err := anteDecorator.AnteHandle(s.Ctx, tx, false, EmptyAnte)
 	s.Require().NoError(err)
 
 	// Check that the receiver account was paid
@@ -88,7 +88,7 @@ func (s *AnteTestSuite) TestAnteHandle() {
 
 	// Create & handle authz msg
 	authzMsg := authz.NewMsgExec(deployer, []sdk.Msg{executeMsg})
-	_, err = ante.AnteHandle(s.Ctx, NewMockTx(deployer, &authzMsg), false, EmptyAnte)
+	_, err = anteDecorator.AnteHandle(s.Ctx, NewMockTx(deployer, &authzMsg), false, EmptyAnte)
 	s.Require().NoError(err)
 
 	// Check that the receiver account was paid
@@ -97,7 +97,7 @@ func (s *AnteTestSuite) TestAnteHandle() {
 
 	// Create & handle authz msg with nested authz msg
 	nestedAuthzMsg := authz.NewMsgExec(deployer, []sdk.Msg{&authzMsg})
-	_, err = ante.AnteHandle(s.Ctx, NewMockTx(deployer, &nestedAuthzMsg), false, EmptyAnte)
+	_, err = anteDecorator.AnteHandle(s.Ctx, NewMockTx(deployer, &nestedAuthzMsg), false, EmptyAnte)
 	s.Require().NoError(err)
 
 	// Check that the receiver account was paid
@@ -214,11 +214,11 @@ func NewMockTx(feePayer sdk.AccAddress, msgs ...sdk.Msg) MockTx {
 	}
 }
 
-func (tx MockTx) GetGas() uint64 {
+func (MockTx) GetGas() uint64 {
 	return 200000
 }
 
-func (tx MockTx) GetFee() sdk.Coins {
+func (MockTx) GetFee() sdk.Coins {
 	return sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(500)))
 }
 
@@ -226,7 +226,7 @@ func (tx MockTx) FeePayer() []byte {
 	return tx.feePayer
 }
 
-func (tx MockTx) FeeGranter() []byte {
+func (MockTx) FeeGranter() []byte {
 	return nil
 }
 
@@ -234,10 +234,10 @@ func (tx MockTx) GetMsgs() []sdk.Msg {
 	return tx.msgs
 }
 
-func (tx MockTx) GetMsgsV2() ([]protov2.Message, error) {
+func (MockTx) GetMsgsV2() ([]protov2.Message, error) {
 	return nil, nil
 }
 
-func (tx MockTx) ValidateBasic() error {
+func (MockTx) ValidateBasic() error {
 	return nil
 }

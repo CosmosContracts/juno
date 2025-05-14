@@ -119,9 +119,6 @@ gofumpt_version=v0.8.0
 golangci_lint=github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 golangci_lint_version=v2.1.6
 
-goimports=golang.org/x/tools/cmd/goimports
-goimports_version=v0.33.0
-
 install-format:
 	@echo "🔄 - Installing gofumpt $(gofumpt_version)..."
 	@go install $(gofumpt)@$(gofumpt_version)
@@ -132,12 +129,6 @@ install-lint:
 	@echo "🔄 - Installing golangci-lint $(golangci_lint_version)..."
 	@go install $(golangci_lint)@$(golangci_lint_version)
 	@echo "✅ - Installed golangci-lint successfully!"
-	@echo ""
-
-install-imports:
-	@echo "🔄 - Installing goimports $(goimports_version)..."
-	@go install $(goimports)@$(goimports_version)
-	@echo "✅ - Installed goimports successfully!"
 	@echo ""
 
 lint:
@@ -152,19 +143,7 @@ lint:
 		echo "golangci-lint not found; installing..."; \
 		$(MAKE) install-lint; \
 	fi
-	@if command -v goimports >/dev/null 2>&1; then \
-		INSTALLED=$$(go version -m $$(command -v goimports) | awk '$$1=="mod" {print $$3; exit}'); \
-		echo "Detected goimports $$INSTALLED, required $(goimports_version)"; \
-		if [ "$$(printf '%s\n' "$(goimports_version)" "$$INSTALLED" | sort -V | head -n1)" != "$(goimports_version)" ]; then \
-	   	echo "Updating goimports..."; \
-	   	$(MAKE) install-imports; \
-		fi; \
-	else \
-		echo "goimports not found; installing..."; \
-		$(MAKE) install-imports; \
-	fi
 	@echo "🔄 - Linting code..."
-	@find . -name '*.go' -type f -not -path "*.git*" -not -name "*.pb.go" -not -name "*.pb.gw.go" -not -name "*.pulsar.go" -not -path "./crypto/keys/secp256k1/*" | xargs -I % sh -c 'gofumpt -w -l % && goimports -w -local github.com/CosmosContracts %'
 	@golangci-lint run
 	@echo "✅ - Linted code successfully!"
 

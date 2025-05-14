@@ -78,7 +78,7 @@ func TestParamsValidate(t *testing.T) {
 func TestParamsValidateShares(t *testing.T) {
 	testCases := []struct {
 		name     string
-		value    interface{}
+		value    any
 		expError bool
 	}{
 		{"default", DefaultDeveloperShares, false},

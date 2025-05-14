@@ -8,7 +8,7 @@ import (
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
-	ibc_hooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
+	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/types"
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -51,7 +51,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
-
 	// "github.com/cosmos/cosmos-sdk/x/gov"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -77,7 +76,6 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v29/x/mint/types"
 	tokenfactorymodule "github.com/CosmosContracts/juno/v29/x/tokenfactory/module"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
-
 	// wrappers
 	wrappedgovmodule "github.com/CosmosContracts/juno/v29/x/wrappers/gov/module"
 )
@@ -128,7 +126,7 @@ func appModules(
 		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
 		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
-		ibc_hooks.NewAppModule(app.AppKeepers.AccountKeeper),
+		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper, app.GetSubspace(icqtypes.ModuleName)),
 		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
 		// Wasm modules
@@ -297,7 +295,7 @@ var AppModuleBasics = module.NewBasicManager(
 	transfer.AppModuleBasic{},
 	ica.AppModuleBasic{},
 	ibcfee.AppModuleBasic{},
-	ibc_hooks.AppModuleBasic{},
+	ibchooks.AppModuleBasic{},
 	icq.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
 	// Wasm modules

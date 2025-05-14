@@ -28,7 +28,7 @@ func (ms msgServer) UpdateParams(ctx context.Context, req *types.MsgUpdateParams
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", ms.authority, req.Authority)
 	}
 
-	if err := ms.Keeper.SetParams(ctx, req.Params); err != nil {
+	if err := ms.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
 

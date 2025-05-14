@@ -3,21 +3,21 @@ package types
 import "cosmossdk.io/math"
 
 type TokenFactoryMsg struct {
-	/// Contracts can create denoms, namespaced under the contract's address.
-	/// A contract may create any number of independent sub-denoms.
+	// Contracts can create denoms, namespaced under the contract's address.
+	// A contract may create any number of independent sub-denoms.
 	CreateDenom *CreateDenom `json:"create_denom,omitempty"`
-	/// Contracts can change the admin of a denom that they are the admin of.
+	// Contracts can change the admin of a denom that they are the admin of.
 	ChangeAdmin *ChangeAdmin `json:"change_admin,omitempty"`
-	/// Contracts can mint native tokens for an existing factory denom
-	/// that they are the admin of.
+	// Contracts can mint native tokens for an existing factory denom
+	// that they are the admin of.
 	MintTokens *MintTokens `json:"mint_tokens,omitempty"`
-	/// Contracts can burn native tokens for an existing factory denom
-	/// that they are the admin of.
-	/// Currently, the burn from address must be the admin contract.
+	// Contracts can burn native tokens for an existing factory denom
+	// that they are the admin of.
+	// Currently, the burn from address must be the admin contract.
 	BurnTokens *BurnTokens `json:"burn_tokens,omitempty"`
-	/// Sets the metadata on a denom which the contract controls
+	// Sets the metadata on a denom which the contract controls
 	SetMetadata *SetMetadata `json:"set_metadata,omitempty"`
-	/// Forces a transfer of tokens from one address to another.
+	// Forces a transfer of tokens from one address to another.
 	ForceTransfer *ForceTransfer `json:"force_transfer,omitempty"`
 }
 

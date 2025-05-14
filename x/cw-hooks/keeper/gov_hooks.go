@@ -91,7 +91,7 @@ func (h GovHooks) AfterProposalSubmission(ctx context.Context, proposalID uint64
 	}
 
 	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		fmt.Println("AfterProposalSubmission: ", err)
+		_, err = fmt.Println("AfterProposalSubmission: ", err)
 		return err
 	}
 
@@ -112,7 +112,7 @@ func (h GovHooks) AfterProposalDeposit(ctx context.Context, proposalID uint64, _
 	}
 
 	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		fmt.Println("AfterProposalDeposit: ", err)
+		_, err = fmt.Println("AfterProposalDeposit: ", err)
 		return err
 	}
 
@@ -133,14 +133,14 @@ func (h GovHooks) AfterProposalVote(ctx context.Context, proposalID uint64, vote
 	}
 
 	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		fmt.Println("AfterProposalVote: ", err)
+		_, err = fmt.Println("AfterProposalVote: ", err)
 		return err
 	}
 
 	return nil
 }
 
-func (h GovHooks) AfterProposalFailedMinDeposit(_ context.Context, _ uint64) error {
+func (GovHooks) AfterProposalFailedMinDeposit(_ context.Context, _ uint64) error {
 	return nil
 }
 
@@ -153,7 +153,7 @@ func (h GovHooks) AfterProposalVotingPeriodEnded(ctx context.Context, proposalID
 	}
 
 	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		fmt.Println("AfterProposalVotingPeriodEnded: ", err)
+		_, err = fmt.Println("AfterProposalVotingPeriodEnded: ", err)
 		return err
 	}
 

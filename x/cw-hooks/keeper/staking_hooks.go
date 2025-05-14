@@ -282,6 +282,6 @@ func (h StakingHooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.A
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
-func (h StakingHooks) AfterUnbondingInitiated(_ context.Context, _ uint64) error {
+func (StakingHooks) AfterUnbondingInitiated(_ context.Context, _ uint64) error {
 	return nil
 }

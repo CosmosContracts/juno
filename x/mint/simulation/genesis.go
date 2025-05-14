@@ -50,6 +50,9 @@ func RandomizedGenState(simState *module.SimulationState) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Selected randomly generated minting parameters:\n%s\n", bz)
+	_, err = fmt.Printf("Selected randomly generated minting parameters:\n%s\n", bz)
+	if err != nil {
+		panic(err)
+	}
 	simState.GenState[types.ModuleName] = simState.Cdc.MustMarshalJSON(mintGenesis)
 }

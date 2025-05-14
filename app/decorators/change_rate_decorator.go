@@ -1,6 +1,7 @@
 package decorators
 
 import (
+	"errors"
 	"fmt"
 
 	sdkmath "cosmossdk.io/math"
@@ -49,10 +50,8 @@ func (mcr MsgChangeRateDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 // Check if a tx's messages exceed a validator's max change rate
 func (mcr MsgChangeRateDecorator) hasInvalidCommissionRateMsgs(ctx sdk.Context, msgs []sdk.Msg) error {
 	for _, msg := range msgs {
-
 		// Check if an authz message, loop through all inner messages, and recursively call this function
 		if execMsg, ok := msg.(*authz.MsgExec); ok {
-
 			msgs, err := execMsg.GetMessages()
 			if err != nil {
 				return err
@@ -96,7 +95,7 @@ func (mcr MsgChangeRateDecorator) isInvalidEditMessage(ctx sdk.Context, msg *sta
 
 	bech32Addr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
-		return fmt.Errorf("invalid validator address")
+		return errors.New("invalid validator address")
 	}
 
 	// Get validator info, if exists

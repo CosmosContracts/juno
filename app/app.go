@@ -318,14 +318,18 @@ func New(
 	if err != nil {
 		// Once we switch to using protoreflect-based antehandlers, we might
 		// want to panic here instead of logging a warning.
-		fmt.Fprintln(os.Stderr, err.Error())
+		_, printErr := fmt.Fprintln(os.Stderr, err.Error())
+		if printErr != nil {
+			// This error is just thrown if println fails.
+			panic(printErr)
+		}
 	}
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
 		}
-		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+		ctx := app.NewUncachedContext(true, tmproto.Header{})
 
 		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
 			tmos.Exit(fmt.Sprintf("app.AppKeepers.WasmKeeper failed initialize pinned codes %s", err))
@@ -451,7 +455,7 @@ func (app *App) LoadHeight(height int64) error {
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *App) ModuleAccountAddrs() map[string]bool {
+func (*App) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range keepers.GetMaccPerms() {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
@@ -494,7 +498,7 @@ func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
 	return subspace
 }
 
-func (app *App) RegisterSwaggerUI(apiSvr *api.Server) error {
+func (*App) RegisterSwaggerUI(apiSvr *api.Server) error {
 	staticSubDir, err := fs.Sub(docs.Docs, "static")
 	if err != nil {
 		return err
@@ -530,7 +534,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 
 // RegisterTxService implements the Application.RegisterTxService method.
 func (app *App) RegisterTxService(clientCtx client.Context) {
-	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
+	authtx.RegisterTxService(app.GRPCQueryRouter(), clientCtx, app.Simulate, app.interfaceRegistry)
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
@@ -538,7 +542,7 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 	cmtApp := server.NewCometABCIWrapper(app)
 	cmtservice.RegisterTendermintService(
 		clientCtx,
-		app.BaseApp.GRPCQueryRouter(),
+		app.GRPCQueryRouter(),
 		app.interfaceRegistry,
 		cmtApp.Query,
 	)

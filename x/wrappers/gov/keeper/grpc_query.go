@@ -56,7 +56,7 @@ func (q queryServer) Proposal(ctx context.Context, req *v1.QueryProposalRequest)
 
 // Proposals implements the Query/Proposals gRPC method
 func (q queryServer) Proposals(ctx context.Context, req *v1.QueryProposalsRequest) (*v1.QueryProposalsResponse, error) {
-	filteredProposals, pageRes, err := CollectionFilteredPaginate(ctx, q.k.Proposals, req.Pagination, func(key uint64, p v1.Proposal) (include bool, err error) {
+	filteredProposals, pageRes, err := CollectionFilteredPaginate(ctx, q.k.Proposals, req.Pagination, func(_ uint64, p v1.Proposal) (include bool, err error) {
 		matchVoter, matchDepositor, matchStatus := true, true, true
 
 		// match status (if supplied/valid)
@@ -256,11 +256,11 @@ func (q queryServer) TallyResult(ctx context.Context, req *v1.QueryTallyResultRe
 
 	var tallyResult v1.TallyResult
 
-	switch {
-	case proposal.Status == v1.StatusDepositPeriod:
+	switch proposal.Status {
+	case v1.StatusDepositPeriod:
 		tallyResult = v1.EmptyTallyResult()
 
-	case proposal.Status == v1.StatusPassed || proposal.Status == v1.StatusRejected || proposal.Status == v1.StatusFailed:
+	case v1.StatusPassed, v1.StatusRejected, v1.StatusFailed:
 		tallyResult = *proposal.FinalTallyResult
 
 	default:

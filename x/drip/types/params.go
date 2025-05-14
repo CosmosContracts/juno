@@ -32,7 +32,7 @@ func DefaultParams() Params {
 	}
 }
 
-func validateBool(i interface{}) error {
+func validateBool(i any) error {
 	_, ok := i.(bool)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -41,7 +41,7 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func validateArray(i interface{}) error {
+func validateArray(i any) error {
 	_, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

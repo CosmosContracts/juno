@@ -19,7 +19,7 @@ func TestDefaultParams(t *testing.T) {
 
 func Test_validateParams(t *testing.T) {
 	tests := map[string]struct {
-		coins     interface{} // not sdk.DeCoins, but Decoins defined in glboalfee
+		coins     any // not sdk.DeCoins, but Decoins defined in glboalfee
 		expectErr bool
 	}{
 		"DefaultParams, pass": {

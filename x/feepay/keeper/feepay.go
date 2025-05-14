@@ -20,8 +20,8 @@ import (
 // Check if a contract is registered as a fee pay contract
 func (k Keeper) IsContractRegistered(ctx context.Context, contractAddr string) bool {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, StoreKeyContracts)
-	return prefix.Has([]byte(contractAddr))
+	contractsPrefix := prefix.NewStore(store, StoreKeyContracts)
+	return contractsPrefix.Has([]byte(contractAddr))
 }
 
 // Get a contract from KV store
@@ -32,10 +32,10 @@ func (k Keeper) GetContract(ctx context.Context, contractAddress string) (*types
 	}
 
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, StoreKeyContracts)
+	contractsPrefix := prefix.NewStore(store, StoreKeyContracts)
 
 	key := []byte(contractAddress)
-	bz := prefix.Get(key)
+	bz := contractsPrefix.Get(key)
 
 	var fpc types.FeePayContract
 	if err := k.cdc.Unmarshal(bz, &fpc); err != nil {
@@ -48,12 +48,12 @@ func (k Keeper) GetContract(ctx context.Context, contractAddress string) (*types
 // Get all registered fee pay contracts
 func (k Keeper) GetContracts(ctx context.Context, pag *query.PageRequest) (*types.QueryFeePayContractsResponse, error) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, StoreKeyContracts)
+	contractsPrefix := prefix.NewStore(store, StoreKeyContracts)
 
 	// Filter and paginate all contracts
 	results, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
-		prefix,
+		contractsPrefix,
 		pag,
 		func(_ []byte, value *types.FeePayContract) (*types.FeePayContract, error) {
 			return value, nil
@@ -84,7 +84,7 @@ func (k Keeper) GetAllContracts(ctx context.Context) []types.FeePayContract {
 
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	iterator := storetypes.KVStorePrefixIterator(store, StoreKeyContracts)
-	defer iterator.Close()
+	defer iterator.Close() //nolint:errcheck
 
 	for ; iterator.Valid(); iterator.Next() {
 		var c types.FeePayContract
@@ -137,10 +137,10 @@ func (k Keeper) RegisterContract(ctx context.Context, rfp *types.MsgRegisterFeeP
 // Set a contract in the KV Store
 func (k Keeper) SetFeePayContract(ctx context.Context, feepay types.FeePayContract) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, StoreKeyContracts)
+	contractsPrefix := prefix.NewStore(store, StoreKeyContracts)
 	key := []byte(feepay.ContractAddress)
 	bz := k.cdc.MustMarshal(&feepay)
-	prefix.Set(key, bz)
+	contractsPrefix.Set(key, bz)
 }
 
 // Unregister contract (loop through usage store & remove all usage entries for contract)
@@ -206,11 +206,11 @@ func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregister
 func (k Keeper) SetContractBalance(ctx context.Context, fpc *types.FeePayContract, newBalance uint64) {
 	// Get the existing contract in KV store
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, StoreKeyContracts)
+	contractsPrefix := prefix.NewStore(store, StoreKeyContracts)
 
 	// Set new balance and save to KV store
 	fpc.Balance = newBalance
-	prefix.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
+	contractsPrefix.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
 }
 
 // Fund an existing fee pay contract
@@ -239,7 +239,7 @@ func (k Keeper) FundContract(ctx context.Context, fpc *types.FeePayContract, sen
 }
 
 // Check if a fee pay contract has a balance greater than or equal to the fee
-func (k Keeper) CanContractCoverFee(fpc *types.FeePayContract, fee uint64) bool {
+func (Keeper) CanContractCoverFee(fpc *types.FeePayContract, fee uint64) bool {
 	return fpc.Balance >= fee
 }
 
@@ -247,9 +247,9 @@ func (k Keeper) CanContractCoverFee(fpc *types.FeePayContract, fee uint64) bool 
 func (k Keeper) GetContractUses(ctx context.Context, fpc *types.FeePayContract, walletAddress string) (uint64, error) {
 	// Get usage from store
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, StoreKeyContractUses)
+	contractUsesPrefix := prefix.NewStore(store, StoreKeyContractUses)
 	key := []byte(fpc.ContractAddress + "-" + walletAddress)
-	bz := prefix.Get(key)
+	bz := contractUsesPrefix.Get(key)
 
 	var walletUsage types.FeePayWalletUsage
 	if err := k.cdc.Unmarshal(bz, &walletUsage); err != nil {
@@ -268,7 +268,7 @@ func (k Keeper) IncrementContractUses(ctx context.Context, fpc *types.FeePayCont
 
 	// Get store, key, & value for setting usage
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, StoreKeyContractUses)
+	contractUsesPrefix := prefix.NewStore(store, StoreKeyContractUses)
 	key := []byte(fpc.ContractAddress + "-" + walletAddress)
 	bz, err := k.cdc.Marshal(&types.FeePayWalletUsage{
 		ContractAddress: fpc.ContractAddress,
@@ -279,7 +279,7 @@ func (k Keeper) IncrementContractUses(ctx context.Context, fpc *types.FeePayCont
 		return err
 	}
 
-	prefix.Set(key, bz)
+	contractUsesPrefix.Set(key, bz)
 	return nil
 }
 
@@ -316,9 +316,9 @@ func (k Keeper) UpdateContractWalletLimit(ctx context.Context, fpc *types.FeePay
 
 	// Update the store with the new limit
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, StoreKeyContracts)
+	contractsPrefix := prefix.NewStore(store, StoreKeyContracts)
 	fpc.WalletLimit = walletLimit
-	prefix.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
+	contractsPrefix.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
 
 	return nil
 }
@@ -336,7 +336,7 @@ func (k Keeper) IsWalletEligible(ctx context.Context, fpc *types.FeePayContract,
 // Check if the sender is the designated contract manager for the FeePay contract. If
 // an admin is present, they are considered the manager. If there is no admin, the
 // contract creator is considered the manager.
-func (k Keeper) IsContractManager(senderAddress string, contractInfo *wasmtypes.ContractInfo) (bool, error) {
+func (Keeper) IsContractManager(senderAddress string, contractInfo *wasmtypes.ContractInfo) (bool, error) {
 	// Flags for admin existence & sender being admin/creator
 	adminExists := len(contractInfo.Admin) > 0
 	isSenderAdmin := contractInfo.Admin == senderAddress

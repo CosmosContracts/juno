@@ -35,7 +35,7 @@ func (p Params) Validate() error {
 	return err
 }
 
-func validateMintDenom(i interface{}) error {
+func validateMintDenom(i any) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -48,7 +48,7 @@ func validateMintDenom(i interface{}) error {
 	return err
 }
 
-func validateBlocksPerYear(i interface{}) error {
+func validateBlocksPerYear(i any) error {
 	v, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

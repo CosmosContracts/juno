@@ -66,7 +66,7 @@ func (s *KeeperTestSuite) TestCreateModuleAccount() {
 	s.App.AppKeepers.AccountKeeper.RemoveAccount(s.Ctx, tokenfactoryModuleAccount)
 
 	// ensure module account was removed
-	s.Ctx = s.App.BaseApp.NewContextLegacy(false, cmtproto.Header{})
+	s.Ctx = s.App.NewContextLegacy(false, cmtproto.Header{})
 	tokenfactoryModuleAccount = s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
 	s.Require().Nil(tokenfactoryModuleAccount)
 

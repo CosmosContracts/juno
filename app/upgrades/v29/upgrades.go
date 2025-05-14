@@ -2,6 +2,7 @@ package v29
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/log"
@@ -42,30 +43,30 @@ func CreateV29UpgradeHandler(
 }
 
 func configureGovV1Params(ctx context.Context, k *keepers.AppKeepers, logger log.Logger) error {
-	govParams, err := k.GovKeeper.Keeper.Params.Get(ctx)
+	govParams, err := k.GovKeeper.Params.Get(ctx)
 	if err != nil {
 		logger.Error("v29: failed to get x/gov params")
-		return fmt.Errorf("v29: failed to get x/gov params")
+		return errors.New("v29: failed to get x/gov params")
 	}
 
 	mintParams, err := k.MintKeeper.GetParams(ctx)
 	if err != nil {
 		logger.Error("v29: failed to get x/mint params")
-		return fmt.Errorf("v29: failed to get x/mint params")
+		return errors.New("v29: failed to get x/mint params")
 	}
 
 	expeditedMinDepositInt, ok := sdkmath.NewIntFromString(expeditedMinDeposit)
-	if ok != true {
+	if !ok {
 		logger.Error("v29: failed to parse expedited min deposit")
-		return fmt.Errorf("v29: failed to parse expedited min deposit")
+		return errors.New("v29: failed to parse expedited min deposit")
 	}
 
 	govParams.ExpeditedMinDeposit = sdk.NewCoins(sdk.NewCoin(mintParams.MintDenom, expeditedMinDepositInt))
 
-	err = k.GovKeeper.Keeper.Params.Set(ctx, govParams)
+	err = k.GovKeeper.Params.Set(ctx, govParams)
 	if err != nil {
 		logger.Error("v29: failed to set updated x/gov params")
-		return fmt.Errorf("v29: failed to set updated x/gov params")
+		return errors.New("v29: failed to set updated x/gov params")
 	}
 
 	logger.Info("v29: successfully set updated x/gov params")

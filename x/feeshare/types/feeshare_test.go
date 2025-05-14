@@ -3,20 +3,20 @@ package types
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	s "github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type FeeShareTestSuite struct {
-	suite.Suite
+	s.Suite
 	address1 sdk.AccAddress
 	address2 sdk.AccAddress
 	contract sdk.AccAddress
 }
 
 func TestFeeShareSuite(t *testing.T) {
-	suite.Run(t, new(FeeShareTestSuite))
+	s.Run(t, new(FeeShareTestSuite))
 }
 
 func (suite *FeeShareTestSuite) SetupTest() {

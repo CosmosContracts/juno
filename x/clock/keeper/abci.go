@@ -38,7 +38,6 @@ func EndBlocker(ctx context.Context, k Keeper) error {
 
 	// Execute all contracts that are not jailed
 	for idx, contract := range contracts {
-
 		// Skip jailed contracts
 		if contract.IsJailed {
 			continue
@@ -81,7 +80,6 @@ func handleError(
 ) bool {
 	// Check if error is present
 	if err != nil {
-
 		// Flag error
 		*errorExists = true
 		errorExecs[idx] = contractAddress

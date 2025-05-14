@@ -57,7 +57,7 @@ func (s *BindingsTestSuite) SetupTest() {
 }
 
 // we need to make this deterministic (same every test run), as content might affect gas costs
-func (s *BindingsTestSuite) keyPubAddr() (crypto.PrivKey, crypto.PubKey, sdk.AccAddress) {
+func (*BindingsTestSuite) keyPubAddr() (crypto.PrivKey, crypto.PubKey, sdk.AccAddress) {
 	key := ed25519.GenPrivKey()
 	pub := key.PubKey()
 	addr := sdk.AccAddress(pub.Address())
@@ -129,10 +129,11 @@ func (s *BindingsTestSuite) executeCustom(contract sdk.AccAddress, sender sdk.Ac
 	return err
 }
 
-func (s *BindingsTestSuite) queryCustom(contract sdk.AccAddress, request types.TokenFactoryQuery, response interface{}) {
+func (s *BindingsTestSuite) queryCustom(contract sdk.AccAddress, request types.TokenFactoryQuery, response any) {
 	msgBz, err := json.Marshal(request)
 	s.Require().NoError(err)
-	fmt.Println("queryCustom1", string(msgBz))
+	_, err = fmt.Println("queryCustom1", string(msgBz))
+	s.Require().NoError(err)
 
 	query := ReflectQuery{
 		Chain: &ChainRequest{
@@ -141,7 +142,8 @@ func (s *BindingsTestSuite) queryCustom(contract sdk.AccAddress, request types.T
 	}
 	queryBz, err := json.Marshal(query)
 	s.Require().NoError(err)
-	fmt.Println("queryCustom2", string(queryBz))
+	_, err = fmt.Println("queryCustom2", string(queryBz))
+	s.Require().NoError(err)
 
 	resBz, err := s.App.AppKeepers.WasmKeeper.QuerySmart(s.Ctx, contract, queryBz)
 	s.Require().NoError(err)

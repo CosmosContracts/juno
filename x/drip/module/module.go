@@ -97,10 +97,10 @@ func NewAppModule(
 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
-func (am AppModule) IsOnePerModuleType() {}
+func (AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
-func (am AppModule) IsAppModule() {}
+func (AppModule) IsAppModule() {}
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
@@ -125,6 +125,6 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
-func (am AppModuleBasic) ConsensusVersion() uint64 {
+func (AppModuleBasic) ConsensusVersion() uint64 {
 	return 1
 }

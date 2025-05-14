@@ -2,7 +2,9 @@ package keeper
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"slices"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -33,7 +35,7 @@ func (ms msgServer) DistributeTokens(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if msg.SenderAddress == "" {
-		return nil, fmt.Errorf("sender address cannot be empty")
+		return nil, errors.New("sender address cannot be empty")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
@@ -54,13 +56,7 @@ func (ms msgServer) DistributeTokens(
 	}
 
 	// Check if sender is allowed
-	authorized := false
-	for _, addr := range params.AllowedAddresses {
-		if msg.SenderAddress == addr {
-			authorized = true
-			break
-		}
-	}
+	authorized := slices.Contains(params.AllowedAddresses, msg.SenderAddress)
 
 	if !authorized {
 		return nil, types.ErrDripNotAllowed

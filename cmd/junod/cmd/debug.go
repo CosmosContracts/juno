@@ -234,7 +234,10 @@ $ %s debug raw-bytes [72 101 108 108 111 44 32 112 108 97 121 103 114 111 117 11
 				}
 				byteArray = append(byteArray, byte(b))
 			}
-			fmt.Printf("%X\n", byteArray)
+			_, err := fmt.Printf("%X\n", byteArray)
+			if err != nil {
+				return err
+			}
 			return nil
 		},
 	}

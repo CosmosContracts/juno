@@ -2,6 +2,7 @@ package v28
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/log"
@@ -47,14 +48,13 @@ func sendMEVtoCommunityPool(ctx context.Context, k *keepers.AppKeepers, logger l
 	mintParams, err := k.MintKeeper.GetParams(ctx)
 	if err != nil {
 		logger.Error("v28: failed to get x/mint params")
-		return fmt.Errorf("v28: failed to get x/mint params")
+		return errors.New("v28: failed to get x/mint params")
 	}
 
 	mevModuleTokenAmount := k.BankKeeper.GetBalance(ctx, mevModuleAddress, mintParams.MintDenom)
 
 	// skip if balance is 0 (testnet etc)
 	if !mevModuleTokenAmount.IsZero() {
-
 		coins := sdk.NewCoins(mevModuleTokenAmount)
 		err = k.DistrKeeper.FundCommunityPool(ctx, coins, mevModuleAddress)
 		if err != nil {

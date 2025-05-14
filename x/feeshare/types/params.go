@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 
 	sdkmath "cosmossdk.io/math"
@@ -33,7 +34,7 @@ func DefaultParams() Params {
 	}
 }
 
-func validateBool(i interface{}) error {
+func validateBool(i any) error {
 	_, ok := i.(bool)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -42,7 +43,7 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func validateShares(i interface{}) error {
+func validateShares(i any) error {
 	v, ok := i.(sdkmath.LegacyDec)
 
 	if !ok {
@@ -50,7 +51,7 @@ func validateShares(i interface{}) error {
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("invalid parameter: nil")
+		return errors.New("invalid parameter: nil")
 	}
 
 	if v.IsNegative() {
@@ -64,7 +65,7 @@ func validateShares(i interface{}) error {
 	return nil
 }
 
-func validateArray(i interface{}) error {
+func validateArray(i any) error {
 	_, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -72,7 +73,7 @@ func validateArray(i interface{}) error {
 
 	for _, denom := range i.([]string) {
 		if denom == "" {
-			return fmt.Errorf("denom cannot be blank")
+			return errors.New("denom cannot be blank")
 		}
 	}
 

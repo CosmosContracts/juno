@@ -21,8 +21,8 @@ func (s *KeeperTestSuite) TestRegisterContracts() {
 	contractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
 	contractAddressWithAdmin := s.InstantiateContract(notAuthorizedAcc.String(), sender.String(), wasmContract)
 
-	DAODAO := s.InstantiateContract(sender.String(), "", wasmContract)
-	daodaoSubContract := s.InstantiateContract(DAODAO, DAODAO, wasmContract)
+	daodao := s.InstantiateContract(sender.String(), "", wasmContract)
+	daodaoSubContract := s.InstantiateContract(daodao, daodao, wasmContract)
 
 	for _, tc := range []struct {
 		desc string
@@ -71,7 +71,7 @@ func (s *KeeperTestSuite) TestRegisterContracts() {
 		{
 			desc:            "Success register DAODAO contract from factory",
 			ContractAddress: daodaoSubContract,
-			RegisterAddress: DAODAO,
+			RegisterAddress: daodao,
 			shouldErr:       false,
 		},
 	} {
