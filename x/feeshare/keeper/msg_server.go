@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -16,7 +16,7 @@ import (
 
 var _ types.MsgServer = &Keeper{}
 
-func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, msgSender sdk.AccAddress, info *wasmTypes.ContractInfo) bool {
+func (k Keeper) GetIfContractWasCreatedFromFactory(ctx sdk.Context, msgSender sdk.AccAddress, info *wasmtypes.ContractInfo) bool {
 	// Gov Module Admin
 	govMod := k.accountKeeper.GetModuleAddress(govtypes.ModuleName).String()
 	if info.Admin == govMod {

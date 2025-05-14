@@ -6,7 +6,7 @@ import (
 	mintv1 "github.com/CosmosContracts/juno/v29/api/juno/mint/v1"
 )
 
-func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
+func (AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 	return &autocliv1.ModuleOptions{
 		Query: &autocliv1.ServiceCommandDescriptor{
 			Service: mintv1.Query_ServiceDesc.ServiceName,

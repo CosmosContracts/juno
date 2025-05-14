@@ -51,7 +51,6 @@ func (s *AnteTestSuite) TestAnteCreateValidator() {
 
 	// Loop through all possible change rates
 	for i := 0; i <= 100; i++ {
-
 		// Calculate change rate
 		maxChangeRate := getChangeRate(i)
 
@@ -87,7 +86,6 @@ func (s *AnteTestSuite) TestAnteEditValidator() {
 
 	// Loop through all possible change rates
 	for i := 0; i <= 100; i++ {
-
 		// Calculate change rate
 		maxChangeRate := getChangeRate(i)
 
@@ -214,10 +212,10 @@ func (tx MockTx) GetMsgs() []sdk.Msg {
 	return tx.msgs
 }
 
-func (tx MockTx) GetMsgsV2() ([]protov2.Message, error) {
+func (MockTx) GetMsgsV2() ([]protov2.Message, error) {
 	return nil, nil
 }
 
-func (tx MockTx) ValidateBasic() error {
+func (MockTx) ValidateBasic() error {
 	return nil
 }

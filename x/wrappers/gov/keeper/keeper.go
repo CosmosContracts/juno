@@ -2,6 +2,7 @@ package keeper
 
 import (
 	corestoretypes "cosmossdk.io/core/store"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"

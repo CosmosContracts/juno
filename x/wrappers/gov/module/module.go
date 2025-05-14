@@ -9,15 +9,17 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	v1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/CosmosContracts/juno/v29/x/wrappers/gov/keeper"
 )
 
+// AppModuleBasic defines the basic application module used for the wrapped gov module.
 type AppModuleBasic struct {
 	gov.AppModuleBasic
 }
 
+// AppModule implements an application module for the wrapped gov module.
 type AppModule struct {
 	gov.AppModule
 	keeper         *keeper.KeeperWrapper
@@ -25,18 +27,22 @@ type AppModule struct {
 	legacySubspace govtypes.ParamSubspace
 }
 
+// NewAppModule creates a new AppModule object
 func NewAppModule(
-	cdc codec.Codec, keeper *keeper.KeeperWrapper, ak govtypes.AccountKeeper, bk govtypes.BankKeeper, ss govtypes.ParamSubspace,
+	cdc codec.Codec, k *keeper.KeeperWrapper, ak govtypes.AccountKeeper, bk govtypes.BankKeeper, ss govtypes.ParamSubspace,
 ) AppModule {
-	govModule := gov.NewAppModule(cdc, keeper.Keeper, ak, bk, ss)
+	govModule := gov.NewAppModule(cdc, k.Keeper, ak, bk, ss)
 	return AppModule{
 		AppModule:      govModule,
-		keeper:         keeper,
+		keeper:         k,
 		accountKeeper:  ak,
 		legacySubspace: ss,
 	}
 }
 
+// RegisterServices registers module services.
+// Copied from https://github.com/cosmos/cosmos-sdk/blob/7b9d2ff98d02bd5a7edd3b153dd577819cc1d777/x/gov/module.go#L270
+// Modified to use the fixed grpc query server
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	msgServer := govkeeper.NewMsgServerImpl(am.keeper.Keeper)
 	v1beta1.RegisterMsgServer(cfg.MsgServer(), govkeeper.NewLegacyMsgServerImpl(am.accountKeeper.GetModuleAddress(govtypes.ModuleName).String(), msgServer))

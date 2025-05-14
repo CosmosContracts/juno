@@ -20,7 +20,7 @@ func (p Params) Validate() error {
 }
 
 // this requires the fee non-negative
-func ValidateMinimumGasPrices(i interface{}) error {
+func ValidateMinimumGasPrices(i any) error {
 	v, ok := i.(sdk.DecCoins)
 	if !ok {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "type: %T, expected sdk.DecCoins", i)

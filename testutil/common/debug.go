@@ -8,7 +8,7 @@ import (
 type DebugAppOptions struct{}
 
 // Get implements AppOptions
-func (ao DebugAppOptions) Get(o string) interface{} {
+func (DebugAppOptions) Get(o string) any {
 	if o == server.FlagTrace {
 		return true
 	}

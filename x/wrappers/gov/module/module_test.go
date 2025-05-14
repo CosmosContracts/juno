@@ -3,6 +3,11 @@ package module_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+	googlegrpc "google.golang.org/grpc"
+
+	"github.com/cosmos/gogoproto/grpc"
+
 	"github.com/cosmos/cosmos-sdk/types/module"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -10,16 +15,13 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	"github.com/cosmos/gogoproto/grpc"
-	"github.com/stretchr/testify/require"
-	googlegrpc "google.golang.org/grpc"
 )
 
 var _ module.Configurator = &configuratorMock{}
 
 type grpcServerMock struct{}
 
-func (s grpcServerMock) RegisterService(sd *googlegrpc.ServiceDesc, ss any) {}
+func (grpcServerMock) RegisterService(_ *googlegrpc.ServiceDesc, _ any) {}
 
 type configuratorMock struct {
 	msgServer                 grpcServerMock
@@ -46,16 +48,16 @@ func (c *configuratorMock) QueryServer() grpc.Server {
 }
 
 func (c *configuratorMock) RegisterMigration(
-	moduleName string, forVersion uint64, handler module.MigrationHandler,
+	_ string, forVersion uint64, _ module.MigrationHandler,
 ) error {
 	c.capturedMigrationVersions = append(c.capturedMigrationVersions, forVersion)
 	return nil
 }
 
-func (c *configuratorMock) RegisterService(sd *googlegrpc.ServiceDesc, ss any) {
+func (*configuratorMock) RegisterService(_ *googlegrpc.ServiceDesc, _ any) {
 }
 
-func (c *configuratorMock) Error() error {
+func (*configuratorMock) Error() error {
 	return nil
 }
 

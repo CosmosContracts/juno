@@ -13,6 +13,6 @@ func NewParams(contractGasLimit uint64) Params {
 }
 
 // Validate performs basic validation.
-func (p Params) Validate() error {
+func (Params) Validate() error {
 	return nil
 }

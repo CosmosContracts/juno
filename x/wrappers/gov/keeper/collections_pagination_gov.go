@@ -7,8 +7,7 @@ package keeper
 
 import (
 	"context"
-	errorsGo "errors"
-	"fmt"
+	"errors"
 	"strings"
 
 	"cosmossdk.io/collections"
@@ -41,7 +40,7 @@ func CollectionFilteredPaginate[K, V any, C query.Collection[K, V], T any](
 	reverse := pageReq.Reverse
 
 	if offset > 0 && key != nil {
-		return nil, nil, fmt.Errorf("invalid request, either offset or key is expected, got both")
+		return nil, nil, errors.New("invalid request, either offset or key is expected, got both")
 	}
 
 	opt := new(query.CollectionsPaginateOptions[K])
@@ -51,7 +50,7 @@ func CollectionFilteredPaginate[K, V any, C query.Collection[K, V], T any](
 
 	var prefix []byte
 	if opt.Prefix != nil {
-		prefix, err = encodeCollKey[K, V](coll, *opt.Prefix)
+		prefix, err = encodeCollKey(coll, *opt.Prefix)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -63,7 +62,7 @@ func CollectionFilteredPaginate[K, V any, C query.Collection[K, V], T any](
 		results, pageRes, err = collFilteredPaginateNoKey(ctx, coll, prefix, reverse, offset, limit, countTotal, predicateFunc, transformFunc)
 	}
 	// invalid iter error is ignored to retain Paginate behavior
-	if errorsGo.Is(err, collections.ErrInvalidIterator) {
+	if errors.Is(err, collections.ErrInvalidIterator) {
 		return results, new(query.PageResponse), nil
 	}
 	// strip the prefix from next key
@@ -147,11 +146,11 @@ func collFilteredPaginateNoKey[K, V any, C query.Collection[K, V], T any](
 	predicateFunc func(K, V) (bool, error),
 	transformFunc func(K, V) (T, error),
 ) ([]T, *query.PageResponse, error) {
-	iterator, err := getCollIter[K, V](ctx, coll, prefix, nil, reverse)
+	iterator, err := getCollIter(ctx, coll, prefix, nil, reverse)
 	if err != nil {
 		return nil, nil, err
 	}
-	defer iterator.Close()
+	defer iterator.Close() //nolint:errcheck
 	// we advance the iter equal to the provided offset
 	if !advanceIter(iterator, offset) {
 		return nil, nil, collections.ErrInvalidIterator
@@ -209,7 +208,7 @@ func collFilteredPaginateNoKey[K, V any, C query.Collection[K, V], T any](
 				}
 				return nil, nil, err
 			}
-			nextKey, err = encodeCollKey[K, V](coll, key)
+			nextKey, err = encodeCollKey(coll, key)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -272,11 +271,11 @@ func collFilteredPaginateByKey[K, V any, C query.Collection[K, V], T any](
 	predicateFunc func(key K, value V) (bool, error),
 	transformFunc func(key K, value V) (transformed T, err error),
 ) (results []T, pageRes *query.PageResponse, err error) {
-	iterator, err := getCollIter[K, V](ctx, coll, prefix, key, reverse)
+	iterator, err := getCollIter(ctx, coll, prefix, key, reverse)
 	if err != nil {
 		return nil, nil, err
 	}
-	defer iterator.Close()
+	defer iterator.Close() //nolint:errcheck
 
 	var (
 		count   uint64
@@ -296,7 +295,7 @@ func collFilteredPaginateByKey[K, V any, C query.Collection[K, V], T any](
 				return nil, nil, err
 			}
 
-			nextKey, err = encodeCollKey[K, V](coll, concreteKey)
+			nextKey, err = encodeCollKey(coll, concreteKey)
 			if err != nil {
 				return nil, nil, err
 			}

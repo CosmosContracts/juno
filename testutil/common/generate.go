@@ -47,7 +47,7 @@ func GenerateGenesisAccounts(numAccounts int) []authtypes.GenesisAccount {
 
 // GenesisStateWithValSet creates a genesis state with a validator set.
 func GenesisStateWithValSet(
-	codec codec.Codec,
+	cdc codec.Codec,
 	genesisState map[string]json.RawMessage,
 	valSet *cmttypes.ValidatorSet,
 	genAccs []authtypes.GenesisAccount,
@@ -87,7 +87,7 @@ func GenesisStateWithValSet(
 	}
 	// set validators and delegations
 	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
-	genesisState[stakingtypes.ModuleName] = codec.MustMarshalJSON(stakingGenesis)
+	genesisState[stakingtypes.ModuleName] = cdc.MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
@@ -114,7 +114,7 @@ func GenesisStateWithValSet(
 		[]banktypes.Metadata{},
 		[]banktypes.SendEnabled{},
 	)
-	genesisState[banktypes.ModuleName] = codec.MustMarshalJSON(bankGenesis)
+	genesisState[banktypes.ModuleName] = cdc.MustMarshalJSON(bankGenesis)
 
 	_, err := cmttypes.PB2TM.ValidatorUpdates(initValPowers)
 	if err != nil {

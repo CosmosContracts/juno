@@ -74,12 +74,11 @@ func (k Keeper) GetAllContracts(ctx context.Context) ([]types.ClockContract, err
 
 	// Create iterator for contracts
 	iterator := storetypes.KVStorePrefixIterator(store, []byte(nil))
-	defer iterator.Close()
+	defer iterator.Close() //nolint:errcheck
 
 	// Iterate over all contracts
 	contracts := []types.ClockContract{}
 	for ; iterator.Valid(); iterator.Next() {
-
 		// Unmarshal iterator
 		var contract types.ClockContract
 		err := k.cdc.Unmarshal(iterator.Value(), &contract)

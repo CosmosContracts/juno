@@ -44,7 +44,7 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) error {
 		minter.StartPhaseBlock = currentBlock
 		minter.AnnualProvisions = minter.NextAnnualProvisions(params, totalSupply)
 		minter.TargetSupply = totalSupply.Add(minter.AnnualProvisions.TruncateInt())
-		err = k.SetMinter(ctx, minter)
+		err = k.SetMinter(ctx, *minter)
 		if err != nil {
 			return err
 		}

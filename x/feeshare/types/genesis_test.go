@@ -3,13 +3,13 @@ package types
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	s "github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type GenesisTestSuite struct {
-	suite.Suite
+	s.Suite
 	address1  string
 	address2  string
 	contractA string
@@ -17,7 +17,7 @@ type GenesisTestSuite struct {
 }
 
 func TestGenesisTestSuite(t *testing.T) {
-	suite.Run(t, new(GenesisTestSuite))
+	s.Run(t, new(GenesisTestSuite))
 }
 
 func (suite *GenesisTestSuite) SetupTest() {

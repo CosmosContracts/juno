@@ -27,13 +27,13 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 
 	stakingCoin := sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: selfBond[0].Amount}
 	zeroDec := sdkmath.LegacyZeroDec()
-	ZeroCommission := stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
+	zeroCommission := stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 	valCreateMsg, err := stakingtypes.NewMsgCreateValidator(
 		valAddr.String(),
 		valPub,
 		stakingCoin,
 		stakingtypes.Description{},
-		ZeroCommission,
+		zeroCommission,
 		sdkmath.OneInt(),
 	)
 	s.Require().NoError(err)

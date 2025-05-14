@@ -81,19 +81,19 @@ type AppModule struct {
 // NewAppModule constructor
 func NewAppModule(
 	cdc codec.Codec,
-	keeper keeper.Keeper,
+	k keeper.Keeper,
 ) *AppModule {
 	return &AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
-		keeper:         keeper,
+		keeper:         k,
 	}
 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
-func (am AppModule) IsOnePerModuleType() {}
+func (AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
-func (am AppModule) IsAppModule() {}
+func (AppModule) IsAppModule() {}
 
 // RegisterServices registers a gRPC query service to respond to the
 // module-specific gRPC queries.
@@ -125,6 +125,6 @@ func (am AppModule) EndBlock(ctx context.Context) error {
 // module. It should be incremented on each consensus-breaking change
 // introduced by the module. To avoid wrong/empty versions, the initial version
 // should be set to 1.
-func (am AppModule) ConsensusVersion() uint64 {
+func (AppModule) ConsensusVersion() uint64 {
 	return ConsensusVersion
 }

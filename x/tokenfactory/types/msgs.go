@@ -8,10 +8,12 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func (m MsgCreateDenom) ValidateBasic() error {
+// ValidateBasic does a sanity check on the provided msg.
+func (MsgCreateDenom) ValidateBasic() error {
 	return nil
 }
 
+// ValidateBasic does a sanity check on the provided msg.
 func (m MsgMint) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
@@ -32,6 +34,7 @@ func (m MsgMint) ValidateBasic() error {
 	return nil
 }
 
+// ValidateBasic does a sanity check on the provided msg.
 func (m MsgBurn) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
@@ -52,6 +55,7 @@ func (m MsgBurn) ValidateBasic() error {
 	return nil
 }
 
+// ValidateBasic does a sanity check on the provided msg.
 func (m MsgForceTransfer) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
@@ -74,6 +78,7 @@ func (m MsgForceTransfer) ValidateBasic() error {
 	return nil
 }
 
+// ValidateBasic does a sanity check on the provided msg.
 func (m MsgChangeAdmin) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
@@ -93,6 +98,7 @@ func (m MsgChangeAdmin) ValidateBasic() error {
 	return nil
 }
 
+// ValidateBasic does a sanity check on the provided msg.
 func (m MsgSetDenomMetadata) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
@@ -112,7 +118,7 @@ func (m MsgSetDenomMetadata) ValidateBasic() error {
 	return nil
 }
 
-// ValidateBasic does a sanity check on the provided data.
+// ValidateBasic does a sanity check on the provided msg.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
 		return errorsmod.Wrap(err, "invalid authority address")

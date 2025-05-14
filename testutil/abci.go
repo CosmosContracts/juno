@@ -76,7 +76,8 @@ func (s *KeeperTestHelper) BeginNewBlockWithProposer(proposer sdk.ValAddress) {
 	}}
 	s.Ctx = s.Ctx.WithVoteInfos(voteInfos)
 
-	fmt.Println("beginning block ", s.Ctx.BlockHeight())
+	_, err = fmt.Println("beginning block ", s.Ctx.BlockHeight())
+	s.Require().NoError(err)
 
 	_, err = s.App.BeginBlocker(s.Ctx)
 	s.Require().NoError(err)

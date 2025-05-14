@@ -15,7 +15,7 @@ func (k Keeper) GetDenomsFromCreator(ctx context.Context, creator string) []stri
 	store := k.GetCreatorPrefixStore(ctx, creator)
 
 	iterator := store.Iterator(nil, nil)
-	defer iterator.Close()
+	defer iterator.Close() //nolint:errcheck
 
 	denoms := []string{}
 	for ; iterator.Valid(); iterator.Next() {

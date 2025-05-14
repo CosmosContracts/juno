@@ -18,7 +18,7 @@ import (
 	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
 	icqkeeper "github.com/cosmos/ibc-apps/modules/async-icq/v8/keeper"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
-	ibc_hooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
+	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
 	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/keeper"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/types"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
@@ -99,8 +99,7 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v29/x/mint/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v29/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
-
-	//wrappers
+	// wrappers
 	wrappedgovkeeper "github.com/CosmosContracts/juno/v29/x/wrappers/gov/keeper"
 )
 
@@ -189,8 +188,8 @@ type AppKeepers struct {
 	DripKeeper dripkeeper.Keeper
 
 	// Middleware wrapper
-	Ics20WasmHooks   *ibc_hooks.WasmHooks
-	HooksICS4Wrapper ibc_hooks.ICS4Middleware
+	Ics20WasmHooks   *ibchooks.WasmHooks
+	HooksICS4Wrapper ibchooks.ICS4Middleware
 }
 
 func NewAppKeepers(
@@ -388,14 +387,14 @@ func NewAppKeepers(
 	)
 	appKeepers.IBCHooksKeeper = &hooksKeeper
 
-	wasmHooks := ibc_hooks.NewWasmHooks(
+	wasmHooks := ibchooks.NewWasmHooks(
 		appKeepers.IBCHooksKeeper,
 		&appKeepers.WasmKeeper,
 		bech32Prefix,
 	)
 	appKeepers.Ics20WasmHooks = &wasmHooks
 	// The contract keeper needs to be set later
-	appKeepers.HooksICS4Wrapper = ibc_hooks.NewICS4Middleware(
+	appKeepers.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.Ics20WasmHooks,
 	)
@@ -642,7 +641,7 @@ func NewAppKeepers(
 	// Create Transfer Stack
 	var transferStack porttypes.IBCModule
 	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper)
-	transferStack = ibc_hooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
+	transferStack = ibchooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
 	transferStack = packetforward.NewIBCMiddleware(
 		transferStack,
 		appKeepers.PacketForwardKeeper,

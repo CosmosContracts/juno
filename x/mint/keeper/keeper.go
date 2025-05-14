@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	storetypes "cosmossdk.io/core/store"
@@ -59,24 +60,24 @@ func (k Keeper) GetAuthority() string {
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx context.Context) log.Logger {
+func (Keeper) Logger(ctx context.Context) log.Logger {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	return sdkCtx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // get the minter
-func (k Keeper) GetMinter(ctx context.Context) (minter types.Minter, err error) {
+func (k Keeper) GetMinter(ctx context.Context) (minter *types.Minter, err error) {
 	store := k.storeService.OpenKVStore(ctx)
 	bz, err := store.Get(types.MinterKey)
 	if bz == nil {
-		return minter, err
+		return nil, err
 	}
 	if err != nil {
-		return minter, err
+		return nil, err
 	}
 
-	k.cdc.MustUnmarshal(bz, &minter)
-	return
+	k.cdc.MustUnmarshal(bz, minter)
+	return minter, nil
 }
 
 // set the minter
@@ -180,7 +181,7 @@ func (k Keeper) ReduceTargetSupply(ctx context.Context, burnCoin sdk.Coin) error
 	}
 
 	if burnCoin.Denom != params.MintDenom {
-		return fmt.Errorf("tried reducing target supply with non staking token")
+		return errors.New("tried reducing target supply with non staking token")
 	}
 
 	minter, err := k.GetMinter(ctx)
@@ -188,7 +189,7 @@ func (k Keeper) ReduceTargetSupply(ctx context.Context, burnCoin sdk.Coin) error
 		return err
 	}
 	minter.TargetSupply = minter.TargetSupply.Sub(burnCoin.Amount)
-	err = k.SetMinter(ctx, minter)
+	err = k.SetMinter(ctx, *minter)
 	if err != nil {
 		return err
 	}

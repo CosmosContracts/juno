@@ -69,8 +69,8 @@ func (s *KeeperTestSuite) TestRegisterFeeShare() {
 	contractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
 	contractAddress2 := s.InstantiateContract(contractAddress, contractAddress, wasmContract)
 
-	DAODAO := s.InstantiateContract(sender.String(), "", wasmContract)
-	subContract := s.InstantiateContract(DAODAO, DAODAO, wasmContract)
+	daodao := s.InstantiateContract(sender.String(), "", wasmContract)
+	subContract := s.InstantiateContract(daodao, daodao, wasmContract)
 
 	_, _, withdrawer := testdata.KeyTestPubAddr()
 
@@ -164,8 +164,8 @@ func (s *KeeperTestSuite) TestRegisterFeeShare() {
 			desc: "Success register contract from DAODAO contract as admin",
 			msg: &types.MsgRegisterFeeShare{
 				ContractAddress:   subContract,
-				DeployerAddress:   DAODAO,
-				WithdrawerAddress: DAODAO,
+				DeployerAddress:   daodao,
+				WithdrawerAddress: daodao,
 			},
 			resp:      &types.MsgRegisterFeeShareResponse{},
 			shouldErr: false,

@@ -69,11 +69,9 @@ type FeeSharePayoutEventOutput struct {
 // Loop through all messages and add the withdraw address to the list of addresses to pay
 // if the contract opted-in to fee sharing
 func addNewFeeSharePayoutsForMsgs(ctx sdk.Context, fsk keeper.Keeper, toPay *[]sdk.AccAddress, msgs []sdk.Msg) error {
+	// Check if an authz message, loop through all inner messages, and recursively call this function
 	for _, msg := range msgs {
-
-		// Check if an authz message, loop through all inner messages, and recursively call this function
 		if authzMsg, ok := msg.(*authz.MsgExec); ok {
-
 			innerMsgs, err := authzMsg.GetMessages()
 			if err != nil {
 				return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
@@ -101,7 +99,6 @@ func addNewFeeSharePayoutsForMsgs(ctx sdk.Context, fsk keeper.Keeper, toPay *[]s
 				*toPay = append(*toPay, withdrawAddr)
 			}
 		}
-
 	}
 
 	return nil
@@ -109,7 +106,7 @@ func addNewFeeSharePayoutsForMsgs(ctx sdk.Context, fsk keeper.Keeper, toPay *[]s
 
 // FeeSharePayout takes the total fees and redistributes 50% (or param set) to the contract developers
 // provided they opted-in to payments.
-func (fsd FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper bankkeeper.Keeper, totalFees sdk.Coins, fsk keeper.Keeper, msgs []sdk.Msg) error {
+func (FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper bankkeeper.Keeper, totalFees sdk.Coins, fsk keeper.Keeper, msgs []sdk.Msg) error {
 	params := fsk.GetParams(ctx)
 	if !params.EnableFeeShare {
 		return nil

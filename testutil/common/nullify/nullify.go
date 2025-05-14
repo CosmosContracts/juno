@@ -16,18 +16,18 @@ var (
 // Fill analyze all struct fields and slices with
 // reflection and initialize the nil and empty slices,
 // structs, and pointers.
-func Fill(x interface{}) interface{} {
+func Fill(x any) any {
 	v := reflect.Indirect(reflect.ValueOf(x))
 	switch v.Kind() {
 	case reflect.Slice:
-		for i := 0; i < v.Len(); i++ {
+		for i := range v.Len() {
 			obj := v.Index(i)
 			objPt := reflect.NewAt(obj.Type(), unsafe.Pointer(obj.UnsafeAddr())).Interface()
 			objPt = Fill(objPt)
 			obj.Set(reflect.ValueOf(objPt))
 		}
 	case reflect.Struct:
-		for i := 0; i < v.NumField(); i++ {
+		for i := range v.NumField() {
 			f := reflect.Indirect(v.Field(i))
 			if !f.CanSet() {
 				continue

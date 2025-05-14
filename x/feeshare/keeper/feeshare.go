@@ -18,7 +18,7 @@ func (k Keeper) GetFeeShares(ctx context.Context) []types.FeeShare {
 
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixFeeShare)
-	defer iterator.Close()
+	defer iterator.Close() //nolint:errcheck
 
 	for ; iterator.Valid(); iterator.Next() {
 		var feeshare types.FeeShare
@@ -38,7 +38,7 @@ func (k Keeper) IterateFeeShares(
 ) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixFeeShare)
-	defer iterator.Close()
+	defer iterator.Close() //nolint:errcheck
 
 	for ; iterator.Valid(); iterator.Next() {
 		var feeshare types.FeeShare
@@ -56,8 +56,8 @@ func (k Keeper) GetFeeShare(
 	contract sdk.Address,
 ) (types.FeeShare, bool) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixFeeShare)
-	bz := prefix.Get(contract.Bytes())
+	registeredPrefix := prefix.NewStore(store, types.KeyPrefixFeeShare)
+	bz := registeredPrefix.Get(contract.Bytes())
 	if len(bz) == 0 {
 		return types.FeeShare{}, false
 	}
@@ -70,18 +70,18 @@ func (k Keeper) GetFeeShare(
 // SetFeeShare stores the FeeShare for a registered contract.
 func (k Keeper) SetFeeShare(ctx context.Context, feeshare types.FeeShare) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixFeeShare)
+	registeredPrefix := prefix.NewStore(store, types.KeyPrefixFeeShare)
 	key := feeshare.GetContractAddr()
 	bz := k.cdc.MustMarshal(&feeshare)
-	prefix.Set(key.Bytes(), bz)
+	registeredPrefix.Set(key.Bytes(), bz)
 }
 
 // DeleteFeeShare deletes a FeeShare of a registered contract.
 func (k Keeper) DeleteFeeShare(ctx context.Context, fee types.FeeShare) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixFeeShare)
+	registeredPrefix := prefix.NewStore(store, types.KeyPrefixFeeShare)
 	key := fee.GetContractAddr()
-	prefix.Delete(key.Bytes())
+	registeredPrefix.Delete(key.Bytes())
 }
 
 // SetDeployerMap stores a contract-by-deployer mapping
@@ -91,9 +91,9 @@ func (k Keeper) SetDeployerMap(
 	contract sdk.Address,
 ) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixDeployer)
+	deployerPrefix := prefix.NewStore(store, types.KeyPrefixDeployer)
 	key := append(deployer.Bytes(), contract.Bytes()...)
-	prefix.Set(key, []byte{1})
+	deployerPrefix.Set(key, []byte{1})
 }
 
 // DeleteDeployerMap deletes a contract-by-deployer mapping
@@ -103,9 +103,9 @@ func (k Keeper) DeleteDeployerMap(
 	contract sdk.Address,
 ) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixDeployer)
+	deployerPrefix := prefix.NewStore(store, types.KeyPrefixDeployer)
 	key := append(deployer.Bytes(), contract.Bytes()...)
-	prefix.Delete(key)
+	deployerPrefix.Delete(key)
 }
 
 // SetWithdrawerMap stores a contract-by-withdrawer mapping
@@ -115,9 +115,9 @@ func (k Keeper) SetWithdrawerMap(
 	contract sdk.Address,
 ) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixWithdrawer)
+	withdrawerPrefix := prefix.NewStore(store, types.KeyPrefixWithdrawer)
 	key := append(withdrawer.Bytes(), contract.Bytes()...)
-	prefix.Set(key, []byte{1})
+	withdrawerPrefix.Set(key, []byte{1})
 }
 
 // DeleteWithdrawMap deletes a contract-by-withdrawer mapping
@@ -127,9 +127,9 @@ func (k Keeper) DeleteWithdrawerMap(
 	contract sdk.Address,
 ) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixWithdrawer)
+	withdrawerPrefix := prefix.NewStore(store, types.KeyPrefixWithdrawer)
 	key := append(withdrawer.Bytes(), contract.Bytes()...)
-	prefix.Delete(key)
+	withdrawerPrefix.Delete(key)
 }
 
 // IsFeeShareRegistered checks if a contract was registered for receiving
@@ -139,8 +139,8 @@ func (k Keeper) IsFeeShareRegistered(
 	contract sdk.Address,
 ) bool {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixFeeShare)
-	return prefix.Has(contract.Bytes())
+	registeredPrefix := prefix.NewStore(store, types.KeyPrefixFeeShare)
+	return registeredPrefix.Has(contract.Bytes())
 }
 
 // IsDeployerMapSet checks if a given contract-by-withdrawer mapping is set in
@@ -151,12 +151,12 @@ func (k Keeper) IsDeployerMapSet(
 	contract sdk.Address,
 ) bool {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixDeployer)
+	deployerPrefix := prefix.NewStore(store, types.KeyPrefixDeployer)
 	key := append(deployer.Bytes(), contract.Bytes()...)
-	return prefix.Has(key)
+	return deployerPrefix.Has(key)
 }
 
-// IsWithdrawerMapSet checks if a give contract-by-withdrawer mapping is set in
+// IsWithdrawerMapSet checks if a given contract-by-withdrawer mapping is set in
 // store
 func (k Keeper) IsWithdrawerMapSet(
 	ctx context.Context,
@@ -164,7 +164,7 @@ func (k Keeper) IsWithdrawerMapSet(
 	contract sdk.Address,
 ) bool {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefix := prefix.NewStore(store, types.KeyPrefixWithdrawer)
+	withdrawerPrefix := prefix.NewStore(store, types.KeyPrefixWithdrawer)
 	key := append(withdrawer.Bytes(), contract.Bytes()...)
-	return prefix.Has(key)
+	return withdrawerPrefix.Has(key)
 }

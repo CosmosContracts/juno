@@ -3,18 +3,18 @@ package types
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	s "github.com/stretchr/testify/suite"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type CodecTestSuite struct {
-	suite.Suite
+	s.Suite
 }
 
 func TestCodecSuite(t *testing.T) {
-	suite.Run(t, new(CodecTestSuite))
+	s.Run(t, new(CodecTestSuite))
 }
 
 func (suite *CodecTestSuite) TestRegisterInterfaces() {

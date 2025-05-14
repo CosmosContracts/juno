@@ -64,7 +64,7 @@ func getGenStateFromPath(genesisFilePath string) (map[string]json.RawMessage, er
 	if err != nil {
 		return genState, err
 	}
-	defer genesisFile.Close()
+	defer genesisFile.Close() //nolint:errcheck
 
 	byteValue, _ := io.ReadAll(genesisFile)
 
@@ -182,7 +182,10 @@ Example:
 				Accounts:       snapshotAccs,
 			}
 
-			fmt.Printf("# accounts: %d\n", len(snapshotAccs))
+			_, err = fmt.Printf("# accounts: %d\n", len(snapshotAccs))
+			if err != nil {
+				return fmt.Errorf("failed to print accounts: %w", err)
+			}
 
 			// export snapshot json
 			snapshotJSON, err := json.MarshalIndent(snapshot, "", "    ")
@@ -227,7 +230,7 @@ Example:
 				return err
 			}
 			// remember to close the file at the end of the function
-			defer sourceFile.Close()
+			defer sourceFile.Close() //nolint:errcheck
 
 			// decode the balances json file into the struct array
 			if err := json.NewDecoder(sourceFile).Decode(&deriveSnapshot); err != nil {
@@ -239,7 +242,7 @@ Example:
 			if err != nil {
 				return err
 			}
-			defer outputFile.Close()
+			defer outputFile.Close() //nolint:errcheck
 
 			// write the header of the CSV file
 			writer := csv.NewWriter(outputFile)

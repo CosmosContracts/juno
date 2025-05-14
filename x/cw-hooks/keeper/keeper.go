@@ -32,20 +32,20 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	ss storetypes.KVStoreService,
-	stakingKeeper stakingkeeper.Keeper,
-	govKeeper govkeeper.Keeper,
-	wasmkeeper wasmkeeper.Keeper,
-	contractKeeper wasmtypes.ContractOpsKeeper,
+	sk stakingkeeper.Keeper,
+	gk govkeeper.Keeper,
+	wk wasmkeeper.Keeper,
+	ck wasmtypes.ContractOpsKeeper,
 	authority string,
 ) Keeper {
 	return Keeper{
 		cdc:            cdc,
 		storeService:   ss,
-		stakingKeeper:  stakingKeeper,
-		govKeeper:      govKeeper,
-		contractKeeper: contractKeeper,
+		stakingKeeper:  sk,
+		govKeeper:      gk,
+		contractKeeper: ck,
 		authority:      authority,
-		wk:             wasmkeeper,
+		wk:             wk,
 	}
 }
 
@@ -68,7 +68,7 @@ func (k Keeper) GetStakingKeeper() stakingkeeper.Keeper {
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx context.Context) log.Logger {
+func (Keeper) Logger(ctx context.Context) log.Logger {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	return sdkCtx.Logger().With("module", "x/"+types.ModuleName)
 }

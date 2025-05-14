@@ -6,13 +6,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// NewParams creates new, configurable params for the tokenfactory module.
 func NewParams(denomCreationFee sdk.Coins) Params {
 	return Params{
 		DenomCreationFee: denomCreationFee,
 	}
 }
 
-// default tokenfactory module parameters.
+// DefaultParams are the tokenfactory default module parameters.
 func DefaultParams() Params {
 	return Params{
 		DenomCreationFee:        sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 10_000_000)),
@@ -20,14 +21,14 @@ func DefaultParams() Params {
 	}
 }
 
-// validate params.
+// Validate the tokenfactory module parameters.
 func (p Params) Validate() error {
 	err := validateDenomCreationFee(p.DenomCreationFee)
 
 	return err
 }
 
-func validateDenomCreationFee(i interface{}) error {
+func validateDenomCreationFee(i any) error {
 	v, ok := i.(sdk.Coins)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
