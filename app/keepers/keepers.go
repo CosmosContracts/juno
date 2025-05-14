@@ -98,7 +98,6 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v29/x/mint/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v29/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
-
 	// wrappers
 	wrappedgovkeeper "github.com/CosmosContracts/juno/v29/x/wrappers/gov/keeper"
 )
