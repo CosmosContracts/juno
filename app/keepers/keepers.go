@@ -9,7 +9,6 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	wasmvm "github.com/CosmWasm/wasmvm/v2"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cast"
 
 	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
@@ -99,6 +98,7 @@ import (
 	minttypes "github.com/CosmosContracts/juno/v29/x/mint/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v29/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+
 	// wrappers
 	wrappedgovkeeper "github.com/CosmosContracts/juno/v29/x/wrappers/gov/keeper"
 )
@@ -531,9 +531,6 @@ func NewAppKeepers(
 	})
 	wasmOpts = append(wasmOpts, burnMessageHandler)
 
-	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
-		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
-	}
 	wasmOpts = append(wasmOpts, wasmkeeper.WithGasRegister(NewJunoWasmGasRegister()))
 
 	wasmer, err := wasmvm.NewVM(wasmDir, wasmCapabilities, 32, wasmConfig.ContractDebugMode, wasmConfig.MemoryCacheSize)
