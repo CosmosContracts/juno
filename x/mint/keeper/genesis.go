@@ -29,5 +29,5 @@ func (k Keeper) ExportGenesis(ctx context.Context) *types.GenesisState {
 	if err != nil {
 		panic(err)
 	}
-	return types.NewGenesisState(*minter, params)
+	return types.NewGenesisState(minter, params)
 }

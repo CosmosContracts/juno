@@ -66,17 +66,17 @@ func (Keeper) Logger(ctx context.Context) log.Logger {
 }
 
 // get the minter
-func (k Keeper) GetMinter(ctx context.Context) (minter *types.Minter, err error) {
+func (k Keeper) GetMinter(ctx context.Context) (minter types.Minter, err error) {
 	store := k.storeService.OpenKVStore(ctx)
 	bz, err := store.Get(types.MinterKey)
 	if bz == nil {
-		return nil, err
+		return types.Minter{}, err
 	}
 	if err != nil {
-		return nil, err
+		return types.Minter{}, err
 	}
 
-	k.cdc.MustUnmarshal(bz, minter)
+	k.cdc.MustUnmarshal(bz, &minter)
 	return minter, nil
 }
 
@@ -189,7 +189,7 @@ func (k Keeper) ReduceTargetSupply(ctx context.Context, burnCoin sdk.Coin) error
 		return err
 	}
 	minter.TargetSupply = minter.TargetSupply.Sub(burnCoin.Amount)
-	err = k.SetMinter(ctx, *minter)
+	err = k.SetMinter(ctx, minter)
 	if err != nil {
 		return err
 	}
