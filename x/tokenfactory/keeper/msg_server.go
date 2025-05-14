@@ -83,7 +83,7 @@ func (ms msgServer) Mint(ctx context.Context, msg *types.MsgMint) (*types.MsgMin
 	sdkCtx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			"tf_mint",
-			sdk.NewAttribute(types.AttributeMintToAddress, msg.Sender),
+			sdk.NewAttribute(types.AttributeMintToAddress, msg.MintToAddress),
 			sdk.NewAttribute(types.AttributeAmount, msg.Amount.String()),
 		),
 	})
