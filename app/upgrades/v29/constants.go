@@ -7,7 +7,7 @@ import (
 const UpgradeName = "v29"
 
 const (
-	expeditedMinDeposit = "5000000000"
+	expeditedMinDeposit = "10000000000"
 )
 
 var Upgrade = upgrades.Upgrade{
