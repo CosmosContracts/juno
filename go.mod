@@ -5,10 +5,10 @@ go 1.23.9
 replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 
 require (
-	cosmossdk.io/api v0.7.6
+	cosmossdk.io/api v0.9.2
 	cosmossdk.io/client/v2 v2.0.0-beta.8
-	cosmossdk.io/collections v0.4.0
-	cosmossdk.io/core v0.11.2
+	cosmossdk.io/collections v1.2.0
+	cosmossdk.io/core v0.11.3
 	cosmossdk.io/errors v1.0.2
 	cosmossdk.io/log v1.5.1
 	cosmossdk.io/math v1.5.3
@@ -17,13 +17,13 @@ require (
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
 	cosmossdk.io/x/nft v0.1.1
-	cosmossdk.io/x/tx v0.13.8
+	cosmossdk.io/x/tx v0.14.0
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/CosmWasm/wasmd v0.54.0
 	github.com/CosmWasm/wasmvm/v2 v2.2.4
 	github.com/cometbft/cometbft v0.38.17
 	github.com/cosmos/cosmos-db v1.1.1
-	github.com/cosmos/cosmos-sdk v0.50.13
+	github.com/cosmos/cosmos-sdk v0.53.0
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 v8.2.0
 	github.com/cosmos/ibc-apps/modules/async-icq/v8 v8.0.1-0.20240124225747-f055ce5b405c
@@ -40,6 +40,12 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20250505200425-f936aa4a68b2
 	google.golang.org/grpc v1.72.0
 	gotest.tools/v3 v3.5.2
+)
+
+require (
+	cosmossdk.io/schema v1.1.0 // indirect
+	github.com/mdp/qrterminal/v3 v3.2.1 // indirect
+	rsc.io/qr v0.2.0 // indirect
 )
 
 require (
@@ -118,7 +124,6 @@ require (
 	github.com/gogo/protobuf v1.3.3 // indirect
 	github.com/golang/glog v1.2.4 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/flatbuffers v24.3.25+incompatible // indirect
