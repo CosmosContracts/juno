@@ -1,6 +1,6 @@
 version: v2
 
-clean: true
+clean: false
 
 plugins:
   - local: gocosmos

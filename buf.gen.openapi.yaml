@@ -1,6 +1,6 @@
 version: v2
 
-clean: false
+clean: true
 
 inputs:
   - directory: .
