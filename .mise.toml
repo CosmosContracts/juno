@@ -27,3 +27,5 @@
 
 [tools]
 go = "1.23.9"
+buf = "latest"
+yq = "latest"

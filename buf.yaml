@@ -1,5 +1,7 @@
-version: v1
-name: buf.build/CosmosContracts/juno
+version: v2
+modules:
+  - path: proto
+    name: buf.build/CosmosContracts/juno
 deps:
   - buf.build/cosmos/cosmos-sdk:v0.50.0
   - buf.build/cosmos/cosmos-proto
@@ -10,7 +12,7 @@ breaking:
     - FILE
 lint:
   use:
-    - DEFAULT
+    - STANDARD
     - COMMENTS
     - FILE_LOWER_SNAKE_CASE
   except:

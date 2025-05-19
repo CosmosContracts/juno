@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/fs"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -72,7 +70,6 @@ import (
 	upgrades "github.com/CosmosContracts/juno/v29/app/upgrades"
 	v28 "github.com/CosmosContracts/juno/v29/app/upgrades/v28"
 	v29 "github.com/CosmosContracts/juno/v29/app/upgrades/v29"
-	"github.com/CosmosContracts/juno/v29/docs"
 )
 
 const (
@@ -498,22 +495,19 @@ func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
 	return subspace
 }
 
-func (*App) RegisterSwaggerUI(apiSvr *api.Server) error {
-	staticSubDir, err := fs.Sub(docs.Docs, "static")
-	if err != nil {
-		return err
-	}
-
-	staticServer := http.FileServer(http.FS(staticSubDir))
-	apiSvr.Router.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
-
-	return nil
-}
-
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
 func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
+
+	// Register Scalar UI to <address>:<port>/scalar
+	// Needs to be before registering the grpc-gateway routes
+	// so its not registered after a '*' wildcard route is set
+	// which for some reason overrides the scalar route.
+	if err := app.RegisterScalarUI(apiSvr); err != nil {
+		panic(err)
+	}
+
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
@@ -525,11 +519,6 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 
 	// Register grpc-gateway routes for all modules.
 	app.BasicModuleManager.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
-
-	// Register Swagger UI to <address>:<port>/swagger
-	if err := app.RegisterSwaggerUI(apiSvr); err != nil {
-		panic(err)
-	}
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.

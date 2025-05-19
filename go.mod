@@ -1,6 +1,8 @@
 module github.com/CosmosContracts/juno/v29
 
-go 1.23.9
+go 1.24.1
+
+toolchain go1.24.3
 
 replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 
@@ -21,6 +23,7 @@ require (
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/CosmWasm/wasmd v0.54.0
 	github.com/CosmWasm/wasmvm/v2 v2.2.4
+	github.com/bdpiprava/scalar-go v0.12.0
 	github.com/cometbft/cometbft v0.38.17
 	github.com/cosmos/cosmos-db v1.1.1
 	github.com/cosmos/cosmos-sdk v0.50.13

@@ -1,0 +1,27 @@
+version: v2
+
+clean: true
+
+managed:
+  enabled: true
+  disable:
+    - file_option: go_package
+      module: buf.build/googleapis/googleapis
+    - file_option: go_package
+      module: buf.build/cosmos/gogo-proto
+    - file_option: go_package
+      module: buf.build/cosmos/cosmos-proto
+  override:
+    - file_option: optimize_for
+      value: CODE_SIZE
+    - file_option: go_package_prefix
+      module: buf.build/CosmosContracts/juno
+      value: cosmossdk.io/api
+
+plugins:
+  - local: go-pulsar
+    out: api
+    opt: paths=source_relative
+  - local: go-grpc
+    out: api
+    opt: paths=source_relative

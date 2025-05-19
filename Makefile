@@ -252,36 +252,36 @@ protoVer=0.17.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace -v /var/run/docker.sock:/var/run/docker.sock --workdir /workspace $(protoImageName)
 
-proto-all: proto-format proto-lint proto-gen proto-gen-2 proto-swagger-gen
+proto-all: proto-format proto-lint proto-check-breaking proto-gogo proto-pulsar proto-openapi
 
-proto-gen:
-	@echo "🛠️ - Generating Protobuf"
-	@$(protoImage) sh ./scripts/protoc/protocgen.sh
-	@echo "✅ - Generated Protobuf successfully!"
+proto-gogo:
+	@echo "🛠️ - Generating Gogo types from Protobuffers"
+	@$(protoImage) sh ./scripts/buf/buf-gogo.sh
+	@echo "✅ - Generated Gogo types successfully!"
 
-proto-gen-2:
-	@echo "🛠️ - Generating Protobuf v2"
-	@$(protoImage) sh ./scripts/protoc/protocgen2.sh
-	@echo "✅ - Generated Protobuf v2 successfully!"
+proto-pulsar:
+	@echo "🛠️ - Generating Pulsar types from Protobuffers"
+	@$(protoImage) sh ./scripts/buf/buf-pulsar.sh
+	@echo "✅ - Generated Pulsar types successfully!"
 
-proto-swagger-gen:
-	@echo "📖 - Generating Protobuf Swagger"
-	@$(protoImage) sh ./scripts/protoc/protoc-swagger-gen.sh
-	@echo "✅ - Generated Protobuf Swagger successfully!"
+proto-openapi:
+	@echo "🛠️ - Generating OpenAPI Spec from Protobuffers"
+	@$(protoImage) ./scripts/buf/buf-openapi.sh
+	@echo "✅ - Generated OpenAPI Spec successfully!"
 
 proto-format:
-	@echo "🖊️ - Formatting Protobuf Swagger"
-	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
-	@echo "✅ - Formatted Protobuf successfully!"
+	@echo "🖊️ - Formatting Protobuffers"
+	@$(protoImage) buf format ./proto --error-format=json
+	@echo "✅ - Formatted Protobuffers successfully!"
 
 proto-lint:
-	@echo "🔎 - Linting Protobuf"
+	@echo "🔎 - Linting Protobuffers"
 	@$(protoImage) buf lint --error-format=json
-	@echo "✅ - Linted Protobuf successfully!"
+	@echo "✅ - Linted Protobuffers successfully!"
 
 proto-check-breaking:
-	@echo "🔎 - Checking breaking Protobuf changes"
+	@echo "🔎 - Checking breaking Protobuffers changes against branch main"
 	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
-	@echo "✅ - Checked Protobuf changes successfully!"
+	@echo "✅ - Protobuffers are non-breaking, checked successfully!"
 
-.PHONY: proto-all proto-gen proto-gen-2 proto-swagger-gen proto-format proto-lint proto-check-breaking
+.PHONY: proto-all proto-format proto-lint proto-check-breaking proto-gogo proto-pulsar proto-openapi
