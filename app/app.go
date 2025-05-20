@@ -277,7 +277,6 @@ func New(
 			FeePayKeeper:         app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:       app.AppKeepers.FeeShareKeeper,
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
-			GlobalFeeKeeper:      app.AppKeepers.GlobalFeeKeeper,
 		},
 	)
 	if err != nil {

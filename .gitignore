@@ -4,3 +4,4 @@ bin
 heighliner*
 !scripts/heighliner
 third_party
+__debug_*

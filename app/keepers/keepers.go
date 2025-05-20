@@ -92,8 +92,6 @@ import (
 	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
-	globalfeekeeper "github.com/CosmosContracts/juno/v30/x/globalfee/keeper"
-	globalfeetypes "github.com/CosmosContracts/juno/v30/x/globalfee/types"
 	mintkeeper "github.com/CosmosContracts/juno/v30/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
@@ -128,7 +126,6 @@ var maccPerms = map[string][]string{
 	ibcfeetypes.ModuleName:         nil,
 	wasmtypes.ModuleName:           {},
 	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
-	globalfeetypes.ModuleName:      nil,
 	feepaytypes.ModuleName:         nil,
 	junoburn.ModuleName:            {authtypes.Burner},
 }
@@ -163,7 +160,6 @@ type AppKeepers struct {
 	NFTKeeper           nftkeeper.Keeper
 	FeePayKeeper        feepaykeeper.Keeper
 	FeeShareKeeper      feesharekeeper.Keeper
-	GlobalFeeKeeper     globalfeekeeper.Keeper
 	ContractKeeper      wasmtypes.ContractOpsKeeper
 	ClockKeeper         clockkeeper.Keeper
 	CWHooksKeeper       cwhookskeeper.Keeper
@@ -582,12 +578,6 @@ func NewAppKeepers(
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
 		authtypes.FeeCollectorName,
-		govModAddress,
-	)
-
-	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(appKeepers.keys[globalfeetypes.StoreKey]),
 		govModAddress,
 	)
 

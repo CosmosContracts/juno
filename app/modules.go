@@ -71,8 +71,6 @@ import (
 	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 	feesharemodule "github.com/CosmosContracts/juno/v30/x/feeshare/module"
 	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
-	globalfeemodule "github.com/CosmosContracts/juno/v30/x/globalfee/module"
-	globalfeetypes "github.com/CosmosContracts/juno/v30/x/globalfee/types"
 	mintmodule "github.com/CosmosContracts/juno/v30/x/mint/module"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
 	tokenfactorymodule "github.com/CosmosContracts/juno/v30/x/tokenfactory/module"
@@ -115,7 +113,6 @@ func appModules(
 		// Juno modules
 		mintmodule.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
 		tokenfactorymodule.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper),
-		globalfeemodule.NewAppModule(appCodec, app.AppKeepers.GlobalFeeKeeper),
 		feepaymodule.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper),
 		feesharemodule.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper),
 		dripmodule.NewAppModule(appCodec, app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
@@ -168,7 +165,6 @@ func orderBeginBlockers() []string {
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfeetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
@@ -207,7 +203,6 @@ func orderEndBlockers() []string {
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfeetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
@@ -252,7 +247,6 @@ func orderInitBlockers() []string {
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfeetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
@@ -270,7 +264,6 @@ var AppModuleBasics = module.NewBasicManager(
 	bank.AppModuleBasic{},
 	feegrantmodule.AppModuleBasic{},
 	gov.AppModuleBasic{},
-	// Replace .NewAppModule with .AppModuleBasic{}
 	slashing.AppModuleBasic{},
 	distr.AppModuleBasic{},
 	staking.AppModuleBasic{},
@@ -284,7 +277,6 @@ var AppModuleBasics = module.NewBasicManager(
 	// Juno modules
 	mintmodule.AppModuleBasic{},
 	tokenfactorymodule.AppModuleBasic{},
-	globalfeemodule.AppModuleBasic{},
 	feepaymodule.AppModuleBasic{},
 	feesharemodule.AppModuleBasic{},
 	dripmodule.AppModuleBasic{},

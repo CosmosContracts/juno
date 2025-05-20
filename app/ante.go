@@ -23,8 +23,6 @@ import (
 	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
 	feeshareante "github.com/CosmosContracts/juno/v30/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
-	globalfeeante "github.com/CosmosContracts/juno/v30/x/globalfee/ante"
-	globalfeekeeper "github.com/CosmosContracts/juno/v30/x/globalfee/keeper"
 )
 
 // Lower back to 1 mil after https://github.com/cosmos/relayer/issues/1255
@@ -51,7 +49,6 @@ type HandlerOptions struct {
 	// fee modules
 	FeePayKeeper         feepaykeeper.Keeper
 	FeeShareKeeper       feesharekeeper.Keeper
-	GlobalFeeKeeper      globalfeekeeper.Keeper
 	BypassMinFeeMsgTypes []string
 }
 
@@ -87,7 +84,6 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	// transaction. The FeePay decorator is called first for FeePay transactions, and the GlobalFee decorator is called
 	// first for all other transactions. See the FeeRouteDecorator for more details.
 	fpd := feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.GlobalFeeKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.BondDenom, &isFeePayTx)
-	gfd := globalfeeante.NewFeeDecorator(options.BypassMinFeeMsgTypes, options.GlobalFeeKeeper, options.StakingKeeper, maxBypassMinFeeMsgGasUsage, &isFeePayTx)
 
 	anteDecorators := []sdk.AnteDecorator{
 		// outermost AnteDecorator. SetUpContext must be called first
