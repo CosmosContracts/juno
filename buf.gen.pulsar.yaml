@@ -1,7 +1,4 @@
 version: v2
-
-clean: true
-
 managed:
   enabled: true
   disable:
@@ -12,16 +9,12 @@ managed:
     - file_option: go_package
       module: buf.build/cosmos/cosmos-proto
   override:
-    - file_option: optimize_for
-      value: CODE_SIZE
     - file_option: go_package_prefix
-      module: buf.build/CosmosContracts/juno
       value: cosmossdk.io/api
-
 plugins:
-  - local: go-pulsar
+  - local: protoc-gen-go-pulsar
     out: api
     opt: paths=source_relative
-  - local: go-grpc
+  - local: protoc-gen-go-grpc
     out: api
     opt: paths=source_relative

@@ -1,10 +1,6 @@
 module github.com/CosmosContracts/juno/v29
 
-go 1.24.1
-
-toolchain go1.24.3
-
-replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
+go 1.24.3
 
 require (
 	cosmossdk.io/api v0.7.6
@@ -41,7 +37,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/mock v0.5.2
 	google.golang.org/genproto/googleapis/api v0.0.0-20250505200425-f936aa4a68b2
-	google.golang.org/grpc v1.72.0
+	google.golang.org/grpc v1.72.1
 	gotest.tools/v3 v3.5.2
 )
 
@@ -118,7 +114,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
-	github.com/gogo/protobuf v1.3.3 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v1.2.4 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -251,3 +247,5 @@ replace (
 	// pin the version of goleveldb to v1.0.1-0.20210819022825-2ae1ddf74ef7 required by SDK v47 upgrade guide.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
+
+exclude github.com/gogo/protobuf v1.3.3

@@ -1,6 +1,41 @@
 #!/usr/bin/env sh
 set -eo pipefail
 
+if command -v curl >/dev/null 2>&1; then
+  DL='curl -sSL'
+elif command -v wget >/dev/null 2>&1; then
+  DL='wget -qO-'
+else
+  echo >&2 "Error: neither curl nor wget is installed. Please install one to fetch yq."
+  exit 1
+fi
+
+OS="$(uname | tr '[:upper:]' '[:lower:]')"
+ARCH="$(uname -m)"
+
+case "$ARCH" in
+x86_64) ARCH="amd64" ;;
+aarch64 | arm64) ARCH="arm64" ;;
+*)
+  echo >&2 "Unsupported arch: $ARCH"
+  exit 1
+  ;;
+esac
+
+VERSION="v4.45.4"
+BASE="https://github.com/mikefarah/yq/releases/download/$VERSION"
+FILE="yq_${OS}_${ARCH}"
+
+if ! (command -v yq >/dev/null 2>&1 && yq --version 2>&1 | grep "$VERSION"); then
+  TMPBIN="$(mktemp -d)"
+  echo "Downloading yq $VERSION for $OS/$ARCH…"
+  $DL "$BASE/$FILE" >"$TMPBIN/yq"
+  echo "Downloaded yq $VERSION"
+  chmod +x "$TMPBIN/yq"
+  export PATH="$TMPBIN:$PATH"
+fi
+
+echo "Generating OpenAPI Spec"
 buf dep update
 buf generate --template buf.gen.openapi.yaml
 buf generate --template buf.gen.openapi-external.yaml
@@ -340,8 +375,10 @@ yq eval -i '
   .paths |= with_entries(select(.key | test("/tx/") | not))
 ' openapi.yaml
 
+# remove duplicate comment from merging files
 tail -n +4 openapi.yaml >tmp && mv tmp openapi.yaml
 
+# capitalize all tags
 yq eval -i '
   .tags[].name |= (
     capture("(?<first>.)(?<rest>.*)")
@@ -356,9 +393,8 @@ yq eval -i '
   )
 ' openapi.yaml
 
+# move the final openapi.yaml to the correct app directory
 mv openapi.yaml ../app/openapi.yaml
 
 cd ..
 rm -rf gen
-
-echo "✅ OpenAPI spec generated at ./app/openapi.yaml"
