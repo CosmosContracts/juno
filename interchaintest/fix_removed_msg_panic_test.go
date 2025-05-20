@@ -39,9 +39,15 @@ var v28Chain = ibc.DockerImage{
 	UIDGID:     "1025:1025",
 }
 
+// v29Chain is the final version of juno that will be upgraded to in this test
+var v29Chain = ibc.DockerImage{
+	Repository: JunoMainRepo,
+	Version:    "v29.0.0",
+	UIDGID:     "1025:1025",
+}
+
 func TestFixRemovedMsgTypeQueryPanic(t *testing.T) {
-	localRepo, localVersion := GetDockerImageInfo()
-	SimulateQueryPanic(t, chainName, v28Chain.Version, localVersion, v28Chain.Repository, localRepo, firstUpgradeName, secondUpgradeName)
+	SimulateQueryPanic(t, chainName, v28Chain.Version, v29Chain.Version, v28Chain.Repository, v29Chain.Repository, firstUpgradeName, secondUpgradeName)
 }
 
 func SimulateQueryPanic(t *testing.T, chainName, firstUpgradeBranchVersion, secondUpgradeBranchVersion, firstUpgradeRepo, secondUpgradeRepo, firstUpgradeName, secondUpgradeName string) {
