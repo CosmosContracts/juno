@@ -230,12 +230,12 @@ func New(
 	}
 	app.ModuleManager.SetOrderPreBlockers(
 		upgradetypes.ModuleName,
+		authtypes.ModuleName,
 	)
 	app.ModuleManager.SetOrderBeginBlockers(orderBeginBlockers()...)
 	app.ModuleManager.SetOrderEndBlockers(orderEndBlockers()...)
 	app.ModuleManager.SetOrderInitGenesis(orderInitBlockers()...)
 	app.ModuleManager.SetOrderExportGenesis(orderInitBlockers()...)
-	app.ModuleManager.RegisterInvariants(app.AppKeepers.CrisisKeeper)
 
 	autocliv1.RegisterQueryServer(app.GRPCQueryRouter(), runtimeservices.NewAutoCLIQueryService(app.ModuleManager.Modules))
 
@@ -341,15 +341,6 @@ func New(
 		// `loadLatest` is set to true.
 		app.AppKeepers.CapabilityKeeper.Seal()
 	}
-
-	// create the simulation manager and define the order of the modules for deterministic simulations
-	//
-	// no override for simulation for now, but we can add it in the future if needed
-	app.sm = module.NewSimulationManagerFromAppModules(
-		app.ModuleManager.Modules,
-		make(map[string]module.AppModuleSimulation, 0),
-	)
-	app.sm.RegisterStoreDecoders()
 
 	return app
 }
