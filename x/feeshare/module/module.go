@@ -16,8 +16,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	"github.com/CosmosContracts/juno/v29/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v29/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v30/x/feeshare/types"
 )
 
 // type check to ensure the interface is properly implemented

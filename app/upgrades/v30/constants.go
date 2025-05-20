@@ -1,16 +1,12 @@
-package v29
+package v30
 
 import (
 	"github.com/CosmosContracts/juno/v30/app/upgrades"
 )
 
-const UpgradeName = "v29"
-
-const (
-	expeditedMinDeposit = "10000000000"
-)
+const UpgradeName = "v30"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: CreateV29UpgradeHandler,
+	CreateUpgradeHandler: CreateV30UpgradeHandler,
 }

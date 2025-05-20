@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 func (k Keeper) mintTo(ctx context.Context, amount sdk.Coin, mintTo string) error {

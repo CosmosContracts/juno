@@ -6,7 +6,7 @@ replace (
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
 	// For this nested module, you always want to replace the parent reference with the current worktree.
-	github.com/CosmosContracts/juno/v29 v29.0.0 => ../
+	github.com/CosmosContracts/juno/v30 v29.0.0 => ../
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 )
 
@@ -14,7 +14,7 @@ require (
 	cosmossdk.io/math v1.5.3
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/CosmWasm/wasmd v0.54.0
-	github.com/CosmosContracts/juno/v29 v29.0.0
+	github.com/CosmosContracts/juno/v30 v29.0.0
 	github.com/cosmos/cosmos-sdk v0.50.13
 	github.com/cosmos/ibc-go/v8 v8.7.0
 	github.com/docker/docker v24.0.9+incompatible

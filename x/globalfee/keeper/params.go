@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/CosmosContracts/juno/v29/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v30/x/globalfee/types"
 )
 
 // SetParams sets the x/globalfee module parameters.

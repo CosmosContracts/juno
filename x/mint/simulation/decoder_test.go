@@ -12,8 +12,8 @@ import (
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 
-	"github.com/CosmosContracts/juno/v29/x/mint/simulation"
-	"github.com/CosmosContracts/juno/v29/x/mint/types"
+	"github.com/CosmosContracts/juno/v30/x/mint/simulation"
+	"github.com/CosmosContracts/juno/v30/x/mint/types"
 )
 
 // TestDecodeStore tests the decoding of the store

@@ -30,14 +30,14 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	clocktypes "github.com/CosmosContracts/juno/v29/x/clock/types"
-	cwhookstypes "github.com/CosmosContracts/juno/v29/x/cw-hooks/types"
-	driptypes "github.com/CosmosContracts/juno/v29/x/drip/types"
-	feepaytypes "github.com/CosmosContracts/juno/v29/x/feepay/types"
-	feesharetypes "github.com/CosmosContracts/juno/v29/x/feeshare/types"
-	globalfeetypes "github.com/CosmosContracts/juno/v29/x/globalfee/types"
-	minttypes "github.com/CosmosContracts/juno/v29/x/mint/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
+	cwhookstypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
+	driptypes "github.com/CosmosContracts/juno/v30/x/drip/types"
+	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
+	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
+	globalfeetypes "github.com/CosmosContracts/juno/v30/x/globalfee/types"
+	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {

@@ -9,7 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v29/x/globalfee/types"
+	"github.com/CosmosContracts/juno/v30/x/globalfee/types"
 )
 
 func TestDefaultParams(t *testing.T) {

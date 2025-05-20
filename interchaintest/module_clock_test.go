@@ -14,7 +14,7 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/stretchr/testify/require"
 
-	clocktypes "github.com/CosmosContracts/juno/v29/x/clock/types"
+	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
 
 	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
 )

@@ -66,10 +66,10 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/CosmosContracts/juno/v29/app/keepers"
-	upgrades "github.com/CosmosContracts/juno/v29/app/upgrades"
-	v28 "github.com/CosmosContracts/juno/v29/app/upgrades/v28"
-	v29 "github.com/CosmosContracts/juno/v29/app/upgrades/v29"
+	"github.com/CosmosContracts/juno/v30/app/keepers"
+	upgrades "github.com/CosmosContracts/juno/v30/app/upgrades"
+	v28 "github.com/CosmosContracts/juno/v30/app/upgrades/v28"
+	v29 "github.com/CosmosContracts/juno/v30/app/upgrades/v29"
 )
 
 const (

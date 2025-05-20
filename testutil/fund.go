@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 
-	minttypes "github.com/CosmosContracts/juno/v29/x/mint/types"
+	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
 )
 
 // FundAcc funds target address with specified amount.

@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	types "github.com/CosmosContracts/juno/v29/wasmbindings/types"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v29/x/tokenfactory/keeper"
+	types "github.com/CosmosContracts/juno/v30/wasmbindings/types"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
 )
 
 type QueryPlugin struct {

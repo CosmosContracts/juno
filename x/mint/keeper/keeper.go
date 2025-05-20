@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v29/x/mint/types"
+	"github.com/CosmosContracts/juno/v30/x/mint/types"
 )
 
 // Keeper of the mint store
