@@ -81,25 +81,6 @@ paths:
                 $ref: '#/components/schemas/Status'
       tags:
         - Mint
-  /gaia/globalfee/v1beta1/minimum_gas_prices:
-    get:
-      description: MinimumGasPrices queries the minimum gas prices.
-      operationId: globalfee_minimum_gas_prices
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QueryMinimumGasPricesResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      tags:
-        - Globalfee
   /juno/clock/v1/contracts:
     get:
       description: ClockContracts
@@ -279,6 +260,93 @@ paths:
                 $ref: '#/components/schemas/Status'
       tags:
         - Drip
+  /juno/feemarket/v1/gas_price/{denom}:
+    get:
+      description: |-
+        GasPrice returns the current feemarket module gas price
+         for specified denom.
+      operationId: feemarket_{denom}
+      parameters:
+        - name: denom
+          in: path
+          description: denom we are querying gas price in
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GasPriceResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Feemarket
+  /juno/feemarket/v1/gas_prices:
+    get:
+      description: |-
+        GasPrices returns the current feemarket module list of gas prices
+         in all available denoms.
+      operationId: feemarket_gas_prices
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GasPricesResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Feemarket
+  /juno/feemarket/v1/params:
+    get:
+      description: Params returns the current feemarket module parameters.
+      operationId: feemarket_params
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParamsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Feemarket
+  /juno/feemarket/v1/state:
+    get:
+      description: State returns the current feemarket module state.
+      operationId: feemarket_state
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Feemarket
   /juno/feepay/v1/all_contracts:
     get:
       description: Retrieve all fee pay contracts
@@ -5908,6 +5976,24 @@ components:
       description: |-
         FeeShare defines an instance that organizes fee distribution conditions for
          the owner of a given smart contract
+    GasPriceResponse:
+      type: object
+      properties:
+        price:
+          $ref: '#/components/schemas/DecCoin'
+      description: |-
+        GasPriceResponse is the response type for the Query/GasPrice RPC method.
+         Returns a gas price in specified denom.
+    GasPricesResponse:
+      type: object
+      properties:
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecCoin'
+      description: |-
+        GasPricesResponse is the response type for the Query/GasPrices RPC method.
+         Returns a gas price in all available denoms.
     GoogleProtobufAny:
       type: object
       properties:
@@ -6008,6 +6094,12 @@ components:
         defaultSendEnabled:
           type: boolean
       description: Params defines the parameters for the bank module.
+    ParamsResponse:
+      type: object
+      properties:
+        params:
+          $ref: '#/components/schemas/Params'
+      description: ParamsResponse is the response type for the Query/Params RPC method.
     QueryAnnualProvisionsResponse:
       type: object
       properties:
@@ -6150,16 +6242,6 @@ components:
       description: |-
         QueryInflationResponse is the response type for the Query/Inflation RPC
          method.
-    QueryMinimumGasPricesResponse:
-      type: object
-      properties:
-        minimumGasPrices:
-          type: array
-          items:
-            $ref: '#/components/schemas/DecCoin'
-      description: |-
-        QueryMinimumGasPricesResponse is the response type for the
-         Query/MinimumGasPrices RPC method.
     QueryParamsResponse:
       type: object
       properties:
@@ -6204,6 +6286,38 @@ components:
       description: |-
         QueryWithdrawerFeeSharesResponse is the response type for the
          Query/WithdrawerFeeShares RPC method.
+    State:
+      type: object
+      properties:
+        baseGasPrice:
+          type: string
+          description: |-
+            BaseGasPrice is the current base fee. This is denominated in the fee per
+             gas unit.
+        learningRate:
+          type: string
+          description: LearningRate is the current learning rate.
+        window:
+          type: array
+          items:
+            type: string
+          description: |-
+            Window contains a list of the last blocks' utilization values. This is used
+             to calculate the next base fee. This stores the number of units of gas
+             consumed per block.
+        index:
+          type: string
+          description: Index is the index of the current block in the block utilization window.
+      description: |-
+        State is utilized to track the current state of the fee market. This includes
+         the current base fee, learning rate, and block utilization within the
+         specified AIMD window.
+    StateResponse:
+      type: object
+      properties:
+        state:
+          $ref: '#/components/schemas/State'
+      description: StateResponse is the response type for the Query/State RPC method.
     Status:
       type: object
       properties:
@@ -9139,13 +9253,13 @@ components:
 tags:
   - name: Mint
     description: ""
-  - name: Globalfee
-    description: ""
   - name: Clock
     description: ""
   - name: Cwhooks
     description: ""
   - name: Drip
+    description: ""
+  - name: Feemarket
     description: ""
   - name: Feepay
     description: ""

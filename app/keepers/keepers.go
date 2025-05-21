@@ -115,21 +115,22 @@ var (
 
 // module account permissions
 var maccPerms = map[string][]string{
-	authtypes.FeeCollectorName:     nil,
-	distrtypes.ModuleName:          nil,
-	minttypes.ModuleName:           {authtypes.Minter},
-	stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-	govtypes.ModuleName:            {authtypes.Burner},
-	nft.ModuleName:                 nil,
-	icqtypes.ModuleName:            nil,
-	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-	icatypes.ModuleName:            nil,
-	ibcfeetypes.ModuleName:         nil,
-	wasmtypes.ModuleName:           {},
-	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
-	feepaytypes.ModuleName:         nil,
-	junoburn.ModuleName:            {authtypes.Burner},
+	authtypes.FeeCollectorName:      nil,
+	distrtypes.ModuleName:           nil,
+	minttypes.ModuleName:            {authtypes.Minter},
+	stakingtypes.BondedPoolName:     {authtypes.Burner, authtypes.Staking},
+	stakingtypes.NotBondedPoolName:  {authtypes.Burner, authtypes.Staking},
+	govtypes.ModuleName:             {authtypes.Burner},
+	nft.ModuleName:                  nil,
+	icqtypes.ModuleName:             nil,
+	ibctransfertypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
+	icatypes.ModuleName:             nil,
+	ibcfeetypes.ModuleName:          nil,
+	wasmtypes.ModuleName:            {},
+	tokenfactorytypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+	feepaytypes.ModuleName:          nil,
+	feemarkettypes.FeeCollectorName: nil,
+	junoburn.ModuleName:             {authtypes.Burner},
 }
 
 type AppKeepers struct {

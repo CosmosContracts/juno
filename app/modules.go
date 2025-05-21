@@ -51,8 +51,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
-
-	// "github.com/cosmos/cosmos-sdk/x/gov"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -67,6 +65,8 @@ import (
 	cwhookstypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 	dripmodule "github.com/CosmosContracts/juno/v30/x/drip/module"
 	driptypes "github.com/CosmosContracts/juno/v30/x/drip/types"
+	feemarketmodule "github.com/CosmosContracts/juno/v30/x/feemarket/module"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	feepaymodule "github.com/CosmosContracts/juno/v30/x/feepay/module"
 	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 	feesharemodule "github.com/CosmosContracts/juno/v30/x/feeshare/module"
@@ -116,6 +116,7 @@ func appModules(
 		mintmodule.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
 		tokenfactorymodule.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper),
 		feepaymodule.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper),
+		feemarketmodule.NewAppModule(appCodec, *app.AppKeepers.FeeMarketKeeper),
 		feesharemodule.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper),
 		dripmodule.NewAppModule(appCodec, app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
 		clockmodule.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
@@ -166,6 +167,7 @@ func orderBeginBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
+		feemarkettypes.ModuleName,
 		feesharetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
@@ -209,6 +211,7 @@ func orderEndBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhookstypes.ModuleName,
+		feemarkettypes.ModuleName,
 	}
 }
 
@@ -248,6 +251,7 @@ func orderInitBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
+		feemarkettypes.ModuleName,
 		feesharetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
@@ -280,6 +284,7 @@ var AppModuleBasics = module.NewBasicManager(
 	mintmodule.AppModuleBasic{},
 	tokenfactorymodule.AppModuleBasic{},
 	feepaymodule.AppModuleBasic{},
+	feemarketmodule.AppModuleBasic{},
 	feesharemodule.AppModuleBasic{},
 	dripmodule.AppModuleBasic{},
 	clockmodule.AppModuleBasic{},

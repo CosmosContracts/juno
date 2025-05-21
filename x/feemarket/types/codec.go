@@ -11,14 +11,14 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/feemarket interfaces (messages) on the
 // provided LegacyAmino codec.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgParams{}, "feemarket/MsgParams")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "feemarket/MsgParams")
 }
 
 // RegisterInterfaces registers the x/feemarket interfaces (messages + msg server) on the
 // provided InterfaceRegistry.
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgParams{},
+		&MsgUpdateParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

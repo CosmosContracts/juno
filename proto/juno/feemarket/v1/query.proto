@@ -14,24 +14,24 @@ option go_package = "github.com/CosmosContracts/juno/x/feemarket/types";
 service Query {
   // Params returns the current feemarket module parameters.
   rpc Params(ParamsRequest) returns (ParamsResponse) {
-    option (google.api.http) = {get: "/feemarket/v1/params"};
+    option (google.api.http) = {get: "/juno/feemarket/v1/params"};
   }
 
   // State returns the current feemarket module state.
   rpc State(StateRequest) returns (StateResponse) {
-    option (google.api.http) = {get: "/feemarket/v1/state"};
+    option (google.api.http) = {get: "/juno/feemarket/v1/state"};
   }
 
   // GasPrice returns the current feemarket module gas price
   // for specified denom.
   rpc GasPrice(GasPriceRequest) returns (GasPriceResponse) {
-    option (google.api.http) = {get: "/feemarket/v1/gas_price/{denom}"};
+    option (google.api.http) = {get: "/juno/feemarket/v1/gas_price/{denom}"};
   }
 
   // GasPrices returns the current feemarket module list of gas prices
   // in all available denoms.
   rpc GasPrices(GasPricesRequest) returns (GasPricesResponse) {
-    option (google.api.http) = {get: "/feemarket/v1/gas_prices"};
+    option (google.api.http) = {get: "/juno/feemarket/v1/gas_prices"};
   }
 }
 

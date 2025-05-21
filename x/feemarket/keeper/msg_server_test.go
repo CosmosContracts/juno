@@ -6,10 +6,10 @@ import (
 
 func (s *KeeperTestSuite) TestMsgParams() {
 	s.Run("accepts a req with no params", func() {
-		req := &types.MsgParams{
+		req := &types.MsgUpdateParams{
 			Authority: s.authorityAccount.String(),
 		}
-		resp, err := s.msgServer.Params(s.Ctx, req)
+		resp, err := s.msgServer.UpdateParams(s.Ctx, req)
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
@@ -19,11 +19,11 @@ func (s *KeeperTestSuite) TestMsgParams() {
 	})
 
 	s.Run("accepts a req with params", func() {
-		req := &types.MsgParams{
+		req := &types.MsgUpdateParams{
 			Authority: s.authorityAccount.String(),
 			Params:    types.DefaultParams(),
 		}
-		resp, err := s.msgServer.Params(s.Ctx, req)
+		resp, err := s.msgServer.UpdateParams(s.Ctx, req)
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
@@ -33,10 +33,10 @@ func (s *KeeperTestSuite) TestMsgParams() {
 	})
 
 	s.Run("rejects a req with invalid signer", func() {
-		req := &types.MsgParams{
+		req := &types.MsgUpdateParams{
 			Authority: "invalid",
 		}
-		_, err := s.msgServer.Params(s.Ctx, req)
+		_, err := s.msgServer.UpdateParams(s.Ctx, req)
 		s.Require().Error(err)
 	})
 
@@ -44,21 +44,21 @@ func (s *KeeperTestSuite) TestMsgParams() {
 		s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight())
 		enabledParams := types.DefaultParams()
 
-		req := &types.MsgParams{
+		req := &types.MsgUpdateParams{
 			Authority: s.authorityAccount.String(),
 			Params:    enabledParams,
 		}
-		_, err := s.msgServer.Params(s.Ctx, req)
+		_, err := s.msgServer.UpdateParams(s.Ctx, req)
 		s.Require().NoError(err)
 
 		disableParams := types.DefaultParams()
 		disableParams.Enabled = false
 
-		req = &types.MsgParams{
+		req = &types.MsgUpdateParams{
 			Authority: s.authorityAccount.String(),
 			Params:    disableParams,
 		}
-		_, err = s.msgServer.Params(s.Ctx, req)
+		_, err = s.msgServer.UpdateParams(s.Ctx, req)
 		s.Require().NoError(err)
 
 		gotHeight, err := s.App.AppKeepers.FeeMarketKeeper.GetEnabledHeight(s.Ctx)
@@ -68,11 +68,11 @@ func (s *KeeperTestSuite) TestMsgParams() {
 		// now that the markets are disabled, enable and check block height
 		s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 10)
 
-		req = &types.MsgParams{
+		req = &types.MsgUpdateParams{
 			Authority: s.authorityAccount.String(),
 			Params:    enabledParams,
 		}
-		_, err = s.msgServer.Params(s.Ctx, req)
+		_, err = s.msgServer.UpdateParams(s.Ctx, req)
 		s.Require().NoError(err)
 
 		newHeight, err := s.App.AppKeepers.FeeMarketKeeper.GetEnabledHeight(s.Ctx)
@@ -94,11 +94,11 @@ func (s *KeeperTestSuite) TestMsgParams() {
 		s.Require().NoError(err)
 
 		params.Window = 100
-		req := &types.MsgParams{
+		req := &types.MsgUpdateParams{
 			Authority: s.authorityAccount.String(),
 			Params:    params,
 		}
-		_, err = s.msgServer.Params(s.Ctx, req)
+		_, err = s.msgServer.UpdateParams(s.Ctx, req)
 		s.Require().NoError(err)
 
 		state, err = s.App.AppKeepers.FeeMarketKeeper.GetState(s.Ctx)

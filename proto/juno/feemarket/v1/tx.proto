@@ -14,12 +14,12 @@ service Msg {
   option (cosmos.msg.v1.service) = true;
 
   // Params defines a method for updating the feemarket module parameters.
-  rpc Params(MsgParams) returns (MsgParamsResponse);
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgParams defines the Msg/Params request type. It contains the
+// MsgUpdateParams defines the Msg/UpdateParams request type. It contains the
 // new parameters for the feemarket module.
-message MsgParams {
+message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
 
   // Params defines the new parameters for the feemarket module.
@@ -29,5 +29,5 @@ message MsgParams {
   string authority = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgParamsResponse defines the Msg/Params response type.
-message MsgParamsResponse {}
+// MsgUpdateParamsResponse defines the Msg/UpdateParams response type.
+message MsgUpdateParamsResponse {}

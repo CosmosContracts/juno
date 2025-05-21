@@ -71,8 +71,8 @@ from_scratch() {
 
   # Custom Modules
   # Feemarket
-  update_test_genesis '.app_state["feemarket"]["params"]["min_base_gas_price"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
-  update_test_genesis '.app_state["feemarket"]["params"]["enabled"]="true"'
+  update_test_genesis '.app_state["feemarket"]["params"]["min_base_gas_price"]="0.002500000000000000"'
+  update_test_genesis '.app_state["feemarket"]["params"]["enabled"]=true'
   # Drip
   update_test_genesis '.app_state["drip"]["params"]["allowed_addresses"]=["juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl","juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk"]'
   # Clock

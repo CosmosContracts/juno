@@ -23,7 +23,7 @@ func NewMsgServer(k *Keeper) types.MsgServer {
 
 // Params defines a method that updates the module's parameters. The signer of the message must
 // be the module authority.
-func (ms MsgServer) Params(goCtx context.Context, msg *types.MsgParams) (*types.MsgParamsResponse, error) {
+func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if msg.Authority != ms.k.GetAuthority() {
@@ -50,5 +50,5 @@ func (ms MsgServer) Params(goCtx context.Context, msg *types.MsgParams) (*types.
 		return nil, fmt.Errorf("error setting state: %w", err)
 	}
 
-	return &types.MsgParamsResponse{}, nil
+	return &types.MsgUpdateParamsResponse{}, nil
 }

@@ -16,27 +16,27 @@ import (
 )
 
 var (
-	md_MsgParams           protoreflect.MessageDescriptor
-	fd_MsgParams_params    protoreflect.FieldDescriptor
-	fd_MsgParams_authority protoreflect.FieldDescriptor
+	md_MsgUpdateParams           protoreflect.MessageDescriptor
+	fd_MsgUpdateParams_params    protoreflect.FieldDescriptor
+	fd_MsgUpdateParams_authority protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_juno_feemarket_v1_tx_proto_init()
-	md_MsgParams = File_juno_feemarket_v1_tx_proto.Messages().ByName("MsgParams")
-	fd_MsgParams_params = md_MsgParams.Fields().ByName("params")
-	fd_MsgParams_authority = md_MsgParams.Fields().ByName("authority")
+	md_MsgUpdateParams = File_juno_feemarket_v1_tx_proto.Messages().ByName("MsgUpdateParams")
+	fd_MsgUpdateParams_params = md_MsgUpdateParams.Fields().ByName("params")
+	fd_MsgUpdateParams_authority = md_MsgUpdateParams.Fields().ByName("authority")
 }
 
-var _ protoreflect.Message = (*fastReflection_MsgParams)(nil)
+var _ protoreflect.Message = (*fastReflection_MsgUpdateParams)(nil)
 
-type fastReflection_MsgParams MsgParams
+type fastReflection_MsgUpdateParams MsgUpdateParams
 
-func (x *MsgParams) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_MsgParams)(x)
+func (x *MsgUpdateParams) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgUpdateParams)(x)
 }
 
-func (x *MsgParams) slowProtoReflect() protoreflect.Message {
+func (x *MsgUpdateParams) slowProtoReflect() protoreflect.Message {
 	mi := &file_juno_feemarket_v1_tx_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -48,43 +48,43 @@ func (x *MsgParams) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgParams_messageType fastReflection_MsgParams_messageType
-var _ protoreflect.MessageType = fastReflection_MsgParams_messageType{}
+var _fastReflection_MsgUpdateParams_messageType fastReflection_MsgUpdateParams_messageType
+var _ protoreflect.MessageType = fastReflection_MsgUpdateParams_messageType{}
 
-type fastReflection_MsgParams_messageType struct{}
+type fastReflection_MsgUpdateParams_messageType struct{}
 
-func (x fastReflection_MsgParams_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_MsgParams)(nil)
+func (x fastReflection_MsgUpdateParams_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgUpdateParams)(nil)
 }
-func (x fastReflection_MsgParams_messageType) New() protoreflect.Message {
-	return new(fastReflection_MsgParams)
+func (x fastReflection_MsgUpdateParams_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgUpdateParams)
 }
-func (x fastReflection_MsgParams_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgParams
+func (x fastReflection_MsgUpdateParams_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgUpdateParams
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_MsgParams) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgParams
+func (x *fastReflection_MsgUpdateParams) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgUpdateParams
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_MsgParams) Type() protoreflect.MessageType {
-	return _fastReflection_MsgParams_messageType
+func (x *fastReflection_MsgUpdateParams) Type() protoreflect.MessageType {
+	return _fastReflection_MsgUpdateParams_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_MsgParams) New() protoreflect.Message {
-	return new(fastReflection_MsgParams)
+func (x *fastReflection_MsgUpdateParams) New() protoreflect.Message {
+	return new(fastReflection_MsgUpdateParams)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_MsgParams) Interface() protoreflect.ProtoMessage {
-	return (*MsgParams)(x)
+func (x *fastReflection_MsgUpdateParams) Interface() protoreflect.ProtoMessage {
+	return (*MsgUpdateParams)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -92,16 +92,16 @@ func (x *fastReflection_MsgParams) Interface() protoreflect.ProtoMessage {
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_MsgParams) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_MsgUpdateParams) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if x.Params != nil {
 		value := protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-		if !f(fd_MsgParams_params, value) {
+		if !f(fd_MsgUpdateParams_params, value) {
 			return
 		}
 	}
 	if x.Authority != "" {
 		value := protoreflect.ValueOfString(x.Authority)
-		if !f(fd_MsgParams_authority, value) {
+		if !f(fd_MsgUpdateParams_authority, value) {
 			return
 		}
 	}
@@ -118,17 +118,17 @@ func (x *fastReflection_MsgParams) Range(f func(protoreflect.FieldDescriptor, pr
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_MsgParams) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_MsgUpdateParams) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "juno.feemarket.v1.MsgParams.params":
+	case "juno.feemarket.v1.MsgUpdateParams.params":
 		return x.Params != nil
-	case "juno.feemarket.v1.MsgParams.authority":
+	case "juno.feemarket.v1.MsgUpdateParams.authority":
 		return x.Authority != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -138,17 +138,17 @@ func (x *fastReflection_MsgParams) Has(fd protoreflect.FieldDescriptor) bool {
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgParams) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_MsgUpdateParams) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "juno.feemarket.v1.MsgParams.params":
+	case "juno.feemarket.v1.MsgUpdateParams.params":
 		x.Params = nil
-	case "juno.feemarket.v1.MsgParams.authority":
+	case "juno.feemarket.v1.MsgUpdateParams.authority":
 		x.Authority = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -158,19 +158,19 @@ func (x *fastReflection_MsgParams) Clear(fd protoreflect.FieldDescriptor) {
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_MsgParams) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgUpdateParams) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "juno.feemarket.v1.MsgParams.params":
+	case "juno.feemarket.v1.MsgUpdateParams.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "juno.feemarket.v1.MsgParams.authority":
+	case "juno.feemarket.v1.MsgUpdateParams.authority":
 		value := x.Authority
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParams does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParams does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -184,17 +184,17 @@ func (x *fastReflection_MsgParams) Get(descriptor protoreflect.FieldDescriptor) 
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgParams) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_MsgUpdateParams) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "juno.feemarket.v1.MsgParams.params":
+	case "juno.feemarket.v1.MsgUpdateParams.params":
 		x.Params = value.Message().Interface().(*Params)
-	case "juno.feemarket.v1.MsgParams.authority":
+	case "juno.feemarket.v1.MsgUpdateParams.authority":
 		x.Authority = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -208,48 +208,48 @@ func (x *fastReflection_MsgParams) Set(fd protoreflect.FieldDescriptor, value pr
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgParams) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgUpdateParams) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "juno.feemarket.v1.MsgParams.params":
+	case "juno.feemarket.v1.MsgUpdateParams.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-	case "juno.feemarket.v1.MsgParams.authority":
-		panic(fmt.Errorf("field authority of message juno.feemarket.v1.MsgParams is not mutable"))
+	case "juno.feemarket.v1.MsgUpdateParams.authority":
+		panic(fmt.Errorf("field authority of message juno.feemarket.v1.MsgUpdateParams is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_MsgParams) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgUpdateParams) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "juno.feemarket.v1.MsgParams.params":
+	case "juno.feemarket.v1.MsgUpdateParams.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "juno.feemarket.v1.MsgParams.authority":
+	case "juno.feemarket.v1.MsgUpdateParams.authority":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_MsgParams) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_MsgUpdateParams) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.MsgParams", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.MsgUpdateParams", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -257,7 +257,7 @@ func (x *fastReflection_MsgParams) WhichOneof(d protoreflect.OneofDescriptor) pr
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_MsgParams) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_MsgUpdateParams) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -268,7 +268,7 @@ func (x *fastReflection_MsgParams) GetUnknown() protoreflect.RawFields {
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgParams) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_MsgUpdateParams) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -280,7 +280,7 @@ func (x *fastReflection_MsgParams) SetUnknown(fields protoreflect.RawFields) {
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_MsgParams) IsValid() bool {
+func (x *fastReflection_MsgUpdateParams) IsValid() bool {
 	return x != nil
 }
 
@@ -290,9 +290,9 @@ func (x *fastReflection_MsgParams) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_MsgParams) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_MsgUpdateParams) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*MsgParams)
+		x := input.Message.Interface().(*MsgUpdateParams)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -322,7 +322,7 @@ func (x *fastReflection_MsgParams) ProtoMethods() *protoiface.Methods {
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*MsgParams)
+		x := input.Message.Interface().(*MsgUpdateParams)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -373,7 +373,7 @@ func (x *fastReflection_MsgParams) ProtoMethods() *protoiface.Methods {
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*MsgParams)
+		x := input.Message.Interface().(*MsgUpdateParams)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -405,10 +405,10 @@ func (x *fastReflection_MsgParams) ProtoMethods() *protoiface.Methods {
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgParams: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgUpdateParams: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgParams: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgUpdateParams: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -515,23 +515,23 @@ func (x *fastReflection_MsgParams) ProtoMethods() *protoiface.Methods {
 }
 
 var (
-	md_MsgParamsResponse protoreflect.MessageDescriptor
+	md_MsgUpdateParamsResponse protoreflect.MessageDescriptor
 )
 
 func init() {
 	file_juno_feemarket_v1_tx_proto_init()
-	md_MsgParamsResponse = File_juno_feemarket_v1_tx_proto.Messages().ByName("MsgParamsResponse")
+	md_MsgUpdateParamsResponse = File_juno_feemarket_v1_tx_proto.Messages().ByName("MsgUpdateParamsResponse")
 }
 
-var _ protoreflect.Message = (*fastReflection_MsgParamsResponse)(nil)
+var _ protoreflect.Message = (*fastReflection_MsgUpdateParamsResponse)(nil)
 
-type fastReflection_MsgParamsResponse MsgParamsResponse
+type fastReflection_MsgUpdateParamsResponse MsgUpdateParamsResponse
 
-func (x *MsgParamsResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_MsgParamsResponse)(x)
+func (x *MsgUpdateParamsResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgUpdateParamsResponse)(x)
 }
 
-func (x *MsgParamsResponse) slowProtoReflect() protoreflect.Message {
+func (x *MsgUpdateParamsResponse) slowProtoReflect() protoreflect.Message {
 	mi := &file_juno_feemarket_v1_tx_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -543,43 +543,43 @@ func (x *MsgParamsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgParamsResponse_messageType fastReflection_MsgParamsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgParamsResponse_messageType{}
+var _fastReflection_MsgUpdateParamsResponse_messageType fastReflection_MsgUpdateParamsResponse_messageType
+var _ protoreflect.MessageType = fastReflection_MsgUpdateParamsResponse_messageType{}
 
-type fastReflection_MsgParamsResponse_messageType struct{}
+type fastReflection_MsgUpdateParamsResponse_messageType struct{}
 
-func (x fastReflection_MsgParamsResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_MsgParamsResponse)(nil)
+func (x fastReflection_MsgUpdateParamsResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgUpdateParamsResponse)(nil)
 }
-func (x fastReflection_MsgParamsResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_MsgParamsResponse)
+func (x fastReflection_MsgUpdateParamsResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgUpdateParamsResponse)
 }
-func (x fastReflection_MsgParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgParamsResponse
+func (x fastReflection_MsgUpdateParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgUpdateParamsResponse
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_MsgParamsResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgParamsResponse
+func (x *fastReflection_MsgUpdateParamsResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgUpdateParamsResponse
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_MsgParamsResponse) Type() protoreflect.MessageType {
-	return _fastReflection_MsgParamsResponse_messageType
+func (x *fastReflection_MsgUpdateParamsResponse) Type() protoreflect.MessageType {
+	return _fastReflection_MsgUpdateParamsResponse_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_MsgParamsResponse) New() protoreflect.Message {
-	return new(fastReflection_MsgParamsResponse)
+func (x *fastReflection_MsgUpdateParamsResponse) New() protoreflect.Message {
+	return new(fastReflection_MsgUpdateParamsResponse)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_MsgParamsResponse) Interface() protoreflect.ProtoMessage {
-	return (*MsgParamsResponse)(x)
+func (x *fastReflection_MsgUpdateParamsResponse) Interface() protoreflect.ProtoMessage {
+	return (*MsgUpdateParamsResponse)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -587,7 +587,7 @@ func (x *fastReflection_MsgParamsResponse) Interface() protoreflect.ProtoMessage
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_MsgParamsResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_MsgUpdateParamsResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 }
 
 // Has reports whether a field is populated.
@@ -601,13 +601,13 @@ func (x *fastReflection_MsgParamsResponse) Range(f func(protoreflect.FieldDescri
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_MsgParamsResponse) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_MsgUpdateParamsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -617,13 +617,13 @@ func (x *fastReflection_MsgParamsResponse) Has(fd protoreflect.FieldDescriptor) 
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_MsgUpdateParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -633,13 +633,13 @@ func (x *fastReflection_MsgParamsResponse) Clear(fd protoreflect.FieldDescriptor
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_MsgParamsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgUpdateParamsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -653,13 +653,13 @@ func (x *fastReflection_MsgParamsResponse) Get(descriptor protoreflect.FieldDesc
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgParamsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_MsgUpdateParamsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -673,36 +673,36 @@ func (x *fastReflection_MsgParamsResponse) Set(fd protoreflect.FieldDescriptor, 
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgParamsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgUpdateParamsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_MsgParamsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgUpdateParamsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message juno.feemarket.v1.MsgParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_MsgParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_MsgUpdateParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.MsgParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.MsgUpdateParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -710,7 +710,7 @@ func (x *fastReflection_MsgParamsResponse) WhichOneof(d protoreflect.OneofDescri
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_MsgParamsResponse) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_MsgUpdateParamsResponse) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -721,7 +721,7 @@ func (x *fastReflection_MsgParamsResponse) GetUnknown() protoreflect.RawFields {
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgParamsResponse) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_MsgUpdateParamsResponse) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -733,7 +733,7 @@ func (x *fastReflection_MsgParamsResponse) SetUnknown(fields protoreflect.RawFie
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_MsgParamsResponse) IsValid() bool {
+func (x *fastReflection_MsgUpdateParamsResponse) IsValid() bool {
 	return x != nil
 }
 
@@ -743,9 +743,9 @@ func (x *fastReflection_MsgParamsResponse) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_MsgParamsResponse) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_MsgUpdateParamsResponse) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*MsgParamsResponse)
+		x := input.Message.Interface().(*MsgUpdateParamsResponse)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -767,7 +767,7 @@ func (x *fastReflection_MsgParamsResponse) ProtoMethods() *protoiface.Methods {
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*MsgParamsResponse)
+		x := input.Message.Interface().(*MsgUpdateParamsResponse)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -797,7 +797,7 @@ func (x *fastReflection_MsgParamsResponse) ProtoMethods() *protoiface.Methods {
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*MsgParamsResponse)
+		x := input.Message.Interface().(*MsgUpdateParamsResponse)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -829,10 +829,10 @@ func (x *fastReflection_MsgParamsResponse) ProtoMethods() *protoiface.Methods {
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgParamsResponse: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgUpdateParamsResponse: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgUpdateParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			default:
@@ -883,9 +883,9 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// MsgParams defines the Msg/Params request type. It contains the
+// MsgUpdateParams defines the Msg/UpdateParams request type. It contains the
 // new parameters for the feemarket module.
-type MsgParams struct {
+type MsgUpdateParams struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -897,8 +897,8 @@ type MsgParams struct {
 	Authority string `protobuf:"bytes,2,opt,name=authority,proto3" json:"authority,omitempty"`
 }
 
-func (x *MsgParams) Reset() {
-	*x = MsgParams{}
+func (x *MsgUpdateParams) Reset() {
+	*x = MsgUpdateParams{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_juno_feemarket_v1_tx_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -906,40 +906,40 @@ func (x *MsgParams) Reset() {
 	}
 }
 
-func (x *MsgParams) String() string {
+func (x *MsgUpdateParams) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MsgParams) ProtoMessage() {}
+func (*MsgUpdateParams) ProtoMessage() {}
 
-// Deprecated: Use MsgParams.ProtoReflect.Descriptor instead.
-func (*MsgParams) Descriptor() ([]byte, []int) {
+// Deprecated: Use MsgUpdateParams.ProtoReflect.Descriptor instead.
+func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
 	return file_juno_feemarket_v1_tx_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *MsgParams) GetParams() *Params {
+func (x *MsgUpdateParams) GetParams() *Params {
 	if x != nil {
 		return x.Params
 	}
 	return nil
 }
 
-func (x *MsgParams) GetAuthority() string {
+func (x *MsgUpdateParams) GetAuthority() string {
 	if x != nil {
 		return x.Authority
 	}
 	return ""
 }
 
-// MsgParamsResponse defines the Msg/Params response type.
-type MsgParamsResponse struct {
+// MsgUpdateParamsResponse defines the Msg/UpdateParams response type.
+type MsgUpdateParamsResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *MsgParamsResponse) Reset() {
-	*x = MsgParamsResponse{}
+func (x *MsgUpdateParamsResponse) Reset() {
+	*x = MsgUpdateParamsResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_juno_feemarket_v1_tx_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -947,14 +947,14 @@ func (x *MsgParamsResponse) Reset() {
 	}
 }
 
-func (x *MsgParamsResponse) String() string {
+func (x *MsgUpdateParamsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MsgParamsResponse) ProtoMessage() {}
+func (*MsgUpdateParamsResponse) ProtoMessage() {}
 
-// Deprecated: Use MsgParamsResponse.ProtoReflect.Descriptor instead.
-func (*MsgParamsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use MsgUpdateParamsResponse.ProtoReflect.Descriptor instead.
+func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
 	return file_juno_feemarket_v1_tx_proto_rawDescGZIP(), []int{1}
 }
 
@@ -970,35 +970,37 @@ var file_juno_feemarket_v1_tx_proto_rawDesc = []byte{
 	0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67,
 	0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x6a, 0x75, 0x6e, 0x6f, 0x2f,
 	0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x70, 0x61, 0x72,
-	0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x8c, 0x01, 0x0a, 0x09, 0x4d, 0x73,
-	0x67, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x37, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d,
-	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66,
-	0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61,
-	0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e,
-	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x61,
-	0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x3a, 0x0e, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61,
-	0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x22, 0x13, 0x0a, 0x11, 0x4d, 0x73, 0x67, 0x50,
-	0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x5a, 0x0a,
-	0x03, 0x4d, 0x73, 0x67, 0x12, 0x4c, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x1c,
-	0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e,
-	0x76, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x1a, 0x24, 0x2e, 0x6a,
-	0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31,
-	0x2e, 0x4d, 0x73, 0x67, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xb6, 0x01, 0x0a, 0x15, 0x63, 0x6f,
-	0x6d, 0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74,
-	0x2e, 0x76, 0x31, 0x42, 0x07, 0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x2e,
-	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69,
-	0x2f, 0x6a, 0x75, 0x6e, 0x6f, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f,
-	0x76, 0x31, 0x3b, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x76, 0x31, 0xa2, 0x02,
-	0x03, 0x4a, 0x46, 0x58, 0xaa, 0x02, 0x11, 0x4a, 0x75, 0x6e, 0x6f, 0x2e, 0x46, 0x65, 0x65, 0x6d,
-	0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x11, 0x4a, 0x75, 0x6e, 0x6f, 0x5c,
-	0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1d, 0x4a,
-	0x75, 0x6e, 0x6f, 0x5c, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x5c, 0x56, 0x31,
-	0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x13, 0x4a,
-	0x75, 0x6e, 0x6f, 0x3a, 0x3a, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x3a, 0x3a,
-	0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x92, 0x01, 0x0a, 0x0f, 0x4d, 0x73,
+	0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x37, 0x0a,
+	0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e,
+	0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76,
+	0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06,
+	0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72,
+	0x69, 0x74, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63,
+	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72,
+	0x69, 0x6e, 0x67, 0x52, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x3a, 0x0e,
+	0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x22, 0x19,
+	0x0a, 0x17, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x6c, 0x0a, 0x03, 0x4d, 0x73, 0x67,
+	0x12, 0x5e, 0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
+	0x12, 0x22, 0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65,
+	0x74, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x1a, 0x2a, 0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d,
+	0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xb6, 0x01, 0x0a, 0x15, 0x63, 0x6f, 0x6d, 0x2e,
+	0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76,
+	0x31, 0x42, 0x07, 0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x2e, 0x63, 0x6f,
+	0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x6a,
+	0x75, 0x6e, 0x6f, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31,
+	0x3b, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x4a,
+	0x46, 0x58, 0xaa, 0x02, 0x11, 0x4a, 0x75, 0x6e, 0x6f, 0x2e, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72,
+	0x6b, 0x65, 0x74, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x11, 0x4a, 0x75, 0x6e, 0x6f, 0x5c, 0x46, 0x65,
+	0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1d, 0x4a, 0x75, 0x6e,
+	0x6f, 0x5c, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x5c, 0x56, 0x31, 0x5c, 0x47,
+	0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x13, 0x4a, 0x75, 0x6e,
+	0x6f, 0x3a, 0x3a, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x3a, 0x3a, 0x56, 0x31,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1015,14 +1017,14 @@ func file_juno_feemarket_v1_tx_proto_rawDescGZIP() []byte {
 
 var file_juno_feemarket_v1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_juno_feemarket_v1_tx_proto_goTypes = []interface{}{
-	(*MsgParams)(nil),         // 0: juno.feemarket.v1.MsgParams
-	(*MsgParamsResponse)(nil), // 1: juno.feemarket.v1.MsgParamsResponse
-	(*Params)(nil),            // 2: juno.feemarket.v1.Params
+	(*MsgUpdateParams)(nil),         // 0: juno.feemarket.v1.MsgUpdateParams
+	(*MsgUpdateParamsResponse)(nil), // 1: juno.feemarket.v1.MsgUpdateParamsResponse
+	(*Params)(nil),                  // 2: juno.feemarket.v1.Params
 }
 var file_juno_feemarket_v1_tx_proto_depIdxs = []int32{
-	2, // 0: juno.feemarket.v1.MsgParams.params:type_name -> juno.feemarket.v1.Params
-	0, // 1: juno.feemarket.v1.Msg.Params:input_type -> juno.feemarket.v1.MsgParams
-	1, // 2: juno.feemarket.v1.Msg.Params:output_type -> juno.feemarket.v1.MsgParamsResponse
+	2, // 0: juno.feemarket.v1.MsgUpdateParams.params:type_name -> juno.feemarket.v1.Params
+	0, // 1: juno.feemarket.v1.Msg.UpdateParams:input_type -> juno.feemarket.v1.MsgUpdateParams
+	1, // 2: juno.feemarket.v1.Msg.UpdateParams:output_type -> juno.feemarket.v1.MsgUpdateParamsResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -1038,7 +1040,7 @@ func file_juno_feemarket_v1_tx_proto_init() {
 	file_juno_feemarket_v1_params_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_juno_feemarket_v1_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgParams); i {
+			switch v := v.(*MsgUpdateParams); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1050,7 +1052,7 @@ func file_juno_feemarket_v1_tx_proto_init() {
 			}
 		}
 		file_juno_feemarket_v1_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgParamsResponse); i {
+			switch v := v.(*MsgUpdateParamsResponse); i {
 			case 0:
 				return &v.state
 			case 1:

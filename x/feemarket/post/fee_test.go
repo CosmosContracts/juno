@@ -478,12 +478,12 @@ func (s *PostTestSuite) TestPostHandleMock() {
 			StateUpdate: func(s *PostTestSuite) {
 				// enable the fee market
 				enabledParams := types.DefaultParams()
-				req := &types.MsgParams{
+				req := &types.MsgUpdateParams{
 					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Params:    enabledParams,
 				}
 
-				_, err := s.msgServer.Params(s.Ctx, req)
+				_, err := s.msgServer.UpdateParams(s.Ctx, req)
 				s.Require().NoError(err)
 
 				height, err := s.App.AppKeepers.FeeMarketKeeper.GetEnabledHeight(s.Ctx)
@@ -890,12 +890,12 @@ func (s *PostTestSuite) TestPostHandle() {
 			StateUpdate: func(s *PostTestSuite) {
 				// enable the fee market
 				enabledParams := types.DefaultParams()
-				req := &types.MsgParams{
+				req := &types.MsgUpdateParams{
 					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Params:    enabledParams,
 				}
 
-				_, err := s.msgServer.Params(s.Ctx, req)
+				_, err := s.msgServer.UpdateParams(s.Ctx, req)
 				s.Require().NoError(err)
 
 				height, err := s.App.AppKeepers.FeeMarketKeeper.GetEnabledHeight(s.Ctx)
