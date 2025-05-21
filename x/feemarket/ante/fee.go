@@ -9,19 +9,20 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )
 
 type feeMarketCheckDecorator struct {
-	feemarketKeeper FeeMarketKeeper
+	feemarketkeeper feemarketkeeper.Keeper
 	bankKeeper      BankKeeper
 	feegrantKeeper  FeeGrantKeeper
 	accountKeeper   AccountKeeper
 }
 
-func newFeeMarketCheckDecorator(ak AccountKeeper, bk BankKeeper, fk FeeGrantKeeper, fmk FeeMarketKeeper) feeMarketCheckDecorator {
+func newFeeMarketCheckDecorator(ak AccountKeeper, bk BankKeeper, fk FeeGrantKeeper, fmk feemarketkeeper.Keeper) feeMarketCheckDecorator {
 	return feeMarketCheckDecorator{
-		feemarketKeeper: fmk,
+		feemarketkeeper: fmk,
 		bankKeeper:      bk,
 		feegrantKeeper:  fk,
 		accountKeeper:   ak,
@@ -38,15 +39,15 @@ func newFeeMarketCheckDecorator(ak AccountKeeper, bk BankKeeper, fk FeeGrantKeep
 //
 // CONTRACT: Tx must implement FeeTx interface
 type FeeMarketCheckDecorator struct {
-	feemarketKeeper FeeMarketKeeper
+	feemarketkeeper feemarketkeeper.Keeper
 
 	feemarketDecorator feeMarketCheckDecorator
 	fallbackDecorator  sdk.AnteDecorator
 }
 
-func NewFeeMarketCheckDecorator(ak AccountKeeper, bk BankKeeper, fk FeeGrantKeeper, fmk FeeMarketKeeper, fallbackDecorator sdk.AnteDecorator) FeeMarketCheckDecorator {
+func NewFeeMarketCheckDecorator(ak AccountKeeper, bk BankKeeper, fk FeeGrantKeeper, fmk feemarketkeeper.Keeper, fallbackDecorator sdk.AnteDecorator) FeeMarketCheckDecorator {
 	return FeeMarketCheckDecorator{
-		feemarketKeeper: fmk,
+		feemarketkeeper: fmk,
 		feemarketDecorator: newFeeMarketCheckDecorator(
 			ak, bk, fk, fmk,
 		),
@@ -57,7 +58,7 @@ func NewFeeMarketCheckDecorator(ak AccountKeeper, bk BankKeeper, fk FeeGrantKeep
 // AnteHandle calls the feemarket internal antehandler if the keeper is enabled.  If disabled, the fallback
 // fee antehandler is fallen back to.
 func (d FeeMarketCheckDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	params, err := d.feemarketKeeper.GetParams(ctx)
+	params, err := d.feemarketkeeper.GetParams(ctx)
 	if err != nil {
 		return ctx, err
 	}
@@ -89,7 +90,7 @@ func (dfd feeMarketCheckDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, sdkerrors.ErrInvalidGasLimit.Wrapf("must provide positive gas")
 	}
 
-	params, err := dfd.feemarketKeeper.GetParams(ctx)
+	params, err := dfd.feemarketkeeper.GetParams(ctx)
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market params")
 	}
@@ -117,7 +118,7 @@ func (dfd feeMarketCheckDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 	feeGas := int64(feeTx.GetGas())
 
-	minGasPrice, err := dfd.feemarketKeeper.GetMinGasPrice(ctx, payCoin.GetDenom())
+	minGasPrice, err := dfd.feemarketkeeper.GetMinGasPrice(ctx, payCoin.GetDenom())
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get min gas price for denom %s", payCoin.GetDenom())
 	}
@@ -148,7 +149,7 @@ func (dfd feeMarketCheckDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrapf(err, "error resolving fee priority")
 	}
 
-	baseGasPrice, err := dfd.feemarketKeeper.GetMinGasPrice(ctx, params.FeeDenom)
+	baseGasPrice, err := dfd.feemarketkeeper.GetMinGasPrice(ctx, params.FeeDenom)
 	if err != nil {
 		return ctx, err
 	}
@@ -165,7 +166,7 @@ func (dfd feeMarketCheckDecorator) resolveTxPriorityCoins(ctx sdk.Context, fee s
 	}
 
 	feeDec := sdk.NewDecCoinFromCoin(fee)
-	convertedDec, err := dfd.feemarketKeeper.ResolveToDenom(ctx, feeDec, baseDenom)
+	convertedDec, err := dfd.feemarketkeeper.ResolveToDenom(ctx, feeDec, baseDenom)
 	if err != nil {
 		return sdk.Coin{}, err
 	}

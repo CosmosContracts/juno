@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	globalfeeante "github.com/CosmosContracts/juno/v28/x/globalfee/ante"
+	feemarketante "github.com/CosmosContracts/juno/v30/x/feemarket/ante"
 	feepayhelpers "github.com/CosmosContracts/juno/v30/x/feepay/helpers"
 	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
 )
@@ -15,15 +15,15 @@ import (
 type MsgIsFeePayTx struct {
 	feePayKeeper       feepaykeeper.Keeper
 	feePayDecorator    *DeductFeeDecorator
-	globalFeeDecorator *globalfeeante.FeeDecorator
+	feeMarketDecorator *feemarketante.FeeMarketCheckDecorator
 	isFeePayTx         *bool
 }
 
-func NewFeeRouteDecorator(feePayKeeper feepaykeeper.Keeper, feePayDecorator *DeductFeeDecorator, globalFeeDecorator *globalfeeante.FeeDecorator, isFeePayTx *bool) MsgIsFeePayTx {
+func NewFeeRouteDecorator(feePayKeeper feepaykeeper.Keeper, feePayDecorator *DeductFeeDecorator, feeMarketDecorator *feemarketante.FeeMarketCheckDecorator, isFeePayTx *bool) MsgIsFeePayTx {
 	return MsgIsFeePayTx{
 		feePayKeeper:       feePayKeeper,
 		feePayDecorator:    feePayDecorator,
-		globalFeeDecorator: globalFeeDecorator,
+		feeMarketDecorator: feeMarketDecorator,
 		isFeePayTx:         isFeePayTx,
 	}
 }
@@ -48,21 +48,21 @@ func (mfd MsgIsFeePayTx) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, n
 	// Flag a transaction as a fee pay transaction
 	*mfd.isFeePayTx = feepayhelpers.IsValidFeePayTransaction(ctx, mfd.feePayKeeper, feeTx)
 
-	// If a FeePayTx, call FeePay decorator then global fee decorator.
-	// Otherwise, call global fee decorator then FeePay decorator.
+	// If a FeePayTx, call FeePay decorator then feemarket decorator.
+	// Otherwise, call feemarket decorator then FeePay decorator.
 	//
 	// This logic is necessary in the case the FeePay decorator fails,
-	// the global fee decorator will still be called to handle fees.
+	// the feemarket decorator will still be called to handle fees.
 	if *mfd.isFeePayTx {
 		if ctx, err := mfd.feePayDecorator.AnteHandle(ctx, tx, simulate, EmptyAnte); err != nil {
 			return ctx, err
 		}
 
-		if ctx, err := mfd.globalFeeDecorator.AnteHandle(ctx, tx, simulate, EmptyAnte); err != nil {
+		if ctx, err := mfd.feeMarketDecorator.AnteHandle(ctx, tx, simulate, EmptyAnte); err != nil {
 			return ctx, err
 		}
 	} else {
-		if ctx, err := mfd.globalFeeDecorator.AnteHandle(ctx, tx, simulate, EmptyAnte); err != nil {
+		if ctx, err := mfd.feeMarketDecorator.AnteHandle(ctx, tx, simulate, EmptyAnte); err != nil {
 			return ctx, err
 		}
 

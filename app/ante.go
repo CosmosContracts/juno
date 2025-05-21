@@ -15,11 +15,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	decorators "github.com/CosmosContracts/juno/v30/app/decorators"
 	feemarketante "github.com/CosmosContracts/juno/v30/x/feemarket/ante"
+	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	feepayante "github.com/CosmosContracts/juno/v30/x/feepay/ante"
 	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
 	feeshareante "github.com/CosmosContracts/juno/v30/x/feeshare/ante"
@@ -49,7 +49,7 @@ type HandlerOptions struct {
 	// fee market
 	BankKeeper      feemarketante.BankKeeper
 	AccountKeeper   feemarketante.AccountKeeper
-	FeeMarketKeeper feemarketante.FeeMarketKeeper
+	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// fee pay & share
 	FeePayKeeper         feepaykeeper.Keeper
@@ -76,9 +76,6 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.TXCounterStoreService == nil {
 		return nil, errors.New("wasm store service is required for ante builder")
 	}
-	if options.FeeMarketKeeper == nil {
-		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "feemarket keeper is required for ante builder")
-	}
 	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
@@ -91,13 +88,16 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	// Define FeePay and Global Fee decorators. These decorators are called in different orders based on the type of
 	// transaction. The FeePay decorator is called first for FeePay transactions, and the GlobalFee decorator is called
 	// first for all other transactions. See the FeeRouteDecorator for more details.
-	fpd := feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.GlobalFeeKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.BondDenom, &isFeePayTx)
+	fpd := feepayante.NewDeductFeeDecorator(
+		options.FeePayKeeper,
+		options.FeeMarketKeeper,
+		options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.BondDenom, &isFeePayTx)
 	fmd := feemarketante.NewFeeMarketCheckDecorator(
 		options.AccountKeeper,
 		options.BankKeeper,
 		options.FeegrantKeeper,
 		options.FeeMarketKeeper,
-		authante.NewDeductFeeDecorator(
+		ante.NewDeductFeeDecorator(
 			options.AccountKeeper,
 			options.BankKeeper,
 			options.FeegrantKeeper,
@@ -129,7 +129,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		// juno custom modules
 		// Fee route decorator calls FeePay and Global Fee decorators in different orders
 		// depending on the type of incoming tx.
-		feepayante.NewFeeRouteDecorator(options.FeePayKeeper, &fpd, &gfd, &isFeePayTx),
+		feepayante.NewFeeRouteDecorator(options.FeePayKeeper, &fpd, &fmd, &isFeePayTx),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
 
 		// signatures

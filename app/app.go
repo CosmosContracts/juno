@@ -53,7 +53,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
-	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -275,7 +274,7 @@ func New(
 
 			FeePayKeeper:         app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:       app.AppKeepers.FeeShareKeeper,
-			FeeMarketKeeper:      app.AppKeepers.FeeMarketKeeper,
+			FeeMarketKeeper:      *app.AppKeepers.FeeMarketKeeper,
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
 		},
 	)
@@ -289,6 +288,9 @@ func New(
 		FeeMarketKeeper: app.AppKeepers.FeeMarketKeeper,
 	}
 	postHandler, err := NewPostHandler(postHandlerOptions)
+	if err != nil {
+		panic(err)
+	}
 
 	app.SetAnteHandler(anteHandler)
 	app.SetPostHandler(postHandler)
@@ -393,17 +395,6 @@ func (app *App) AutoCLIOpts(initClientCtx client.Context) autocli.AppOptions {
 // DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
 func (app *App) DefaultGenesis() map[string]json.RawMessage {
 	return app.BasicModuleManager.DefaultGenesis(app.appCodec)
-}
-
-func (app *App) setPostHandler() {
-	postHandler, err := posthandler.NewPostHandler(
-		posthandler.HandlerOptions{},
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	app.SetPostHandler(postHandler)
 }
 
 // Name returns the name of the App

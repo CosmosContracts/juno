@@ -8,8 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )
 
 // AccountKeeper defines the contract needed for AccountKeeper related APIs.
@@ -33,14 +31,4 @@ type FeeGrantKeeper interface {
 // BankKeeper defines the contract needed for supply related APIs.
 type BankKeeper interface {
 	bankkeeper.Keeper
-}
-
-// FeeMarketKeeper defines the expected feemarket keeper.
-type FeeMarketKeeper interface {
-	GetState(ctx sdk.Context) (feemarkettypes.State, error)
-	GetMinGasPrice(ctx sdk.Context, denom string) (sdk.DecCoin, error)
-	GetParams(ctx sdk.Context) (feemarkettypes.Params, error)
-	SetState(ctx sdk.Context, state feemarkettypes.State) error
-	SetParams(ctx sdk.Context, params feemarkettypes.Params) error
-	ResolveToDenom(ctx sdk.Context, coin sdk.DecCoin, denom string) (sdk.DecCoin, error)
 }

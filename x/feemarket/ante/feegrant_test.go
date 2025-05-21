@@ -123,7 +123,7 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 			protoTxCfg := tx.NewTxConfig(codec.NewProtoCodec(s.App.InterfaceRegistry()), tx.DefaultSignModes)
 			// this just tests our handler
 			dfd := feemarketante.NewFeeMarketCheckDecorator(s.App.AppKeepers.AccountKeeper, s.App.AppKeepers.BankKeeper, s.App.AppKeepers.FeeGrantKeeper,
-				s.App.AppKeepers.FeeMarketKeeper, authante.NewDeductFeeDecorator(
+				*s.App.AppKeepers.FeeMarketKeeper, authante.NewDeductFeeDecorator(
 					s.App.AppKeepers.AccountKeeper,
 					s.App.AppKeepers.BankKeeper,
 					s.App.AppKeepers.FeeGrantKeeper,
