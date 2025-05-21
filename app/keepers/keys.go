@@ -33,6 +33,7 @@ import (
 	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
 	cwhookstypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 	driptypes "github.com/CosmosContracts/juno/v30/x/drip/types"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
@@ -74,6 +75,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 
 		// juno store keys
 		tokenfactorytypes.StoreKey,
+		feemarkettypes.StoreKey,
 		feepaytypes.StoreKey,
 		feesharetypes.StoreKey,
 		driptypes.StoreKey,

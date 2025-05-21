@@ -257,8 +257,6 @@ func New(
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
-				AccountKeeper:   app.AppKeepers.AccountKeeper,
-				BankKeeper:      app.AppKeepers.BankKeeper,
 				FeegrantKeeper:  app.AppKeepers.FeeGrantKeeper,
 				SignModeHandler: app.txConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
@@ -271,6 +269,9 @@ func New(
 			TXCounterStoreService: runtime.NewKVStoreService(app.AppKeepers.GetKey(wasmtypes.StoreKey)),
 			NodeConfig:            &nodeConfig,
 			WasmKeeper:            &app.AppKeepers.WasmKeeper,
+
+			BankKeeper:    app.AppKeepers.BankKeeper,
+			AccountKeeper: app.AppKeepers.AccountKeeper,
 
 			FeePayKeeper:         app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:       app.AppKeepers.FeeShareKeeper,

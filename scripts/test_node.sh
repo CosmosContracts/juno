@@ -24,13 +24,19 @@ export GRPC=${GRPC:-"9090"}
 export GRPC_WEB=${GRPC_WEB:-"9091"}
 export TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-"3s"}
 
-command -v junod > /dev/null 2>&1 || { echo >&2 "junod command not found. Ensure this is setup / properly installed in your GOPATH (make install)."; exit 1; }
-command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"; exit 1; }
+command -v junod >/dev/null 2>&1 || {
+  echo >&2 "junod command not found. Ensure this is setup / properly installed in your GOPATH (make install)."
+  exit 1
+}
+command -v jq >/dev/null 2>&1 || {
+  echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
+  exit 1
+}
 
 junod config set client chain-id local-1
 junod config set client keyring-backend $KEYRING
 
-from_scratch () {
+from_scratch() {
   # Fresh install on current branch
   make install
 
@@ -45,8 +51,8 @@ from_scratch () {
   junod init $MONIKER --chain-id $CHAIN_ID --default-denom ujuno
 
   # Function updates the config based on a jq argument as a string
-  update_test_genesis () {
-    cat $HOME_DIR/config/genesis.json | jq "$1" > $HOME_DIR/config/tmp_genesis.json && mv $HOME_DIR/config/tmp_genesis.json $HOME_DIR/config/genesis.json
+  update_test_genesis() {
+    cat $HOME_DIR/config/genesis.json | jq "$1" >$HOME_DIR/config/tmp_genesis.json && mv $HOME_DIR/config/tmp_genesis.json $HOME_DIR/config/genesis.json
   }
 
   # Block
@@ -64,8 +70,9 @@ from_scratch () {
   update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom": "ujuno","amount": "1000"}'
 
   # Custom Modules
-  # GlobalFee
-  update_test_genesis '.app_state["globalfee"]["params"]["minimum_gas_prices"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
+  # Feemarket
+  update_test_genesis '.app_state["feemarket"]["params"]["min_base_gas_price"]=[{"amount":"0.002500000000000000","denom":"ujuno"}]'
+  update_test_genesis '.app_state["feemarket"]["params"]["enabled"]="true"'
   # Drip
   update_test_genesis '.app_state["drip"]["params"]["allowed_addresses"]=["juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl","juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk"]'
   # Clock
