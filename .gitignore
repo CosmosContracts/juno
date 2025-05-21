@@ -5,3 +5,4 @@ heighliner*
 !scripts/heighliner
 third_party
 __debug_*
+x/feemarket/fuzz/testdata

@@ -266,7 +266,6 @@ func New(
 			},
 			StakingKeeper: *app.AppKeepers.StakingKeeper,
 			BondDenom:     app.GetChainBondDenom(),
-			BankKeeper:    app.AppKeepers.BankKeeper,
 
 			IBCKeeper: app.AppKeepers.IBCKeeper,
 
@@ -276,6 +275,7 @@ func New(
 
 			FeePayKeeper:         app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:       app.AppKeepers.FeeShareKeeper,
+			FeeMarketKeeper:      app.AppKeepers.FeeMarketKeeper,
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
 		},
 	)
@@ -283,8 +283,15 @@ func New(
 		panic(err)
 	}
 
+	postHandlerOptions := PostHandlerOptions{
+		AccountKeeper:   app.AppKeepers.AccountKeeper,
+		BankKeeper:      app.AppKeepers.BankKeeper,
+		FeeMarketKeeper: app.AppKeepers.FeeMarketKeeper,
+	}
+	postHandler, err := NewPostHandler(postHandlerOptions)
+
 	app.SetAnteHandler(anteHandler)
-	app.setPostHandler()
+	app.SetPostHandler(postHandler)
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -472,7 +479,7 @@ func (app *App) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// InterfaceRegistry returns Juno's TxConfig
+// TxConfig returns Juno's TxConfig
 func (app *App) TxConfig() client.TxConfig {
 	return app.txConfig
 }

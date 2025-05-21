@@ -11,6 +11,7 @@ import (
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
@@ -32,19 +33,21 @@ type KeeperTestHelper struct {
 	// this is not always enabled, because some tests may take a painful performance hit due to CacheKv.
 	withCaching bool
 
-	App         *app.App
-	Ctx         sdk.Context
-	QueryHelper *baseapp.QueryServiceTestHelper
-	TestAccs    []sdk.AccAddress
+	App          *app.App
+	Ctx          sdk.Context
+	QueryHelper  *baseapp.QueryServiceTestHelper
+	TestAccs     []sdk.AccAddress
+	TestPrivKeys []cryptotypes.PrivKey
 }
 
 var (
 	baseTestAccts        = []sdk.AccAddress{}
+	baseTestPrivKeys     = []cryptotypes.PrivKey{}
 	defaultTestStartTime = time.Now().UTC()
 )
 
 func init() {
-	baseTestAccts = common.CreateRandomAccounts(3)
+	baseTestAccts, baseTestPrivKeys = common.CreateRandomAccountsAndPrivKeys(3)
 }
 
 // Setup sets up basic environment for suite (App, Ctx, and test accounts)
@@ -86,6 +89,9 @@ func (suite *KeeperTestHelper) Setup() {
 
 	suite.TestAccs = []sdk.AccAddress{}
 	suite.TestAccs = append(suite.TestAccs, baseTestAccts...)
+
+	suite.TestPrivKeys = []cryptotypes.PrivKey{}
+	suite.TestPrivKeys = append(suite.TestPrivKeys, baseTestPrivKeys...)
 
 	suite.hasUsedAbci = false
 

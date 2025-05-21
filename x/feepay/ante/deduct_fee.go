@@ -18,7 +18,6 @@ import (
 
 	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
 	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
-	globalfeekeeper "github.com/CosmosContracts/juno/v30/x/globalfee/keeper"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx

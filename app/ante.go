@@ -15,10 +15,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	decorators "github.com/CosmosContracts/juno/v30/app/decorators"
+	feemarketante "github.com/CosmosContracts/juno/v30/x/feemarket/ante"
 	feepayante "github.com/CosmosContracts/juno/v30/x/feepay/ante"
 	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
 	feeshareante "github.com/CosmosContracts/juno/v30/x/feeshare/ante"
@@ -36,7 +37,6 @@ type HandlerOptions struct {
 	// cosmos sdk
 	StakingKeeper stakingkeeper.Keeper
 	BondDenom     string
-	BankKeeper    bankkeeper.Keeper
 
 	// ibc
 	IBCKeeper *ibckeeper.Keeper
@@ -46,7 +46,12 @@ type HandlerOptions struct {
 	NodeConfig            *wasmtypes.NodeConfig
 	WasmKeeper            *wasmkeeper.Keeper
 
-	// fee modules
+	// fee market
+	BankKeeper      feemarketante.BankKeeper
+	AccountKeeper   feemarketante.AccountKeeper
+	FeeMarketKeeper feemarketante.FeeMarketKeeper
+
+	// fee pay & share
 	FeePayKeeper         feepaykeeper.Keeper
 	FeeShareKeeper       feesharekeeper.Keeper
 	BypassMinFeeMsgTypes []string
@@ -71,6 +76,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.TXCounterStoreService == nil {
 		return nil, errors.New("wasm store service is required for ante builder")
 	}
+	if options.FeeMarketKeeper == nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "feemarket keeper is required for ante builder")
+	}
 	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
@@ -84,6 +92,18 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	// transaction. The FeePay decorator is called first for FeePay transactions, and the GlobalFee decorator is called
 	// first for all other transactions. See the FeeRouteDecorator for more details.
 	fpd := feepayante.NewDeductFeeDecorator(options.FeePayKeeper, options.GlobalFeeKeeper, options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.BondDenom, &isFeePayTx)
+	fmd := feemarketante.NewFeeMarketCheckDecorator(
+		options.AccountKeeper,
+		options.BankKeeper,
+		options.FeegrantKeeper,
+		options.FeeMarketKeeper,
+		authante.NewDeductFeeDecorator(
+			options.AccountKeeper,
+			options.BankKeeper,
+			options.FeegrantKeeper,
+			options.TxFeeChecker,
+		),
+	) // fees are deducted in the fee market deduct post handler
 
 	anteDecorators := []sdk.AnteDecorator{
 		// outermost AnteDecorator. SetUpContext must be called first

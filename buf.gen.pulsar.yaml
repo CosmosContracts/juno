@@ -1,4 +1,7 @@
 version: v2
+
+clean: true
+
 managed:
   enabled: true
   disable:
@@ -11,6 +14,7 @@ managed:
   override:
     - file_option: go_package_prefix
       value: cosmossdk.io/api
+
 plugins:
   - local: protoc-gen-go-pulsar
     out: api

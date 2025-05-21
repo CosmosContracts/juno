@@ -5,16 +5,12 @@ clean: false
 inputs:
   - directory: proto
     paths:
-      - proto/gaia
-    exclude_paths:
-      - proto/gaia/globalfee/module/v1
-  - directory: proto
-    paths:
       - proto/juno
     exclude_paths:
       - proto/juno/clock/module/v1
       - proto/juno/cwhooks/module/v1
       - proto/juno/drip/module/v1
+      - proto/juno/feemarket/module/v1
       - proto/juno/feepay/module/v1
       - proto/juno/feeshare/module/v1
       - proto/juno/mint/module/v1
@@ -30,7 +26,7 @@ plugins:
     strategy: "directory"
     opt:
       - plugins=grpc
-      - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
+      - Mgoogle/protobuf/any.proto=github.com/cosmos/gogoproto/types/any
   - local: protoc-gen-grpc-gateway
     strategy: "directory"
     out: .

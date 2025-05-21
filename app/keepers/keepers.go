@@ -88,6 +88,8 @@ import (
 	cwhookstypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 	dripkeeper "github.com/CosmosContracts/juno/v30/x/drip/keeper"
 	driptypes "github.com/CosmosContracts/juno/v30/x/drip/types"
+	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
 	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
@@ -182,6 +184,8 @@ type AppKeepers struct {
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
 	DripKeeper dripkeeper.Keeper
+
+	FeeMarketKeeper *feemarketkeeper.Keeper
 
 	// Middleware wrapper
 	Ics20WasmHooks   *ibchooks.WasmHooks
@@ -496,6 +500,14 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,
 		tokenFactoryCapabilities,
+		govModAddress,
+	)
+
+	appKeepers.FeeMarketKeeper = feemarketkeeper.NewKeeper(
+		appCodec,
+		keys[feemarkettypes.StoreKey],
+		appKeepers.AccountKeeper,
+		&feemarkettypes.TestDenomResolver{},
 		govModAddress,
 	)
 

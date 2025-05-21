@@ -19,6 +19,7 @@ require (
 	cosmossdk.io/x/upgrade v0.2.0
 	github.com/CosmWasm/wasmd v0.54.0
 	github.com/CosmWasm/wasmvm/v2 v2.2.4
+	github.com/CosmosContracts/juno/v28 v28.0.2
 	github.com/bdpiprava/scalar-go v0.12.0
 	github.com/cometbft/cometbft v0.38.17
 	github.com/cosmos/cosmos-db v1.1.1
@@ -40,6 +41,8 @@ require (
 	google.golang.org/grpc v1.72.1
 	gotest.tools/v3 v3.5.2
 )
+
+require github.com/stretchr/objx v0.5.2 // indirect
 
 require (
 	cel.dev/expr v0.20.0 // indirect
@@ -228,7 +231,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.17 // indirect
-	pgregory.net/rapid v1.2.0 // indirect
+	pgregory.net/rapid v1.2.0
 	rsc.io/qr v0.2.0 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )

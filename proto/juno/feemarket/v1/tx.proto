@@ -1,0 +1,33 @@
+syntax = "proto3";
+package juno.feemarket.v1;
+
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "juno/feemarket/v1/params.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/feemarket/types";
+
+// Message service defines the types of messages supported by the feemarket
+// module.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // Params defines a method for updating the feemarket module parameters.
+  rpc Params(MsgParams) returns (MsgParamsResponse);
+}
+
+// MsgParams defines the Msg/Params request type. It contains the
+// new parameters for the feemarket module.
+message MsgParams {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // Params defines the new parameters for the feemarket module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // Authority defines the authority that is updating the feemarket module
+  // parameters.
+  string authority = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgParamsResponse defines the Msg/Params response type.
+message MsgParamsResponse {}
