@@ -14,9 +14,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v29/wasmbindings/types"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v29/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v30/wasmbindings/types"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 // CustomMessageDecorator returns decorator for custom CosmWasm bindings messages

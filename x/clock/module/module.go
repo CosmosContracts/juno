@@ -15,8 +15,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v29/x/clock/keeper"
-	"github.com/CosmosContracts/juno/v29/x/clock/types"
+	"github.com/CosmosContracts/juno/v30/x/clock/keeper"
+	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 
 const (
@@ -89,6 +89,11 @@ func NewAppModule(
 	}
 }
 
+// EndBlock executes at the end of every block.
+func (am AppModule) EndBlock(ctx context.Context) error {
+	return keeper.EndBlocker(ctx, am.keeper)
+}
+
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
 func (AppModule) IsOnePerModuleType() {}
 
@@ -115,10 +120,6 @@ func (am AppModule) InitGenesis(ctx sdk.Context, marshaler codec.JSONCodec, mess
 func (am AppModule) ExportGenesis(ctx sdk.Context, marshaler codec.JSONCodec) json.RawMessage {
 	genState := am.keeper.ExportGenesis(ctx)
 	return marshaler.MustMarshalJSON(genState)
-}
-
-func (am AppModule) EndBlock(ctx context.Context) error {
-	return keeper.EndBlocker(ctx, am.keeper)
 }
 
 // ConsensusVersion is a sequence number for state-breaking change of the

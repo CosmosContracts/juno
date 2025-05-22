@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 var _ types.QueryServer = queryServer{}

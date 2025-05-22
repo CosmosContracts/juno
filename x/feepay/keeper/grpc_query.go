@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	globalerrors "github.com/CosmosContracts/juno/v29/app/helpers"
-	"github.com/CosmosContracts/juno/v29/x/feepay/types"
+	globalerrors "github.com/CosmosContracts/juno/v30/app/helpers"
+	"github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 var _ types.QueryServer = queryServer{}

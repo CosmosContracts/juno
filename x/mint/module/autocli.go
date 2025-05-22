@@ -3,7 +3,7 @@ package module
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	mintv1 "github.com/CosmosContracts/juno/v29/api/juno/mint/v1"
+	mintv1 "github.com/CosmosContracts/juno/v30/api/juno/mint/v1"
 )
 
 func (AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {

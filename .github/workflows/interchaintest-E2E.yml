@@ -64,7 +64,6 @@ jobs:
           - "ictest-tokenfactory"
           - "ictest-feeshare"
           - "ictest-pfm"
-          - "ictest-globalfee"
           - "ictest-upgrade"
           - "ictest-ibc"
           - "ictest-unity-deploy"
@@ -74,6 +73,7 @@ jobs:
           - "ictest-cwhooks"
           - "ictest-clock"
           - "ictest-gov-fix"
+          - "ictest-feemarket"
       fail-fast: false
 
     steps:

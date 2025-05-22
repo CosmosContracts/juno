@@ -15,10 +15,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/CosmosContracts/juno/v29/testutil"
-	ante "github.com/CosmosContracts/juno/v29/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v29/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v29/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v30/testutil"
+	ante "github.com/CosmosContracts/juno/v30/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
 )
 
 // Define an empty ante handle

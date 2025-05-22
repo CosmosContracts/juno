@@ -3,7 +3,7 @@ package module
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	tokenfactoryv1beta1 "github.com/CosmosContracts/juno/v29/api/osmosis/tokenfactory/v1beta1"
+	tokenfactoryv1beta1 "github.com/CosmosContracts/juno/v30/api/osmosis/tokenfactory/v1beta1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.

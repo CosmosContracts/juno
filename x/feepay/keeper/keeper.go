@@ -14,7 +14,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	feepaytypes "github.com/CosmosContracts/juno/v29/x/feepay/types"
+	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 var (

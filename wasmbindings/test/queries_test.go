@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bindings "github.com/CosmosContracts/juno/v29/wasmbindings"
+	bindings "github.com/CosmosContracts/juno/v30/wasmbindings"
 )
 
 func (s *BindingsTestSuite) TestFullDenom() {

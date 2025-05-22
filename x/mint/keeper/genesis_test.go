@@ -3,7 +3,7 @@ package keeper_test
 import (
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/CosmosContracts/juno/v29/x/mint/types"
+	"github.com/CosmosContracts/juno/v30/x/mint/types"
 )
 
 func (s *KeeperTestSuite) TestImportExportGenesis() {

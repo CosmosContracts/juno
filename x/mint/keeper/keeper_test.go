@@ -7,9 +7,9 @@ import (
 
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	"github.com/CosmosContracts/juno/v29/testutil"
-	"github.com/CosmosContracts/juno/v29/x/mint/keeper"
-	"github.com/CosmosContracts/juno/v29/x/mint/types"
+	"github.com/CosmosContracts/juno/v30/testutil"
+	"github.com/CosmosContracts/juno/v30/x/mint/keeper"
+	"github.com/CosmosContracts/juno/v30/x/mint/types"
 )
 
 type KeeperTestSuite struct {

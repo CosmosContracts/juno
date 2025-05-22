@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	"github.com/CosmosContracts/juno/v29/x/mint/types"
+	"github.com/CosmosContracts/juno/v30/x/mint/types"
 )
 
 func (s *KeeperTestSuite) TestGRPCParams() {

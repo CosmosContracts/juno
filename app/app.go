@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/fs"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -55,7 +53,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
-	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -68,11 +65,10 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/CosmosContracts/juno/v29/app/keepers"
-	upgrades "github.com/CosmosContracts/juno/v29/app/upgrades"
-	v28 "github.com/CosmosContracts/juno/v29/app/upgrades/v28"
-	v29 "github.com/CosmosContracts/juno/v29/app/upgrades/v29"
-	"github.com/CosmosContracts/juno/v29/docs"
+	"github.com/CosmosContracts/juno/v30/app/keepers"
+	upgrades "github.com/CosmosContracts/juno/v30/app/upgrades"
+	v28 "github.com/CosmosContracts/juno/v30/app/upgrades/v28"
+	v29 "github.com/CosmosContracts/juno/v30/app/upgrades/v29"
 )
 
 const (
@@ -233,12 +229,12 @@ func New(
 	}
 	app.ModuleManager.SetOrderPreBlockers(
 		upgradetypes.ModuleName,
+		authtypes.ModuleName,
 	)
 	app.ModuleManager.SetOrderBeginBlockers(orderBeginBlockers()...)
 	app.ModuleManager.SetOrderEndBlockers(orderEndBlockers()...)
 	app.ModuleManager.SetOrderInitGenesis(orderInitBlockers()...)
 	app.ModuleManager.SetOrderExportGenesis(orderInitBlockers()...)
-	app.ModuleManager.RegisterInvariants(app.AppKeepers.CrisisKeeper)
 
 	autocliv1.RegisterQueryServer(app.GRPCQueryRouter(), runtimeservices.NewAutoCLIQueryService(app.ModuleManager.Modules))
 
@@ -261,15 +257,12 @@ func New(
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
-				AccountKeeper:   app.AppKeepers.AccountKeeper,
-				BankKeeper:      app.AppKeepers.BankKeeper,
 				FeegrantKeeper:  app.AppKeepers.FeeGrantKeeper,
 				SignModeHandler: app.txConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
 			StakingKeeper: *app.AppKeepers.StakingKeeper,
 			BondDenom:     app.GetChainBondDenom(),
-			BankKeeper:    app.AppKeepers.BankKeeper,
 
 			IBCKeeper: app.AppKeepers.IBCKeeper,
 
@@ -277,18 +270,31 @@ func New(
 			NodeConfig:            &nodeConfig,
 			WasmKeeper:            &app.AppKeepers.WasmKeeper,
 
+			BankKeeper:    app.AppKeepers.BankKeeper,
+			AccountKeeper: app.AppKeepers.AccountKeeper,
+
 			FeePayKeeper:         app.AppKeepers.FeePayKeeper,
 			FeeShareKeeper:       app.AppKeepers.FeeShareKeeper,
+			FeeMarketKeeper:      *app.AppKeepers.FeeMarketKeeper,
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
-			GlobalFeeKeeper:      app.AppKeepers.GlobalFeeKeeper,
 		},
 	)
 	if err != nil {
 		panic(err)
 	}
 
+	postHandlerOptions := PostHandlerOptions{
+		AccountKeeper:   app.AppKeepers.AccountKeeper,
+		BankKeeper:      app.AppKeepers.BankKeeper,
+		FeeMarketKeeper: app.AppKeepers.FeeMarketKeeper,
+	}
+	postHandler, err := NewPostHandler(postHandlerOptions)
+	if err != nil {
+		panic(err)
+	}
+
 	app.SetAnteHandler(anteHandler)
-	app.setPostHandler()
+	app.SetPostHandler(postHandler)
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -345,15 +351,6 @@ func New(
 		app.AppKeepers.CapabilityKeeper.Seal()
 	}
 
-	// create the simulation manager and define the order of the modules for deterministic simulations
-	//
-	// no override for simulation for now, but we can add it in the future if needed
-	app.sm = module.NewSimulationManagerFromAppModules(
-		app.ModuleManager.Modules,
-		make(map[string]module.AppModuleSimulation, 0),
-	)
-	app.sm.RegisterStoreDecoders()
-
 	return app
 }
 
@@ -399,17 +396,6 @@ func (app *App) AutoCLIOpts(initClientCtx client.Context) autocli.AppOptions {
 // DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
 func (app *App) DefaultGenesis() map[string]json.RawMessage {
 	return app.BasicModuleManager.DefaultGenesis(app.appCodec)
-}
-
-func (app *App) setPostHandler() {
-	postHandler, err := posthandler.NewPostHandler(
-		posthandler.HandlerOptions{},
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	app.SetPostHandler(postHandler)
 }
 
 // Name returns the name of the App
@@ -485,7 +471,7 @@ func (app *App) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// InterfaceRegistry returns Juno's TxConfig
+// TxConfig returns Juno's TxConfig
 func (app *App) TxConfig() client.TxConfig {
 	return app.txConfig
 }
@@ -498,22 +484,19 @@ func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
 	return subspace
 }
 
-func (*App) RegisterSwaggerUI(apiSvr *api.Server) error {
-	staticSubDir, err := fs.Sub(docs.Docs, "static")
-	if err != nil {
-		return err
-	}
-
-	staticServer := http.FileServer(http.FS(staticSubDir))
-	apiSvr.Router.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
-
-	return nil
-}
-
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
 func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
+
+	// Register Scalar UI to <address>:<port>/scalar
+	// Needs to be before registering the grpc-gateway routes
+	// so its not registered after a '*' wildcard route is set
+	// which for some reason overrides the scalar route.
+	if err := app.RegisterScalarUI(apiSvr); err != nil {
+		panic(err)
+	}
+
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
@@ -525,11 +508,6 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 
 	// Register grpc-gateway routes for all modules.
 	app.BasicModuleManager.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
-
-	// Register Swagger UI to <address>:<port>/swagger
-	if err := app.RegisterSwaggerUI(apiSvr); err != nil {
-		panic(err)
-	}
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.

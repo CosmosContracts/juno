@@ -16,9 +16,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	feepaykeeper "github.com/CosmosContracts/juno/v29/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v29/x/feepay/types"
-	globalfeekeeper "github.com/CosmosContracts/juno/v29/x/globalfee/keeper"
+	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
+	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx
@@ -31,7 +31,7 @@ import (
 // module will cover the cost of the fee (if the balance permits).
 type DeductFeeDecorator struct {
 	feepayKeeper    feepaykeeper.Keeper
-	globalfeeKeeper globalfeekeeper.Keeper
+	feemarketKeeper feemarketkeeper.Keeper
 	accountKeeper   ante.AccountKeeper
 	bankKeeper      bankkeeper.Keeper
 	feegrantKeeper  ante.FeegrantKeeper
@@ -39,10 +39,10 @@ type DeductFeeDecorator struct {
 	isFeePayTx      *bool
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, gfk globalfeekeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, bondDenom string, isFeePayTx *bool) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak ante.AccountKeeper, bk bankkeeper.Keeper, fgk ante.FeegrantKeeper, bondDenom string, isFeePayTx *bool) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		feepayKeeper:    fpk,
-		globalfeeKeeper: gfk,
+		feemarketKeeper: fmk,
 		accountKeeper:   ak,
 		bankKeeper:      bk,
 		feegrantKeeper:  fgk,
@@ -126,13 +126,13 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		// If the fee pay route fails, try the std sdk route
 		feePayErr = dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
 		if feePayErr != nil {
-			// Flag the tx to be processed by GlobalFee
+			// Flag the tx to be processed by FeeMarket
 			*dfd.isFeePayTx = false
 
-			// call GlobalFee handler here
+			// call FeeMarket handler here
 			sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 		}
-		// caught in globalfee
+		// caught in FeeMarket
 	} else if !fee.IsZero() {
 		// Std sdk route
 		sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
@@ -173,15 +173,17 @@ func (dfd DeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc 
 	}
 
 	// Get the fee price in the chain denom
+	fmMinGasPriceBondDenom, err := dfd.feemarketKeeper.GetMinGasPrice(ctx, dfd.bondDenom)
+	if err != nil {
+		return errorsmod.Wrapf(err, "error getting feemarket params")
+	}
 	feePrice := sdk.DecCoin{}
-	for _, c := range dfd.globalfeeKeeper.GetParams(ctx).MinimumGasPrices {
-		if c.Denom == dfd.bondDenom {
-			feePrice = c
-		}
+	if fmMinGasPriceBondDenom.Denom == dfd.bondDenom {
+		feePrice = fmMinGasPriceBondDenom
 	}
 
 	if feePrice == (sdk.DecCoin{}) {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidCoins, "fee price not found for denom %s in globalfee keeper", dfd.bondDenom)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidCoins, "fee price not found for denom %s in feemarket keeper", dfd.bondDenom)
 	}
 
 	// Get the tx gas

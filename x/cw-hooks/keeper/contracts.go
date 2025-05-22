@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	helpers "github.com/CosmosContracts/juno/v29/app/helpers"
+	helpers "github.com/CosmosContracts/juno/v30/app/helpers"
 )
 
 func (k Keeper) SetContract(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {

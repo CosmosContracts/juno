@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	globalerrors "github.com/CosmosContracts/juno/v29/app/helpers"
+	globalerrors "github.com/CosmosContracts/juno/v30/app/helpers"
 )
 
 const (

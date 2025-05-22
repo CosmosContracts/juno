@@ -7,9 +7,9 @@ import (
 
 	_ "embed"
 
-	"github.com/CosmosContracts/juno/v29/testutil"
-	"github.com/CosmosContracts/juno/v29/x/clock/keeper"
-	"github.com/CosmosContracts/juno/v29/x/clock/types"
+	"github.com/CosmosContracts/juno/v30/testutil"
+	"github.com/CosmosContracts/juno/v30/x/clock/keeper"
+	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 
 type KeeperTestSuite struct {

@@ -1,20 +1,23 @@
 package common
 
 import (
-	"github.com/cometbft/cometbft/crypto/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// CreateRandomAccounts is a function return a list of randomly generated AccAddresses
-func CreateRandomAccounts(numAccts int) []sdk.AccAddress {
+// CreateRandomAccountsAndPrivKeys is a function return a list of randomly generated AccAddresses and their according private keys.
+func CreateRandomAccountsAndPrivKeys(numAccts int) ([]sdk.AccAddress, []cryptotypes.PrivKey) {
 	testAddrs := make([]sdk.AccAddress, numAccts)
+	testPrivKeys := make([]cryptotypes.PrivKey, numAccts)
 	for i := 0; i < numAccts; i++ {
-		pk := ed25519.GenPrivKey().PubKey()
-		testAddrs[i] = sdk.AccAddress(pk.Address())
+		pk := secp256k1.GenPrivKey()
+		testAddrs[i] = sdk.AccAddress(pk.PubKey().Address())
+		testPrivKeys[i] = pk
 	}
 
-	return testAddrs
+	return testAddrs, testPrivKeys
 }
 
 // These are for testing msg.ValidateBasic() functions
@@ -22,7 +25,7 @@ func CreateRandomAccounts(numAccts int) []sdk.AccAddress {
 // Should not be used for anything else because these addresses
 // are totally uninterpretable (100% random).
 func GenerateTestAddrs() (string, string) {
-	pk1 := ed25519.GenPrivKey().PubKey()
+	pk1 := secp256k1.GenPrivKey().PubKey()
 	validAddr := sdk.AccAddress(pk1.Address()).String()
 	invalidAddr := sdk.AccAddress("").String()
 	return validAddr, invalidAddr

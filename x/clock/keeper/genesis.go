@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v29/x/clock/types"
+	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 
 // InitGenesis import module genesis

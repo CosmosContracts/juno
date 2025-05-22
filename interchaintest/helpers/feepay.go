@@ -13,7 +13,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-	feepaytypes "github.com/CosmosContracts/juno/v29/x/feepay/types"
+	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 func RegisterFeePay(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, contract string, walletLimit int) {
