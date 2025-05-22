@@ -82,11 +82,11 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 
 	// Flag for determining if the tx is a FeePay transaction. This flag
-	// is used to communicate between the FeePay decorator and the GlobalFee decorator.
+	// is used to communicate between the FeePay decorator and the FeeMarket decorator.
 	isFeePayTx := false
 
-	// Define FeePay and Global Fee decorators. These decorators are called in different orders based on the type of
-	// transaction. The FeePay decorator is called first for FeePay transactions, and the GlobalFee decorator is called
+	// Define FeePay and FeeMarket decorators. These decorators are called in different orders based on the type of
+	// transaction. The FeePay decorator is called first for FeePay transactions, and the FeeMarket decorator is called
 	// first for all other transactions. See the FeeRouteDecorator for more details.
 	fpd := feepayante.NewDeductFeeDecorator(
 		options.FeePayKeeper,
@@ -127,7 +127,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 
 		// juno custom modules
-		// Fee route decorator calls FeePay and Global Fee decorators in different orders
+		// Fee route decorator calls FeePay and FeeMarket decorators in different orders
 		// depending on the type of incoming tx.
 		feepayante.NewFeeRouteDecorator(options.FeePayKeeper, &fpd, &fmd, &isFeePayTx),
 		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),

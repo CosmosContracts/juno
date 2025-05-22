@@ -26,8 +26,8 @@ func TestJunoFeePay(t *testing.T) {
 	coin := sdk.NewDecCoinFromDec(cfg.Denom, sdkmath.LegacyNewDecWithPrec(25, 4))
 	cfg.ModifyGenesis = cosmos.ModifyGenesis(append(defaultGenesisKV, []cosmos.GenesisKV{
 		{
-			Key:   "app_state.globalfee.params.minimum_gas_prices",
-			Value: sdk.DecCoins{coin},
+			Key:   "app_state.feemarket.params.min_base_gas_price",
+			Value: coin.Amount,
 		},
 		{
 			// override default impl.

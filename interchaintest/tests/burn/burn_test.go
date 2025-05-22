@@ -1,4 +1,4 @@
-package interchaintest
+package burn
 
 import (
 	"fmt"

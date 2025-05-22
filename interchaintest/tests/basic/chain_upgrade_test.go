@@ -1,4 +1,4 @@
-package interchaintest
+package basic
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/docker/docker/client"
@@ -17,16 +16,16 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 
 	"github.com/stretchr/testify/require"
-
-	junoconformance "github.com/CosmosContracts/juno/tests/interchaintest/conformance"
-	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
+	"github.com/stretchr/testify/suite"
 
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
+	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
 )
 
 const (
 	chainName   = "juno"
-	upgradeName = "v28"
+	upgradeName = "v30"
 
 	haltHeightDelta    = int64(9) // will propose upgrade this many blocks in the future
 	blocksAfterUpgrade = int64(7)
@@ -34,81 +33,95 @@ const (
 
 // baseChain is the current version of the chain that will be upgraded from
 var baseChain = ibc.DockerImage{
-	Repository: JunoMainRepo,
-	Version:    "v27.0.0",
+	Repository: e2esuite.JunoRepo,
+	Version:    "v29.0.0",
 	UIDGID:     "1025:1025",
 }
 
-func TestBasicJunoUpgrade(t *testing.T) {
-	repo, version := GetDockerImageInfo()
-	CosmosChainUpgradeTest(t, chainName, version, repo, upgradeName)
+type BasicUpgradeTestSuite struct {
+	e2esuite.E2ETestSuite
 }
 
-func CosmosChainUpgradeTest(t *testing.T, chainName, upgradeBranchVersion, upgradeRepo, upgradeName string) {
-	if testing.Short() {
-		t.Skip("skipping in short mode")
-	}
-
-	t.Parallel()
-
-	t.Log(chainName, upgradeBranchVersion, upgradeRepo, upgradeName)
-
+func TestBasicUpgradeTestSuite(t *testing.T) {
 	previousVersionGenesis := []cosmos.GenesisKV{
 		{
 			Key:   "app_state.gov.params.voting_period",
-			Value: VotingPeriod,
+			Value: e2esuite.VotingPeriod,
 		},
 		{
 			Key:   "app_state.gov.params.max_deposit_period",
-			Value: MaxDepositPeriod,
+			Value: e2esuite.MaxDepositPeriod,
 		},
 		{
 			Key:   "app_state.gov.params.min_deposit.0.denom",
-			Value: Denom,
+			Value: e2esuite.Denom,
 		},
 	}
 
-	cfg := junoConfig
+	cfg := e2esuite.Config
 	cfg.ModifyGenesis = cosmos.ModifyGenesis(previousVersionGenesis)
 	cfg.Images = []ibc.DockerImage{baseChain}
+	numValidators := 4
+	numFullNodes := 1
+	noHostMount := false
+	spec := &interchaintest.ChainSpec{
+		ChainName:     "juno-upgrade",
+		Name:          "juno-upgrade",
+		NumValidators: &numValidators,
+		NumFullNodes:  &numFullNodes,
+		Version:       baseChain.Version,
+		NoHostMount:   &noHostMount,
+		ChainConfig:   cfg,
+	}
 
-	numVals, numNodes := 4, 0
-	chains := CreateChainWithCustomConfig(t, numVals, numNodes, cfg)
-	chain := chains[0].(*cosmos.CosmosChain)
+	s := e2esuite.NewE2ETestSuite(
+		spec,
+		e2esuite.TxCfg,
+	)
 
-	ic, ctx, client, _ := BuildInitialChain(t, chains)
+	suite.Run(t, s)
+}
 
-	t.Cleanup(func() {
-		_ = ic.Close()
-	})
+func (s *BasicUpgradeTestSuite) TestBasicJunoUpgrade() {
+	t := s.T()
+	if testing.Short() {
+		t.Skip("skipping in short mode")
+	}
+	t.Parallel()
 
-	userFunds := sdkmath.NewInt(10_000_000_000)
-	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, chain)
-	chainUser := users[0]
+	repo, version := e2esuite.GetDockerImageInfo()
+	user := s.GetAndFundTestUser(s.Ctx, t.Name(), 10_000_000_000, s.Chain)
+
+	var chains []*cosmos.CosmosChain = make([]*cosmos.CosmosChain, 0)
+	chains = append(chains, s.Chain)
+	_, client := s.Icc(s.Ctx, t, chains)
 
 	// execute a contract before the upgrade
-	beforeContract := junoconformance.StdExecute(t, ctx, chain, chainUser)
+	beforeContract := e2esuite.StdExecute(t, s.Ctx, s.Chain, user)
 
 	// upgrade
-	height, err := chain.Height(ctx)
+	height, err := s.Chain.Height(s.Ctx)
 	require.NoError(t, err, "error fetching height before submit upgrade proposal")
 
 	haltHeight := height + haltHeightDelta
-	proposalID := SubmitUpgradeProposal(t, ctx, chain, chainUser, upgradeName, haltHeight)
+	proposalID := SubmitUpgradeProposal(t, s.Ctx, s.Chain, user, upgradeName, haltHeight)
 
 	proposalIDInt, err := strconv.ParseUint(proposalID, 10, 64)
 	require.NoError(t, err, "failed to parse proposal ID")
 
-	ValidatorVoting(t, ctx, chain, proposalIDInt, height, haltHeight)
-
-	UpgradeNodes(t, ctx, chain, client, haltHeight, upgradeRepo, upgradeBranchVersion)
+	ValidatorVoting(t, s.Ctx, s.Chain, proposalIDInt, height, haltHeight)
+	UpgradeNodes(t, s.Ctx, s.Chain, client, haltHeight, repo, version)
 
 	// confirm we can execute against the beforeContract (ref: v20 upgrade patch)
-	_, err = helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, chainUser, beforeContract, "", "10000"+chain.Config().Denom, `{"increment":{}}`)
+	_, err = helpers.ExecuteMsgWithFeeReturn(t, s.Ctx, s.Chain, user, beforeContract, "", "10000"+s.Chain.Config().Denom, `{"increment":{}}`)
 	require.NoError(t, err)
 
 	// Post Upgrade: Conformance Validation
-	junoconformance.ConformanceCosmWasm(t, ctx, chain, chainUser)
+	e2esuite.ConformanceCosmWasm(t, s.Ctx, s.Chain, user)
+
+	t.Cleanup(func() {
+		_ = s.Ic.Close()
+	})
 }
 
 func UpgradeNodes(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, client *client.Client, haltHeight int64, upgradeRepo, upgradeBranchVersion string) {
@@ -166,7 +179,7 @@ func ValidatorVoting(t *testing.T, ctx context.Context, chain *cosmos.CosmosChai
 func SubmitUpgradeProposal(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet, upgradeName string, haltHeight int64) string {
 	upgradeMsg := []cosmos.ProtoMessage{
 		&upgradetypes.MsgSoftwareUpgrade{
-			// gGov Module account
+			// gov module account
 			Authority: "juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730",
 			Plan: upgradetypes.Plan{
 				Name:   upgradeName,

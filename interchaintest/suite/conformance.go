@@ -1,4 +1,4 @@
-package junoconformance
+package suite
 
 import (
 	"context"

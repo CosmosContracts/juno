@@ -126,13 +126,13 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		// If the fee pay route fails, try the std sdk route
 		feePayErr = dfd.handleZeroFees(ctx, deductFeesFromAcc, sdkTx, fee)
 		if feePayErr != nil {
-			// Flag the tx to be processed by GlobalFee
+			// Flag the tx to be processed by FeeMarket
 			*dfd.isFeePayTx = false
 
-			// call GlobalFee handler here
+			// call FeeMarket handler here
 			sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 		}
-		// caught in globalfee
+		// caught in FeeMarket
 	} else if !fee.IsZero() {
 		// Std sdk route
 		sdkErr = DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)

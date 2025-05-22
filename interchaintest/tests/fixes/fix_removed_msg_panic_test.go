@@ -94,6 +94,7 @@ func SimulateQueryPanic(t *testing.T, chainName, firstUpgradeBranchVersion, seco
 	// v27 params update
 	proposalID := SubmitBuilderParamsUpdate(t, ctx, chain, chainUser)
 	proposalIDInt, err := strconv.ParseUint(proposalID, 10, 64)
+	require.NoError(t, err, "error parsing proposal ID as uint64")
 	VoteOnProp(t, ctx, chain, proposalIDInt, 0)
 	t.Log("v27 params update proposal ID", proposalIDInt)
 

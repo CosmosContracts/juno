@@ -187,9 +187,6 @@ ictest-feeshare: rm-testcache
 ictest-pfm: rm-testcache
 	cd interchaintest && go test -race -v -run TestPacketForwardMiddlewareRouter .
 
-ictest-globalfee: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoGlobalFee .
-
 ictest-upgrade: rm-testcache
 	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
 
@@ -217,10 +214,13 @@ ictest-clock: rm-testcache
 ictest-gov-fix: rm-testcache
 	cd interchaintest && go test -race -v -run TestFixRemovedMsgTypeQueryPanic .
 
+ictest-feemarket: rm-testcache
+	cd interchaintest && go test -race -v -run TestJunoFeeMarket .
+
 rm-testcache:
 	go clean -testcache
 
-.PHONY: ictest-basic ictest-statesync ictest-ibchooks ictest-tokenfactory ictest-feeshare ictest-pfm ictest-globalfee ictest-upgrade ictest-upgrade-local ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-drip ictest-burn ictest-feepay ictest-cwhooks ictest-clock ictest-gov-fix rm-testcache
+.PHONY: ictest-basic ictest-statesync ictest-ibchooks ictest-tokenfactory ictest-feeshare ictest-pfm ictest-upgrade ictest-upgrade-local ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-drip ictest-burn ictest-feepay ictest-cwhooks ictest-clock ictest-gov-fix ictest-feemarket rm-testcache
 
 ###############################################################################
 ###                                  heighliner                             ###

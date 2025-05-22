@@ -1,4 +1,4 @@
-package interchaintest
+package basic
 
 import (
 	"context"
@@ -7,18 +7,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 const stateSyncSnapshotInterval = 10
 
-func TestJunoStateSync(t *testing.T) {
+func (s *BasicUpgradeTestSuite) TestStateSync() {
+	t := s.T()
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}
-
 	t.Parallel()
 
 	configFileOverrides := make(map[string]any)
@@ -29,7 +28,7 @@ func TestJunoStateSync(t *testing.T) {
 	stateSync["snapshot-interval"] = stateSyncSnapshotInterval
 	appTomlOverrides["state-sync"] = stateSync
 
-	// state sync snapshot interval must be a multiple of pruning keep every interval.
+	// state sync snapshot interval must be a multi^ple of pruning keep every interval.
 	appTomlOverrides["pruning"] = "custom"
 	appTomlOverrides["pruning-keep-recent"] = stateSyncSnapshotInterval
 	appTomlOverrides["pruning-keep-every"] = stateSyncSnapshotInterval
@@ -37,25 +36,19 @@ func TestJunoStateSync(t *testing.T) {
 
 	configFileOverrides["config/app.toml"] = appTomlOverrides
 
-	// Setup
-	chains := CreateThisBranchChain(t, 1, 1)
-	_, ctx, _, _ := BuildInitialChain(t, chains)
-
-	chain := chains[0].(*cosmos.CosmosChain)
-
 	// Wait for blocks so that nodes have a few state sync snapshot available
-	require.NoError(t, testutil.WaitForBlocks(ctx, stateSyncSnapshotInterval*2, chain))
+	require.NoError(t, testutil.WaitForBlocks(s.Ctx, stateSyncSnapshotInterval*2, s.Chain))
 
-	latestHeight, err := chain.Height(ctx)
+	latestHeight, err := s.Chain.Height(s.Ctx)
 	require.NoError(t, err, "failed to fetch latest chain height")
 
 	// Trusted height should be state sync snapshot interval blocks ago.
 	trustHeight := int64(latestHeight) - stateSyncSnapshotInterval
 
-	firstFullNode := chain.FullNodes[0]
+	firstFullNode := s.Chain.FullNodes[0]
 
 	// Fetch block hash for trusted height.
-	blockRes, err := firstFullNode.Client.Block(ctx, &trustHeight)
+	blockRes, err := firstFullNode.Client.Block(s.Ctx, &trustHeight)
 	require.NoError(t, err, "failed to fetch trusted block")
 	trustHash := hex.EncodeToString(blockRes.BlockID.Hash)
 
@@ -74,10 +67,10 @@ func TestJunoStateSync(t *testing.T) {
 	configFileOverrides["config/config.toml"] = configTomlOverrides
 
 	// Now that nodes are providing state sync snapshots, state sync a new node.
-	require.NoError(t, chain.AddFullNodes(ctx, configFileOverrides, 1))
+	require.NoError(t, s.Chain.AddFullNodes(s.Ctx, configFileOverrides, 1))
 
 	// Wait for new node to be in sync.
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	ctx, cancel := context.WithTimeout(s.Ctx, 30*time.Second)
 	defer cancel()
-	require.NoError(t, testutil.WaitForInSync(ctx, chain, chain.FullNodes[len(chain.FullNodes)-1]))
+	require.NoError(t, testutil.WaitForInSync(ctx, s.Chain, s.Chain.FullNodes[len(s.Chain.FullNodes)-1]))
 }
