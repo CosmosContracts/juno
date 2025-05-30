@@ -3,25 +3,35 @@ package suite
 import (
 	"context"
 	"fmt"
-	"strconv"
+	"time"
 
 	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
+	"golang.org/x/sync/errgroup"
+
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	interchaintest "github.com/strangelove-ventures/interchaintest/v8"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
+	"github.com/stretchr/testify/require"
+
+	govv1beta1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	buildertypes "github.com/skip-mev/pob/x/builder/types"
 )
 
 // SimulateTx simulates the provided messages, and checks whether the provided failure condition is met
-func (s *E2ETestSuite) SimulateTx(ctx context.Context, user cosmos.User, height uint64, expectFail bool, msgs ...sdk.Msg) {
+func (s *E2ETestSuite) SimulateTx(user cosmos.User, height uint64, expectFail bool, msgs ...sdk.Msg) uint64 {
 	// create tx factory + Client Context
-	txf, err := s.Bc.GetFactory(ctx, user)
+	txf, err := s.Bc.GetFactory(s.Ctx, user)
 	s.Require().NoError(err)
 
-	cc, err := s.Bc.GetClientContext(ctx, user)
+	cc, err := s.Bc.GetClientContext(s.Ctx, user)
 	s.Require().NoError(err)
 
 	txf, err = txf.Prepare(cc)
@@ -33,13 +43,15 @@ func (s *E2ETestSuite) SimulateTx(ctx context.Context, user cosmos.User, height 
 	}
 
 	// get gas for tx
-	_, _, err = tx.CalculateGas(cc, txf, msgs...)
+	_, gas, err := tx.CalculateGas(cc, txf, msgs...)
 	s.Require().Equal(err != nil, expectFail)
+
+	return gas
 }
 
-func (s *E2ETestSuite) SendCoinsMultiBroadcast(ctx context.Context, sender, receiver ibc.Wallet, amt, fees sdk.Coins, gas int64, numMsg int) (*coretypes.ResultBroadcastTxCommit, error) {
+func (s *E2ETestSuite) SendCoinsMultiBroadcast(sender, receiver ibc.Wallet, amt, fees sdk.Coins, gas int64, numMsg int) (*coretypes.ResultBroadcastTxCommit, error) {
 	msgs := make([]sdk.Msg, numMsg)
-	for i := 0; i < numMsg; i++ {
+	for i := range numMsg {
 		msgs[i] = &banktypes.MsgSend{
 			FromAddress: sender.FormattedAddress(),
 			ToAddress:   receiver.FormattedAddress(),
@@ -51,14 +63,14 @@ func (s *E2ETestSuite) SendCoinsMultiBroadcast(ctx context.Context, sender, rece
 
 	// get an rpc endpoint for the chain
 	c := s.Chain.Nodes()[0].Client
-	return c.BroadcastTxCommit(ctx, tx)
+	return c.BroadcastTxCommit(s.Ctx, tx)
 }
 
-func (s *E2ETestSuite) SendCoinsMultiBroadcastAsync(ctx context.Context, sender, receiver ibc.Wallet, amt, fees sdk.Coins,
+func (s *E2ETestSuite) SendCoinsMultiBroadcastAsync(sender, receiver ibc.Wallet, amt, fees sdk.Coins,
 	gas int64, numMsg int, bumpSequence bool,
 ) (*coretypes.ResultBroadcastTx, error) {
 	msgs := make([]sdk.Msg, numMsg)
-	for i := 0; i < numMsg; i++ {
+	for i := range numMsg {
 		msgs[i] = &banktypes.MsgSend{
 			FromAddress: sender.FormattedAddress(),
 			ToAddress:   receiver.FormattedAddress(),
@@ -70,15 +82,15 @@ func (s *E2ETestSuite) SendCoinsMultiBroadcastAsync(ctx context.Context, sender,
 
 	// get an rpc endpoint for the chain
 	c := s.Chain.Nodes()[0].Client
-	return c.BroadcastTxAsync(ctx, tx)
+	return c.BroadcastTxAsync(s.Ctx, tx)
 }
 
 // SendCoins creates a executes a SendCoins message and broadcasts the transaction.
-func (s *E2ETestSuite) SendCoins(ctx context.Context, keyName, sender, receiver string, amt, fees sdk.Coins, gas int64) (string, error) {
+func (s *E2ETestSuite) SendCoins(chain *cosmos.CosmosChain, keyName, sender, receiver string, amt, fees sdk.Coins) (string, error) {
 	resp, err := s.ExecTx(
-		ctx,
-		s.Chain,
+		chain,
 		keyName,
+		false,
 		false,
 		"bank",
 		"send",
@@ -88,7 +100,8 @@ func (s *E2ETestSuite) SendCoins(ctx context.Context, keyName, sender, receiver 
 		"--fees",
 		fees.String(),
 		"--gas",
-		strconv.FormatInt(gas, 10),
+		// strconv.FormatInt(gas, 10),
+		"auto",
 	)
 
 	return resp, err
@@ -98,33 +111,31 @@ func (s *E2ETestSuite) SendCoins(ctx context.Context, keyName, sender, receiver 
 // and funds it with the native chain denom.
 // The caller should wait for some blocks to complete before the funds will be accessible.
 func (s *E2ETestSuite) GetAndFundTestUserWithMnemonic(
-	ctx context.Context,
 	keyNamePrefix, mnemonic string,
 	amount int64,
 	chain ibc.Chain,
 ) (ibc.Wallet, error) {
 	chainCfg := chain.Config()
-	keyName := fmt.Sprintf("%s-%s", keyNamePrefix, chainCfg.ChainID)
-	user, err := chain.BuildWallet(ctx, keyName, mnemonic)
+	keyName := fmt.Sprintf("%s-%s-%s", keyNamePrefix, chainCfg.ChainID, AlphaString(3))
+	user, err := chain.BuildWallet(s.Ctx, keyName, mnemonic)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get source user wallet: %w", err)
 	}
 
-	s.FundUser(ctx, chain, amount, user)
+	s.FundUser(chain, amount, user)
 	return user, nil
 }
 
-func (s *E2ETestSuite) FundUser(ctx context.Context, chain ibc.Chain, amount int64, user ibc.Wallet) {
+func (s *E2ETestSuite) FundUser(chain ibc.Chain, amount int64, user ibc.Wallet) {
 	chainCfg := chain.Config()
 
 	_, err := s.SendCoins(
-		ctx,
+		chain.(*cosmos.CosmosChain),
 		interchaintest.FaucetAccountKeyName,
 		interchaintest.FaucetAccountKeyName,
 		user.FormattedAddress(),
 		sdk.NewCoins(sdk.NewCoin(chainCfg.Denom, math.NewInt(amount))),
-		sdk.NewCoins(sdk.NewCoin(chainCfg.Denom, math.NewInt(1000000000000))),
-		1000000,
+		sdk.NewCoins(sdk.NewCoin(chainCfg.Denom, math.NewInt(1_000_000))),
 	)
 	s.Require().NoError(err, "failed to get funds from faucet")
 }
@@ -132,22 +143,58 @@ func (s *E2ETestSuite) FundUser(ctx context.Context, chain ibc.Chain, amount int
 // GetAndFundTestUser generates and funds a chain user with the native chain denom.
 // The caller should wait for some blocks to complete before the funds will be accessible.
 func (s *E2ETestSuite) GetAndFundTestUser(
-	ctx context.Context,
 	keyNamePrefix string,
 	amount int64,
 	chain ibc.Chain,
 ) ibc.Wallet {
-	user, err := s.GetAndFundTestUserWithMnemonic(ctx, keyNamePrefix, "", amount, chain)
+	t := s.T()
+	t.Helper()
+	user, err := s.GetAndFundTestUserWithMnemonic(keyNamePrefix, "", amount, chain)
 	s.Require().NoError(err)
 
 	return user
 }
 
+// GetAndFundTestUserOnAllChains generates and funds users wallets on all chains with the native chain denom.
+// The caller should wait for some blocks to complete before the funds will be accessible.
+func (s *E2ETestSuite) GetAndFundTestUserOnAllChains(
+	keyNamePrefix string,
+	amount int64,
+	chains ...ibc.Chain,
+) []ibc.Wallet {
+	t := s.T()
+	t.Helper()
+
+	users := make([]ibc.Wallet, len(chains))
+	var eg errgroup.Group
+	for i, chain := range chains {
+		eg.Go(func() error {
+			user, err := s.GetAndFundTestUserWithMnemonic(keyNamePrefix, "", amount, chain)
+			if err != nil {
+				return err
+			}
+			users[i] = user
+			return nil
+		})
+	}
+	require.NoError(t, eg.Wait())
+
+	chainHeights := make([]testutil.ChainHeighter, len(chains))
+	for i := range chains {
+		chainHeights[i] = chains[i]
+	}
+	return users
+}
+
 // ExecTx executes a cli command on a node, waits a block and queries the Tx to verify it was included on chain.
-func (s *E2ETestSuite) ExecTx(ctx context.Context, chain *cosmos.CosmosChain, keyName string, blocking bool, command ...string) (string, error) {
+func (s *E2ETestSuite) ExecTx(chain *cosmos.CosmosChain, keyName string, blocking bool, skipTxCheck bool, command ...string) (string, error) {
 	node := chain.Validators[0]
 
-	resp, err := node.ExecTx(ctx, keyName, command...)
+	resp, err := node.ExecTx(s.Ctx, keyName, command...)
+	if skipTxCheck {
+		return resp, nil
+	}
+
 	s.Require().NoError(err)
 
 	if !blocking {
@@ -158,7 +205,7 @@ func (s *E2ETestSuite) ExecTx(ctx context.Context, chain *cosmos.CosmosChain, ke
 	s.Require().NoError(err)
 	s.WaitForHeight(chain, height+1)
 
-	stdout, stderr, err := chain.FullNodes[0].ExecQuery(ctx, "tx", resp, "--type", "hash")
+	stdout, stderr, err := chain.FullNodes[0].ExecQuery(s.Ctx, "tx", resp, "--type", "hash")
 	s.Require().NoError(err)
 	s.Require().Nil(stderr)
 
@@ -205,4 +252,83 @@ func (s *E2ETestSuite) CreateTx(chain *cosmos.CosmosChain, user cosmos.User, fee
 	bz, err := cc.TxConfig.TxEncoder()(txBuilder.GetTx())
 	s.Require().NoError(err)
 	return bz
+}
+
+// SubmitSoftwareUpgradeProposal submits a software upgrade proposal to the chain.
+func (s *E2ETestSuite) SubmitSoftwareUpgradeProposal(chain *cosmos.CosmosChain, user ibc.Wallet, upgradeName string, haltHeight int64, authority string) string {
+	t := s.T()
+	upgradeMsg := []cosmos.ProtoMessage{
+		&upgradetypes.MsgSoftwareUpgrade{
+			// gov module account
+			Authority: authority,
+			Plan: upgradetypes.Plan{
+				Name:   upgradeName,
+				Height: int64(haltHeight),
+			},
+		},
+	}
+
+	proposal, err := chain.BuildProposal(
+		upgradeMsg,
+		"Chain Upgrade 1",
+		"Summary desc",
+		"ipfs://CID",
+		fmt.Sprintf(`500000000%s`, chain.Config().Denom),
+		sdk.MustBech32ifyAddressBytes("juno", user.Address()),
+		false)
+	require.NoError(t, err, "error building proposal")
+
+	txProp, err := chain.SubmitProposal(s.Ctx, user.KeyName(), proposal)
+	t.Log("txProp", txProp)
+	require.NoError(t, err, "error submitting proposal")
+
+	return txProp.ProposalID
+}
+
+// DO NOT USE, only used for the gov fix test, not compatible with Juno v28+
+func (s *E2ETestSuite) SubmitBuilderParamsUpdate(chain *cosmos.CosmosChain, user ibc.Wallet, authority string) string {
+	t := s.T()
+	// juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730
+	govModule := sdk.MustAccAddressFromBech32(authority)
+
+	updateParamsMsg := []cosmos.ProtoMessage{
+		&buildertypes.MsgUpdateParams{
+			Authority: authority,
+			Params: buildertypes.Params{
+				FrontRunningProtection: true,
+				ProposerFee:            sdkmath.LegacyMustNewDecFromStr("1"),
+				ReserveFee:             sdk.NewCoin("ujuno", sdkmath.NewInt(1)),
+				MinBidIncrement:        sdk.NewCoin("ujuno", sdkmath.NewInt(1000)),
+				MaxBundleSize:          100,
+				EscrowAccountAddress:   govModule.Bytes(),
+			},
+		},
+	}
+
+	proposal, err := chain.BuildProposal(
+		updateParamsMsg,
+		"Update Builder Params",
+		"Summary desc",
+		"ipfs://CID",
+		fmt.Sprintf(`500000000%s`, chain.Config().Denom),
+		sdk.MustBech32ifyAddressBytes("juno", user.Address()),
+		false)
+	require.NoError(t, err, "error building proposal")
+
+	txProp, err := chain.SubmitProposal(s.Ctx, user.KeyName(), proposal)
+	t.Log("txProp", txProp)
+	require.NoError(t, err, "error submitting proposal")
+
+	return txProp.ProposalID
+}
+
+func (s *E2ETestSuite) VoteOnProp(chain *cosmos.CosmosChain, proposalID uint64, height int64) {
+	err := chain.VoteOnProposalAllValidators(s.Ctx, proposalID, cosmos.ProposalVoteYes)
+	require.NoError(s.T(), err, "failed to submit votes")
+
+	_, err = cosmos.PollForProposalStatus(s.Ctx, chain, height, height+20, proposalID, govv1beta1types.StatusPassed)
+	require.NoError(s.T(), err, "proposal status did not change to passed in expected number of blocks")
+
+	_, timeoutCtxCancel := context.WithTimeout(s.Ctx, time.Second*45)
+	defer timeoutCtxCancel()
 }

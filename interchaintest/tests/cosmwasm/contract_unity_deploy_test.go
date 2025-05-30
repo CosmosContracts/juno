@@ -1,49 +1,52 @@
-package interchaintest
+package cosmwasm_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
-	sdkmath "cosmossdk.io/math"
-	"github.com/strangelove-ventures/interchaintest/v8"
+	"cosmossdk.io/math"
+	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
-
-	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
+	"github.com/stretchr/testify/require"
 )
 
-// TestJunoUnityContractDeploy test to ensure the contract withdraw function works as expected on chain.
+// UnityContractDeploy test to ensure the contract withdraw function works as expected on chain.
 // - https://github.com/CosmosContracts/cw-unity-prop
-func TestJunoUnityContractDeploy(t *testing.T) {
-	t.Parallel()
-
-	// Base setup
-	chains := CreateThisBranchChain(t, 1, 0)
-	ic, ctx, _, _ := BuildInitialChain(t, chains)
+func (s *CosmWasmTestSuite) TestJunoUnityContractDeploy() {
+	t := s.T()
+	require := s.Require()
 
 	// Chains
-	juno := chains[0].(*cosmos.CosmosChain)
+	juno := s.Chain
 	nativeDenom := juno.Config().Denom
 
 	// Users
-	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", sdkmath.NewInt(10_000_000), juno, juno)
-	user := users[0]
-	withdrawUser := users[1]
+	user := s.GetAndFundTestUser("default", 10_000_000, juno)
+	withdrawUser := s.GetAndFundTestUser("withdraw", 10_000_000, juno)
 	withdrawAddr := withdrawUser.FormattedAddress()
 
 	// TEST DEPLOY (./scripts/deploy_ci.sh)
 	// Upload & init unity contract with no admin in test mode
 	msg := fmt.Sprintf(`{"native_denom":"%s","withdraw_address":"%s","withdraw_delay_in_days":28}`, nativeDenom, withdrawAddr)
-	_, contractAddr := helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/cw_unity_prop.wasm", msg)
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(100000)))
+	_, contractAddr := s.SetupContract(juno, user.KeyName(), "../../contracts/cw_unity_prop.wasm", msg, false, fees)
 	t.Log("testing Unity contractAddr", contractAddr)
 
 	// Execute to start the withdrawal countdown
-	juno.ExecuteContract(ctx, withdrawUser.KeyName(), contractAddr, `{"start_withdraw":{}}`)
+	_, err := juno.ExecuteContract(s.Ctx, withdrawUser.KeyName(), contractAddr, `{"start_withdraw":{}}`, "--fees", fees.String(), "--gas", "auto")
+	require.NoError(err)
 
 	// make a query with GetUnityContractWithdrawalReadyTime
-	res := helpers.GetUnityContractWithdrawalReadyTime(t, ctx, juno, contractAddr)
+	res := GetUnityContractWithdrawalReadyTime(t, s.Ctx, juno, contractAddr)
 	t.Log("WithdrawalReadyTimestamp", res.Data.WithdrawalReadyTimestamp)
+}
 
-	t.Cleanup(func() {
-		_ = ic.Close()
-	})
+func GetUnityContractWithdrawalReadyTime(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, contract string) e2esuite.WithdrawalTimestampResponse {
+	// junod query wasm contract-state smart <contract> '{"get_withdrawal_ready_time":{}}' --output json
+	var res e2esuite.WithdrawalTimestampResponse
+	err := chain.QueryContract(ctx, contract, e2esuite.ContractQueryMsg{GetWithdrawalReadyTime: &struct{}{}}, &res)
+	require.NoError(t, err)
+	return res
 }

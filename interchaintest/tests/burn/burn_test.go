@@ -1,64 +1,74 @@
-package burn
+package burn_test
 
 import (
 	"fmt"
 	"strconv"
 	"testing"
 
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	"github.com/strangelove-ventures/interchaintest/v8"
-	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 
-	helpers "github.com/CosmosContracts/juno/tests/interchaintest/helpers"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
 )
 
-// TestJunoBurnModule ensures the junoburn module register and execute sharing functions work properly on smart contracts.
+type BurnTestSuite struct {
+	*e2esuite.E2ETestSuite
+}
+
+func TestBurnTestSuite(t *testing.T) {
+	s := e2esuite.NewE2ETestSuite(
+		[]*interchaintest.ChainSpec{e2esuite.DefaultSpec},
+		e2esuite.DefaultTxCfg,
+	)
+
+	t.Parallel()
+	t.Cleanup(func() {
+		_ = s.Ic.Close()
+	})
+
+	testSuite := &BurnTestSuite{E2ETestSuite: s}
+	suite.Run(t, testSuite)
+}
+
+// TestBurnModule ensures the x/burn module register and execute sharing functions work properly on smart contracts.
 // This is required due to how x/mint handles minting tokens for the target supply.
 // It is purely for developers ::BurnTokens to function as expected.
-func TestJunoBurnModule(t *testing.T) {
-	t.Parallel()
-
-	// Base setup
-	chains := CreateThisBranchChain(t, 1, 0)
-	ic, ctx, _, _ := BuildInitialChain(t, chains)
-
-	// Chains
-	juno := chains[0].(*cosmos.CosmosChain)
-
-	nativeDenom := juno.Config().Denom
+func (s *BurnTestSuite) TestBurnModule() {
+	t := s.T()
+	nativeDenom := s.Chain.Config().Denom
+	fees := sdk.NewCoins(sdk.NewCoin(nativeDenom, math.NewInt(30000)))
 
 	// Users
-	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", sdkmath.NewInt(10_000_000), juno, juno)
-	user := users[0]
+	user := s.GetAndFundTestUser("default", int64(10_000_000), s.Chain)
 
 	// Upload & init contract
-	_, contractAddr := helpers.SetupContract(t, ctx, juno, user.KeyName(), "contracts/cw_testburn.wasm", `{}`)
+
+	_, contractAddr := s.SetupContract(s.Chain, user.KeyName(), "../../contracts/cw_testburn.wasm", `{}`, false, fees)
 
 	// get balance before execute
-	balance, err := juno.GetBalance(ctx, user.FormattedAddress(), nativeDenom)
+	balance, err := s.Chain.GetBalance(s.Ctx, user.FormattedAddress(), nativeDenom)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// execute burn of tokens
 	burnAmt := int64(1_000_000)
-	_, err = helpers.ExecuteMsgWithAmount(t, ctx, juno, user, contractAddr, strconv.Itoa(int(burnAmt))+nativeDenom, `{"burn_token":{}}`)
+	_, err = s.ExecuteMsgWithAmount(s.Chain, user, contractAddr, strconv.Itoa(int(burnAmt))+nativeDenom, `{"burn_token":{}}`, fees)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// verify it is down 1_000_000 tokens since the burn
-	updatedBal, err := juno.GetBalance(ctx, user.FormattedAddress(), nativeDenom)
+	updatedBal, err := s.Chain.GetBalance(s.Ctx, user.FormattedAddress(), nativeDenom)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Verify the funds were sent, and burned.
 	fmt.Println(balance, updatedBal)
-	assert.Equal(t, burnAmt, balance.Sub(updatedBal).Int64(), fmt.Sprintf("balance should be %d less than updated balance", burnAmt))
-
-	t.Cleanup(func() {
-		_ = ic.Close()
-	})
+	assert.Equal(t, burnAmt, balance.Sub(updatedBal).Sub(fees.AmountOf(nativeDenom).Mul(math.NewInt(2))).Int64(), fmt.Sprintf("balance should be %d less than updated balance", burnAmt))
 }

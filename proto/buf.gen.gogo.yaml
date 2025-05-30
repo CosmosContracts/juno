@@ -1,0 +1,39 @@
+version: v2
+
+clean: false
+
+inputs:
+  - directory: proto
+    paths:
+      - proto/juno
+    exclude_paths:
+      - proto/juno/clock/module/v1
+      - proto/juno/cwhooks/module/v1
+      - proto/juno/drip/module/v1
+      - proto/juno/feepay/module/v1
+      - proto/juno/feeshare/module/v1
+      - proto/juno/mint/module/v1
+  - directory: proto
+    paths:
+      - proto/osmosis
+    exclude_paths:
+      - proto/osmosis/tokenfactory/module/v1
+  - directory: proto
+    paths:
+      - proto/feemarket
+    exclude_paths:
+      - proto/feemarket/feemarket/module/v1
+
+plugins:
+  - local: protoc-gen-gocosmos
+    out: .
+    strategy: "directory"
+    opt:
+      - plugins=grpc
+      - Mgoogle/protobuf/any.proto=github.com/cosmos/gogoproto/types/any
+  - local: protoc-gen-grpc-gateway
+    strategy: "directory"
+    out: .
+    opt:
+      - logtostderr=true
+      - allow_colon_final_segments=true

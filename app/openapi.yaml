@@ -4,6 +4,7 @@ openapi: 3.0.3
 info:
   title: Juno REST API
   version: v30.0.0
+  description: Query provides defines the gRPC querier service.
 paths:
   /cosmos/mint/v1beta1/annual_provisions:
     get:
@@ -81,6 +82,93 @@ paths:
                 $ref: '#/components/schemas/Status'
       tags:
         - Mint
+  /feemarket/feemarket/v1/gas_price/{denom}:
+    get:
+      description: |-
+        GasPrice returns the current feemarket module gas price
+         for specified denom.
+      operationId: feemarket_{denom}
+      parameters:
+        - name: denom
+          in: path
+          description: denom we are querying gas price in
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GasPriceResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Feemarket
+  /feemarket/feemarket/v1/gas_prices:
+    get:
+      description: |-
+        GasPrices returns the current feemarket module list of gas prices
+         in all available denoms.
+      operationId: feemarket_gas_prices
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GasPricesResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Feemarket
+  /feemarket/feemarket/v1/params:
+    get:
+      description: Params returns the current feemarket module parameters.
+      operationId: feemarket_params
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParamsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Feemarket
+  /feemarket/feemarket/v1/state:
+    get:
+      description: State returns the current feemarket module state.
+      operationId: feemarket_state
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Feemarket
   /juno/clock/v1/contracts:
     get:
       description: ClockContracts
@@ -260,93 +348,6 @@ paths:
                 $ref: '#/components/schemas/Status'
       tags:
         - Drip
-  /juno/feemarket/v1/gas_price/{denom}:
-    get:
-      description: |-
-        GasPrice returns the current feemarket module gas price
-         for specified denom.
-      operationId: feemarket_{denom}
-      parameters:
-        - name: denom
-          in: path
-          description: denom we are querying gas price in
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GasPriceResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      tags:
-        - Feemarket
-  /juno/feemarket/v1/gas_prices:
-    get:
-      description: |-
-        GasPrices returns the current feemarket module list of gas prices
-         in all available denoms.
-      operationId: feemarket_gas_prices
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GasPricesResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      tags:
-        - Feemarket
-  /juno/feemarket/v1/params:
-    get:
-      description: Params returns the current feemarket module parameters.
-      operationId: feemarket_params
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ParamsResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      tags:
-        - Feemarket
-  /juno/feemarket/v1/state:
-    get:
-      description: State returns the current feemarket module state.
-      operationId: feemarket_state
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StateResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      tags:
-        - Feemarket
   /juno/feepay/v1/all_contracts:
     get:
       description: Retrieve all fee pay contracts
@@ -5904,6 +5905,1513 @@ paths:
                 $ref: '#/components/schemas/Status'
       tags:
         - Upgrade
+  /ibc/apps/transfer/v1/channels/{channelId}/ports/{portId}/escrow_address:
+    get:
+      description: EscrowAddress returns the escrow address for a particular port and channel id.
+      operationId: ibc_escrow_address
+      parameters:
+        - name: channelId
+          in: path
+          description: unique channel identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: unique port identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryEscrowAddressResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/apps/transfer/v1/denom_hashes/**:
+    get:
+      description: DenomHash queries a denomination hash information.
+      operationId: ibc_**
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryDenomHashResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/apps/transfer/v1/denom_traces:
+    get:
+      description: DenomTraces queries all denomination traces.
+      operationId: ibc_denom_traces
+      parameters:
+        - name: pagination.key
+          in: query
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+             querying the next page most efficiently. Only one of offset or key
+             should be set.
+          schema:
+            type: string
+            format: bytes
+        - name: pagination.offset
+          in: query
+          description: |-
+            offset is a numeric offset that can be used when key is unavailable.
+             It is less efficient than using key. Only one of offset or key should
+             be set.
+          schema:
+            type: string
+        - name: pagination.limit
+          in: query
+          description: |-
+            limit is the total number of results to be returned in the result page.
+             If left empty it will default to a value to be set by each app.
+          schema:
+            type: string
+        - name: pagination.countTotal
+          in: query
+          description: |-
+            count_total is set to true  to indicate that the result set should include
+             a count of the total number of items available for pagination in UIs.
+             count_total is only respected when offset is used. It is ignored when key
+             is set.
+          schema:
+            type: boolean
+        - name: pagination.reverse
+          in: query
+          description: |-
+            reverse is set to true if results are to be returned in the descending order.
+
+             Since: cosmos-sdk 0.43
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryDenomTracesResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/apps/transfer/v1/denom_traces/**:
+    get:
+      description: DenomTrace queries a denomination trace information.
+      operationId: ibc_**
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryDenomTraceResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/apps/transfer/v1/denoms/**/total_escrow:
+    get:
+      description: TotalEscrowForDenom returns the total amount of tokens in escrow based on the denom.
+      operationId: ibc_total_escrow
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryTotalEscrowForDenomResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/apps/transfer/v1/params:
+    get:
+      description: Params queries all parameters of the ibc-transfer module.
+      operationId: ibc_params
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryParamsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels:
+    get:
+      description: Channels queries all the IBC channels of a chain.
+      operationId: ibc_channels
+      parameters:
+        - name: pagination.key
+          in: query
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+             querying the next page most efficiently. Only one of offset or key
+             should be set.
+          schema:
+            type: string
+            format: bytes
+        - name: pagination.offset
+          in: query
+          description: |-
+            offset is a numeric offset that can be used when key is unavailable.
+             It is less efficient than using key. Only one of offset or key should
+             be set.
+          schema:
+            type: string
+        - name: pagination.limit
+          in: query
+          description: |-
+            limit is the total number of results to be returned in the result page.
+             If left empty it will default to a value to be set by each app.
+          schema:
+            type: string
+        - name: pagination.countTotal
+          in: query
+          description: |-
+            count_total is set to true  to indicate that the result set should include
+             a count of the total number of items available for pagination in UIs.
+             count_total is only respected when offset is used. It is ignored when key
+             is set.
+          schema:
+            type: boolean
+        - name: pagination.reverse
+          in: query
+          description: |-
+            reverse is set to true if results are to be returned in the descending order.
+
+             Since: cosmos-sdk 0.43
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryChannelsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}:
+    get:
+      description: Channel queries an IBC Channel.
+      operationId: ibc_{portId}
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryChannelResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/client_state:
+    get:
+      description: |-
+        ChannelClientState queries for the client state for the channel associated
+         with the provided channel identifiers.
+      operationId: ibc_client_state
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryChannelClientStateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/consensus_state/revision/{revisionNumber}/height/{revisionHeight}:
+    get:
+      description: |-
+        ChannelConsensusState queries for the consensus state for the channel
+         associated with the provided channel identifiers.
+      operationId: ibc_{revisionHeight}
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+        - name: revisionNumber
+          in: path
+          description: revision number of the consensus state
+          required: true
+          schema:
+            type: string
+        - name: revisionHeight
+          in: path
+          description: revision height of the consensus state
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryChannelConsensusStateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/next_sequence:
+    get:
+      description: NextSequenceReceive returns the next receive sequence for a given channel.
+      operationId: ibc_next_sequence
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryNextSequenceReceiveResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/next_sequence_send:
+    get:
+      description: NextSequenceSend returns the next send sequence for a given channel.
+      operationId: ibc_next_sequence_send
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryNextSequenceSendResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/packet_acknowledgements:
+    get:
+      description: |-
+        PacketAcknowledgements returns all the packet acknowledgements associated
+         with a channel.
+      operationId: ibc_packet_acknowledgements
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+        - name: pagination.key
+          in: query
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+             querying the next page most efficiently. Only one of offset or key
+             should be set.
+          schema:
+            type: string
+            format: bytes
+        - name: pagination.offset
+          in: query
+          description: |-
+            offset is a numeric offset that can be used when key is unavailable.
+             It is less efficient than using key. Only one of offset or key should
+             be set.
+          schema:
+            type: string
+        - name: pagination.limit
+          in: query
+          description: |-
+            limit is the total number of results to be returned in the result page.
+             If left empty it will default to a value to be set by each app.
+          schema:
+            type: string
+        - name: pagination.countTotal
+          in: query
+          description: |-
+            count_total is set to true  to indicate that the result set should include
+             a count of the total number of items available for pagination in UIs.
+             count_total is only respected when offset is used. It is ignored when key
+             is set.
+          schema:
+            type: boolean
+        - name: pagination.reverse
+          in: query
+          description: |-
+            reverse is set to true if results are to be returned in the descending order.
+
+             Since: cosmos-sdk 0.43
+          schema:
+            type: boolean
+        - name: packetCommitmentSequences
+          in: query
+          description: list of packet sequences
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryPacketAcknowledgementsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/packet_acks/{sequence}:
+    get:
+      description: PacketAcknowledgement queries a stored packet acknowledgement hash.
+      operationId: ibc_{sequence}
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+        - name: sequence
+          in: path
+          description: packet sequence
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryPacketAcknowledgementResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/packet_commitments:
+    get:
+      description: |-
+        PacketCommitments returns all the packet commitments hashes associated
+         with a channel.
+      operationId: ibc_packet_commitments
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+        - name: pagination.key
+          in: query
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+             querying the next page most efficiently. Only one of offset or key
+             should be set.
+          schema:
+            type: string
+            format: bytes
+        - name: pagination.offset
+          in: query
+          description: |-
+            offset is a numeric offset that can be used when key is unavailable.
+             It is less efficient than using key. Only one of offset or key should
+             be set.
+          schema:
+            type: string
+        - name: pagination.limit
+          in: query
+          description: |-
+            limit is the total number of results to be returned in the result page.
+             If left empty it will default to a value to be set by each app.
+          schema:
+            type: string
+        - name: pagination.countTotal
+          in: query
+          description: |-
+            count_total is set to true  to indicate that the result set should include
+             a count of the total number of items available for pagination in UIs.
+             count_total is only respected when offset is used. It is ignored when key
+             is set.
+          schema:
+            type: boolean
+        - name: pagination.reverse
+          in: query
+          description: |-
+            reverse is set to true if results are to be returned in the descending order.
+
+             Since: cosmos-sdk 0.43
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryPacketCommitmentsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/packet_commitments/{packetAckSequences}/unreceived_acks:
+    get:
+      description: |-
+        UnreceivedAcks returns all the unreceived IBC acknowledgements associated
+         with a channel and sequences.
+      operationId: ibc_unreceived_acks
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+        - name: packetAckSequences
+          in: path
+          description: list of acknowledgement sequences
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryUnreceivedAcksResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/packet_commitments/{packetCommitmentSequences}/unreceived_packets:
+    get:
+      description: |-
+        UnreceivedPackets returns all the unreceived IBC packets associated with a
+         channel and sequences.
+      operationId: ibc_unreceived_packets
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+        - name: packetCommitmentSequences
+          in: path
+          description: list of packet sequences
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryUnreceivedPacketsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/packet_commitments/{sequence}:
+    get:
+      description: PacketCommitment queries a stored packet commitment hash.
+      operationId: ibc_{sequence}
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+        - name: sequence
+          in: path
+          description: packet sequence
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryPacketCommitmentResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/packet_receipts/{sequence}:
+    get:
+      description: |-
+        PacketReceipt queries if a given packet sequence has been received on the
+         queried chain
+      operationId: ibc_{sequence}
+      parameters:
+        - name: channelId
+          in: path
+          description: channel unique identifier
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          description: port unique identifier
+          required: true
+          schema:
+            type: string
+        - name: sequence
+          in: path
+          description: packet sequence
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryPacketReceiptResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/upgrade:
+    get:
+      description: Upgrade returns the upgrade for a given port and channel id.
+      operationId: ibc_upgrade
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryUpgradeResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/channels/{channelId}/ports/{portId}/upgrade_error:
+    get:
+      description: UpgradeError returns the error receipt if the upgrade handshake failed.
+      operationId: ibc_upgrade_error
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: portId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryUpgradeErrorResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/connections/{connection}/channels:
+    get:
+      description: |-
+        ConnectionChannels queries all the channels associated with a connection
+         end.
+      operationId: ibc_channels
+      parameters:
+        - name: connection
+          in: path
+          description: connection unique identifier
+          required: true
+          schema:
+            type: string
+        - name: pagination.key
+          in: query
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+             querying the next page most efficiently. Only one of offset or key
+             should be set.
+          schema:
+            type: string
+            format: bytes
+        - name: pagination.offset
+          in: query
+          description: |-
+            offset is a numeric offset that can be used when key is unavailable.
+             It is less efficient than using key. Only one of offset or key should
+             be set.
+          schema:
+            type: string
+        - name: pagination.limit
+          in: query
+          description: |-
+            limit is the total number of results to be returned in the result page.
+             If left empty it will default to a value to be set by each app.
+          schema:
+            type: string
+        - name: pagination.countTotal
+          in: query
+          description: |-
+            count_total is set to true  to indicate that the result set should include
+             a count of the total number of items available for pagination in UIs.
+             count_total is only respected when offset is used. It is ignored when key
+             is set.
+          schema:
+            type: boolean
+        - name: pagination.reverse
+          in: query
+          description: |-
+            reverse is set to true if results are to be returned in the descending order.
+
+             Since: cosmos-sdk 0.43
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryConnectionChannelsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/channel/v1/params:
+    get:
+      description: ChannelParams queries all parameters of the ibc channel submodule.
+      operationId: ibc_params
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryChannelParamsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/client_states:
+    get:
+      description: ClientStates queries all the IBC light clients of a chain.
+      operationId: ibc_client_states
+      parameters:
+        - name: pagination.key
+          in: query
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+             querying the next page most efficiently. Only one of offset or key
+             should be set.
+          schema:
+            type: string
+            format: bytes
+        - name: pagination.offset
+          in: query
+          description: |-
+            offset is a numeric offset that can be used when key is unavailable.
+             It is less efficient than using key. Only one of offset or key should
+             be set.
+          schema:
+            type: string
+        - name: pagination.limit
+          in: query
+          description: |-
+            limit is the total number of results to be returned in the result page.
+             If left empty it will default to a value to be set by each app.
+          schema:
+            type: string
+        - name: pagination.countTotal
+          in: query
+          description: |-
+            count_total is set to true  to indicate that the result set should include
+             a count of the total number of items available for pagination in UIs.
+             count_total is only respected when offset is used. It is ignored when key
+             is set.
+          schema:
+            type: boolean
+        - name: pagination.reverse
+          in: query
+          description: |-
+            reverse is set to true if results are to be returned in the descending order.
+
+             Since: cosmos-sdk 0.43
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryClientStatesResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/client_states/{clientId}:
+    get:
+      description: ClientState queries an IBC light client.
+      operationId: ibc_{clientId}
+      parameters:
+        - name: clientId
+          in: path
+          description: client state unique identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryClientStateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/client_status/{clientId}:
+    get:
+      description: Status queries the status of an IBC client.
+      operationId: ibc_{clientId}
+      parameters:
+        - name: clientId
+          in: path
+          description: client unique identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryClientStatusResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/consensus_states/{clientId}:
+    get:
+      description: |-
+        ConsensusStates queries all the consensus state associated with a given
+         client.
+      operationId: ibc_{clientId}
+      parameters:
+        - name: clientId
+          in: path
+          description: client identifier
+          required: true
+          schema:
+            type: string
+        - name: pagination.key
+          in: query
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+             querying the next page most efficiently. Only one of offset or key
+             should be set.
+          schema:
+            type: string
+            format: bytes
+        - name: pagination.offset
+          in: query
+          description: |-
+            offset is a numeric offset that can be used when key is unavailable.
+             It is less efficient than using key. Only one of offset or key should
+             be set.
+          schema:
+            type: string
+        - name: pagination.limit
+          in: query
+          description: |-
+            limit is the total number of results to be returned in the result page.
+             If left empty it will default to a value to be set by each app.
+          schema:
+            type: string
+        - name: pagination.countTotal
+          in: query
+          description: |-
+            count_total is set to true  to indicate that the result set should include
+             a count of the total number of items available for pagination in UIs.
+             count_total is only respected when offset is used. It is ignored when key
+             is set.
+          schema:
+            type: boolean
+        - name: pagination.reverse
+          in: query
+          description: |-
+            reverse is set to true if results are to be returned in the descending order.
+
+             Since: cosmos-sdk 0.43
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryConsensusStatesResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/consensus_states/{clientId}/heights:
+    get:
+      description: ConsensusStateHeights queries the height of every consensus states associated with a given client.
+      operationId: ibc_heights
+      parameters:
+        - name: clientId
+          in: path
+          description: client identifier
+          required: true
+          schema:
+            type: string
+        - name: pagination.key
+          in: query
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+             querying the next page most efficiently. Only one of offset or key
+             should be set.
+          schema:
+            type: string
+            format: bytes
+        - name: pagination.offset
+          in: query
+          description: |-
+            offset is a numeric offset that can be used when key is unavailable.
+             It is less efficient than using key. Only one of offset or key should
+             be set.
+          schema:
+            type: string
+        - name: pagination.limit
+          in: query
+          description: |-
+            limit is the total number of results to be returned in the result page.
+             If left empty it will default to a value to be set by each app.
+          schema:
+            type: string
+        - name: pagination.countTotal
+          in: query
+          description: |-
+            count_total is set to true  to indicate that the result set should include
+             a count of the total number of items available for pagination in UIs.
+             count_total is only respected when offset is used. It is ignored when key
+             is set.
+          schema:
+            type: boolean
+        - name: pagination.reverse
+          in: query
+          description: |-
+            reverse is set to true if results are to be returned in the descending order.
+
+             Since: cosmos-sdk 0.43
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryConsensusStateHeightsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/consensus_states/{clientId}/revision/{revisionNumber}/height/{revisionHeight}:
+    get:
+      description: |-
+        ConsensusState queries a consensus state associated with a client state at
+         a given height.
+      operationId: ibc_{revisionHeight}
+      parameters:
+        - name: clientId
+          in: path
+          description: client identifier
+          required: true
+          schema:
+            type: string
+        - name: revisionNumber
+          in: path
+          description: consensus state revision number
+          required: true
+          schema:
+            type: string
+        - name: revisionHeight
+          in: path
+          description: consensus state revision height
+          required: true
+          schema:
+            type: string
+        - name: latestHeight
+          in: query
+          description: |-
+            latest_height overrrides the height field and queries the latest stored
+             ConsensusState
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryConsensusStateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/params:
+    get:
+      description: ClientParams queries all parameters of the ibc client submodule.
+      operationId: ibc_params
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryClientParamsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/upgraded_client_states:
+    get:
+      description: UpgradedClientState queries an Upgraded IBC light client.
+      operationId: ibc_upgraded_client_states
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryUpgradedClientStateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/upgraded_consensus_states:
+    get:
+      description: UpgradedConsensusState queries an Upgraded IBC consensus state.
+      operationId: ibc_upgraded_consensus_states
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryUpgradedConsensusStateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/client/v1/verify_membership:
+    post:
+      description: VerifyMembership queries an IBC light client for proof verification of a value at a given key path.
+      operationId: Query_VerifyMembership
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryVerifyMembershipRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryVerifyMembershipResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags: []
+  /ibc/core/connection/v1/client_connections/{clientId}:
+    get:
+      description: |-
+        ClientConnections queries the connection paths associated with a client
+         state.
+      operationId: ibc_{clientId}
+      parameters:
+        - name: clientId
+          in: path
+          description: client identifier associated with a connection
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryClientConnectionsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/connection/v1/connections:
+    get:
+      description: Connections queries all the IBC connections of a chain.
+      operationId: ibc_connections
+      parameters:
+        - name: pagination.key
+          in: query
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+             querying the next page most efficiently. Only one of offset or key
+             should be set.
+          schema:
+            type: string
+            format: bytes
+        - name: pagination.offset
+          in: query
+          description: |-
+            offset is a numeric offset that can be used when key is unavailable.
+             It is less efficient than using key. Only one of offset or key should
+             be set.
+          schema:
+            type: string
+        - name: pagination.limit
+          in: query
+          description: |-
+            limit is the total number of results to be returned in the result page.
+             If left empty it will default to a value to be set by each app.
+          schema:
+            type: string
+        - name: pagination.countTotal
+          in: query
+          description: |-
+            count_total is set to true  to indicate that the result set should include
+             a count of the total number of items available for pagination in UIs.
+             count_total is only respected when offset is used. It is ignored when key
+             is set.
+          schema:
+            type: boolean
+        - name: pagination.reverse
+          in: query
+          description: |-
+            reverse is set to true if results are to be returned in the descending order.
+
+             Since: cosmos-sdk 0.43
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryConnectionsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/connection/v1/connections/{connectionId}:
+    get:
+      description: Connection queries an IBC connection end.
+      operationId: ibc_{connectionId}
+      parameters:
+        - name: connectionId
+          in: path
+          description: connection unique identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryConnectionResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/connection/v1/connections/{connectionId}/client_state:
+    get:
+      description: |-
+        ConnectionClientState queries the client state associated with the
+         connection.
+      operationId: ibc_client_state
+      parameters:
+        - name: connectionId
+          in: path
+          description: connection identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryConnectionClientStateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/connection/v1/connections/{connectionId}/consensus_state/revision/{revisionNumber}/height/{revisionHeight}:
+    get:
+      description: |-
+        ConnectionConsensusState queries the consensus state associated with the
+         connection.
+      operationId: ibc_{revisionHeight}
+      parameters:
+        - name: connectionId
+          in: path
+          description: connection identifier
+          required: true
+          schema:
+            type: string
+        - name: revisionNumber
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: revisionHeight
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryConnectionConsensusStateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /ibc/core/connection/v1/params:
+    get:
+      description: ConnectionParams queries all parameters of the ibc connection submodule.
+      operationId: ibc_params
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryConnectionParamsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
+  /async-icq/v1/params:
+    get:
+      description: Params queries all parameters of the ICQ module.
+      operationId: ibc_icqparams
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryParamsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      tags:
+        - Ibc
 components:
   schemas:
     ClockContract:
@@ -6080,7 +7588,7 @@ components:
       properties:
         contractGasLimit:
           type: string
-          description: contract_gas_limit is the contract call gas limit
+          description: contract_gas_limit defines the maximum amount of gas that can be used by a contract.
         sendEnabled:
           type: array
           items:
@@ -6093,7 +7601,23 @@ components:
              As of cosmos-sdk 0.47, this only exists for backwards compatibility of genesis files.
         defaultSendEnabled:
           type: boolean
-      description: Params defines the parameters for the bank module.
+        allowedClients:
+          type: array
+          items:
+            type: string
+          description: |-
+            allowed_clients defines the list of allowed client state types which can be created
+             and interacted with. If a client type is removed from the allowed clients list, usage
+             of this client will be disabled until it is added again to the list.
+        hostEnabled:
+          type: boolean
+          description: host_enabled enables or disables the host submodule.
+        allowQueries:
+          type: array
+          items:
+            type: string
+          description: allow_queries defines a list of query paths allowed to be queried on a host chain.
+      description: Params defines the set of on-chain interchain query parameters.
     ParamsResponse:
       type: object
       properties:
@@ -6248,6 +7772,8 @@ components:
         params:
           $ref: '#/components/schemas/Params'
           allOf:
+            - $ref: '#/components/schemas/Params'
+            - $ref: '#/components/schemas/Params'
             - $ref: '#/components/schemas/Params'
           description: params defines the parameters of the module.
       description: QueryParamsResponse is the response type for the Query/Params RPC method.
@@ -8404,11 +9930,13 @@ components:
       properties:
         upgradedConsensusState:
           type: string
-          description: 'Since: cosmos-sdk 0.43'
+          description: 'Consensus state associated with the request identifier'
           format: bytes
+          allOf:
+            - $ref: '#/components/schemas/GoogleProtobufAny'
       description: |-
-        QueryUpgradedConsensusStateResponse is the response type for the Query/UpgradedConsensusState
-         RPC method.
+        QueryUpgradedConsensusStateResponse is the response type for the
+         Query/UpgradedConsensusState RPC method.
     QueryValidatorCommissionResponse:
       type: object
       properties:
@@ -9250,16 +10778,908 @@ components:
           type: string
           description: weight is the vote weight associated with the vote option.
       description: WeightedVoteOption defines a unit of vote for vote split.
+    Channel:
+      type: object
+      properties:
+        state:
+          type: integer
+          description: current state of the channel end
+          format: enum
+        ordering:
+          type: integer
+          description: whether the channel is ordered or unordered
+          format: enum
+        counterparty:
+          allOf:
+            - $ref: '#/components/schemas/Counterparty'
+          description: counterparty channel end
+        connectionHops:
+          type: array
+          items:
+            type: string
+          description: |-
+            list of connection identifiers, in order, along which packets sent on
+             this channel will travel
+        version:
+          type: string
+          description: opaque channel version, which is agreed upon during the handshake
+        upgradeSequence:
+          type: string
+          description: |-
+            upgrade sequence indicates the latest upgrade attempt performed by this channel
+             the value of 0 indicates the channel has never been upgraded
+      description: |-
+        Channel defines pipeline for exactly-once packet delivery between specific
+         modules on separate blockchains, which has at least one end capable of
+         sending packets and one end capable of receiving packets.
+    ConnectionEnd:
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: client associated with this connection.
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Version'
+          description: |-
+            IBC version which can be utilised to determine encodings or protocols for
+             channels or packets utilising this connection.
+        state:
+          type: integer
+          description: current state of the connection end.
+          format: enum
+        counterparty:
+          allOf:
+            - $ref: '#/components/schemas/Counterparty'
+          description: counterparty chain associated with this connection.
+        delayPeriod:
+          type: string
+          description: |-
+            delay period that must pass before a consensus state can be used for
+             packet-verification NOTE: delay period logic is only implemented by some
+             clients.
+      description: |-
+        ConnectionEnd defines a stateful object on a chain connected to another
+         separate one.
+         NOTE: there must only be 2 defined ConnectionEnds to establish
+         a connection between two chains.
+    ConsensusStateWithHeight:
+      type: object
+      properties:
+        height:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: consensus state height
+        consensusState:
+          allOf:
+            - $ref: '#/components/schemas/GoogleProtobufAny'
+          description: consensus state
+      description: |-
+        ConsensusStateWithHeight defines a consensus state with an additional height
+         field.
+    Counterparty:
+      type: object
+      properties:
+        portId:
+          type: string
+          description: port on the counterparty chain which owns the other end of the channel.
+        channelId:
+          type: string
+          description: channel end on the counterparty chain
+      description: Counterparty defines a channel end counterparty
+    DenomTrace:
+      type: object
+      properties:
+        path:
+          type: string
+          description: |-
+            path defines the chain of port/channel identifiers used for tracing the
+             source of the fungible token.
+        baseDenom:
+          type: string
+          description: base denomination of the relayed fungible token.
+      description: |-
+        DenomTrace contains the base denomination for ICS20 fungible tokens and the
+         source tracing information path.
+    ErrorReceipt:
+      type: object
+      properties:
+        sequence:
+          type: string
+          description: the channel upgrade sequence
+        message:
+          type: string
+          description: the error message detailing the cause of failure
+      description: |-
+        ErrorReceipt defines a type which encapsulates the upgrade sequence and error associated with the
+         upgrade handshake failure. When a channel upgrade handshake is aborted both chains are expected to increment to the
+         next sequence.
+    Height:
+      type: object
+      properties:
+        revisionNumber:
+          type: string
+          description: the revision that the client is currently on
+        revisionHeight:
+          type: string
+          description: the height within the given revision
+      description: |-
+        Height is a monotonically increasing data type
+         that can be compared against another Height for the purposes of updating and
+         freezing clients
+
+         Normally the RevisionHeight is incremented at each height while keeping
+         RevisionNumber the same. However some consensus algorithms may choose to
+         reset the height in certain conditions e.g. hard forks, state-machine
+         breaking changes In these cases, the RevisionNumber is incremented so that
+         height continues to be monitonically increasing even as the RevisionHeight
+         gets reset
+    IdentifiedChannel:
+      type: object
+      properties:
+        state:
+          type: integer
+          description: current state of the channel end
+          format: enum
+        ordering:
+          type: integer
+          description: whether the channel is ordered or unordered
+          format: enum
+        counterparty:
+          allOf:
+            - $ref: '#/components/schemas/Counterparty'
+          description: counterparty channel end
+        connectionHops:
+          type: array
+          items:
+            type: string
+          description: |-
+            list of connection identifiers, in order, along which packets sent on
+             this channel will travel
+        version:
+          type: string
+          description: opaque channel version, which is agreed upon during the handshake
+        portId:
+          type: string
+          description: port identifier
+        channelId:
+          type: string
+          description: channel identifier
+        upgradeSequence:
+          type: string
+          description: |-
+            upgrade sequence indicates the latest upgrade attempt performed by this channel
+             the value of 0 indicates the channel has never been upgraded
+      description: |-
+        IdentifiedChannel defines a channel with additional port and channel
+         identifier fields.
+    IdentifiedClientState:
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: client identifier
+        clientState:
+          allOf:
+            - $ref: '#/components/schemas/GoogleProtobufAny'
+          description: client state
+      description: |-
+        IdentifiedClientState defines a client state with an additional client
+         identifier field.
+    IdentifiedConnection:
+      type: object
+      properties:
+        id:
+          type: string
+          description: connection identifier.
+        clientId:
+          type: string
+          description: client associated with this connection.
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Version'
+          description: |-
+            IBC version which can be utilised to determine encodings or protocols for
+             channels or packets utilising this connection
+        state:
+          type: integer
+          description: current state of the connection end.
+          format: enum
+        counterparty:
+          allOf:
+            - $ref: '#/components/schemas/Counterparty'
+          description: counterparty chain associated with this connection.
+        delayPeriod:
+          type: string
+          description: delay period associated with this connection.
+      description: |-
+        IdentifiedConnection defines a connection with additional connection
+         identifier field.
+    MerklePath:
+      type: object
+      properties:
+        keyPath:
+          type: array
+          items:
+            type: string
+      description: |-
+        MerklePath is the path used to verify commitment proofs, which can be an
+         arbitrary structured object (defined by a commitment type).
+         MerklePath is represented from root-to-leaf
+    PacketState:
+      type: object
+      properties:
+        portId:
+          type: string
+          description: channel port identifier.
+        channelId:
+          type: string
+          description: channel unique identifier.
+        sequence:
+          type: string
+          description: packet sequence.
+        data:
+          type: string
+          description: embedded data that represents packet state.
+          format: bytes
+      description: |-
+        PacketState defines the generic type necessary to retrieve and store
+         packet commitments, acknowledgements, and receipts.
+         Caller is responsible for knowing the context necessary to interpret this
+         state as a commitment, acknowledgement, or a receipt.
+    QueryChannelClientStateResponse:
+      type: object
+      properties:
+        identifiedClientState:
+          allOf:
+            - $ref: '#/components/schemas/IdentifiedClientState'
+          description: client state associated with the channel
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryChannelClientStateResponse is the Response type for the
+         Query/QueryChannelClientState RPC method
+    QueryChannelConsensusStateResponse:
+      type: object
+      properties:
+        consensusState:
+          allOf:
+            - $ref: '#/components/schemas/GoogleProtobufAny'
+          description: consensus state associated with the channel
+        clientId:
+          type: string
+          description: client ID associated with the consensus state
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryChannelClientStateResponse is the Response type for the
+         Query/QueryChannelClientState RPC method
+    QueryChannelParamsResponse:
+      type: object
+      properties:
+        params:
+          allOf:
+            - $ref: '#/components/schemas/Params'
+          description: params defines the parameters of the module.
+      description: QueryChannelParamsResponse is the response type for the Query/ChannelParams RPC method.
+    QueryChannelResponse:
+      type: object
+      properties:
+        channel:
+          allOf:
+            - $ref: '#/components/schemas/Channel'
+          description: channel associated with the request identifiers
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryChannelResponse is the response type for the Query/Channel RPC method.
+         Besides the Channel end, it includes a proof and the height from which the
+         proof was retrieved.
+    QueryChannelsResponse:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifiedChannel'
+          description: list of stored channels of the chain.
+        pagination:
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: pagination response
+        height:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: query block height
+      description: QueryChannelsResponse is the response type for the Query/Channels RPC method.
+    QueryClientConnectionsResponse:
+      type: object
+      properties:
+        connectionPaths:
+          type: array
+          items:
+            type: string
+          description: slice of all the connection paths associated with a client.
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was generated
+      description: |-
+        QueryClientConnectionsResponse is the response type for the
+         Query/ClientConnections RPC method
+    QueryClientParamsResponse:
+      type: object
+      properties:
+        params:
+          allOf:
+            - $ref: '#/components/schemas/Params'
+          description: params defines the parameters of the module.
+      description: |-
+        QueryClientParamsResponse is the response type for the Query/ClientParams RPC
+         method.
+    QueryClientStateResponse:
+      type: object
+      properties:
+        clientState:
+          allOf:
+            - $ref: '#/components/schemas/GoogleProtobufAny'
+          description: client state associated with the request identifier
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryClientStateResponse is the response type for the Query/ClientState RPC
+         method. Besides the client state, it includes a proof and the height from
+         which the proof was retrieved.
+    QueryClientStatesResponse:
+      type: object
+      properties:
+        clientStates:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifiedClientState'
+          description: list of stored ClientStates of the chain.
+        pagination:
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: pagination response
+      description: |-
+        QueryClientStatesResponse is the response type for the Query/ClientStates RPC
+         method.
+    QueryClientStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+      description: |-
+        QueryClientStatusResponse is the response type for the Query/ClientStatus RPC
+         method. It returns the current status of the IBC client.
+    QueryConnectionChannelsResponse:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifiedChannel'
+          description: list of channels associated with a connection.
+        pagination:
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: pagination response
+        height:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: query block height
+      description: |-
+        QueryConnectionChannelsResponse is the Response type for the
+         Query/QueryConnectionChannels RPC method
+    QueryConnectionClientStateResponse:
+      type: object
+      properties:
+        identifiedClientState:
+          allOf:
+            - $ref: '#/components/schemas/IdentifiedClientState'
+          description: client state associated with the channel
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryConnectionClientStateResponse is the response type for the
+         Query/ConnectionClientState RPC method
+    QueryConnectionConsensusStateResponse:
+      type: object
+      properties:
+        consensusState:
+          allOf:
+            - $ref: '#/components/schemas/GoogleProtobufAny'
+          description: consensus state associated with the channel
+        clientId:
+          type: string
+          description: client ID associated with the consensus state
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryConnectionConsensusStateResponse is the response type for the
+         Query/ConnectionConsensusState RPC method
+    QueryConnectionParamsResponse:
+      type: object
+      properties:
+        params:
+          allOf:
+            - $ref: '#/components/schemas/Params'
+          description: params defines the parameters of the module.
+      description: QueryConnectionParamsResponse is the response type for the Query/ConnectionParams RPC method.
+    QueryConnectionResponse:
+      type: object
+      properties:
+        connection:
+          allOf:
+            - $ref: '#/components/schemas/ConnectionEnd'
+          description: connection associated with the request identifier
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryConnectionResponse is the response type for the Query/Connection RPC
+         method. Besides the connection end, it includes a proof and the height from
+         which the proof was retrieved.
+    QueryConnectionsResponse:
+      type: object
+      properties:
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifiedConnection'
+          description: list of stored connections of the chain.
+        pagination:
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: pagination response
+        height:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: query block height
+      description: |-
+        QueryConnectionsResponse is the response type for the Query/Connections RPC
+         method.
+    QueryConsensusStateHeightsResponse:
+      type: object
+      properties:
+        consensusStateHeights:
+          type: array
+          items:
+            $ref: '#/components/schemas/Height'
+          description: consensus state heights
+        pagination:
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: pagination response
+      description: |-
+        QueryConsensusStateHeightsResponse is the response type for the
+         Query/ConsensusStateHeights RPC method
+    QueryConsensusStateResponse:
+      type: object
+      properties:
+        consensusState:
+          allOf:
+            - $ref: '#/components/schemas/GoogleProtobufAny'
+          description: consensus state associated with the client identifier at the given height
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryConsensusStateResponse is the response type for the Query/ConsensusState
+         RPC method
+    QueryConsensusStatesResponse:
+      type: object
+      properties:
+        consensusStates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsensusStateWithHeight'
+          description: consensus states associated with the identifier
+        pagination:
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: pagination response
+      description: |-
+        QueryConsensusStatesResponse is the response type for the
+         Query/ConsensusStates RPC method
+    QueryDenomHashResponse:
+      type: object
+      properties:
+        hash:
+          type: string
+          description: hash (in hex format) of the denomination trace information.
+      description: |-
+        QueryDenomHashResponse is the response type for the Query/DenomHash RPC
+         method.
+    QueryDenomTraceResponse:
+      type: object
+      properties:
+        denomTrace:
+          allOf:
+            - $ref: '#/components/schemas/DenomTrace'
+          description: denom_trace returns the requested denomination trace information.
+      description: |-
+        QueryDenomTraceResponse is the response type for the Query/DenomTrace RPC
+         method.
+    QueryDenomTracesResponse:
+      type: object
+      properties:
+        denomTraces:
+          type: array
+          items:
+            $ref: '#/components/schemas/DenomTrace'
+          description: denom_traces returns all denominations trace information.
+        pagination:
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: pagination defines the pagination in the response.
+      description: |-
+        QueryConnectionsResponse is the response type for the Query/DenomTraces RPC
+         method.
+    QueryEscrowAddressResponse:
+      type: object
+      properties:
+        escrowAddress:
+          type: string
+          description: the escrow account address
+      description: QueryEscrowAddressResponse is the response type of the EscrowAddress RPC method.
+    QueryNextSequenceReceiveResponse:
+      type: object
+      properties:
+        nextSequenceReceive:
+          type: string
+          description: next sequence receive number
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QuerySequenceResponse is the response type for the
+         Query/QueryNextSequenceReceiveResponse RPC method
+    QueryNextSequenceSendResponse:
+      type: object
+      properties:
+        nextSequenceSend:
+          type: string
+          description: next sequence send number
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryNextSequenceSendResponse is the request type for the
+         Query/QueryNextSequenceSend RPC method
+    QueryPacketAcknowledgementResponse:
+      type: object
+      properties:
+        acknowledgement:
+          type: string
+          description: packet associated with the request fields
+          format: bytes
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryPacketAcknowledgementResponse defines the client query response for a
+         packet which also includes a proof and the height from which the
+         proof was retrieved
+    QueryPacketAcknowledgementsResponse:
+      type: object
+      properties:
+        acknowledgements:
+          type: array
+          items:
+            $ref: '#/components/schemas/PacketState'
+        pagination:
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: pagination response
+        height:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: query block height
+      description: |-
+        QueryPacketAcknowledgemetsResponse is the request type for the
+         Query/QueryPacketAcknowledgements RPC method
+    QueryPacketCommitmentResponse:
+      type: object
+      properties:
+        commitment:
+          type: string
+          description: packet associated with the request fields
+          format: bytes
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryPacketCommitmentResponse defines the client query response for a packet
+         which also includes a proof and the height from which the proof was
+         retrieved
+    QueryPacketCommitmentsResponse:
+      type: object
+      properties:
+        commitments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PacketState'
+        pagination:
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: pagination response
+        height:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: query block height
+      description: |-
+        QueryPacketCommitmentsResponse is the request type for the
+         Query/QueryPacketCommitments RPC method
+    QueryPacketReceiptResponse:
+      type: object
+      properties:
+        received:
+          type: boolean
+          description: success flag for if receipt exists
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: |-
+        QueryPacketReceiptResponse defines the client query response for a packet
+         receipt which also includes a proof, and the height from which the proof was
+         retrieved
+    QueryTotalEscrowForDenomResponse:
+      type: object
+      properties:
+        amount:
+          $ref: '#/components/schemas/Coin'
+      description: QueryTotalEscrowForDenomResponse is the response type for TotalEscrowForDenom RPC method.
+    QueryUnreceivedAcksResponse:
+      type: object
+      properties:
+        sequences:
+          type: array
+          items:
+            type: string
+          description: list of unreceived acknowledgement sequences
+        height:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: query block height
+      description: |-
+        QueryUnreceivedAcksResponse is the response type for the
+         Query/UnreceivedAcks RPC method
+    QueryUnreceivedPacketsResponse:
+      type: object
+      properties:
+        sequences:
+          type: array
+          items:
+            type: string
+          description: list of unreceived packet sequences
+        height:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: query block height
+      description: |-
+        QueryUnreceivedPacketsResponse is the response type for the
+         Query/UnreceivedPacketCommitments RPC method
+    QueryUpgradeErrorResponse:
+      type: object
+      properties:
+        errorReceipt:
+          $ref: '#/components/schemas/ErrorReceipt'
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: QueryUpgradeErrorResponse is the response type for the Query/QueryUpgradeError RPC method
+    QueryUpgradeResponse:
+      type: object
+      properties:
+        upgrade:
+          $ref: '#/components/schemas/Upgrade'
+        proof:
+          type: string
+          description: merkle proof of existence
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: height at which the proof was retrieved
+      description: QueryUpgradeResponse is the response type for the QueryUpgradeResponse RPC method
+    QueryUpgradedClientStateResponse:
+      type: object
+      properties:
+        upgradedClientState:
+          allOf:
+            - $ref: '#/components/schemas/GoogleProtobufAny'
+          description: client state associated with the request identifier
+      description: |-
+        QueryUpgradedClientStateResponse is the response type for the
+         Query/UpgradedClientState RPC method.
+    QueryVerifyMembershipRequest:
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: client unique identifier.
+        proof:
+          type: string
+          description: the proof to be verified by the client.
+          format: bytes
+        proofHeight:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: the height of the commitment root at which the proof is verified.
+        merklePath:
+          allOf:
+            - $ref: '#/components/schemas/MerklePath'
+          description: the commitment key path.
+        value:
+          type: string
+          description: the value which is proven.
+          format: bytes
+        timeDelay:
+          type: string
+          description: optional time delay
+        blockDelay:
+          type: string
+          description: optional block delay
+      description: QueryVerifyMembershipRequest is the request type for the Query/VerifyMembership RPC method
+    QueryVerifyMembershipResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: boolean indicating success or failure of proof verification.
+      description: QueryVerifyMembershipResponse is the response type for the Query/VerifyMembership RPC method
+    Timeout:
+      type: object
+      properties:
+        height:
+          allOf:
+            - $ref: '#/components/schemas/Height'
+          description: block height after which the packet or upgrade times out
+        timestamp:
+          type: string
+          description: block timestamp (in nanoseconds) after which the packet or upgrade times out
+      description: |-
+        Timeout defines an execution deadline structure for 04-channel handlers.
+         This includes packet lifecycle handlers as well as the upgrade handshake handlers.
+         A valid Timeout contains either one or both of a timestamp and block height (sequence).
+    Upgrade:
+      type: object
+      properties:
+        fields:
+          $ref: '#/components/schemas/UpgradeFields'
+        timeout:
+          $ref: '#/components/schemas/Timeout'
+        nextSequenceSend:
+          type: string
+      description: |-
+        Upgrade is a verifiable type which contains the relevant information
+         for an attempted upgrade. It provides the proposed changes to the channel
+         end, the timeout for this upgrade attempt and the next packet sequence
+         which allows the counterparty to efficiently know the highest sequence it has received.
+         The next sequence send is used for pruning and upgrading from unordered to ordered channels.
+    UpgradeFields:
+      type: object
+      properties:
+        ordering:
+          type: integer
+          format: enum
+        connectionHops:
+          type: array
+          items:
+            type: string
+        version:
+          type: string
+      description: |-
+        UpgradeFields are the fields in a channel end which may be changed
+         during a channel upgrade.
+    Version:
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: unique version identifier
+        features:
+          type: array
+          items:
+            type: string
+          description: list of features compatible with the specified identifier
+      description: |-
+        Version defines the versioning scheme used to negotiate the IBC verison in
+         the connection handshake.
 tags:
   - name: Mint
+    description: ""
+  - name: Feemarket
     description: ""
   - name: Clock
     description: ""
   - name: Cwhooks
     description: ""
   - name: Drip
-    description: ""
-  - name: Feemarket
     description: ""
   - name: Feepay
     description: ""
@@ -9300,4 +11720,6 @@ tags:
   - name: Tx
     description: ""
   - name: Upgrade
+    description: ""
+  - name: Ibc
     description: ""

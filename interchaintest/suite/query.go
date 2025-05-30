@@ -22,7 +22,7 @@ func (s *E2ETestSuite) QueryBankBalance(user ibc.Wallet) sdk.Coin {
 
 	resp, err := s.QueryClients.BankClient.Balance(context.Background(), &banktypes.QueryBalanceRequest{
 		Address: user.FormattedAddress(),
-		Denom:   Denom,
+		Denom:   DefaultDenom,
 	})
 	s.Require().NoError(err)
 	s.Require().NotNil(*resp.Balance)
@@ -53,7 +53,7 @@ func (s *E2ETestSuite) QueryFeemarketState() feemarkettypes.State {
 func (s *E2ETestSuite) QueryFeemarketGasPrice(denom string) sdk.DecCoin {
 	s.T().Helper()
 
-	resp, err := s.QueryClients.FeemarketClient.GasPrice(context.Background(), &feemarkettypes.GasPriceRequest{
+	resp, err := s.QueryClients.FeemarketClient.GasPrice(s.Ctx, &feemarkettypes.GasPriceRequest{
 		Denom: denom,
 	})
 	s.Require().NoError(err)
@@ -68,7 +68,7 @@ func (s *E2ETestSuite) QueryValidators(chain *cosmos.CosmosChain) []sdk.ValAddre
 	s.T().Helper()
 
 	// query validators
-	resp, err := s.QueryClients.StakingClient.Validators(context.Background(), &stakingtypes.QueryValidatorsRequest{})
+	resp, err := s.QueryClients.StakingClient.Validators(s.Ctx, &stakingtypes.QueryValidatorsRequest{})
 	s.Require().NoError(err)
 	addrs := make([]sdk.ValAddress, len(resp.Validators))
 

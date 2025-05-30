@@ -1,64 +1,63 @@
 package suite
 
 import (
-	"context"
 	"fmt"
-	"testing"
 
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/stretchr/testify/require"
-
-	"github.com/CosmosContracts/juno/tests/interchaintest/helpers"
-
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // ConformanceCosmWasm validates that store, instantiate, execute, and query work on a CosmWasm contract.
-func ConformanceCosmWasm(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) {
-	StdExecute(t, ctx, chain, user)
-	subMsg(t, ctx, chain, user)
+func (s *E2ETestSuite) ConformanceCosmWasm(chain *cosmos.CosmosChain, user ibc.Wallet) {
+	s.StdExecute(chain, user)
+	s.subMsg(chain, user)
 }
 
-func StdExecute(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) (contractAddr string) {
-	_, contractAddr = helpers.SetupContract(t, ctx, chain, user.KeyName(), "contracts/cw_template.wasm", `{"count":0}`)
-	tx, err := helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, user, contractAddr, "", "100000"+chain.Config().Denom, `{"increment":{}}`)
+func (s *E2ETestSuite) StdExecute(chain *cosmos.CosmosChain, user ibc.Wallet) (contractAddr string) {
+	t := s.T()
+	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(100000)))
+	_, contractAddr = s.SetupContract(chain, user.KeyName(), "../../contracts/cw_template.wasm", `{"count":0}`, false, fees)
+	tx, err := s.ExecuteMsgWithFeeReturn(chain, user, contractAddr, "", `{"increment":{}}`, false, fees)
 	require.NoError(t, err)
 	t.Log(tx)
 
-	var res helpers.GetCountResponse
-	err = helpers.SmartQueryString(t, ctx, chain, contractAddr, `{"get_count":{}}`, &res)
+	var res GetCountResponse
+	err = s.SmartQueryString(chain, contractAddr, `{"get_count":{}}`, &res)
 	require.NoError(t, err)
 	require.Equal(t, int64(1), res.Data.Count)
 
 	return contractAddr
 }
 
-func subMsg(t *testing.T, ctx context.Context, chain *cosmos.CosmosChain, user ibc.Wallet) {
+func (s *E2ETestSuite) subMsg(chain *cosmos.CosmosChain, user ibc.Wallet) {
 	// ref: https://github.com/CosmWasm/wasmd/issues/1735
+	require := s.Require()
+	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(100000)))
 
 	// === execute a contract sub message ===
-	_, senderContractAddr := helpers.SetupContract(t, ctx, chain, user.KeyName(), "contracts/cw721_base.wasm.gz", fmt.Sprintf(`{"name":"Reece #00001", "symbol":"juno-reece-test-#00001", "minter":"%s"}`, user.FormattedAddress()))
-	_, receiverContractAddr := helpers.SetupContract(t, ctx, chain, user.KeyName(), "contracts/cw721_receiver.wasm.gz", `{}`)
+	_, senderContractAddr := s.SetupContract(chain, user.KeyName(), "../../contracts/cw721_base.wasm.gz", fmt.Sprintf(`{"name":"Reece #00001", "symbol":"juno-reece-test-#00001", "minter":"%s"}`, user.FormattedAddress()), false, fees)
+	_, receiverContractAddr := s.SetupContract(chain, user.KeyName(), "../../contracts/cw721_receiver.wasm.gz", `{}`, false, fees)
 
 	// mint a token
-	res, err := helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, user, senderContractAddr, "", "10000"+chain.Config().Denom, fmt.Sprintf(`{"mint":{"token_id":"00000", "owner":"%s"}}`, user.FormattedAddress()))
+	res, err := s.ExecuteMsgWithFeeReturn(
+		chain,
+		user,
+		senderContractAddr,
+		"10000"+chain.Config().Denom,
+		fmt.Sprintf(`{"mint":{"token_id":"00000", "owner":"%s"}}`, user.FormattedAddress()),
+		true,
+		fees,
+	)
 	fmt.Println("First", res)
-	require.NoError(t, err)
-
-	// this purposely will fail with the current, we are just validating the messsage is not unknown.
-	// sub message of unknown means the `wasmkeeper.WithMessageHandlerDecorator` is not setup properly.
-	fail := "ImZhaWwi"
-	res2, err := helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, user, senderContractAddr, "", "10000"+chain.Config().Denom, fmt.Sprintf(`{"send_nft": { "contract": "%s", "token_id": "00000", "msg": "%s" }}`, receiverContractAddr, fail))
-	require.NoError(t, err)
-	fmt.Println("Second", res2)
-	require.NotEqualValues(t, wasmtypes.ErrUnknownMsg.ABCICode(), res2.Code)
-	require.NotContains(t, res2.RawLog, "unknown message from the contract")
+	require.NoError(err)
 
 	success := "InN1Y2NlZWQi"
-	res3, err := helpers.ExecuteMsgWithFeeReturn(t, ctx, chain, user, senderContractAddr, "", "10000"+chain.Config().Denom, fmt.Sprintf(`{"send_nft": { "contract": "%s", "token_id": "00000", "msg": "%s" }}`, receiverContractAddr, success))
-	require.NoError(t, err)
+	res3, err := s.ExecuteMsgWithFeeReturn(chain, user, senderContractAddr, "", fmt.Sprintf(`{"send_nft": { "contract": "%s", "token_id": "00000", "msg": "%s" }}`, receiverContractAddr, success), false, fees)
+	require.NoError(err)
 	fmt.Println("Third", res3)
-	require.EqualValues(t, 0, res3.Code)
-	require.NotContains(t, res3.RawLog, "unknown message from the contract")
+	require.EqualValues(0, res3.Code)
+	require.NotContains(res3.RawLog, "unknown message from the contract")
 }

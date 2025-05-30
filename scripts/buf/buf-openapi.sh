@@ -1,15 +1,6 @@
 #!/usr/bin/env sh
 set -eo pipefail
 
-if command -v curl >/dev/null 2>&1; then
-  DL='curl -sSL'
-elif command -v wget >/dev/null 2>&1; then
-  DL='wget -qO-'
-else
-  echo >&2 "Error: neither curl nor wget is installed. Please install one to fetch yq."
-  exit 1
-fi
-
 OS="$(uname | tr '[:upper:]' '[:lower:]')"
 ARCH="$(uname -m)"
 
@@ -36,16 +27,23 @@ if ! (command -v yq >/dev/null 2>&1 && yq --version 2>&1 | grep "$VERSION"); the
 fi
 
 echo "Generating OpenAPI Spec"
+
+cd proto
 buf dep update
 buf generate --template buf.gen.openapi.yaml
-buf generate --template buf.gen.openapi-external.yaml
+buf generate --template buf.gen.openapi-cosmos.yaml
+buf generate --template buf.gen.openapi-ibc.yaml
+buf generate --template buf.gen.openapi-ibcapps.yaml
+cd ..
+
+echo "Formatting OpenAPI Spec"
 
 yq eval -i \
   '.paths |= with_entries(select(.key | test("/cosmos/mint/") | not))' \
-  ./gen/external/openapi.yaml
+  ./gen/cosmos/openapi.yaml
 
-yq eval-all 'select(fileIndex == 0) *+ select(fileIndex == 1)' \
-  ./gen/internal/openapi.yaml ./gen/external/openapi.yaml \
+yq eval-all 'select(fileIndex == 0) *+ select(fileIndex == 1) *+ select(fileIndex == 2) *+ select(fileIndex == 3)' \
+  ./gen/internal/openapi.yaml ./gen/cosmos/openapi.yaml ./gen/ibc/openapi.yaml ./gen/ibcapps/openapi.yaml \
   >./gen/openapi.yaml
 
 cd gen
@@ -53,10 +51,24 @@ cd gen
 yq eval -i 'del(.tags)' openapi.yaml
 yq eval -i 'del(.paths[][].tags)' openapi.yaml
 
+echo "Fixing OpenAPI Spec for Schema v3.0.0"
+
 yq eval '.paths | keys | .[]' openapi.yaml | while IFS= read -r path; do
-  module=$(printf '%s' "$path" | cut -d/ -f3) # "clock"
+  if printf '%s' "$path" | grep -q '^/ibc/'; then
+    module="ibc"
+  elif printf '%s' "$path" | grep -q '^/async-icq/'; then
+    module="ibc"
+  else
+    module=$(printf '%s' "$path" | cut -d/ -f3)
+  fi
 
   case "$path" in
+
+  # ------ IBC: Async ICQ ------
+  "/async-icq/v1/params")
+    opName="icqparams"
+    ;;
+
   # ------ Juno: FeePay ------
   "/juno/feepay/v1/contract/{contractAddress}")
     opName="contract"
@@ -361,6 +373,8 @@ yq eval '.paths | keys | .[]' openapi.yaml | while IFS= read -r path; do
   done
 done
 
+echo "Collecting tags and removing duplicates"
+
 # collect all tags from the paths, remove duplicates and add them to the tags array
 yq eval -i '
   .tags = (
@@ -393,8 +407,12 @@ yq eval -i '
   )
 ' openapi.yaml
 
+echo "Move OpenAPI Spec to app directory"
+
 # move the final openapi.yaml to the correct app directory
 mv openapi.yaml ../app/openapi.yaml
 
 cd ..
 rm -rf gen
+
+echo "Done! OpenAPI Spec is available at ./app/openapi.yaml"

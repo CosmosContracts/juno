@@ -33,7 +33,7 @@ func (*App) RegisterScalarUI(apiSvr *api.Server) error {
 		"GET",
 		compilePattern("/openapi.yaml"),
 		func(w http.ResponseWriter, r *http.Request, _ map[string]string) {
-			w.Header().Set("Content-Type", "application/yaml; charset=utf-8")
+			w.Header().Set("Content-Type", "plain/text; charset=utf-8")
 			_, err := w.Write(specYAML)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -130,26 +130,31 @@ func (*App) RegisterScalarUI(apiSvr *api.Server) error {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write([]byte(content))
+		_, err = w.Write([]byte(content))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	})
 
-	pat := compilePattern("/scalar/{rest=**}")
-	gwHandler := func(
-		w http.ResponseWriter,
-		r *http.Request,
-		pathParams map[string]string,
-	) {
-		http.StripPrefix("/scalar", scalarHandler).ServeHTTP(w, r)
-	}
+	apiSvr.GRPCGatewayRouter.Handle(
+		"GET",
+		compilePattern("/scalar"),
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+			pathParams map[string]string,
+		) {
+			http.StripPrefix("/scalar", scalarHandler).ServeHTTP(w, r)
+		},
+	)
 
 	apiSvr.GRPCGatewayRouter.Handle(
 		"GET",
-		pat,
-		gwHandler,
+		compilePattern("/scalar/{rest=**}"),
+		func(w http.ResponseWriter, r *http.Request, _ map[string]string) {
+			http.StripPrefix("/scalar", scalarHandler).ServeHTTP(w, r)
+		},
 	)
 
 	return nil

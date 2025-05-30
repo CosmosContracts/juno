@@ -1,39 +1,49 @@
-package basic
+package basic_test
 
 import (
 	"testing"
 
-	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/suite"
+
+	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
 )
 
 type BasicTestSuite struct {
-	e2esuite.E2ETestSuite
+	*e2esuite.E2ETestSuite
 }
 
 func TestBasicTestSuite(t *testing.T) {
 	s := e2esuite.NewE2ETestSuite(
-		e2esuite.Spec,
-		e2esuite.TxCfg,
+		[]*interchaintest.ChainSpec{e2esuite.DefaultSpec},
+		e2esuite.DefaultTxCfg,
 	)
 
-	suite.Run(t, s)
+	t.Parallel()
+	t.Cleanup(func() {
+		_ = s.Ic.Close()
+	})
+
+	testSuite := &BasicTestSuite{E2ETestSuite: s}
+	suite.Run(t, testSuite)
 }
 
 // TestBasicStart is a basic test to assert that spinning up a chain with one validator works properly.
 func (s *BasicTestSuite) TestBasicStart() {
+	t := s.T()
+	require := s.Require()
 	if testing.Short() {
-		s.T().Skip()
+		t.Skip()
 	}
 
-	s.T().Parallel()
+	if err := testutil.WaitForBlocks(s.Ctx, 1, s.Chain); err != nil {
+		require.NoError(err)
+	}
 
-	e2esuite.ConformanceCosmWasm(s.T(), s.Ctx, s.Chain, s.User1)
+	user := s.GetAndFundTestUser(t.Name(), 1_000_000_000, s.Chain)
+	s.ConformanceCosmWasm(s.Chain, user)
 
-	s.Require().NotNil(s.Ic)
-	s.Require().NotNil(s.Ctx)
-
-	s.T().Cleanup(func() {
-		_ = s.Ic.Close()
-	})
+	require.NotNil(s.Ic)
+	require.NotNil(s.Ctx)
 }

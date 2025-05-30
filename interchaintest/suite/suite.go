@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/hex"
 	"io"
+	"math/rand/v2"
 	"os"
 	"os/signal"
 	"path"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	evidencetypes "cosmossdk.io/x/evidence/types"
+	"go.uber.org/zap/zaptest"
 
 	"cosmossdk.io/x/feegrant"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -51,6 +53,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	dockerclient "github.com/docker/docker/client"
+
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
 )
@@ -59,12 +64,12 @@ import (
 type E2ETestSuite struct {
 	suite.Suite
 	QueryClients
-	// our chain spec
-	Spec *interchaintest.ChainSpec
+	// our chain specs
+	Specs []*interchaintest.ChainSpec
 	// our main chain
 	Chain *cosmos.CosmosChain
-	// pregenerated and funded users
-	User1, User2, User3 ibc.Wallet
+	// our other chains
+	Chains []*cosmos.CosmosChain
 	// app codec
 	Cdc codec.Codec
 	// app context
@@ -84,16 +89,26 @@ type E2ETestSuite struct {
 	// interchain constructor
 	Icc InterchainConstructor
 	// interchain
-	Ic interchaintest.Interchain
+	Ic *interchaintest.Interchain
 	// chain constructor
 	Cc ChainConstructor
 	// txConfig controls the tx configuration for each test
 	TxConfig TestTxConfig
 	// grpc client
 	GrpcClient *grpc.ClientConn
+	// docker client
+	DockerClient *dockerclient.Client
+	// Relayer
+	Relayer ibc.Relayer
 }
 
-func NewE2ETestSuite(spec *interchaintest.ChainSpec, txCfg TestTxConfig, opts ...Option) *E2ETestSuite {
+func init() {
+	src := rand.NewPCG(1, 2)
+	random = rand.New(src)
+}
+
+// NewE2ETestSuite creates a new E2ETestSuite
+func NewE2ETestSuite(specs []*interchaintest.ChainSpec, txCfg TestTxConfig, opts ...Option) *E2ETestSuite {
 	if err := txCfg.Validate(); err != nil {
 		panic(err)
 	}
@@ -101,9 +116,9 @@ func NewE2ETestSuite(spec *interchaintest.ChainSpec, txCfg TestTxConfig, opts ..
 	ctx := context.Background()
 
 	suite := &E2ETestSuite{
-		Spec:      spec,
+		Specs:     specs,
 		Ctx:       ctx,
-		Denom:     Denom,
+		Denom:     DefaultDenom,
 		GasPrices: "",
 		Authority: authtypes.NewModuleAddress(govtypes.ModuleName),
 		Icc:       DefaultInterchainConstructor,
@@ -114,15 +129,6 @@ func NewE2ETestSuite(spec *interchaintest.ChainSpec, txCfg TestTxConfig, opts ..
 	for _, opt := range opts {
 		opt(suite)
 	}
-
-	// get grpc address
-	grpcAddr := suite.Chain.GetHostGRPCAddress()
-	grpcClient, err := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	suite.Require().NoError(err)
-
-	// set grpc client
-	suite.GrpcClient = grpcClient
-	suite.setupQueryClients()
 
 	return suite
 }
@@ -148,6 +154,7 @@ type QueryClients struct {
 	FeepayClient       feepaytypes.QueryClient
 	FeeShareClient     feesharetypes.QueryClient
 	TokenfactoryClient tokenfactorytypes.QueryClient
+	WasmClient         wasmtypes.QueryClient
 }
 
 func (s *E2ETestSuite) setupQueryClients() {
@@ -191,6 +198,8 @@ func (s *E2ETestSuite) setupQueryClients() {
 	s.FeeShareClient = feeShareClient
 	tokenfactoryClient := tokenfactorytypes.NewQueryClient(s.GrpcClient)
 	s.TokenfactoryClient = tokenfactoryClient
+	wasmClient := wasmtypes.NewQueryClient(s.GrpcClient)
+	s.WasmClient = wasmClient
 }
 
 // Option is a function that modifies the E2ETestSuite
@@ -246,8 +255,9 @@ func (s *E2ETestSuite) WithKeyringOptions(cdc codec.Codec, opts keyring.Option) 
 }
 
 func (s *E2ETestSuite) TearDownSuite() {
+	keepAlive := os.Getenv(EnvKeepAlive)
 	defer s.Teardown()
-	if ok := os.Getenv(EnvKeepAlive); ok == "" {
+	if keepAlive == "false" {
 		return
 	}
 
@@ -388,4 +398,45 @@ func (s *E2ETestSuite) keyringDirFromNode() string {
 	}
 
 	return localDir
+}
+
+func (s *E2ETestSuite) SetupSuite() {
+	// build the chain
+	s.T().Log("building chains with specs", s.Specs)
+	chains := s.Cc(s.T(), s.Specs, s.GasPrices)
+
+	// build the interchain
+	s.T().Log("building interchain")
+	s.Ctx = context.Background()
+
+	// start the chain
+	s.Ic, s.DockerClient, s.Relayer = s.Icc(s.Ctx, s.T(), chains)
+	s.Require().NotNil(s.Ic)
+	s.Require().NotNil(s.DockerClient)
+	s.Ic = s.Ic.WithLog(zaptest.NewLogger(s.T()))
+
+	s.Chain = chains[0]
+	s.Chains = chains
+
+	// get grpc address
+	grpcAddr := s.Chain.GetHostGRPCAddress()
+	grpcClient, err := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	s.Require().NoError(err)
+	s.GrpcClient = grpcClient
+	s.setupQueryClients()
+
+	// create the broadcaster
+	s.T().Log("creating broadcaster")
+	s.setupBroadcaster()
+	s.Cdc = s.Chain.Config().EncodingConfig.Codec
+
+	if len(chains) < 1 {
+		panic("no chains created")
+	}
+}
+
+func (s *E2ETestSuite) DebugOutput(stdout string) {
+	if true {
+		s.T().Log(stdout)
+	}
 }

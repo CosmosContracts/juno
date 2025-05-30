@@ -170,57 +170,48 @@ format:
 ###############################################################################
 
 ictest-basic: rm-testcache
-	cd interchaintest && go test -race -v -run TestBasicJunoStart .
+	cd interchaintest/tests/basic && go test -race -v -run TestBasicTestSuite .
 
-ictest-statesync: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoStateSync .
+ictest-cw: rm-testcache
+	cd interchaintest/tests/cosmwasm && go test -race -v -run TestCosmWasmTestSuite .
 
-ictest-ibchooks: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoIBCHooks .
-
-ictest-tokenfactory: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
-
-ictest-feeshare: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoFeeShare .
-
-ictest-pfm: rm-testcache
-	cd interchaintest && go test -race -v -run TestPacketForwardMiddlewareRouter .
-
-ictest-upgrade: rm-testcache
-	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
-
-ictest-ibc: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
-
-ictest-unity-deploy: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoUnityContractDeploy .
-
-ictest-drip: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoDrip .
-
-ictest-feepay: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoFeePay .
-
-ictest-burn: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoBurnModule .
-
-ictest-cwhooks: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoCwHooks .
-
-ictest-clock: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoClock .
-
-ictest-gov-fix: rm-testcache
-	cd interchaintest && go test -race -v -run TestFixRemovedMsgTypeQueryPanic .
+ictest-node: rm-testcache
+	cd interchaintest/tests/node && go test -race -v -run TestNodeTestSuite .
 
 ictest-feemarket: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoFeeMarket .
+	cd interchaintest/tests/feemarket && go test -race -v -run TestFeemarketTestSuite .
+
+ictest-fees: rm-testcache
+	cd interchaintest/tests/fees && go test -race -v -run TestFeesTestSuite .
+
+ictest-upgrade: rm-testcache
+	cd interchaintest/tests/upgrade && go test -race -v -run BasicUpgradeTestSuite .
+
+ictest-ibc: rm-testcache
+	cd interchaintest/tests/ibc && go test -race -v -run TestIbcTestSuite .
+
+ictest-ibc-hooks: rm-testcache
+	cd interchaintest/tests/ibc-hooks && go test -race -v -run TestIbcHooksTestSuite .
+
+ictest-pfm: rm-testcache
+	cd interchaintest/tests/pfm && go test -race -v -run TestPfmTestSuite .
+
+ictest-tokenfactory: rm-testcache
+	cd interchaintest/tests/tokenfactory && go test -race -v -run TestTokenfactoryTestSuite .
+
+ictest-drip: rm-testcache
+	cd interchaintest/tests/drip && go test -race -v -run TestDripTestSuite .
+
+ictest-burn: rm-testcache
+	cd interchaintest/tests/burn && go test -race -v -run TestBurnTestSuite .
+
+ictest-fixes: rm-testcache
+	cd interchaintest/tests/fixes && go test -race -v -run TestFixTestSuite .
 
 rm-testcache:
 	go clean -testcache
 
-.PHONY: ictest-basic ictest-statesync ictest-ibchooks ictest-tokenfactory ictest-feeshare ictest-pfm ictest-upgrade ictest-upgrade-local ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-drip ictest-burn ictest-feepay ictest-cwhooks ictest-clock ictest-gov-fix ictest-feemarket rm-testcache
+.PHONY: ictest-basic ictest-cw ictest-node ictest-fees ictest-upgrade ictest-ibc ictest-tokenfactory ictest-drip ictest-burn ictest-drip ictest-burn ictest-fixes rm-testcache
 
 ###############################################################################
 ###                                  heighliner                             ###
@@ -266,7 +257,7 @@ proto-pulsar:
 
 proto-openapi:
 	@echo "🛠️ - Generating OpenAPI Spec from Protobuffers"
-	@$(protoImage) ./scripts/buf/buf-openapi.sh
+	@sh ./scripts/buf/buf-openapi.sh
 	@echo "✅ - Generated OpenAPI Spec successfully!"
 
 proto-format:

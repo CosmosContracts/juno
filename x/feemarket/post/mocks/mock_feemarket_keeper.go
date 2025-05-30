@@ -5,7 +5,7 @@ package mocks
 import (
 	mock "github.com/stretchr/testify/mock"
 
-	feemarketv1 "github.com/CosmosContracts/juno/v30/api/juno/feemarket/v1"
+	feemarketv1 "github.com/CosmosContracts/juno/v30/api/feemarket/feemarket/v1"
 
 	types "github.com/cosmos/cosmos-sdk/types"
 )

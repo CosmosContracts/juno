@@ -13,6 +13,5 @@ A list of the contracts here which are pre-compiled in other repos.
 > clock_example_no_sudo.wasm -> <https://github.com/joelsmith-2019/cw-clock-example/releases/tag/v1.0-no-sudo>
 > juno_staking_hooks_example.wasm -> <https://github.com/Reecepbcups/cw-juno-staking-hooks-example>
 > juno_staking_hooks_high_gas_example.wasm -> <https://github.com/joelsmith-2019/juno-cwhooks-example/releases/tag/v1.0-high-gas>
-
-> cw721_base      - https://github.com/CosmWasm/cw-nfts/releases/download/v0.17.0/cw721_base.wasm
-> cw721-receiver  - https://github.com/CosmWasm/cw-nfts/pull/144
+> cw721_base      - <https://github.com/CosmWasm/cw-nfts/releases/download/v0.17.0/cw721_base.wasm>
+> cw721-receiver  - <https://github.com/CosmWasm/cw-nfts/pull/144>
