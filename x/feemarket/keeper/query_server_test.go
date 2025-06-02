@@ -99,7 +99,7 @@ func (s *KeeperTestSuite) TestBaseFeeRequest() {
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
-		gasPrice, err := s.App.AppKeepers.FeeMarketKeeper.GetMinGasPrice(s.Ctx, req.GetDenom())
+		gasPrice, err := s.App.AppKeepers.FeeMarketKeeper.GetCurrentGasPrice(s.Ctx, req.GetDenom())
 		s.Require().NoError(err)
 
 		s.Require().Equal(resp.GetPrice(), gasPrice)
@@ -125,7 +125,7 @@ func (s *KeeperTestSuite) TestBaseFeeRequest() {
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
-		gasPrice, err := s.App.AppKeepers.FeeMarketKeeper.GetMinGasPrice(s.Ctx, req.GetDenom())
+		gasPrice, err := s.App.AppKeepers.FeeMarketKeeper.GetCurrentGasPrice(s.Ctx, req.GetDenom())
 		s.Require().NoError(err)
 
 		s.Require().Equal(resp.GetPrice(), gasPrice)
@@ -151,7 +151,7 @@ func (s *KeeperTestSuite) TestBaseFeeRequest() {
 		s.Require().NoError(err)
 		s.Require().NotNil(resp)
 
-		fee, err := s.App.AppKeepers.FeeMarketKeeper.GetMinGasPrice(s.Ctx, req.GetDenom())
+		fee, err := s.App.AppKeepers.FeeMarketKeeper.GetCurrentGasPrice(s.Ctx, req.GetDenom())
 		s.Require().NoError(err)
 
 		s.Require().Equal(resp.GetPrice(), fee)

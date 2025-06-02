@@ -7,11 +7,14 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/CosmosContracts/juno/v30/x/feemarket/ante"
+	"github.com/CosmosContracts/juno/v30/app/decorators"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )
 
@@ -25,12 +28,12 @@ const BankSendGasConsumption = 12490
 // Call next PostHandler if fees successfully deducted.
 // CONTRACT: Tx must implement FeeTx interface
 type FeeMarketDeductDecorator struct {
-	accountKeeper   AccountKeeper
-	bankKeeper      BankKeeper
-	feemarketKeeper FeeMarketKeeper
+	accountKeeper   authkeeper.AccountKeeper
+	bankKeeper      bankkeeper.Keeper
+	feemarketKeeper feemarketkeeper.Keeper
 }
 
-func NewFeeMarketDeductDecorator(ak AccountKeeper, bk BankKeeper, fmk FeeMarketKeeper) FeeMarketDeductDecorator {
+func NewFeeMarketDeductDecorator(ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fmk feemarketkeeper.Keeper) FeeMarketDeductDecorator {
 	return FeeMarketDeductDecorator{
 		accountKeeper:   ak,
 		bankKeeper:      bk,
@@ -104,18 +107,18 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 	feeGas := int64(feeTx.GetGas())
 
-	minGasPrice, err := dfd.feemarketKeeper.GetMinGasPrice(ctx, payCoin.GetDenom())
+	currentGasPrice, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, payCoin.GetDenom())
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "unable to get min gas price for denom %s", payCoin.GetDenom())
 	}
 
 	ctx.Logger().Debug("fee deduct post handle",
-		"min gas prices", minGasPrice,
+		"gas prices", currentGasPrice,
 		"gas consumed", gas,
 	)
 
 	if !simulate {
-		payCoin, tip, err = ante.CheckTxFee(ctx, minGasPrice, payCoin, feeGas, false)
+		payCoin, tip, err = decorators.CheckTxFee(ctx, currentGasPrice, payCoin, feeGas, false)
 		if err != nil {
 			return ctx, err
 		}
@@ -192,7 +195,7 @@ func (dfd FeeMarketDeductDecorator) PayOutFeeAndTip(ctx sdk.Context, fee, tip sd
 // DeductCoins deducts coins from the given account.
 // Coins can be sent to the default fee collector (
 // causes coins to be distributed to stakers) or kept in the fee collector account (soft burn).
-func DeductCoins(bankKeeper BankKeeper, ctx sdk.Context, coins sdk.Coins, distributeFees bool) error {
+func DeductCoins(bankKeeper bankkeeper.Keeper, ctx sdk.Context, coins sdk.Coins, distributeFees bool) error {
 	if distributeFees {
 		err := bankKeeper.SendCoinsFromModuleToModule(ctx, feemarkettypes.FeeCollectorName, authtypes.FeeCollectorName, coins)
 		if err != nil {
@@ -203,7 +206,7 @@ func DeductCoins(bankKeeper BankKeeper, ctx sdk.Context, coins sdk.Coins, distri
 }
 
 // SendTip sends a tip to the current block proposer.
-func SendTip(bankKeeper BankKeeper, ctx sdk.Context, proposer sdk.AccAddress, coins sdk.Coins) error {
+func SendTip(bankKeeper bankkeeper.Keeper, ctx sdk.Context, proposer sdk.AccAddress, coins sdk.Coins) error {
 	err := bankKeeper.SendCoinsFromModuleToAccount(ctx, feemarkettypes.FeeCollectorName, proposer, coins)
 	if err != nil {
 		return err

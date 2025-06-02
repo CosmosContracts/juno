@@ -11,28 +11,39 @@ import (
 )
 
 // Check if a transaction should be processed as a FeePay transaction.
-// A valid FeePay transaction has no fee and only 1 message which
-// executes a CW contract.
-//
-// TODO: Future allow for multiple msgs.
+// A valid FeePay transaction has no fee and contains only messages which
+// execute registered CW contracts.
 func IsValidFeePayTransaction(ctx context.Context, feePayKeeper feepaykeeper.Keeper, feeTx sdk.FeeTx) bool {
-	// Defaults to false
-	isValid := false
-
 	// Check if the fee pay module is enabled
 	isEnabled := feePayKeeper.GetParams(ctx).EnableFeepay
+	if !isEnabled {
+		return false
+	}
 
-	// Check if fee is zero, and tx has only 1 message for executing a contract
-	if isEnabled && feeTx.GetFee().IsZero() && len(feeTx.GetMsgs()) == 1 {
+	// Check if fee is zero
+	if !feeTx.GetFee().IsZero() {
+		return false
+	}
+
+	// Check if transaction has at least one message
+	msgs := feeTx.GetMsgs()
+	if len(msgs) == 0 {
+		return false
+	}
+
+	// Check that all messages are CW contract executions on registered contracts
+	for _, msg := range msgs {
 		// Check if the message is a CW contract execution
-		if cw, ok := (feeTx.GetMsgs()[0]).(*wasmtypes.MsgExecuteContract); ok {
-			// Check if the contract is registered
-			if _, err := feePayKeeper.GetContract(ctx, cw.Contract); err == nil {
-				isValid = true
-			}
+		cw, ok := msg.(*wasmtypes.MsgExecuteContract)
+		if !ok {
+			return false
+		}
+
+		// Check if the contract is registered
+		if _, err := feePayKeeper.GetContract(ctx, cw.Contract); err != nil {
+			return false
 		}
 	}
 
-	// Return if the tx is valid
-	return isValid
+	return true
 }

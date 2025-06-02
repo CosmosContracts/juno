@@ -456,7 +456,7 @@ func (s *KeeperTestSuite) TestGetMinGasPrices() {
 
 		expected := sdk.NewDecCoins(sdk.NewDecCoinFromDec(sdk.DefaultBondDenom, gs.State.BaseGasPrice))
 
-		mgp, err := s.App.AppKeepers.FeeMarketKeeper.GetMinGasPrices(s.Ctx)
+		mgp, err := s.App.AppKeepers.FeeMarketKeeper.GetCurrentGasPrices(s.Ctx)
 		s.Require().NoError(err)
 		s.Require().Equal(expected, mgp)
 	})
@@ -467,7 +467,7 @@ func (s *KeeperTestSuite) TestGetMinGasPrices() {
 
 		expected := sdk.NewDecCoins(sdk.NewDecCoinFromDec(sdk.DefaultBondDenom, gs.State.BaseGasPrice))
 
-		mgp, err := s.App.AppKeepers.FeeMarketKeeper.GetMinGasPrices(s.Ctx)
+		mgp, err := s.App.AppKeepers.FeeMarketKeeper.GetCurrentGasPrices(s.Ctx)
 		s.Require().NoError(err)
 		s.Require().Equal(expected, mgp)
 	})

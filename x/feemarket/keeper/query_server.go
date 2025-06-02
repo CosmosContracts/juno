@@ -36,18 +36,18 @@ func (q QueryServer) State(goCtx context.Context, _ *types.StateRequest) (*types
 	return &types.StateResponse{State: state}, err
 }
 
-// GasPrice defines a method that returns the current feemarket base gas price.
+// GasPrice defines a method that returns the current gas price for a specific denom.
 func (q QueryServer) GasPrice(goCtx context.Context, req *types.GasPriceRequest) (*types.GasPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	gasPrice, err := q.k.GetMinGasPrice(ctx, req.GetDenom())
+	gasPrice, err := q.k.GetCurrentGasPrice(ctx, req.GetDenom())
 	return &types.GasPriceResponse{Price: gasPrice}, err
 }
 
-// GasPrices defines a method that returns the current feemarket list of gas prices.
+// GasPrices defines a method that returns the current list of gas prices for all supported denoms.
 func (q QueryServer) GasPrices(goCtx context.Context, _ *types.GasPricesRequest) (*types.GasPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	gasPrices, err := q.k.GetMinGasPrices(ctx)
+	gasPrices, err := q.k.GetCurrentGasPrices(ctx)
 	return &types.GasPricesResponse{Prices: gasPrices}, err
 }

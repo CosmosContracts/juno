@@ -7,14 +7,8 @@ import (
 
 // TestAccount represents an address and its private key used in the tests.
 type TestAccount struct {
-	Account sdk.AccAddress
+	Account sdk.AccountI
 	Priv    cryptotypes.PrivKey
-}
-
-// TestAccountBalance represents an address, its private key, and its balance used in the tests.
-type TestAccountBalance struct {
-	TestAccount
-	sdk.Coins
 }
 
 // TestCase represents a test case used in test tables.

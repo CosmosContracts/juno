@@ -254,6 +254,9 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
+	// app.BaseApp.CommitMultiStore().AddListeners()
+
+	// app.BaseApp.SetStreamingManager()
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -273,9 +276,9 @@ func New(
 			BankKeeper:    app.AppKeepers.BankKeeper,
 			AccountKeeper: app.AppKeepers.AccountKeeper,
 
-			FeePayKeeper:         app.AppKeepers.FeePayKeeper,
-			FeeShareKeeper:       app.AppKeepers.FeeShareKeeper,
-			FeeMarketKeeper:      *app.AppKeepers.FeeMarketKeeper,
+			FeepayKeeper:         app.AppKeepers.FeePayKeeper,
+			FeeshareKeeper:       app.AppKeepers.FeeShareKeeper,
+			FeemarketKeeper:      *app.AppKeepers.FeeMarketKeeper,
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
 		},
 	)
@@ -286,7 +289,7 @@ func New(
 	postHandlerOptions := PostHandlerOptions{
 		AccountKeeper:   app.AppKeepers.AccountKeeper,
 		BankKeeper:      app.AppKeepers.BankKeeper,
-		FeeMarketKeeper: app.AppKeepers.FeeMarketKeeper,
+		FeeMarketKeeper: *app.AppKeepers.FeeMarketKeeper,
 	}
 	postHandler, err := NewPostHandler(postHandlerOptions)
 	if err != nil {

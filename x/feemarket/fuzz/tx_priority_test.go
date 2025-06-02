@@ -5,11 +5,10 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
+	"github.com/CosmosContracts/juno/v30/app/decorators"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"pgregory.net/rapid"
-
-	"github.com/CosmosContracts/juno/v30/x/feemarket/ante"
 )
 
 type input struct {
@@ -23,7 +22,7 @@ func TestGetTxPriority(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
 		inputs := createRandomInput(t)
 
-		priority := ante.GetTxPriority(inputs.payFee, inputs.gasLimit, inputs.currentGasPrice)
+		priority := decorators.GetTxPriority(inputs.payFee, inputs.gasLimit, inputs.currentGasPrice)
 		require.GreaterOrEqual(t, priority, int64(0))
 		require.LessOrEqual(t, priority, int64(math.MaxInt64))
 	})

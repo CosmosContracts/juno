@@ -11,16 +11,17 @@ import (
 
 	corestoretypes "cosmossdk.io/core/store"
 	errorsmod "cosmossdk.io/errors"
+	feegrantKeeper "cosmossdk.io/x/feegrant/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	decorators "github.com/CosmosContracts/juno/v30/app/decorators"
-	feemarketante "github.com/CosmosContracts/juno/v30/x/feemarket/ante"
 	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	feepayante "github.com/CosmosContracts/juno/v30/x/feepay/ante"
 	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
 	feeshareante "github.com/CosmosContracts/juno/v30/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
@@ -35,8 +36,11 @@ type HandlerOptions struct {
 	ante.HandlerOptions
 
 	// cosmos sdk
-	StakingKeeper stakingkeeper.Keeper
-	BondDenom     string
+	AccountKeeper  authkeeper.AccountKeeper
+	BankKeeper     bankkeeper.Keeper
+	StakingKeeper  stakingkeeper.Keeper
+	FeegrantKeeper feegrantKeeper.Keeper
+	BondDenom      string
 
 	// ibc
 	IBCKeeper *ibckeeper.Keeper
@@ -46,14 +50,10 @@ type HandlerOptions struct {
 	NodeConfig            *wasmtypes.NodeConfig
 	WasmKeeper            *wasmkeeper.Keeper
 
-	// fee market
-	BankKeeper      feemarketante.BankKeeper
-	AccountKeeper   feemarketante.AccountKeeper
-	FeeMarketKeeper feemarketkeeper.Keeper
-
-	// fee pay & share
-	FeePayKeeper         feepaykeeper.Keeper
-	FeeShareKeeper       feesharekeeper.Keeper
+	// fees
+	FeemarketKeeper      feemarketkeeper.Keeper
+	FeepayKeeper         feepaykeeper.Keeper
+	FeeshareKeeper       feesharekeeper.Keeper
 	BypassMinFeeMsgTypes []string
 }
 
@@ -61,9 +61,6 @@ type HandlerOptions struct {
 // numbers, checks signatures & account numbers, and deducts fees from the first
 // signer.
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
-	if options.AccountKeeper == nil {
-		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "account keeper is required for ante builder")
-	}
 	if options.BankKeeper == nil {
 		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "bank keeper is required for ante builder")
 	}
@@ -80,30 +77,6 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if sigGasConsumer == nil {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
 	}
-
-	// Flag for determining if the tx is a FeePay transaction. This flag
-	// is used to communicate between the FeePay decorator and the FeeMarket decorator.
-	isFeePayTx := false
-
-	// Define FeePay and FeeMarket decorators. These decorators are called in different orders based on the type of
-	// transaction. The FeePay decorator is called first for FeePay transactions, and the FeeMarket decorator is called
-	// first for all other transactions. See the FeeRouteDecorator for more details.
-	fpd := feepayante.NewDeductFeeDecorator(
-		options.FeePayKeeper,
-		options.FeeMarketKeeper,
-		options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.BondDenom, &isFeePayTx)
-	fmd := feemarketante.NewFeeMarketCheckDecorator(
-		options.AccountKeeper,
-		options.BankKeeper,
-		options.FeegrantKeeper,
-		options.FeeMarketKeeper,
-		ante.NewDeductFeeDecorator(
-			options.AccountKeeper,
-			options.BankKeeper,
-			options.FeegrantKeeper,
-			options.TxFeeChecker,
-		),
-	) // fees are deducted in the fee market deduct post handler
 
 	anteDecorators := []sdk.AnteDecorator{
 		// outermost AnteDecorator. SetUpContext must be called first
@@ -126,11 +99,24 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 
-		// juno custom modules
-		// Fee route decorator calls FeePay and FeeMarket decorators in different orders
-		// depending on the type of incoming tx.
-		feepayante.NewFeeRouteDecorator(options.FeePayKeeper, &fpd, &fmd, &isFeePayTx),
-		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeShareKeeper),
+		// DeductFeeDecorator handles the fee deduction logic.
+		// It includes correct fee routing for fee pay transactions
+		// every actual fee transfer will be handled by the Feemarket Post Handler
+		decorators.NewDeductFeeDecorator(
+			options.FeepayKeeper,
+			options.FeemarketKeeper,
+			options.AccountKeeper,
+			options.BankKeeper,
+			options.FeegrantKeeper,
+			options.BondDenom,
+			ante.NewDeductFeeDecorator(
+				options.AccountKeeper,
+				options.BankKeeper,
+				options.FeegrantKeeper,
+				options.TxFeeChecker,
+			),
+		),
+		feeshareante.NewFeeSharePayoutDecorator(options.BankKeeper, options.FeeshareKeeper),
 
 		// signatures
 		// SetPubKeyDecorator must be called before all signature verification decorators

@@ -108,7 +108,7 @@ func (s *FeemarketTestSuite) TestSendTxDecrease() {
 	user2 := s.GetAndFundTestUser("user2", 200000000000, s.Chain)
 	user3 := s.GetAndFundTestUser("user3", 200000000000, s.Chain)
 
-	err := testutil.WaitForBlocks(s.Ctx, 5, s.Chain)
+	err := testutil.WaitForBlocks(s.Ctx, 1, s.Chain)
 	require.NoError(s.T(), err)
 
 	s.Run("expect fee market state to decrease", func() {
@@ -400,7 +400,6 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 		minBaseFee := sdk.NewDecCoinFromDec(defaultGasPrice.Denom, defaultGasPrice.Amount.Mul(math.LegacyNewDec(gas)))
 		minBaseFeeCoins := sdk.NewCoins(sdk.NewCoin(minBaseFee.Denom, minBaseFee.Amount.TruncateInt().Add(math.
 			NewInt(100))))
-		// send one tx with no  gas or fee attached
 		txResp, err := s.SendCoinsMultiBroadcastAsync(
 			user2,
 			user1,
@@ -436,7 +435,7 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 		// query height
 		height, err := s.Chain.Height(context.Background())
 		s.Require().NoError(err)
-		s.WaitForHeight(s.Chain, height+5)
+		s.WaitForHeight(s.Chain, height+2)
 
 		// after waiting, we can now query the Tx Responses
 		resp, err := nodes[0].TxHashToResponse(context.Background(), hash1.String())

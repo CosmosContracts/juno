@@ -17,7 +17,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/CosmosContracts/juno/v30/testutil"
@@ -49,23 +48,6 @@ func (s *PostTestSuite) SetupTest() {
 	s.TxBuilder = s.App.TxConfig().NewTxBuilder()
 	s.queryServer = keeper.NewQueryServer(*s.App.AppKeepers.FeeMarketKeeper)
 	s.msgServer = keeper.NewMsgServer(s.App.AppKeepers.FeeMarketKeeper)
-}
-
-func (s *PostTestSuite) SetAccountBalances(accounts []testutil.TestAccountBalance) {
-	s.T().Helper()
-
-	oldState := s.App.AppKeepers.BankKeeper.ExportGenesis(s.Ctx)
-
-	balances := make([]banktypes.Balance, len(accounts))
-	for i, acc := range accounts {
-		balances[i] = banktypes.Balance{
-			Address: acc.Account.String(),
-			Coins:   acc.Coins,
-		}
-	}
-
-	oldState.Balances = balances
-	s.App.AppKeepers.BankKeeper.InitGenesis(s.Ctx, oldState)
 }
 
 func (s *PostTestSuite) RunTestCase(t *testing.T, tc PostTestCase, args testutil.TestCaseArgs) {
@@ -302,357 +284,6 @@ func (s *PostTestSuite) TestSendTip() {
 	}
 }
 
-func (s *PostTestSuite) TestPostHandleMock() {
-	// Same data for every test case
-	const (
-		baseDenom              = "stake"
-		resolvableDenom        = "atom"
-		expectedConsumedGas    = 10631
-		expectedConsumedSimGas = expectedConsumedGas + post.BankSendGasConsumption
-		gasLimit               = expectedConsumedSimGas
-	)
-
-	validFeeAmount := types.DefaultMinBaseGasPrice.MulInt64(int64(gasLimit))
-	validFeeAmountWithTip := validFeeAmount.Add(math.LegacyNewDec(100))
-	validFee := sdk.NewCoins(sdk.NewCoin(baseDenom, validFeeAmount.TruncateInt()))
-	validFeeWithTip := sdk.NewCoins(sdk.NewCoin(baseDenom, validFeeAmountWithTip.TruncateInt()))
-	validResolvableFee := sdk.NewCoins(sdk.NewCoin(resolvableDenom, validFeeAmount.TruncateInt()))
-	validResolvableFeeWithTip := sdk.NewCoins(sdk.NewCoin(resolvableDenom, validFeeAmountWithTip.TruncateInt()))
-
-	testCases := []PostTestCase{
-		{
-			TestCase: testutil.TestCase{
-				Name:     "signer has no funds",
-				RunAnte:  true,
-				RunPost:  true,
-				Simulate: false,
-				ExpPass:  false,
-				ExpErr:   sdkerrors.ErrInsufficientFunds,
-				Mock:     true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validFee,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:     "signer has no funds - simulate",
-				RunAnte:  true,
-				RunPost:  true,
-				Simulate: true,
-				ExpPass:  false,
-				ExpErr:   sdkerrors.ErrInsufficientFunds,
-				Mock:     true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validFee,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:     "0 gas given should fail",
-				RunAnte:  true,
-				RunPost:  true,
-				Simulate: false,
-				ExpPass:  false,
-				ExpErr:   sdkerrors.ErrOutOfGas,
-				Mock:     true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  0,
-					FeeAmount: validFee,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "0 gas given should pass - simulate",
-				RunAnte:           true,
-				RunPost:           true,
-				Simulate:          true,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedSimGas,
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  0,
-					FeeAmount: validFee,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "signer has enough funds, should pass, no tip",
-				RunAnte:           true,
-				RunPost:           true,
-				Simulate:          false,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedGas,
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validFee,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "signer has enough funds, should pass with tip",
-				RunAnte:           true,
-				RunPost:           true,
-				Simulate:          false,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedGas,
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validFeeWithTip,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "signer has enough funds, should pass with tip - simulate",
-				RunAnte:           true,
-				RunPost:           true,
-				Simulate:          true,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedSimGas,
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validFeeWithTip,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "fee market is enabled during the transaction - should pass and skip deduction until next block",
-				RunAnte:           true,
-				RunPost:           true,
-				Simulate:          false,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: 15340, // extra gas consumed because msg server is run, but deduction is skipped
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				// disable fee market before tx
-				s.Ctx = s.Ctx.WithBlockHeight(10)
-				disabledParams := types.DefaultParams()
-				disabledParams.Enabled = false
-				err := s.App.AppKeepers.FeeMarketKeeper.SetParams(s.Ctx, disabledParams)
-				s.Require().NoError(err)
-
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validResolvableFee,
-				}
-			},
-			StateUpdate: func(s *PostTestSuite) {
-				// enable the fee market
-				enabledParams := types.DefaultParams()
-				req := &types.MsgUpdateParams{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-					Params:    enabledParams,
-				}
-
-				_, err := s.msgServer.UpdateParams(s.Ctx, req)
-				s.Require().NoError(err)
-
-				height, err := s.App.AppKeepers.FeeMarketKeeper.GetEnabledHeight(s.Ctx)
-				s.Require().NoError(err)
-				s.Require().Equal(int64(10), height)
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "signer has enough funds, should pass, no tip - resolvable denom",
-				RunAnte:           true,
-				RunPost:           true,
-				Simulate:          false,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedGas,
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validResolvableFee,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "signer has enough funds, should pass, no tip - resolvable denom - simulate",
-				RunAnte:           true,
-				RunPost:           true,
-				Simulate:          true,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedSimGas,
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validResolvableFee,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "signer has enough funds, should pass with tip - resolvable denom",
-				RunAnte:           true,
-				RunPost:           true,
-				Simulate:          false,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedGas,
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validResolvableFeeWithTip,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "signer has enough funds, should pass with tip - resolvable denom - simulate",
-				RunAnte:           true,
-				RunPost:           true,
-				Simulate:          true,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedSimGas,
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  gasLimit,
-					FeeAmount: validResolvableFeeWithTip,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "0 gas given should pass in simulate - no fee",
-				RunAnte:           true,
-				RunPost:           false,
-				Simulate:          true,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedSimGas,
-				Mock:              true,
-			},
-
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  0,
-					FeeAmount: nil,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:              "0 gas given should pass in simulate - fee",
-				RunAnte:           true,
-				RunPost:           false,
-				Simulate:          true,
-				ExpPass:           true,
-				ExpErr:            nil,
-				ExpectConsumedGas: expectedConsumedSimGas,
-				Mock:              true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  0,
-					FeeAmount: validFee,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:     "no fee - fail",
-				RunAnte:  true,
-				RunPost:  true,
-				Simulate: false,
-				ExpPass:  false,
-				ExpErr:   types.ErrNoFeeCoins,
-				Mock:     true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  1000000000,
-					FeeAmount: nil,
-				}
-			},
-		},
-		{
-			TestCase: testutil.TestCase{
-				Name:     "no gas limit - fail",
-				RunAnte:  true,
-				RunPost:  true,
-				Simulate: false,
-				ExpPass:  false,
-				ExpErr:   sdkerrors.ErrOutOfGas,
-				Mock:     true,
-			},
-			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
-					GasLimit:  0,
-					FeeAmount: nil,
-				}
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("Case %s", tc.Name), func() {
-			args := tc.Malleate(s)
-
-			s.RunTestCase(s.T(), tc, args)
-		})
-	}
-}
-
 func (s *PostTestSuite) TestPostHandle() {
 	// Same data for every test case
 	const (
@@ -759,15 +390,7 @@ func (s *PostTestSuite) TestPostHandle() {
 				Mock:              false,
 			},
 			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				testAcc := testutil.TestAccount{
-					Account: s.TestAccs[0],
-					Priv:    s.TestPrivKeys[0],
-				}
-				balance := testutil.TestAccountBalance{
-					TestAccount: testAcc,
-					Coins:       validFee,
-				}
-				s.SetAccountBalances([]testutil.TestAccountBalance{balance})
+				s.FundAcc(s.TestAccs[0], validFee)
 
 				return testutil.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
@@ -787,15 +410,7 @@ func (s *PostTestSuite) TestPostHandle() {
 				Mock:     false,
 			},
 			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				testAcc := testutil.TestAccount{
-					Account: s.TestAccs[0],
-					Priv:    s.TestPrivKeys[0],
-				}
-				balance := testutil.TestAccountBalance{
-					TestAccount: testAcc,
-					Coins:       validFee,
-				}
-				s.SetAccountBalances([]testutil.TestAccountBalance{balance})
+				s.FundAcc(s.TestAccs[0], validFee)
 
 				return testutil.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
@@ -816,15 +431,7 @@ func (s *PostTestSuite) TestPostHandle() {
 				Mock:              false,
 			},
 			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				testAcc := testutil.TestAccount{
-					Account: s.TestAccs[0],
-					Priv:    s.TestPrivKeys[0],
-				}
-				balance := testutil.TestAccountBalance{
-					TestAccount: testAcc,
-					Coins:       validFeeWithTip,
-				}
-				s.SetAccountBalances([]testutil.TestAccountBalance{balance})
+				s.FundAcc(s.TestAccs[0], validFeeWithTip)
 
 				return testutil.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
@@ -864,15 +471,7 @@ func (s *PostTestSuite) TestPostHandle() {
 				Mock:              false,
 			},
 			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				testAcc := testutil.TestAccount{
-					Account: s.TestAccs[0],
-					Priv:    s.TestPrivKeys[0],
-				}
-				balance := testutil.TestAccountBalance{
-					TestAccount: testAcc,
-					Coins:       validResolvableFee,
-				}
-				s.SetAccountBalances([]testutil.TestAccountBalance{balance})
+				s.FundAcc(s.TestAccs[0], validResolvableFee)
 
 				// disable fee market before tx
 				s.Ctx = s.Ctx.WithBlockHeight(10)
@@ -915,15 +514,7 @@ func (s *PostTestSuite) TestPostHandle() {
 				Mock:              false,
 			},
 			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				testAcc := testutil.TestAccount{
-					Account: s.TestAccs[0],
-					Priv:    s.TestPrivKeys[0],
-				}
-				balance := testutil.TestAccountBalance{
-					TestAccount: testAcc,
-					Coins:       validResolvableFee,
-				}
-				s.SetAccountBalances([]testutil.TestAccountBalance{balance})
+				s.FundAcc(s.TestAccs[0], validResolvableFee)
 
 				return testutil.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
@@ -944,15 +535,7 @@ func (s *PostTestSuite) TestPostHandle() {
 				Mock:              false,
 			},
 			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				testAcc := testutil.TestAccount{
-					Account: s.TestAccs[0],
-					Priv:    s.TestPrivKeys[0],
-				}
-				balance := testutil.TestAccountBalance{
-					TestAccount: testAcc,
-					Coins:       validResolvableFee,
-				}
-				s.SetAccountBalances([]testutil.TestAccountBalance{balance})
+				s.FundAcc(s.TestAccs[0], validResolvableFee)
 
 				return testutil.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
@@ -991,15 +574,7 @@ func (s *PostTestSuite) TestPostHandle() {
 				Mock:     false,
 			},
 			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				testAcc := testutil.TestAccount{
-					Account: s.TestAccs[0],
-					Priv:    s.TestPrivKeys[0],
-				}
-				balance := testutil.TestAccountBalance{
-					TestAccount: testAcc,
-					Coins:       validResolvableFee,
-				}
-				s.SetAccountBalances([]testutil.TestAccountBalance{balance})
+				s.FundAcc(s.TestAccs[0], validResolvableFee)
 
 				return testutil.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
@@ -1020,15 +595,7 @@ func (s *PostTestSuite) TestPostHandle() {
 				Mock:              false,
 			},
 			Malleate: func(s *PostTestSuite) testutil.TestCaseArgs {
-				testAcc := testutil.TestAccount{
-					Account: s.TestAccs[0],
-					Priv:    s.TestPrivKeys[0],
-				}
-				balance := testutil.TestAccountBalance{
-					TestAccount: testAcc,
-					Coins:       validResolvableFeeWithTip,
-				}
-				s.SetAccountBalances([]testutil.TestAccountBalance{balance})
+				s.FundAcc(s.TestAccs[0], validResolvableFeeWithTip)
 
 				return testutil.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},

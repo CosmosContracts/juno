@@ -1,7 +1,6 @@
 package suite
 
 import (
-	"fmt"
 	"math/rand/v2"
 	"sync"
 
@@ -39,7 +38,7 @@ var (
 	DefaultNumFullNodes     = 0
 	DefaultHaltHeightDelta  = int64(9) // will propose upgrade this many blocks in the future
 	DefaultMinBaseGasPrice  = sdkmath.LegacyMustNewDecFromStr("0.001")
-	DefaultBaseGasPrice     = sdkmath.LegacyMustNewDecFromStr("0.01")
+	DefaultBaseGasPrice     = sdkmath.LegacyMustNewDecFromStr("0.1")
 	DefaultNoHostMount      = false
 
 	JunoRepo              = "ghcr.io/cosmoscontracts/juno"
@@ -88,17 +87,17 @@ var (
 		{
 			Key: "app_state.feemarket.params",
 			Value: feemarkettypes.Params{
-				Alpha:               feemarkettypes.DefaultAlpha,
-				Beta:                feemarkettypes.DefaultBeta,
+				Alpha:               feemarkettypes.DefaultAIMDAlpha,
+				Beta:                feemarkettypes.DefaultAIMDBeta,
 				Gamma:               feemarkettypes.DefaultAIMDGamma,
-				Delta:               feemarkettypes.DefaultDelta,
+				Delta:               feemarkettypes.DefaultAIMDDelta,
 				MinBaseGasPrice:     DefaultMinBaseGasPrice,
-				MinLearningRate:     feemarkettypes.DefaultMinLearningRate,
-				MaxLearningRate:     feemarkettypes.DefaultMaxLearningRate,
+				MinLearningRate:     feemarkettypes.DefaultAIMDMinLearningRate,
+				MaxLearningRate:     feemarkettypes.DefaultAIMDMaxLearningRate,
 				MaxBlockUtilization: 100_000_000,
-				Window:              feemarkettypes.DefaultWindow,
+				Window:              16,
 				FeeDenom:            DefaultDenom,
-				Enabled:             false,
+				Enabled:             true,
 				DistributeFees:      false,
 			},
 		},
@@ -106,8 +105,8 @@ var (
 			Key: "app_state.feemarket.state",
 			Value: feemarkettypes.State{
 				BaseGasPrice: DefaultBaseGasPrice,
-				LearningRate: feemarkettypes.DefaultMaxLearningRate,
-				Window:       make([]uint64, feemarkettypes.DefaultWindow),
+				LearningRate: feemarkettypes.DefaultAIMDMaxLearningRate,
+				Window:       make([]uint64, 16),
 				Index:        0,
 			},
 		},
@@ -123,8 +122,8 @@ var (
 		Denom:          DefaultDenom,
 		Gas:            "auto",
 		CoinType:       "118",
-		GasPrices:      fmt.Sprintf("%v%s", DefaultBaseGasPrice, DefaultDenom),
-		GasAdjustment:  10.0,
+		GasPrices:      "",
+		GasAdjustment:  10,
 		TrustingPeriod: "112h",
 		NoHostMount:    DefaultNoHostMount,
 		EncodingConfig: MakeJunoEncoding(),
@@ -143,8 +142,8 @@ var (
 
 	DefaultTxCfg = TestTxConfig{
 		SmallSendsNum:          1,
-		LargeSendsNum:          325,
-		TargetIncreaseGasPrice: sdkmath.LegacyMustNewDecFromStr("0.0011"),
+		LargeSendsNum:          400,
+		TargetIncreaseGasPrice: sdkmath.LegacyMustNewDecFromStr("0.11"),
 	}
 )
 
