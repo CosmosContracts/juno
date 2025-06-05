@@ -1,9 +1,8 @@
-package fees_test
+package feemarket_test
 
 import (
 	"context"
 	"fmt"
-	"sync"
 	"testing"
 	"time"
 
@@ -50,6 +49,17 @@ func TestFeemarketTestSuite(t *testing.T) {
 	suite.Run(t, testSuite)
 }
 
+func (s *FeemarketTestSuite) SetupSubTest() {
+	height, err := s.Chain.Height(s.Ctx)
+	s.Require().NoError(err)
+	s.WaitForHeight(s.Chain, height+1)
+
+	state := s.QueryFeemarketState()
+	s.T().Log("state at block height", height+1, ":", state.String())
+	gasPrice := s.QueryFeemarketGasPrice(s.Denom)
+	s.T().Log("gas price at block height", height+1, ":", gasPrice.String())
+}
+
 func (s *FeemarketTestSuite) TestQueryParams() {
 	require := s.Require()
 	s.Run("query params", func() {
@@ -92,184 +102,182 @@ func (s *FeemarketTestSuite) TestQueryGasPrice() {
 // TestSendTxDecrease tests that the feemarket will decrease until it hits the min gas price
 // when gas utilization is below the target block utilization.
 func (s *FeemarketTestSuite) TestSendTxDecrease() {
-	// get nodes
 	nodes := s.Chain.Nodes()
 	s.Require().True(len(nodes) > 0)
 
 	params := s.QueryFeemarketParams()
 
-	defaultGasPrice := s.QueryFeemarketGasPrice(s.Denom)
-	gas := int64(200000)
-	minBaseFee := sdk.NewDecCoinFromDec(defaultGasPrice.Denom, defaultGasPrice.Amount.Mul(math.LegacyNewDec(gas)))
-	minBaseFeeCoins := sdk.NewCoins(sdk.NewCoin(minBaseFee.Denom, minBaseFee.Amount.TruncateInt()))
+	// First, we need to ensure gas prices are elevated
+	s.T().Log("Setting up elevated gas prices...")
+	s.elevateGasPrices(params)
+
+	// Record initial elevated state
+	initialGasPrice := s.QueryFeemarketGasPrice(s.Denom)
+	s.T().Logf("Initial elevated gas price: %s", initialGasPrice.String())
+	s.T().Logf("Target minimum gas price: %s", params.MinBaseGasPrice.String())
+
+	// Ensure we're starting from an elevated price
+	s.Require().True(initialGasPrice.Amount.GT(params.MinBaseGasPrice),
+		"Gas price not elevated. Initial: %s, Min: %s",
+		initialGasPrice.String(), params.MinBaseGasPrice.String())
+
+	// Setup test users
+	users := []ibc.Wallet{
+		s.GetAndFundTestUser("user1", 200000000000, s.Chain),
+		s.GetAndFundTestUser("user2", 200000000000, s.Chain),
+		s.GetAndFundTestUser("user3", 200000000000, s.Chain),
+	}
+
+	// Use reasonable gas that won't congest the network
+	gasPerTx := int64(200000)
 	sendAmt := int64(100)
 
-	user1 := s.GetAndFundTestUser("user1", 200000000000, s.Chain)
-	user2 := s.GetAndFundTestUser("user2", 200000000000, s.Chain)
-	user3 := s.GetAndFundTestUser("user3", 200000000000, s.Chain)
-
+	// Wait for chain to stabilize
 	err := testutil.WaitForBlocks(s.Ctx, 1, s.Chain)
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 
-	s.Run("expect fee market state to decrease", func() {
-		s.T().Log("performing sends...")
-		sig := make(chan struct{})
-		quit := make(chan struct{})
-		defer close(quit)
+	// Monitor gas prices
+	priceUpdates := make(chan sdk.DecCoin, 100)
+	stopMonitoring := make(chan struct{})
+	monitoringDone := make(chan struct{})
 
-		checkPrice := func(c, quit chan struct{}) {
-			select {
-			case <-time.After(500 * time.Millisecond):
-				gasPrice := s.QueryFeemarketGasPrice(s.Denom)
-				s.T().Log("gas price", gasPrice.String())
+	go s.monitorGasPrice(priceUpdates, stopMonitoring, monitoringDone)
 
-				if gasPrice.Amount.Equal(params.MinBaseGasPrice) {
-					c <- struct{}{}
-				}
-			case <-quit:
-				return
-			}
-		}
-		go checkPrice(sig, quit)
+	// Send minimal transactions to allow price to decrease
+	txErrors := s.sendMinimalTransactions(users, gasPerTx, sendAmt)
 
-		select {
-		case <-sig:
-			break
+	// Wait for multiple blocks to allow price decay
+	currentHeight, err := s.Chain.Height(s.Ctx)
+	s.Require().NoError(err)
+	s.WaitForHeight(s.Chain, currentHeight+5)
 
-		case <-time.After(100 * time.Millisecond):
-			wg := &sync.WaitGroup{}
-			wg.Add(3)
+	// Additional wait to capture more price movements
+	time.Sleep(2 * time.Second)
 
-			smallSend := func(wg *sync.WaitGroup, userA, userB ibc.Wallet) {
-				defer wg.Done()
-				txResp, err := s.SendCoinsMultiBroadcast(
-					userA,
-					userB,
-					sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
-					minBaseFeeCoins,
-					gas,
-					s.TxConfig.SmallSendsNum,
-				)
-				if err != nil {
-					s.T().Log(err)
-				} else if txResp != nil && txResp.CheckTx.Code != 0 {
-					s.T().Log(txResp.CheckTx)
-				}
-			}
+	// Stop monitoring and collect results
+	close(stopMonitoring)
+	<-monitoringDone
+	close(priceUpdates)
 
-			go smallSend(wg, user1, user2)
-			go smallSend(wg, user3, user2)
-			go smallSend(wg, user2, user1)
+	// Analyze price changes
+	prices := []sdk.DecCoin{}
+	for price := range priceUpdates {
+		prices = append(prices, price)
+	}
 
-			wg.Wait()
-		}
+	// Verify results
+	s.Require().True(len(prices) > 0, "No price updates captured")
+	s.Require().True(len(txErrors) == 0, "Transactions failed: %v", txErrors)
 
-		// wait for 5 blocks
-		// query height
-		height, err := s.Chain.Height(s.Ctx)
+	// Check that gas price decreased
+	finalGasPrice := s.QueryFeemarketGasPrice(s.Denom)
+	s.T().Logf("Final gas price: %s", finalGasPrice.String())
+
+	s.Require().True(finalGasPrice.Amount.LTE(initialGasPrice.Amount),
+		"Gas price did not decrease. Initial: %s, Final: %s",
+		initialGasPrice.String(), finalGasPrice.String())
+
+	// Verify it reached the minimum
+	s.Require().True(finalGasPrice.Amount.Equal(params.MinBaseGasPrice),
+		"Gas price did not reach minimum. Current: %s, Min: %s",
+		finalGasPrice.String(), params.MinBaseGasPrice.String())
+
+	// Verify price trend was decreasing
+	s.verifyPriceDecreaseTrend(prices, params.MinBaseGasPrice)
+
+	// Verify user balances decreased (they paid for transactions)
+	for _, user := range users {
+		amt, err := s.Chain.GetBalance(s.Ctx, user.FormattedAddress(), s.Denom)
 		s.Require().NoError(err)
-		s.WaitForHeight(s.Chain, height+5)
-
-		gasPrice := s.QueryFeemarketGasPrice(s.Denom)
-		s.T().Log("gas price", gasPrice.String())
-
-		amt, err := s.Chain.GetBalance(s.Ctx, user1.FormattedAddress(), minBaseFee.Denom)
-		s.Require().NoError(err)
-		s.Require().True(amt.LT(math.NewInt(e2esuite.InitBalance)), amt)
-		s.T().Log("balance:", amt.String())
-	})
+		s.Require().True(amt.LT(math.NewInt(e2esuite.InitBalance)),
+			"User balance did not decrease: %s", amt.String())
+	}
 }
 
 // TestSendTxIncrease tests that the feemarket will increase
 // when gas utilization is above the target block utilization.
 func (s *FeemarketTestSuite) TestSendTxIncrease() {
-	// get nodes
 	nodes := s.Chain.Nodes()
 	s.Require().True(len(nodes) > 0)
 
 	params := s.QueryFeemarketParams()
-
-	gas := int64(params.MaxBlockUtilization)
 	sendAmt := int64(100)
 
-	user1 := s.GetAndFundTestUser("user1", 200000000000, s.Chain)
-	user2 := s.GetAndFundTestUser("user2", 200000000000, s.Chain)
-	user3 := s.GetAndFundTestUser("user3", 200000000000, s.Chain)
+	// Wait for gas price to reach minimum before starting the test
+	s.T().Log("Waiting for gas price to reach minimum...")
+	s.waitForMinimumGasPrice(params)
 
-	err := testutil.WaitForBlocks(s.Ctx, 5, s.Chain)
-	require.NoError(s.T(), err)
+	// Record initial state
+	initialGasPrice := s.QueryFeemarketGasPrice(s.Denom)
+	s.T().Logf("Initial gas price: %s", initialGasPrice.String())
 
-	s.Run("expect fee market gas price to increase", func() {
-		s.T().Log("performing sends...")
-		sig := make(chan struct{})
-		quit := make(chan struct{})
-		defer close(quit)
+	// Ensure we're starting from the minimum gas price
+	s.Require().True(initialGasPrice.Amount.Equal(params.MinBaseGasPrice),
+		"Gas price not at minimum. Current: %s, Min: %s",
+		initialGasPrice.String(), params.MinBaseGasPrice.String())
 
-		checkPrice := func(c, quit chan struct{}) {
-			select {
-			case <-time.After(500 * time.Millisecond):
-				gasPrice := s.QueryFeemarketGasPrice(s.Denom)
-				s.T().Log("gas price", gasPrice.String())
+	// Setup test users
+	users := []ibc.Wallet{
+		s.GetAndFundTestUser("user1", 200000000000, s.Chain),
+		s.GetAndFundTestUser("user2", 200000000000, s.Chain),
+		s.GetAndFundTestUser("user3", 200000000000, s.Chain),
+	}
 
-				if gasPrice.Amount.GT(s.TxConfig.TargetIncreaseGasPrice) {
-					c <- struct{}{}
-				}
-			case <-quit:
-				return
-			}
+	// Monitor gas prices in separate goroutine
+	priceUpdates := make(chan sdk.DecCoin, 100)
+	stopMonitoring := make(chan struct{})
+	monitoringDone := make(chan struct{})
+
+	go s.monitorGasPrice(priceUpdates, stopMonitoring, monitoringDone)
+
+	// Send transactions to create congestion
+	txErrors := s.createNetworkCongestion(users, sendAmt)
+
+	if len(txErrors) > 0 {
+		s.T().Logf("Some transactions failed during network congestion: %v", txErrors)
+	}
+
+	// Stop monitoring and collect results
+	close(stopMonitoring)
+	<-monitoringDone
+	close(priceUpdates)
+
+	// Analyze price changes
+	prices := []sdk.DecCoin{}
+	for price := range priceUpdates {
+		prices = append(prices, price)
+	}
+
+	// Verify results
+	s.Require().True(len(prices) > 0, "No price updates captured")
+	s.T().Logf("Price updates: %v", prices)
+
+	// Find the maximum gas price during the congestion period
+	maxGasPrice := initialGasPrice.Amount
+	for _, price := range prices {
+		if price.Amount.GT(maxGasPrice) {
+			maxGasPrice = price.Amount
 		}
-		go checkPrice(sig, quit)
+	}
 
-		select {
-		case <-sig:
-			break
+	// Check that gas price increased during congestion (but may have decreased afterward)
+	finalGasPrice := s.QueryFeemarketGasPrice(s.Denom)
+	s.T().Logf("Final gas price: %s", finalGasPrice.String())
+	s.T().Logf("Maximum gas price during congestion: %s%s", maxGasPrice.String(), s.Denom)
 
-		case <-time.After(100 * time.Millisecond):
-			// send with the exact expected baseGasPrice
-			baseGasPrice := s.QueryFeemarketGasPrice(s.Denom)
-			minBaseFee := sdk.NewDecCoinFromDec(baseGasPrice.Denom, baseGasPrice.Amount.Mul(math.LegacyNewDec(gas)))
-			// add headroom
-			minBaseFeeCoins := sdk.NewCoins(sdk.NewCoin(minBaseFee.Denom, minBaseFee.Amount.Add(math.LegacyNewDec(10)).TruncateInt()))
+	s.Require().True(maxGasPrice.GT(initialGasPrice.Amount),
+		"Gas price did not increase during congestion. Initial: %s, Maximum: %s%s",
+		initialGasPrice.String(), maxGasPrice.String(), s.Denom)
 
-			wg := &sync.WaitGroup{}
-			wg.Add(3)
+	// Verify there was indeed an increase (as a percentage)
+	priceIncreaseRatio := maxGasPrice.Quo(initialGasPrice.Amount)
+	s.T().Logf("Maximum price increase: %.2fx", priceIncreaseRatio.MustFloat64())
+	s.Require().True(priceIncreaseRatio.GT(math.LegacyMustNewDecFromStr("1.1")),
+		"Gas price should have increased by at least 10%% during congestion. Ratio: %.2fx",
+		priceIncreaseRatio.MustFloat64())
 
-			largeSend := func(wg *sync.WaitGroup, userA, userB ibc.Wallet) {
-				defer wg.Done()
-				txResp, err := s.SendCoinsMultiBroadcast(
-					userA,
-					userB,
-					sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
-					minBaseFeeCoins,
-					gas,
-					s.TxConfig.LargeSendsNum,
-				)
-				if err != nil {
-					s.T().Log(err)
-				} else if txResp != nil && txResp.CheckTx.Code != 0 {
-					s.T().Log(txResp.CheckTx)
-				}
-			}
-			go largeSend(wg, user1, user2)
-			go largeSend(wg, user3, user2)
-			go largeSend(wg, user2, user1)
-
-			wg.Wait()
-		}
-
-		// wait for 5 blocks
-		// query height
-		height, err := s.Chain.Height(s.Ctx)
-		s.Require().NoError(err)
-		s.WaitForHeight(s.Chain, height+5)
-
-		gasPrice := s.QueryFeemarketGasPrice(s.Denom)
-		s.T().Log("gas price", gasPrice.String())
-
-		amt, err := s.Chain.GetBalance(s.Ctx, user1.FormattedAddress(), gasPrice.Denom)
-		s.Require().NoError(err)
-		s.T().Log("balance:", amt.String())
-	})
+	s.T().Logf("✅ Feemarket test PASSED: Gas price successfully increased from %s to %s during congestion",
+		initialGasPrice.String(), maxGasPrice.String()+s.Denom)
 }
 
 func (s *FeemarketTestSuite) TestSendTxFailures() {
@@ -329,10 +337,9 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 		)
 		s.Require().NoError(err)
 		s.Require().NotNil(txResp)
-		s.Require().True(txResp.CheckTx.Code == 0)
-		s.Require().True(txResp.TxResult.Code != 0)
-		s.T().Log(txResp.TxResult.Log)
-		s.Require().Contains(txResp.TxResult.Log, "insufficient funds")
+		s.Require().True(txResp.CheckTx.Code != 0)
+		s.T().Log(txResp.CheckTx.Log)
+		s.Require().Contains(txResp.CheckTx.Log, "insufficient funds")
 
 		// ensure that balance is deducted for any tx passing checkTx
 		newBalance := s.QueryBankBalance(user3)
@@ -358,10 +365,9 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 		)
 		s.Require().NoError(err)
 		s.Require().NotNil(txResp)
-		s.Require().True(txResp.CheckTx.Code == 0)
-		s.Require().True(txResp.TxResult.Code != 0)
-		s.T().Log(txResp.TxResult.Log)
-		s.Require().Contains(txResp.TxResult.Log, "insufficient funds")
+		s.Require().True(txResp.CheckTx.Code != 0)
+		s.T().Log(txResp.CheckTx.Log)
+		s.Require().Contains(txResp.CheckTx.Log, "insufficient funds")
 
 		// ensure that balance is deducted for any tx passing checkTx
 		newBalance := s.QueryBankBalance(user3)
@@ -431,11 +437,11 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 		nodes := s.Chain.Nodes()
 		s.Require().True(len(nodes) > 0)
 
-		// wait for 5 blocks
+		// wait for 1 block
 		// query height
 		height, err := s.Chain.Height(context.Background())
 		s.Require().NoError(err)
-		s.WaitForHeight(s.Chain, height+2)
+		s.WaitForHeight(s.Chain, height+1)
 
 		// after waiting, we can now query the Tx Responses
 		resp, err := nodes[0].TxHashToResponse(context.Background(), hash1.String())

@@ -69,6 +69,7 @@ import (
 	upgrades "github.com/CosmosContracts/juno/v30/app/upgrades"
 	v28 "github.com/CosmosContracts/juno/v30/app/upgrades/v28"
 	v29 "github.com/CosmosContracts/juno/v30/app/upgrades/v29"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )
 
 const (
@@ -295,6 +296,12 @@ func New(
 	if err != nil {
 		panic(err)
 	}
+
+	// TODO: IMPORTANT!!! Create real denom resolver, this one uses the same amount
+	// token amount for every denom. 1ujuno != 1uatom in price.
+	// Resolve to denom should be based on the price of the denom in an oracle module
+	// or temporarily use a hardcoded token price ratio from ujuno to x token
+	app.AppKeepers.FeeMarketKeeper.SetDenomResolver(&feemarkettypes.TestDenomResolver{})
 
 	app.SetAnteHandler(anteHandler)
 	app.SetPostHandler(postHandler)

@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
@@ -42,22 +41,13 @@ type KeyringOverride struct {
 }
 
 type TestTxConfig struct {
-	SmallSendsNum          int
-	LargeSendsNum          int
-	TargetIncreaseGasPrice math.LegacyDec
+	SmallSendsNum int
+	LargeSendsNum int
 }
 
 func (tx *TestTxConfig) Validate() error {
 	if tx.SmallSendsNum < 1 || tx.LargeSendsNum < 1 {
 		return fmt.Errorf("sends num should be greater than 1")
-	}
-
-	if tx.TargetIncreaseGasPrice.IsNil() {
-		return fmt.Errorf("target increase gas price is nil")
-	}
-
-	if tx.TargetIncreaseGasPrice.LTE(math.LegacyZeroDec()) {
-		return fmt.Errorf("target increase gas price is less than or equal to 0")
 	}
 
 	return nil

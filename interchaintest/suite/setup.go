@@ -37,21 +37,15 @@ var (
 	DefaultNumValidators    = 1
 	DefaultNumFullNodes     = 0
 	DefaultHaltHeightDelta  = int64(9) // will propose upgrade this many blocks in the future
-	DefaultMinBaseGasPrice  = sdkmath.LegacyMustNewDecFromStr("0.001")
-	DefaultBaseGasPrice     = sdkmath.LegacyMustNewDecFromStr("0.1")
+	DefaultMinBaseGasPrice  = sdkmath.LegacyMustNewDecFromStr("0.002")
+	DefaultBaseGasPrice     = sdkmath.LegacyMustNewDecFromStr("1")
 	DefaultNoHostMount      = false
 
 	JunoRepo              = "ghcr.io/cosmoscontracts/juno"
-	HubRepo               = "ghcr.io/cosmos/gaia"
 	junoRepo, junoVersion = GetDockerImageInfo()
 	JunoImage             = ibc.DockerImage{
 		Repository: junoRepo,
 		Version:    junoVersion,
-		UIDGID:     "1025:1025",
-	}
-	HubImage = ibc.DockerImage{
-		Repository: HubRepo,
-		Version:    "v23.3.0",
 		UIDGID:     "1025:1025",
 	}
 
@@ -94,8 +88,8 @@ var (
 				MinBaseGasPrice:     DefaultMinBaseGasPrice,
 				MinLearningRate:     feemarkettypes.DefaultAIMDMinLearningRate,
 				MaxLearningRate:     feemarkettypes.DefaultAIMDMaxLearningRate,
-				MaxBlockUtilization: 100_000_000,
-				Window:              16,
+				MaxBlockUtilization: 3_000_000,
+				Window:              8,
 				FeeDenom:            DefaultDenom,
 				Enabled:             true,
 				DistributeFees:      false,
@@ -106,7 +100,7 @@ var (
 			Value: feemarkettypes.State{
 				BaseGasPrice: DefaultBaseGasPrice,
 				LearningRate: feemarkettypes.DefaultAIMDMaxLearningRate,
-				Window:       make([]uint64, 16),
+				Window:       make([]uint64, 8),
 				Index:        0,
 			},
 		},
@@ -123,7 +117,7 @@ var (
 		Gas:            "auto",
 		CoinType:       "118",
 		GasPrices:      "",
-		GasAdjustment:  10,
+		GasAdjustment:  3,
 		TrustingPeriod: "112h",
 		NoHostMount:    DefaultNoHostMount,
 		EncodingConfig: MakeJunoEncoding(),
@@ -141,9 +135,8 @@ var (
 	}
 
 	DefaultTxCfg = TestTxConfig{
-		SmallSendsNum:          1,
-		LargeSendsNum:          400,
-		TargetIncreaseGasPrice: sdkmath.LegacyMustNewDecFromStr("0.11"),
+		SmallSendsNum: 1,
+		LargeSendsNum: 400,
 	}
 )
 
@@ -154,7 +147,7 @@ func init() {
 	sdk.GetConfig().SetCoinType(118)
 }
 
-// junoEncoding registers the Juno specific module codecs so that the associated types and msgs
+// MakeJunoEncoding registers the Juno specific module codecs so that the associated types and msgs
 // will be supported when writing to the blocksdb sqlite database.
 func MakeJunoEncoding() *testutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()

@@ -59,7 +59,7 @@ func (s *E2ETestSuite) SendCoinsMultiBroadcast(sender, receiver ibc.Wallet, amt,
 		}
 	}
 
-	tx := s.CreateTx(s.Chain, sender, fees.String(), gas, false, msgs...)
+	tx := s.CreateTx(s.Chain, sender, fees.String(), gas, true, msgs...)
 
 	// get an rpc endpoint for the chain
 	c := s.Chain.Nodes()[0].Client
@@ -240,7 +240,10 @@ func (s *E2ETestSuite) CreateTx(chain *cosmos.CosmosChain, user cosmos.User, fee
 	// update sequence number
 	txf = txf.WithSequence(txf.Sequence())
 	if bumpSequence {
-		txf = txf.WithSequence(txf.Sequence() + 1)
+		if txf.Sequence() == 0 {
+			txf = txf.WithSequence(0)
+		}
+		txf = txf.WithSequence(txf.Sequence())
 	}
 
 	// sign the tx

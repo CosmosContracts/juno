@@ -71,8 +71,22 @@ from_scratch() {
 
   # Custom Modules
   # Feemarket
-  update_test_genesis '.app_state["feemarket"]["params"]["min_base_gas_price"]="0.002500000000000000"'
+  update_test_genesis '.app_state["feemarket"]["params"]["alpha"]="0.025"'
+  update_test_genesis '.app_state["feemarket"]["params"]["beta"]="0.95"'
+  update_test_genesis '.app_state["feemarket"]["params"]["gamma"]="0.25"'
+  update_test_genesis '.app_state["feemarket"]["params"]["delta"]="0.0"'
+  update_test_genesis '.app_state["feemarket"]["params"]["fee_denom"]="ujuno"'
+  update_test_genesis '.app_state["feemarket"]["params"]["max_block_utilization"]=100000000'
+  update_test_genesis '.app_state["feemarket"]["params"]["min_base_gas_price"]="0.0015"'
+  update_test_genesis '.app_state["feemarket"]["params"]["window"]=16'
+  update_test_genesis '.app_state["feemarket"]["params"]["min_learning_rate"]="0.01"'
+  update_test_genesis '.app_state["feemarket"]["params"]["max_learning_rate"]="0.5"'
   update_test_genesis '.app_state["feemarket"]["params"]["enabled"]=true'
+  update_test_genesis '.app_state["feemarket"]["params"]["distribute_fees"]=true'
+  update_test_genesis '.app_state["feemarket"]["state"]["base_gas_price"]="0.0025"'
+  update_test_genesis '.app_state["feemarket"]["state"]["learning_rate"]="0.5"'
+  update_test_genesis '.app_state["feemarket"]["state"]["window"]=[0,0,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0]'
+  update_test_genesis '.app_state["feemarket"]["state"]["index"]=0'
   # Drip
   update_test_genesis '.app_state["drip"]["params"]["allowed_addresses"]=["juno1hj5fveer5cjtn4wd6wstzugjfdxzl0xps73ftl","juno1efd63aw40lxf3n4mhf7dzhjkr453axurv2zdzk"]'
   # Clock
