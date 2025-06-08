@@ -4,6 +4,7 @@ bin
 # IDEs
 .vscode
 .cursor
+.claude
 
 # OS
 .DS_Store

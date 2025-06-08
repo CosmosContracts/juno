@@ -218,12 +218,11 @@ func (s *E2ETestSuite) CreateTx(chain *cosmos.CosmosChain, user cosmos.User, fee
 ) []byte {
 	bc := cosmos.NewBroadcaster(s.T(), chain)
 
-	ctx := context.Background()
 	// create tx factory + Client Context
-	txf, err := bc.GetFactory(ctx, user)
+	txf, err := bc.GetFactory(s.Ctx, user)
 	s.Require().NoError(err)
 
-	cc, err := bc.GetClientContext(ctx, user)
+	cc, err := bc.GetClientContext(s.Ctx, user)
 	s.Require().NoError(err)
 
 	txf = txf.WithSimulateAndExecute(true)

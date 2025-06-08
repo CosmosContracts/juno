@@ -63,141 +63,6 @@ func (s *FeemarketTestSuite) waitForMinimumGasPrice(params feemarketypes.Params)
 	}
 }
 
-// elevateGasPrices creates congestion to raise gas prices before testing decrease
-func (s *FeemarketTestSuite) elevateGasPrices(params feemarketypes.Params) {
-	tempUsers := []ibc.Wallet{
-		s.GetAndFundTestUser("temp1", 200000000000, s.Chain),
-		s.GetAndFundTestUser("temp2", 200000000000, s.Chain),
-	}
-
-	gasPerTx := int64(params.MaxBlockUtilization / 3)
-	iterations := 3
-
-	for range iterations {
-		var wg sync.WaitGroup
-		baseGasPrice := s.QueryFeemarketGasPrice(s.Denom)
-
-		// Calculate fees with buffer
-		feeAmount := baseGasPrice.Amount.Mul(math.LegacyNewDec(gasPerTx)).Mul(math.LegacyNewDec(2))
-		fees := sdk.NewCoins(sdk.NewCoin(baseGasPrice.Denom, feeAmount.TruncateInt()))
-
-		// Send large transactions
-		for _, user := range tempUsers {
-			wg.Add(1)
-			go func(sender ibc.Wallet) {
-				defer wg.Done()
-
-				_, _ = s.SendCoinsMultiBroadcast(
-					sender,
-					tempUsers[0], // just send to first user
-					sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(100))),
-					fees,
-					gasPerTx,
-					10, // send 10 transactions
-				)
-			}(user)
-		}
-
-		wg.Wait()
-
-		// Wait for block
-		height, _ := s.Chain.Height(s.Ctx)
-		s.WaitForHeight(s.Chain, height+1)
-	}
-
-	// Ensure price is elevated
-	currentPrice := s.QueryFeemarketGasPrice(s.Denom)
-	if currentPrice.Amount.LTE(params.MinBaseGasPrice) {
-		s.T().Fatal("Failed to elevate gas prices for decrease test")
-	}
-}
-
-// sendMinimalTransactions sends a small number of transactions to avoid congestion
-func (s *FeemarketTestSuite) sendMinimalTransactions(
-	users []ibc.Wallet,
-	gasPerTx int64,
-	sendAmt int64,
-) []error {
-	var (
-		wg       sync.WaitGroup
-		errorsMu sync.Mutex
-		errors   []error
-	)
-
-	baseGasPrice := s.QueryFeemarketGasPrice(s.Denom)
-
-	// Calculate fees - use current price without much buffer
-	feeAmount := baseGasPrice.Amount.
-		Mul(math.LegacyNewDec(gasPerTx))
-		// Mul(math.LegacyMustNewDecFromStr("1.1"))
-	fees := sdk.NewCoins(sdk.NewCoin(baseGasPrice.Denom, feeAmount.TruncateInt()))
-
-	// Send minimal transactions - one per user
-	for i, sender := range users {
-		receiver := users[(i+1)%len(users)]
-		wg.Add(1)
-
-		go func(from, to ibc.Wallet) {
-			defer wg.Done()
-
-			// Send only SmallSendsNum transactions
-			txResp, err := s.SendCoinsMultiBroadcast(
-				from,
-				to,
-				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
-				fees,
-				gasPerTx,
-				s.TxConfig.SmallSendsNum,
-			)
-
-			if err != nil {
-				errorsMu.Lock()
-				errors = append(errors, fmt.Errorf("broadcast error: %w", err))
-				errorsMu.Unlock()
-				return
-			}
-
-			if txResp != nil && txResp.CheckTx.Code != 0 {
-				errorsMu.Lock()
-				errors = append(errors, fmt.Errorf("check tx failed: %s", txResp.CheckTx.Log))
-				errorsMu.Unlock()
-			}
-		}(sender, receiver)
-	}
-
-	wg.Wait()
-	return errors
-}
-
-// verifyPriceDecreaseTrend ensures prices generally decreased over time
-func (s *FeemarketTestSuite) verifyPriceDecreaseTrend(prices []sdk.DecCoin, minPrice math.LegacyDec) {
-	if len(prices) < 2 {
-		return
-	}
-
-	// Track how many samples showed decrease
-	decreases := 0
-	hitMinimum := false
-
-	for i := 1; i < len(prices); i++ {
-		if prices[i].Amount.LT(prices[i-1].Amount) {
-			decreases++
-		}
-		if prices[i].Amount.Equal(minPrice) {
-			hitMinimum = true
-		}
-	}
-
-	trendPercentage := float64(decreases) / float64(len(prices)-1) * 100
-	s.T().Logf("Price decrease trend: %.2f%% of samples showed decrease", trendPercentage)
-	s.T().Logf("Hit minimum price: %v", hitMinimum)
-
-	// At least 50% of samples should show a decreasing trend
-	// (lower threshold than increase test because prices may stabilize at minimum)
-	s.Require().True(trendPercentage >= 50.0 || hitMinimum,
-		"Price trend not sufficiently decreasing: %.2f%% and didn't hit minimum", trendPercentage)
-}
-
 // monitorGasPrice continuously monitors gas price changes
 func (s *FeemarketTestSuite) monitorGasPrice(
 	updates chan<- sdk.DecCoin,
@@ -237,7 +102,7 @@ func (s *FeemarketTestSuite) createNetworkCongestion(
 	// Each bank send consumes ~70k gas
 	// To exceed 3M gas target, we need: 3,000,000 / 70,000 = ~43 bank sends minimum
 	// Let's use 50 messages per transaction to be safe, and send one transaction per user
-	messagesPerTransaction := 50        // 50 * 70k = 3.5M gas per transaction - exceeds target
+	messagesPerTransaction := 100       // 50 * 70k = 3.5M gas per transaction - exceeds target
 	gasPerTransaction := int64(4000000) // High gas limit to accommodate 50 messages
 
 	s.T().Logf("Congesting network: %d users, %d msgs per tx (~3.5M actual gas per tx)",
@@ -245,7 +110,7 @@ func (s *FeemarketTestSuite) createNetworkCongestion(
 
 	// Get current gas price and calculate fees
 	currentGasPrice := s.QueryFeemarketGasPrice(s.Denom)
-	feeMultiplier := math.LegacyNewDec(5) // High multiplier to ensure inclusion
+	feeMultiplier := math.LegacyNewDec(3) // High multiplier to ensure inclusion
 	feeAmount := currentGasPrice.Amount.Mul(math.LegacyNewDec(gasPerTransaction)).Mul(feeMultiplier)
 	fees := sdk.NewCoins(sdk.NewCoin(currentGasPrice.Denom, feeAmount.TruncateInt()))
 
@@ -272,7 +137,25 @@ func (s *FeemarketTestSuite) createNetworkCongestion(
 				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
 				fees,
 				gasPerTransaction,
-				messagesPerTransaction, // Many messages in single transaction
+				messagesPerTransaction,
+			)
+
+			txResp, err = s.SendCoinsMultiBroadcast(
+				from,
+				receiver,
+				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
+				fees,
+				gasPerTransaction,
+				messagesPerTransaction,
+			)
+
+			txResp, err = s.SendCoinsMultiBroadcast(
+				from,
+				receiver,
+				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
+				fees,
+				gasPerTransaction,
+				messagesPerTransaction,
 			)
 
 			if err != nil {
@@ -321,51 +204,4 @@ func (s *FeemarketTestSuite) createNetworkCongestion(
 		currentGasPrice.String(), newGasPrice.String(), priceRatio.MustFloat64())
 
 	return allErrors
-}
-
-// verifyPriceTrend ensures prices generally increased over time
-func (s *FeemarketTestSuite) verifyPriceTrend(prices []sdk.DecCoin) {
-	if len(prices) < 4 { // Need at least 4 samples for windowing
-		s.T().Logf("Not enough price samples (%d) for trend analysis", len(prices))
-		return
-	}
-
-	// Calculate moving average to smooth out fluctuations
-	windowSize := 3
-	increases := 0
-
-	// Start from windowSize+1 to ensure we have enough data for both windows
-	for i := windowSize + 1; i < len(prices); i++ {
-		currentAvg := s.calculateAverage(prices[i-windowSize : i])
-		previousAvg := s.calculateAverage(prices[i-windowSize-1 : i-1])
-
-		if currentAvg.GT(previousAvg) {
-			increases++
-		}
-	}
-
-	// Only calculate trend if we have samples to analyze
-	totalComparisons := len(prices) - windowSize - 1
-	if totalComparisons <= 0 {
-		s.T().Logf("Not enough price samples for trend comparison")
-		return
-	}
-
-	trendPercentage := float64(increases) / float64(totalComparisons) * 100
-	s.T().Logf("Price increase trend: %.2f%% of samples showed increase (%d/%d)",
-		trendPercentage, increases, totalComparisons)
-
-	// At least 30% of samples should show an increasing trend
-	// (lowered threshold since we expect prices to decrease after congestion ends)
-	s.Require().True(trendPercentage >= 30.0,
-		"Price trend not sufficiently increasing: %.2f%%", trendPercentage)
-}
-
-// calculateAverage computes the average of a slice of DecCoins
-func (s *FeemarketTestSuite) calculateAverage(prices []sdk.DecCoin) math.LegacyDec {
-	sum := math.LegacyZeroDec()
-	for _, p := range prices {
-		sum = sum.Add(p.Amount)
-	}
-	return sum.Quo(math.LegacyNewDec(int64(len(prices))))
 }
