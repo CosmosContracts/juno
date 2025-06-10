@@ -34,26 +34,21 @@ type WebSocketMessage struct {
 	Data any    `json:"data"`
 }
 
-// StartWebSocketServer starts the WebSocket server
-func (k *Keeper) StartWebSocketServer(addr string) error {
-	router := mux.NewRouter()
-
-	// Bank endpoints
-	router.HandleFunc("/subscribe/bank/balance/{address}/{denom}", k.handleBalanceSubscription)
-	router.HandleFunc("/subscribe/bank/balances/{address}", k.handleAllBalancesSubscription)
-
-	// Staking endpoints
-	router.HandleFunc("/subscribe/staking/delegations/{delegator}", k.handleDelegationsSubscription)
-	router.HandleFunc("/subscribe/staking/delegation/{delegator}/{validator}", k.handleDelegationSubscription)
-	router.HandleFunc("/subscribe/staking/unbonding-delegations/{delegator}", k.handleUnbondingDelegationsSubscription)
-	router.HandleFunc("/subscribe/staking/unbonding-delegation/{delegator}/{validator}", k.handleUnbondingDelegationSubscription)
-
-	k.logger.Info("starting WebSocket server", "address", addr)
-	return http.ListenAndServe(addr, router)
+// getQueryContextOrSendError gets the query context or sends an error message and returns false
+func (k *Keeper) getQueryContextOrSendError(conn *websocket.Conn) (context.Context, bool) {
+	queryCtx, err := k.GetQueryContext()
+	if err != nil {
+		k.logger.Error("failed to get query context", "error", err)
+		if sendErr := k.sendWebSocketMessage(conn, "error", map[string]string{"error": "internal server error"}); sendErr != nil {
+			k.logger.Error("failed to send error message", "error", sendErr)
+		}
+		return nil, false
+	}
+	return queryCtx, true
 }
 
-// handleBalanceSubscription handles balance subscription WebSocket connections
-func (k *Keeper) handleBalanceSubscription(w http.ResponseWriter, r *http.Request) {
+// HandleBalanceSubscription handles balance subscription WebSocket connections
+func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	address := vars["address"]
 	denom := vars["denom"]
@@ -74,25 +69,35 @@ func (k *Keeper) handleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// Get query context with proper SDK context
+	queryCtx, ok := k.getQueryContextOrSendError(conn)
+	if !ok {
+		return
+	}
+
 	// Send initial balance
-	balance := k.bankKeeper.GetBalance(sdk.UnwrapSDKContext(ctx), sdk.MustAccAddressFromBech32(address), denom)
+	balance := k.bankKeeper.GetBalance(queryCtx, sdk.MustAccAddressFromBech32(address), denom)
 	if err := k.sendWebSocketMessage(conn, "balance", balance); err != nil {
 		return
 	}
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeBalance, address, "", denom)
-	sendCh := make(chan interface{}, 32)
+	sendCh := make(chan any, 32)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() interface{} {
-		return k.bankKeeper.GetBalance(sdk.UnwrapSDKContext(ctx), sdk.MustAccAddressFromBech32(address), denom)
+	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+		queryCtx, err := k.GetQueryContext()
+		if err != nil {
+			return map[string]string{"error": "failed to get context"}
+		}
+		return k.bankKeeper.GetBalance(queryCtx, sdk.MustAccAddressFromBech32(address), denom)
 	})
 }
 
-// handleAllBalancesSubscription handles all balances subscription WebSocket connections
-func (k *Keeper) handleAllBalancesSubscription(w http.ResponseWriter, r *http.Request) {
+// HandleAllBalancesSubscription handles all balances subscription WebSocket connections
+func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	address := vars["address"]
 
@@ -113,25 +118,35 @@ func (k *Keeper) handleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// Get query context with proper SDK context
+	queryCtx, ok := k.getQueryContextOrSendError(conn)
+	if !ok {
+		return
+	}
+
 	// Send initial balances
-	balances := k.bankKeeper.GetAllBalances(sdk.UnwrapSDKContext(ctx), addr)
+	balances := k.bankKeeper.GetAllBalances(queryCtx, addr)
 	if err := k.sendWebSocketMessage(conn, "balances", balances); err != nil {
 		return
 	}
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeAllBalances, address, "", "")
-	sendCh := make(chan interface{}, 32)
+	sendCh := make(chan any, 32)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() interface{} {
-		return k.bankKeeper.GetAllBalances(sdk.UnwrapSDKContext(ctx), addr)
+	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+		queryCtx, err := k.GetQueryContext()
+		if err != nil {
+			return map[string]string{"error": "failed to get context"}
+		}
+		return k.bankKeeper.GetAllBalances(queryCtx, addr)
 	})
 }
 
-// handleDelegationsSubscription handles delegations subscription WebSocket connections
-func (k *Keeper) handleDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
+// HandleDelegationsSubscription handles delegations subscription WebSocket connections
+func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	delegatorAddress := vars["delegator"]
 
@@ -152,25 +167,35 @@ func (k *Keeper) handleDelegationsSubscription(w http.ResponseWriter, r *http.Re
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// Get query context with proper SDK context
+	queryCtx, ok := k.getQueryContextOrSendError(conn)
+	if !ok {
+		return
+	}
+
 	// Send initial delegations
-	delegations := k.getDelegationResponses(delAddr)
+	delegations := k.getDelegationResponses(queryCtx, delAddr)
 	if err := k.sendWebSocketMessage(conn, "delegations", delegations); err != nil {
 		return
 	}
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegations, delegatorAddress, "", "")
-	sendCh := make(chan interface{}, 32)
+	sendCh := make(chan any, 32)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() interface{} {
-		return k.getDelegationResponses(delAddr)
+	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+		queryCtx, err := k.GetQueryContext()
+		if err != nil {
+			return []stakingtypes.DelegationResponse{}
+		}
+		return k.getDelegationResponses(queryCtx, delAddr)
 	})
 }
 
-// handleDelegationSubscription handles delegation subscription WebSocket connections
-func (k *Keeper) handleDelegationSubscription(w http.ResponseWriter, r *http.Request) {
+// HandleDelegationSubscription handles delegation subscription WebSocket connections
+func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	delegatorAddress := vars["delegator"]
 	validatorAddress := vars["validator"]
@@ -197,25 +222,35 @@ func (k *Keeper) handleDelegationSubscription(w http.ResponseWriter, r *http.Req
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// Get query context with proper SDK context
+	queryCtx, ok := k.getQueryContextOrSendError(conn)
+	if !ok {
+		return
+	}
+
 	// Send initial delegation
-	delegation := k.getDelegationResponse(delAddr, valAddr)
+	delegation := k.getDelegationResponse(queryCtx, delAddr, valAddr)
 	if err := k.sendWebSocketMessage(conn, "delegation", delegation); err != nil {
 		return
 	}
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegation, delegatorAddress, validatorAddress, "")
-	sendCh := make(chan interface{}, 32)
+	sendCh := make(chan any, 32)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() interface{} {
-		return k.getDelegationResponse(delAddr, valAddr)
+	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+		queryCtx, err := k.GetQueryContext()
+		if err != nil {
+			return map[string]any{"found": false}
+		}
+		return k.getDelegationResponse(queryCtx, delAddr, valAddr)
 	})
 }
 
-// handleUnbondingDelegationsSubscription handles unbonding delegations subscription WebSocket connections
-func (k *Keeper) handleUnbondingDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
+// HandleUnbondingDelegationsSubscription handles unbonding delegations subscription WebSocket connections
+func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	delegatorAddress := vars["delegator"]
 
@@ -236,8 +271,14 @@ func (k *Keeper) handleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// Get query context with proper SDK context
+	queryCtx, ok := k.getQueryContextOrSendError(conn)
+	if !ok {
+		return
+	}
+
 	// Send initial unbonding delegations
-	unbondingDelegations, err := k.stakingKeeper.GetAllUnbondingDelegations(sdk.UnwrapSDKContext(ctx), delAddr)
+	unbondingDelegations, err := k.stakingKeeper.GetAllUnbondingDelegations(queryCtx, delAddr)
 	if err != nil {
 		k.logger.Error("failed to get unbonding delegations", "error", err)
 		unbondingDelegations = []stakingtypes.UnbondingDelegation{}
@@ -248,12 +289,16 @@ func (k *Keeper) handleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegations, delegatorAddress, "", "")
-	sendCh := make(chan interface{}, 32)
+	sendCh := make(chan any, 32)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() interface{} {
-		unbondingDelegations, err := k.stakingKeeper.GetAllUnbondingDelegations(sdk.UnwrapSDKContext(ctx), delAddr)
+	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+		queryCtx, err := k.GetQueryContext()
+		if err != nil {
+			return []stakingtypes.UnbondingDelegation{}
+		}
+		unbondingDelegations, err := k.stakingKeeper.GetAllUnbondingDelegations(queryCtx, delAddr)
 		if err != nil {
 			return []stakingtypes.UnbondingDelegation{}
 		}
@@ -261,8 +306,8 @@ func (k *Keeper) handleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 	})
 }
 
-// handleUnbondingDelegationSubscription handles unbonding delegation subscription WebSocket connections
-func (k *Keeper) handleUnbondingDelegationSubscription(w http.ResponseWriter, r *http.Request) {
+// HandleUnbondingDelegationSubscription handles unbonding delegation subscription WebSocket connections
+func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	delegatorAddress := vars["delegator"]
 	validatorAddress := vars["validator"]
@@ -289,9 +334,15 @@ func (k *Keeper) handleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// Get query context with proper SDK context
+	queryCtx, ok := k.getQueryContextOrSendError(conn)
+	if !ok {
+		return
+	}
+
 	// Send initial unbonding delegation
-	unbondingDelegation, err := k.stakingKeeper.GetUnbondingDelegation(sdk.UnwrapSDKContext(ctx), delAddr, valAddr)
-	data := map[string]interface{}{"found": err == nil}
+	unbondingDelegation, err := k.stakingKeeper.GetUnbondingDelegation(queryCtx, delAddr, valAddr)
+	data := map[string]any{"found": err == nil}
 	if err == nil {
 		data["unbonding_delegation"] = unbondingDelegation
 	}
@@ -301,13 +352,17 @@ func (k *Keeper) handleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegation, delegatorAddress, validatorAddress, "")
-	sendCh := make(chan interface{}, 32)
+	sendCh := make(chan any, 32)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() interface{} {
-		unbondingDelegation, err := k.stakingKeeper.GetUnbondingDelegation(sdk.UnwrapSDKContext(ctx), delAddr, valAddr)
-		data := map[string]interface{}{"found": err == nil}
+	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+		queryCtx, err := k.GetQueryContext()
+		if err != nil {
+			return map[string]any{"found": false}
+		}
+		unbondingDelegation, err := k.stakingKeeper.GetUnbondingDelegation(queryCtx, delAddr, valAddr)
+		data := map[string]any{"found": err == nil}
 		if err == nil {
 			data["unbonding_delegation"] = unbondingDelegation
 		}
@@ -316,7 +371,7 @@ func (k *Keeper) handleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 }
 
 // handleWebSocketConnection handles the WebSocket connection lifecycle
-func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh <-chan interface{}, queryFunc func() interface{}) {
+func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh <-chan any, queryFunc func() any) {
 	conn.SetReadLimit(maxMessageSize)
 	conn.SetReadDeadline(time.Now().Add(pongWait))
 	conn.SetPongHandler(func(string) error {
@@ -349,7 +404,7 @@ func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Con
 }
 
 // sendWebSocketMessage sends a message over WebSocket
-func (k *Keeper) sendWebSocketMessage(conn *websocket.Conn, msgType string, data interface{}) error {
+func (k *Keeper) sendWebSocketMessage(conn *websocket.Conn, msgType string, data any) error {
 	conn.SetWriteDeadline(time.Now().Add(writeWait))
 	message := WebSocketMessage{
 		Type: msgType,
@@ -359,14 +414,13 @@ func (k *Keeper) sendWebSocketMessage(conn *websocket.Conn, msgType string, data
 }
 
 // getDelegationResponses gets delegation responses for a delegator
-func (k *Keeper) getDelegationResponses(delAddr sdk.AccAddress) []stakingtypes.DelegationResponse {
-	ctx := context.Background()
-	delegations, err := k.stakingKeeper.GetAllDelegatorDelegations(sdk.UnwrapSDKContext(ctx), delAddr)
+func (k *Keeper) getDelegationResponses(ctx context.Context, delAddr sdk.AccAddress) []stakingtypes.DelegationResponse {
+	delegations, err := k.stakingKeeper.GetAllDelegatorDelegations(ctx, delAddr)
 	if err != nil {
 		return []stakingtypes.DelegationResponse{}
 	}
 
-	bondDenom, err := k.stakingKeeper.BondDenom(sdk.UnwrapSDKContext(ctx))
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
 	if err != nil {
 		return []stakingtypes.DelegationResponse{}
 	}
@@ -378,7 +432,7 @@ func (k *Keeper) getDelegationResponses(delAddr sdk.AccAddress) []stakingtypes.D
 			continue
 		}
 
-		validator, err := k.stakingKeeper.GetValidator(sdk.UnwrapSDKContext(ctx), valAddr)
+		validator, err := k.stakingKeeper.GetValidator(ctx, valAddr)
 		if err == nil {
 			delegationResponses = append(delegationResponses, stakingtypes.DelegationResponse{
 				Delegation: delegation,
@@ -390,18 +444,17 @@ func (k *Keeper) getDelegationResponses(delAddr sdk.AccAddress) []stakingtypes.D
 }
 
 // getDelegationResponse gets a delegation response for a specific delegator-validator pair
-func (k *Keeper) getDelegationResponse(delAddr sdk.AccAddress, valAddr sdk.ValAddress) interface{} {
-	ctx := context.Background()
-	delegation, err := k.stakingKeeper.GetDelegation(sdk.UnwrapSDKContext(ctx), delAddr, valAddr)
+func (k *Keeper) getDelegationResponse(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) any {
+	delegation, err := k.stakingKeeper.GetDelegation(ctx, delAddr, valAddr)
 
-	data := map[string]interface{}{"found": err == nil}
+	data := map[string]any{"found": err == nil}
 	if err == nil {
-		bondDenom, bondErr := k.stakingKeeper.BondDenom(sdk.UnwrapSDKContext(ctx))
+		bondDenom, bondErr := k.stakingKeeper.BondDenom(ctx)
 		if bondErr != nil {
 			return data
 		}
 
-		validator, valErr := k.stakingKeeper.GetValidator(sdk.UnwrapSDKContext(ctx), valAddr)
+		validator, valErr := k.stakingKeeper.GetValidator(ctx, valAddr)
 		if valErr == nil {
 			delegationResponse := stakingtypes.DelegationResponse{
 				Delegation: delegation,

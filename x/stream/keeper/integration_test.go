@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/CosmosContracts/juno/v30/testutil"
+	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
@@ -31,9 +32,9 @@ func (s *IntegrationTestSuite) TestBankTransactionEvent() {
 	amount := sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(1000000)))
 
 	// Fund sender account
-	err := s.App.AppKeepers.BankKeeper.MintCoins(s.Ctx, types.ModuleName, amount)
+	err := s.App.AppKeepers.BankKeeper.MintCoins(s.Ctx, minttypes.ModuleName, amount)
 	s.Require().NoError(err)
-	err = s.App.AppKeepers.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, types.ModuleName, sender, amount)
+	err = s.App.AppKeepers.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, minttypes.ModuleName, sender, amount)
 	s.Require().NoError(err)
 
 	// Verify initial balances

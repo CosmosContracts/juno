@@ -11,7 +11,7 @@ import (
 // Subscriber represents an active subscription
 type Subscriber struct {
 	ctx    context.Context
-	sendCh chan<- interface{}
+	sendCh chan<- any
 	key    types.SubscriptionKey
 }
 
@@ -31,7 +31,7 @@ func NewSubscriptionRegistry(logger log.Logger) *SubscriptionRegistry {
 }
 
 // Subscribe adds a new subscription
-func (r *SubscriptionRegistry) Subscribe(key types.SubscriptionKey, ctx context.Context, sendCh chan<- interface{}) *Subscriber {
+func (r *SubscriptionRegistry) Subscribe(key types.SubscriptionKey, ctx context.Context, sendCh chan<- any) *Subscriber {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -75,14 +75,14 @@ func (r *SubscriptionRegistry) Unsubscribe(subscriber *Subscriber) {
 }
 
 // FanOut distributes an event to all matching subscribers
-func (r *SubscriptionRegistry) FanOut(event types.StreamEvent, data interface{}) {
+func (r *SubscriptionRegistry) FanOut(event types.StreamEvent, data any) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	// Generate possible subscription keys that match this event
 	keys := r.generateMatchingKeys(event)
-	
-	r.logger.Debug("fanout event", 
+
+	r.logger.Debug("fanout event",
 		"event", event,
 		"matching_keys", keys,
 		"total_subscribers", len(r.subscribers))
@@ -143,7 +143,7 @@ func (r *SubscriptionRegistry) generateMatchingKeys(event types.StreamEvent) []s
 }
 
 // fanOutToSubscribers sends data to all subscribers in the set
-func (r *SubscriptionRegistry) fanOutToSubscribers(subs map[*Subscriber]bool, data interface{}, keyStr string) {
+func (r *SubscriptionRegistry) fanOutToSubscribers(subs map[*Subscriber]bool, data any, keyStr string) {
 	toRemove := make([]*Subscriber, 0)
 
 	for sub := range subs {

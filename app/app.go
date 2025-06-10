@@ -531,6 +531,11 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 		panic(err)
 	}
 
+	// Register WebSocket routes for the stream module
+	if err := app.RegisterWebSocketRoutes(apiSvr); err != nil {
+		panic(err)
+	}
+
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 

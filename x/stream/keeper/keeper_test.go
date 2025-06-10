@@ -48,7 +48,7 @@ func (s *KeeperTestSuite) TestSubscriptionRegistry() {
 
 	// Create a subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeBalance, s.TestAccs[0].String(), "", "ujuno")
-	sendCh := make(chan interface{}, 32)
+	sendCh := make(chan any, 32)
 	subscriber := registry.Subscribe(subKey, ctx, sendCh)
 	s.Require().NotNil(subscriber)
 
