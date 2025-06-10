@@ -37,6 +37,11 @@ type Keeper struct {
 	appCancel  context.CancelFunc
 	stopOnce   sync.Once
 
+	// Connection limits from CometBFT config
+	maxConnections            int
+	maxSubscriptionsPerClient int
+	connectionManager         *ConnectionManager
+
 	logger log.Logger
 }
 
@@ -48,8 +53,12 @@ func NewKeeper(
 	bankKeeper bankkeeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	logger log.Logger,
+	maxConnections int,
+	maxSubscriptionsPerClient int,
 ) *Keeper {
 	// Create buffered intake channel for state events
+	// 10,000 events is a very generous buffer and shouldn't
+	// be reached in normal operation.
 	intake := make(chan types.StreamEvent, 10000)
 
 	// Create subscription registry
@@ -61,18 +70,32 @@ func NewKeeper(
 	// Create app context for lifecycle management
 	appCtx, appCancel := context.WithCancel(context.Background())
 
+	// Set default values if not provided
+	if maxConnections <= 0 {
+		maxConnections = 900 // CometBFT default
+	}
+	if maxSubscriptionsPerClient <= 0 {
+		maxSubscriptionsPerClient = 5 // CometBFT default
+	}
+
+	// Create connection manager
+	connectionManager := NewConnectionManager(maxConnections, maxSubscriptionsPerClient, logger)
+
 	return &Keeper{
-		cdc:           cdc,
-		storeKey:      storeKey,
-		authority:     authority,
-		bankKeeper:    bankKeeper,
-		stakingKeeper: stakingKeeper,
-		intake:        intake,
-		registry:      registry,
-		dispatcher:    dispatcher,
-		appContext:    appCtx,
-		appCancel:     appCancel,
-		logger:        logger.With("module", "x/stream"),
+		cdc:                       cdc,
+		storeKey:                  storeKey,
+		authority:                 authority,
+		bankKeeper:                bankKeeper,
+		stakingKeeper:             stakingKeeper,
+		intake:                    intake,
+		registry:                  registry,
+		dispatcher:                dispatcher,
+		appContext:                appCtx,
+		appCancel:                 appCancel,
+		maxConnections:            maxConnections,
+		maxSubscriptionsPerClient: maxSubscriptionsPerClient,
+		connectionManager:         connectionManager,
+		logger:                    logger.With("module", "x/stream"),
 	}
 }
 
@@ -154,4 +177,19 @@ func (k *Keeper) GetQueryContext() (context.Context, error) {
 // GetAppContext returns the app context used for lifecycle management
 func (k *Keeper) GetAppContext() context.Context {
 	return k.appContext
+}
+
+// SetConnectionLimits updates the connection limits from config
+func (k *Keeper) SetConnectionLimits(maxConnections, maxSubscriptionsPerClient int) {
+	if maxConnections > 0 {
+		k.maxConnections = maxConnections
+		k.connectionManager.maxConnections = int32(maxConnections)
+	}
+	if maxSubscriptionsPerClient > 0 {
+		k.maxSubscriptionsPerClient = maxSubscriptionsPerClient
+		k.connectionManager.maxSubscriptionsPerClient = int32(maxSubscriptionsPerClient)
+	}
+	k.logger.Info("connection limits updated",
+		"max_connections", k.maxConnections,
+		"max_subscriptions_per_client", k.maxSubscriptionsPerClient)
 }

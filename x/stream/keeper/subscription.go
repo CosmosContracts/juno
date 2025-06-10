@@ -162,6 +162,7 @@ func (r *SubscriptionRegistry) fanOutToSubscribers(subs map[*Subscriber]bool, da
 		default:
 			// Channel is full, mark for removal
 			r.logger.Warn("subscriber channel full, removing", "key", keyStr)
+			IncrementBufferOverflow(sub.key.SubscriptionType)
 			toRemove = append(toRemove, sub)
 		}
 	}
@@ -192,6 +193,26 @@ func (r *SubscriptionRegistry) GetStats() map[string]int {
 
 	stats["total"] = totalSubs
 	return stats
+}
+
+// UpdateMetrics updates prometheus metrics for subscriptions
+func (r *SubscriptionRegistry) UpdateMetrics() {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	// Count subscriptions by type
+	typeCounts := make(map[string]int)
+
+	for _, subs := range r.subscribers {
+		for sub := range subs {
+			typeCounts[sub.key.SubscriptionType]++
+		}
+	}
+
+	// Update metrics for each type
+	for subType, count := range typeCounts {
+		UpdateSubscriptionMetrics(subType, count)
+	}
 }
 
 // CloseAll closes all active subscriptions

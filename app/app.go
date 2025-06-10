@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +14,7 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/spf13/cast"
+	"github.com/spf13/viper"
 
 	storetypes "cosmossdk.io/store/types"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -171,6 +173,7 @@ func New(
 		appCodec:          appCodec,
 		txConfig:          txConfig,
 		interfaceRegistry: interfaceRegistry,
+		homePath:          homePath,
 	}
 	app.homePath = homePath
 
@@ -385,7 +388,37 @@ func New(
 		app.AppKeepers.CapabilityKeeper.Seal()
 	}
 
+	// Load CometBFT config and update stream keeper limits
+	app.loadCometBFTConfig(homePath)
+
 	return app
+}
+
+// loadCometBFTConfig loads CometBFT config and updates stream keeper limits
+func (app *App) loadCometBFTConfig(homePath string) {
+	// Try to load CometBFT config.toml
+	configPath := filepath.Join(homePath, "config", "config.toml")
+
+	v := viper.New()
+	v.SetConfigFile(configPath)
+	v.SetConfigType("toml")
+
+	if err := v.ReadInConfig(); err != nil {
+		app.Logger().Info("could not read CometBFT config, using defaults for stream module", "error", err)
+		return
+	}
+
+	// Read WebSocket connection limits from RPC section
+	maxConnections := v.GetInt("rpc.max_open_connections")
+	maxSubscriptionsPerClient := v.GetInt("rpc.max_subscriptions_per_client")
+
+	// Update stream keeper with config values
+	if app.AppKeepers.StreamKeeper != nil {
+		app.AppKeepers.StreamKeeper.SetConnectionLimits(maxConnections, maxSubscriptionsPerClient)
+		app.Logger().Info("stream module configured with CometBFT limits",
+			"max_connections", maxConnections,
+			"max_subscriptions_per_client", maxSubscriptionsPerClient)
+	}
 }
 
 func GetDefaultBypassFeeMessages() []string {

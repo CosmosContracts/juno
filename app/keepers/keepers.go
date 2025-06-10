@@ -612,6 +612,8 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
 		bApp.Logger(),
+		0, // maxConnections - will be set from config
+		0, // maxSubscriptionsPerClient - will be set from config
 	)
 
 	appKeepers.ClockKeeper = clockkeeper.NewKeeper(

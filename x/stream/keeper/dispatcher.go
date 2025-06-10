@@ -48,6 +48,7 @@ func (d *Dispatcher) Start() {
 
 		case <-ticker.C:
 			d.logStats()
+			d.registry.UpdateMetrics()
 
 		case <-d.stopCh:
 			d.logger.Info("stopping event dispatcher")

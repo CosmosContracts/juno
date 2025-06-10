@@ -59,12 +59,33 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// Check connection limits
+	if !k.connectionManager.CheckConnectionLimits(w, r) {
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
 	}
-	defer conn.Close()
+
+	// Register connection
+	remoteAddr := r.RemoteAddr
+	if !k.connectionManager.RegisterConnection(remoteAddr) {
+		conn.Close()
+		return
+	}
+	defer func() {
+		k.connectionManager.UnregisterConnection(remoteAddr)
+		conn.Close()
+	}()
+
+	// Add subscription to this connection
+	if !k.connectionManager.AddSubscription(remoteAddr) {
+		return
+	}
+	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -108,12 +129,33 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// Check connection limits
+	if !k.connectionManager.CheckConnectionLimits(w, r) {
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
 	}
-	defer conn.Close()
+
+	// Register connection
+	remoteAddr := r.RemoteAddr
+	if !k.connectionManager.RegisterConnection(remoteAddr) {
+		conn.Close()
+		return
+	}
+	defer func() {
+		k.connectionManager.UnregisterConnection(remoteAddr)
+		conn.Close()
+	}()
+
+	// Add subscription to this connection
+	if !k.connectionManager.AddSubscription(remoteAddr) {
+		return
+	}
+	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -157,12 +199,33 @@ func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// Check connection limits
+	if !k.connectionManager.CheckConnectionLimits(w, r) {
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
 	}
-	defer conn.Close()
+
+	// Register connection
+	remoteAddr := r.RemoteAddr
+	if !k.connectionManager.RegisterConnection(remoteAddr) {
+		conn.Close()
+		return
+	}
+	defer func() {
+		k.connectionManager.UnregisterConnection(remoteAddr)
+		conn.Close()
+	}()
+
+	// Add subscription to this connection
+	if !k.connectionManager.AddSubscription(remoteAddr) {
+		return
+	}
+	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -212,12 +275,33 @@ func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	// Check connection limits
+	if !k.connectionManager.CheckConnectionLimits(w, r) {
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
 	}
-	defer conn.Close()
+
+	// Register connection
+	remoteAddr := r.RemoteAddr
+	if !k.connectionManager.RegisterConnection(remoteAddr) {
+		conn.Close()
+		return
+	}
+	defer func() {
+		k.connectionManager.UnregisterConnection(remoteAddr)
+		conn.Close()
+	}()
+
+	// Add subscription to this connection
+	if !k.connectionManager.AddSubscription(remoteAddr) {
+		return
+	}
+	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -261,12 +345,33 @@ func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 		return
 	}
 
+	// Check connection limits
+	if !k.connectionManager.CheckConnectionLimits(w, r) {
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
 	}
-	defer conn.Close()
+
+	// Register connection
+	remoteAddr := r.RemoteAddr
+	if !k.connectionManager.RegisterConnection(remoteAddr) {
+		conn.Close()
+		return
+	}
+	defer func() {
+		k.connectionManager.UnregisterConnection(remoteAddr)
+		conn.Close()
+	}()
+
+	// Add subscription to this connection
+	if !k.connectionManager.AddSubscription(remoteAddr) {
+		return
+	}
+	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -324,12 +429,33 @@ func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 		return
 	}
 
+	// Check connection limits
+	if !k.connectionManager.CheckConnectionLimits(w, r) {
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
 	}
-	defer conn.Close()
+
+	// Register connection
+	remoteAddr := r.RemoteAddr
+	if !k.connectionManager.RegisterConnection(remoteAddr) {
+		conn.Close()
+		return
+	}
+	defer func() {
+		k.connectionManager.UnregisterConnection(remoteAddr)
+		conn.Close()
+	}()
+
+	// Add subscription to this connection
+	if !k.connectionManager.AddSubscription(remoteAddr) {
+		return
+	}
+	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -410,7 +536,11 @@ func (k *Keeper) sendWebSocketMessage(conn *websocket.Conn, msgType string, data
 		Type: msgType,
 		Data: data,
 	}
-	return conn.WriteJSON(message)
+	err := conn.WriteJSON(message)
+	if err == nil {
+		IncrementMessagesSent(msgType)
+	}
+	return err
 }
 
 // getDelegationResponses gets delegation responses for a delegator
