@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"sync"
 	"sync/atomic"
 
 	"cosmossdk.io/log"
@@ -29,8 +30,12 @@ type Keeper struct {
 	registry   *SubscriptionRegistry
 	dispatcher *Dispatcher
 
-	// Context for streaming queries - updated each block
 	queryContext atomic.Value // stores context.Context
+
+	// App context for shutdown handling
+	appContext context.Context
+	appCancel  context.CancelFunc
+	stopOnce   sync.Once
 
 	logger log.Logger
 }
@@ -53,6 +58,9 @@ func NewKeeper(
 	// Create dispatcher
 	dispatcher := NewDispatcher(intake, registry, logger)
 
+	// Create app context for lifecycle management
+	appCtx, appCancel := context.WithCancel(context.Background())
+
 	return &Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,
@@ -62,39 +70,58 @@ func NewKeeper(
 		intake:        intake,
 		registry:      registry,
 		dispatcher:    dispatcher,
+		appContext:    appCtx,
+		appCancel:     appCancel,
 		logger:        logger.With("module", "x/stream"),
 	}
 }
 
 // GetAuthority returns the module's authority.
-func (k Keeper) GetAuthority() string {
+func (k *Keeper) GetAuthority() string {
 	return k.authority
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger() log.Logger {
+func (k *Keeper) Logger() log.Logger {
 	return k.logger
 }
 
 // Intake returns the intake channel for the state listener
-func (k Keeper) Intake() chan<- types.StreamEvent {
+func (k *Keeper) Intake() chan<- types.StreamEvent {
 	return k.intake
 }
 
 // StartDispatcher starts the event dispatcher goroutine
-func (k Keeper) StartDispatcher() {
+func (k *Keeper) StartDispatcher() {
 	go k.dispatcher.Start()
 	k.logger.Info("stream dispatcher started")
 }
 
 // StopDispatcher stops the event dispatcher
-func (k Keeper) StopDispatcher() {
-	k.dispatcher.Stop()
-	k.logger.Info("stream dispatcher stopped")
+func (k *Keeper) StopDispatcher() {
+	if k == nil {
+		// This shouldn't happen, but let's be defensive
+		return
+	}
+
+	k.stopOnce.Do(func() {
+		k.logger.Info("stopping stream dispatcher", "keeper", k != nil, "dispatcher", k.dispatcher != nil)
+		// Cancel app context to signal all streams to stop
+		if k.appCancel != nil {
+			k.appCancel()
+		}
+		// Stop the dispatcher
+		if k.dispatcher != nil {
+			k.dispatcher.Stop()
+			k.dispatcher.WaitForStop()
+		}
+		// Don't close the intake channel here - let the listener handle it
+		k.logger.Info("stream dispatcher stopped")
+	})
 }
 
 // Registry returns the subscription registry
-func (k Keeper) Registry() *SubscriptionRegistry {
+func (k *Keeper) Registry() *SubscriptionRegistry {
 	return k.registry
 }
 
@@ -122,4 +149,9 @@ func (k *Keeper) GetQueryContext() (context.Context, error) {
 	// This happens when no block has been processed yet
 	k.logger.Error("no query context available - PreBlocker hasn't run yet")
 	return nil, fmt.Errorf("query context not initialized - no blocks processed yet")
+}
+
+// GetAppContext returns the app context used for lifecycle management
+func (k *Keeper) GetAppContext() context.Context {
+	return k.appContext
 }

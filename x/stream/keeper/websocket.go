@@ -35,7 +35,7 @@ type WebSocketMessage struct {
 }
 
 // StartWebSocketServer starts the WebSocket server
-func (k Keeper) StartWebSocketServer(addr string) error {
+func (k *Keeper) StartWebSocketServer(addr string) error {
 	router := mux.NewRouter()
 
 	// Bank endpoints
@@ -53,7 +53,7 @@ func (k Keeper) StartWebSocketServer(addr string) error {
 }
 
 // handleBalanceSubscription handles balance subscription WebSocket connections
-func (k Keeper) handleBalanceSubscription(w http.ResponseWriter, r *http.Request) {
+func (k *Keeper) handleBalanceSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	address := vars["address"]
 	denom := vars["denom"]
@@ -92,7 +92,7 @@ func (k Keeper) handleBalanceSubscription(w http.ResponseWriter, r *http.Request
 }
 
 // handleAllBalancesSubscription handles all balances subscription WebSocket connections
-func (k Keeper) handleAllBalancesSubscription(w http.ResponseWriter, r *http.Request) {
+func (k *Keeper) handleAllBalancesSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	address := vars["address"]
 
@@ -131,7 +131,7 @@ func (k Keeper) handleAllBalancesSubscription(w http.ResponseWriter, r *http.Req
 }
 
 // handleDelegationsSubscription handles delegations subscription WebSocket connections
-func (k Keeper) handleDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
+func (k *Keeper) handleDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	delegatorAddress := vars["delegator"]
 
@@ -170,7 +170,7 @@ func (k Keeper) handleDelegationsSubscription(w http.ResponseWriter, r *http.Req
 }
 
 // handleDelegationSubscription handles delegation subscription WebSocket connections
-func (k Keeper) handleDelegationSubscription(w http.ResponseWriter, r *http.Request) {
+func (k *Keeper) handleDelegationSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	delegatorAddress := vars["delegator"]
 	validatorAddress := vars["validator"]
@@ -215,7 +215,7 @@ func (k Keeper) handleDelegationSubscription(w http.ResponseWriter, r *http.Requ
 }
 
 // handleUnbondingDelegationsSubscription handles unbonding delegations subscription WebSocket connections
-func (k Keeper) handleUnbondingDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
+func (k *Keeper) handleUnbondingDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	delegatorAddress := vars["delegator"]
 
@@ -262,7 +262,7 @@ func (k Keeper) handleUnbondingDelegationsSubscription(w http.ResponseWriter, r 
 }
 
 // handleUnbondingDelegationSubscription handles unbonding delegation subscription WebSocket connections
-func (k Keeper) handleUnbondingDelegationSubscription(w http.ResponseWriter, r *http.Request) {
+func (k *Keeper) handleUnbondingDelegationSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	delegatorAddress := vars["delegator"]
 	validatorAddress := vars["validator"]
@@ -316,7 +316,7 @@ func (k Keeper) handleUnbondingDelegationSubscription(w http.ResponseWriter, r *
 }
 
 // handleWebSocketConnection handles the WebSocket connection lifecycle
-func (k Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh <-chan interface{}, queryFunc func() interface{}) {
+func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh <-chan interface{}, queryFunc func() interface{}) {
 	conn.SetReadLimit(maxMessageSize)
 	conn.SetReadDeadline(time.Now().Add(pongWait))
 	conn.SetPongHandler(func(string) error {
@@ -349,7 +349,7 @@ func (k Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Cont
 }
 
 // sendWebSocketMessage sends a message over WebSocket
-func (k Keeper) sendWebSocketMessage(conn *websocket.Conn, msgType string, data interface{}) error {
+func (k *Keeper) sendWebSocketMessage(conn *websocket.Conn, msgType string, data interface{}) error {
 	conn.SetWriteDeadline(time.Now().Add(writeWait))
 	message := WebSocketMessage{
 		Type: msgType,
@@ -359,7 +359,7 @@ func (k Keeper) sendWebSocketMessage(conn *websocket.Conn, msgType string, data 
 }
 
 // getDelegationResponses gets delegation responses for a delegator
-func (k Keeper) getDelegationResponses(delAddr sdk.AccAddress) []stakingtypes.DelegationResponse {
+func (k *Keeper) getDelegationResponses(delAddr sdk.AccAddress) []stakingtypes.DelegationResponse {
 	ctx := context.Background()
 	delegations, err := k.stakingKeeper.GetAllDelegatorDelegations(sdk.UnwrapSDKContext(ctx), delAddr)
 	if err != nil {
@@ -390,7 +390,7 @@ func (k Keeper) getDelegationResponses(delAddr sdk.AccAddress) []stakingtypes.De
 }
 
 // getDelegationResponse gets a delegation response for a specific delegator-validator pair
-func (k Keeper) getDelegationResponse(delAddr sdk.AccAddress, valAddr sdk.ValAddress) interface{} {
+func (k *Keeper) getDelegationResponse(delAddr sdk.AccAddress, valAddr sdk.ValAddress) interface{} {
 	ctx := context.Background()
 	delegation, err := k.stakingKeeper.GetDelegation(sdk.UnwrapSDKContext(ctx), delAddr, valAddr)
 

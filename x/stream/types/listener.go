@@ -6,6 +6,7 @@ import (
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 )
@@ -37,6 +38,35 @@ func (l *StreamingListener) ListenFinalizeBlock(ctx context.Context, req abci.Re
 
 // ListenCommit implements the ABCIListener interface
 func (l *StreamingListener) ListenCommit(ctx context.Context, res abci.ResponseCommit, changeSet []*storetypes.StoreKVPair) error {
+	// Process each KV pair in the changeset
+	for _, kvPair := range changeSet {
+		if kvPair == nil {
+			continue
+		}
+		
+		// Parse the store name from the store key
+		storeName := kvPair.StoreKey
+		
+		// Parse the event
+		event, err := l.parseStoreEvent(storeName, kvPair.Key, kvPair.Value, kvPair.Delete)
+		if err != nil {
+			l.logger.Error("failed to parse store event", "error", err, "store", storeName)
+			continue
+		}
+		
+		if event == nil {
+			continue // Not a key we care about
+		}
+		
+		// Non-blocking send to intake channel
+		select {
+		case l.intake <- *event:
+			l.logger.Debug("sent event to intake", "event", event)
+		default:
+			l.logger.Warn("intake channel full, dropping event", "event", event)
+		}
+	}
+	
 	return nil
 }
 
@@ -81,6 +111,8 @@ func (l *StreamingListener) parseBankEvent(key []byte, value []byte, delete bool
 		return nil, nil
 	}
 
+	l.logger.Debug("parsing bank event", "key_hex", fmt.Sprintf("%x", key), "key_len", len(key), "delete", delete)
+
 	// Check if this is a balance key (prefix 0x02)
 	if key[0] != BankBalancesPrefix[0] {
 		return nil, nil
@@ -96,8 +128,17 @@ func (l *StreamingListener) parseBankEvent(key []byte, value []byte, delete bool
 		return nil, fmt.Errorf("invalid bank balance key: insufficient length for address")
 	}
 
-	address := string(key[2 : 2+addrLen])
+	addressBytes := key[2 : 2+addrLen]
 	denom := string(key[2+addrLen:])
+
+	// Convert address bytes to Bech32
+	address, err := sdk.Bech32ifyAddressBytes("juno", addressBytes)
+	if err != nil {
+		l.logger.Error("failed to convert address to bech32", "error", err, "addr_bytes", fmt.Sprintf("%x", addressBytes))
+		return nil, fmt.Errorf("failed to convert address: %w", err)
+	}
+
+	l.logger.Info("bank balance change detected", "address", address, "denom", denom, "delete", delete)
 
 	return &StreamEvent{
 		Module:      ModuleNameBank,
@@ -138,8 +179,19 @@ func (l *StreamingListener) parseStakingDelegationEvent(key []byte, value []byte
 		return nil, fmt.Errorf("invalid delegation key: insufficient length for delegator address")
 	}
 
-	delegatorAddr := string(key[2 : 2+delAddrLen])
-	validatorAddr := string(key[2+delAddrLen:])
+	delegatorAddrBytes := key[2 : 2+delAddrLen]
+	validatorAddrBytes := key[2+delAddrLen:]
+	
+	// Convert addresses to Bech32
+	delegatorAddr, err := sdk.Bech32ifyAddressBytes("juno", delegatorAddrBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert delegator address: %w", err)
+	}
+	
+	validatorAddr, err := sdk.Bech32ifyAddressBytes("junovaloper", validatorAddrBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert validator address: %w", err)
+	}
 
 	return &StreamEvent{
 		Module:           ModuleNameStaking,
@@ -162,8 +214,19 @@ func (l *StreamingListener) parseStakingUnbondingEvent(key []byte, value []byte,
 		return nil, fmt.Errorf("invalid unbonding delegation key: insufficient length for delegator address")
 	}
 
-	delegatorAddr := string(key[2 : 2+delAddrLen])
-	validatorAddr := string(key[2+delAddrLen:])
+	delegatorAddrBytes := key[2 : 2+delAddrLen]
+	validatorAddrBytes := key[2+delAddrLen:]
+	
+	// Convert addresses to Bech32
+	delegatorAddr, err := sdk.Bech32ifyAddressBytes("juno", delegatorAddrBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert delegator address: %w", err)
+	}
+	
+	validatorAddr, err := sdk.Bech32ifyAddressBytes("junovaloper", validatorAddrBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert validator address: %w", err)
+	}
 
 	return &StreamEvent{
 		Module:           ModuleNameStaking,

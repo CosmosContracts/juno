@@ -10,11 +10,13 @@ import (
 
 // Dispatcher handles the routing of state events to subscriptions
 type Dispatcher struct {
-	intake   <-chan types.StreamEvent
-	registry *SubscriptionRegistry
-	logger   log.Logger
-	stopCh   chan struct{}
-	stopOnce sync.Once
+	intake      <-chan types.StreamEvent
+	registry    *SubscriptionRegistry
+	logger      log.Logger
+	stopCh      chan struct{}
+	stopOnce    sync.Once
+	stopped     chan struct{} // Signals when dispatcher has stopped
+	stoppedOnce sync.Once     // Ensures stopped channel is only closed once
 }
 
 // NewDispatcher creates a new event dispatcher
@@ -24,6 +26,7 @@ func NewDispatcher(intake <-chan types.StreamEvent, registry *SubscriptionRegist
 		registry: registry,
 		logger:   logger.With("component", "dispatcher"),
 		stopCh:   make(chan struct{}),
+		stopped:  make(chan struct{}),
 	}
 }
 
@@ -36,7 +39,11 @@ func (d *Dispatcher) Start() {
 
 	for {
 		select {
-		case event := <-d.intake:
+		case event, ok := <-d.intake:
+			if !ok {
+				d.logger.Info("intake channel closed, stopping dispatcher")
+				return
+			}
 			d.processEvent(event)
 
 		case <-ticker.C:
@@ -44,6 +51,12 @@ func (d *Dispatcher) Start() {
 
 		case <-d.stopCh:
 			d.logger.Info("stopping event dispatcher")
+			// Close all active subscriptions gracefully
+			d.registry.CloseAll()
+			// Close stopped channel only once
+			d.stoppedOnce.Do(func() {
+				close(d.stopped)
+			})
 			return
 		}
 	}
@@ -56,6 +69,11 @@ func (d *Dispatcher) Stop() {
 	})
 }
 
+// WaitForStop waits for the dispatcher to fully stop
+func (d *Dispatcher) WaitForStop() {
+	<-d.stopped
+}
+
 // processEvent processes a single state event
 func (d *Dispatcher) processEvent(event types.StreamEvent) {
 	d.logger.Debug("processing event",
@@ -65,12 +83,6 @@ func (d *Dispatcher) processEvent(event types.StreamEvent) {
 		"secondary_address", event.SecondaryAddress,
 		"denom", event.Denom,
 		"block_height", event.BlockHeight)
-
-	// Set block height from current context if available
-	if event.BlockHeight == 0 {
-		// TODO: Get current block height from context when available
-		event.BlockHeight = time.Now().Unix() // Temporary fallback
-	}
 
 	// Fan out to subscribers - the registry will handle finding matching subscriptions
 	d.registry.FanOut(event, event)

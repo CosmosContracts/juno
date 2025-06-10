@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -267,10 +268,14 @@ func New(
 	streamListener := streamtypes.NewStreamingListener(app.AppKeepers.StreamKeeper.Intake()).
 		WithLogger(logger.With("module", "stream-listener"))
 
-	app.BaseApp.CommitMultiStore().AddListeners([]storetypes.StoreKey{
+	// Register the listener for specific store keys
+	storeKeys := []storetypes.StoreKey{
 		app.AppKeepers.GetKey(banktypes.StoreKey),
 		app.AppKeepers.GetKey(stakingtypes.StoreKey),
-	})
+	}
+
+	// Add listeners to the store
+	app.BaseApp.CommitMultiStore().AddListeners(storeKeys)
 
 	app.BaseApp.SetStreamingManager(storetypes.StreamingManager{
 		ABCIListeners: []storetypes.ABCIListener{streamListener},
@@ -604,4 +609,25 @@ func (app *App) GetChainBondDenom() string {
 		d = "ujunox"
 	}
 	return d
+}
+
+// Close stops the stream dispatcher and performs cleanup
+func (app *App) Close() error {
+	app.Logger().Info("App.Close() called, stopping stream dispatcher")
+
+	// Stop the stream dispatcher with timeout
+	done := make(chan struct{})
+	go func() {
+		app.AppKeepers.StreamKeeper.StopDispatcher()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		app.Logger().Info("Stream dispatcher stopped successfully")
+	case <-time.After(5 * time.Second):
+		app.Logger().Error("timeout waiting for stream dispatcher to stop")
+	}
+
+	return app.BaseApp.Close()
 }

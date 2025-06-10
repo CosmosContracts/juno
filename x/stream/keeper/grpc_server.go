@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -47,19 +48,41 @@ func (q queryServer) StreamBalance(req *types.StreamBalanceRequest, stream types
 		return err
 	}
 
+	appCtx := q.k.GetAppContext()
+	cancelCtx, cancel := context.WithCancel(streamCtx)
+	defer cancel()
+
+	go func() {
+		select {
+		case <-appCtx.Done():
+			q.k.logger.Debug("app context cancelled, closing stream")
+			cancel()
+		case <-streamCtx.Done():
+		}
+	}()
+
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeBalance, req.Address, "", req.Denom)
 	sendCh := make(chan any, 32)
-	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
+	subscriber := q.k.registry.Subscribe(subKey, cancelCtx, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
 	// Stream updates
 	for {
 		select {
-		case <-streamCtx.Done():
-			return streamCtx.Err()
-		case update := <-sendCh:
-			if _, ok := update.(types.StreamEvent); ok {
+		case <-cancelCtx.Done():
+			q.k.logger.Debug("context cancelled", "address", req.Address, "denom", req.Denom)
+			return cancelCtx.Err()
+		case update, ok := <-sendCh:
+			if !ok || update == nil {
+				q.k.logger.Debug("send channel closed or nil signal", "address", req.Address, "denom", req.Denom)
+				return nil
+			}
+			if event, ok := update.(types.StreamEvent); ok {
+				q.k.logger.Info("received balance update event",
+					"address", req.Address,
+					"denom", req.Denom,
+					"event", event)
 				// Re-query the current balance using the latest query context
 				queryCtx, err := q.k.GetQueryContext()
 				if err != nil {
@@ -69,6 +92,7 @@ func (q queryServer) StreamBalance(req *types.StreamBalanceRequest, stream types
 				if err := stream.Send(&types.StreamBalanceResponse{Balance: &balance}); err != nil {
 					return err
 				}
+				q.k.logger.Info("sent balance update", "balance", balance)
 			}
 		}
 	}

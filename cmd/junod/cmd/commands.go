@@ -4,6 +4,8 @@ import (
 	"errors"
 	"io"
 	"os"
+	"os/signal"
+	"syscall"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -127,7 +129,7 @@ func newApp(
 		homePath = app.DefaultNodeHome
 	}
 
-	return app.New(
+	junoApp := app.New(
 		logger,
 		db,
 		traceStore,
@@ -137,6 +139,21 @@ func newApp(
 		wasmOpts,
 		baseappOptions...,
 	)
+
+	// Set up a deferred cleanup that ensures Close is called
+	// This is a workaround for cases where the SDK doesn't call Close
+	go func() {
+		sigCh := make(chan os.Signal, 1)
+		signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+		<-sigCh
+		logger.Info("Received shutdown signal in newApp")
+		if err := junoApp.Close(); err != nil {
+			logger.Error("Error closing app", "error", err)
+		}
+		os.Exit(0)
+	}()
+
+	return junoApp
 }
 
 func appExport(

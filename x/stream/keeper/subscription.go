@@ -81,10 +81,18 @@ func (r *SubscriptionRegistry) FanOut(event types.StreamEvent, data interface{})
 
 	// Generate possible subscription keys that match this event
 	keys := r.generateMatchingKeys(event)
+	
+	r.logger.Debug("fanout event", 
+		"event", event,
+		"matching_keys", keys,
+		"total_subscribers", len(r.subscribers))
 
 	for _, keyStr := range keys {
 		if subs, exists := r.subscribers[keyStr]; exists {
+			r.logger.Debug("fanning out to subscribers", "key", keyStr, "count", len(subs))
 			r.fanOutToSubscribers(subs, data, keyStr)
+		} else {
+			r.logger.Debug("no subscribers for key", "key", keyStr)
 		}
 	}
 }
@@ -184,4 +192,23 @@ func (r *SubscriptionRegistry) GetStats() map[string]int {
 
 	stats["total"] = totalSubs
 	return stats
+}
+
+// CloseAll closes all active subscriptions
+func (r *SubscriptionRegistry) CloseAll() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for key, subs := range r.subscribers {
+		for sub := range subs {
+			// Try to send a nil to signal close, but don't block
+			select {
+			case sub.sendCh <- nil:
+			default:
+			}
+		}
+		delete(r.subscribers, key)
+	}
+
+	r.logger.Info("closed all subscriptions")
 }
