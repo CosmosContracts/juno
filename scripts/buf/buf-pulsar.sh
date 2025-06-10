@@ -7,4 +7,6 @@ protoc_install_gopulsar() {
 }
 
 protoc_install_gopulsar
+cd proto
 buf generate --template buf.gen.pulsar.yaml
+cd ..

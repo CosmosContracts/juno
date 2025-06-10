@@ -1,6 +1,6 @@
 version: v2
 modules:
-  - path: .
+  - path: proto
     name: buf.build/CosmosContracts/juno
 deps:
   - buf.build/cosmos/cosmos-sdk:34ac2e8322d44db08830e553ad21b93c

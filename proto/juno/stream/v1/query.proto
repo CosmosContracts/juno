@@ -1,0 +1,88 @@
+syntax = "proto3";
+package juno.stream.v1;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/staking/v1beta1/staking.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/stream/types";
+
+// Query defines the gRPC querier service for the stream module.
+service Query {
+  // StreamBalance streams real-time balance updates for a specific address.
+  rpc StreamBalance(StreamBalanceRequest) returns (stream StreamBalanceResponse);
+  // StreamAllBalances streams real-time balance updates for all addresses.
+  rpc StreamAllBalances(StreamAllBalancesRequest) returns (stream StreamAllBalancesResponse);
+  // StreamDelegations streams real-time delegation updates for a specific address.
+  rpc StreamDelegations(StreamDelegationsRequest) returns (stream StreamDelegationsResponse);
+  // StreamDelegation streams real-time updates for a specific delegation.
+  rpc StreamDelegation(StreamDelegationRequest) returns (stream StreamDelegationResponse);
+  // StreamUnbondingDelegations streams real-time unbonding delegation updates for a specific address.
+  rpc StreamUnbondingDelegations(StreamUnbondingDelegationsRequest) returns (stream StreamUnbondingDelegationsResponse);
+  // StreamUnbondingDelegation streams real-time updates for a specific unbonding delegation.
+  rpc StreamUnbondingDelegation(StreamUnbondingDelegationRequest) returns (stream StreamUnbondingDelegationResponse);
+}
+
+// --- BANK ---
+// StreamBalanceRequest is the request type for the Query/StreamBalance RPC method.
+message StreamBalanceRequest {
+  string address = 1;
+  string denom = 2;
+}
+
+// StreamBalanceResponse is the response type for the Query/StreamBalance RPC method.
+message StreamBalanceResponse {
+  cosmos.base.v1beta1.Coin balance = 1;
+}
+
+// StreamAllBalancesRequest is the request type for the Query/StreamAllBalances RPC method.
+message StreamAllBalancesRequest {
+  string address = 1;
+}
+
+// StreamAllBalancesResponse is the response type for the Query/StreamAllBalances RPC method.
+message StreamAllBalancesResponse {
+  repeated cosmos.base.v1beta1.Coin balances = 1;
+}
+
+// --- STAKING ---
+// StreamDelegationsRequest is the request type for the Query/StreamDelegations RPC method.
+message StreamDelegationsRequest {
+  string delegator_address = 1;
+}
+
+// StreamDelegationsResponse is the response type for the Query/StreamDelegations RPC method.
+message StreamDelegationsResponse {
+  repeated cosmos.staking.v1beta1.DelegationResponse delegations = 1;
+}
+
+// StreamDelegationRequest is the request type for the Query/StreamDelegation RPC method.
+message StreamDelegationRequest {
+  string delegator_address = 1;
+  string validator_address = 2;
+}
+
+// StreamDelegationResponse is the response type for the Query/StreamDelegation RPC method.
+message StreamDelegationResponse {
+  cosmos.staking.v1beta1.DelegationResponse delegation = 1;
+}
+
+// StreamUnbondingDelegationsRequest is the request type for the Query/StreamUnbondingDelegations RPC method.
+message StreamUnbondingDelegationsRequest {
+  string delegator_address = 1;
+}
+
+// StreamUnbondingDelegationsResponse is the response type for the Query/StreamUnbondingDelegations RPC method.
+message StreamUnbondingDelegationsResponse {
+  repeated cosmos.staking.v1beta1.UnbondingDelegation delegations = 1;
+}
+
+// StreamUnbondingDelegationRequest is the request type for the Query/StreamUnbondingDelegation RPC method.
+message StreamUnbondingDelegationRequest {
+  string delegator_address = 1;
+  string validator_address = 2;
+}
+
+// StreamUnbondingDelegationResponse is the response type for the Query/StreamUnbondingDelegation RPC method.
+message StreamUnbondingDelegationResponse {
+  cosmos.staking.v1beta1.UnbondingDelegation delegation = 1;
+}

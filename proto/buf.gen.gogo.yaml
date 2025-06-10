@@ -13,6 +13,7 @@ inputs:
       - proto/juno/feepay/module/v1
       - proto/juno/feeshare/module/v1
       - proto/juno/mint/module/v1
+      - proto/juno/stream/module/v1
   - directory: proto
     paths:
       - proto/osmosis

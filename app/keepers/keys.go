@@ -37,6 +37,7 @@ import (
 	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
+	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
@@ -79,12 +80,15 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		feepaytypes.StoreKey,
 		feesharetypes.StoreKey,
 		driptypes.StoreKey,
+		streamtypes.StoreKey,
 		clocktypes.StoreKey,
 		cwhookstypes.StoreKey,
 	)
 
 	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
-	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(
+		capabilitytypes.MemStoreKey,
+	)
 }
 
 func (appKeepers *AppKeepers) GetKVStoreKeys() map[string]*storetypes.KVStoreKey {

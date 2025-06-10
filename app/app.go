@@ -13,6 +13,7 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/spf13/cast"
 
+	storetypes "cosmossdk.io/store/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmos "github.com/cometbft/cometbft/libs/os"
@@ -56,6 +57,7 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -64,12 +66,14 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmosContracts/juno/v30/app/keepers"
 	upgrades "github.com/CosmosContracts/juno/v30/app/upgrades"
 	v28 "github.com/CosmosContracts/juno/v30/app/upgrades/v28"
 	v29 "github.com/CosmosContracts/juno/v30/app/upgrades/v29"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
 const (
@@ -185,6 +189,9 @@ func New(
 		panic(err)
 	}
 
+	// Start the stream keeper dispatcher
+	app.AppKeepers.StreamKeeper.StartDispatcher()
+
 	// optional: enable sign mode textual by overwriting the default tx config (after setting the bank keeper)
 	// nolint:gocritic
 	enabledSignModes := append(authtx.DefaultSignModes, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
@@ -231,6 +238,7 @@ func New(
 	app.ModuleManager.SetOrderPreBlockers(
 		upgradetypes.ModuleName,
 		authtypes.ModuleName,
+		streamtypes.ModuleName,
 	)
 	app.ModuleManager.SetOrderBeginBlockers(orderBeginBlockers()...)
 	app.ModuleManager.SetOrderEndBlockers(orderEndBlockers()...)
@@ -255,9 +263,20 @@ func New(
 		panic("error while reading wasm config: " + err.Error())
 	}
 
-	// app.BaseApp.CommitMultiStore().AddListeners()
+	// Set up the stream listener for state changes
+	streamListener := streamtypes.NewStreamingListener(app.AppKeepers.StreamKeeper.Intake()).
+		WithLogger(logger.With("module", "stream-listener"))
 
-	// app.BaseApp.SetStreamingManager()
+	app.BaseApp.CommitMultiStore().AddListeners([]storetypes.StoreKey{
+		app.AppKeepers.GetKey(banktypes.StoreKey),
+		app.AppKeepers.GetKey(stakingtypes.StoreKey),
+	})
+
+	app.BaseApp.SetStreamingManager(storetypes.StreamingManager{
+		ABCIListeners: []storetypes.ABCIListener{streamListener},
+		StopNodeOnErr: false,
+	})
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{

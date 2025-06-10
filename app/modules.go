@@ -73,6 +73,8 @@ import (
 	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
 	mintmodule "github.com/CosmosContracts/juno/v30/x/mint/module"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
+	streammodule "github.com/CosmosContracts/juno/v30/x/stream/module"
+	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 	tokenfactorymodule "github.com/CosmosContracts/juno/v30/x/tokenfactory/module"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 
@@ -119,6 +121,7 @@ func appModules(
 		feemarketmodule.NewAppModule(appCodec, *app.AppKeepers.FeeMarketKeeper),
 		feesharemodule.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper),
 		dripmodule.NewAppModule(appCodec, app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
+		streammodule.NewAppModule(appCodec, app.AppKeepers.StreamKeeper),
 		clockmodule.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
 		cwhooksmodule.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
@@ -253,6 +256,7 @@ func orderInitBlockers() []string {
 		feepaytypes.ModuleName,
 		feemarkettypes.ModuleName,
 		feesharetypes.ModuleName,
+		streamtypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
@@ -287,6 +291,7 @@ var AppModuleBasics = module.NewBasicManager(
 	feemarketmodule.AppModuleBasic{},
 	feesharemodule.AppModuleBasic{},
 	dripmodule.AppModuleBasic{},
+	streammodule.AppModuleBasic{},
 	clockmodule.AppModuleBasic{},
 	cwhooksmodule.AppModuleBasic{},
 	// IBC modules

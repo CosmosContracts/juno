@@ -96,6 +96,8 @@ import (
 	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
 	mintkeeper "github.com/CosmosContracts/juno/v30/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
+	streamkeeper "github.com/CosmosContracts/juno/v30/x/stream/keeper"
+	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 
@@ -184,7 +186,8 @@ type AppKeepers struct {
 	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
-	DripKeeper dripkeeper.Keeper
+	DripKeeper   dripkeeper.Keeper
+	StreamKeeper streamkeeper.Keeper
 
 	FeeMarketKeeper *feemarketkeeper.Keeper
 
@@ -600,6 +603,15 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		authtypes.FeeCollectorName,
 		govModAddress,
+	)
+
+	appKeepers.StreamKeeper = *streamkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[streamtypes.StoreKey],
+		govModAddress,
+		appKeepers.BankKeeper,
+		appKeepers.StakingKeeper,
+		bApp.Logger(),
 	)
 
 	appKeepers.ClockKeeper = clockkeeper.NewKeeper(
