@@ -187,7 +187,7 @@ type AppKeepers struct {
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
 	DripKeeper   dripkeeper.Keeper
-	StreamKeeper streamkeeper.Keeper
+	StreamKeeper *streamkeeper.Keeper
 
 	FeeMarketKeeper *feemarketkeeper.Keeper
 
@@ -605,7 +605,7 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	appKeepers.StreamKeeper = *streamkeeper.NewKeeper(
+	appKeepers.StreamKeeper = streamkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[streamtypes.StoreKey],
 		govModAddress,

@@ -11,12 +11,12 @@ import (
 
 var _ types.QueryServer = queryServer{}
 
-func NewQueryServerImpl(k Keeper) types.QueryServer {
+func NewQueryServerImpl(k *Keeper) types.QueryServer {
 	return queryServer{k}
 }
 
 type queryServer struct {
-	k Keeper
+	k *Keeper
 }
 
 // StreamBalance implements the streaming balance gRPC endpoint

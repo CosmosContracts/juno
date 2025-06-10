@@ -2,11 +2,13 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"sync/atomic"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
@@ -99,16 +101,25 @@ func (k Keeper) Registry() *SubscriptionRegistry {
 // SetQueryContext updates the context used for streaming queries
 // This should be called at the beginning of each block
 func (k *Keeper) SetQueryContext(ctx context.Context) {
-	k.queryContext.Store(ctx)
-	k.logger.Info("query context updated", "height", ctx.Value("height"))
+	if sdkCtx, ok := ctx.(sdk.Context); ok {
+		k.queryContext.Store(ctx)
+		k.logger.Info("query context updated with SDK context",
+			"height", sdkCtx.BlockHeight(),
+			"has_multistore", sdkCtx.MultiStore() != nil)
+	}
 }
 
 // GetQueryContext returns the current query context
 // Falls back to a background context if not set
 func (k *Keeper) GetQueryContext() (context.Context, error) {
-	if ctx := k.queryContext.Load(); ctx != nil {
-		return ctx.(context.Context), nil
+	val := k.queryContext.Load()
+
+	if val != nil {
+		storedCtx := val.(context.Context)
+		return storedCtx, nil
 	}
-	// This should not happen in practice, but provide a fallback
-	return context.Background(), nil
+
+	// This happens when no block has been processed yet
+	k.logger.Error("no query context available - PreBlocker hasn't run yet")
+	return nil, fmt.Errorf("query context not initialized - no blocks processed yet")
 }

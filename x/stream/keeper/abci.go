@@ -12,7 +12,9 @@ import (
 func (k *Keeper) PreBlocker(ctx context.Context) error {
 	start := telemetry.Now()
 	defer telemetry.ModuleMeasureSince(types.ModuleName, start, telemetry.MetricKeyPreBlocker)
+
 	// Store the current context for use by streaming queries
 	k.SetQueryContext(ctx)
+	k.logger.Debug("PreBlocker: stored query context for streaming RPCs")
 	return nil
 }
