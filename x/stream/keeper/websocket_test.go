@@ -94,18 +94,26 @@ func TestWebSocketHandlers(t *testing.T) {
 
 // TestWebSocketMessageFormat tests that WebSocket messages are properly formatted
 func TestWebSocketMessageFormat(t *testing.T) {
-	// This test would require a fully initialized keeper with mocked dependencies
-	// For now, we just verify the WebSocketMessage struct is properly defined
-	msg := keeper.WebSocketMessage{
-		Type: "balance",
-		Data: map[string]any{
-			"denom":  "ujuno",
-			"amount": "1000000",
+	// WebSocket messages are now sent as raw JSON without wrapper
+	// Test various message formats
+
+	// Balance message
+	balanceMsg := map[string]string{
+		"denom":  "ujuno",
+		"amount": "1000000",
+	}
+	require.NotNil(t, balanceMsg)
+	require.Equal(t, "ujuno", balanceMsg["denom"])
+	require.Equal(t, "1000000", balanceMsg["amount"])
+
+	// All balances message
+	allBalancesMsg := map[string]any{
+		"balances": []map[string]string{
+			{"denom": "ujuno", "amount": "1000000"},
+			{"denom": "uatom", "amount": "500000"},
 		},
 	}
-
-	require.Equal(t, "balance", msg.Type)
-	require.NotNil(t, msg.Data)
+	require.NotNil(t, allBalancesMsg)
 }
 
 // TestWebSocketIntegration provides an example of how to test WebSocket connections
@@ -124,10 +132,11 @@ func TestWebSocketIntegration(t *testing.T) {
 	defer conn.Close()
 
 	// Read initial balance message
-	var msg keeper.WebSocketMessage
+	var msg map[string]string
 	err = conn.ReadJSON(&msg)
 	require.NoError(t, err)
-	require.Equal(t, "balance", msg.Type)
+	require.NotEmpty(t, msg["denom"])
+	require.NotEmpty(t, msg["amount"])
 
 	// Keep connection alive and wait for updates
 	go func() {
@@ -136,14 +145,12 @@ func TestWebSocketIntegration(t *testing.T) {
 			case <-ctx.Done():
 				return
 			default:
-				var updateMsg keeper.WebSocketMessage
+				var updateMsg map[string]string
 				if err := conn.ReadJSON(&updateMsg); err != nil {
 					return
 				}
 				// Handle update message
-				if updateMsg.Type == "update" {
-					t.Logf("Received update: %+v", updateMsg.Data)
-				}
+				t.Logf("Received update: %+v", updateMsg)
 			}
 		}
 	}()

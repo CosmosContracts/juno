@@ -108,6 +108,46 @@ websocat ws://localhost:1317/ws/subscribe/staking/delegations/juno1address...
 websocat ws://localhost:1317/ws/subscribe/staking/delegation/juno1address.../junovaloper1...
 ```
 
+#### WebSocket Message Format
+
+Messages are sent in JSON format:
+
+**Balance:**
+
+```json
+{
+  "denom": "ujuno",
+  "amount": "1000000"
+}
+```
+
+**All Balances:**
+
+```json
+{
+  "balances": [
+    {"denom": "ujuno", "amount": "1000000"},
+    {"denom": "uatom", "amount": "500000"}
+  ]
+}
+```
+
+**Delegation:**
+
+```json
+{
+  "delegation": {
+    "delegator_address": "juno1...",
+    "validator_address": "junovaloper1...",
+    "shares": "1000000.000000000000000000"
+  },
+  "balance": {
+    "denom": "ujuno",
+    "amount": "1000000"
+  }
+}
+```
+
 ## Production Deployment
 
 ### Configuration

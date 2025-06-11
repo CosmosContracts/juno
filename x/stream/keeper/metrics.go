@@ -38,13 +38,10 @@ func UpdateSubscriptionMetrics(subscriptionType string, count int) {
 }
 
 // IncrementMessagesSent increments the messages sent counter
-func IncrementMessagesSent(messageType string) {
-	telemetry.IncrCounterWithLabels(
-		[]string{MetricsModuleName, MetricKeyMessagesSent},
+func IncrementMessagesSent() {
+	telemetry.IncrCounter(
 		1,
-		[]metrics.Label{
-			{Name: "type", Value: messageType},
-		},
+		MetricsModuleName+"_"+MetricKeyMessagesSent,
 	)
 }
 

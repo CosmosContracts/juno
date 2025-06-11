@@ -28,18 +28,14 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// WebSocketMessage represents a message sent over WebSocket
-type WebSocketMessage struct {
-	Type string `json:"type"`
-	Data any    `json:"data"`
-}
-
 // getQueryContextOrSendError gets the query context or sends an error message and returns false
 func (k *Keeper) getQueryContextOrSendError(conn *websocket.Conn) (context.Context, bool) {
 	queryCtx, err := k.GetQueryContext()
 	if err != nil {
 		k.logger.Error("failed to get query context", "error", err)
-		if sendErr := k.sendWebSocketMessage(conn, "error", map[string]string{"error": "internal server error"}); sendErr != nil {
+		errorMsg := map[string]string{"error": "internal server error"}
+		conn.SetWriteDeadline(time.Now().Add(writeWait))
+		if sendErr := conn.WriteJSON(errorMsg); sendErr != nil {
 			k.logger.Error("failed to send error message", "error", sendErr)
 		}
 		return nil, false
@@ -87,7 +83,7 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 	}
 	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
 
 	// Get query context with proper SDK context
@@ -98,7 +94,7 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 
 	// Send initial balance
 	balance := k.bankKeeper.GetBalance(queryCtx, sdk.MustAccAddressFromBech32(address), denom)
-	if err := k.sendWebSocketMessage(conn, "balance", balance); err != nil {
+	if err := k.sendWebSocketMessage(conn, balance); err != nil {
 		return
 	}
 
@@ -157,7 +153,7 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 	}
 	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
 
 	// Get query context with proper SDK context
@@ -168,7 +164,7 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 
 	// Send initial balances
 	balances := k.bankKeeper.GetAllBalances(queryCtx, addr)
-	if err := k.sendWebSocketMessage(conn, "balances", balances); err != nil {
+	if err := k.sendWebSocketMessage(conn, map[string]any{"balances": balances}); err != nil {
 		return
 	}
 
@@ -183,7 +179,7 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 		if err != nil {
 			return map[string]string{"error": "failed to get context"}
 		}
-		return k.bankKeeper.GetAllBalances(queryCtx, addr)
+		return map[string]any{"balances": k.bankKeeper.GetAllBalances(queryCtx, addr)}
 	})
 }
 
@@ -227,7 +223,7 @@ func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Re
 	}
 	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
 
 	// Get query context with proper SDK context
@@ -238,7 +234,7 @@ func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Re
 
 	// Send initial delegations
 	delegations := k.getDelegationResponses(queryCtx, delAddr)
-	if err := k.sendWebSocketMessage(conn, "delegations", delegations); err != nil {
+	if err := k.sendWebSocketMessage(conn, delegations); err != nil {
 		return
 	}
 
@@ -303,7 +299,7 @@ func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Req
 	}
 	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
 
 	// Get query context with proper SDK context
@@ -314,7 +310,7 @@ func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Req
 
 	// Send initial delegation
 	delegation := k.getDelegationResponse(queryCtx, delAddr, valAddr)
-	if err := k.sendWebSocketMessage(conn, "delegation", delegation); err != nil {
+	if err := k.sendWebSocketMessage(conn, delegation); err != nil {
 		return
 	}
 
@@ -373,7 +369,7 @@ func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 	}
 	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
 
 	// Get query context with proper SDK context
@@ -388,7 +384,7 @@ func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 		k.logger.Error("failed to get unbonding delegations", "error", err)
 		unbondingDelegations = []stakingtypes.UnbondingDelegation{}
 	}
-	if err := k.sendWebSocketMessage(conn, "unbonding_delegations", unbondingDelegations); err != nil {
+	if err := k.sendWebSocketMessage(conn, unbondingDelegations); err != nil {
 		return
 	}
 
@@ -457,7 +453,7 @@ func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 	}
 	defer k.connectionManager.RemoveSubscription(remoteAddr)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
 
 	// Get query context with proper SDK context
@@ -472,7 +468,7 @@ func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 	if err == nil {
 		data["unbonding_delegation"] = unbondingDelegation
 	}
-	if err := k.sendWebSocketMessage(conn, "unbonding_delegation", data); err != nil {
+	if err := k.sendWebSocketMessage(conn, data); err != nil {
 		return
 	}
 
@@ -509,6 +505,12 @@ func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Con
 	ticker := time.NewTicker(pingPeriod)
 	defer ticker.Stop()
 
+	// Ensure we send a close message on exit
+	defer func() {
+		conn.SetWriteDeadline(time.Now().Add(writeWait))
+		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutting down"))
+	}()
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -516,7 +518,7 @@ func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Con
 		case <-sendCh:
 			// Re-query data and send update
 			data := queryFunc()
-			if err := k.sendWebSocketMessage(conn, "update", data); err != nil {
+			if err := k.sendWebSocketMessage(conn, data); err != nil {
 				k.logger.Error("failed to send websocket message", "error", err)
 				return
 			}
@@ -530,15 +532,11 @@ func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Con
 }
 
 // sendWebSocketMessage sends a message over WebSocket
-func (k *Keeper) sendWebSocketMessage(conn *websocket.Conn, msgType string, data any) error {
+func (k *Keeper) sendWebSocketMessage(conn *websocket.Conn, data any) error {
 	conn.SetWriteDeadline(time.Now().Add(writeWait))
-	message := WebSocketMessage{
-		Type: msgType,
-		Data: data,
-	}
-	err := conn.WriteJSON(message)
+	err := conn.WriteJSON(data)
 	if err == nil {
-		IncrementMessagesSent(msgType)
+		IncrementMessagesSent()
 	}
 	return err
 }
