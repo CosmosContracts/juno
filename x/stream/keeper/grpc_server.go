@@ -64,7 +64,7 @@ func (q queryServer) StreamBalance(req *types.StreamBalanceRequest, stream types
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeBalance, req.Address, "", req.Denom)
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
 	subscriber := q.k.registry.Subscribe(subKey, cancelCtx, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
@@ -134,7 +134,7 @@ func (q queryServer) StreamAllBalances(req *types.StreamAllBalancesRequest, stre
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeAllBalances, req.Address, "", "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
 	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
@@ -215,7 +215,7 @@ func (q queryServer) StreamDelegations(req *types.StreamDelegationsRequest, stre
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegations, req.DelegatorAddress, "", "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
 	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
@@ -316,7 +316,7 @@ func (q queryServer) StreamDelegation(req *types.StreamDelegationRequest, stream
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegation, req.DelegatorAddress, req.ValidatorAddress, "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
 	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
@@ -394,7 +394,7 @@ func (q queryServer) StreamUnbondingDelegations(req *types.StreamUnbondingDelega
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegations, req.DelegatorAddress, "", "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
 	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
@@ -471,7 +471,7 @@ func (q queryServer) StreamUnbondingDelegation(req *types.StreamUnbondingDelegat
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegation, req.DelegatorAddress, req.ValidatorAddress, "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
 	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 

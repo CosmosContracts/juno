@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"sync"
+	"time"
 
 	"cosmossdk.io/log"
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
@@ -145,6 +146,7 @@ func (r *SubscriptionRegistry) generateMatchingKeys(event types.StreamEvent) []s
 // fanOutToSubscribers sends data to all subscribers in the set
 func (r *SubscriptionRegistry) fanOutToSubscribers(subs map[*Subscriber]bool, data any, keyStr string) {
 	toRemove := make([]*Subscriber, 0)
+	droppedCount := 0
 
 	for sub := range subs {
 		// Check if subscriber's context is still active
@@ -155,25 +157,52 @@ func (r *SubscriptionRegistry) fanOutToSubscribers(subs map[*Subscriber]bool, da
 		default:
 		}
 
-		// Try to send data (non-blocking)
+		// Try to send data (non-blocking with backpressure)
 		select {
 		case sub.sendCh <- data:
 			// Successfully sent
 		default:
-			// Channel is full, mark for removal
-			r.logger.Warn("subscriber channel full, removing", "key", keyStr)
-			IncrementBufferOverflow(sub.key.SubscriptionType)
-			toRemove = append(toRemove, sub)
+			// Channel is full - implement backpressure
+			channelLen := len(sub.sendCh)
+			channelCap := cap(sub.sendCh)
+			fillPercent := float64(channelLen) / float64(channelCap) * 100
+
+			if fillPercent >= 80 {
+				// Channel is 80% or more full, drop the event
+				r.logger.Warn("subscriber channel near capacity, dropping event",
+					"key", keyStr,
+					"channel_len", channelLen,
+					"channel_cap", channelCap,
+					"fill_percent", fillPercent)
+				IncrementBufferOverflow(sub.key.SubscriptionType)
+				droppedCount++
+			} else {
+				// Still has some capacity, try a brief wait
+				timer := time.NewTimer(5 * time.Millisecond)
+				select {
+				case sub.sendCh <- data:
+					timer.Stop()
+				case <-timer.C:
+					// Still couldn't send, drop the event
+					r.logger.Warn("subscriber channel full after wait, dropping event", "key", keyStr)
+					IncrementBufferOverflow(sub.key.SubscriptionType)
+					droppedCount++
+				}
+			}
 		}
 	}
 
-	// Remove inactive/overflowing subscribers
+	// Remove inactive subscribers
 	for _, sub := range toRemove {
 		delete(subs, sub)
 	}
 
 	if len(toRemove) > 0 {
 		r.logger.Debug("removed inactive subscribers", "count", len(toRemove), "key", keyStr)
+	}
+
+	if droppedCount > 0 {
+		r.logger.Info("backpressure applied", "dropped_events", droppedCount, "key", keyStr)
 	}
 }
 

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -62,6 +63,12 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// Validate denom
+	if err := k.ValidateDenom(r.Context(), denom); err != nil {
+		http.Error(w, fmt.Sprintf("invalid denom: %v", err), http.StatusBadRequest)
+		return
+	}
+
 	// Check connection limits
 	if !k.connectionManager.CheckConnectionLimits(w, r) {
 		return
@@ -75,20 +82,24 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 
 	// Register connection
 	remoteAddr := r.RemoteAddr
-	if !k.connectionManager.RegisterConnection(remoteAddr) {
+	xForwardedFor := r.Header.Get("X-Forwarded-For")
+	connectionID := k.connectionManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
+	if connectionID == "" {
 		conn.Close()
 		return
 	}
 	defer func() {
-		k.connectionManager.UnregisterConnection(remoteAddr)
-		conn.Close()
+		k.connectionManager.UnregisterConnection(connectionID)
+		if err := conn.Close(); err != nil {
+			k.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
+		}
 	}()
 
 	// Add subscription to this connection
-	if !k.connectionManager.AddSubscription(remoteAddr) {
+	if !k.connectionManager.AddSubscription(connectionID) {
 		return
 	}
-	defer k.connectionManager.RemoveSubscription(remoteAddr)
+	defer k.connectionManager.RemoveSubscription(connectionID)
 
 	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
@@ -117,7 +128,7 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeBalance, address, "", denom)
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, k.config.SubscriptionBufferSize)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
@@ -159,20 +170,24 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 
 	// Register connection
 	remoteAddr := r.RemoteAddr
-	if !k.connectionManager.RegisterConnection(remoteAddr) {
+	xForwardedFor := r.Header.Get("X-Forwarded-For")
+	connectionID := k.connectionManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
+	if connectionID == "" {
 		conn.Close()
 		return
 	}
 	defer func() {
-		k.connectionManager.UnregisterConnection(remoteAddr)
-		conn.Close()
+		k.connectionManager.UnregisterConnection(connectionID)
+		if err := conn.Close(); err != nil {
+			k.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
+		}
 	}()
 
 	// Add subscription to this connection
-	if !k.connectionManager.AddSubscription(remoteAddr) {
+	if !k.connectionManager.AddSubscription(connectionID) {
 		return
 	}
-	defer k.connectionManager.RemoveSubscription(remoteAddr)
+	defer k.connectionManager.RemoveSubscription(connectionID)
 
 	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
@@ -191,7 +206,7 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeAllBalances, address, "", "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, k.config.SubscriptionBufferSize)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
@@ -229,20 +244,24 @@ func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Re
 
 	// Register connection
 	remoteAddr := r.RemoteAddr
-	if !k.connectionManager.RegisterConnection(remoteAddr) {
+	xForwardedFor := r.Header.Get("X-Forwarded-For")
+	connectionID := k.connectionManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
+	if connectionID == "" {
 		conn.Close()
 		return
 	}
 	defer func() {
-		k.connectionManager.UnregisterConnection(remoteAddr)
-		conn.Close()
+		k.connectionManager.UnregisterConnection(connectionID)
+		if err := conn.Close(); err != nil {
+			k.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
+		}
 	}()
 
 	// Add subscription to this connection
-	if !k.connectionManager.AddSubscription(remoteAddr) {
+	if !k.connectionManager.AddSubscription(connectionID) {
 		return
 	}
-	defer k.connectionManager.RemoveSubscription(remoteAddr)
+	defer k.connectionManager.RemoveSubscription(connectionID)
 
 	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
@@ -261,7 +280,7 @@ func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Re
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegations, delegatorAddress, "", "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, k.config.SubscriptionBufferSize)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
@@ -305,20 +324,24 @@ func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Req
 
 	// Register connection
 	remoteAddr := r.RemoteAddr
-	if !k.connectionManager.RegisterConnection(remoteAddr) {
+	xForwardedFor := r.Header.Get("X-Forwarded-For")
+	connectionID := k.connectionManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
+	if connectionID == "" {
 		conn.Close()
 		return
 	}
 	defer func() {
-		k.connectionManager.UnregisterConnection(remoteAddr)
-		conn.Close()
+		k.connectionManager.UnregisterConnection(connectionID)
+		if err := conn.Close(); err != nil {
+			k.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
+		}
 	}()
 
 	// Add subscription to this connection
-	if !k.connectionManager.AddSubscription(remoteAddr) {
+	if !k.connectionManager.AddSubscription(connectionID) {
 		return
 	}
-	defer k.connectionManager.RemoveSubscription(remoteAddr)
+	defer k.connectionManager.RemoveSubscription(connectionID)
 
 	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
@@ -337,7 +360,7 @@ func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Req
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegation, delegatorAddress, validatorAddress, "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, k.config.SubscriptionBufferSize)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
@@ -375,20 +398,24 @@ func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 
 	// Register connection
 	remoteAddr := r.RemoteAddr
-	if !k.connectionManager.RegisterConnection(remoteAddr) {
+	xForwardedFor := r.Header.Get("X-Forwarded-For")
+	connectionID := k.connectionManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
+	if connectionID == "" {
 		conn.Close()
 		return
 	}
 	defer func() {
-		k.connectionManager.UnregisterConnection(remoteAddr)
-		conn.Close()
+		k.connectionManager.UnregisterConnection(connectionID)
+		if err := conn.Close(); err != nil {
+			k.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
+		}
 	}()
 
 	// Add subscription to this connection
-	if !k.connectionManager.AddSubscription(remoteAddr) {
+	if !k.connectionManager.AddSubscription(connectionID) {
 		return
 	}
-	defer k.connectionManager.RemoveSubscription(remoteAddr)
+	defer k.connectionManager.RemoveSubscription(connectionID)
 
 	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
@@ -411,7 +438,7 @@ func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegations, delegatorAddress, "", "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, k.config.SubscriptionBufferSize)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
@@ -459,20 +486,24 @@ func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 
 	// Register connection
 	remoteAddr := r.RemoteAddr
-	if !k.connectionManager.RegisterConnection(remoteAddr) {
+	xForwardedFor := r.Header.Get("X-Forwarded-For")
+	connectionID := k.connectionManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
+	if connectionID == "" {
 		conn.Close()
 		return
 	}
 	defer func() {
-		k.connectionManager.UnregisterConnection(remoteAddr)
-		conn.Close()
+		k.connectionManager.UnregisterConnection(connectionID)
+		if err := conn.Close(); err != nil {
+			k.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
+		}
 	}()
 
 	// Add subscription to this connection
-	if !k.connectionManager.AddSubscription(remoteAddr) {
+	if !k.connectionManager.AddSubscription(connectionID) {
 		return
 	}
-	defer k.connectionManager.RemoveSubscription(remoteAddr)
+	defer k.connectionManager.RemoveSubscription(connectionID)
 
 	ctx, cancel := context.WithCancel(k.appContext)
 	defer cancel()
@@ -495,7 +526,7 @@ func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegation, delegatorAddress, validatorAddress, "")
-	sendCh := make(chan any, 32)
+	sendCh := make(chan any, k.config.SubscriptionBufferSize)
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
@@ -528,8 +559,14 @@ func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Con
 
 	// Ensure we send a close message on exit
 	defer func() {
-		conn.SetWriteDeadline(time.Now().Add(writeWait))
-		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutting down"))
+		deadline := time.Now().Add(writeWait)
+		if err := conn.SetWriteDeadline(deadline); err != nil {
+			k.logger.Error("failed to set write deadline", "error", err)
+			return
+		}
+		if err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutting down")); err != nil {
+			k.logger.Error("failed to send close message", "error", err)
+		}
 	}()
 
 	for {

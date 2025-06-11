@@ -17,6 +17,9 @@ type Dispatcher struct {
 	stopOnce    sync.Once
 	stopped     chan struct{} // Signals when dispatcher has stopped
 	stoppedOnce sync.Once     // Ensures stopped channel is only closed once
+
+	// Backpressure metrics
+	droppedEvents uint64
 }
 
 // NewDispatcher creates a new event dispatcher
@@ -45,7 +48,8 @@ func (d *Dispatcher) Start() {
 
 	d.logger.Info("starting event dispatcher")
 
-	ticker := time.NewTicker(30 * time.Second) // Stats ticker
+	// Stats ticker for metrics
+	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -53,6 +57,10 @@ func (d *Dispatcher) Start() {
 		case event, ok := <-d.intake:
 			if !ok {
 				d.logger.Info("intake channel closed, stopping dispatcher")
+				// Ensure stopped channel is closed
+				d.stoppedOnce.Do(func() {
+					close(d.stopped)
+				})
 				return
 			}
 			d.processEvent(event)

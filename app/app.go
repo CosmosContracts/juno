@@ -76,6 +76,7 @@ import (
 	v28 "github.com/CosmosContracts/juno/v30/app/upgrades/v28"
 	v29 "github.com/CosmosContracts/juno/v30/app/upgrades/v29"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	streamkeeper "github.com/CosmosContracts/juno/v30/x/stream/keeper"
 	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
@@ -388,37 +389,117 @@ func New(
 		app.AppKeepers.CapabilityKeeper.Seal()
 	}
 
-	// Load CometBFT config and update stream keeper limits
-	app.loadCometBFTConfig(homePath)
+	// configure x/stream module keeper
+	app.setupStreamKeeper(homePath)
 
 	return app
 }
 
-// loadCometBFTConfig loads CometBFT config and updates stream keeper limits
-func (app *App) loadCometBFTConfig(homePath string) {
-	// Try to load CometBFT config.toml
+// setupStreamKeeper loads our config.toml and updates stream keeper limits
+func (app *App) setupStreamKeeper(homePath string) {
+	// Try to load config.toml
 	configPath := filepath.Join(homePath, "config", "config.toml")
+	
+	// Ensure stream config exists in config.toml
+	if err := ensureStreamConfigExists(configPath); err != nil {
+		app.Logger().Debug("failed to ensure stream config exists", "error", err)
+	}
 
 	v := viper.New()
 	v.SetConfigFile(configPath)
 	v.SetConfigType("toml")
 
 	if err := v.ReadInConfig(); err != nil {
-		app.Logger().Info("could not read CometBFT config, using defaults for stream module", "error", err)
+		app.Logger().Info("could not read config.toml, using defaults for stream module", "error", err)
 		return
 	}
 
 	// Read WebSocket connection limits from RPC section
-	maxConnections := v.GetInt("rpc.max_open_connections")
-	maxSubscriptionsPerClient := v.GetInt("rpc.max_subscriptions_per_client")
-
-	// Update stream keeper with config values
 	if app.AppKeepers.StreamKeeper != nil {
+		maxConnections := v.GetInt("rpc.max_open_connections")
+		maxSubscriptionsPerClient := v.GetInt("rpc.max_subscriptions_per_client")
 		app.AppKeepers.StreamKeeper.SetConnectionLimits(maxConnections, maxSubscriptionsPerClient)
-		app.Logger().Info("stream module configured with CometBFT limits",
-			"max_connections", maxConnections,
-			"max_subscriptions_per_client", maxSubscriptionsPerClient)
+
+		// Read and set stream-specific configuration
+		streamConfig := streamkeeper.StreamConfig{
+			IntakeBufferSize:        v.GetInt("stream.intake_buffer_size"),
+			SubscriptionBufferSize:  v.GetInt("stream.subscription_buffer_size"),
+			EnableConnectionUUID:    v.GetBool("stream.enable_connection_uuid"),
+			ConnectionTimeout:       v.GetDuration("stream.connection_timeout"),
+			CircuitBreakerEnabled:   v.GetBool("stream.circuit_breaker_enabled"),
+			CircuitBreakerThreshold: v.GetInt("stream.circuit_breaker_threshold"),
+			CircuitBreakerTimeout:   v.GetDuration("stream.circuit_breaker_timeout"),
+		}
+		if err := app.AppKeepers.StreamKeeper.SetStreamConfig(streamConfig); err != nil {
+			app.Logger().Error("failed to set stream config", "error", err)
+		}
+
+		// Set CORS origins from RPC config
+		corsOrigins := v.GetStringSlice("rpc.cors_allowed_origins")
+		app.AppKeepers.StreamKeeper.SetCORSOrigins(corsOrigins)
 	}
+}
+
+// ensureStreamConfigExists adds stream configuration to config.toml if it doesn't exist
+func ensureStreamConfigExists(configPath string) error {
+	// Check if config.toml exists
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		// Config doesn't exist yet
+		return nil
+	}
+
+	// Read existing config
+	content, err := os.ReadFile(configPath)
+	if err != nil {
+		return err
+	}
+
+	// Check if stream config already exists
+	if strings.Contains(string(content), "[stream]") {
+		// Stream config already exists
+		return nil
+	}
+
+	// Append default stream config
+	streamConfig := `
+
+#######################################################
+###            Stream Module Configuration          ###
+#######################################################
+
+[stream]
+# Buffer size for intake channel that receives state events
+# Default: 1000
+intake_buffer_size = 1000
+
+# Buffer size for subscription channels per client
+# Default: 32
+subscription_buffer_size = 32
+
+# Enable UUID-based connection tracking for better connection management
+# When enabled, each connection gets a unique ID regardless of IP address
+# Default: true
+enable_connection_uuid = true
+
+# Connection timeout duration (e.g., "60s", "5m")
+# Default: 60s
+connection_timeout = "60s"
+
+# Circuit breaker prevents cascading failures by temporarily blocking failing connections
+# Default: true
+circuit_breaker_enabled = true
+
+# Number of consecutive failures before circuit breaker opens
+# Default: 5
+circuit_breaker_threshold = 5
+
+# Duration to wait before attempting to close circuit breaker (e.g., "30s", "1m")
+# Default: 30s
+circuit_breaker_timeout = "30s"
+`
+
+	newContent := string(content) + streamConfig
+	return os.WriteFile(configPath, []byte(newContent), 0644)
 }
 
 func GetDefaultBypassFeeMessages() []string {

@@ -43,30 +43,39 @@ func (l *StreamingListener) ListenCommit(ctx context.Context, res abci.ResponseC
 		if kvPair == nil {
 			continue
 		}
-		
+
 		// Parse the store name from the store key
 		storeName := kvPair.StoreKey
-		
+
 		// Parse the event
 		event, err := l.parseStoreEvent(storeName, kvPair.Key, kvPair.Value, kvPair.Delete)
 		if err != nil {
 			l.logger.Error("failed to parse store event", "error", err, "store", storeName)
 			continue
 		}
-		
+
 		if event == nil {
 			continue // Not a key we care about
 		}
-		
-		// Non-blocking send to intake channel
+
+		// Non-blocking send to intake channel with backpressure
 		select {
 		case l.intake <- *event:
 			l.logger.Debug("sent event to intake", "event", event)
 		default:
-			l.logger.Warn("intake channel full, dropping event", "event", event)
+			// Check channel capacity
+			channelLen := len(l.intake)
+			channelCap := cap(l.intake)
+			fillPercent := float64(channelLen) / float64(channelCap) * 100
+
+			l.logger.Warn("intake channel full, dropping event",
+				"event", event,
+				"channel_len", channelLen,
+				"channel_cap", channelCap,
+				"fill_percent", fillPercent)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -83,11 +92,20 @@ func (l *StreamingListener) OnWrite(storeKey storetypes.StoreKey, key []byte, va
 		return nil // Not a key we care about
 	}
 
-	// Non-blocking send to intake channel
+	// Non-blocking send to intake channel with backpressure
 	select {
 	case l.intake <- *event:
 	default:
-		l.logger.Warn("intake channel full, dropping event", "event", event)
+		// Check channel capacity
+		channelLen := len(l.intake)
+		channelCap := cap(l.intake)
+		fillPercent := float64(channelLen) / float64(channelCap) * 100
+
+		l.logger.Warn("intake channel full, dropping event",
+			"event", event,
+			"channel_len", channelLen,
+			"channel_cap", channelCap,
+			"fill_percent", fillPercent)
 	}
 
 	return nil
@@ -181,13 +199,13 @@ func (l *StreamingListener) parseStakingDelegationEvent(key []byte, value []byte
 
 	delegatorAddrBytes := key[2 : 2+delAddrLen]
 	validatorAddrBytes := key[2+delAddrLen:]
-	
+
 	// Convert addresses to Bech32
 	delegatorAddr, err := sdk.Bech32ifyAddressBytes("juno", delegatorAddrBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert delegator address: %w", err)
 	}
-	
+
 	validatorAddr, err := sdk.Bech32ifyAddressBytes("junovaloper", validatorAddrBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert validator address: %w", err)
@@ -216,13 +234,13 @@ func (l *StreamingListener) parseStakingUnbondingEvent(key []byte, value []byte,
 
 	delegatorAddrBytes := key[2 : 2+delAddrLen]
 	validatorAddrBytes := key[2+delAddrLen:]
-	
+
 	// Convert addresses to Bech32
 	delegatorAddr, err := sdk.Bech32ifyAddressBytes("juno", delegatorAddrBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert delegator address: %w", err)
 	}
-	
+
 	validatorAddr, err := sdk.Bech32ifyAddressBytes("junovaloper", validatorAddrBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert validator address: %w", err)

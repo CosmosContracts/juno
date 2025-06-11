@@ -288,7 +288,7 @@ func initRootCmd(
 	txConfig client.TxConfig,
 ) {
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
+		WrapInitCmd(genutilcli.InitCmd(basicManager, app.DefaultNodeHome)),
 		cmtcli.NewCompletionCmd(rootCmd, false),
 		DebugCmd(),
 		confixcmd.ConfigCommand(),

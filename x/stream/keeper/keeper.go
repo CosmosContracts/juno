@@ -30,7 +30,12 @@ type Keeper struct {
 	registry   *SubscriptionRegistry
 	dispatcher *Dispatcher
 
-	queryContext atomic.Value // stores context.Context
+	// stores the node's context.Context for streaming queries
+	// TODO: find a better solution for accessing the main node context
+	// in the stream queries since grpc stream servers only have their own
+	// context instance. This would also increase the chains performance
+	// again because we don't need to run a preblocker before every block.
+	queryContext atomic.Value
 
 	// App context for shutdown handling
 	appContext context.Context
@@ -42,8 +47,12 @@ type Keeper struct {
 	maxSubscriptionsPerClient int
 	connectionManager         *ConnectionManager
 
+	// Stream configuration
+	config StreamConfig
+
 	// CORS configuration
 	allowAllOrigins bool
+	corsOrigins     []string
 
 	logger log.Logger
 }
@@ -59,10 +68,11 @@ func NewKeeper(
 	maxConnections int,
 	maxSubscriptionsPerClient int,
 ) *Keeper {
+	// Start with default config
+	config := DefaultStreamConfig()
+
 	// Create buffered intake channel for state events
-	// 10,000 events is a very generous buffer and shouldn't
-	// be reached in normal operation.
-	intake := make(chan types.StreamEvent, 10000)
+	intake := make(chan types.StreamEvent, config.IntakeBufferSize)
 
 	// Create subscription registry
 	registry := NewSubscriptionRegistry(logger)
@@ -98,6 +108,7 @@ func NewKeeper(
 		maxConnections:            maxConnections,
 		maxSubscriptionsPerClient: maxSubscriptionsPerClient,
 		connectionManager:         connectionManager,
+		config:                    config,
 		logger:                    logger.With("module", "x/stream"),
 	}
 }
@@ -207,4 +218,67 @@ func (k *Keeper) SetConnectionLimits(maxConnections, maxSubscriptionsPerClient i
 func (k *Keeper) SetAllowAllOrigins(allow bool) {
 	k.allowAllOrigins = allow
 	k.logger.Info("CORS configuration updated", "allow_all_origins", allow)
+}
+
+// SetStreamConfig updates the stream configuration
+func (k *Keeper) SetStreamConfig(config StreamConfig) error {
+	// Apply defaults to fill any zero values
+	config.ApplyDefaults()
+
+	// Validate the configuration
+	if err := config.Validate(); err != nil {
+		return fmt.Errorf("invalid stream config: %w", err)
+	}
+
+	k.config = config
+
+	// Recreate intake channel with new buffer size if it changed
+	if cap(k.intake) != config.IntakeBufferSize {
+		// Note: This is safe only during initialization before the dispatcher starts
+		k.intake = make(chan types.StreamEvent, config.IntakeBufferSize)
+		k.dispatcher = NewDispatcher(k.intake, k.registry, k.logger)
+	}
+
+	// Update connection manager settings
+	if k.connectionManager != nil {
+		k.connectionManager.SetEnableUUID(config.EnableConnectionUUID)
+	}
+
+	k.logger.Info("stream configuration updated",
+		"intake_buffer_size", config.IntakeBufferSize,
+		"subscription_buffer_size", config.SubscriptionBufferSize,
+		"enable_connection_uuid", config.EnableConnectionUUID,
+		"circuit_breaker_enabled", config.CircuitBreakerEnabled)
+
+	return nil
+}
+
+// SetCORSOrigins updates the allowed CORS origins
+func (k *Keeper) SetCORSOrigins(origins []string) {
+	k.corsOrigins = origins
+	k.allowAllOrigins = len(origins) == 1 && origins[0] == "*"
+	k.logger.Info("CORS origins updated", "origins", origins, "allow_all", k.allowAllOrigins)
+}
+
+// GetConfig returns the current stream configuration
+func (k *Keeper) GetConfig() StreamConfig {
+	return k.config
+}
+
+// ValidateDenom validates if a denom is valid for streaming
+func (k *Keeper) ValidateDenom(ctx context.Context, denom string) error {
+	if denom == "" {
+		return fmt.Errorf("denom cannot be empty")
+	}
+
+	// Check if it's a valid denom format
+	if err := sdk.ValidateDenom(denom); err != nil {
+		return fmt.Errorf("invalid denom format: %w", err)
+	}
+
+	// Optionally check if the denom exists in bank module metadata
+	// This is a more strict validation but might be too restrictive
+	// as not all denoms have metadata
+
+	return nil
 }
