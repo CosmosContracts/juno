@@ -7,9 +7,9 @@ import (
 
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/CosmosContracts/juno/v29/testutil"
-	"github.com/CosmosContracts/juno/v29/x/drip/keeper"
-	"github.com/CosmosContracts/juno/v29/x/drip/types"
+	"github.com/CosmosContracts/juno/v30/testutil"
+	"github.com/CosmosContracts/juno/v30/x/drip/keeper"
+	"github.com/CosmosContracts/juno/v30/x/drip/types"
 )
 
 type KeeperTestSuite struct {

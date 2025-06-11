@@ -1,0 +1,24 @@
+version: v2
+
+clean: true
+
+inputs:
+  - directory: .
+
+plugins:
+  - remote: buf.build/community/google-gnostic-openapi:v0.7.0
+    out: ../gen/internal
+    include_imports: true
+    opt:
+      - default_response=true
+      - fq_schema_naming=false
+      - title=Juno REST API
+      - version=v30.0.0
+      - Mjuno/clock/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/clock/module/v1
+      - Mjuno/cwhooks/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/cwhooks/module/v1
+      - Mjuno/drip/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/drip/clock/module/v1
+      - Mjuno/feepay/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/feepay/module/v1
+      - Mjuno/feeshare/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/feeshare/module/v1
+      - Mjuno/mint/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/mint/module/v1
+      - Mfeemarket/feemarket/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/feemarket/feemarket/module/v1
+      - Mosmosis/tokenfactory/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/osmosis/tokenfactory/module/v1

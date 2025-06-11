@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v29/x/drip/types"
+	"github.com/CosmosContracts/juno/v30/x/drip/types"
 )
 
 var _ types.MsgServer = msgServer{}

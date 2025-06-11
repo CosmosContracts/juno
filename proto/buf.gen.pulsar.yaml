@@ -1,17 +1,24 @@
-version: v1
+version: v2
+
+clean: true
+
 managed:
   enabled: true
-  go_package_prefix:
-    default: cosmossdk.io/api
-    except:
-      - buf.build/googleapis/googleapis
-      - buf.build/cosmos/gogo-proto
-      - buf.build/cosmos/cosmos-proto
-    override:
+  disable:
+    - file_option: go_package
+      module: buf.build/googleapis/googleapis
+    - file_option: go_package
+      module: buf.build/cosmos/gogo-proto
+    - file_option: go_package
+      module: buf.build/cosmos/cosmos-proto
+  override:
+    - file_option: go_package_prefix
+      value: cosmossdk.io/api
+
 plugins:
-  - name: go-pulsar
-    out: ../api
+  - local: protoc-gen-go-pulsar
+    out: api
     opt: paths=source_relative
-  - name: go-grpc
-    out: ../api
+  - local: protoc-gen-go-grpc
+    out: api
     opt: paths=source_relative

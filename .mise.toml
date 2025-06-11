@@ -26,4 +26,6 @@
 # mise ls         # List installed tools
 
 [tools]
-go = "1.23.9"
+go = "1.24.3"
+buf = "latest"
+yq = "latest"

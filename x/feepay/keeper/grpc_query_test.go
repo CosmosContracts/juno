@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/CosmosContracts/juno/v29/testutil/common/nullify"
-	"github.com/CosmosContracts/juno/v29/x/feepay/types"
+	"github.com/CosmosContracts/juno/v30/testutil/common/nullify"
+	"github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 func (s *KeeperTestSuite) TestQueryContract() {

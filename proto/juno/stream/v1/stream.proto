@@ -1,0 +1,42 @@
+syntax = "proto3";
+package juno.stream.v1;
+
+option go_package = "github.com/CosmosContracts/juno/x/stream/types";
+
+// StreamEvent represents a state change event from the blockchain
+message StreamEvent {
+  // module indicates which module generated the event (bank, staking, etc.)
+  string module = 1;
+  // event_type indicates the type of event (balance_change, delegation_change, etc.)
+  string event_type = 2;
+  // address is the primary address affected by the change
+  string address = 3;
+  // secondary_address is an optional secondary address (e.g., validator address for delegations)
+  string secondary_address = 4;
+  // denom is the denomination for token-related events
+  string denom = 5;
+  // block_height indicates at which block height the event occurred
+  int64 block_height = 6;
+}
+
+// SubscriptionKey uniquely identifies a subscription
+message SubscriptionKey {
+  // subscription_type indicates the type of subscription (balance, delegation, etc.)
+  string subscription_type = 1;
+  // address is the primary address to monitor
+  string address = 2;
+  // secondary_address is an optional secondary address filter
+  string secondary_address = 3;
+  // denom is an optional denomination filter
+  string denom = 4;
+}
+
+// StreamListener represents the configuration for a state listener
+message StreamListener {
+  // module_name indicates which module this listener monitors
+  string module_name = 1;
+  // store_key is the store key to listen to
+  string store_key = 2;
+  // key_prefixes are the specific key prefixes to monitor
+  repeated bytes key_prefixes = 3;
+}

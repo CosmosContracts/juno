@@ -3,7 +3,7 @@ package v28
 import (
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/CosmosContracts/juno/v29/app/upgrades"
+	"github.com/CosmosContracts/juno/v30/app/upgrades"
 )
 
 const UpgradeName = "v28"

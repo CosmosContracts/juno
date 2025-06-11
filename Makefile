@@ -170,57 +170,48 @@ format:
 ###############################################################################
 
 ictest-basic: rm-testcache
-	cd interchaintest && go test -race -v -run TestBasicJunoStart .
+	cd interchaintest/tests/basic && go test -race -v -run TestBasicTestSuite .
 
-ictest-statesync: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoStateSync .
+ictest-cw: rm-testcache
+	cd interchaintest/tests/cosmwasm && go test -race -v -run TestCosmWasmTestSuite .
 
-ictest-ibchooks: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoIBCHooks .
+ictest-node: rm-testcache
+	cd interchaintest/tests/node && go test -race -v -run TestNodeTestSuite .
 
-ictest-tokenfactory: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
+ictest-feemarket: rm-testcache
+	cd interchaintest/tests/feemarket && go test -race -v -run TestFeemarketTestSuite .
 
-ictest-feeshare: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoFeeShare .
-
-ictest-pfm: rm-testcache
-	cd interchaintest && go test -race -v -run TestPacketForwardMiddlewareRouter .
-
-ictest-globalfee: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoGlobalFee .
+ictest-fees: rm-testcache
+	cd interchaintest/tests/fees && go test -race -v -run TestFeesTestSuite .
 
 ictest-upgrade: rm-testcache
-	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
+	cd interchaintest/tests/upgrade && go test -race -v -run BasicUpgradeTestSuite .
 
 ictest-ibc: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
+	cd interchaintest/tests/ibc && go test -race -v -run TestIbcTestSuite .
 
-ictest-unity-deploy: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoUnityContractDeploy .
+ictest-ibc-hooks: rm-testcache
+	cd interchaintest/tests/ibc-hooks && go test -race -v -run TestIbcHooksTestSuite .
+
+ictest-pfm: rm-testcache
+	cd interchaintest/tests/pfm && go test -race -v -run TestPfmTestSuite .
+
+ictest-tokenfactory: rm-testcache
+	cd interchaintest/tests/tokenfactory && go test -race -v -run TestTokenfactoryTestSuite .
 
 ictest-drip: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoDrip .
-
-ictest-feepay: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoFeePay .
+	cd interchaintest/tests/drip && go test -race -v -run TestDripTestSuite .
 
 ictest-burn: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoBurnModule .
+	cd interchaintest/tests/burn && go test -race -v -run TestBurnTestSuite .
 
-ictest-cwhooks: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoCwHooks .
-
-ictest-clock: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoClock .
-
-ictest-gov-fix: rm-testcache
-	cd interchaintest && go test -race -v -run TestFixRemovedMsgTypeQueryPanic .
+ictest-fixes: rm-testcache
+	cd interchaintest/tests/fixes && go test -race -v -run TestFixTestSuite .
 
 rm-testcache:
 	go clean -testcache
 
-.PHONY: ictest-basic ictest-statesync ictest-ibchooks ictest-tokenfactory ictest-feeshare ictest-pfm ictest-globalfee ictest-upgrade ictest-upgrade-local ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-drip ictest-burn ictest-feepay ictest-cwhooks ictest-clock ictest-gov-fix rm-testcache
+.PHONY: ictest-basic ictest-cw ictest-node ictest-fees ictest-upgrade ictest-ibc ictest-tokenfactory ictest-drip ictest-burn ictest-drip ictest-burn ictest-fixes rm-testcache
 
 ###############################################################################
 ###                                  heighliner                             ###
@@ -252,36 +243,36 @@ protoVer=0.17.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace -v /var/run/docker.sock:/var/run/docker.sock --workdir /workspace $(protoImageName)
 
-proto-all: proto-format proto-lint proto-gen proto-gen-2 proto-swagger-gen
+proto-all: proto-format proto-lint proto-check-breaking proto-gogo proto-pulsar proto-openapi
 
-proto-gen:
-	@echo "🛠️ - Generating Protobuf"
-	@$(protoImage) sh ./scripts/protoc/protocgen.sh
-	@echo "✅ - Generated Protobuf successfully!"
+proto-gogo:
+	@echo "🛠️ - Generating Gogo types from Protobuffers"
+	@$(protoImage) sh ./scripts/buf/buf-gogo.sh
+	@echo "✅ - Generated Gogo types successfully!"
 
-proto-gen-2:
-	@echo "🛠️ - Generating Protobuf v2"
-	@$(protoImage) sh ./scripts/protoc/protocgen2.sh
-	@echo "✅ - Generated Protobuf v2 successfully!"
+proto-pulsar:
+	@echo "🛠️ - Generating Pulsar types from Protobuffers"
+	@$(protoImage) sh ./scripts/buf/buf-pulsar.sh
+	@echo "✅ - Generated Pulsar types successfully!"
 
-proto-swagger-gen:
-	@echo "📖 - Generating Protobuf Swagger"
-	@$(protoImage) sh ./scripts/protoc/protoc-swagger-gen.sh
-	@echo "✅ - Generated Protobuf Swagger successfully!"
+proto-openapi:
+	@echo "🛠️ - Generating OpenAPI Spec from Protobuffers"
+	@sh ./scripts/buf/buf-openapi.sh
+	@echo "✅ - Generated OpenAPI Spec successfully!"
 
 proto-format:
-	@echo "🖊️ - Formatting Protobuf Swagger"
-	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
-	@echo "✅ - Formatted Protobuf successfully!"
+	@echo "🖊️ - Formatting Protobuffers"
+	@$(protoImage) buf format ./proto --error-format=json
+	@echo "✅ - Formatted Protobuffers successfully!"
 
 proto-lint:
-	@echo "🔎 - Linting Protobuf"
+	@echo "🔎 - Linting Protobuffers"
 	@$(protoImage) buf lint --error-format=json
-	@echo "✅ - Linted Protobuf successfully!"
+	@echo "✅ - Linted Protobuffers successfully!"
 
 proto-check-breaking:
-	@echo "🔎 - Checking breaking Protobuf changes"
+	@echo "🔎 - Checking breaking Protobuffers changes against branch main"
 	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
-	@echo "✅ - Checked Protobuf changes successfully!"
+	@echo "✅ - Protobuffers are non-breaking, checked successfully!"
 
-.PHONY: proto-all proto-gen proto-gen-2 proto-swagger-gen proto-format proto-lint proto-check-breaking
+.PHONY: proto-all proto-format proto-lint proto-check-breaking proto-gogo proto-pulsar proto-openapi

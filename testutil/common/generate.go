@@ -19,7 +19,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	junoapp "github.com/CosmosContracts/juno/v29/app"
+	junoapp "github.com/CosmosContracts/juno/v30/app"
 )
 
 // GenerateValidatorSet creates a ValidatorSet with n validators.

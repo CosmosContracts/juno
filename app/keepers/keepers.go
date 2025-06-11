@@ -80,26 +80,29 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	bindings "github.com/CosmosContracts/juno/v29/wasmbindings"
-	junoburn "github.com/CosmosContracts/juno/v29/x/burn"
-	clockkeeper "github.com/CosmosContracts/juno/v29/x/clock/keeper"
-	clocktypes "github.com/CosmosContracts/juno/v29/x/clock/types"
-	cwhookskeeper "github.com/CosmosContracts/juno/v29/x/cw-hooks/keeper"
-	cwhookstypes "github.com/CosmosContracts/juno/v29/x/cw-hooks/types"
-	dripkeeper "github.com/CosmosContracts/juno/v29/x/drip/keeper"
-	driptypes "github.com/CosmosContracts/juno/v29/x/drip/types"
-	feepaykeeper "github.com/CosmosContracts/juno/v29/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v29/x/feepay/types"
-	feesharekeeper "github.com/CosmosContracts/juno/v29/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v29/x/feeshare/types"
-	globalfeekeeper "github.com/CosmosContracts/juno/v29/x/globalfee/keeper"
-	globalfeetypes "github.com/CosmosContracts/juno/v29/x/globalfee/types"
-	mintkeeper "github.com/CosmosContracts/juno/v29/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v29/x/mint/types"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v29/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	bindings "github.com/CosmosContracts/juno/v30/wasmbindings"
+	junoburn "github.com/CosmosContracts/juno/v30/x/burn"
+	clockkeeper "github.com/CosmosContracts/juno/v30/x/clock/keeper"
+	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
+	cwhookskeeper "github.com/CosmosContracts/juno/v30/x/cw-hooks/keeper"
+	cwhookstypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
+	dripkeeper "github.com/CosmosContracts/juno/v30/x/drip/keeper"
+	driptypes "github.com/CosmosContracts/juno/v30/x/drip/types"
+	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
+	mintkeeper "github.com/CosmosContracts/juno/v30/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
+	streamkeeper "github.com/CosmosContracts/juno/v30/x/stream/keeper"
+	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+
 	// wrappers
-	wrappedgovkeeper "github.com/CosmosContracts/juno/v29/x/wrappers/gov/keeper"
+	wrappedgovkeeper "github.com/CosmosContracts/juno/v30/x/wrappers/gov/keeper"
 )
 
 var (
@@ -114,22 +117,22 @@ var (
 
 // module account permissions
 var maccPerms = map[string][]string{
-	authtypes.FeeCollectorName:     nil,
-	distrtypes.ModuleName:          nil,
-	minttypes.ModuleName:           {authtypes.Minter},
-	stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-	govtypes.ModuleName:            {authtypes.Burner},
-	nft.ModuleName:                 nil,
-	icqtypes.ModuleName:            nil,
-	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-	icatypes.ModuleName:            nil,
-	ibcfeetypes.ModuleName:         nil,
-	wasmtypes.ModuleName:           {},
-	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
-	globalfeetypes.ModuleName:      nil,
-	feepaytypes.ModuleName:         nil,
-	junoburn.ModuleName:            {authtypes.Burner},
+	authtypes.FeeCollectorName:      nil,
+	distrtypes.ModuleName:           nil,
+	minttypes.ModuleName:            {authtypes.Minter},
+	stakingtypes.BondedPoolName:     {authtypes.Burner, authtypes.Staking},
+	stakingtypes.NotBondedPoolName:  {authtypes.Burner, authtypes.Staking},
+	govtypes.ModuleName:             {authtypes.Burner},
+	nft.ModuleName:                  nil,
+	icqtypes.ModuleName:             nil,
+	ibctransfertypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
+	icatypes.ModuleName:             nil,
+	ibcfeetypes.ModuleName:          nil,
+	wasmtypes.ModuleName:            {},
+	tokenfactorytypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+	feepaytypes.ModuleName:          nil,
+	feemarkettypes.FeeCollectorName: nil,
+	junoburn.ModuleName:             {authtypes.Burner},
 }
 
 type AppKeepers struct {
@@ -162,7 +165,6 @@ type AppKeepers struct {
 	NFTKeeper           nftkeeper.Keeper
 	FeePayKeeper        feepaykeeper.Keeper
 	FeeShareKeeper      feesharekeeper.Keeper
-	GlobalFeeKeeper     globalfeekeeper.Keeper
 	ContractKeeper      wasmtypes.ContractOpsKeeper
 	ClockKeeper         clockkeeper.Keeper
 	CWHooksKeeper       cwhookskeeper.Keeper
@@ -184,7 +186,10 @@ type AppKeepers struct {
 	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
-	DripKeeper dripkeeper.Keeper
+	DripKeeper   dripkeeper.Keeper
+	StreamKeeper *streamkeeper.Keeper
+
+	FeeMarketKeeper *feemarketkeeper.Keeper
 
 	// Middleware wrapper
 	Ics20WasmHooks   *ibchooks.WasmHooks
@@ -502,6 +507,14 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
+	appKeepers.FeeMarketKeeper = feemarketkeeper.NewKeeper(
+		appCodec,
+		keys[feemarkettypes.StoreKey],
+		appKeepers.AccountKeeper,
+		&feemarkettypes.TestDenomResolver{},
+		govModAddress,
+	)
+
 	wasmConfig, err := wasm.ReadNodeConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
@@ -584,18 +597,23 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(appKeepers.keys[globalfeetypes.StoreKey]),
-		govModAddress,
-	)
-
 	appKeepers.DripKeeper = dripkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[driptypes.StoreKey]),
 		appKeepers.BankKeeper,
 		authtypes.FeeCollectorName,
 		govModAddress,
+	)
+
+	appKeepers.StreamKeeper = streamkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[streamtypes.StoreKey],
+		govModAddress,
+		appKeepers.BankKeeper,
+		appKeepers.StakingKeeper,
+		bApp.Logger(),
+		0, // maxConnections - will be set from config
+		0, // maxSubscriptionsPerClient - will be set from config
 	)
 
 	appKeepers.ClockKeeper = clockkeeper.NewKeeper(

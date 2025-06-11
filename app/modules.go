@@ -51,7 +51,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
-	// "github.com/cosmos/cosmos-sdk/x/gov"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -60,24 +59,27 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	clockmodule "github.com/CosmosContracts/juno/v29/x/clock/module"
-	clocktypes "github.com/CosmosContracts/juno/v29/x/clock/types"
-	cwhooksmodule "github.com/CosmosContracts/juno/v29/x/cw-hooks/module"
-	cwhookstypes "github.com/CosmosContracts/juno/v29/x/cw-hooks/types"
-	dripmodule "github.com/CosmosContracts/juno/v29/x/drip/module"
-	driptypes "github.com/CosmosContracts/juno/v29/x/drip/types"
-	feepaymodule "github.com/CosmosContracts/juno/v29/x/feepay/module"
-	feepaytypes "github.com/CosmosContracts/juno/v29/x/feepay/types"
-	feesharemodule "github.com/CosmosContracts/juno/v29/x/feeshare/module"
-	feesharetypes "github.com/CosmosContracts/juno/v29/x/feeshare/types"
-	globalfeemodule "github.com/CosmosContracts/juno/v29/x/globalfee/module"
-	globalfeetypes "github.com/CosmosContracts/juno/v29/x/globalfee/types"
-	mintmodule "github.com/CosmosContracts/juno/v29/x/mint/module"
-	minttypes "github.com/CosmosContracts/juno/v29/x/mint/types"
-	tokenfactorymodule "github.com/CosmosContracts/juno/v29/x/tokenfactory/module"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	clockmodule "github.com/CosmosContracts/juno/v30/x/clock/module"
+	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
+	cwhooksmodule "github.com/CosmosContracts/juno/v30/x/cw-hooks/module"
+	cwhookstypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
+	dripmodule "github.com/CosmosContracts/juno/v30/x/drip/module"
+	driptypes "github.com/CosmosContracts/juno/v30/x/drip/types"
+	feemarketmodule "github.com/CosmosContracts/juno/v30/x/feemarket/module"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	feepaymodule "github.com/CosmosContracts/juno/v30/x/feepay/module"
+	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
+	feesharemodule "github.com/CosmosContracts/juno/v30/x/feeshare/module"
+	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
+	mintmodule "github.com/CosmosContracts/juno/v30/x/mint/module"
+	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
+	streammodule "github.com/CosmosContracts/juno/v30/x/stream/module"
+	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
+	tokenfactorymodule "github.com/CosmosContracts/juno/v30/x/tokenfactory/module"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+
 	// wrappers
-	wrappedgovmodule "github.com/CosmosContracts/juno/v29/x/wrappers/gov/module"
+	wrappedgovmodule "github.com/CosmosContracts/juno/v30/x/wrappers/gov/module"
 )
 
 func appModules(
@@ -105,18 +107,21 @@ func appModules(
 		staking.NewAppModule(appCodec, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		upgrade.NewAppModule(app.AppKeepers.UpgradeKeeper, app.AppKeepers.AccountKeeper.AddressCodec()),
 		evidence.NewAppModule(app.AppKeepers.EvidenceKeeper),
+		// TODO: remove params module from app
 		params.NewAppModule(app.AppKeepers.ParamsKeeper),
 		authzmodule.NewAppModule(appCodec, app.AppKeepers.AuthzKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
 		nftmodule.NewAppModule(appCodec, app.AppKeepers.NFTKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(appCodec, app.AppKeepers.ConsensusParamsKeeper),
+		// TODO: remove crisis module from app
 		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		// Juno modules
 		mintmodule.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
 		tokenfactorymodule.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper),
-		globalfeemodule.NewAppModule(appCodec, app.AppKeepers.GlobalFeeKeeper),
 		feepaymodule.NewAppModule(app.AppKeepers.FeePayKeeper, app.AppKeepers.AccountKeeper),
+		feemarketmodule.NewAppModule(appCodec, *app.AppKeepers.FeeMarketKeeper),
 		feesharemodule.NewAppModule(app.AppKeepers.FeeShareKeeper, app.AppKeepers.AccountKeeper),
 		dripmodule.NewAppModule(appCodec, app.AppKeepers.DripKeeper, app.AppKeepers.AccountKeeper),
+		streammodule.NewAppModule(appCodec, app.AppKeepers.StreamKeeper),
 		clockmodule.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
 		cwhooksmodule.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
@@ -165,8 +170,8 @@ func orderBeginBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
+		feemarkettypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfeetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
@@ -205,11 +210,11 @@ func orderEndBlockers() []string {
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfeetypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhookstypes.ModuleName,
+		feemarkettypes.ModuleName,
 	}
 }
 
@@ -249,8 +254,9 @@ func orderInitBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
+		feemarkettypes.ModuleName,
 		feesharetypes.ModuleName,
-		globalfeetypes.ModuleName,
+		streamtypes.ModuleName,
 		wasmtypes.ModuleName,
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
@@ -268,7 +274,6 @@ var AppModuleBasics = module.NewBasicManager(
 	bank.AppModuleBasic{},
 	feegrantmodule.AppModuleBasic{},
 	gov.AppModuleBasic{},
-	// Replace .NewAppModule with .AppModuleBasic{}
 	slashing.AppModuleBasic{},
 	distr.AppModuleBasic{},
 	staking.AppModuleBasic{},
@@ -282,10 +287,11 @@ var AppModuleBasics = module.NewBasicManager(
 	// Juno modules
 	mintmodule.AppModuleBasic{},
 	tokenfactorymodule.AppModuleBasic{},
-	globalfeemodule.AppModuleBasic{},
 	feepaymodule.AppModuleBasic{},
+	feemarketmodule.AppModuleBasic{},
 	feesharemodule.AppModuleBasic{},
 	dripmodule.AppModuleBasic{},
+	streammodule.AppModuleBasic{},
 	clockmodule.AppModuleBasic{},
 	cwhooksmodule.AppModuleBasic{},
 	// IBC modules

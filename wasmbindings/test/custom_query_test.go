@@ -3,7 +3,7 @@ package bindings_test
 import (
 	"fmt"
 
-	types "github.com/CosmosContracts/juno/v29/wasmbindings/types"
+	types "github.com/CosmosContracts/juno/v30/wasmbindings/types"
 )
 
 func (s *BindingsTestSuite) TestQueryFullDenom() {

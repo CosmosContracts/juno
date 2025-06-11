@@ -1,7 +1,7 @@
 package v29
 
 import (
-	"github.com/CosmosContracts/juno/v29/app/upgrades"
+	"github.com/CosmosContracts/juno/v30/app/upgrades"
 )
 
 const UpgradeName = "v29"

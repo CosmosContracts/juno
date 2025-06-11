@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v29/x/feepay/types"
+	"github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 func (s *KeeperTestSuite) TestFeeShareInitGenesis() {
