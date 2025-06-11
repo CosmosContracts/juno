@@ -13,7 +13,7 @@ replace (
 require (
 	cosmossdk.io/math v1.5.3
 	cosmossdk.io/x/upgrade v0.1.4
-	github.com/CosmWasm/wasmd v0.54.0
+	github.com/CosmWasm/wasmd v0.54.1
 	github.com/CosmosContracts/juno/v29 v29.0.0
 	github.com/cosmos/cosmos-sdk v0.50.13
 	github.com/cosmos/ibc-go/v8 v8.7.0
