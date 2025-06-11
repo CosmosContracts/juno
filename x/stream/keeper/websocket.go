@@ -51,6 +51,24 @@ func (k *Keeper) getQueryContextOrSendError(conn *websocket.Conn) (context.Conte
 	return queryCtx, true
 }
 
+// checkCircuitBreaker checks if the circuit breaker allows the request
+func (k *Keeper) checkCircuitBreaker(conn *websocket.Conn, connectionID string) bool {
+	if k.config.CircuitBreakerEnabled && k.circuitBreaker != nil {
+		allowed, err := k.circuitBreaker.AllowRequest(connectionID)
+		if !allowed {
+			k.logger.Warn("circuit breaker blocked request", "connection_id", connectionID, "error", err)
+			IncrementConnectionRejected("circuit_breaker")
+			errorMsg := map[string]string{"error": "service temporarily unavailable"}
+			conn.SetWriteDeadline(time.Now().Add(writeWait))
+			conn.WriteJSON(errorMsg)
+			conn.Close()
+			k.connectionManager.UnregisterConnection(connectionID)
+			return false
+		}
+	}
+	return true
+}
+
 // HandleBalanceSubscription handles balance subscription WebSocket connections
 func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -86,6 +104,11 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 	connectionID := k.connectionManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
 	if connectionID == "" {
 		conn.Close()
+		return
+	}
+
+	// Check circuit breaker if enabled
+	if !k.checkCircuitBreaker(conn, connectionID) {
 		return
 	}
 	defer func() {
@@ -132,7 +155,7 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+	k.handleWebSocketConnection(conn, ctx, sendCh, connectionID, func() any {
 		queryCtx, err := k.GetQueryContext()
 		if err != nil {
 			return map[string]string{"error": "service temporarily unavailable"}
@@ -176,6 +199,11 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 		conn.Close()
 		return
 	}
+
+	// Check circuit breaker if enabled
+	if !k.checkCircuitBreaker(conn, connectionID) {
+		return
+	}
 	defer func() {
 		k.connectionManager.UnregisterConnection(connectionID)
 		if err := conn.Close(); err != nil {
@@ -210,7 +238,7 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+	k.handleWebSocketConnection(conn, ctx, sendCh, connectionID, func() any {
 		queryCtx, err := k.GetQueryContext()
 		if err != nil {
 			return map[string]string{"error": "service temporarily unavailable"}
@@ -250,6 +278,11 @@ func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Re
 		conn.Close()
 		return
 	}
+
+	// Check circuit breaker if enabled
+	if !k.checkCircuitBreaker(conn, connectionID) {
+		return
+	}
 	defer func() {
 		k.connectionManager.UnregisterConnection(connectionID)
 		if err := conn.Close(); err != nil {
@@ -284,7 +317,7 @@ func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Re
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+	k.handleWebSocketConnection(conn, ctx, sendCh, connectionID, func() any {
 		queryCtx, err := k.GetQueryContext()
 		if err != nil {
 			return []stakingtypes.DelegationResponse{}
@@ -330,6 +363,11 @@ func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Req
 		conn.Close()
 		return
 	}
+
+	// Check circuit breaker if enabled
+	if !k.checkCircuitBreaker(conn, connectionID) {
+		return
+	}
 	defer func() {
 		k.connectionManager.UnregisterConnection(connectionID)
 		if err := conn.Close(); err != nil {
@@ -364,7 +402,7 @@ func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Req
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+	k.handleWebSocketConnection(conn, ctx, sendCh, connectionID, func() any {
 		queryCtx, err := k.GetQueryContext()
 		if err != nil {
 			return map[string]any{"found": false}
@@ -402,6 +440,11 @@ func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 	connectionID := k.connectionManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
 	if connectionID == "" {
 		conn.Close()
+		return
+	}
+
+	// Check circuit breaker if enabled
+	if !k.checkCircuitBreaker(conn, connectionID) {
 		return
 	}
 	defer func() {
@@ -442,7 +485,7 @@ func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+	k.handleWebSocketConnection(conn, ctx, sendCh, connectionID, func() any {
 		queryCtx, err := k.GetQueryContext()
 		if err != nil {
 			return []stakingtypes.UnbondingDelegation{}
@@ -492,6 +535,11 @@ func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 		conn.Close()
 		return
 	}
+
+	// Check circuit breaker if enabled
+	if !k.checkCircuitBreaker(conn, connectionID) {
+		return
+	}
 	defer func() {
 		k.connectionManager.UnregisterConnection(connectionID)
 		if err := conn.Close(); err != nil {
@@ -530,7 +578,7 @@ func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 	subscriber := k.registry.Subscribe(subKey, ctx, sendCh)
 	defer k.registry.Unsubscribe(subscriber)
 
-	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
+	k.handleWebSocketConnection(conn, ctx, sendCh, connectionID, func() any {
 		queryCtx, err := k.GetQueryContext()
 		if err != nil {
 			return map[string]any{"found": false}
@@ -545,7 +593,7 @@ func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 }
 
 // handleWebSocketConnection handles the WebSocket connection lifecycle
-func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh <-chan any, queryFunc func() any) {
+func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh <-chan any, connectionID string, queryFunc func() any) {
 	conn.SetReadLimit(maxMessageSize)
 	conn.SetReadDeadline(time.Now().Add(pongWait))
 	conn.SetPongHandler(func(string) error {
@@ -578,11 +626,23 @@ func (k *Keeper) handleWebSocketConnection(conn *websocket.Conn, ctx context.Con
 			data := queryFunc()
 			if err := k.sendWebSocketMessage(conn, data); err != nil {
 				k.logger.Error("failed to send websocket message", "error", err)
+				// Record failure in circuit breaker
+				if k.config.CircuitBreakerEnabled && k.circuitBreaker != nil {
+					k.circuitBreaker.RecordFailure(connectionID)
+				}
 				return
+			}
+			// Record success in circuit breaker
+			if k.config.CircuitBreakerEnabled && k.circuitBreaker != nil {
+				k.circuitBreaker.RecordSuccess(connectionID)
 			}
 		case <-ticker.C:
 			conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				// Record failure in circuit breaker for ping failures
+				if k.config.CircuitBreakerEnabled && k.circuitBreaker != nil {
+					k.circuitBreaker.RecordFailure(connectionID)
+				}
 				return
 			}
 		}

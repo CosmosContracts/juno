@@ -208,3 +208,15 @@ func (cm *ConnectionManager) SetEnableUUID(enable bool) {
 	cm.enableUUID = enable
 	cm.logger.Info("UUID connection tracking configured", "enabled", enable)
 }
+
+// GetActiveConnections returns a map of all active connection IDs
+func (cm *ConnectionManager) GetActiveConnections() map[string]bool {
+	cm.mu.RLock()
+	defer cm.mu.RUnlock()
+
+	activeConnections := make(map[string]bool, len(cm.connections))
+	for connID := range cm.connections {
+		activeConnections[connID] = true
+	}
+	return activeConnections
+}

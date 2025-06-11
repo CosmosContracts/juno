@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -54,6 +55,9 @@ type Keeper struct {
 	allowAllOrigins bool
 	corsOrigins     []string
 
+	// Circuit breaker for connection protection
+	circuitBreaker *CircuitBreaker
+
 	logger log.Logger
 }
 
@@ -94,6 +98,9 @@ func NewKeeper(
 	// Create connection manager
 	connectionManager := NewConnectionManager(maxConnections, maxSubscriptionsPerClient, logger)
 
+	// Create circuit breaker (will be configured when SetStreamConfig is called)
+	circuitBreaker := NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
+
 	return &Keeper{
 		cdc:                       cdc,
 		storeKey:                  storeKey,
@@ -109,6 +116,7 @@ func NewKeeper(
 		maxSubscriptionsPerClient: maxSubscriptionsPerClient,
 		connectionManager:         connectionManager,
 		config:                    config,
+		circuitBreaker:            circuitBreaker,
 		logger:                    logger.With("module", "x/stream"),
 	}
 }
@@ -132,6 +140,11 @@ func (k *Keeper) Intake() chan<- types.StreamEvent {
 func (k *Keeper) StartDispatcher() {
 	go k.dispatcher.Start()
 	k.logger.Info("stream dispatcher started")
+	
+	// Start periodic cleanup for circuit breaker if enabled
+	if k.config.CircuitBreakerEnabled && k.circuitBreaker != nil {
+		go k.runCircuitBreakerCleanup()
+	}
 }
 
 // StopDispatcher stops the event dispatcher
@@ -244,6 +257,18 @@ func (k *Keeper) SetStreamConfig(config StreamConfig) error {
 		k.connectionManager.SetEnableUUID(config.EnableConnectionUUID)
 	}
 
+	// Update circuit breaker configuration
+	if config.CircuitBreakerEnabled && k.circuitBreaker == nil {
+		k.circuitBreaker = NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
+	} else if config.CircuitBreakerEnabled && k.circuitBreaker != nil {
+		// Update existing circuit breaker settings
+		k.circuitBreaker.threshold = config.CircuitBreakerThreshold
+		k.circuitBreaker.timeout = config.CircuitBreakerTimeout
+	} else if !config.CircuitBreakerEnabled {
+		// Disable circuit breaker
+		k.circuitBreaker = nil
+	}
+
 	k.logger.Info("stream configuration updated",
 		"intake_buffer_size", config.IntakeBufferSize,
 		"subscription_buffer_size", config.SubscriptionBufferSize,
@@ -281,4 +306,48 @@ func (k *Keeper) ValidateDenom(ctx context.Context, denom string) error {
 	// as not all denoms have metadata
 
 	return nil
+}
+
+// GetCircuitBreakerMetrics returns circuit breaker metrics for monitoring
+func (k *Keeper) GetCircuitBreakerMetrics() map[string]interface{} {
+	if k.circuitBreaker == nil {
+		return map[string]interface{}{
+			"enabled": false,
+		}
+	}
+
+	metrics := k.circuitBreaker.GetMetrics()
+	metrics["enabled"] = true
+	return metrics
+}
+
+// runCircuitBreakerCleanup periodically cleans up stale circuit breaker entries
+func (k *Keeper) runCircuitBreakerCleanup() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			if k.circuitBreaker != nil && k.connectionManager != nil {
+				activeConnections := k.connectionManager.GetActiveConnections()
+				k.circuitBreaker.CleanupStaleConnections(activeConnections)
+				
+				// Update metrics
+				metrics := k.circuitBreaker.GetMetrics()
+				if openCircuits, ok := metrics["open_circuits"].(int); ok {
+					if halfOpenCircuits, ok2 := metrics["half_open_circuits"].(int); ok2 {
+						if closedCircuits, ok3 := metrics["closed_circuits"].(int); ok3 {
+							UpdateCircuitBreakerMetrics(openCircuits, halfOpenCircuits, closedCircuits)
+						}
+					}
+				}
+				
+				k.logger.Debug("circuit breaker cleanup completed", "active_connections", len(activeConnections))
+			}
+		case <-k.appContext.Done():
+			k.logger.Info("stopping circuit breaker cleanup")
+			return
+		}
+	}
 }

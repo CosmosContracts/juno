@@ -14,6 +14,7 @@ const (
 	MetricKeyBufferOverflow     = "buffer_overflow"
 	MetricKeyConnectionDuration = "connection_duration"
 	MetricKeyConnectionRejected = "connection_rejected"
+	MetricKeyCircuitBreakerOpen = "circuit_breaker_open"
 	MetricsModuleName           = "stream"
 )
 
@@ -68,6 +69,31 @@ func IncrementConnectionRejected(reason string) {
 		1,
 		[]metrics.Label{
 			{Name: "reason", Value: reason},
+		},
+	)
+}
+
+// UpdateCircuitBreakerMetrics updates circuit breaker metrics
+func UpdateCircuitBreakerMetrics(openCircuits, halfOpenCircuits, closedCircuits int) {
+	telemetry.SetGaugeWithLabels(
+		[]string{MetricsModuleName, MetricKeyCircuitBreakerOpen},
+		float32(openCircuits),
+		[]metrics.Label{
+			{Name: "state", Value: "open"},
+		},
+	)
+	telemetry.SetGaugeWithLabels(
+		[]string{MetricsModuleName, MetricKeyCircuitBreakerOpen},
+		float32(halfOpenCircuits),
+		[]metrics.Label{
+			{Name: "state", Value: "half_open"},
+		},
+	)
+	telemetry.SetGaugeWithLabels(
+		[]string{MetricsModuleName, MetricKeyCircuitBreakerOpen},
+		float32(closedCircuits),
+		[]metrics.Label{
+			{Name: "state", Value: "closed"},
 		},
 	)
 }
