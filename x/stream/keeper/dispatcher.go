@@ -32,6 +32,17 @@ func NewDispatcher(intake <-chan types.StreamEvent, registry *SubscriptionRegist
 
 // Start begins the dispatcher event loop
 func (d *Dispatcher) Start() {
+	// panic recovery to prevent any panic from crashing the node
+	defer func() {
+		if r := recover(); r != nil {
+			d.logger.Error("panic recovered in dispatcher", "panic", r)
+			// Ensure stopped channel is closed
+			d.stoppedOnce.Do(func() {
+				close(d.stopped)
+			})
+		}
+	}()
+
 	d.logger.Info("starting event dispatcher")
 
 	ticker := time.NewTicker(30 * time.Second) // Stats ticker
@@ -77,6 +88,15 @@ func (d *Dispatcher) WaitForStop() {
 
 // processEvent processes a single state event
 func (d *Dispatcher) processEvent(event types.StreamEvent) {
+	// Add panic recovery for individual event processing
+	defer func() {
+		if r := recover(); r != nil {
+			d.logger.Error("panic recovered while processing event",
+				"panic", r,
+				"event", event)
+		}
+	}()
+
 	d.logger.Debug("processing event",
 		"module", event.Module,
 		"type", event.EventType,

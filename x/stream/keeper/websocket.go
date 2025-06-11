@@ -21,11 +21,18 @@ const (
 	maxMessageSize = 512
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		// Allow all origins in development - should be restricted in production
-		return true
-	},
+// getUpgrader returns a websocket upgrader with configurable CORS
+func (k *Keeper) getUpgrader() *websocket.Upgrader {
+	return &websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			if k.allowAllOrigins {
+				return true
+			}
+			// Default to same-origin only
+			origin := r.Header.Get("Origin")
+			return origin == "" || origin == "http://"+r.Host || origin == "https://"+r.Host
+		},
+	}
 }
 
 // getQueryContextOrSendError gets the query context or sends an error message and returns false
@@ -33,7 +40,7 @@ func (k *Keeper) getQueryContextOrSendError(conn *websocket.Conn) (context.Conte
 	queryCtx, err := k.GetQueryContext()
 	if err != nil {
 		k.logger.Error("failed to get query context", "error", err)
-		errorMsg := map[string]string{"error": "internal server error"}
+		errorMsg := map[string]string{"error": "service temporarily unavailable"}
 		conn.SetWriteDeadline(time.Now().Add(writeWait))
 		if sendErr := conn.WriteJSON(errorMsg); sendErr != nil {
 			k.logger.Error("failed to send error message", "error", sendErr)
@@ -60,7 +67,7 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := k.getUpgrader().Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
@@ -93,7 +100,17 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Send initial balance
-	balance := k.bankKeeper.GetBalance(queryCtx, sdk.MustAccAddressFromBech32(address), denom)
+	addr, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		k.logger.Error("failed to parse address", "error", err, "address", address)
+		errorMsg := map[string]string{"error": "invalid address format"}
+		conn.SetWriteDeadline(time.Now().Add(writeWait))
+		if sendErr := conn.WriteJSON(errorMsg); sendErr != nil {
+			k.logger.Error("failed to send error message", "error", sendErr)
+		}
+		return
+	}
+	balance := k.bankKeeper.GetBalance(queryCtx, addr, denom)
 	if err := k.sendWebSocketMessage(conn, balance); err != nil {
 		return
 	}
@@ -107,9 +124,13 @@ func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Reques
 	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
 		queryCtx, err := k.GetQueryContext()
 		if err != nil {
-			return map[string]string{"error": "failed to get context"}
+			return map[string]string{"error": "service temporarily unavailable"}
 		}
-		return k.bankKeeper.GetBalance(queryCtx, sdk.MustAccAddressFromBech32(address), denom)
+		addr, err := sdk.AccAddressFromBech32(address)
+		if err != nil {
+			return map[string]string{"error": "invalid address format"}
+		}
+		return k.bankKeeper.GetBalance(queryCtx, addr, denom)
 	})
 }
 
@@ -130,7 +151,7 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := k.getUpgrader().Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
@@ -177,7 +198,7 @@ func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Re
 	k.handleWebSocketConnection(conn, ctx, sendCh, func() any {
 		queryCtx, err := k.GetQueryContext()
 		if err != nil {
-			return map[string]string{"error": "failed to get context"}
+			return map[string]string{"error": "service temporarily unavailable"}
 		}
 		return map[string]any{"balances": k.bankKeeper.GetAllBalances(queryCtx, addr)}
 	})
@@ -200,7 +221,7 @@ func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := k.getUpgrader().Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
@@ -276,7 +297,7 @@ func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := k.getUpgrader().Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
@@ -346,7 +367,7 @@ func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r
 		return
 	}
 
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := k.getUpgrader().Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return
@@ -430,7 +451,7 @@ func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r 
 		return
 	}
 
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := k.getUpgrader().Upgrade(w, r, nil)
 	if err != nil {
 		k.logger.Error("websocket upgrade failed", "error", err)
 		return

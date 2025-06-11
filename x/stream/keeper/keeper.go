@@ -42,6 +42,9 @@ type Keeper struct {
 	maxSubscriptionsPerClient int
 	connectionManager         *ConnectionManager
 
+	// CORS configuration
+	allowAllOrigins bool
+
 	logger log.Logger
 }
 
@@ -160,18 +163,24 @@ func (k *Keeper) SetQueryContext(ctx context.Context) {
 }
 
 // GetQueryContext returns the current query context
-// Falls back to a background context if not set
+// Returns an error if context is not yet available
 func (k *Keeper) GetQueryContext() (context.Context, error) {
 	val := k.queryContext.Load()
 
 	if val != nil {
 		storedCtx := val.(context.Context)
-		return storedCtx, nil
+		select {
+		case <-storedCtx.Done():
+			k.logger.Warn("stored query context is cancelled")
+			return nil, fmt.Errorf("query context is no longer valid")
+		default:
+			return storedCtx, nil
+		}
 	}
 
 	// This happens when no block has been processed yet
-	k.logger.Error("no query context available - PreBlocker hasn't run yet")
-	return nil, fmt.Errorf("query context not initialized - no blocks processed yet")
+	k.logger.Debug("no query context available yet")
+	return nil, types.ErrNoQueryContext
 }
 
 // GetAppContext returns the app context used for lifecycle management
@@ -192,4 +201,10 @@ func (k *Keeper) SetConnectionLimits(maxConnections, maxSubscriptionsPerClient i
 	k.logger.Info("connection limits updated",
 		"max_connections", k.maxConnections,
 		"max_subscriptions_per_client", k.maxSubscriptionsPerClient)
+}
+
+// SetAllowAllOrigins sets whether to allow all origins for WebSocket connections
+func (k *Keeper) SetAllowAllOrigins(allow bool) {
+	k.allowAllOrigins = allow
+	k.logger.Info("CORS configuration updated", "allow_all_origins", allow)
 }

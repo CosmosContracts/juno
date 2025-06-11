@@ -37,13 +37,14 @@ func (q queryServer) StreamBalance(req *types.StreamBalanceRequest, stream types
 	}
 
 	// Validate address format
-	if _, err := sdk.AccAddressFromBech32(req.Address); err != nil {
+	addr, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
 		return fmt.Errorf("invalid address: %w", err)
 	}
 
 	// Send initial response with current balance
 	// The context here will be injected by our interceptor with proper SDK values
-	balance := q.k.bankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32(req.Address), req.Denom)
+	balance := q.k.bankKeeper.GetBalance(ctx, addr, req.Denom)
 	if err := stream.Send(&types.StreamBalanceResponse{Balance: &balance}); err != nil {
 		return err
 	}
@@ -88,7 +89,11 @@ func (q queryServer) StreamBalance(req *types.StreamBalanceRequest, stream types
 				if err != nil {
 					return err
 				}
-				balance := q.k.bankKeeper.GetBalance(queryCtx, sdk.MustAccAddressFromBech32(req.Address), req.Denom)
+				addr, err := sdk.AccAddressFromBech32(req.Address)
+				if err != nil {
+					return fmt.Errorf("invalid address: %w", err)
+				}
+				balance := q.k.bankKeeper.GetBalance(queryCtx, addr, req.Denom)
 				if err := stream.Send(&types.StreamBalanceResponse{Balance: &balance}); err != nil {
 					return err
 				}
@@ -144,7 +149,7 @@ func (q queryServer) StreamAllBalances(req *types.StreamAllBalancesRequest, stre
 				if err != nil {
 					return err
 				}
-				balances := q.k.bankKeeper.GetAllBalances(queryCtx, sdk.MustAccAddressFromBech32(req.Address))
+				balances := q.k.bankKeeper.GetAllBalances(queryCtx, addr)
 				balancePointers := make([]*sdk.Coin, len(balances))
 				for i := range balances {
 					balancePointers[i] = &balances[i]
