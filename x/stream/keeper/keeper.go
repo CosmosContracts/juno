@@ -14,6 +14,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/middleware"
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
@@ -28,7 +29,7 @@ type Keeper struct {
 
 	// State listening components
 	intake     chan types.StreamEvent
-	registry   *SubscriptionRegistry
+	registry   *types.SubscriptionRegistry
 	dispatcher *Dispatcher
 
 	// stores the node's context.Context for streaming queries
@@ -56,7 +57,7 @@ type Keeper struct {
 	corsOrigins     []string
 
 	// Circuit breaker for connection protection
-	circuitBreaker *CircuitBreaker
+	circuitBreaker *middleware.CircuitBreaker
 
 	logger log.Logger
 }
@@ -79,7 +80,7 @@ func NewKeeper(
 	intake := make(chan types.StreamEvent, config.IntakeBufferSize)
 
 	// Create subscription registry
-	registry := NewSubscriptionRegistry(logger)
+	registry := types.NewSubscriptionRegistry(logger)
 
 	// Create dispatcher
 	dispatcher := NewDispatcher(intake, registry, logger)
@@ -99,7 +100,7 @@ func NewKeeper(
 	connectionManager := NewConnectionManager(maxConnections, maxSubscriptionsPerClient, logger)
 
 	// Create circuit breaker (will be configured when SetStreamConfig is called)
-	circuitBreaker := NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
+	circuitBreaker := middleware.NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
 
 	return &Keeper{
 		cdc:                       cdc,
@@ -140,7 +141,7 @@ func (k *Keeper) Intake() chan<- types.StreamEvent {
 func (k *Keeper) StartDispatcher() {
 	go k.dispatcher.Start()
 	k.logger.Info("stream dispatcher started")
-	
+
 	// Start periodic cleanup for circuit breaker if enabled
 	if k.config.CircuitBreakerEnabled && k.circuitBreaker != nil {
 		go k.runCircuitBreakerCleanup()
@@ -171,7 +172,7 @@ func (k *Keeper) StopDispatcher() {
 }
 
 // Registry returns the subscription registry
-func (k *Keeper) Registry() *SubscriptionRegistry {
+func (k *Keeper) Registry() *types.SubscriptionRegistry {
 	return k.registry
 }
 
@@ -259,7 +260,7 @@ func (k *Keeper) SetStreamConfig(config StreamConfig) error {
 
 	// Update circuit breaker configuration
 	if config.CircuitBreakerEnabled && k.circuitBreaker == nil {
-		k.circuitBreaker = NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
+		k.circuitBreaker = middleware.NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
 	} else if config.CircuitBreakerEnabled && k.circuitBreaker != nil {
 		// Update existing circuit breaker settings
 		k.circuitBreaker.threshold = config.CircuitBreakerThreshold
@@ -332,17 +333,17 @@ func (k *Keeper) runCircuitBreakerCleanup() {
 			if k.circuitBreaker != nil && k.connectionManager != nil {
 				activeConnections := k.connectionManager.GetActiveConnections()
 				k.circuitBreaker.CleanupStaleConnections(activeConnections)
-				
+
 				// Update metrics
 				metrics := k.circuitBreaker.GetMetrics()
 				if openCircuits, ok := metrics["open_circuits"].(int); ok {
 					if halfOpenCircuits, ok2 := metrics["half_open_circuits"].(int); ok2 {
 						if closedCircuits, ok3 := metrics["closed_circuits"].(int); ok3 {
-							UpdateCircuitBreakerMetrics(openCircuits, halfOpenCircuits, closedCircuits)
+							types.UpdateCircuitBreakerMetrics(openCircuits, halfOpenCircuits, closedCircuits)
 						}
 					}
 				}
-				
+
 				k.logger.Debug("circuit breaker cleanup completed", "active_connections", len(activeConnections))
 			}
 		case <-k.appContext.Done():

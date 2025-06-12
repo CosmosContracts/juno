@@ -1,9 +1,10 @@
-package keeper
+package middleware_test
 
 import (
 	"testing"
 	"time"
 
+	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/middleware"
 	"github.com/stretchr/testify/require"
 )
 
@@ -48,7 +49,7 @@ func TestCircuitBreaker(t *testing.T) {
 }
 
 func testNewCircuitBreakerStartsClosed(t *testing.T) {
-	cb := NewCircuitBreaker(3, 30*time.Second)
+	cb := middleware.NewCircuitBreaker(3, 30*time.Second)
 	require.NotNil(t, cb)
 
 	// New connection should be allowed
@@ -58,11 +59,11 @@ func testNewCircuitBreakerStartsClosed(t *testing.T) {
 
 	// State should be closed
 	state := cb.GetState("conn1")
-	require.Equal(t, CircuitBreakerClosed, state)
+	require.Equal(t, middleware.CircuitBreakerClosed, state)
 }
 
 func testCircuitOpensAfterThreshold(t *testing.T) {
-	cb := NewCircuitBreaker(3, 30*time.Second)
+	cb := middleware.NewCircuitBreaker(3, 30*time.Second)
 
 	// Record failures up to threshold
 	for i := 0; i < 3; i++ {
@@ -76,12 +77,12 @@ func testCircuitOpensAfterThreshold(t *testing.T) {
 	require.Contains(t, err.Error(), "circuit breaker is open")
 
 	state := cb.GetState("conn1")
-	require.Equal(t, CircuitBreakerOpen, state)
+	require.Equal(t, middleware.CircuitBreakerOpen, state)
 }
 
 func testCircuitMovesToHalfOpen(t *testing.T) {
 	// Use a short timeout for testing
-	cb := NewCircuitBreaker(2, 100*time.Millisecond)
+	cb := middleware.NewCircuitBreaker(2, 100*time.Millisecond)
 
 	// Open the circuit
 	cb.RecordFailure("conn1")
@@ -101,11 +102,11 @@ func testCircuitMovesToHalfOpen(t *testing.T) {
 	require.NoError(t, err)
 
 	state := cb.GetState("conn1")
-	require.Equal(t, CircuitBreakerHalfOpen, state)
+	require.Equal(t, middleware.CircuitBreakerHalfOpen, state)
 }
 
 func testCircuitClosesOnSuccess(t *testing.T) {
-	cb := NewCircuitBreaker(2, 100*time.Millisecond)
+	cb := middleware.NewCircuitBreaker(2, 100*time.Millisecond)
 
 	// Open the circuit
 	cb.RecordFailure("conn1")
@@ -124,7 +125,7 @@ func testCircuitClosesOnSuccess(t *testing.T) {
 
 	// Circuit should now be closed
 	state := cb.GetState("conn1")
-	require.Equal(t, CircuitBreakerClosed, state)
+	require.Equal(t, middleware.CircuitBreakerClosed, state)
 
 	// Verify failures are reset
 	cb.RecordFailure("conn1")
@@ -134,7 +135,7 @@ func testCircuitClosesOnSuccess(t *testing.T) {
 }
 
 func testCircuitBreakerReset(t *testing.T) {
-	cb := NewCircuitBreaker(2, 30*time.Second)
+	cb := middleware.NewCircuitBreaker(2, 30*time.Second)
 
 	// Open circuit for multiple connections
 	cb.RecordFailure("conn1")
@@ -168,7 +169,7 @@ func testCircuitBreakerReset(t *testing.T) {
 }
 
 func testCircuitBreakerMetrics(t *testing.T) {
-	cb := NewCircuitBreaker(2, 30*time.Second)
+	cb := middleware.NewCircuitBreaker(2, 30*time.Second)
 
 	// Create various states
 	cb.RecordFailure("conn1")
@@ -181,7 +182,7 @@ func testCircuitBreakerMetrics(t *testing.T) {
 	cb.RecordFailure("conn3")
 	cb.RecordFailure("conn3")
 	cb.lastFailTime["conn3"] = time.Now().Add(-31 * time.Second) // Force timeout
-	cb.AllowRequest("conn3") // This will move it to half-open
+	cb.AllowRequest("conn3")                                     // This will move it to half-open
 
 	// Get metrics
 	metrics := cb.GetMetrics()
@@ -194,13 +195,13 @@ func testCircuitBreakerMetrics(t *testing.T) {
 }
 
 func testCleanupStaleConnections(t *testing.T) {
-	cb := NewCircuitBreaker(2, 30*time.Second)
+	cb := middleware.NewCircuitBreaker(2, 30*time.Second)
 
 	// Create some circuit states by calling AllowRequest first
 	cb.AllowRequest("conn1")
 	cb.AllowRequest("conn2")
 	cb.AllowRequest("conn3")
-	
+
 	// Now record failures
 	cb.RecordFailure("conn1")
 	cb.RecordFailure("conn2")
@@ -223,5 +224,5 @@ func testCleanupStaleConnections(t *testing.T) {
 	allowed, err := cb.AllowRequest("conn2")
 	require.True(t, allowed)
 	require.NoError(t, err)
-	require.Equal(t, CircuitBreakerClosed, cb.GetState("conn2"))
+	require.Equal(t, middleware.CircuitBreakerClosed, cb.GetState("conn2"))
 }

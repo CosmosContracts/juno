@@ -12,7 +12,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/CosmosContracts/juno/v30/testutil"
-	"github.com/CosmosContracts/juno/v30/x/stream/keeper"
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
@@ -44,7 +43,7 @@ func (s *KeeperTestSuite) TestSubscriptionRegistry() {
 
 	// Create a registry with a logger
 	logger := s.App.Logger()
-	registry := keeper.NewSubscriptionRegistry(logger)
+	registry := types.NewSubscriptionRegistry(logger)
 
 	// Create a subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeBalance, s.TestAccs[0].String(), "", "ujuno")

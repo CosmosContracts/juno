@@ -57,7 +57,7 @@ func (k *Keeper) checkCircuitBreaker(conn *websocket.Conn, connectionID string) 
 		allowed, err := k.circuitBreaker.AllowRequest(connectionID)
 		if !allowed {
 			k.logger.Warn("circuit breaker blocked request", "connection_id", connectionID, "error", err)
-			IncrementConnectionRejected("circuit_breaker")
+			types.IncrementConnectionRejected("circuit_breaker")
 			errorMsg := map[string]string{"error": "service temporarily unavailable"}
 			conn.SetWriteDeadline(time.Now().Add(writeWait))
 			conn.WriteJSON(errorMsg)
@@ -654,7 +654,7 @@ func (k *Keeper) sendWebSocketMessage(conn *websocket.Conn, data any) error {
 	conn.SetWriteDeadline(time.Now().Add(writeWait))
 	err := conn.WriteJSON(data)
 	if err == nil {
-		IncrementMessagesSent()
+		types.IncrementMessagesSent()
 	}
 	return err
 }

@@ -11,7 +11,7 @@ import (
 // Dispatcher handles the routing of state events to subscriptions
 type Dispatcher struct {
 	intake      <-chan types.StreamEvent
-	registry    *SubscriptionRegistry
+	registry    *types.SubscriptionRegistry
 	logger      log.Logger
 	stopCh      chan struct{}
 	stopOnce    sync.Once
@@ -23,7 +23,7 @@ type Dispatcher struct {
 }
 
 // NewDispatcher creates a new event dispatcher
-func NewDispatcher(intake <-chan types.StreamEvent, registry *SubscriptionRegistry, logger log.Logger) *Dispatcher {
+func NewDispatcher(intake <-chan types.StreamEvent, registry *types.SubscriptionRegistry, logger log.Logger) *Dispatcher {
 	return &Dispatcher{
 		intake:   intake,
 		registry: registry,

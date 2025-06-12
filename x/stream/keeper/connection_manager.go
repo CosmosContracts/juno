@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"cosmossdk.io/log"
+	"github.com/CosmosContracts/juno/v30/x/stream/types"
 	"github.com/google/uuid"
 )
 
@@ -61,7 +62,7 @@ func (cm *ConnectionManager) RegisterConnectionWithHeaders(remoteAddr, xForwarde
 	// Check if we can accept new connections
 	if cm.totalConnections >= cm.maxConnections {
 		cm.logger.Warn("connection limit reached", "limit", cm.maxConnections)
-		IncrementConnectionRejected("max_connections")
+		types.IncrementConnectionRejected("max_connections")
 		return ""
 	}
 
@@ -89,7 +90,7 @@ func (cm *ConnectionManager) RegisterConnectionWithHeaders(remoteAddr, xForwarde
 		"remote_addr", remoteAddr,
 		"x_forwarded_for", xForwardedFor,
 		"total", cm.totalConnections)
-	UpdateConnectionMetrics(cm.totalConnections)
+	types.UpdateConnectionMetrics(cm.totalConnections)
 	return connectionID
 }
 
@@ -100,7 +101,7 @@ func (cm *ConnectionManager) UnregisterConnection(connectionID string) {
 
 	if conn, exists := cm.connections[connectionID]; exists {
 		// Record connection duration
-		RecordConnectionDuration(conn.createdAt)
+		types.RecordConnectionDuration(conn.createdAt)
 
 		// Remove from connections map
 		delete(cm.connections, connectionID)
@@ -125,7 +126,7 @@ func (cm *ConnectionManager) UnregisterConnection(connectionID string) {
 			"connection_id", connectionID,
 			"remote_addr", conn.remoteAddr,
 			"total", cm.totalConnections)
-		UpdateConnectionMetrics(cm.totalConnections)
+		types.UpdateConnectionMetrics(cm.totalConnections)
 	}
 }
 
@@ -157,7 +158,7 @@ func (cm *ConnectionManager) AddSubscription(connectionID string) bool {
 			"connection_id", connectionID,
 			"remote_addr", conn.remoteAddr,
 			"limit", cm.maxSubscriptionsPerClient)
-		IncrementConnectionRejected("max_subscriptions")
+		types.IncrementConnectionRejected("max_subscriptions")
 		return false
 	}
 

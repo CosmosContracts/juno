@@ -1,4 +1,4 @@
-package keeper
+package middleware
 
 import (
 	"fmt"
@@ -154,7 +154,7 @@ func (cb *CircuitBreaker) GetMetrics() map[string]interface{} {
 		}
 	}
 
-	return map[string]interface{}{
+	return map[string]any{
 		"total_connections":  len(cb.state),
 		"open_circuits":      openCount,
 		"half_open_circuits": halfOpenCount,

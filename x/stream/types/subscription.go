@@ -1,4 +1,4 @@
-package keeper
+package types
 
 import (
 	"context"
@@ -6,14 +6,13 @@ import (
 	"time"
 
 	"cosmossdk.io/log"
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
 // Subscriber represents an active subscription
 type Subscriber struct {
 	ctx    context.Context
 	sendCh chan<- any
-	key    types.SubscriptionKey
+	key    SubscriptionKey
 }
 
 // SubscriptionRegistry manages active subscriptions
@@ -32,7 +31,7 @@ func NewSubscriptionRegistry(logger log.Logger) *SubscriptionRegistry {
 }
 
 // Subscribe adds a new subscription
-func (r *SubscriptionRegistry) Subscribe(key types.SubscriptionKey, ctx context.Context, sendCh chan<- any) *Subscriber {
+func (r *SubscriptionRegistry) Subscribe(key SubscriptionKey, ctx context.Context, sendCh chan<- any) *Subscriber {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -76,7 +75,7 @@ func (r *SubscriptionRegistry) Unsubscribe(subscriber *Subscriber) {
 }
 
 // FanOut distributes an event to all matching subscribers
-func (r *SubscriptionRegistry) FanOut(event types.StreamEvent, data any) {
+func (r *SubscriptionRegistry) FanOut(event StreamEvent, data any) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -99,43 +98,43 @@ func (r *SubscriptionRegistry) FanOut(event types.StreamEvent, data any) {
 }
 
 // generateMatchingKeys generates all subscription keys that could match this event
-func (r *SubscriptionRegistry) generateMatchingKeys(event types.StreamEvent) []string {
+func (r *SubscriptionRegistry) generateMatchingKeys(event StreamEvent) []string {
 	var keys []string
 
 	switch event.Module {
-	case types.ModuleNameBank:
+	case ModuleNameBank:
 		// Balance-specific subscription
 		if event.Denom != "" {
-			key := types.GenerateSubscriptionKey(types.SubscriptionTypeBalance, event.Address, "", event.Denom)
+			key := GenerateSubscriptionKey(SubscriptionTypeBalance, event.Address, "", event.Denom)
 			keys = append(keys, key.String())
 		}
 
 		// All balances subscription
-		key := types.GenerateSubscriptionKey(types.SubscriptionTypeAllBalances, event.Address, "", "")
+		key := GenerateSubscriptionKey(SubscriptionTypeAllBalances, event.Address, "", "")
 		keys = append(keys, key.String())
 
-	case types.ModuleNameStaking:
+	case ModuleNameStaking:
 		switch event.EventType {
-		case types.EventTypeDelegationChange:
+		case EventTypeDelegationChange:
 			// Specific delegation subscription
 			if event.SecondaryAddress != "" {
-				key := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegation, event.Address, event.SecondaryAddress, "")
+				key := GenerateSubscriptionKey(SubscriptionTypeDelegation, event.Address, event.SecondaryAddress, "")
 				keys = append(keys, key.String())
 			}
 
 			// All delegations subscription
-			key := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegations, event.Address, "", "")
+			key := GenerateSubscriptionKey(SubscriptionTypeDelegations, event.Address, "", "")
 			keys = append(keys, key.String())
 
-		case types.EventTypeUnbondingDelegationChange:
+		case EventTypeUnbondingDelegationChange:
 			// Specific unbonding delegation subscription
 			if event.SecondaryAddress != "" {
-				key := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegation, event.Address, event.SecondaryAddress, "")
+				key := GenerateSubscriptionKey(SubscriptionTypeUnbondingDelegation, event.Address, event.SecondaryAddress, "")
 				keys = append(keys, key.String())
 			}
 
 			// All unbonding delegations subscription
-			key := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegations, event.Address, "", "")
+			key := GenerateSubscriptionKey(SubscriptionTypeUnbondingDelegations, event.Address, "", "")
 			keys = append(keys, key.String())
 		}
 	}
