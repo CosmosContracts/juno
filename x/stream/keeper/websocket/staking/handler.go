@@ -15,13 +15,28 @@ type Handler struct {
 	unbondingHandler   *UnbondingHandler
 }
 
-// NewHandler creates a new staking handler
+// NewHandler creates a new staking handler with legacy parameters (temporarily for compatibility)
 func NewHandler(keeper KeeperInterface, config *common.StreamConfig, logger common.Logger, connManager common.ConnectionManager, registry common.SubscriptionRegistry, circuitBreaker common.CircuitBreaker, appContext context.Context, upgrader *websocket.Upgrader) *Handler {
+	deps := &common.HandlerDependencies{
+		Config:         config,
+		Logger:         logger,
+		ConnManager:    connManager,
+		Registry:       registry,
+		CircuitBreaker: circuitBreaker,
+		AppContext:     appContext,
+		Upgrader:       upgrader,
+	}
+	return NewHandlerWithDeps(keeper, deps)
+}
+
+// NewHandlerWithDeps creates a new staking handler with dependencies
+func NewHandlerWithDeps(keeper KeeperInterface, deps *common.HandlerDependencies) *Handler {
 	return &Handler{
-		delegationsHandler: NewDelegationsHandler(keeper, config, logger, connManager, registry, circuitBreaker, appContext, upgrader),
-		unbondingHandler:   NewUnbondingHandler(keeper, config, logger, connManager, registry, circuitBreaker, appContext, upgrader),
+		delegationsHandler: NewDelegationsHandler(keeper, deps),
+		unbondingHandler:   NewUnbondingHandler(keeper, deps),
 	}
 }
+
 
 // HandleDelegationsSubscription handles delegations subscription WebSocket connections
 func (h *Handler) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Request) {

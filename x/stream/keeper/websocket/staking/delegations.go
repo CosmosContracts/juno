@@ -3,42 +3,29 @@ package staking
 import (
 	"context"
 	"net/http"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
 	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/common"
+	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
 // DelegationsHandler handles delegations subscription WebSocket connections
 type DelegationsHandler struct {
-	keeper         KeeperInterface
-	config         *common.StreamConfig
-	logger         common.Logger
-	connManager    common.ConnectionManager
-	registry       common.SubscriptionRegistry
-	circuitBreaker common.CircuitBreaker
-	appContext     context.Context
-	upgrader       *websocket.Upgrader
+	common.QueryHandler
+	keeper KeeperInterface
 }
 
 // NewDelegationsHandler creates a new delegations handler
-func NewDelegationsHandler(keeper KeeperInterface, config *common.StreamConfig, logger common.Logger, connManager common.ConnectionManager, registry common.SubscriptionRegistry, circuitBreaker common.CircuitBreaker, appContext context.Context, upgrader *websocket.Upgrader) *DelegationsHandler {
+func NewDelegationsHandler(keeper KeeperInterface, deps *common.HandlerDependencies) *DelegationsHandler {
 	return &DelegationsHandler{
-		keeper:         keeper,
-		config:         config,
-		logger:         logger,
-		connManager:    connManager,
-		registry:       registry,
-		circuitBreaker: circuitBreaker,
-		appContext:     appContext,
-		upgrader:       upgrader,
+		QueryHandler: common.NewQueryHandler(deps, keeper),
+		keeper:       keeper,
 	}
 }
+
 
 // Handle handles delegations subscription WebSocket connections
 func (h *DelegationsHandler) Handle(w http.ResponseWriter, r *http.Request) {
@@ -46,77 +33,28 @@ func (h *DelegationsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	delegatorAddress := vars["delegator"]
 
 	// Validate address
-	delAddr, err := sdk.AccAddressFromBech32(delegatorAddress)
-	if err != nil {
-		http.Error(w, "invalid delegator address", http.StatusBadRequest)
+	addrValidator := common.ValidateAccAddress(delegatorAddress)
+	if !addrValidator.IsValid() {
+		http.Error(w, addrValidator.Error().Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Check connection limits
-	if !h.connManager.CheckConnectionLimits(w, r) {
-		return
+	delAddr := addrValidator.AccAddress()
+
+	params := common.ConnectionParams{
+		Writer:         w,
+		Request:        r,
+		ValidationFunc: addrValidator.ValidationFunc(),
+		InitialDataFunc: h.WrapInitialDataFunc(func(ctx context.Context) (any, error) {
+			return getDelegationResponses(h.keeper, ctx, delAddr), nil
+		}),
+		SubscriptionKey: common.NewSubscriptionKeyAdapter(types.GenerateSubscriptionKey(types.SubscriptionTypeDelegations, delegatorAddress, "", "")),
+		QueryFunc: h.WrapQueryFunc(func(ctx context.Context) any {
+			return getDelegationResponses(h.keeper, ctx, delAddr)
+		}),
 	}
 
-	conn, err := h.upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		h.logger.Error("websocket upgrade failed", "error", err)
-		return
-	}
-
-	// Register connection
-	remoteAddr := r.RemoteAddr
-	xForwardedFor := r.Header.Get("X-Forwarded-For")
-	connectionID := h.connManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
-	if connectionID == "" {
-		conn.Close()
-		return
-	}
-
-	// Check circuit breaker if enabled
-	if !checkCircuitBreaker(h.config, h.circuitBreaker, h.logger, h.connManager, conn, connectionID) {
-		return
-	}
-	defer func() {
-		h.connManager.UnregisterConnection(connectionID)
-		if err := conn.Close(); err != nil {
-			h.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
-		}
-	}()
-
-	// Add subscription to this connection
-	if !h.connManager.AddSubscription(connectionID) {
-		return
-	}
-	defer h.connManager.RemoveSubscription(connectionID)
-
-	ctx, cancel := context.WithCancel(h.appContext)
-	defer cancel()
-
-	// Get query context with proper SDK context
-	queryCtx, ok := getQueryContextOrSendError(h.keeper, h.logger, conn)
-	if !ok {
-		return
-	}
-
-	// Send initial delegations
-	delegations := getDelegationResponses(h.keeper, queryCtx, delAddr)
-	if err := sendWebSocketMessage(conn, delegations); err != nil {
-		return
-	}
-
-	// Create subscription
-	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegations, delegatorAddress, "", "")
-	sendCh := make(chan any, h.config.SubscriptionBufferSize)
-	subscriber := h.registry.Subscribe(common.NewSubscriptionKeyAdapter(subKey), ctx, sendCh)
-	defer h.registry.Unsubscribe(subscriber)
-
-	handleWebSocketConnection(h.config, h.circuitBreaker, h.logger, conn, ctx, sendCh, connectionID, func() any {
-		queryCtx, err := h.keeper.GetQueryContext()
-		if err != nil {
-			return []stakingtypes.DelegationResponse{}
-		}
-		return getDelegationResponses(h.keeper, queryCtx, delAddr)
-	})
+	h.HandleStandardConnection(params)
 }
 
 // HandleDelegation handles delegation subscription WebSocket connections
@@ -126,138 +64,35 @@ func (h *DelegationsHandler) HandleDelegation(w http.ResponseWriter, r *http.Req
 	validatorAddress := vars["validator"]
 
 	// Validate addresses
-	delAddr, err := sdk.AccAddressFromBech32(delegatorAddress)
-	if err != nil {
-		http.Error(w, "invalid delegator address", http.StatusBadRequest)
-		return
-	}
-	valAddr, err := sdk.ValAddressFromBech32(validatorAddress)
-	if err != nil {
-		http.Error(w, "invalid validator address", http.StatusBadRequest)
-		return
-	}
+	delAddrValidator := common.ValidateAccAddress(delegatorAddress)
+	valAddrValidator := common.ValidateValAddress(validatorAddress)
 
-	// Check connection limits
-	if !h.connManager.CheckConnectionLimits(w, r) {
+	validator := common.NewCompositeValidator().
+		AddAddressValidator(delAddrValidator).
+		AddAddressValidator(valAddrValidator)
+
+	if err := validator.ValidationFunc()(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	conn, err := h.upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		h.logger.Error("websocket upgrade failed", "error", err)
-		return
+	delAddr := delAddrValidator.AccAddress()
+	valAddr := valAddrValidator.ValAddress()
+
+	params := common.ConnectionParams{
+		Writer:         w,
+		Request:        r,
+		ValidationFunc: validator.ValidationFunc(),
+		InitialDataFunc: h.WrapInitialDataFunc(func(ctx context.Context) (any, error) {
+			return getDelegationResponse(h.keeper, ctx, delAddr, valAddr), nil
+		}),
+		SubscriptionKey: common.NewSubscriptionKeyAdapter(types.GenerateSubscriptionKey(types.SubscriptionTypeDelegation, delegatorAddress, validatorAddress, "")),
+		QueryFunc: h.WrapQueryFunc(func(ctx context.Context) any {
+			return getDelegationResponse(h.keeper, ctx, delAddr, valAddr)
+		}),
 	}
 
-	// Register connection
-	remoteAddr := r.RemoteAddr
-	xForwardedFor := r.Header.Get("X-Forwarded-For")
-	connectionID := h.connManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
-	if connectionID == "" {
-		conn.Close()
-		return
-	}
-
-	// Check circuit breaker if enabled
-	if !checkCircuitBreaker(h.config, h.circuitBreaker, h.logger, h.connManager, conn, connectionID) {
-		return
-	}
-	defer func() {
-		h.connManager.UnregisterConnection(connectionID)
-		if err := conn.Close(); err != nil {
-			h.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
-		}
-	}()
-
-	// Add subscription to this connection
-	if !h.connManager.AddSubscription(connectionID) {
-		return
-	}
-	defer h.connManager.RemoveSubscription(connectionID)
-
-	ctx, cancel := context.WithCancel(h.appContext)
-	defer cancel()
-
-	// Get query context with proper SDK context
-	queryCtx, ok := getQueryContextOrSendError(h.keeper, h.logger, conn)
-	if !ok {
-		return
-	}
-
-	// Send initial delegation
-	delegation := getDelegationResponse(h.keeper, queryCtx, delAddr, valAddr)
-	if err := sendWebSocketMessage(conn, delegation); err != nil {
-		return
-	}
-
-	// Create subscription
-	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegation, delegatorAddress, validatorAddress, "")
-	sendCh := make(chan any, h.config.SubscriptionBufferSize)
-	subscriber := h.registry.Subscribe(common.NewSubscriptionKeyAdapter(subKey), ctx, sendCh)
-	defer h.registry.Unsubscribe(subscriber)
-
-	handleWebSocketConnection(h.config, h.circuitBreaker, h.logger, conn, ctx, sendCh, connectionID, func() any {
-		queryCtx, err := h.keeper.GetQueryContext()
-		if err != nil {
-			return map[string]any{"found": false}
-		}
-		return getDelegationResponse(h.keeper, queryCtx, delAddr, valAddr)
-	})
-}
-
-// Helper functions
-func getQueryContextOrSendError(keeper KeeperInterface, logger common.Logger, conn *websocket.Conn) (context.Context, bool) {
-	queryCtx, err := keeper.GetQueryContext()
-	if err != nil {
-		logger.Error("failed to get query context", "error", err)
-		errorMsg := map[string]string{"error": "service temporarily unavailable"}
-		conn.SetWriteDeadline(time.Now().Add(writeWait))
-		if sendErr := conn.WriteJSON(errorMsg); sendErr != nil {
-			logger.Error("failed to send error message", "error", sendErr)
-		}
-		return nil, false
-	}
-	return queryCtx, true
-}
-
-func checkCircuitBreaker(config *common.StreamConfig, circuitBreaker common.CircuitBreaker, logger common.Logger, connManager common.ConnectionManager, conn *websocket.Conn, connectionID string) bool {
-	if config.CircuitBreakerEnabled && circuitBreaker != nil {
-		allowed, err := circuitBreaker.AllowRequest(connectionID)
-		if !allowed {
-			logger.Warn("circuit breaker blocked request", "connection_id", connectionID, "error", err)
-			types.IncrementConnectionRejected("circuit_breaker")
-			errorMsg := map[string]string{"error": "service temporarily unavailable"}
-			conn.SetWriteDeadline(time.Now().Add(writeWait))
-			conn.WriteJSON(errorMsg)
-			conn.Close()
-			connManager.UnregisterConnection(connectionID)
-			return false
-		}
-	}
-	return true
-}
-
-func handleWebSocketConnection(config *common.StreamConfig, circuitBreaker common.CircuitBreaker, logger common.Logger, conn *websocket.Conn, ctx context.Context, sendCh <-chan any, connectionID string, queryFunc func() any) {
-	common.HandleWebSocketConnection(conn, ctx, sendCh, connectionID, queryFunc,
-		func(conn *websocket.Conn, data any) error {
-			return sendWebSocketMessage(conn, data)
-		},
-		func(connectionID string) {
-			logger.Error("failed to send websocket message", "connection_id", connectionID)
-			if config.CircuitBreakerEnabled && circuitBreaker != nil {
-				circuitBreaker.RecordFailure(connectionID)
-			}
-		},
-		func(connectionID string) {
-			if config.CircuitBreakerEnabled && circuitBreaker != nil {
-				circuitBreaker.RecordSuccess(connectionID)
-			}
-		})
-}
-
-func sendWebSocketMessage(conn *websocket.Conn, data any) error {
-	return common.SendWebSocketMessage(conn, data, func() {
-		types.IncrementMessagesSent()
-	})
+	h.HandleStandardConnection(params)
 }
 
 // getDelegationResponses gets delegation responses for a delegator
@@ -296,21 +131,23 @@ func getDelegationResponse(keeper KeeperInterface, ctx context.Context, delAddr 
 	stakingKeeper := keeper.GetStakingKeeper()
 	delegation, err := stakingKeeper.GetDelegation(ctx, delAddr, valAddr)
 
-	data := map[string]any{"found": err == nil}
-	if err == nil {
-		bondDenom, bondErr := stakingKeeper.BondDenom(ctx)
-		if bondErr != nil {
-			return data
-		}
-
-		validator, valErr := stakingKeeper.GetValidator(ctx, valAddr)
-		if valErr == nil {
-			delegationResponse := stakingtypes.DelegationResponse{
-				Delegation: delegation,
-				Balance:    sdk.NewCoin(bondDenom, validator.TokensFromShares(delegation.Shares).TruncateInt()),
-			}
-			data["delegation"] = delegationResponse
-		}
+	if err != nil {
+		return common.NotFoundResponse()
 	}
-	return data
+
+	bondDenom, bondErr := stakingKeeper.BondDenom(ctx)
+	if bondErr != nil {
+		return common.NotFoundResponse()
+	}
+
+	validator, valErr := stakingKeeper.GetValidator(ctx, valAddr)
+	if valErr != nil {
+		return common.NotFoundResponse()
+	}
+
+	delegationResponse := stakingtypes.DelegationResponse{
+		Delegation: delegation,
+		Balance:    sdk.NewCoin(bondDenom, validator.TokensFromShares(delegation.Shares).TruncateInt()),
+	}
+	return common.FoundResponse("delegation", delegationResponse)
 }

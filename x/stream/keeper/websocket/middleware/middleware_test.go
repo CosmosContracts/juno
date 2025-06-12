@@ -182,7 +182,7 @@ func testCircuitBreakerMetrics(t *testing.T) {
 	cb.RecordFailure("conn3")
 	cb.RecordFailure("conn3")
 	cb.SetLastFailTimeForTesting("conn3", time.Now().Add(-31*time.Second)) // Force timeout
-	cb.AllowRequest("conn3")                                                // This will move it to half-open
+	cb.AllowRequest("conn3")                                               // This will move it to half-open
 
 	// Get metrics
 	metrics := cb.GetMetrics()

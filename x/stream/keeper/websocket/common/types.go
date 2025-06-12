@@ -10,12 +10,12 @@ import (
 
 // StreamConfig defines the configuration for the stream module
 type StreamConfig struct {
-	IntakeBufferSize         int
-	SubscriptionBufferSize   int
-	EnableConnectionUUID     bool
-	CircuitBreakerEnabled    bool
-	CircuitBreakerThreshold  int
-	CircuitBreakerTimeout    time.Duration
+	IntakeBufferSize        int
+	SubscriptionBufferSize  int
+	EnableConnectionUUID    bool
+	CircuitBreakerEnabled   bool
+	CircuitBreakerThreshold int
+	CircuitBreakerTimeout   time.Duration
 }
 
 // Logger defines the logger interface

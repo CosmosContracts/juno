@@ -7,37 +7,25 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
 	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/common"
+	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
 // UnbondingHandler handles unbonding delegations subscription WebSocket connections
 type UnbondingHandler struct {
-	keeper         KeeperInterface
-	config         *common.StreamConfig
-	logger         common.Logger
-	connManager    common.ConnectionManager
-	registry       common.SubscriptionRegistry
-	circuitBreaker common.CircuitBreaker
-	appContext     context.Context
-	upgrader       *websocket.Upgrader
+	common.QueryHandler
+	keeper KeeperInterface
 }
 
 // NewUnbondingHandler creates a new unbonding handler
-func NewUnbondingHandler(keeper KeeperInterface, config *common.StreamConfig, logger common.Logger, connManager common.ConnectionManager, registry common.SubscriptionRegistry, circuitBreaker common.CircuitBreaker, appContext context.Context, upgrader *websocket.Upgrader) *UnbondingHandler {
+func NewUnbondingHandler(keeper KeeperInterface, deps *common.HandlerDependencies) *UnbondingHandler {
 	return &UnbondingHandler{
-		keeper:         keeper,
-		config:         config,
-		logger:         logger,
-		connManager:    connManager,
-		registry:       registry,
-		circuitBreaker: circuitBreaker,
-		appContext:     appContext,
-		upgrader:       upgrader,
+		QueryHandler: common.NewQueryHandler(deps, keeper),
+		keeper:       keeper,
 	}
 }
+
 
 // HandleUnbondingDelegations handles unbonding delegations subscription WebSocket connections
 func (h *UnbondingHandler) HandleUnbondingDelegations(w http.ResponseWriter, r *http.Request) {
@@ -45,85 +33,36 @@ func (h *UnbondingHandler) HandleUnbondingDelegations(w http.ResponseWriter, r *
 	delegatorAddress := vars["delegator"]
 
 	// Validate address
-	delAddr, err := sdk.AccAddressFromBech32(delegatorAddress)
-	if err != nil {
-		http.Error(w, "invalid delegator address", http.StatusBadRequest)
+	addrValidator := common.ValidateAccAddress(delegatorAddress)
+	if !addrValidator.IsValid() {
+		http.Error(w, addrValidator.Error().Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Check connection limits
-	if !h.connManager.CheckConnectionLimits(w, r) {
-		return
+	delAddr := addrValidator.AccAddress()
+
+	params := common.ConnectionParams{
+		Writer:         w,
+		Request:        r,
+		ValidationFunc: addrValidator.ValidationFunc(),
+		InitialDataFunc: h.WrapInitialDataFunc(func(ctx context.Context) (any, error) {
+			unbondingDelegations, err := h.keeper.GetStakingKeeper().GetAllUnbondingDelegations(ctx, delAddr)
+			if err != nil {
+				return []stakingtypes.UnbondingDelegation{}, nil
+			}
+			return unbondingDelegations, nil
+		}),
+		SubscriptionKey: common.NewSubscriptionKeyAdapter(types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegations, delegatorAddress, "", "")),
+		QueryFunc: h.WrapQueryFunc(func(ctx context.Context) any {
+			unbondingDelegations, err := h.keeper.GetStakingKeeper().GetAllUnbondingDelegations(ctx, delAddr)
+			if err != nil {
+				return []stakingtypes.UnbondingDelegation{}
+			}
+			return unbondingDelegations
+		}),
 	}
 
-	conn, err := h.upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		h.logger.Error("websocket upgrade failed", "error", err)
-		return
-	}
-
-	// Register connection
-	remoteAddr := r.RemoteAddr
-	xForwardedFor := r.Header.Get("X-Forwarded-For")
-	connectionID := h.connManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
-	if connectionID == "" {
-		conn.Close()
-		return
-	}
-
-	// Check circuit breaker if enabled
-	if !checkCircuitBreaker(h.config, h.circuitBreaker, h.logger, h.connManager, conn, connectionID) {
-		return
-	}
-	defer func() {
-		h.connManager.UnregisterConnection(connectionID)
-		if err := conn.Close(); err != nil {
-			h.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
-		}
-	}()
-
-	// Add subscription to this connection
-	if !h.connManager.AddSubscription(connectionID) {
-		return
-	}
-	defer h.connManager.RemoveSubscription(connectionID)
-
-	ctx, cancel := context.WithCancel(h.appContext)
-	defer cancel()
-
-	// Get query context with proper SDK context
-	queryCtx, ok := getQueryContextOrSendError(h.keeper, h.logger, conn)
-	if !ok {
-		return
-	}
-
-	// Send initial unbonding delegations
-	unbondingDelegations, err := h.keeper.GetStakingKeeper().GetAllUnbondingDelegations(queryCtx, delAddr)
-	if err != nil {
-		h.logger.Error("failed to get unbonding delegations", "error", err)
-		unbondingDelegations = []stakingtypes.UnbondingDelegation{}
-	}
-	if err := sendWebSocketMessage(conn, unbondingDelegations); err != nil {
-		return
-	}
-
-	// Create subscription
-	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegations, delegatorAddress, "", "")
-	sendCh := make(chan any, h.config.SubscriptionBufferSize)
-	subscriber := h.registry.Subscribe(common.NewSubscriptionKeyAdapter(subKey), ctx, sendCh)
-	defer h.registry.Unsubscribe(subscriber)
-
-	handleWebSocketConnection(h.config, h.circuitBreaker, h.logger, conn, ctx, sendCh, connectionID, func() any {
-		queryCtx, err := h.keeper.GetQueryContext()
-		if err != nil {
-			return []stakingtypes.UnbondingDelegation{}
-		}
-		unbondingDelegations, err := h.keeper.GetStakingKeeper().GetAllUnbondingDelegations(queryCtx, delAddr)
-		if err != nil {
-			return []stakingtypes.UnbondingDelegation{}
-		}
-		return unbondingDelegations
-	})
+	h.HandleStandardConnection(params)
 }
 
 // HandleUnbondingDelegation handles unbonding delegation subscription WebSocket connections
@@ -133,89 +72,42 @@ func (h *UnbondingHandler) HandleUnbondingDelegation(w http.ResponseWriter, r *h
 	validatorAddress := vars["validator"]
 
 	// Validate addresses
-	delAddr, err := sdk.AccAddressFromBech32(delegatorAddress)
+	delAddrValidator := common.ValidateAccAddress(delegatorAddress)
+	valAddrValidator := common.ValidateValAddress(validatorAddress)
+
+	validator := common.NewCompositeValidator().
+		AddAddressValidator(delAddrValidator).
+		AddAddressValidator(valAddrValidator)
+
+	if err := validator.ValidationFunc()(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	delAddr := delAddrValidator.AccAddress()
+	valAddr := valAddrValidator.ValAddress()
+
+	params := common.ConnectionParams{
+		Writer:         w,
+		Request:        r,
+		ValidationFunc: validator.ValidationFunc(),
+		InitialDataFunc: h.WrapInitialDataFunc(func(ctx context.Context) (any, error) {
+			return getUnbondingDelegationResponse(h.keeper, ctx, delAddr, valAddr), nil
+		}),
+		SubscriptionKey: common.NewSubscriptionKeyAdapter(types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegation, delegatorAddress, validatorAddress, "")),
+		QueryFunc: h.WrapQueryFunc(func(ctx context.Context) any {
+			return getUnbondingDelegationResponse(h.keeper, ctx, delAddr, valAddr)
+		}),
+	}
+
+	h.HandleStandardConnection(params)
+}
+
+// getUnbondingDelegationResponse gets an unbonding delegation response for a specific delegator-validator pair
+func getUnbondingDelegationResponse(keeper KeeperInterface, ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) any {
+	unbondingDelegation, err := keeper.GetStakingKeeper().GetUnbondingDelegation(ctx, delAddr, valAddr)
 	if err != nil {
-		http.Error(w, "invalid delegator address", http.StatusBadRequest)
-		return
+		return common.NotFoundResponse()
 	}
-	valAddr, err := sdk.ValAddressFromBech32(validatorAddress)
-	if err != nil {
-		http.Error(w, "invalid validator address", http.StatusBadRequest)
-		return
-	}
-
-	// Check connection limits
-	if !h.connManager.CheckConnectionLimits(w, r) {
-		return
-	}
-
-	conn, err := h.upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		h.logger.Error("websocket upgrade failed", "error", err)
-		return
-	}
-
-	// Register connection
-	remoteAddr := r.RemoteAddr
-	xForwardedFor := r.Header.Get("X-Forwarded-For")
-	connectionID := h.connManager.RegisterConnectionWithHeaders(remoteAddr, xForwardedFor)
-	if connectionID == "" {
-		conn.Close()
-		return
-	}
-
-	// Check circuit breaker if enabled
-	if !checkCircuitBreaker(h.config, h.circuitBreaker, h.logger, h.connManager, conn, connectionID) {
-		return
-	}
-	defer func() {
-		h.connManager.UnregisterConnection(connectionID)
-		if err := conn.Close(); err != nil {
-			h.logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
-		}
-	}()
-
-	// Add subscription to this connection
-	if !h.connManager.AddSubscription(connectionID) {
-		return
-	}
-	defer h.connManager.RemoveSubscription(connectionID)
-
-	ctx, cancel := context.WithCancel(h.appContext)
-	defer cancel()
-
-	// Get query context with proper SDK context
-	queryCtx, ok := getQueryContextOrSendError(h.keeper, h.logger, conn)
-	if !ok {
-		return
-	}
-
-	// Send initial unbonding delegation
-	unbondingDelegation, err := h.keeper.GetStakingKeeper().GetUnbondingDelegation(queryCtx, delAddr, valAddr)
-	data := map[string]any{"found": err == nil}
-	if err == nil {
-		data["unbonding_delegation"] = unbondingDelegation
-	}
-	if err := sendWebSocketMessage(conn, data); err != nil {
-		return
-	}
-
-	// Create subscription
-	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegation, delegatorAddress, validatorAddress, "")
-	sendCh := make(chan any, h.config.SubscriptionBufferSize)
-	subscriber := h.registry.Subscribe(common.NewSubscriptionKeyAdapter(subKey), ctx, sendCh)
-	defer h.registry.Unsubscribe(subscriber)
-
-	handleWebSocketConnection(h.config, h.circuitBreaker, h.logger, conn, ctx, sendCh, connectionID, func() any {
-		queryCtx, err := h.keeper.GetQueryContext()
-		if err != nil {
-			return map[string]any{"found": false}
-		}
-		unbondingDelegation, err := h.keeper.GetStakingKeeper().GetUnbondingDelegation(queryCtx, delAddr, valAddr)
-		data := map[string]any{"found": err == nil}
-		if err == nil {
-			data["unbonding_delegation"] = unbondingDelegation
-		}
-		return data
-	})
+	return common.FoundResponse("unbonding_delegation", unbondingDelegation)
 }

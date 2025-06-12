@@ -32,14 +32,14 @@ func NewHandler(
 	appContext context.Context,
 	allowAllOrigins bool,
 ) *Handler {
-	upgrader := common.GetUpgrader(allowAllOrigins)
-	
+	deps := common.NewHandlerDependencies(config, logger, connManager, registry, circuitBreaker, appContext, allowAllOrigins)
+
 	return &Handler{
-		bankHandler:    bank.NewHandler(bankKeeper, config, logger, connManager, registry, circuitBreaker, appContext, upgrader),
-		stakingHandler: staking.NewHandler(stakingKeeper, config, logger, connManager, registry, circuitBreaker, appContext, upgrader),
+		bankHandler:    bank.NewHandlerWithDeps(bankKeeper, deps),
+		stakingHandler: staking.NewHandlerWithDeps(stakingKeeper, deps),
 		config:         config,
 		logger:         logger,
-		upgrader:       upgrader,
+		upgrader:       deps.Upgrader,
 	}
 }
 

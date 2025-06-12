@@ -2,14 +2,9 @@ package staking
 
 import (
 	"context"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-)
-
-const (
-	writeWait = 10 * time.Second
 )
 
 // KeeperInterface defines the interface for the keeper

@@ -19,6 +19,9 @@ func NewSubscriptionRegistryAdapter(registry *types.SubscriptionRegistry) Subscr
 // Subscribe adapts the Subscribe method
 func (s *SubscriptionRegistryAdapter) Subscribe(key SubscriptionKey, ctx context.Context, sendCh chan<- any) Subscriber {
 	// Convert the interface key to the concrete type
+	if keyAdapter, ok := key.(*SubscriptionKeyAdapter); ok {
+		return &SubscriberAdapter{subscriber: s.registry.Subscribe(keyAdapter.key, ctx, sendCh)}
+	}
 	if keyImpl, ok := key.(*types.SubscriptionKey); ok {
 		return &SubscriberAdapter{subscriber: s.registry.Subscribe(*keyImpl, ctx, sendCh)}
 	}
