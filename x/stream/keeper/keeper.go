@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -16,7 +15,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket"
-	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/common"
 	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/middleware"
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
@@ -108,7 +106,7 @@ func NewKeeper(
 	// Create circuit breaker (will be configured when SetStreamConfig is called)
 	circuitBreaker := middleware.NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
 
-	return &Keeper{
+	k := &Keeper{
 		cdc:                       cdc,
 		storeKey:                  storeKey,
 		authority:                 authority,
@@ -126,6 +124,11 @@ func NewKeeper(
 		circuitBreaker:            circuitBreaker,
 		logger:                    logger.With("module", "x/stream"),
 	}
+
+	// Initialize WebSocket handler
+	k.InitializeWebSocketHandler()
+
+	return k
 }
 
 // GetAuthority returns the module's authority.
@@ -219,7 +222,6 @@ func (k *Keeper) GetAppContext() context.Context {
 	return k.appContext
 }
 
-
 // SetConnectionLimits updates the connection limits from config
 func (k *Keeper) SetConnectionLimits(maxConnections, maxSubscriptionsPerClient int) {
 	if maxConnections > 0 {
@@ -239,39 +241,9 @@ func (k *Keeper) SetConnectionLimits(maxConnections, maxSubscriptionsPerClient i
 func (k *Keeper) SetAllowAllOrigins(allow bool) {
 	k.allowAllOrigins = allow
 	k.logger.Info("CORS configuration updated", "allow_all_origins", allow)
-}
 
-// initializeWebSocketHandler initializes or updates the websocket handler
-func (k *Keeper) initializeWebSocketHandler() {
-	// Create adapters
-	bankAdapter := NewBankKeeperAdapter(k)
-	stakingAdapter := NewStakingKeeperAdapter(k)
-	registryAdapter := common.NewSubscriptionRegistryAdapter(k.registry)
-	loggerAdapter := common.NewLoggerAdapter(k.logger)
-	connManagerAdapter := common.NewConnectionManagerAdapter(k.connectionManager)
-	
-	// Convert StreamConfig to common.StreamConfig
-	config := &common.StreamConfig{
-		IntakeBufferSize:         k.config.IntakeBufferSize,
-		SubscriptionBufferSize:   k.config.SubscriptionBufferSize,
-		EnableConnectionUUID:     k.config.EnableConnectionUUID,
-		CircuitBreakerEnabled:    k.config.CircuitBreakerEnabled,
-		CircuitBreakerThreshold:  k.config.CircuitBreakerThreshold,
-		CircuitBreakerTimeout:    k.config.CircuitBreakerTimeout,
-	}
-	
-	// Create the websocket handler
-	k.wsHandler = websocket.NewHandler(
-		bankAdapter,
-		stakingAdapter,
-		config,
-		loggerAdapter,
-		connManagerAdapter,
-		registryAdapter,
-		k.circuitBreaker,
-		k.appContext,
-		k.allowAllOrigins,
-	)
+	// Reinitialize WebSocket handler with new CORS settings
+	k.InitializeWebSocketHandler()
 }
 
 // SetStreamConfig updates the stream configuration
@@ -315,6 +287,9 @@ func (k *Keeper) SetStreamConfig(config StreamConfig) error {
 		"subscription_buffer_size", config.SubscriptionBufferSize,
 		"enable_connection_uuid", config.EnableConnectionUUID,
 		"circuit_breaker_enabled", config.CircuitBreakerEnabled)
+
+	// Reinitialize WebSocket handler with new config
+	k.InitializeWebSocketHandler()
 
 	return nil
 }
@@ -391,53 +366,4 @@ func (k *Keeper) runCircuitBreakerCleanup() {
 			return
 		}
 	}
-}
-
-// WebSocket handler methods
-// HandleBalanceSubscription handles balance subscription WebSocket connections
-func (k *Keeper) HandleBalanceSubscription(w http.ResponseWriter, r *http.Request) {
-	if k.wsHandler == nil {
-		k.initializeWebSocketHandler()
-	}
-	k.wsHandler.HandleBalanceSubscription(w, r)
-}
-
-// HandleAllBalancesSubscription handles all balances subscription WebSocket connections
-func (k *Keeper) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Request) {
-	if k.wsHandler == nil {
-		k.initializeWebSocketHandler()
-	}
-	k.wsHandler.HandleAllBalancesSubscription(w, r)
-}
-
-// HandleDelegationsSubscription handles delegations subscription WebSocket connections
-func (k *Keeper) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
-	if k.wsHandler == nil {
-		k.initializeWebSocketHandler()
-	}
-	k.wsHandler.HandleDelegationsSubscription(w, r)
-}
-
-// HandleDelegationSubscription handles delegation subscription WebSocket connections
-func (k *Keeper) HandleDelegationSubscription(w http.ResponseWriter, r *http.Request) {
-	if k.wsHandler == nil {
-		k.initializeWebSocketHandler()
-	}
-	k.wsHandler.HandleDelegationSubscription(w, r)
-}
-
-// HandleUnbondingDelegationsSubscription handles unbonding delegations subscription WebSocket connections
-func (k *Keeper) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
-	if k.wsHandler == nil {
-		k.initializeWebSocketHandler()
-	}
-	k.wsHandler.HandleUnbondingDelegationsSubscription(w, r)
-}
-
-// HandleUnbondingDelegationSubscription handles unbonding delegation subscription WebSocket connections
-func (k *Keeper) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r *http.Request) {
-	if k.wsHandler == nil {
-		k.initializeWebSocketHandler()
-	}
-	k.wsHandler.HandleUnbondingDelegationSubscription(w, r)
 }

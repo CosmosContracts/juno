@@ -23,13 +23,20 @@ func TestWebSocketHandlers(t *testing.T) {
 	// Create a test router
 	router := mux.NewRouter()
 
+	// Initialize the websocket handler
+	k.InitializeWebSocketHandler()
+
+	// Get the websocket handler
+	wsHandler := k.WebSocketHandler()
+	require.NotNil(t, wsHandler)
+
 	// Register routes
-	router.HandleFunc("/ws/subscribe/bank/balance/{address}/{denom}", k.HandleBalanceSubscription)
-	router.HandleFunc("/ws/subscribe/bank/balances/{address}", k.HandleAllBalancesSubscription)
-	router.HandleFunc("/ws/subscribe/staking/delegations/{delegator}", k.HandleDelegationsSubscription)
-	router.HandleFunc("/ws/subscribe/staking/delegation/{delegator}/{validator}", k.HandleDelegationSubscription)
-	router.HandleFunc("/ws/subscribe/staking/unbonding-delegations/{delegator}", k.HandleUnbondingDelegationsSubscription)
-	router.HandleFunc("/ws/subscribe/staking/unbonding-delegation/{delegator}/{validator}", k.HandleUnbondingDelegationSubscription)
+	router.HandleFunc("/ws/subscribe/bank/balance/{address}/{denom}", wsHandler.HandleBalanceSubscription)
+	router.HandleFunc("/ws/subscribe/bank/balances/{address}", wsHandler.HandleAllBalancesSubscription)
+	router.HandleFunc("/ws/subscribe/staking/delegations/{delegator}", wsHandler.HandleDelegationsSubscription)
+	router.HandleFunc("/ws/subscribe/staking/delegation/{delegator}/{validator}", wsHandler.HandleDelegationSubscription)
+	router.HandleFunc("/ws/subscribe/staking/unbonding-delegations/{delegator}", wsHandler.HandleUnbondingDelegationsSubscription)
+	router.HandleFunc("/ws/subscribe/staking/unbonding-delegation/{delegator}/{validator}", wsHandler.HandleUnbondingDelegationSubscription)
 
 	// Create test server
 	server := httptest.NewServer(router)
