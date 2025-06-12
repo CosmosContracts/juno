@@ -263,8 +263,8 @@ func (k *Keeper) SetStreamConfig(config StreamConfig) error {
 		k.circuitBreaker = middleware.NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
 	} else if config.CircuitBreakerEnabled && k.circuitBreaker != nil {
 		// Update existing circuit breaker settings
-		k.circuitBreaker.threshold = config.CircuitBreakerThreshold
-		k.circuitBreaker.timeout = config.CircuitBreakerTimeout
+		k.circuitBreaker.UpdateThreshold(config.CircuitBreakerThreshold)
+		k.circuitBreaker.UpdateTimeout(config.CircuitBreakerTimeout)
 	} else if !config.CircuitBreakerEnabled {
 		// Disable circuit breaker
 		k.circuitBreaker = nil

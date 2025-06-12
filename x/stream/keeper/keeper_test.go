@@ -110,7 +110,6 @@ func (s *KeeperTestSuite) TestIntakeChannel() {
 	// Send event (should not block)
 	select {
 	case intake <- event:
-		// Success
 	case <-time.After(100 * time.Millisecond):
 		s.Fail("Failed to send event to intake channel")
 	}

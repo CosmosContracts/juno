@@ -178,3 +178,24 @@ func (cb *CircuitBreaker) CleanupStaleConnections(activeConnections map[string]b
 		}
 	}
 }
+
+// UpdateThreshold updates the failure threshold
+func (cb *CircuitBreaker) UpdateThreshold(threshold int) {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	cb.threshold = threshold
+}
+
+// UpdateTimeout updates the circuit breaker timeout
+func (cb *CircuitBreaker) UpdateTimeout(timeout time.Duration) {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	cb.timeout = timeout
+}
+
+// SetLastFailTimeForTesting sets the last failure time for a connection (for testing only)
+func (cb *CircuitBreaker) SetLastFailTimeForTesting(connectionID string, t time.Time) {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	cb.lastFailTime[connectionID] = t
+}
