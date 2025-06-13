@@ -20,9 +20,8 @@ else
   echo "$GENESIS_FILE does not exist. Generating..."
 
   junod init --chain-id "$CHAIN_ID" "$MONIKER"
-  junod add-ica-config
   # staking/governance token is hardcoded in config, change this
-  sed -i "s/\"stake\"/\"$STAKE\"/" "$GENESIS_FILE"
+  sed -i "s/\"ujuno\"/\"$STAKE\"/" "$GENESIS_FILE"
   # this is essential for sub-1s block times (or header times go crazy)
   sed -i 's/"time_iota_ms": "1000"/"time_iota_ms": "10"/' "$GENESIS_FILE"
   # change gas limit to mainnet value
@@ -42,6 +41,8 @@ if [ -n "$UNSAFE_CORS" ]; then
   # ...and breathe
   sed -i "s/enabled-unsafe-cors = false/enabled-unsafe-cors = true/" "$APP_TOML_CONFIG"
   sed -i "s/cors_allowed_origins = \[\]/cors_allowed_origins = \[\"\*\"\]/" "$CONFIG_TOML_CONFIG"
+else
+  echo "Unsafe cors not set, skipping changing app.toml"
 fi
 
 # speed up block times for testing environments
