@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
+	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/middleware"
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
@@ -137,6 +138,12 @@ func (h *BaseHandler) HandleStandardConnectionWithProvider(params ConnectionPara
 	}
 	defer func() {
 		h.ConnManager.UnregisterConnection(connectionID)
+		// Clean up circuit breaker state for this connection
+		if h.Config.CircuitBreakerEnabled && h.CircuitBreaker != nil {
+			if cb, ok := h.CircuitBreaker.(*middleware.CircuitBreaker); ok {
+				cb.CleanupConnection(connectionID)
+			}
+		}
 		if err := conn.Close(); err != nil {
 			h.Logger.Error("failed to close websocket connection", "error", err, "connection_id", connectionID)
 		}

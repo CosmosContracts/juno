@@ -179,6 +179,34 @@ func (cb *CircuitBreaker) CleanupStaleConnections(activeConnections map[string]b
 	}
 }
 
+// StartPeriodicCleanup starts a goroutine that periodically cleans up stale connections
+func (cb *CircuitBreaker) StartPeriodicCleanup(getActiveConnections func() map[string]bool, interval time.Duration, stopCh <-chan struct{}) {
+	go func() {
+		ticker := time.NewTicker(interval)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				activeConnections := getActiveConnections()
+				cb.CleanupStaleConnections(activeConnections)
+			case <-stopCh:
+				return
+			}
+		}
+	}()
+}
+
+// CleanupConnection removes all circuit breaker data for a specific connection
+func (cb *CircuitBreaker) CleanupConnection(connectionID string) {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	
+	delete(cb.failures, connectionID)
+	delete(cb.lastFailTime, connectionID)
+	delete(cb.state, connectionID)
+}
+
 // UpdateThreshold updates the failure threshold
 func (cb *CircuitBreaker) UpdateThreshold(threshold int) {
 	cb.mu.Lock()

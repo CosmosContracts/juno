@@ -15,6 +15,7 @@ import (
 type Handler struct {
 	bankHandler    *bank.Handler
 	stakingHandler *staking.Handler
+	registry       *common.ModuleRegistry
 	config         *common.StreamConfig
 	logger         common.Logger
 	upgrader       *websocket.Upgrader
@@ -34,9 +35,24 @@ func NewHandler(
 ) *Handler {
 	deps := common.NewHandlerDependencies(config, logger, connManager, registry, circuitBreaker, appContext, allowAllOrigins)
 
+	// Create module registry
+	moduleRegistry := common.NewModuleRegistry()
+	
+	// Register modules
+	bankModule := bank.NewModule(bankKeeper, deps)
+	stakingModule := staking.NewModule(stakingKeeper, deps)
+	
+	if err := moduleRegistry.RegisterModule(bankModule); err != nil {
+		logger.Error("failed to register bank module", "error", err)
+	}
+	if err := moduleRegistry.RegisterModule(stakingModule); err != nil {
+		logger.Error("failed to register staking module", "error", err)
+	}
+
 	return &Handler{
 		bankHandler:    bank.NewHandlerWithDeps(bankKeeper, deps),
 		stakingHandler: staking.NewHandlerWithDeps(stakingKeeper, deps),
+		registry:       moduleRegistry,
 		config:         config,
 		logger:         logger,
 		upgrader:       deps.Upgrader,
@@ -67,4 +83,25 @@ func (h *Handler) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, 
 
 func (h *Handler) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r *http.Request) {
 	h.stakingHandler.HandleUnbondingDelegationSubscription(w, r)
+}
+
+// GetModuleRegistry returns the module registry for dynamic module management
+func (h *Handler) GetModuleRegistry() *common.ModuleRegistry {
+	return h.registry
+}
+
+// ListModules returns all registered module names
+func (h *Handler) ListModules() []string {
+	if h.registry != nil {
+		return h.registry.ListModules()
+	}
+	return []string{}
+}
+
+// ListRoutes returns all registered routes with their module information
+func (h *Handler) ListRoutes() map[string]string {
+	if h.registry != nil {
+		return h.registry.ListRoutes()
+	}
+	return map[string]string{}
 }

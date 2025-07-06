@@ -11,8 +11,7 @@ import (
 
 // Handler combines all staking-related WebSocket handlers
 type Handler struct {
-	delegationsHandler *DelegationsHandler
-	unbondingHandler   *UnbondingHandler
+	module *Module
 }
 
 // NewHandler creates a new staking handler with legacy parameters (temporarily for compatibility)
@@ -32,28 +31,27 @@ func NewHandler(keeper KeeperInterface, config *common.StreamConfig, logger comm
 // NewHandlerWithDeps creates a new staking handler with dependencies
 func NewHandlerWithDeps(keeper KeeperInterface, deps *common.HandlerDependencies) *Handler {
 	return &Handler{
-		delegationsHandler: NewDelegationsHandler(keeper, deps),
-		unbondingHandler:   NewUnbondingHandler(keeper, deps),
+		module: NewModule(keeper, deps),
 	}
 }
 
 
 // HandleDelegationsSubscription handles delegations subscription WebSocket connections
 func (h *Handler) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
-	h.delegationsHandler.Handle(w, r)
+	h.module.handleDelegations(w, r)
 }
 
 // HandleDelegationSubscription handles delegation subscription WebSocket connections
 func (h *Handler) HandleDelegationSubscription(w http.ResponseWriter, r *http.Request) {
-	h.delegationsHandler.HandleDelegation(w, r)
+	h.module.handleDelegation(w, r)
 }
 
 // HandleUnbondingDelegationsSubscription handles unbonding delegations subscription WebSocket connections
 func (h *Handler) HandleUnbondingDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
-	h.unbondingHandler.HandleUnbondingDelegations(w, r)
+	h.module.handleUnbondingDelegations(w, r)
 }
 
 // HandleUnbondingDelegationSubscription handles unbonding delegation subscription WebSocket connections
 func (h *Handler) HandleUnbondingDelegationSubscription(w http.ResponseWriter, r *http.Request) {
-	h.unbondingHandler.HandleUnbondingDelegation(w, r)
+	h.module.handleUnbondingDelegation(w, r)
 }

@@ -11,8 +11,7 @@ import (
 
 // Handler combines all bank-related WebSocket handlers
 type Handler struct {
-	balanceHandler     *BalanceHandler
-	allBalancesHandler *AllBalancesHandler
+	module *Module
 }
 
 // NewHandler creates a new bank handler with legacy parameters (temporarily for compatibility)
@@ -32,18 +31,17 @@ func NewHandler(keeper KeeperInterface, config *common.StreamConfig, logger comm
 // NewHandlerWithDeps creates a new bank handler with dependencies
 func NewHandlerWithDeps(keeper KeeperInterface, deps *common.HandlerDependencies) *Handler {
 	return &Handler{
-		balanceHandler:     NewBalanceHandler(keeper, deps),
-		allBalancesHandler: NewAllBalancesHandler(keeper, deps),
+		module: NewModule(keeper, deps),
 	}
 }
 
 
 // HandleBalanceSubscription handles balance subscription WebSocket connections
 func (h *Handler) HandleBalanceSubscription(w http.ResponseWriter, r *http.Request) {
-	h.balanceHandler.Handle(w, r)
+	h.module.handleBalance(w, r)
 }
 
 // HandleAllBalancesSubscription handles all balances subscription WebSocket connections
 func (h *Handler) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.Request) {
-	h.allBalancesHandler.Handle(w, r)
+	h.module.handleAllBalances(w, r)
 }
