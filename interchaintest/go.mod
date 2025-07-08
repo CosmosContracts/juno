@@ -15,7 +15,7 @@ require (
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/CosmWasm/wasmd v0.54.0
 	github.com/CosmosContracts/juno/v29 v29.0.0
-	github.com/cosmos/cosmos-sdk v0.50.13
+	github.com/cosmos/cosmos-sdk v0.50.14
 	github.com/cosmos/ibc-go/v8 v8.7.0
 	github.com/docker/docker v24.0.9+incompatible
 	// main branch of x/builder with sdk 0.50 support
