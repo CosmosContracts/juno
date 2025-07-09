@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	"golang.org/x/sync/errgroup"
@@ -134,8 +133,8 @@ func (s *E2ETestSuite) FundUser(chain ibc.Chain, amount int64, user ibc.Wallet) 
 		interchaintest.FaucetAccountKeyName,
 		interchaintest.FaucetAccountKeyName,
 		user.FormattedAddress(),
-		sdk.NewCoins(sdk.NewCoin(chainCfg.Denom, math.NewInt(amount))),
-		sdk.NewCoins(sdk.NewCoin(chainCfg.Denom, math.NewInt(1_000_000))),
+		sdk.NewCoins(sdk.NewCoin(chainCfg.Denom, sdkmath.NewInt(amount))),
+		sdk.NewCoins(sdk.NewCoin(chainCfg.Denom, sdkmath.NewInt(1_000_000))),
 	)
 	s.Require().NoError(err, "failed to get funds from faucet")
 }
@@ -287,7 +286,7 @@ func (s *E2ETestSuite) SubmitSoftwareUpgradeProposal(chain *cosmos.CosmosChain, 
 	return txProp.ProposalID
 }
 
-// DO NOT USE, only used for the gov fix test, not compatible with Juno v28+
+// SubmitBuilderParamsUpdate - DO NOT USE, only used for the gov fix test, not compatible with Juno v28+
 func (s *E2ETestSuite) SubmitBuilderParamsUpdate(chain *cosmos.CosmosChain, user ibc.Wallet, authority string) string {
 	t := s.T()
 	// juno10d07y265gmmuvt4z0w9aw880jnsr700jvss730

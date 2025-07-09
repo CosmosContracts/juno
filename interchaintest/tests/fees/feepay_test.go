@@ -109,6 +109,7 @@ func (s *FeesTestSuite) TestFeePay() {
 			ContractAddress: contractAddr,
 		},
 	)
+	require.NoError(err)
 	t.Log("afterContract", afterContract)
 	require.Equal(t, afterContract.FeePayContract.Balance, strconv.Itoa(balance-500))
 
@@ -119,6 +120,7 @@ func (s *FeesTestSuite) TestFeePay() {
 			WalletAddress:   user.FormattedAddress(),
 		},
 	)
+	require.NoError(err)
 	t.Log("uses", uses)
 	require.Equal(t, uses.Uses, "1")
 

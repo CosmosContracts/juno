@@ -131,25 +131,25 @@ func (s *FeemarketTestSuite) createNetworkCongestion(
 
 			s.T().Logf("User %d sending transaction with %d messages", userIndex, messagesPerTransaction)
 
+			_, _ = s.SendCoinsMultiBroadcast(
+				from,
+				receiver,
+				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
+				fees,
+				gasPerTransaction,
+				messagesPerTransaction,
+			)
+
+			_, _ = s.SendCoinsMultiBroadcast(
+				from,
+				receiver,
+				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
+				fees,
+				gasPerTransaction,
+				messagesPerTransaction,
+			)
+
 			txResp, err := s.SendCoinsMultiBroadcast(
-				from,
-				receiver,
-				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
-				fees,
-				gasPerTransaction,
-				messagesPerTransaction,
-			)
-
-			txResp, err = s.SendCoinsMultiBroadcast(
-				from,
-				receiver,
-				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
-				fees,
-				gasPerTransaction,
-				messagesPerTransaction,
-			)
-
-			txResp, err = s.SendCoinsMultiBroadcast(
 				from,
 				receiver,
 				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),

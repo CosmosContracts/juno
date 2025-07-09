@@ -7,7 +7,7 @@ import (
 // Go based data types for querying on the contract.
 // Execute types are not needed here. We just use strings. Could add though in the future and to_string it
 
-// EntryPoint
+// ContractQueryMsg is the entry point for contract queries
 type ContractQueryMsg struct {
 	// Tokenfactory Core
 	GetConfig      *struct{}            `json:"get_config,omitempty"`

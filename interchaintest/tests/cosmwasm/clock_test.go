@@ -110,12 +110,13 @@ func (s *CosmWasmTestSuite) TestClockModule() {
 	contract = s.GetClockContract(s.Chain, contractAddr)
 	require.False(contract.ClockContract.IsJailed)
 
-	s.QueryClients.ClockClient.ClockContract(
+	_, err = s.QueryClients.ClockClient.ClockContract(
 		s.Ctx,
 		&clocktypes.QueryClockContractRequest{
 			ContractAddress: contractAddr,
 		},
 	)
+	require.NoError(err)
 
 	// Validate the contract is now auto incrementing from the end blocker
 	res = s.GetClockContractValue(s.Chain, contractAddr)

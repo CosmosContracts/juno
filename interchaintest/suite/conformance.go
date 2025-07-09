@@ -34,7 +34,7 @@ func (s *E2ETestSuite) StdExecute(chain *cosmos.CosmosChain, user ibc.Wallet) (c
 
 func (s *E2ETestSuite) subMsg(chain *cosmos.CosmosChain, user ibc.Wallet) {
 	// ref: https://github.com/CosmWasm/wasmd/issues/1735
-	require := s.Require()
+	requireT := s.Require()
 	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(100000)))
 
 	// === execute a contract sub message ===
@@ -51,13 +51,13 @@ func (s *E2ETestSuite) subMsg(chain *cosmos.CosmosChain, user ibc.Wallet) {
 		true,
 		fees,
 	)
-	fmt.Println("First", res)
-	require.NoError(err)
+	_ = res // Debug output removed, use debugger if needed
+	requireT.NoError(err)
 
 	success := "InN1Y2NlZWQi"
 	res3, err := s.ExecuteMsgWithFeeReturn(chain, user, senderContractAddr, "", fmt.Sprintf(`{"send_nft": { "contract": "%s", "token_id": "00000", "msg": "%s" }}`, receiverContractAddr, success), false, fees)
-	require.NoError(err)
-	fmt.Println("Third", res3)
-	require.EqualValues(0, res3.Code)
-	require.NotContains(res3.RawLog, "unknown message from the contract")
+	requireT.NoError(err)
+	_ = res3 // Debug output removed, use debugger if needed
+	requireT.EqualValues(0, res3.Code)
+	requireT.NotContains(res3.RawLog, "unknown message from the contract")
 }

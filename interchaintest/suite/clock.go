@@ -2,7 +2,6 @@ package suite
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Register the clock contract
+// RegisterClockContract registers a clock contract
 func (s *E2ETestSuite) RegisterClockContract(chain *cosmos.CosmosChain, user ibc.Wallet, contract string) (*sdk.TxResponse, error) {
 	t := s.T()
 	cmd := []string{
@@ -40,7 +39,7 @@ func (s *E2ETestSuite) RegisterClockContract(chain *cosmos.CosmosChain, user ibc
 	return txRes, nil
 }
 
-// Unregister the clock contract
+// UnregisterClockContract unregisters a clock contract
 func (s *E2ETestSuite) UnregisterClockContract(chain *cosmos.CosmosChain, user ibc.Wallet, contract string) (*sdk.TxResponse, error) {
 	t := s.T()
 	cmd := []string{
@@ -68,7 +67,7 @@ func (s *E2ETestSuite) UnregisterClockContract(chain *cosmos.CosmosChain, user i
 	return txRes, nil
 }
 
-// Unjail the clock contract
+// UnjailClockContract unjails a clock contract
 func (s *E2ETestSuite) UnjailClockContract(chain *cosmos.CosmosChain, user ibc.Wallet, contract string) (*sdk.TxResponse, error) {
 	t := s.T()
 	cmd := []string{
@@ -96,7 +95,7 @@ func (s *E2ETestSuite) UnjailClockContract(chain *cosmos.CosmosChain, user ibc.W
 	return txRes, nil
 }
 
-// Get the clock contract
+// GetClockContract retrieves a clock contract
 func (s *E2ETestSuite) GetClockContract(chain *cosmos.CosmosChain, contract string) ClockContract {
 	t := s.T()
 	var res ClockContract
@@ -106,7 +105,7 @@ func (s *E2ETestSuite) GetClockContract(chain *cosmos.CosmosChain, contract stri
 	stdout, _, err := node.ExecQuery(s.Ctx, cmd...)
 	require.NoError(t, err)
 
-	fmt.Println(string(stdout))
+	_ = string(stdout) // Debug output removed, use debugger if needed
 
 	if err := json.Unmarshal(stdout, &res); err != nil {
 		t.Fatal(err)
@@ -115,7 +114,7 @@ func (s *E2ETestSuite) GetClockContract(chain *cosmos.CosmosChain, contract stri
 	return res
 }
 
-// Validate a contract is not registered with the clock module
+// ValidateNoClockContract validates that a contract is not registered with the clock module
 func (s *E2ETestSuite) ValidateNoClockContract(chain *cosmos.CosmosChain, contract string) {
 	t := s.T()
 	cmd := getClockQueryCommand(contract, chain)

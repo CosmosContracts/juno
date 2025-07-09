@@ -207,8 +207,8 @@ func (s *PfmTestSuite) TestPacketForwardMiddlewareRouter() {
 				Port:     cdChan.PortID,
 			},
 		}
-		nextBz, err := json.Marshal(secondHopMetadata)
-		require.NoError(t, err)
+		nextBz, err2 := json.Marshal(secondHopMetadata)
+		require.NoError(t, err2)
 		next := string(nextBz)
 
 		firstHopMetadata := &PacketMetadata{

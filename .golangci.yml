@@ -71,6 +71,7 @@ linters:
     govet:
       disable:
         - printf
+        - shadow
   exclusions:
     paths:
       - ".*.pb.go"

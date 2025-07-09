@@ -23,7 +23,7 @@ func (s *E2ETestSuite) SmartQueryString(chain *cosmos.CosmosChain, contractAddr,
 	return err
 }
 
-func (s *E2ETestSuite) StoreContract(chain *cosmos.CosmosChain, keyName string, fileLoc string, fees sdk.Coins) (codeId string) {
+func (s *E2ETestSuite) StoreContract(chain *cosmos.CosmosChain, keyName string, fileLoc string, fees sdk.Coins) (codeID string) {
 	cn := chain.GetNode()
 
 	_, file := filepath.Split(fileLoc)
@@ -62,10 +62,10 @@ func (s *E2ETestSuite) StoreContract(chain *cosmos.CosmosChain, keyName string, 
 	return res.CodeInfos[0].CodeID
 }
 
-func (s *E2ETestSuite) SetupContract(chain *cosmos.CosmosChain, keyname string, fileLoc string, initMessage string, skipTxCheck bool, fees sdk.Coins, extraFlags ...string) (codeId, contract string) {
+func (s *E2ETestSuite) SetupContract(chain *cosmos.CosmosChain, keyname string, fileLoc string, initMessage string, skipTxCheck bool, fees sdk.Coins, extraFlags ...string) (codeID, contract string) {
 	t := s.T()
 
-	codeId = s.StoreContract(chain, keyname, fileLoc, fees)
+	codeID = s.StoreContract(chain, keyname, fileLoc, fees)
 
 	needsNoAdminFlag := true
 	// if extraFlags contains "--admin", switch to false
@@ -75,17 +75,17 @@ func (s *E2ETestSuite) SetupContract(chain *cosmos.CosmosChain, keyname string, 
 		}
 	}
 
-	contractAddr, err := s.InstantiateContract(chain, keyname, codeId, initMessage, fees, needsNoAdminFlag, skipTxCheck, extraFlags...)
+	contractAddr, err := s.InstantiateContract(chain, keyname, codeID, initMessage, fees, needsNoAdminFlag, skipTxCheck, extraFlags...)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	return codeId, contractAddr
+	return codeID, contractAddr
 }
 
-func (s *E2ETestSuite) MigrateContract(chain *cosmos.CosmosChain, keyName string, contractAddr string, fileLoc string, message string, fees sdk.Coins) (codeId, contract string) {
+func (s *E2ETestSuite) MigrateContract(chain *cosmos.CosmosChain, keyName string, contractAddr string, fileLoc string, message string, fees sdk.Coins) (codeID, contract string) {
 	t := s.T()
-	codeId = s.StoreContract(s.Chain, keyName, fileLoc, fees)
+	codeID = s.StoreContract(s.Chain, keyName, fileLoc, fees)
 
 	// Execute migrate tx
 	txHash, err := s.ExecTx(
@@ -95,7 +95,7 @@ func (s *E2ETestSuite) MigrateContract(chain *cosmos.CosmosChain, keyName string
 		false,
 		"wasm",
 		"migrate",
-		contractAddr, codeId, message,
+		contractAddr, codeID, message,
 		"--fees",
 		fees.String(),
 		"--gas", "auto",
@@ -111,7 +111,7 @@ func (s *E2ETestSuite) MigrateContract(chain *cosmos.CosmosChain, keyName string
 	}
 	s.DebugOutput(string(txRes.RawLog))
 
-	return codeId, contractAddr
+	return codeID, contractAddr
 }
 
 // InstantiateContract takes a code id for a smart contract and initialization message and returns the instantiated contract address.
@@ -175,7 +175,8 @@ func (s *E2ETestSuite) ExecuteMsgWithAmount(chain *cosmos.CosmosChain, user ibc.
 		t.Fatal(err)
 	}
 
-	if err := testutil.WaitForBlocks(s.Ctx, 2, chain); err != nil {
+	err = testutil.WaitForBlocks(s.Ctx, 2, chain)
+	if err != nil {
 		t.Fatal(err)
 	}
 

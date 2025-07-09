@@ -104,7 +104,7 @@ func (s *E2ETestSuite) QueryAccountSequence(chain *cosmos.CosmosChain, address s
 	return acc.GetSequence()
 }
 
-// Block returns the block at the given height
+// QueryBlock returns the block at the given height
 func (s *E2ETestSuite) QueryBlock(chain *cosmos.CosmosChain, height int64) *coretypes.ResultBlock {
 	s.T().Helper()
 

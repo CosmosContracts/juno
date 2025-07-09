@@ -8,10 +8,9 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 	"github.com/strangelove-ventures/interchaintest/v8/testutil"
-	"github.com/stretchr/testify/require"
 )
 
-// Register
+// RegisterCwHooksStaking registers a contract for staking hooks
 func (s *E2ETestSuite) RegisterCwHooksStaking(chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(1000000)))
 	s.cwHooksCmd(chain, "register-staking", user, contractAddr, fees)
@@ -22,7 +21,7 @@ func (s *E2ETestSuite) RegisterCwHooksGovernance(chain *cosmos.CosmosChain, user
 	s.cwHooksCmd(chain, "register-governance", user, contractAddr, fees)
 }
 
-// UnRegister
+// UnregisterCwHooksStaking unregisters a contract from staking hooks
 func (s *E2ETestSuite) UnregisterCwHooksStaking(chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(1000000)))
 	s.cwHooksCmd(chain, "unregister-staking", user, contractAddr, fees)
@@ -33,7 +32,7 @@ func (s *E2ETestSuite) UnregisterCwHooksGovernance(chain *cosmos.CosmosChain, us
 	s.cwHooksCmd(chain, "unregister-governance", user, contractAddr, fees)
 }
 
-// Get Contracts
+// GetCwHooksStakingContracts retrieves all registered staking hook contracts
 func (s *E2ETestSuite) GetCwHooksStakingContracts() []string {
 	return s.getContracts(s.Chain, "staking-contracts")
 }
@@ -42,12 +41,12 @@ func (s *E2ETestSuite) GetCwHooksGovernanceContracts() []string {
 	return s.getContracts(s.Chain, "governance-contracts")
 }
 
-// Contract specific
-func (s *E2ETestSuite) GetCwStakingHookLastDelegationChange(chain *cosmos.CosmosChain, contract string, uaddr string) GetCwHooksDelegationResponse {
-	require := s.Require()
+// GetCwStakingHookLastDelegationChange gets the last delegation change from a contract
+func (s *E2ETestSuite) GetCwStakingHookLastDelegationChange(chain *cosmos.CosmosChain, contract string, _ string) GetCwHooksDelegationResponse {
+	requireT := s.Require()
 	var res GetCwHooksDelegationResponse
 	err := s.SmartQueryString(chain, contract, `{"last_delegation_change":{}}`, &res)
-	require.NoError(err)
+	requireT.NoError(err)
 	return res
 }
 
@@ -81,6 +80,7 @@ func (s *E2ETestSuite) cwHooksCmd(chain *cosmos.CosmosChain, command string, use
 
 func (s *E2ETestSuite) getContracts(chain *cosmos.CosmosChain, subCmd string) []string {
 	t := s.T()
+	require := s.Require()
 	cmd := []string{
 		"junod", "query", "cw-hooks", subCmd,
 		"--output", "json",
@@ -88,7 +88,7 @@ func (s *E2ETestSuite) getContracts(chain *cosmos.CosmosChain, subCmd string) []
 	}
 
 	stdout, _, err := chain.Exec(s.Ctx, cmd, nil)
-	require.NoError(t, err)
+	require.NoError(err)
 
 	s.DebugOutput(string(stdout))
 

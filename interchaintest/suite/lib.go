@@ -134,7 +134,7 @@ func FourChainInterchainConstructor(ctx context.Context, t *testing.T, chains []
 	eRep := rep.RelayerExecReporter(t)
 
 	// create docker network
-	client, networkId := interchaintest.DockerSetup(t)
+	client, networkID := interchaintest.DockerSetup(t)
 
 	relayerType, relayerName := ibc.CosmosRly, "rly"
 	// Get a relayer instance
@@ -143,7 +143,7 @@ func FourChainInterchainConstructor(ctx context.Context, t *testing.T, chains []
 		zaptest.NewLogger(t),
 		relayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
-	r := rf.Build(t, client, networkId)
+	r := rf.Build(t, client, networkID)
 
 	ic := interchaintest.NewInterchain()
 	for _, chain := range chains {
@@ -176,7 +176,7 @@ func FourChainInterchainConstructor(ctx context.Context, t *testing.T, chains []
 	err := ic.Build(ctx, eRep, interchaintest.InterchainBuildOptions{
 		SkipPathCreation:  false,
 		Client:            client,
-		NetworkID:         networkId,
+		NetworkID:         networkID,
 		TestName:          t.Name(),
 		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
 	})
@@ -195,7 +195,7 @@ func TwoChainInterchainConstructor(ctx context.Context, t *testing.T, chains []*
 	eRep := rep.RelayerExecReporter(t)
 
 	// create docker network
-	client, networkId := interchaintest.DockerSetup(t)
+	client, networkID := interchaintest.DockerSetup(t)
 
 	relayerType, relayerName := ibc.CosmosRly, "rly"
 	// Get a relayer instance
@@ -204,7 +204,7 @@ func TwoChainInterchainConstructor(ctx context.Context, t *testing.T, chains []*
 		zaptest.NewLogger(t),
 		relayer.StartupFlags("--processor", "events", "--block-history", "100"),
 	)
-	r := rf.Build(t, client, networkId)
+	r := rf.Build(t, client, networkID)
 
 	ic := interchaintest.NewInterchain()
 	for _, chain := range chains {
@@ -225,7 +225,7 @@ func TwoChainInterchainConstructor(ctx context.Context, t *testing.T, chains []*
 	err := ic.Build(ctx, eRep, interchaintest.InterchainBuildOptions{
 		SkipPathCreation:  false,
 		Client:            client,
-		NetworkID:         networkId,
+		NetworkID:         networkID,
 		TestName:          t.Name(),
 		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
 	})

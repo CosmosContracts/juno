@@ -372,7 +372,7 @@ func (s *E2ETestSuite) keyringDirFromNode() string {
 	reader, _, err := node.DockerClient.CopyFromContainer(context.Background(), node.ContainerID(), containerKeyringDir)
 	s.Require().NoError(err)
 
-	s.Require().NoError(os.Mkdir(path.Join(localDir, "keyring-test"), os.ModePerm))
+	s.Require().NoError(os.Mkdir(path.Join(localDir, "keyring-test"), 0750))
 
 	tr := tar.NewReader(reader)
 	for {
@@ -383,7 +383,9 @@ func (s *E2ETestSuite) keyringDirFromNode() string {
 		s.Require().NoError(err)
 
 		var fileBuff bytes.Buffer
-		_, err = io.Copy(&fileBuff, tr)
+		// Limit file size to prevent decompression bomb attacks (100MB limit)
+		limitedReader := io.LimitReader(tr, 100*1024*1024)
+		_, err = io.Copy(&fileBuff, limitedReader)
 		s.Require().NoError(err)
 
 		name := hdr.Name
@@ -394,7 +396,7 @@ func (s *E2ETestSuite) keyringDirFromNode() string {
 		}
 
 		filePath := path.Join(localDir, "keyring-test", extractedFileName)
-		s.Require().NoError(os.WriteFile(filePath, fileBuff.Bytes(), os.ModePerm))
+		s.Require().NoError(os.WriteFile(filePath, fileBuff.Bytes(), 0600))
 	}
 
 	return localDir
