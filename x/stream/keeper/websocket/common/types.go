@@ -37,7 +37,7 @@ type ConnectionManager interface {
 
 // SubscriptionRegistry defines the subscription registry interface
 type SubscriptionRegistry interface {
-	Subscribe(key SubscriptionKey, ctx context.Context, sendCh chan<- any) Subscriber
+	Subscribe(ctx context.Context, key SubscriptionKey, sendCh chan<- any) Subscriber
 	Unsubscribe(subscriber Subscriber)
 }
 
@@ -48,7 +48,8 @@ type SubscriptionKey interface {
 
 // Subscriber defines the subscriber interface
 type Subscriber interface {
-	// Add methods as needed
+	// IsActive returns true if the subscriber is still active
+	IsActive() bool
 }
 
 // CircuitBreaker defines the circuit breaker interface

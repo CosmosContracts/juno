@@ -4,9 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/common"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/common"
 )
 
 func init() {
@@ -19,9 +21,9 @@ func init() {
 
 func TestValidateAccAddress(t *testing.T) {
 	tests := []struct {
-		name         string
-		address      string
-		expectValid  bool
+		name          string
+		address       string
+		expectValid   bool
 		errorContains string
 	}{
 		{
@@ -76,7 +78,7 @@ func TestValidateAccAddress(t *testing.T) {
 				require.True(t, validator.IsValid())
 				require.NotNil(t, validator.AccAddress())
 				require.Nil(t, validator.ValAddress())
-				
+
 				// Verify the address was parsed correctly
 				addr := validator.AccAddress()
 				require.Equal(t, tc.address, addr.String())
@@ -92,9 +94,9 @@ func TestValidateAccAddress(t *testing.T) {
 
 func TestValidateValAddress(t *testing.T) {
 	tests := []struct {
-		name         string
-		address      string
-		expectValid  bool
+		name          string
+		address       string
+		expectValid   bool
 		errorContains string
 	}{
 		{
@@ -143,7 +145,7 @@ func TestValidateValAddress(t *testing.T) {
 				require.True(t, validator.IsValid())
 				require.NotNil(t, validator.ValAddress())
 				require.Nil(t, validator.AccAddress())
-				
+
 				// Verify the address was parsed correctly
 				addr := validator.ValAddress()
 				require.Equal(t, tc.address, addr.String())
@@ -161,7 +163,7 @@ func TestAddressValidatorValidationFunc(t *testing.T) {
 	t.Run("valid address validation func", func(t *testing.T) {
 		validator := common.ValidateAccAddress("juno1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq89mgve")
 		validationFunc := validator.ValidationFunc()
-		
+
 		require.NotNil(t, validationFunc)
 		require.NoError(t, validationFunc())
 	})
@@ -169,7 +171,7 @@ func TestAddressValidatorValidationFunc(t *testing.T) {
 	t.Run("invalid address validation func", func(t *testing.T) {
 		validator := common.ValidateAccAddress("invalid")
 		validationFunc := validator.ValidationFunc()
-		
+
 		require.NotNil(t, validationFunc)
 		err := validationFunc()
 		require.Error(t, err)
@@ -181,27 +183,27 @@ func TestCompositeValidator(t *testing.T) {
 	t.Run("empty composite validator", func(t *testing.T) {
 		cv := common.NewCompositeValidator()
 		validationFunc := cv.ValidationFunc()
-		
+
 		require.NotNil(t, validationFunc)
 		require.NoError(t, validationFunc())
 	})
 
 	t.Run("single validator success", func(t *testing.T) {
 		validator1 := func() error { return nil }
-		
+
 		cv := common.NewCompositeValidator(validator1)
 		validationFunc := cv.ValidationFunc()
-		
+
 		require.NoError(t, validationFunc())
 	})
 
 	t.Run("single validator failure", func(t *testing.T) {
 		expectedErr := errors.New("validation failed")
 		validator1 := func() error { return expectedErr }
-		
+
 		cv := common.NewCompositeValidator(validator1)
 		validationFunc := cv.ValidationFunc()
-		
+
 		err := validationFunc()
 		require.Error(t, err)
 		require.Equal(t, expectedErr, err)
@@ -211,10 +213,10 @@ func TestCompositeValidator(t *testing.T) {
 		validator1 := func() error { return nil }
 		validator2 := func() error { return nil }
 		validator3 := func() error { return nil }
-		
+
 		cv := common.NewCompositeValidator(validator1, validator2, validator3)
 		validationFunc := cv.ValidationFunc()
-		
+
 		require.NoError(t, validationFunc())
 	})
 
@@ -223,10 +225,10 @@ func TestCompositeValidator(t *testing.T) {
 		validator1 := func() error { return expectedErr }
 		validator2 := func() error { return nil }
 		validator3 := func() error { return nil }
-		
+
 		cv := common.NewCompositeValidator(validator1, validator2, validator3)
 		validationFunc := cv.ValidationFunc()
-		
+
 		err := validationFunc()
 		require.Error(t, err)
 		require.Equal(t, expectedErr, err)
@@ -237,10 +239,10 @@ func TestCompositeValidator(t *testing.T) {
 		validator1 := func() error { return nil }
 		validator2 := func() error { return expectedErr }
 		validator3 := func() error { return nil }
-		
+
 		cv := common.NewCompositeValidator(validator1, validator2, validator3)
 		validationFunc := cv.ValidationFunc()
-		
+
 		err := validationFunc()
 		require.Error(t, err)
 		require.Equal(t, expectedErr, err)
@@ -250,12 +252,12 @@ func TestCompositeValidator(t *testing.T) {
 func TestCompositeValidatorAdd(t *testing.T) {
 	t.Run("add validator function", func(t *testing.T) {
 		cv := common.NewCompositeValidator()
-		
+
 		validator1 := func() error { return nil }
 		validator2 := func() error { return errors.New("fail") }
-		
+
 		cv.Add(validator1).Add(validator2)
-		
+
 		validationFunc := cv.ValidationFunc()
 		err := validationFunc()
 		require.Error(t, err)
@@ -266,20 +268,20 @@ func TestCompositeValidatorAdd(t *testing.T) {
 func TestCompositeValidatorAddAddressValidator(t *testing.T) {
 	t.Run("add valid address validator", func(t *testing.T) {
 		cv := common.NewCompositeValidator()
-		
+
 		addrValidator := common.ValidateAccAddress("juno1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq89mgve")
 		cv.AddAddressValidator(addrValidator)
-		
+
 		validationFunc := cv.ValidationFunc()
 		require.NoError(t, validationFunc())
 	})
 
 	t.Run("add invalid address validator", func(t *testing.T) {
 		cv := common.NewCompositeValidator()
-		
+
 		addrValidator := common.ValidateAccAddress("invalid")
 		cv.AddAddressValidator(addrValidator)
-		
+
 		validationFunc := cv.ValidationFunc()
 		err := validationFunc()
 		require.Error(t, err)
@@ -289,37 +291,37 @@ func TestCompositeValidatorAddAddressValidator(t *testing.T) {
 	t.Run("add nil address validator", func(t *testing.T) {
 		cv := common.NewCompositeValidator()
 		cv.AddAddressValidator(nil)
-		
+
 		validationFunc := cv.ValidationFunc()
 		require.NoError(t, validationFunc())
 	})
 
 	t.Run("chain multiple address validators", func(t *testing.T) {
 		cv := common.NewCompositeValidator()
-		
+
 		// Add valid account address validator
 		accValidator := common.ValidateAccAddress("juno1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq89mgve")
 		cv.AddAddressValidator(accValidator)
-		
+
 		// Add valid validator address validator
 		valValidator := common.ValidateValAddress("junovaloper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdl2twf")
 		cv.AddAddressValidator(valValidator)
-		
+
 		validationFunc := cv.ValidationFunc()
 		require.NoError(t, validationFunc())
 	})
 
 	t.Run("chain with one invalid address validator", func(t *testing.T) {
 		cv := common.NewCompositeValidator()
-		
+
 		// Add valid address validator
 		accValidator := common.ValidateAccAddress("juno1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq89mgve")
 		cv.AddAddressValidator(accValidator)
-		
+
 		// Add invalid address validator
 		invalidValidator := common.ValidateAccAddress("")
 		cv.AddAddressValidator(invalidValidator)
-		
+
 		validationFunc := cv.ValidationFunc()
 		err := validationFunc()
 		require.Error(t, err)

@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/middleware"
 	"github.com/stretchr/testify/require"
+
+	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/middleware"
 )
 
 func TestCircuitBreaker(t *testing.T) {
@@ -175,14 +176,14 @@ func testCircuitBreakerMetrics(t *testing.T) {
 	cb.RecordFailure("conn1")
 	cb.RecordFailure("conn1") // Open
 
-	cb.RecordFailure("conn2") // Still closed (1 failure)
-	cb.AllowRequest("conn2")  // This ensures conn2 is tracked in state
+	cb.RecordFailure("conn2")       // Still closed (1 failure)
+	_, _ = cb.AllowRequest("conn2") // This ensures conn2 is tracked in state
 
 	// conn3 will be half-open
 	cb.RecordFailure("conn3")
 	cb.RecordFailure("conn3")
 	cb.SetLastFailTimeForTesting("conn3", time.Now().Add(-31*time.Second)) // Force timeout
-	cb.AllowRequest("conn3")                                               // This will move it to half-open
+	_, _ = cb.AllowRequest("conn3")                                        // This will move it to half-open
 
 	// Get metrics
 	metrics := cb.GetMetrics()
@@ -198,9 +199,9 @@ func testCleanupStaleConnections(t *testing.T) {
 	cb := middleware.NewCircuitBreaker(2, 30*time.Second)
 
 	// Create some circuit states by calling AllowRequest first
-	cb.AllowRequest("conn1")
-	cb.AllowRequest("conn2")
-	cb.AllowRequest("conn3")
+	_, _ = cb.AllowRequest("conn1")
+	_, _ = cb.AllowRequest("conn2")
+	_, _ = cb.AllowRequest("conn3")
 
 	// Now record failures
 	cb.RecordFailure("conn1")

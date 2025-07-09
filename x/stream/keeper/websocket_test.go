@@ -33,6 +33,15 @@ func TestWebSocketHandlers(t *testing.T) {
 	// Register routes
 	router.HandleFunc("/ws/subscribe/bank/balance/{address}/{denom}", wsHandler.HandleBalanceSubscription)
 	router.HandleFunc("/ws/subscribe/bank/balances/{address}", wsHandler.HandleAllBalancesSubscription)
+	router.HandleFunc("/ws/subscribe/bank/spendable_balances/{address}", wsHandler.HandleSpendableBalancesSubscription)
+	router.HandleFunc("/ws/subscribe/bank/spendable_balance_by_denom/{address}/{denom}", wsHandler.HandleSpendableBalanceByDenomSubscription)
+	router.HandleFunc("/ws/subscribe/bank/total_supply", wsHandler.HandleTotalSupplySubscription)
+	router.HandleFunc("/ws/subscribe/bank/supply_of/{denom}", wsHandler.HandleSupplyOfSubscription)
+	router.HandleFunc("/ws/subscribe/bank/params", wsHandler.HandleParamsSubscription)
+	router.HandleFunc("/ws/subscribe/bank/denoms_metadata", wsHandler.HandleDenomsMetadataSubscription)
+	router.HandleFunc("/ws/subscribe/bank/denom_metadata/{denom}", wsHandler.HandleDenomMetadataSubscription)
+	router.HandleFunc("/ws/subscribe/bank/denom_owners/{denom}", wsHandler.HandleDenomOwnersSubscription)
+	router.HandleFunc("/ws/subscribe/bank/send_enabled", wsHandler.HandleSendEnabledSubscription)
 	router.HandleFunc("/ws/subscribe/staking/delegations/{delegator}", wsHandler.HandleDelegationsSubscription)
 	router.HandleFunc("/ws/subscribe/staking/delegation/{delegator}/{validator}", wsHandler.HandleDelegationSubscription)
 	router.HandleFunc("/ws/subscribe/staking/unbonding-delegations/{delegator}", wsHandler.HandleUnbondingDelegationsSubscription)
@@ -85,7 +94,10 @@ func TestWebSocketHandlers(t *testing.T) {
 			// but it proves the handler is reachable
 			conn, resp, _ := dialer.Dial(wsURL+tt.endpoint, nil)
 			if conn != nil {
-				conn.Close()
+				_ = conn.Close()
+			}
+			if resp != nil && resp.Body != nil {
+				defer func() { _ = resp.Body.Close() }()
 			}
 
 			// We expect an error (because keeper isn't fully initialized)
@@ -134,9 +146,12 @@ func TestWebSocketIntegration(t *testing.T) {
 
 	// Connect to WebSocket
 	dialer := websocket.DefaultDialer
-	conn, _, err := dialer.DialContext(ctx, "ws://localhost:1317/ws/subscribe/bank/balance/juno1test/ujuno", nil)
+	conn, resp, err := dialer.DialContext(ctx, "ws://localhost:1317/ws/subscribe/bank/balance/juno1test/ujuno", nil)
+	if resp != nil && resp.Body != nil {
+		defer func() { _ = resp.Body.Close() }()
+	}
 	require.NoError(t, err)
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// Read initial balance message
 	var msg map[string]string

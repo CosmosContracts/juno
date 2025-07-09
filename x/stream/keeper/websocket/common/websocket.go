@@ -31,12 +31,13 @@ func GetUpgrader(allowAllOrigins bool) *websocket.Upgrader {
 }
 
 // HandleWebSocketConnection handles the WebSocket connection lifecycle
-func HandleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh <-chan any, connectionID string, queryFunc func() any, sendFunc func(*websocket.Conn, any) error, onFailure func(string), onSuccess func(string)) {
+func HandleWebSocketConnection(ctx context.Context, conn *websocket.Conn, sendCh <-chan any, connectionID string, queryFunc func() any, sendFunc func(*websocket.Conn, any) error, onFailure func(string), onSuccess func(string)) {
 	conn.SetReadLimit(maxMessageSize)
-	conn.SetReadDeadline(time.Now().Add(pongWait))
+	if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+		return
+	}
 	conn.SetPongHandler(func(string) error {
-		conn.SetReadDeadline(time.Now().Add(pongWait))
-		return nil
+		return conn.SetReadDeadline(time.Now().Add(pongWait))
 	})
 
 	// Start ping ticker
@@ -49,7 +50,7 @@ func HandleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh
 		if err := conn.SetWriteDeadline(deadline); err != nil {
 			return
 		}
-		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutting down"))
+		_ = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutting down"))
 	}()
 
 	for {
@@ -69,7 +70,12 @@ func HandleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh
 				onSuccess(connectionID)
 			}
 		case <-ticker.C:
-			conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				if onFailure != nil {
+					onFailure(connectionID)
+				}
+				return
+			}
 			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				if onFailure != nil {
 					onFailure(connectionID)
@@ -82,10 +88,30 @@ func HandleWebSocketConnection(conn *websocket.Conn, ctx context.Context, sendCh
 
 // SendWebSocketMessage sends a message over WebSocket
 func SendWebSocketMessage(conn *websocket.Conn, data any, onSuccess func()) error {
-	conn.SetWriteDeadline(time.Now().Add(writeWait))
+	if err := conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+		return err
+	}
 	err := conn.WriteJSON(data)
 	if err == nil && onSuccess != nil {
 		onSuccess()
+	}
+	return err
+}
+
+// CloseWithMessage closes the WebSocket connection with a specific close code and message
+func CloseWithMessage(conn *websocket.Conn, code int, message string) error {
+	if len(message) > 123 {
+		message = message[:123]
+	}
+	deadline := time.Now().Add(writeWait)
+	if err := conn.SetWriteDeadline(deadline); err != nil {
+		return err
+	}
+	closeMsg := websocket.FormatCloseMessage(code, message)
+	err := conn.WriteMessage(websocket.CloseMessage, closeMsg)
+	if err != nil {
+		// If we can't write the close message, try WriteControl
+		_ = conn.WriteControl(websocket.CloseMessage, closeMsg, deadline)
 	}
 	return err
 }

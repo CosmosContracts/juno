@@ -135,7 +135,7 @@ func (cb *CircuitBreaker) ResetAll() {
 }
 
 // GetMetrics returns current circuit breaker metrics for monitoring
-func (cb *CircuitBreaker) GetMetrics() map[string]interface{} {
+func (cb *CircuitBreaker) GetMetrics() map[string]any {
 	cb.mu.RLock()
 	defer cb.mu.RUnlock()
 
@@ -201,7 +201,7 @@ func (cb *CircuitBreaker) StartPeriodicCleanup(getActiveConnections func() map[s
 func (cb *CircuitBreaker) CleanupConnection(connectionID string) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	
+
 	delete(cb.failures, connectionID)
 	delete(cb.lastFailTime, connectionID)
 	delete(cb.state, connectionID)

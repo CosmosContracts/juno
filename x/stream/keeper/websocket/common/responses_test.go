@@ -3,8 +3,9 @@ package common_test
 import (
 	"testing"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/common"
 	"github.com/stretchr/testify/require"
+
+	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/common"
 )
 
 func TestErrorResponse(t *testing.T) {
@@ -30,8 +31,8 @@ func TestErrorResponse(t *testing.T) {
 		},
 		{
 			name:     "very long error message",
-			message:  string(make([]byte, 1000, 1000)),
-			expected: map[string]string{"error": string(make([]byte, 1000, 1000))},
+			message:  string(make([]byte, 1000)),
+			expected: map[string]string{"error": string(make([]byte, 1000))},
 		},
 	}
 
@@ -140,7 +141,7 @@ func TestBalancesResponse(t *testing.T) {
 		validate func(t *testing.T, response map[string]any)
 	}{
 		{
-			name: "empty balances",
+			name:     "empty balances",
 			balances: []any{},
 			validate: func(t *testing.T, response map[string]any) {
 				balances := response["balances"].([]any)
@@ -148,7 +149,7 @@ func TestBalancesResponse(t *testing.T) {
 			},
 		},
 		{
-			name: "single balance",
+			name:     "single balance",
 			balances: map[string]string{"denom": "ujuno", "amount": "1000"},
 			validate: func(t *testing.T, response map[string]any) {
 				balance := response["balances"].(map[string]string)
@@ -172,7 +173,7 @@ func TestBalancesResponse(t *testing.T) {
 			},
 		},
 		{
-			name: "nil balances",
+			name:     "nil balances",
 			balances: nil,
 			validate: func(t *testing.T, response map[string]any) {
 				require.Nil(t, response["balances"])
@@ -214,11 +215,11 @@ func TestBalancesResponse(t *testing.T) {
 
 func TestNotFoundResponse(t *testing.T) {
 	response := common.NotFoundResponse()
-	
+
 	require.Len(t, response, 1)
 	require.Contains(t, response, "found")
 	require.Equal(t, false, response["found"])
-	
+
 	// Test multiple calls return consistent result
 	response2 := common.NotFoundResponse()
 	require.Equal(t, response, response2)
@@ -344,7 +345,7 @@ func TestResponseImmutability(t *testing.T) {
 		resp1 := common.ErrorResponse("test")
 		resp1["error"] = "modified"
 		resp1["extra"] = "field"
-		
+
 		resp2 := common.ErrorResponse("test")
 		require.Equal(t, "test", resp2["error"])
 		require.NotContains(t, resp2, "extra")
@@ -354,7 +355,7 @@ func TestResponseImmutability(t *testing.T) {
 		resp1 := common.NotFoundResponse()
 		resp1["found"] = true
 		resp1["extra"] = "field"
-		
+
 		resp2 := common.NotFoundResponse()
 		require.Equal(t, false, resp2["found"])
 		require.NotContains(t, resp2, "extra")

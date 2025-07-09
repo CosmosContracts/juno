@@ -2,13 +2,15 @@ package types
 
 import (
 	"context"
+	"errors"
 	"fmt"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // StreamingListener implements the ABCIListener interface for the stream module
@@ -32,12 +34,12 @@ func (l *StreamingListener) WithLogger(logger log.Logger) *StreamingListener {
 }
 
 // ListenFinalizeBlock implements the ABCIListener interface
-func (l *StreamingListener) ListenFinalizeBlock(ctx context.Context, req abci.RequestFinalizeBlock, res abci.ResponseFinalizeBlock) error {
+func (*StreamingListener) ListenFinalizeBlock(_ context.Context, _ abci.RequestFinalizeBlock, _ abci.ResponseFinalizeBlock) error {
 	return nil
 }
 
 // ListenCommit implements the ABCIListener interface
-func (l *StreamingListener) ListenCommit(ctx context.Context, res abci.ResponseCommit, changeSet []*storetypes.StoreKVPair) error {
+func (l *StreamingListener) ListenCommit(_ context.Context, _ abci.ResponseCommit, changeSet []*storetypes.StoreKVPair) error {
 	// Process each KV pair in the changeset
 	for _, kvPair := range changeSet {
 		if kvPair == nil {
@@ -80,9 +82,9 @@ func (l *StreamingListener) ListenCommit(ctx context.Context, res abci.ResponseC
 }
 
 // OnWrite implements the ABCIListener interface
-func (l *StreamingListener) OnWrite(storeKey storetypes.StoreKey, key []byte, value []byte, delete bool) error {
+func (l *StreamingListener) OnWrite(storeKey storetypes.StoreKey, key []byte, value []byte, isDelete bool) error {
 	// Parse the key and emit events based on the store and key prefix
-	event, err := l.parseStoreEvent(storeKey.Name(), key, value, delete)
+	event, err := l.parseStoreEvent(storeKey.Name(), key, value, isDelete)
 	if err != nil {
 		l.logger.Error("failed to parse store event", "error", err, "store", storeKey.Name())
 		return nil
@@ -112,24 +114,24 @@ func (l *StreamingListener) OnWrite(storeKey storetypes.StoreKey, key []byte, va
 }
 
 // parseStoreEvent parses a store event and returns a StreamEvent if it matches our criteria
-func (l *StreamingListener) parseStoreEvent(storeName string, key []byte, value []byte, delete bool) (*StreamEvent, error) {
+func (l *StreamingListener) parseStoreEvent(storeName string, key []byte, value []byte, isDelete bool) (*StreamEvent, error) {
 	switch storeName {
 	case "bank":
-		return l.parseBankEvent(key, value, delete)
+		return l.parseBankEvent(key, value, isDelete)
 	case "staking":
-		return l.parseStakingEvent(key, value, delete)
+		return l.parseStakingEvent(key, value, isDelete)
 	default:
 		return nil, nil // Not a store we care about
 	}
 }
 
 // parseBankEvent parses bank module events
-func (l *StreamingListener) parseBankEvent(key []byte, value []byte, delete bool) (*StreamEvent, error) {
+func (l *StreamingListener) parseBankEvent(key []byte, _ []byte, isDelete bool) (*StreamEvent, error) {
 	if len(key) == 0 {
 		return nil, nil
 	}
 
-	l.logger.Debug("parsing bank event", "key_hex", fmt.Sprintf("%x", key), "key_len", len(key), "delete", delete)
+	l.logger.Debug("parsing bank event", "key_hex", fmt.Sprintf("%x", key), "key_len", len(key), "delete", isDelete)
 
 	// Check if this is a balance key (prefix 0x02)
 	if key[0] != BankBalancesPrefix[0] {
@@ -138,12 +140,12 @@ func (l *StreamingListener) parseBankEvent(key []byte, value []byte, delete bool
 
 	// Parse bank balance key format: prefix + address_length + address + denom
 	if len(key) < 2 {
-		return nil, fmt.Errorf("invalid bank balance key length")
+		return nil, errors.New("invalid bank balance key length")
 	}
 
 	addrLen := key[1]
 	if len(key) < int(2+addrLen) {
-		return nil, fmt.Errorf("invalid bank balance key: insufficient length for address")
+		return nil, errors.New("invalid bank balance key: insufficient length for address")
 	}
 
 	addressBytes := key[2 : 2+addrLen]
@@ -156,7 +158,7 @@ func (l *StreamingListener) parseBankEvent(key []byte, value []byte, delete bool
 		return nil, fmt.Errorf("failed to convert address: %w", err)
 	}
 
-	l.logger.Info("bank balance change detected", "address", address, "denom", denom, "delete", delete)
+	l.logger.Info("bank balance change detected", "address", address, "denom", denom, "delete", isDelete)
 
 	return &StreamEvent{
 		Module:      ModuleNameBank,
@@ -168,33 +170,33 @@ func (l *StreamingListener) parseBankEvent(key []byte, value []byte, delete bool
 }
 
 // parseStakingEvent parses staking module events
-func (l *StreamingListener) parseStakingEvent(key []byte, value []byte, delete bool) (*StreamEvent, error) {
+func (l *StreamingListener) parseStakingEvent(key []byte, value []byte, isDelete bool) (*StreamEvent, error) {
 	if len(key) == 0 {
 		return nil, nil
 	}
 
 	prefix := key[0]
 
-	switch {
-	case prefix == StakingDelegationPrefix[0]:
-		return l.parseStakingDelegationEvent(key, value, delete)
-	case prefix == StakingUnbondingDelegationPrefix[0]:
-		return l.parseStakingUnbondingEvent(key, value, delete)
+	switch prefix {
+	case StakingDelegationPrefix[0]:
+		return l.parseStakingDelegationEvent(key, value, isDelete)
+	case StakingUnbondingDelegationPrefix[0]:
+		return l.parseStakingUnbondingEvent(key, value, isDelete)
 	default:
 		return nil, nil
 	}
 }
 
 // parseStakingDelegationEvent parses delegation events
-func (l *StreamingListener) parseStakingDelegationEvent(key []byte, value []byte, delete bool) (*StreamEvent, error) {
+func (*StreamingListener) parseStakingDelegationEvent(key []byte, _ []byte, _ bool) (*StreamEvent, error) {
 	// Parse delegation key format: prefix + delegator_addr_len + delegator_addr + validator_addr
 	if len(key) < 2 {
-		return nil, fmt.Errorf("invalid delegation key length")
+		return nil, errors.New("invalid delegation key length")
 	}
 
 	delAddrLen := key[1]
 	if len(key) < int(2+delAddrLen) {
-		return nil, fmt.Errorf("invalid delegation key: insufficient length for delegator address")
+		return nil, errors.New("invalid delegation key: insufficient length for delegator address")
 	}
 
 	delegatorAddrBytes := key[2 : 2+delAddrLen]
@@ -221,15 +223,15 @@ func (l *StreamingListener) parseStakingDelegationEvent(key []byte, value []byte
 }
 
 // parseStakingUnbondingEvent parses unbonding delegation events
-func (l *StreamingListener) parseStakingUnbondingEvent(key []byte, value []byte, delete bool) (*StreamEvent, error) {
+func (*StreamingListener) parseStakingUnbondingEvent(key []byte, _ []byte, _ bool) (*StreamEvent, error) {
 	// Parse unbonding delegation key format: prefix + delegator_addr_len + delegator_addr + validator_addr
 	if len(key) < 2 {
-		return nil, fmt.Errorf("invalid unbonding delegation key length")
+		return nil, errors.New("invalid unbonding delegation key length")
 	}
 
 	delAddrLen := key[1]
 	if len(key) < int(2+delAddrLen) {
-		return nil, fmt.Errorf("invalid unbonding delegation key: insufficient length for delegator address")
+		return nil, errors.New("invalid unbonding delegation key: insufficient length for delegator address")
 	}
 
 	delegatorAddrBytes := key[2 : 2+delAddrLen]
@@ -255,7 +257,7 @@ func (l *StreamingListener) parseStakingUnbondingEvent(key []byte, value []byte,
 	}, nil
 }
 
-// generateSubscriptionKey creates a subscription key from a StreamEvent
+// GenerateSubscriptionKey creates a subscription key from a StreamEvent
 func GenerateSubscriptionKey(subscriptionType, address, secondaryAddress, denom string) SubscriptionKey {
 	return SubscriptionKey{
 		SubscriptionType: subscriptionType,

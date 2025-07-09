@@ -17,20 +17,20 @@ func NewSubscriptionRegistryAdapter(registry *types.SubscriptionRegistry) Subscr
 }
 
 // Subscribe adapts the Subscribe method
-func (s *SubscriptionRegistryAdapter) Subscribe(key SubscriptionKey, ctx context.Context, sendCh chan<- any) Subscriber {
+func (s *SubscriptionRegistryAdapter) Subscribe(ctx context.Context, key SubscriptionKey, sendCh chan<- any) Subscriber {
 	// Convert the interface key to the concrete type
 	if keyAdapter, ok := key.(*SubscriptionKeyAdapter); ok {
-		return &SubscriberAdapter{subscriber: s.registry.Subscribe(keyAdapter.key, ctx, sendCh)}
+		return &SubscriberAdapter{subscriber: s.registry.Subscribe(ctx, keyAdapter.key, sendCh)}
 	}
 	if keyImpl, ok := key.(*types.SubscriptionKey); ok {
-		return &SubscriberAdapter{subscriber: s.registry.Subscribe(*keyImpl, ctx, sendCh)}
+		return &SubscriberAdapter{subscriber: s.registry.Subscribe(ctx, *keyImpl, sendCh)}
 	}
 	// If not the expected type, create a string-based key
 	stringKey := types.SubscriptionKey{
 		SubscriptionType: types.SubscriptionTypeBalance, // Default type
 		Address:          key.String(),
 	}
-	return &SubscriberAdapter{subscriber: s.registry.Subscribe(stringKey, ctx, sendCh)}
+	return &SubscriberAdapter{subscriber: s.registry.Subscribe(ctx, stringKey, sendCh)}
 }
 
 // Unsubscribe adapts the Unsubscribe method
@@ -43,6 +43,11 @@ func (s *SubscriptionRegistryAdapter) Unsubscribe(subscriber Subscriber) {
 // SubscriberAdapter adapts the types.Subscriber to common.Subscriber
 type SubscriberAdapter struct {
 	subscriber *types.Subscriber
+}
+
+// IsActive returns true if the subscriber is still active
+func (s *SubscriberAdapter) IsActive() bool {
+	return s.subscriber != nil
 }
 
 // SubscriptionKeyAdapter adapts types.SubscriptionKey to common.SubscriptionKey

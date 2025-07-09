@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
 	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket"
 	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/common"
 )
@@ -24,25 +27,29 @@ func (k *Keeper) InitializeWebSocketHandler() {
 
 	// Create the handler using the new CreateHandler function
 	k.wsHandler = websocket.CreateHandler(
+		k.appContext,
 		k, // Keeper implements websocket.KeeperInterface
 		config,
 		loggerAdapter,
 		connManagerAdapter,
 		registryAdapter,
 		k.circuitBreaker,
-		k.appContext,
 		k.allowAllOrigins,
 	)
 }
 
 // GetBankKeeper returns the bank keeper for use by websocket package
-func (k *Keeper) GetBankKeeper() websocket.BankKeeper {
+func (k *Keeper) GetBankKeeper() bankkeeper.Keeper {
 	return k.bankKeeper
 }
 
 // GetStakingKeeper returns the staking keeper for use by websocket package
-func (k *Keeper) GetStakingKeeper() websocket.StakingKeeper {
-	return k.stakingKeeper
+func (k *Keeper) GetStakingKeeper() stakingkeeper.Keeper {
+	if k.stakingKeeper == nil {
+		// Return a zero value instead of dereferencing nil
+		return stakingkeeper.Keeper{}
+	}
+	return *k.stakingKeeper
 }
 
 // WebSocketHandler returns the websocket handler for routing

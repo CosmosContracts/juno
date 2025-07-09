@@ -3,14 +3,15 @@ package module
 import (
 	"context"
 
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+
 	"cosmossdk.io/core/appmodule"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
 	"github.com/CosmosContracts/juno/v30/x/stream/keeper"
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
@@ -39,19 +40,19 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterLegacyAminoCodec registers the mint module's types on the given LegacyAmino codec.
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+func (AppModuleBasic) RegisterLegacyAminoCodec(_ *codec.LegacyAmino) {
 	// No need to register legacy codec for stream module
 	// we do not have any messages as we just wrap queries
 }
 
 // RegisterInterfaces registers the module's interface types
-func (AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) {
+func (AppModuleBasic) RegisterInterfaces(_ cdctypes.InterfaceRegistry) {
 	// No need to register interfaces for stream module
 	// we do not have any messages as we just wrap queries
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *runtime.ServeMux) {
 	// No need to register gRPC Gateway routes for stream module
 	// Users should connect directly to gRPC or WebSocket endpoints
 }
@@ -60,37 +61,37 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 type AppModule struct {
 	AppModuleBasic
 
-	keeper *keeper.Keeper
+	k *keeper.Keeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
-	keeper *keeper.Keeper,
+	k *keeper.Keeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
-		keeper:         keeper,
+		k:              k,
 	}
 }
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.k))
 }
 
 // ConsensusVersion implements ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
-func (am AppModule) IsOnePerModuleType() {}
+func (AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
-func (am AppModule) IsAppModule() {}
+func (AppModule) IsAppModule() {}
 
 // PreBlock is called before the beginning of each block
 func (am AppModule) PreBlock(ctx context.Context) (appmodule.ResponsePreBlock, error) {
-	err := am.keeper.PreBlocker(ctx)
+	err := am.k.PreBlocker(ctx)
 	if err != nil {
 		return nil, err
 	}

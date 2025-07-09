@@ -3,8 +3,9 @@ package keeper
 import (
 	"context"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
+
+	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
 // PreBlocker is called before the beginning of each block

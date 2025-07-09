@@ -22,12 +22,21 @@ var (
 
 // Subscription types
 const (
-	SubscriptionTypeBalance              = "balance"
-	SubscriptionTypeAllBalances          = "all_balances"
-	SubscriptionTypeDelegations          = "delegations"
-	SubscriptionTypeDelegation           = "delegation"
-	SubscriptionTypeUnbondingDelegations = "unbonding_delegations"
-	SubscriptionTypeUnbondingDelegation  = "unbonding_delegation"
+	SubscriptionTypeBalance                 = "balance"
+	SubscriptionTypeAllBalances             = "all_balances"
+	SubscriptionTypeSpendableBalances       = "spendable_balances"
+	SubscriptionTypeSpendableBalanceByDenom = "spendable_balance_by_denom"
+	SubscriptionTypeTotalSupply             = "total_supply"
+	SubscriptionTypeSupplyOf                = "supply_of"
+	SubscriptionTypeParams                  = "params"
+	SubscriptionTypeDenomsMetadata          = "denoms_metadata"
+	SubscriptionTypeDenomMetadata           = "denom_metadata"
+	SubscriptionTypeDenomOwners             = "denom_owners"
+	SubscriptionTypeSendEnabled             = "send_enabled"
+	SubscriptionTypeDelegations             = "delegations"
+	SubscriptionTypeDelegation              = "delegation"
+	SubscriptionTypeUnbondingDelegations    = "unbonding_delegations"
+	SubscriptionTypeUnbondingDelegation     = "unbonding_delegation"
 )
 
 // Event types

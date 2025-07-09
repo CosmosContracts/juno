@@ -6,9 +6,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"cosmossdk.io/log"
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
 	"github.com/google/uuid"
+
+	"cosmossdk.io/log"
+
+	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
 // ConnectionInfo tracks information about a WebSocket connection
@@ -188,11 +190,11 @@ func (cm *ConnectionManager) GetStats() (totalConnections int32, connectionDetai
 		connectionDetails[addr] = atomic.LoadInt32(&conn.subscriptions)
 	}
 
-	return
+	return totalConnections, connectionDetails
 }
 
 // CheckConnectionLimits is a helper that returns appropriate HTTP error if limits are exceeded
-func (cm *ConnectionManager) CheckConnectionLimits(w http.ResponseWriter, r *http.Request) bool {
+func (cm *ConnectionManager) CheckConnectionLimits(w http.ResponseWriter, _ *http.Request) bool {
 	// Check if we can accept new connections
 	if !cm.CanAcceptConnection() {
 		http.Error(w, "connection limit exceeded", http.StatusServiceUnavailable)

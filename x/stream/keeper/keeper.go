@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -9,6 +10,7 @@ import (
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -206,7 +208,7 @@ func (k *Keeper) GetQueryContext() (context.Context, error) {
 		select {
 		case <-storedCtx.Done():
 			k.logger.Warn("stored query context is cancelled")
-			return nil, fmt.Errorf("query context is no longer valid")
+			return nil, errors.New("query context is no longer valid")
 		default:
 			return storedCtx, nil
 		}
@@ -271,13 +273,14 @@ func (k *Keeper) SetStreamConfig(config StreamConfig) error {
 	}
 
 	// Update circuit breaker configuration
-	if config.CircuitBreakerEnabled && k.circuitBreaker == nil {
+	switch {
+	case config.CircuitBreakerEnabled && k.circuitBreaker == nil:
 		k.circuitBreaker = middleware.NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
-	} else if config.CircuitBreakerEnabled && k.circuitBreaker != nil {
+	case config.CircuitBreakerEnabled && k.circuitBreaker != nil:
 		// Update existing circuit breaker settings
 		k.circuitBreaker.UpdateThreshold(config.CircuitBreakerThreshold)
 		k.circuitBreaker.UpdateTimeout(config.CircuitBreakerTimeout)
-	} else if !config.CircuitBreakerEnabled {
+	case !config.CircuitBreakerEnabled:
 		// Disable circuit breaker
 		k.circuitBreaker = nil
 	}
@@ -307,9 +310,9 @@ func (k *Keeper) GetConfig() StreamConfig {
 }
 
 // ValidateDenom validates if a denom is valid for streaming
-func (k *Keeper) ValidateDenom(ctx context.Context, denom string) error {
+func (*Keeper) ValidateDenom(_ context.Context, denom string) error {
 	if denom == "" {
-		return fmt.Errorf("denom cannot be empty")
+		return errors.New("denom cannot be empty")
 	}
 
 	// Check if it's a valid denom format
@@ -317,17 +320,13 @@ func (k *Keeper) ValidateDenom(ctx context.Context, denom string) error {
 		return fmt.Errorf("invalid denom format: %w", err)
 	}
 
-	// Optionally check if the denom exists in bank module metadata
-	// This is a more strict validation but might be too restrictive
-	// as not all denoms have metadata
-
 	return nil
 }
 
 // GetCircuitBreakerMetrics returns circuit breaker metrics for monitoring
-func (k *Keeper) GetCircuitBreakerMetrics() map[string]interface{} {
+func (k *Keeper) GetCircuitBreakerMetrics() map[string]any {
 	if k.circuitBreaker == nil {
-		return map[string]interface{}{
+		return map[string]any{
 			"enabled": false,
 		}
 	}
@@ -345,25 +344,32 @@ func (k *Keeper) runCircuitBreakerCleanup() {
 	for {
 		select {
 		case <-ticker.C:
-			if k.circuitBreaker != nil && k.connectionManager != nil {
-				activeConnections := k.connectionManager.GetActiveConnections()
-				k.circuitBreaker.CleanupStaleConnections(activeConnections)
-
-				// Update metrics
-				metrics := k.circuitBreaker.GetMetrics()
-				if openCircuits, ok := metrics["open_circuits"].(int); ok {
-					if halfOpenCircuits, ok2 := metrics["half_open_circuits"].(int); ok2 {
-						if closedCircuits, ok3 := metrics["closed_circuits"].(int); ok3 {
-							types.UpdateCircuitBreakerMetrics(openCircuits, halfOpenCircuits, closedCircuits)
-						}
-					}
-				}
-
-				k.logger.Debug("circuit breaker cleanup completed", "active_connections", len(activeConnections))
-			}
+			k.performCircuitBreakerCleanup()
 		case <-k.appContext.Done():
 			k.logger.Info("stopping circuit breaker cleanup")
 			return
 		}
 	}
+}
+
+// performCircuitBreakerCleanup performs the actual cleanup and metrics update
+func (k *Keeper) performCircuitBreakerCleanup() {
+	if k.circuitBreaker == nil || k.connectionManager == nil {
+		return
+	}
+
+	activeConnections := k.connectionManager.GetActiveConnections()
+	k.circuitBreaker.CleanupStaleConnections(activeConnections)
+
+	// Update metrics
+	metrics := k.circuitBreaker.GetMetrics()
+	openCircuits, okOpen := metrics["open_circuits"].(int)
+	halfOpenCircuits, okHalf := metrics["half_open_circuits"].(int)
+	closedCircuits, okClosed := metrics["closed_circuits"].(int)
+
+	if okOpen && okHalf && okClosed {
+		types.UpdateCircuitBreakerMetrics(openCircuits, halfOpenCircuits, closedCircuits)
+	}
+
+	k.logger.Debug("circuit breaker cleanup completed", "active_connections", len(activeConnections))
 }

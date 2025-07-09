@@ -31,7 +31,7 @@ func NewSubscriptionRegistry(logger log.Logger) *SubscriptionRegistry {
 }
 
 // Subscribe adds a new subscription
-func (r *SubscriptionRegistry) Subscribe(key SubscriptionKey, ctx context.Context, sendCh chan<- any) *Subscriber {
+func (r *SubscriptionRegistry) Subscribe(ctx context.Context, key SubscriptionKey, sendCh chan<- any) *Subscriber {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -98,7 +98,7 @@ func (r *SubscriptionRegistry) FanOut(event StreamEvent, data any) {
 }
 
 // generateMatchingKeys generates all subscription keys that could match this event
-func (r *SubscriptionRegistry) generateMatchingKeys(event StreamEvent) []string {
+func (*SubscriptionRegistry) generateMatchingKeys(event StreamEvent) []string {
 	var keys []string
 
 	switch event.Module {

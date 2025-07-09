@@ -3,8 +3,9 @@ package types
 import (
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/telemetry"
 	"github.com/hashicorp/go-metrics"
+
+	"github.com/cosmos/cosmos-sdk/telemetry"
 )
 
 const (

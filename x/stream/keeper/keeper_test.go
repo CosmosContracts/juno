@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/suite"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -48,7 +49,7 @@ func (s *KeeperTestSuite) TestSubscriptionRegistry() {
 	// Create a subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeBalance, s.TestAccs[0].String(), "", "ujuno")
 	sendCh := make(chan any, 32)
-	subscriber := registry.Subscribe(subKey, ctx, sendCh)
+	subscriber := registry.Subscribe(ctx, subKey, sendCh)
 	s.Require().NotNil(subscriber)
 
 	// Create an event and fan out

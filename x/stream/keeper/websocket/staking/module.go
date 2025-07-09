@@ -4,9 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gorilla/mux"
+
+	"github.com/cosmos/cosmos-sdk/types/query"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/common"
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
@@ -15,8 +16,9 @@ import (
 // Module implements the staking WebSocket module
 type Module struct {
 	*common.ModuleHandler
-	keeper KeeperInterface
-	name   string
+	keeper           KeeperInterface
+	name             string
+	routeDefinitions []common.RouteDefinition
 }
 
 // NewModule creates a new staking module
@@ -26,13 +28,21 @@ func NewModule(keeper KeeperInterface, deps *common.HandlerDependencies) *Module
 		keeper:        keeper,
 		name:          "staking",
 	}
-	
+
 	// Register routes
 	m.RegisterRoute("delegations", m.handleDelegations)
 	m.RegisterRoute("delegation", m.handleDelegation)
 	m.RegisterRoute("unbonding_delegations", m.handleUnbondingDelegations)
 	m.RegisterRoute("unbonding_delegation", m.handleUnbondingDelegation)
-	
+
+	// Define route patterns for automatic registration
+	m.routeDefinitions = []common.RouteDefinition{
+		{Pattern: "/ws/subscribe/staking/delegations/{delegator}", Handler: m.handleDelegations},
+		{Pattern: "/ws/subscribe/staking/delegation/{delegator}/{validator}", Handler: m.handleDelegation},
+		{Pattern: "/ws/subscribe/staking/unbonding-delegations/{delegator}", Handler: m.handleUnbondingDelegations},
+		{Pattern: "/ws/subscribe/staking/unbonding-delegation/{delegator}/{validator}", Handler: m.handleUnbondingDelegation},
+	}
+
 	return m
 }
 
@@ -44,6 +54,11 @@ func (m *Module) Name() string {
 // Routes returns all routes for this module
 func (m *Module) Routes() map[string]common.RouteHandler {
 	return m.GetRoutes()
+}
+
+// RouteDefinitions returns all route definitions with full patterns
+func (m *Module) RouteDefinitions() []common.RouteDefinition {
+	return m.routeDefinitions
 }
 
 // handleDelegations handles delegations subscription requests
@@ -58,7 +73,6 @@ func (m *Module) handleDelegations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	delAddr := addrValidator.AccAddress()
 	qb := common.NewQueryBuilder(m.keeper, m.Logger)
 
 	params := common.StandardSubscriptionParams{
@@ -68,10 +82,45 @@ func (m *Module) handleDelegations(w http.ResponseWriter, r *http.Request) {
 			types.GenerateSubscriptionKey(types.SubscriptionTypeDelegations, delegatorAddress, "", ""),
 		),
 		InitialQuery: func(ctx context.Context) (any, error) {
-			return m.getDelegationResponses(ctx, delAddr), nil
+			req := &stakingtypes.QueryDelegatorDelegationsRequest{
+				DelegatorAddr: delegatorAddress,
+				Pagination: &query.PageRequest{
+					Limit: 1000,
+				},
+			}
+			resp, err := m.keeper.GetStakingQueryServer().DelegatorDelegations(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			// Convert to our response format
+			var responses []stakingtypes.DelegationResponse
+			for _, del := range resp.DelegationResponses {
+				responses = append(responses, stakingtypes.DelegationResponse{
+					Delegation: del.Delegation,
+					Balance:    del.Balance,
+				})
+			}
+			return responses, nil
 		},
 		UpdateQuery: func(ctx context.Context) any {
-			return m.getDelegationResponses(ctx, delAddr)
+			req := &stakingtypes.QueryDelegatorDelegationsRequest{
+				DelegatorAddr: delegatorAddress,
+				Pagination: &query.PageRequest{
+					Limit: 1000,
+				},
+			}
+			resp, err := m.keeper.GetStakingQueryServer().DelegatorDelegations(ctx, req)
+			if err != nil {
+				return nil
+			}
+			var responses []stakingtypes.DelegationResponse
+			for _, del := range resp.DelegationResponses {
+				responses = append(responses, stakingtypes.DelegationResponse{
+					Delegation: del.Delegation,
+					Balance:    del.Balance,
+				})
+			}
+			return responses
 		},
 	}
 
@@ -98,8 +147,6 @@ func (m *Module) handleDelegation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	delAddr := delAddrValidator.AccAddress()
-	valAddr := valAddrValidator.ValAddress()
 	qb := common.NewQueryBuilder(m.keeper, m.Logger)
 
 	params := common.StandardSubscriptionParams{
@@ -109,10 +156,32 @@ func (m *Module) handleDelegation(w http.ResponseWriter, r *http.Request) {
 			types.GenerateSubscriptionKey(types.SubscriptionTypeDelegation, delegatorAddress, validatorAddress, ""),
 		),
 		InitialQuery: func(ctx context.Context) (any, error) {
-			return m.getDelegationResponse(ctx, delAddr, valAddr), nil
+			req := &stakingtypes.QueryDelegationRequest{
+				DelegatorAddr: delegatorAddress,
+				ValidatorAddr: validatorAddress,
+			}
+			resp, err := m.keeper.GetStakingQueryServer().Delegation(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			if resp.DelegationResponse == nil {
+				return nil, nil
+			}
+			return resp.DelegationResponse, nil
 		},
 		UpdateQuery: func(ctx context.Context) any {
-			return m.getDelegationResponse(ctx, delAddr, valAddr)
+			req := &stakingtypes.QueryDelegationRequest{
+				DelegatorAddr: delegatorAddress,
+				ValidatorAddr: validatorAddress,
+			}
+			resp, err := m.keeper.GetStakingQueryServer().Delegation(ctx, req)
+			if err != nil {
+				return nil
+			}
+			if resp.DelegationResponse == nil {
+				return nil
+			}
+			return resp.DelegationResponse
 		},
 	}
 
@@ -132,7 +201,6 @@ func (m *Module) handleUnbondingDelegations(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	delAddr := addrValidator.AccAddress()
 	qb := common.NewQueryBuilder(m.keeper, m.Logger)
 
 	params := common.StandardSubscriptionParams{
@@ -142,18 +210,30 @@ func (m *Module) handleUnbondingDelegations(w http.ResponseWriter, r *http.Reque
 			types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegations, delegatorAddress, "", ""),
 		),
 		InitialQuery: func(ctx context.Context) (any, error) {
-			unbondingDelegations, err := m.keeper.GetStakingKeeper().GetAllUnbondingDelegations(ctx, delAddr)
-			if err != nil {
-				return []stakingtypes.UnbondingDelegation{}, nil
+			req := &stakingtypes.QueryDelegatorUnbondingDelegationsRequest{
+				DelegatorAddr: delegatorAddress,
+				Pagination: &query.PageRequest{
+					Limit: 1000,
+				},
 			}
-			return unbondingDelegations, nil
+			resp, err := m.keeper.GetStakingQueryServer().DelegatorUnbondingDelegations(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return resp.UnbondingResponses, nil
 		},
 		UpdateQuery: func(ctx context.Context) any {
-			unbondingDelegations, err := m.keeper.GetStakingKeeper().GetAllUnbondingDelegations(ctx, delAddr)
-			if err != nil {
-				return []stakingtypes.UnbondingDelegation{}
+			req := &stakingtypes.QueryDelegatorUnbondingDelegationsRequest{
+				DelegatorAddr: delegatorAddress,
+				Pagination: &query.PageRequest{
+					Limit: 1000,
+				},
 			}
-			return unbondingDelegations
+			resp, err := m.keeper.GetStakingQueryServer().DelegatorUnbondingDelegations(ctx, req)
+			if err != nil {
+				return nil
+			}
+			return resp.UnbondingResponses
 		},
 	}
 
@@ -180,8 +260,6 @@ func (m *Module) handleUnbondingDelegation(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	delAddr := delAddrValidator.AccAddress()
-	valAddr := valAddrValidator.ValAddress()
 	qb := common.NewQueryBuilder(m.keeper, m.Logger)
 
 	params := common.StandardSubscriptionParams{
@@ -191,79 +269,29 @@ func (m *Module) handleUnbondingDelegation(w http.ResponseWriter, r *http.Reques
 			types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegation, delegatorAddress, validatorAddress, ""),
 		),
 		InitialQuery: func(ctx context.Context) (any, error) {
-			return m.getUnbondingDelegationResponse(ctx, delAddr, valAddr), nil
+			req := &stakingtypes.QueryUnbondingDelegationRequest{
+				DelegatorAddr: delegatorAddress,
+				ValidatorAddr: validatorAddress,
+			}
+			resp, err := m.keeper.GetStakingQueryServer().UnbondingDelegation(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return resp.Unbond, nil
 		},
 		UpdateQuery: func(ctx context.Context) any {
-			return m.getUnbondingDelegationResponse(ctx, delAddr, valAddr)
+			req := &stakingtypes.QueryUnbondingDelegationRequest{
+				DelegatorAddr: delegatorAddress,
+				ValidatorAddr: validatorAddress,
+			}
+			resp, err := m.keeper.GetStakingQueryServer().UnbondingDelegation(ctx, req)
+			if err != nil {
+				return nil
+			}
+			return resp.Unbond
 		},
 	}
 
 	connParams := qb.BuildConnectionParams(w, params)
 	m.HandleStandardConnection(connParams)
-}
-
-// getDelegationResponses gets delegation responses for a delegator
-func (m *Module) getDelegationResponses(ctx context.Context, delAddr sdk.AccAddress) []stakingtypes.DelegationResponse {
-	stakingKeeper := m.keeper.GetStakingKeeper()
-	delegations, err := stakingKeeper.GetAllDelegatorDelegations(ctx, delAddr)
-	if err != nil {
-		return []stakingtypes.DelegationResponse{}
-	}
-
-	bondDenom, err := stakingKeeper.BondDenom(ctx)
-	if err != nil {
-		return []stakingtypes.DelegationResponse{}
-	}
-
-	var delegationResponses []stakingtypes.DelegationResponse
-	for _, delegation := range delegations {
-		valAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
-		if err != nil {
-			continue
-		}
-
-		validator, err := stakingKeeper.GetValidator(ctx, valAddr)
-		if err == nil {
-			delegationResponses = append(delegationResponses, stakingtypes.DelegationResponse{
-				Delegation: delegation,
-				Balance:    sdk.NewCoin(bondDenom, validator.TokensFromShares(delegation.Shares).TruncateInt()),
-			})
-		}
-	}
-	return delegationResponses
-}
-
-// getDelegationResponse gets a delegation response for a specific delegator-validator pair
-func (m *Module) getDelegationResponse(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) any {
-	stakingKeeper := m.keeper.GetStakingKeeper()
-	delegation, err := stakingKeeper.GetDelegation(ctx, delAddr, valAddr)
-
-	if err != nil {
-		return common.NotFoundResponse()
-	}
-
-	bondDenom, bondErr := stakingKeeper.BondDenom(ctx)
-	if bondErr != nil {
-		return common.NotFoundResponse()
-	}
-
-	validator, valErr := stakingKeeper.GetValidator(ctx, valAddr)
-	if valErr != nil {
-		return common.NotFoundResponse()
-	}
-
-	delegationResponse := stakingtypes.DelegationResponse{
-		Delegation: delegation,
-		Balance:    sdk.NewCoin(bondDenom, validator.TokensFromShares(delegation.Shares).TruncateInt()),
-	}
-	return common.FoundResponse("delegation", delegationResponse)
-}
-
-// getUnbondingDelegationResponse gets an unbonding delegation response for a specific delegator-validator pair
-func (m *Module) getUnbondingDelegationResponse(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) any {
-	unbondingDelegation, err := m.keeper.GetStakingKeeper().GetUnbondingDelegation(ctx, delAddr, valAddr)
-	if err != nil {
-		return common.NotFoundResponse()
-	}
-	return common.FoundResponse("unbonding_delegation", unbondingDelegation)
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"cosmossdk.io/log"
+
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
@@ -17,9 +18,6 @@ type Dispatcher struct {
 	stopOnce    sync.Once
 	stopped     chan struct{} // Signals when dispatcher has stopped
 	stoppedOnce sync.Once     // Ensures stopped channel is only closed once
-
-	// Backpressure metrics
-	droppedEvents uint64
 }
 
 // NewDispatcher creates a new event dispatcher

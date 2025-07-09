@@ -15,14 +15,14 @@ type Handler struct {
 }
 
 // NewHandler creates a new staking handler with legacy parameters (temporarily for compatibility)
-func NewHandler(keeper KeeperInterface, config *common.StreamConfig, logger common.Logger, connManager common.ConnectionManager, registry common.SubscriptionRegistry, circuitBreaker common.CircuitBreaker, appContext context.Context, upgrader *websocket.Upgrader) *Handler {
+func NewHandler(ctx context.Context, keeper KeeperInterface, config *common.StreamConfig, logger common.Logger, connManager common.ConnectionManager, registry common.SubscriptionRegistry, circuitBreaker common.CircuitBreaker, upgrader *websocket.Upgrader) *Handler {
 	deps := &common.HandlerDependencies{
 		Config:         config,
 		Logger:         logger,
 		ConnManager:    connManager,
 		Registry:       registry,
 		CircuitBreaker: circuitBreaker,
-		AppContext:     appContext,
+		AppContext:     ctx,
 		Upgrader:       upgrader,
 	}
 	return NewHandlerWithDeps(keeper, deps)
@@ -34,7 +34,6 @@ func NewHandlerWithDeps(keeper KeeperInterface, deps *common.HandlerDependencies
 		module: NewModule(keeper, deps),
 	}
 }
-
 
 // HandleDelegationsSubscription handles delegations subscription WebSocket connections
 func (h *Handler) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Request) {

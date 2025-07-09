@@ -23,6 +23,7 @@ type Handler struct {
 
 // NewHandler creates a new WebSocket handler
 func NewHandler(
+	ctx context.Context,
 	bankKeeper bank.KeeperInterface,
 	stakingKeeper staking.KeeperInterface,
 	config *common.StreamConfig,
@@ -30,18 +31,17 @@ func NewHandler(
 	connManager common.ConnectionManager,
 	registry common.SubscriptionRegistry,
 	circuitBreaker common.CircuitBreaker,
-	appContext context.Context,
 	allowAllOrigins bool,
 ) *Handler {
-	deps := common.NewHandlerDependencies(config, logger, connManager, registry, circuitBreaker, appContext, allowAllOrigins)
+	deps := common.NewHandlerDependencies(ctx, config, logger, connManager, registry, circuitBreaker, allowAllOrigins)
 
 	// Create module registry
 	moduleRegistry := common.NewModuleRegistry()
-	
+
 	// Register modules
 	bankModule := bank.NewModule(bankKeeper, deps)
 	stakingModule := staking.NewModule(stakingKeeper, deps)
-	
+
 	if err := moduleRegistry.RegisterModule(bankModule); err != nil {
 		logger.Error("failed to register bank module", "error", err)
 	}
@@ -60,6 +60,7 @@ func NewHandler(
 }
 
 // Bank handlers
+
 func (h *Handler) HandleBalanceSubscription(w http.ResponseWriter, r *http.Request) {
 	h.bankHandler.HandleBalanceSubscription(w, r)
 }
@@ -68,7 +69,44 @@ func (h *Handler) HandleAllBalancesSubscription(w http.ResponseWriter, r *http.R
 	h.bankHandler.HandleAllBalancesSubscription(w, r)
 }
 
+func (h *Handler) HandleSpendableBalancesSubscription(w http.ResponseWriter, r *http.Request) {
+	h.bankHandler.HandleSpendableBalancesSubscription(w, r)
+}
+
+func (h *Handler) HandleSpendableBalanceByDenomSubscription(w http.ResponseWriter, r *http.Request) {
+	h.bankHandler.HandleSpendableBalanceByDenomSubscription(w, r)
+}
+
+func (h *Handler) HandleTotalSupplySubscription(w http.ResponseWriter, r *http.Request) {
+	h.bankHandler.HandleTotalSupplySubscription(w, r)
+}
+
+func (h *Handler) HandleSupplyOfSubscription(w http.ResponseWriter, r *http.Request) {
+	h.bankHandler.HandleSupplyOfSubscription(w, r)
+}
+
+func (h *Handler) HandleParamsSubscription(w http.ResponseWriter, r *http.Request) {
+	h.bankHandler.HandleParamsSubscription(w, r)
+}
+
+func (h *Handler) HandleDenomsMetadataSubscription(w http.ResponseWriter, r *http.Request) {
+	h.bankHandler.HandleDenomsMetadataSubscription(w, r)
+}
+
+func (h *Handler) HandleDenomMetadataSubscription(w http.ResponseWriter, r *http.Request) {
+	h.bankHandler.HandleDenomMetadataSubscription(w, r)
+}
+
+func (h *Handler) HandleDenomOwnersSubscription(w http.ResponseWriter, r *http.Request) {
+	h.bankHandler.HandleDenomOwnersSubscription(w, r)
+}
+
+func (h *Handler) HandleSendEnabledSubscription(w http.ResponseWriter, r *http.Request) {
+	h.bankHandler.HandleSendEnabledSubscription(w, r)
+}
+
 // Staking handlers
+
 func (h *Handler) HandleDelegationsSubscription(w http.ResponseWriter, r *http.Request) {
 	h.stakingHandler.HandleDelegationsSubscription(w, r)
 }
@@ -104,4 +142,20 @@ func (h *Handler) ListRoutes() map[string]string {
 		return h.registry.ListRoutes()
 	}
 	return map[string]string{}
+}
+
+// RegisterRoutes registers all WebSocket routes with the given router
+// The router should have a Handle method that accepts a pattern and handler
+func (h *Handler) RegisterRoutes(registerFunc func(pattern string, handler http.Handler)) {
+	if h.registry == nil {
+		return
+	}
+
+	// Get all route definitions from the registry
+	routeDefinitions := h.registry.GetAllRouteDefinitions()
+
+	// Register each route with the router
+	for _, routeDef := range routeDefinitions {
+		registerFunc(routeDef.Pattern, http.HandlerFunc(routeDef.Handler))
+	}
 }

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,7 +18,7 @@ type AddressValidator struct {
 func ValidateAccAddress(address string) *AddressValidator {
 	v := &AddressValidator{}
 	if address == "" {
-		v.error = fmt.Errorf("address cannot be empty")
+		v.error = errors.New("address cannot be empty")
 		return v
 	}
 
@@ -34,7 +35,7 @@ func ValidateAccAddress(address string) *AddressValidator {
 func ValidateValAddress(address string) *AddressValidator {
 	v := &AddressValidator{}
 	if address == "" {
-		v.error = fmt.Errorf("validator address cannot be empty")
+		v.error = errors.New("validator address cannot be empty")
 		return v
 	}
 

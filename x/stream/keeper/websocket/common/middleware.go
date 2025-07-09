@@ -54,7 +54,9 @@ func (m *QueryContextMiddleware) WithQueryContextAndError(fn func(context.Contex
 
 // SendErrorResponse sends an error response over websocket
 func SendErrorResponse(conn *websocket.Conn, message string) error {
-	conn.SetWriteDeadline(time.Now().Add(WriteWait))
+	if err := conn.SetWriteDeadline(time.Now().Add(WriteWait)); err != nil {
+		return err
+	}
 	return conn.WriteJSON(ErrorResponse(message))
 }
 
@@ -100,5 +102,5 @@ func (h *QueryHandler) WrapInitialDataFunc(fn func(context.Context) (any, error)
 
 // HandleStandardConnection overrides BaseHandler to provide proper QueryContextGetter
 func (h *QueryHandler) HandleStandardConnection(params ConnectionParams) {
-	h.BaseHandler.HandleStandardConnectionWithProvider(params, h)
+	_ = h.HandleStandardConnectionWithProvider(params, h)
 }

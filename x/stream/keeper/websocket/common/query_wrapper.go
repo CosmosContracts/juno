@@ -39,7 +39,7 @@ func (qb *QueryBuilder) WrapQueryWithError(queryFunc func(context.Context) (any,
 			qb.logger.Error("failed to get query context", "error", err)
 			return ErrorResponse("service temporarily unavailable")
 		}
-		
+
 		data, err := queryFunc(ctx)
 		if err != nil {
 			qb.logger.Error("query function error", "error", err)
@@ -70,9 +70,9 @@ func (qb *QueryBuilder) BuildConnectionParams(w http.ResponseWriter, params Stan
 	}
 }
 
-// SimpleHandler creates a standard WebSocket handler with minimal boilerplate
+// CreateSimpleHandler creates a standard WebSocket handler with minimal boilerplate
 func CreateSimpleHandler(handler *ModuleHandler, params StandardSubscriptionParams) RouteHandler {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		qb := NewQueryBuilder(handler, handler.Logger)
 		connParams := qb.BuildConnectionParams(w, params)
 		handler.HandleStandardConnection(connParams)

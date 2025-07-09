@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,10 +31,10 @@ func (q queryServer) StreamBalance(req *types.StreamBalanceRequest, stream types
 
 	// Validate request
 	if req.Address == "" {
-		return fmt.Errorf("address cannot be empty")
+		return errors.New("address cannot be empty")
 	}
 	if req.Denom == "" {
-		return fmt.Errorf("denom cannot be empty")
+		return errors.New("denom cannot be empty")
 	}
 
 	// Validate address format
@@ -65,7 +66,7 @@ func (q queryServer) StreamBalance(req *types.StreamBalanceRequest, stream types
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeBalance, req.Address, "", req.Denom)
 	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
-	subscriber := q.k.registry.Subscribe(subKey, cancelCtx, sendCh)
+	subscriber := q.k.registry.Subscribe(cancelCtx, subKey, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
 	// Stream updates
@@ -113,7 +114,7 @@ func (q queryServer) StreamAllBalances(req *types.StreamAllBalancesRequest, stre
 
 	// Validate request
 	if req.Address == "" {
-		return fmt.Errorf("address cannot be empty")
+		return errors.New("address cannot be empty")
 	}
 
 	// Validate address format
@@ -135,7 +136,7 @@ func (q queryServer) StreamAllBalances(req *types.StreamAllBalancesRequest, stre
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeAllBalances, req.Address, "", "")
 	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
-	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
+	subscriber := q.k.registry.Subscribe(streamCtx, subKey, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
 	// Stream updates
@@ -172,7 +173,7 @@ func (q queryServer) StreamDelegations(req *types.StreamDelegationsRequest, stre
 
 	// Validate request
 	if req.DelegatorAddress == "" {
-		return fmt.Errorf("delegator address cannot be empty")
+		return errors.New("delegator address cannot be empty")
 	}
 
 	// Validate address format
@@ -216,7 +217,7 @@ func (q queryServer) StreamDelegations(req *types.StreamDelegationsRequest, stre
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegations, req.DelegatorAddress, "", "")
 	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
-	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
+	subscriber := q.k.registry.Subscribe(streamCtx, subKey, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
 	// Stream updates
@@ -271,10 +272,10 @@ func (q queryServer) StreamDelegation(req *types.StreamDelegationRequest, stream
 
 	// Validate request
 	if req.DelegatorAddress == "" {
-		return fmt.Errorf("delegator address cannot be empty")
+		return errors.New("delegator address cannot be empty")
 	}
 	if req.ValidatorAddress == "" {
-		return fmt.Errorf("validator address cannot be empty")
+		return errors.New("validator address cannot be empty")
 	}
 
 	// Validate addresses
@@ -317,7 +318,7 @@ func (q queryServer) StreamDelegation(req *types.StreamDelegationRequest, stream
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeDelegation, req.DelegatorAddress, req.ValidatorAddress, "")
 	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
-	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
+	subscriber := q.k.registry.Subscribe(streamCtx, subKey, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
 	// Stream updates
@@ -367,7 +368,7 @@ func (q queryServer) StreamUnbondingDelegations(req *types.StreamUnbondingDelega
 
 	// Validate request
 	if req.DelegatorAddress == "" {
-		return fmt.Errorf("delegator address cannot be empty")
+		return errors.New("delegator address cannot be empty")
 	}
 
 	// Validate address format
@@ -395,7 +396,7 @@ func (q queryServer) StreamUnbondingDelegations(req *types.StreamUnbondingDelega
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegations, req.DelegatorAddress, "", "")
 	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
-	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
+	subscriber := q.k.registry.Subscribe(streamCtx, subKey, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
 	// Stream updates
@@ -439,10 +440,10 @@ func (q queryServer) StreamUnbondingDelegation(req *types.StreamUnbondingDelegat
 
 	// Validate request
 	if req.DelegatorAddress == "" {
-		return fmt.Errorf("delegator address cannot be empty")
+		return errors.New("delegator address cannot be empty")
 	}
 	if req.ValidatorAddress == "" {
-		return fmt.Errorf("validator address cannot be empty")
+		return errors.New("validator address cannot be empty")
 	}
 
 	// Validate addresses
@@ -472,7 +473,7 @@ func (q queryServer) StreamUnbondingDelegation(req *types.StreamUnbondingDelegat
 	// Create subscription
 	subKey := types.GenerateSubscriptionKey(types.SubscriptionTypeUnbondingDelegation, req.DelegatorAddress, req.ValidatorAddress, "")
 	sendCh := make(chan any, q.k.config.SubscriptionBufferSize)
-	subscriber := q.k.registry.Subscribe(subKey, streamCtx, sendCh)
+	subscriber := q.k.registry.Subscribe(streamCtx, subKey, sendCh)
 	defer q.k.registry.Unsubscribe(subscriber)
 
 	// Stream updates

@@ -19,12 +19,12 @@ type HandlerDependencies struct {
 
 // NewHandlerDependencies creates a new HandlerDependencies with all required components
 func NewHandlerDependencies(
+	appContext context.Context,
 	config *StreamConfig,
 	logger Logger,
 	connManager ConnectionManager,
 	registry SubscriptionRegistry,
 	circuitBreaker CircuitBreaker,
-	appContext context.Context,
 	allowAllOrigins bool,
 ) *HandlerDependencies {
 	return &HandlerDependencies{
