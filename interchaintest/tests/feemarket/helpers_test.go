@@ -157,7 +157,6 @@ func (s *FeemarketTestSuite) createNetworkCongestion(
 				gasPerTransaction,
 				messagesPerTransaction,
 			)
-
 			if err != nil {
 				errorsMu.Lock()
 				roundErrors = append(roundErrors,

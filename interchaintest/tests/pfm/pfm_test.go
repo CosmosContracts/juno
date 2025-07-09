@@ -61,7 +61,8 @@ func TestPfmTestSuite(t *testing.T) {
 				Enabled:             false,
 				DistributeFees:      false,
 			},
-		}}
+		},
+	}
 
 	// Create separate configs for each chain
 	config1 := e2esuite.DefaultConfig

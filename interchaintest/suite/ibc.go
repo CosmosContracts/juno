@@ -44,7 +44,6 @@ func (s *E2ETestSuite) SendIBCTransfer(
 		command = append(command, "--memo", options.Memo)
 	}
 	txHash, err := s.ExecTx(chain, keyName, false, false, command...)
-
 	if err != nil {
 		return tx, fmt.Errorf("send ibc transfer: %w", err)
 	}

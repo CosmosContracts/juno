@@ -181,10 +181,10 @@ func (s *KeeperTestSuite) TestCreateDenom() {
 				s.Require().True(preCreateBalance.Sub(postCreateBalance...).Equal(denomCreationFee))
 
 				// Make sure that the admin is set correctly
-				queryRes, err := s.queryClient.DenomAuthorityMetadata(s.Ctx.Context(), &types.QueryDenomAuthorityMetadataRequest{
+				queryRes, denomErr := s.queryClient.DenomAuthorityMetadata(s.Ctx.Context(), &types.QueryDenomAuthorityMetadataRequest{
 					Denom: res.GetNewTokenDenom(),
 				})
-				s.Require().NoError(err)
+				s.Require().NoError(denomErr)
 				s.Require().Equal(s.TestAccs[0].String(), queryRes.AuthorityMetadata.Admin)
 
 				// Make sure that the denom metadata is initialized correctly
