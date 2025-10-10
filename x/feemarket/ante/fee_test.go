@@ -3,14 +3,16 @@ package ante_test
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v30/testutil"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	_ "github.com/cosmos/cosmos-sdk/x/auth"
 
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	_ "github.com/cosmos/cosmos-sdk/x/auth"
+
+	"github.com/CosmosContracts/juno/v30/testutil"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )
 
 func (s *AnteTestSuite) TestAnteHandle() {
@@ -53,7 +55,7 @@ func (s *AnteTestSuite) TestAnteHandle() {
 			},
 			Malleate: func(s *AnteTestSuite) testutil.TestCaseArgs {
 				return testutil.TestCaseArgs{
-					Msgs:      []sdk.Msg{NewTestMsg(s.T(), s.TestAccs[0])},
+					Msgs:      []sdk.Msg{NewTestMsg(s.TestAccs[0])},
 					GasLimit:  0,
 					FeeAmount: validFee,
 				}
@@ -124,7 +126,6 @@ func (s *AnteTestSuite) TestAnteHandle() {
 				Mock:     false,
 			},
 			Malleate: func(s *AnteTestSuite) testutil.TestCaseArgs {
-
 				s.FundAcc(s.TestAccs[0], validFee)
 
 				return testutil.TestCaseArgs{

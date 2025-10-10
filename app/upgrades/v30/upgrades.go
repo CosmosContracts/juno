@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
+	log "cosmossdk.io/log"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
-	log "cosmossdk.io/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -33,6 +33,9 @@ func CreateV30UpgradeHandler(
 		logger.Info(fmt.Sprintf("v30: post migration check: %v", versionMap))
 
 		err = configureFeemarketParams(ctx, k, logger)
+		if err != nil {
+			return nil, err
+		}
 
 		return versionMap, nil
 	}

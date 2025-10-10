@@ -3,25 +3,25 @@ package ante_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	testdata "github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 
 	"github.com/CosmosContracts/juno/v30/app/decorators"
 	"github.com/CosmosContracts/juno/v30/testutil"
 	keeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	feemarketpost "github.com/CosmosContracts/juno/v30/x/feemarket/post"
 	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	testdata "github.com/cosmos/cosmos-sdk/testutil/testdata"
 )
 
 type AnteTestSuite struct {
@@ -73,7 +73,7 @@ func (s *AnteTestSuite) SetupTest() {
 			s.App.AppKeepers.BankKeeper,
 			s.App.AppKeepers.FeeGrantKeeper,
 			"ujuno",
-			ante.NewDeductFeeDecorator(
+			authante.NewDeductFeeDecorator(
 				s.App.AppKeepers.AccountKeeper,
 				s.App.AppKeepers.BankKeeper,
 				s.App.AppKeepers.FeeGrantKeeper,
@@ -101,7 +101,7 @@ func (s *AnteTestSuite) RunTestCase(t *testing.T, tc AnteTestCase, args testutil
 
 	// Theoretically speaking, ante handler unit tests should only test
 	// ante handlers, but here we also test the tx creation process.
-	tx, txErr := s.CreateTestTx(args.Privs, args.AccNums, args.AccSeqs, args.ChainID)
+	txTest, txErr := s.CreateTestTx(args.Privs, args.AccNums, args.AccSeqs, args.ChainID)
 
 	var (
 		newCtx  sdk.Context
@@ -113,7 +113,7 @@ func (s *AnteTestSuite) RunTestCase(t *testing.T, tc AnteTestCase, args testutil
 	s.Ctx = s.Ctx.WithGasMeter(storetypes.NewGasMeter(NewTestGasLimit()))
 
 	if tc.RunAnte {
-		newCtx, anteErr = s.AnteHandler(s.Ctx, tx, tc.Simulate)
+		newCtx, anteErr = s.AnteHandler(s.Ctx, txTest, tc.Simulate)
 	}
 
 	// perform mid-tx state update if configured
@@ -122,7 +122,7 @@ func (s *AnteTestSuite) RunTestCase(t *testing.T, tc AnteTestCase, args testutil
 	}
 
 	if tc.RunPost && anteErr == nil {
-		newCtx, postErr = s.PostHandler(s.Ctx, tx, tc.Simulate, true)
+		newCtx, postErr = s.PostHandler(s.Ctx, txTest, tc.Simulate, true)
 	}
 
 	if tc.ExpPass {
@@ -136,7 +136,6 @@ func (s *AnteTestSuite) RunTestCase(t *testing.T, tc AnteTestCase, args testutil
 			consumedGas := newCtx.GasMeter().GasConsumed()
 			require.Equal(t, tc.ExpectConsumedGas, consumedGas)
 		}
-
 	} else {
 		switch {
 		case txErr != nil:
@@ -218,7 +217,7 @@ func NewTestGasLimit() uint64 {
 }
 
 // NewTestMsg creates a message for testing with the given signers.
-func NewTestMsg(t *testing.T, addrs ...sdk.AccAddress) *testdata.TestMsg {
+func NewTestMsg(addrs ...sdk.AccAddress) *testdata.TestMsg {
 	var accAddresses []string
 
 	for _, addr := range addrs {

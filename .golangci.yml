@@ -23,6 +23,11 @@ linters:
     - unparam
     - revive
   settings:
+    staticcheck:
+      checks:
+        - "all"
+        - "-SA4006" # Disable shadow checking
+        - "-ST1000" # Disable required package comment
     revive:
       enable-all-rules: true
       rules:
@@ -71,7 +76,6 @@ linters:
     govet:
       disable:
         - printf
-        - shadow
   exclusions:
     paths:
       - ".*.pb.go"

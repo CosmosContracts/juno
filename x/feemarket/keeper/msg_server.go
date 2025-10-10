@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -21,18 +21,18 @@ func NewMsgServer(k *Keeper) types.MsgServer {
 	return &MsgServer{k}
 }
 
-// Params defines a method that updates the module's parameters. The signer of the message must
+// UpdateParams defines a method that updates the module's parameters. The signer of the message must
 // be the module authority.
 func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if msg.Authority != ms.k.GetAuthority() {
-		return nil, fmt.Errorf("invalid authority to execute message")
+		return nil, errors.New("invalid authority to execute message")
 	}
 
 	gotParams, err := ms.k.GetParams(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error getting params: %w", err)
+		return nil, errors.New(err.Error())
 	}
 
 	// if going from disabled -> enabled, set enabled height
@@ -42,12 +42,12 @@ func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 
 	params := msg.Params
 	if err := ms.k.SetParams(ctx, params); err != nil {
-		return nil, fmt.Errorf("error setting params: %w", err)
+		return nil, errors.New(err.Error())
 	}
 
 	newState := types.NewState(params.Window, params.MinBaseGasPrice, params.MinLearningRate)
 	if err := ms.k.SetState(ctx, newState); err != nil {
-		return nil, fmt.Errorf("error setting state: %w", err)
+		return nil, errors.New(err.Error())
 	}
 
 	return &types.MsgUpdateParamsResponse{}, nil

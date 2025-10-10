@@ -4,11 +4,14 @@ import (
 	"math"
 	"testing"
 
-	sdkmath "cosmossdk.io/math"
-	"github.com/CosmosContracts/juno/v30/app/decorators"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"pgregory.net/rapid"
+
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v30/app/decorators"
 )
 
 type input struct {

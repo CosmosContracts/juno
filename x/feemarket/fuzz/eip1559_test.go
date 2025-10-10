@@ -3,9 +3,10 @@ package fuzz_test
 import (
 	"testing"
 
-	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 	"pgregory.net/rapid"
+
+	"cosmossdk.io/math"
 
 	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )

@@ -7,6 +7,7 @@ import (
 
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/feegrant"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -197,19 +198,19 @@ func genTxWithFeeGranter(gen client.TxConfig, msgs []sdk.Msg, feeAmt sdk.Coins, 
 		}
 	}
 
-	tx := gen.NewTxBuilder()
-	err := tx.SetMsgs(msgs...)
+	testTx := gen.NewTxBuilder()
+	err := testTx.SetMsgs(msgs...)
 	if err != nil {
 		return nil, err
 	}
-	err = tx.SetSignatures(sigs...)
+	err = testTx.SetSignatures(sigs...)
 	if err != nil {
 		return nil, err
 	}
-	tx.SetMemo(memo)
-	tx.SetFeeAmount(feeAmt)
-	tx.SetGasLimit(gas)
-	tx.SetFeeGranter(feeGranter)
+	testTx.SetMemo(memo)
+	testTx.SetFeeAmount(feeAmt)
+	testTx.SetGasLimit(gas)
+	testTx.SetFeeGranter(feeGranter)
 
 	// 2nd round: once all signer infos are set, every signer can sign.
 	for i, p := range priv {
@@ -220,7 +221,7 @@ func genTxWithFeeGranter(gen client.TxConfig, msgs []sdk.Msg, feeAmt sdk.Coins, 
 			PubKey:        p.PubKey(),
 		}
 		signBytes, err := authsign.GetSignBytesAdapter(
-			context.Background(), gen.SignModeHandler(), signMode, signerData, tx.GetTx())
+			context.Background(), gen.SignModeHandler(), signMode, signerData, testTx.GetTx())
 		if err != nil {
 			panic(err)
 		}
@@ -229,11 +230,11 @@ func genTxWithFeeGranter(gen client.TxConfig, msgs []sdk.Msg, feeAmt sdk.Coins, 
 			panic(err)
 		}
 		sigs[i].Data.(*signing.SingleSignatureData).Signature = sig
-		err = tx.SetSignatures(sigs...)
+		err = testTx.SetSignatures(sigs...)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	return tx.GetTx(), nil
+	return testTx.GetTx(), nil
 }

@@ -11,7 +11,7 @@ import (
 
 	corestoretypes "cosmossdk.io/core/store"
 	errorsmod "cosmossdk.io/errors"
-	feegrantKeeper "cosmossdk.io/x/feegrant/keeper"
+	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -27,8 +27,7 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
 )
 
-// Lower back to 1 mil after https://github.com/cosmos/relayer/issues/1255
-const maxBypassMinFeeMsgGasUsage = 2_000_000
+// TODO: readd maxBypassMinFeeMsgGasUsage, gone because of Globalfee removal
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
 // channel keeper and a BankKeeper with an added method for fee sharing.
@@ -39,7 +38,7 @@ type HandlerOptions struct {
 	AccountKeeper  authkeeper.AccountKeeper
 	BankKeeper     bankkeeper.Keeper
 	StakingKeeper  stakingkeeper.Keeper
-	FeegrantKeeper feegrantKeeper.Keeper
+	FeegrantKeeper feegrantkeeper.Keeper
 	BondDenom      string
 
 	// ibc

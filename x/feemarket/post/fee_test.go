@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
-	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -58,7 +59,7 @@ func (s *PostTestSuite) RunTestCase(t *testing.T, tc PostTestCase, args testutil
 	// Theoretically speaking, ante handler unit tests should only test
 	// ante handlers, but here we sometimes also test the tx creation
 	// process.
-	tx, txErr := s.CreateTestTx(args.Privs, args.AccNums, args.AccSeqs, args.ChainID)
+	testTx, txErr := s.CreateTestTx(args.Privs, args.AccNums, args.AccSeqs, args.ChainID)
 
 	var (
 		newCtx  sdk.Context
@@ -70,7 +71,7 @@ func (s *PostTestSuite) RunTestCase(t *testing.T, tc PostTestCase, args testutil
 	s.Ctx = s.Ctx.WithGasMeter(storetypes.NewGasMeter(NewTestGasLimit()))
 
 	if tc.RunAnte {
-		newCtx, anteErr = s.AnteHandler(s.Ctx, tx, tc.Simulate)
+		newCtx, anteErr = s.AnteHandler(s.Ctx, testTx, tc.Simulate)
 	}
 
 	// perform mid-tx state update if configured
@@ -79,7 +80,7 @@ func (s *PostTestSuite) RunTestCase(t *testing.T, tc PostTestCase, args testutil
 	}
 
 	if tc.RunPost && anteErr == nil {
-		newCtx, postErr = s.PostHandler(s.Ctx, tx, tc.Simulate, true)
+		newCtx, postErr = s.PostHandler(s.Ctx, testTx, tc.Simulate, true)
 	}
 
 	if tc.ExpPass {
@@ -93,7 +94,6 @@ func (s *PostTestSuite) RunTestCase(t *testing.T, tc PostTestCase, args testutil
 			consumedGas := newCtx.GasMeter().GasConsumed()
 			require.Equal(t, tc.ExpectConsumedGas, consumedGas)
 		}
-
 	} else {
 		switch {
 		case txErr != nil:

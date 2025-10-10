@@ -16,7 +16,6 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 
-	storetypes "cosmossdk.io/store/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmos "github.com/cometbft/cometbft/libs/os"
@@ -33,6 +32,7 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/tx/signing"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -281,7 +281,7 @@ func New(
 	// Add listeners to the store
 	app.BaseApp.CommitMultiStore().AddListeners(storeKeys)
 
-	app.BaseApp.SetStreamingManager(storetypes.StreamingManager{
+	app.SetStreamingManager(storetypes.StreamingManager{
 		ABCIListeners: []storetypes.ABCIListener{streamListener},
 		StopNodeOnErr: false,
 	})
@@ -399,7 +399,7 @@ func New(
 func (app *App) setupStreamKeeper(homePath string) {
 	// Try to load config.toml
 	configPath := filepath.Join(homePath, "config", "config.toml")
-	
+
 	// Ensure stream config exists in config.toml
 	if err := ensureStreamConfigExists(configPath); err != nil {
 		app.Logger().Debug("failed to ensure stream config exists", "error", err)
@@ -444,7 +444,6 @@ func (app *App) setupStreamKeeper(homePath string) {
 func ensureStreamConfigExists(configPath string) error {
 	// Check if config.toml exists
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		// Config doesn't exist yet
 		return nil
 	}
 
@@ -456,7 +455,6 @@ func ensureStreamConfigExists(configPath string) error {
 
 	// Check if stream config already exists
 	if strings.Contains(string(content), "[stream]") {
-		// Stream config already exists
 		return nil
 	}
 
@@ -499,7 +497,7 @@ circuit_breaker_timeout = "30s"
 `
 
 	newContent := string(content) + streamConfig
-	return os.WriteFile(configPath, []byte(newContent), 0644)
+	return os.WriteFile(configPath, []byte(newContent), 0o600)
 }
 
 func GetDefaultBypassFeeMessages() []string {

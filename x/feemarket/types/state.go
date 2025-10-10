@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	fmt "fmt"
 
 	"cosmossdk.io/math"
@@ -157,15 +158,15 @@ func (s *State) GetAverageUtilization(params Params) math.LegacyDec {
 // ValidateBasic performs basic validation on the state.
 func (s *State) ValidateBasic() error {
 	if s.Window == nil {
-		return fmt.Errorf("block utilization window cannot be nil or empty")
+		return errors.New("block utilization window cannot be nil or empty")
 	}
 
 	if s.BaseGasPrice.IsNil() || s.BaseGasPrice.LTE(math.LegacyZeroDec()) {
-		return fmt.Errorf("base gas price must be positive")
+		return errors.New("base gas price must be positive")
 	}
 
 	if s.LearningRate.IsNil() || s.LearningRate.LTE(math.LegacyZeroDec()) {
-		return fmt.Errorf("learning rate must be positive")
+		return errors.New("learning rate must be positive")
 	}
 
 	return nil

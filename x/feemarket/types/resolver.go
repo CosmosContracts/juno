@@ -1,7 +1,7 @@
 package types
 
 import (
-	"fmt"
+	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -19,7 +19,7 @@ type DenomResolver interface {
 type TestDenomResolver struct{}
 
 // ConvertToDenom returns "coin.Amount denom" for all coins that are not the denom.
-func (r *TestDenomResolver) ConvertToDenom(_ sdk.Context, coin sdk.DecCoin, denom string) (sdk.DecCoin, error) {
+func (*TestDenomResolver) ConvertToDenom(_ sdk.Context, coin sdk.DecCoin, denom string) (sdk.DecCoin, error) {
 	if coin.Denom == denom {
 		return coin, nil
 	}
@@ -27,7 +27,7 @@ func (r *TestDenomResolver) ConvertToDenom(_ sdk.Context, coin sdk.DecCoin, deno
 	return sdk.NewDecCoinFromDec(denom, coin.Amount), nil
 }
 
-func (r *TestDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {
+func (*TestDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {
 	return []string{}, nil
 }
 
@@ -36,14 +36,14 @@ func (r *TestDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {
 type ErrorDenomResolver struct{}
 
 // ConvertToDenom returns an error for all coins that are not the denom.
-func (r *ErrorDenomResolver) ConvertToDenom(_ sdk.Context, coin sdk.DecCoin, denom string) (sdk.DecCoin, error) {
+func (*ErrorDenomResolver) ConvertToDenom(_ sdk.Context, coin sdk.DecCoin, denom string) (sdk.DecCoin, error) {
 	if coin.Denom == denom {
 		return coin, nil
 	}
 
-	return sdk.DecCoin{}, fmt.Errorf("error resolving denom")
+	return sdk.DecCoin{}, errors.New("error resolving denom")
 }
 
-func (r *ErrorDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {
+func (*ErrorDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {
 	return []string{}, nil
 }

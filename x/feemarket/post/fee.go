@@ -3,11 +3,9 @@ package post
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
-	errorsmod "cosmossdk.io/errors"
-
-	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -15,6 +13,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"github.com/CosmosContracts/juno/v30/app/decorators"
+	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )
 
