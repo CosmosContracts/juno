@@ -18,6 +18,7 @@ var (
 // structs, and pointers.
 func Fill(x any) any {
 	v := reflect.Indirect(reflect.ValueOf(x))
+	//nolint:exhaustive
 	switch v.Kind() {
 	case reflect.Slice:
 		for i := range v.Len() {
@@ -32,6 +33,7 @@ func Fill(x any) any {
 			if !f.CanSet() {
 				continue
 			}
+			//nolint:exhaustive
 			switch f.Kind() {
 			case reflect.Slice:
 				f.Set(reflect.MakeSlice(f.Type(), 0, 0))
@@ -50,8 +52,12 @@ func Fill(x any) any {
 					s := Fill(objPt)
 					f.Set(reflect.ValueOf(s))
 				}
+			default:
+				// no-op default to satisfy linter
 			}
 		}
+	default:
+		// no-op default to satisfy linter
 	}
 	return reflect.Indirect(v).Interface()
 }

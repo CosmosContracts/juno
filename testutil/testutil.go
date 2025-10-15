@@ -6,7 +6,7 @@ import (
 	"time"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	s "github.com/stretchr/testify/suite"
+	suite "github.com/stretchr/testify/suite"
 
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
@@ -22,7 +22,7 @@ import (
 )
 
 type KeeperTestHelper struct {
-	s.Suite
+	suite.Suite
 
 	// defaults to false,
 	// set to true if any method that potentially alters baseapp/abci is used.
@@ -52,51 +52,50 @@ func init() {
 
 // Setup sets up basic environment for suite (App, Ctx, and test accounts)
 // preserves the caching enabled/disabled state.
-func (suite *KeeperTestHelper) Setup() {
-	sdk.DefaultBondDenom = "ujuno"
+func (s *KeeperTestHelper) Setup() {
 	cfg := sdk.GetConfig()
 	cfg.SetBech32PrefixForAccount(cmd.Bech32PrefixAccAddr, cmd.Bech32PrefixAccPub)
 	cfg.SetBech32PrefixForValidator(cmd.Bech32PrefixValAddr, cmd.Bech32PrefixValPub)
 	cfg.SetBech32PrefixForConsensusNode(cmd.Bech32PrefixConsAddr, cmd.Bech32PrefixConsPub)
 	cfg.SetAddressVerifier(wasmtypes.VerifyAddressLen())
 
-	suite.T().Log("Setting up KeeperTestHelper")
+	s.T().Log("Setting up KeeperTestHelper")
 	dir, err := os.MkdirTemp("", "junod-test-home")
 	if err != nil {
 		panic(fmt.Sprintf("failed creating temporary directory: %v", err))
 	}
-	suite.T().Cleanup(func() {
+	s.T().Cleanup(func() {
 		err = os.RemoveAll(dir)
 		if err != nil {
 			panic(fmt.Sprintf("failed removing temporary directory: %v", err))
 		}
-		suite.withCaching = false
+		s.withCaching = false
 	})
 	if common.IsDebugLogEnabled() {
-		suite.App = setup.Setup(false, dir, "juno-1", suite.T())
+		s.App = setup.Setup(false, dir, "juno-1", s.T())
 	} else {
-		suite.App = setup.Setup(false, dir, "juno-1")
+		s.App = setup.Setup(false, dir, "juno-1")
 	}
 
-	suite.Ctx = suite.App.NewContextLegacy(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: defaultTestStartTime})
-	if suite.withCaching {
-		suite.Ctx, _ = suite.Ctx.CacheContext()
+	s.Ctx = s.App.NewContextLegacy(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: defaultTestStartTime})
+	if s.withCaching {
+		s.Ctx, _ = s.Ctx.CacheContext()
 	}
-	suite.QueryHelper = &baseapp.QueryServiceTestHelper{
-		GRPCQueryRouter: suite.App.GRPCQueryRouter(),
-		Ctx:             suite.Ctx,
+	s.QueryHelper = &baseapp.QueryServiceTestHelper{
+		GRPCQueryRouter: s.App.GRPCQueryRouter(),
+		Ctx:             s.Ctx,
 	}
 
-	suite.TestAccs = []sdk.AccAddress{}
-	suite.TestAccs = append(suite.TestAccs, baseTestAccts...)
+	s.TestAccs = []sdk.AccAddress{}
+	s.TestAccs = append(s.TestAccs, baseTestAccts...)
 
-	suite.TestPrivKeys = []cryptotypes.PrivKey{}
-	suite.TestPrivKeys = append(suite.TestPrivKeys, baseTestPrivKeys...)
+	s.TestPrivKeys = []cryptotypes.PrivKey{}
+	s.TestPrivKeys = append(s.TestPrivKeys, baseTestPrivKeys...)
 
-	suite.hasUsedAbci = false
+	s.hasUsedAbci = false
 
 	// Manually set validator signing info, otherwise we panic
-	vals, err := suite.App.AppKeepers.StakingKeeper.GetAllValidators(suite.Ctx)
+	vals, err := s.App.AppKeepers.StakingKeeper.GetAllValidators(s.Ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -104,65 +103,65 @@ func (suite *KeeperTestHelper) Setup() {
 		consAddr, _ := val.GetConsAddr()
 		signingInfo := slashingtypes.NewValidatorSigningInfo(
 			consAddr,
-			suite.Ctx.BlockHeight(),
+			s.Ctx.BlockHeight(),
 			0,
 			time.Unix(0, 0),
 			false,
 			0,
 		)
-		err := suite.App.AppKeepers.SlashingKeeper.SetValidatorSigningInfo(suite.Ctx, consAddr, signingInfo)
+		err := s.App.AppKeepers.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
 
-// resets the test environment
+// Reset resets the test environment
 // requires that all commits go through helpers in s.
 // On first reset, will instantiate a new app, with caching enabled.
 // NOTE: If you are using ABCI methods, usage of Reset vs Setup has not been well tested.
 // It is believed to work, but if you get an odd error, try changing the call to this for setup to sanity check.
 // what's supposed to happen is a new setup call, and reset just does that in such a case.
-func (suite *KeeperTestHelper) Reset() {
-	if suite.hasUsedAbci || !suite.withCaching {
-		suite.withCaching = true
-		suite.Setup()
+func (s *KeeperTestHelper) Reset() {
+	if s.hasUsedAbci || !s.withCaching {
+		s.withCaching = true
+		s.Setup()
 	} else {
-		suite.Ctx = suite.App.NewContextLegacy(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: defaultTestStartTime})
-		if suite.withCaching {
-			suite.Ctx, _ = suite.Ctx.CacheContext()
+		s.Ctx = s.App.NewContextLegacy(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: defaultTestStartTime})
+		if s.withCaching {
+			s.Ctx, _ = s.Ctx.CacheContext()
 		}
-		suite.QueryHelper = &baseapp.QueryServiceTestHelper{
-			GRPCQueryRouter: suite.App.GRPCQueryRouter(),
-			Ctx:             suite.Ctx,
+		s.QueryHelper = &baseapp.QueryServiceTestHelper{
+			GRPCQueryRouter: s.App.GRPCQueryRouter(),
+			Ctx:             s.Ctx,
 		}
-		suite.TestAccs = []sdk.AccAddress{}
-		suite.TestAccs = append(suite.TestAccs, baseTestAccts...)
-		suite.hasUsedAbci = false
+		s.TestAccs = []sdk.AccAddress{}
+		s.TestAccs = append(s.TestAccs, baseTestAccts...)
+		s.hasUsedAbci = false
 	}
 }
 
-func (suite *KeeperTestHelper) SetupTestForInitGenesis() {
+func (s *KeeperTestHelper) SetupTestForInitGenesis() {
 	dir, _ := os.MkdirTemp("", "junod-test-home")
 	// Setting to True, leads to init genesis not running
-	suite.App = setup.Setup(true, dir, "juno-1")
-	suite.Ctx = suite.App.NewContextLegacy(true, tmtypes.Header{})
-	suite.hasUsedAbci = true
+	s.App = setup.Setup(true, dir, "juno-1")
+	s.Ctx = s.App.NewContextLegacy(true, tmtypes.Header{})
+	s.hasUsedAbci = true
 }
 
-func (suite *KeeperTestHelper) SetupWithLevelDB() func() {
+func (s *KeeperTestHelper) SetupWithLevelDB() func() {
 	appSetup, cleanup := setup.SetupTestingAppWithLevelDB(false)
-	suite.App = appSetup
-	suite.Ctx = suite.App.NewContextLegacy(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: defaultTestStartTime})
-	if suite.withCaching {
-		suite.Ctx, _ = suite.Ctx.CacheContext()
+	s.App = appSetup
+	s.Ctx = s.App.NewContextLegacy(false, tmtypes.Header{Height: 1, ChainID: "juno-1", Time: defaultTestStartTime})
+	if s.withCaching {
+		s.Ctx, _ = s.Ctx.CacheContext()
 	}
-	suite.QueryHelper = &baseapp.QueryServiceTestHelper{
-		GRPCQueryRouter: suite.App.GRPCQueryRouter(),
-		Ctx:             suite.Ctx,
+	s.QueryHelper = &baseapp.QueryServiceTestHelper{
+		GRPCQueryRouter: s.App.GRPCQueryRouter(),
+		Ctx:             s.Ctx,
 	}
-	suite.TestAccs = []sdk.AccAddress{}
-	suite.TestAccs = append(suite.TestAccs, baseTestAccts...)
-	suite.hasUsedAbci = false
+	s.TestAccs = []sdk.AccAddress{}
+	s.TestAccs = append(s.TestAccs, baseTestAccts...)
+	s.hasUsedAbci = false
 	return cleanup
 }
