@@ -1,6 +1,10 @@
 package types
 
-import "cosmossdk.io/math"
+import (
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 // Note: The following constants are the default values for the AIMD EIP-1559
 // fee market implementation. This implements an adjustable learning rate
@@ -46,9 +50,6 @@ var (
 
 	// DefaultAIMDMaxLearningRate is the default maximum learning rate.
 	DefaultAIMDMaxLearningRate = math.LegacyMustNewDecFromStr("0.50")
-
-	// DefaultAIMDFeeDenom is the Cosmos SDK default bond denom.
-	DefaultAIMDFeeDenom = DefaultFeeDenom
 )
 
 // DefaultAIMDParams returns a default set of parameters that implements
@@ -66,7 +67,7 @@ func DefaultAIMDParams() Params {
 		DefaultAIMDMinBaseFee,
 		DefaultAIMDMinLearningRate,
 		DefaultAIMDMaxLearningRate,
-		DefaultAIMDFeeDenom,
+		sdk.DefaultBondDenom,
 		true,
 	)
 }

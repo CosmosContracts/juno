@@ -188,12 +188,12 @@ func (s *AnteTestSuite) CreateTestTx(privs []cryptotypes.PrivKey, accNums []uint
 			AccountNumber: accNums[i],
 			Sequence:      accSeqs[i],
 		}
-		sigV2, err := tx.SignWithPrivKey(
+		sigV2, sigErr := tx.SignWithPrivKey(
 			s.Ctx,
 			signing.SignMode(s.App.TxConfig().SignModeHandler().DefaultMode()), signerData,
 			s.TxBuilder, priv, s.App.TxConfig(), accSeqs[i])
-		if err != nil {
-			return nil, err
+		if sigErr != nil {
+			return nil, sigErr
 		}
 
 		sigsV2 = append(sigsV2, sigV2)

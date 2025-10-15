@@ -41,7 +41,7 @@ func createRandomInput(t *rapid.T) input {
 	gasLimit := rapid.Int64Range(1_000_000, 1_000_000_000_000).Draw(t, "gas limit")
 
 	if priceDec.MulInt64(gasLimit).GTE(sdkmath.LegacyNewDec(math.MaxInt64)) {
-		t.Fatalf("not supposed to happen")
+		t.Fatal("not supposed to happen")
 	}
 
 	payFeeAmt := rapid.Int64Range(priceDec.MulInt64(gasLimit).TruncateInt64(), math.MaxInt64).Draw(t, "fee amount")

@@ -1,8 +1,6 @@
 package post
 
 import (
-	"fmt"
-
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
@@ -155,7 +153,7 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 func (dfd FeeMarketDeductDecorator) PayOutFeeAndTip(ctx sdk.Context, fee, tip sdk.Coin) error {
 	params, err := dfd.feemarketKeeper.GetParams(ctx)
 	if err != nil {
-		return fmt.Errorf("error getting feemarket params: %v", err)
+		return errorsmod.Wrapf(err, "error getting feemarket params")
 	}
 
 	var events sdk.Events

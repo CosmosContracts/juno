@@ -1,10 +1,10 @@
 package types
 
 import (
-	"errors"
-	fmt "fmt"
-
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // NewState instantiates a new fee market state instance. This is utilized
@@ -29,7 +29,7 @@ func NewState(
 func (s *State) Update(gas uint64, params Params) error {
 	update := s.Window[s.Index] + gas
 	if update > params.MaxBlockUtilization {
-		return fmt.Errorf("block utilization of %d cannot exceed max block utilization of %d", update, params.MaxBlockUtilization)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "block utilization of %d cannot exceed max block utilization of %d", update, params.MaxBlockUtilization)
 	}
 
 	s.Window[s.Index] = update
@@ -158,15 +158,15 @@ func (s *State) GetAverageUtilization(params Params) math.LegacyDec {
 // ValidateBasic performs basic validation on the state.
 func (s *State) ValidateBasic() error {
 	if s.Window == nil {
-		return errors.New("block utilization window cannot be nil or empty")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "block utilization window cannot be nil or empty")
 	}
 
 	if s.BaseGasPrice.IsNil() || s.BaseGasPrice.LTE(math.LegacyZeroDec()) {
-		return errors.New("base gas price must be positive")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "base gas price must be positive")
 	}
 
 	if s.LearningRate.IsNil() || s.LearningRate.LTE(math.LegacyZeroDec()) {
-		return errors.New("learning rate must be positive")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "learning rate must be positive")
 	}
 
 	return nil

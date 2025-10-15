@@ -1,9 +1,10 @@
 package types
 
 import (
-	"errors"
-
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // NewParams instantiates a new EIP-1559 Params object. This params object is utilized
@@ -39,47 +40,47 @@ func NewParams(
 // ValidateBasic performs basic validation on the parameters.
 func (p *Params) ValidateBasic() error {
 	if p.Window == 0 {
-		return errors.New("window cannot be zero")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "window cannot be zero")
 	}
 
 	if p.Alpha.IsNil() || p.Alpha.IsNegative() {
-		return errors.New("alpha cannot be nil must be between [0, inf)")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "alpha cannot be nil must be between [0, inf)")
 	}
 
 	if p.Beta.IsNil() || p.Beta.IsNegative() || p.Beta.GT(math.LegacyOneDec()) {
-		return errors.New("beta cannot be nil and must be between [0, 1]")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "beta cannot be nil and must be between [0, 1]")
 	}
 
 	if p.Gamma.IsNil() || p.Gamma.IsNegative() || p.Gamma.GT(math.LegacyMustNewDecFromStr("0.5")) {
-		return errors.New("theta cannot be nil and must be between [0, 0.5]")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "theta cannot be nil and must be between [0, 0.5]")
 	}
 
 	if p.Delta.IsNil() || p.Delta.IsNegative() {
-		return errors.New("delta cannot be nil and must be between [0, inf)")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "delta cannot be nil and must be between [0, inf)")
 	}
 
 	if p.MinBaseGasPrice.IsNil() || !p.MinBaseGasPrice.GTE(math.LegacyZeroDec()) {
-		return errors.New("min base gas price cannot be nil and must be greater than or equal to zero")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "min base gas price cannot be nil and must be greater than or equal to zero")
 	}
 
 	if p.MaxLearningRate.IsNil() || p.MinLearningRate.IsNegative() {
-		return errors.New("min learning rate cannot be negative or nil")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "min learning rate cannot be negative or nil")
 	}
 
 	if p.MaxBlockUtilization < 2 {
-		return errors.New("max block utilization cannot be less than 2")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "max block utilization cannot be less than 2")
 	}
 
 	if p.MaxLearningRate.IsNil() || p.MaxLearningRate.IsNegative() {
-		return errors.New("max learning rate cannot be negative or nil")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "max learning rate cannot be negative or nil")
 	}
 
 	if p.MinLearningRate.GT(p.MaxLearningRate) {
-		return errors.New("min learning rate cannot be greater than max learning rate")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "min learning rate cannot be greater than max learning rate")
 	}
 
 	if p.FeeDenom == "" {
-		return errors.New("fee denom must be set")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "fee denom must be set")
 	}
 
 	return nil

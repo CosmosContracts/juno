@@ -1,9 +1,10 @@
 package types
 
 import (
-	"errors"
+	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // DenomResolver is an interface to convert a given token to the feemarket's base token.
@@ -41,7 +42,7 @@ func (*ErrorDenomResolver) ConvertToDenom(_ sdk.Context, coin sdk.DecCoin, denom
 		return coin, nil
 	}
 
-	return sdk.DecCoin{}, errors.New("error resolving denom")
+	return sdk.DecCoin{}, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "error resolving denom")
 }
 
 func (*ErrorDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {

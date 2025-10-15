@@ -2,9 +2,11 @@ package keeper
 
 import (
 	"context"
-	"errors"
+
+	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )
@@ -27,12 +29,12 @@ func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if msg.Authority != ms.k.GetAuthority() {
-		return nil, errors.New("invalid authority to execute message")
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authority; expected %s, got %s", ms.k.GetAuthority(), msg.Authority)
 	}
 
 	gotParams, err := ms.k.GetParams(ctx)
 	if err != nil {
-		return nil, errors.New(err.Error())
+		return nil, errorsmod.Wrap(err, "failed to get params")
 	}
 
 	// if going from disabled -> enabled, set enabled height
@@ -42,12 +44,12 @@ func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 
 	params := msg.Params
 	if err := ms.k.SetParams(ctx, params); err != nil {
-		return nil, errors.New(err.Error())
+		return nil, errorsmod.Wrap(err, "failed to set params")
 	}
 
 	newState := types.NewState(params.Window, params.MinBaseGasPrice, params.MinLearningRate)
 	if err := ms.k.SetState(ctx, newState); err != nil {
-		return nil, errors.New(err.Error())
+		return nil, errorsmod.Wrap(err, "failed to set state")
 	}
 
 	return &types.MsgUpdateParamsResponse{}, nil

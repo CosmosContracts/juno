@@ -213,6 +213,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 		s.Require().Equal(math.LegacyMustNewDecFromStr("0.125"), lr)
 	})
 
+	// nolint: dupl
 	s.Run("in-between min and target block with default eip1559 at preset base fee", func() {
 		state := types.DefaultState()
 		state.BaseGasPrice = state.BaseGasPrice.Mul(math.LegacyNewDec(2))
@@ -265,6 +266,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 		s.Require().Equal(math.LegacyMustNewDecFromStr("0.125"), lr)
 	})
 
+	// nolint: dupl
 	s.Run("in-between target and max block with default eip1559 at preset base fee", func() {
 		state := types.DefaultState()
 		state.BaseGasPrice = state.BaseGasPrice.Mul(math.LegacyNewDec(2))
@@ -410,6 +412,7 @@ func (s *KeeperTestSuite) TestUpdateFeeMarket() {
 	})
 }
 
+// nolint: dupl
 func (s *KeeperTestSuite) TestGetBaseFee() {
 	s.Run("can retrieve base fee with default eip-1559", func() {
 		gs := types.DefaultGenesisState()
@@ -430,6 +433,7 @@ func (s *KeeperTestSuite) TestGetBaseFee() {
 	})
 }
 
+// nolint: dupl
 func (s *KeeperTestSuite) TestGetLearningRate() {
 	s.Run("can retrieve learning rate with default eip-1559", func() {
 		gs := types.DefaultGenesisState()

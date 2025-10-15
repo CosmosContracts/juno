@@ -40,9 +40,6 @@ var (
 
 	// DefaultMaxLearningRate is not used in the base EIP-1559 implementation.
 	DefaultMaxLearningRate = math.LegacyMustNewDecFromStr("0.125")
-
-	// DefaultFeeDenom is the Cosmos SDK default bond denom.
-	DefaultFeeDenom = sdk.DefaultBondDenom
 )
 
 // DefaultParams returns a default set of parameters that implements
@@ -59,7 +56,7 @@ func DefaultParams() Params {
 		DefaultMinBaseGasPrice,
 		DefaultMinLearningRate,
 		DefaultMaxLearningRate,
-		DefaultFeeDenom,
+		sdk.DefaultBondDenom,
 		true,
 	)
 }
