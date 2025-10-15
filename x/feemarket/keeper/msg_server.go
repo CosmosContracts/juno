@@ -29,7 +29,7 @@ func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if msg.Authority != ms.k.GetAuthority() {
-		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "invalid authority; expected %s, got %s", ms.k.GetAuthority(), msg.Authority)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrorInvalidSigner, "expected %s, got %s", ms.k.GetAuthority(), msg.Authority)
 	}
 
 	gotParams, err := ms.k.GetParams(ctx)
