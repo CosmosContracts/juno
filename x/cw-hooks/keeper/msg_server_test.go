@@ -1,3 +1,4 @@
+//nolint:dupl // duplicate subtests are intentional for table-driven tests
 package keeper_test
 
 import (
@@ -75,7 +76,6 @@ func (s *KeeperTestSuite) TestRegisterContracts() {
 			shouldErr:       false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// staking
 			sResp, err := s.msgServer.RegisterStaking(s.Ctx, &types.MsgRegisterStaking{
@@ -165,7 +165,6 @@ func (s *KeeperTestSuite) TestUnRegisterContracts() {
 			shouldErr:       true,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// staking
 			sResp, err := s.msgServer.UnregisterStaking(s.Ctx, &types.MsgUnregisterStaking{

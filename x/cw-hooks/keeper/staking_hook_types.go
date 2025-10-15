@@ -55,6 +55,7 @@ func NewDelegation(del stakingtypes.DelegationI) *Delegation {
 }
 
 // Validators
+
 type SudoMsgAfterValidatorCreated struct {
 	AfterValidatorCreated *Validator `json:"after_validator_created"`
 }
@@ -78,6 +79,7 @@ type SudoMsgBeforeValidatorSlashed struct {
 }
 
 // Delegations
+
 type SudoMsgBeforeDelegationCreated struct {
 	BeforeDelegationCreated *Delegation `json:"before_delegation_created"`
 }

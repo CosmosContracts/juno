@@ -7,7 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 )
@@ -28,11 +27,11 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 
 func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	if k.authority != req.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrorInvalidSigner, "expected %s, got %s", k.authority, req.Authority)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.Authority); err != nil {
-		return nil, errorsmod.Wrap(err, "invalid authority address")
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid authority address")
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)

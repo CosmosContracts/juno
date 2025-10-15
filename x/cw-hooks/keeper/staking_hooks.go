@@ -21,12 +21,12 @@ type StakingHooks struct {
 
 var _ stakingtypes.StakingHooks = StakingHooks{}
 
-// Create new distribution hooks
+// StakingHooks creates new hooks for the staking module
 func (k Keeper) StakingHooks() StakingHooks {
 	return StakingHooks{k: k}
 }
 
-// initialize validator distribution record
+// AfterValidatorCreated is a hook that runs after anyone registers as a new validator
 func (h StakingHooks) AfterValidatorCreated(ctx context.Context, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	if sdkCtx.BlockHeight() <= skipUntilHeight {
@@ -52,7 +52,7 @@ func (h StakingHooks) AfterValidatorCreated(ctx context.Context, valAddr sdk.Val
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
-// AfterValidatorRemoved performs clean up after a validator is removed
+// AfterValidatorRemoved is a hook that runs after anyone deletes their validator
 func (h StakingHooks) AfterValidatorRemoved(ctx context.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	if sdkCtx.BlockHeight() <= skipUntilHeight {
@@ -78,7 +78,7 @@ func (h StakingHooks) AfterValidatorRemoved(ctx context.Context, _ sdk.ConsAddre
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
-// increment period
+// BeforeDelegationCreated is a hook that runs BEFORE any user stakes some tokens
 func (h StakingHooks) BeforeDelegationCreated(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	if sdkCtx.BlockHeight() <= skipUntilHeight {
@@ -104,7 +104,7 @@ func (h StakingHooks) BeforeDelegationCreated(ctx context.Context, delAddr sdk.A
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
-// withdraw delegation rewards (which also increments period)
+// BeforeDelegationSharesModified that runs BEFORE we update the staked amount for a user in a validator
 func (h StakingHooks) BeforeDelegationSharesModified(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	if sdkCtx.BlockHeight() <= skipUntilHeight {
@@ -130,7 +130,7 @@ func (h StakingHooks) BeforeDelegationSharesModified(ctx context.Context, delAdd
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
-// create new delegation period record
+// AfterDelegationModified is a hook that runs AFTER any user redelegates/unstakes from a validator
 func (h StakingHooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	if sdkCtx.BlockHeight() <= skipUntilHeight {
@@ -156,7 +156,7 @@ func (h StakingHooks) AfterDelegationModified(ctx context.Context, delAddr sdk.A
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
-// record the slash event
+// BeforeValidatorSlashed is a hook that runs right BEFORE a validator is slashed for misbehaviour
 func (h StakingHooks) BeforeValidatorSlashed(ctx context.Context, valAddr sdk.ValAddress, fraction sdkmath.LegacyDec) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	if sdkCtx.BlockHeight() <= skipUntilHeight {
@@ -182,6 +182,7 @@ func (h StakingHooks) BeforeValidatorSlashed(ctx context.Context, valAddr sdk.Va
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
+// BeforeValidatorModified is a hook that runs BEFORE a validator updates their validator configuration
 func (h StakingHooks) BeforeValidatorModified(ctx context.Context, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	if sdkCtx.BlockHeight() <= skipUntilHeight {
@@ -257,6 +258,7 @@ func (h StakingHooks) AfterValidatorBeginUnbonding(ctx context.Context, _ sdk.Co
 	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
 }
 
+// BeforeDelegationRemoved is a hook that runs BEFORE a user claims their unstaked tokens back
 func (h StakingHooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	if sdkCtx.BlockHeight() <= skipUntilHeight {
