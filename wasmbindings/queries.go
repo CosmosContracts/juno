@@ -1,9 +1,10 @@
-package bindings
+package wasmbindings
 
 import (
-	"fmt"
+	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	types "github.com/CosmosContracts/juno/v30/wasmbindings/types"
@@ -27,7 +28,7 @@ func NewQueryPlugin(b bankkeeper.Keeper, tfk *tokenfactorykeeper.Keeper) *QueryP
 func (qp QueryPlugin) GetDenomAdmin(ctx sdk.Context, denom string) (*types.AdminResponse, error) {
 	metadata, err := qp.tokenFactoryKeeper.GetAuthorityMetadata(ctx, denom)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get admin for denom: %s", denom)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "failed to get admin for denom: %s", denom)
 	}
 	return &types.AdminResponse{Admin: metadata.Admin}, nil
 }

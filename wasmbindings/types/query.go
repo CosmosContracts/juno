@@ -1,6 +1,7 @@
 package types
 
-// See https://github.com/CosmWasm/token-bindings/blob/main/packages/bindings/src/query.rs
+// TokenFactoryQuery represents possible queries to the x/tokenfactory module using wasmbindings
+// DO NOT USE
 type TokenFactoryQuery struct {
 	// Given a subdenom minted by a contract via `OsmosisMsg::MintTokens`,
 	// returns the full denom as used by `BankMsg::Send`.

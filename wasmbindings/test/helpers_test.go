@@ -1,4 +1,4 @@
-package bindings_test
+package test
 
 import (
 	"encoding/json"
@@ -56,14 +56,6 @@ func (s *BindingsTestSuite) SetupTest() {
 	s.Setup()
 }
 
-// we need to make this deterministic (same every test run), as content might affect gas costs
-func (*BindingsTestSuite) keyPubAddr() (crypto.PrivKey, crypto.PubKey, sdk.AccAddress) {
-	key := ed25519.GenPrivKey()
-	pub := key.PubKey()
-	addr := sdk.AccAddress(pub.Address())
-	return key, pub, addr
-}
-
 func (s *BindingsTestSuite) RandomAccountAddress() sdk.AccAddress {
 	_, _, addr := s.keyPubAddr()
 	return addr
@@ -73,16 +65,18 @@ func (s *BindingsTestSuite) RandomBech32AccountAddress() string {
 	return s.RandomAccountAddress().String()
 }
 
-func (s *BindingsTestSuite) storeReflectCode(addr sdk.AccAddress) uint64 {
-	wasmCode, err := os.ReadFile("./testdata/token_reflect.wasm")
-	s.Require().NoError(err)
+func (s *BindingsTestSuite) StoreReflectCode(addr sdk.AccAddress) {
+	s.storeReflectCode(addr)
+	cInfo := s.App.AppKeepers.WasmKeeper.GetCodeInfo(s.Ctx, 1)
+	s.Require().NotNil(cInfo)
+}
 
-	contractKeeper := s.App.AppKeepers.ContractKeeper
-	sdkCtx := sdk.UnwrapSDKContext(s.Ctx)
-	codeID, _, err := contractKeeper.Create(sdkCtx, addr, wasmCode, nil)
-	s.Require().NoError(err)
-
-	return codeID
+// we need to make this deterministic (same every test run), as content might affect gas costs
+func (*BindingsTestSuite) keyPubAddr() (crypto.PrivKey, crypto.PubKey, sdk.AccAddress) {
+	key := ed25519.GenPrivKey()
+	pub := key.PubKey()
+	addr := sdk.AccAddress(pub.Address())
+	return key, pub, addr
 }
 
 func (s *BindingsTestSuite) instantiateReflectContract(funder sdk.AccAddress) sdk.AccAddress {
@@ -98,10 +92,16 @@ func (s *BindingsTestSuite) instantiateReflectContract(funder sdk.AccAddress) sd
 	return addr
 }
 
-func (s *BindingsTestSuite) StoreReflectCode(addr sdk.AccAddress) {
-	s.storeReflectCode(addr)
-	cInfo := s.App.AppKeepers.WasmKeeper.GetCodeInfo(s.Ctx, 1)
-	s.Require().NotNil(cInfo)
+func (s *BindingsTestSuite) storeReflectCode(addr sdk.AccAddress) uint64 {
+	wasmCode, err := os.ReadFile("./testdata/token_reflect.wasm")
+	s.Require().NoError(err)
+
+	contractKeeper := s.App.AppKeepers.ContractKeeper
+	sdkCtx := sdk.UnwrapSDKContext(s.Ctx)
+	codeID, _, err := contractKeeper.Create(sdkCtx, addr, wasmCode, nil)
+	s.Require().NoError(err)
+
+	return codeID
 }
 
 func (s *BindingsTestSuite) executeCustom(contract sdk.AccAddress, sender sdk.AccAddress, msg types.TokenFactoryMsg, funds sdk.Coin) error { //nolint:unparam // funds is always nil but could change in the future.

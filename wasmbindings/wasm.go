@@ -1,4 +1,4 @@
-package bindings
+package wasmbindings
 
 import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"

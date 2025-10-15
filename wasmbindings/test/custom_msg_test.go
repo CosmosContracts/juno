@@ -1,4 +1,4 @@
-package bindings_test
+package test
 
 import (
 	"fmt"

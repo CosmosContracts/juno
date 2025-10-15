@@ -1,4 +1,4 @@
-package bindings
+package wasmbindings
 
 import (
 	"context"

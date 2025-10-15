@@ -1,14 +1,14 @@
-package bindings
+package wasmbindings
 
 import (
 	"encoding/json"
-	"fmt"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
 
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	types "github.com/CosmosContracts/juno/v30/wasmbindings/types"
 )
@@ -50,7 +50,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			bz, err := json.Marshal(res)
 			if err != nil {
-				return nil, fmt.Errorf("failed to JSON marshal AdminResponse: %w", err)
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal AdminResponse: %v", err)
 			}
 
 			return bz, nil
@@ -63,7 +63,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			bz, err := json.Marshal(res)
 			if err != nil {
-				return nil, fmt.Errorf("failed to JSON marshal MetadataResponse: %w", err)
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal MetadataResponse: %v", err)
 			}
 
 			return bz, nil
@@ -76,7 +76,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			bz, err := json.Marshal(res)
 			if err != nil {
-				return nil, fmt.Errorf("failed to JSON marshal DenomsByCreatorResponse: %w", err)
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal DenomsByCreatorResponse: %v", err)
 			}
 
 			return bz, nil
@@ -89,7 +89,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			bz, err := json.Marshal(res)
 			if err != nil {
-				return nil, fmt.Errorf("failed to JSON marshal ParamsResponse: %w", err)
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal ParamsResponse: %v", err)
 			}
 
 			return bz, nil
