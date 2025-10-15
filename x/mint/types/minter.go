@@ -1,11 +1,11 @@
 package types
 
 import (
-	"fmt"
-
+	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // NewMinter returns a new Minter object with the given inflation and annual
@@ -39,11 +39,10 @@ func DefaultInitialMinter() Minter {
 	)
 }
 
-// validate minter
+// ValidateMinter validates a Minter for correctness
 func ValidateMinter(minter Minter) error {
 	if minter.Inflation.IsNegative() {
-		return fmt.Errorf("mint parameter Inflation should be positive, is %s",
-			minter.Inflation.String())
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "mint parameter Inflation should be positive, is %s", minter.Inflation.String())
 	}
 	return nil
 }

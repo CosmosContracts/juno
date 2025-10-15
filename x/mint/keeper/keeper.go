@@ -2,15 +2,16 @@ package keeper
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	storetypes "cosmossdk.io/core/store"
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/CosmosContracts/juno/v30/x/mint/types"
 )
@@ -65,7 +66,7 @@ func (Keeper) Logger(ctx context.Context) log.Logger {
 	return sdkCtx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-// get the minter
+// GetMinter gets the currently used Minter from KV store
 func (k Keeper) GetMinter(ctx context.Context) (minter types.Minter, err error) {
 	store := k.storeService.OpenKVStore(ctx)
 	bz, err := store.Get(types.MinterKey)
@@ -80,7 +81,7 @@ func (k Keeper) GetMinter(ctx context.Context) (minter types.Minter, err error) 
 	return minter, nil
 }
 
-// set the minter
+// SetMinter sets the used Minter in the KV store
 func (k Keeper) SetMinter(ctx context.Context, minter types.Minter) error {
 	store := k.storeService.OpenKVStore(ctx)
 	bz := k.cdc.MustMarshal(&minter)
@@ -181,7 +182,7 @@ func (k Keeper) ReduceTargetSupply(ctx context.Context, burnCoin sdk.Coin) error
 	}
 
 	if burnCoin.Denom != params.MintDenom {
-		return errors.New("tried reducing target supply with non staking token")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "tried reducing target supply with non staking token")
 	}
 
 	minter, err := k.GetMinter(ctx)
