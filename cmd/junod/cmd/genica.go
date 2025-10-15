@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/spf13/cobra"
 
@@ -11,9 +10,12 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 )
@@ -35,7 +37,7 @@ func AddGenesisIcaCmd(defaultNodeHome string) *cobra.Command {
 			genFile := config.GenesisFile()
 			appState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
 			if err != nil {
-				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
+				return errorsmod.Wrapf(sdkerrors.ErrJSONUnmarshal, "failed to unmarshal genesis state: %v", err)
 			}
 
 			controllerGenesisState := icagenesistypes.DefaultControllerGenesis()
@@ -53,14 +55,14 @@ func AddGenesisIcaCmd(defaultNodeHome string) *cobra.Command {
 
 			icaGenStateBz, err := clientCtx.Codec.MarshalJSON(newIcaGenState)
 			if err != nil {
-				return fmt.Errorf("failed to marshal auth genesis state: %w", err)
+				return errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to marshal auth genesis state: %v", err)
 			}
 
 			appState[icatypes.ModuleName] = icaGenStateBz
 
 			appStateJSON, err := json.Marshal(appState)
 			if err != nil {
-				return fmt.Errorf("failed to marshal application genesis state: %w", err)
+				return errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to marshal application genesis state: %v", err)
 			}
 
 			genDoc.AppState = appStateJSON

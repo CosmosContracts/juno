@@ -16,6 +16,7 @@ import (
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmtypes "github.com/cometbft/cometbft/types"
 
+	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -184,13 +185,13 @@ Example:
 
 			_, err = fmt.Printf("# accounts: %d\n", len(snapshotAccs))
 			if err != nil {
-				return fmt.Errorf("failed to print accounts: %w", err)
+				return errorsmod.Wrap(err, "failed to print accounts")
 			}
 
 			// export snapshot json
 			snapshotJSON, err := json.MarshalIndent(snapshot, "", "    ")
 			if err != nil {
-				return fmt.Errorf("failed to marshal snapshot: %w", err)
+				return errorsmod.Wrap(err, "failed to marshal snapshot")
 			}
 
 			err = os.WriteFile(snapshotOutput, snapshotJSON, 0o600)

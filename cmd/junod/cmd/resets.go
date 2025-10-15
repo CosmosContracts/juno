@@ -9,11 +9,13 @@ import (
 
 	tmos "github.com/cometbft/cometbft/libs/os"
 
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 )
 
-// Cmd creates a main CLI command
+// ResetCmd creates a main CLI command to reset different parts of application state
 func ResetCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "reset",
@@ -65,15 +67,15 @@ func resetWasm(dbDir string) error {
 		if err := os.RemoveAll(wasmDir); err == nil {
 			_, err = fmt.Println("Removed wasm", "dir", wasmDir)
 			if err != nil {
-				return fmt.Errorf("error removing wasm dir: %s; err: %w", wasmDir, err)
+				return errorsmod.Wrapf(err, "error removing wasm dir: %s", wasmDir)
 			}
 		} else {
-			return fmt.Errorf("error removing wasm dir: %s; err: %w", wasmDir, err)
+			return errorsmod.Wrapf(err, "error removing wasm dir: %s", wasmDir)
 		}
 	}
 
 	if err := tmos.EnsureDir(wasmDir, 0o700); err != nil {
-		return fmt.Errorf("unable to recreate wasm %w", err)
+		return errorsmod.Wrap(err, "unable to recreate wasm")
 	}
 	return nil
 }
@@ -86,15 +88,15 @@ func resetApp(dbDir string) error {
 		if err := os.RemoveAll(appDir); err == nil {
 			_, err = fmt.Println("Removed application.db", "dir", appDir)
 			if err != nil {
-				return fmt.Errorf("error removing application.db  dir: %s; err: %w", appDir, err)
+				return errorsmod.Wrapf(err, "error removing application.db dir: %s", appDir)
 			}
 		} else {
-			return fmt.Errorf("error removing application.db  dir: %s; err: %w", appDir, err)
+			return errorsmod.Wrapf(err, "error removing application.db dir: %s", appDir)
 		}
 	}
 
 	if err := tmos.EnsureDir(appDir, 0o700); err != nil {
-		return fmt.Errorf("unable to recreate application.db %w", err)
+		return errorsmod.Wrap(err, "unable to recreate application.db")
 	}
 	return nil
 }

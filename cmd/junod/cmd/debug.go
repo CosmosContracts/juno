@@ -8,6 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,7 +19,7 @@ import (
 
 var flagBech32Prefix = "prefix"
 
-// Cmd creates a main CLI command
+// DebugCmd creates a main CLI command to debug the node setup
 func DebugCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "debug",
@@ -103,7 +105,7 @@ func getCodecInterfaceImpls() *cobra.Command {
 	}
 }
 
-// get cmd to convert any bech32 address to a juno prefix.
+// ConvertBech32Cmd converts any bech32 address to a juno prefixed address (cosmos1... -> juno1...)
 func ConvertBech32Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bech32-convert [bech32 string]",
@@ -196,7 +198,7 @@ $ %s debug addr cosmos1e0jnq2sun3dzjh8p2xq95kk0expwmd7shwjpfg
 					addr, err3 = sdk.ValAddressFromBech32(addrString)
 
 					if err3 != nil {
-						return fmt.Errorf("expected hex or bech32. Got errors: hex: %v, bech32 acc: %v, bech32 val: %v", err, err2, err3)
+						return errorsmod.Wrapf(err, "expected hex or bech32. bech32 acc error: %v, bech32 val error: %v", err2, err3)
 					}
 				}
 			}

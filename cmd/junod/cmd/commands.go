@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"io"
 	"os"
 	"os/signal"
@@ -15,6 +14,7 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -22,6 +22,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
@@ -169,7 +170,7 @@ func appExport(
 	var junoApp *app.App
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
-		return servertypes.ExportedApp{}, errors.New("application home is not set")
+		return servertypes.ExportedApp{}, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "application home is not set")
 	}
 
 	loadLatest := height == -1

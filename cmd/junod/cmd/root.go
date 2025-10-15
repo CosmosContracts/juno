@@ -65,7 +65,6 @@ var (
 // main function.
 func NewRootCmd() *cobra.Command {
 	tempDir := tempDir()
-	sdk.DefaultBondDenom = "ujuno"
 	cfg := sdk.GetConfig()
 	cfg.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
 	cfg.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
@@ -238,7 +237,7 @@ func initAppConfig() (string, any) {
 	return customAppTemplate, customAppConfig
 }
 
-// Reads the custom extra values in the config.toml file if set.
+// SetCustomEnvVariablesFromClientToml reads the custom extra values in the config.toml file if set.
 // If they are, then use them.
 func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
 	configFilePath := filepath.Join(ctx.HomeDir, "config", "client.toml")

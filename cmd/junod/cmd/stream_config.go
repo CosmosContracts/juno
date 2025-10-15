@@ -1,12 +1,13 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	errorsmod "cosmossdk.io/errors"
 )
 
 // defaultStreamConfig returns the default stream configuration as TOML
@@ -52,12 +53,11 @@ func AppendStreamConfigToFile(configPath string) error {
 	// Read existing config
 	content, err := os.ReadFile(configPath)
 	if err != nil {
-		return fmt.Errorf("failed to read config file: %w", err)
+		return errorsmod.Wrap(err, "failed to read config file")
 	}
 
 	// Check if stream config already exists
 	if strings.Contains(string(content), "[stream]") {
-		// Stream config already exists, don't add it again
 		return nil
 	}
 
@@ -66,8 +66,8 @@ func AppendStreamConfigToFile(configPath string) error {
 	newContent := string(content) + "\n" + streamConfig
 
 	// Write back to file
-	if err := os.WriteFile(configPath, []byte(newContent), 0644); err != nil {
-		return fmt.Errorf("failed to write config file: %w", err)
+	if err := os.WriteFile(configPath, []byte(newContent), 0o600); err != nil {
+		return errorsmod.Wrap(err, "failed to write config file")
 	}
 
 	return nil
