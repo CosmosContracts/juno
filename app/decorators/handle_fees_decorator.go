@@ -2,21 +2,19 @@ package decorators
 
 import (
 	"bytes"
-	"fmt"
 	"math"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
+	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-
-	feegrantKeeper "cosmossdk.io/x/feegrant/keeper"
 
 	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
@@ -37,7 +35,7 @@ type DeductFeeDecorator struct {
 	fallbackDecorator sdk.AnteDecorator
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantKeeper.Keeper, bondDenom string, fallbackDecorator sdk.AnteDecorator) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantkeeper.Keeper, bondDenom string, fallbackDecorator sdk.AnteDecorator) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		feemarketkeeper: fmk,
 		innerDecorator: newInnerDeductFeeDecorator(
@@ -47,7 +45,7 @@ func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, 
 	}
 }
 
-// DeductFeeDecorator deducts fees from the first signer of the tx
+// InnerDeductFeeDecorator deducts fees from the first signer of the tx
 // If the first signer does not have the funds to pay for the fees, return with InsufficientFunds error
 // Call next AnteHandler if fees successfully deducted
 // CONTRACT: Tx must implement FeeTx interface to use DeductFeeDecorator
@@ -60,11 +58,11 @@ type InnerDeductFeeDecorator struct {
 	feemarketKeeper feemarketkeeper.Keeper
 	accountKeeper   authkeeper.AccountKeeper
 	bankKeeper      bankkeeper.Keeper
-	feegrantKeeper  feegrantKeeper.Keeper
+	feegrantKeeper  feegrantkeeper.Keeper
 	bondDenom       string
 }
 
-func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantKeeper.Keeper, bondDenom string) InnerDeductFeeDecorator {
+func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantkeeper.Keeper, bondDenom string) InnerDeductFeeDecorator {
 	return InnerDeductFeeDecorator{
 		feepayKeeper:    fpk,
 		feemarketKeeper: fmk,
@@ -75,7 +73,7 @@ func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Kee
 	}
 }
 
-// AnteHandle calls the feemarket internal antehandler if the keeper is enabled.  If disabled, the fallback
+// AnteHandle calls the feemarket antehandler if the keeper is enabled.  If disabled, the fallback
 // fee antehandler is fallen back to.
 func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	params, err := dfd.feemarketkeeper.GetParams(ctx)
@@ -85,8 +83,6 @@ func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	if params.Enabled {
 		return dfd.innerDecorator.anteHandle(ctx, tx, simulate, next)
 	}
-
-	// only use fallback if not nil
 	if dfd.fallbackDecorator != nil {
 		return dfd.fallbackDecorator.AnteHandle(ctx, tx, simulate, next)
 	}
@@ -94,85 +90,9 @@ func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	return next(ctx, tx, simulate)
 }
 
-func (dfd InnerDeductFeeDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
-	// GenTx consume no fee
-	if ctx.BlockHeight() == 0 {
-		return next(ctx, tx, simulate)
-	}
-
-	feeTx, ok := tx.(sdk.FeeTx)
-	if !ok {
-		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
-	}
-
-	isValidFeepayTx := feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, feeTx)
-
-	if !simulate && ctx.BlockHeight() > 0 && feeTx.GetGas() == 0 {
-		return ctx, errorsmod.Wrap(sdkerrors.ErrInvalidGasLimit, "must provide positive gas")
-	}
-
-	feeCoins := feeTx.GetFee()
-
-	if !isValidFeepayTx {
-		if len(feeCoins) == 0 && !simulate {
-			return ctx, errorsmod.Wrapf(feemarkettypes.ErrNoFeeCoins, "got length %d", len(feeCoins))
-		}
-	}
-
-	if len(feeCoins) > 1 {
-		return ctx, errorsmod.Wrapf(feemarkettypes.ErrTooManyFeeCoins, "got length %d", len(feeCoins))
-	}
-
-	payCoin := sdk.NewCoin(dfd.bondDenom, sdkmath.ZeroInt())
-	if !simulate {
-		payCoin = feeCoins[0]
-	}
-
-	gas := feeTx.GetGas()
-	feeGasPrice, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, payCoin.GetDenom())
-	if err != nil {
-		return ctx, errorsmod.Wrapf(err, "unable to get min gas price for denom %s", payCoin.GetDenom())
-	}
-
-	ctx.Logger().Debug("fee deduct ante handle",
-		"current gas price", feeGasPrice,
-		"fee", feeCoins,
-		"gas limit", gas,
-	)
-
-	ctx = ctx.WithMinGasPrices(sdk.NewDecCoins(feeGasPrice))
-
-	if !simulate {
-		_, _, err := CheckTxFee(ctx, feeGasPrice, payCoin, int64(gas), true)
-		if err != nil {
-			return ctx, errorsmod.Wrapf(err, "error checking fee")
-		}
-	}
-
-	// handle the entire tx fee process
-	err = dfd.HandleFees(ctx, feeTx, payCoin, isValidFeepayTx)
-	if err != nil {
-		return ctx, errorsmod.Wrapf(err, "error escrowing funds")
-	}
-
-	// handle tx priority
-	var priority int64 = 0
-	bondDenomGasPrice, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, dfd.bondDenom)
-	priorityFee, err := dfd.resolveTxPriorityCoins(ctx, payCoin, dfd.bondDenom)
-	if err != nil {
-		return ctx, errorsmod.Wrapf(err, "error resolving fee priority")
-	}
-	if !simulate {
-		priority = GetTxPriority(priorityFee, int64(gas), bondDenomGasPrice)
-	}
-	ctx = ctx.WithPriority(priority)
-
-	return next(ctx, tx, simulate)
-}
-
 func (dfd InnerDeductFeeDecorator) HandleFees(ctx sdk.Context, feeTx sdk.FeeTx, fee sdk.Coin, isValidFeepayTx bool) error {
 	if addr := dfd.accountKeeper.GetModuleAddress(authtypes.FeeCollectorName); addr == nil {
-		return fmt.Errorf("fee collector module account (%s) has not been set", authtypes.FeeCollectorName)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "fee collector module account (%s) has not been set", authtypes.FeeCollectorName)
 	}
 
 	feePayer := feeTx.FeePayer()
@@ -238,7 +158,86 @@ func (dfd InnerDeductFeeDecorator) HandleFees(ctx sdk.Context, feeTx sdk.FeeTx, 
 	return nil
 }
 
-// Handle zero fee transactions for fee prepay module
+func (dfd InnerDeductFeeDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+	// GenTx consume no fee
+	if ctx.BlockHeight() == 0 {
+		return next(ctx, tx, simulate)
+	}
+
+	feeTx, ok := tx.(sdk.FeeTx)
+	if !ok {
+		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
+	}
+
+	isValidFeepayTx := feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, feeTx)
+
+	if !simulate && ctx.BlockHeight() > 0 && feeTx.GetGas() == 0 {
+		return ctx, errorsmod.Wrap(sdkerrors.ErrInvalidGasLimit, "must provide positive gas")
+	}
+
+	feeCoins := feeTx.GetFee()
+
+	if !isValidFeepayTx {
+		if len(feeCoins) == 0 && !simulate {
+			return ctx, errorsmod.Wrapf(feemarkettypes.ErrNoFeeCoins, "got length %d", len(feeCoins))
+		}
+	}
+
+	if len(feeCoins) > 1 {
+		return ctx, errorsmod.Wrapf(feemarkettypes.ErrTooManyFeeCoins, "got length %d", len(feeCoins))
+	}
+
+	payCoin := sdk.NewCoin(dfd.bondDenom, sdkmath.ZeroInt())
+	if !simulate {
+		payCoin = feeCoins[0]
+	}
+
+	gas := feeTx.GetGas()
+	feeGasPrice, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, payCoin.GetDenom())
+	if err != nil {
+		return ctx, errorsmod.Wrapf(err, "unable to get min gas price for denom %s", payCoin.GetDenom())
+	}
+
+	ctx.Logger().Debug("fee deduct ante handle",
+		"current gas price", feeGasPrice,
+		"fee", feeCoins,
+		"gas limit", gas,
+	)
+
+	ctx = ctx.WithMinGasPrices(sdk.NewDecCoins(feeGasPrice))
+
+	if !simulate {
+		_, _, checkErr := CheckTxFee(ctx, feeGasPrice, payCoin, int64(gas), true)
+		if checkErr != nil {
+			return ctx, errorsmod.Wrapf(checkErr, "error checking fee")
+		}
+	}
+
+	// handle the entire tx fee process
+	err = dfd.HandleFees(ctx, feeTx, payCoin, isValidFeepayTx)
+	if err != nil {
+		return ctx, errorsmod.Wrapf(err, "error escrowing funds")
+	}
+
+	// handle tx priority
+	var priority int64
+	bondDenomGasPrice, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, dfd.bondDenom)
+	if err != nil {
+		return ctx, errorsmod.Wrapf(err, "error getting current gas price")
+	}
+	priorityFee, err := dfd.resolveTxPriorityCoins(ctx, payCoin, dfd.bondDenom)
+	if err != nil {
+		return ctx, errorsmod.Wrapf(err, "error resolving fee priority")
+	}
+	if !simulate {
+		priority = GetTxPriority(priorityFee, int64(gas), bondDenomGasPrice)
+	}
+	ctx = ctx.WithPriority(priority)
+
+	return next(ctx, tx, simulate)
+}
+
+// Handle zero fee transactions for x/feepay module
 func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc sdk.AccountI, tx sdk.FeeTx) error {
 	msg := tx.GetMsgs()[0]
 	cw := msg.(*wasmtypes.MsgExecuteContract)

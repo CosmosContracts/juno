@@ -1,11 +1,12 @@
 package decorators
 
 import (
-	"fmt"
-
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
+	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // MsgFilterDecorator defines an AnteHandler decorator for the v9 upgrade that
@@ -18,7 +19,7 @@ type MsgFilterDecorator struct{}
 func (MsgFilterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	if hasInvalidMsgs(tx.GetMsgs()) {
 		currHeight := ctx.BlockHeight()
-		return ctx, fmt.Errorf("tx contains unsupported message types at height %d", currHeight)
+		return ctx, errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "tx contains unsupported message types at height %d", currHeight)
 	}
 
 	return next(ctx, tx, simulate)

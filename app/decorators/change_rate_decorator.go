@@ -1,12 +1,11 @@
 package decorators
 
 import (
-	"errors"
-	"fmt"
-
+	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -23,7 +22,7 @@ type MsgChangeRateDecorator struct {
 	maxCommissionChangeRate sdkmath.LegacyDec
 }
 
-// Create new Change Rate Decorator
+// NewChangeRateDecorator creates a new Change Rate Decorator
 func NewChangeRateDecorator(sk *stakingkeeper.Keeper) MsgChangeRateDecorator {
 	rate, err := sdkmath.LegacyNewDecFromStr(MaxChangeRate)
 	if err != nil {
@@ -36,7 +35,7 @@ func NewChangeRateDecorator(sk *stakingkeeper.Keeper) MsgChangeRateDecorator {
 	}
 }
 
-// The AnteHandle checks for transactions that exceed the max change rate of 5% on the
+// AnteHandle checks for transactions that exceed the max change rate of 5% on the
 // creation of a validator.
 func (mcr MsgChangeRateDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
 	err := mcr.hasInvalidCommissionRateMsgs(ctx, tx.GetMsgs())
@@ -66,7 +65,7 @@ func (mcr MsgChangeRateDecorator) hasInvalidCommissionRateMsgs(ctx sdk.Context, 
 
 		// Check for create validator messages
 		if msg, ok := msg.(*stakingtypes.MsgCreateValidator); ok && mcr.isInvalidCreateMessage(msg) {
-			return fmt.Errorf("max change rate must not exceed %f%%", mcr.maxCommissionChangeRate)
+			return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "max change rate must not exceed %s%%", mcr.maxCommissionChangeRate.String())
 		}
 
 		// Check for edit validator messages
@@ -95,7 +94,7 @@ func (mcr MsgChangeRateDecorator) isInvalidEditMessage(ctx sdk.Context, msg *sta
 
 	bech32Addr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
-		return errors.New("invalid validator address")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidAddress, "invalid validator address")
 	}
 
 	// Get validator info, if exists
@@ -106,7 +105,7 @@ func (mcr MsgChangeRateDecorator) isInvalidEditMessage(ctx sdk.Context, msg *sta
 
 	// Check if new commission rate is out of bounds of the max change rate
 	if msg.CommissionRate.LT(valInfo.Commission.Rate.Sub(mcr.maxCommissionChangeRate)) || msg.CommissionRate.GT(valInfo.Commission.Rate.Add(mcr.maxCommissionChangeRate)) {
-		return fmt.Errorf("commission rate cannot change by more than %f%%", mcr.maxCommissionChangeRate)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "commission rate cannot change by more than %s%%", mcr.maxCommissionChangeRate.String())
 	}
 
 	return nil
