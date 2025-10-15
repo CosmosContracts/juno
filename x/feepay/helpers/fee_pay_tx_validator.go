@@ -10,9 +10,9 @@ import (
 	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
 )
 
-// Check if a transaction should be processed as a FeePay transaction.
-// A valid FeePay transaction has no fee and contains only messages which
-// execute registered CW contracts.
+// IsValidFeePayTransaction checks if a transaction should be processed as a FeePay transaction.
+// A valid FeePay transaction has no fee attached and contains only messages which
+// are executing feepay-registered contracts
 func IsValidFeePayTransaction(ctx context.Context, feePayKeeper feepaykeeper.Keeper, feeTx sdk.FeeTx) bool {
 	// Check if the fee pay module is enabled
 	isEnabled := feePayKeeper.GetParams(ctx).EnableFeepay

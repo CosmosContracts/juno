@@ -17,14 +17,14 @@ import (
 	"github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
-// Check if a contract is registered as a fee pay contract
+// IsContractRegistered checks if a contract is registered as a feepay contract
 func (k Keeper) IsContractRegistered(ctx context.Context, contractAddr string) bool {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	contractsPrefix := prefix.NewStore(store, StoreKeyContracts)
 	return contractsPrefix.Has([]byte(contractAddr))
 }
 
-// Get a contract from KV store
+// GetContract gets a feepay contract from KV store
 func (k Keeper) GetContract(ctx context.Context, contractAddress string) (*types.FeePayContract, error) {
 	// Return nil, contract not registered
 	if !k.IsContractRegistered(ctx, contractAddress) {
@@ -45,7 +45,7 @@ func (k Keeper) GetContract(ctx context.Context, contractAddress string) (*types
 	return &fpc, nil
 }
 
-// Get all registered fee pay contracts
+// GetContracts gets registered feepay contracts, paginated
 func (k Keeper) GetContracts(ctx context.Context, pag *query.PageRequest) (*types.QueryFeePayContractsResponse, error) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	contractsPrefix := prefix.NewStore(store, StoreKeyContracts)
@@ -78,7 +78,7 @@ func (k Keeper) GetContracts(ctx context.Context, pag *query.PageRequest) (*type
 	}, nil
 }
 
-// GetAllContracts returns all the registered FeePay contracts.
+// GetAllContracts returns ALL registered FeePay contracts.
 func (k Keeper) GetAllContracts(ctx context.Context) []types.FeePayContract {
 	contracts := []types.FeePayContract{}
 
@@ -96,7 +96,7 @@ func (k Keeper) GetAllContracts(ctx context.Context) []types.FeePayContract {
 	return contracts
 }
 
-// Register the contract in the module store
+// RegisterContract registers a contract in the KV store
 func (k Keeper) RegisterContract(ctx context.Context, rfp *types.MsgRegisterFeePayContract) error {
 	_, err := sdk.AccAddressFromBech32(rfp.SenderAddress)
 	if err != nil {
@@ -134,7 +134,7 @@ func (k Keeper) RegisterContract(ctx context.Context, rfp *types.MsgRegisterFeeP
 	return nil
 }
 
-// Set a contract in the KV Store
+// SetFeePayContract sets a contract in the KV Store without validation -> ONLY USED IN FEEPAY GENESIS
 func (k Keeper) SetFeePayContract(ctx context.Context, feepay types.FeePayContract) {
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	contractsPrefix := prefix.NewStore(store, StoreKeyContracts)
@@ -143,7 +143,7 @@ func (k Keeper) SetFeePayContract(ctx context.Context, feepay types.FeePayContra
 	contractsPrefix.Set(key, bz)
 }
 
-// Unregister contract (loop through usage store & remove all usage entries for contract)
+// UnregisterContract UnregisterS contract (loop through usage store & remove all usage entries for contract)
 func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregisterFeePayContract) error {
 	if _, err := sdk.AccAddressFromBech32(rfp.SenderAddress); err != nil {
 		return err
@@ -202,7 +202,7 @@ func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregister
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.MustAccAddressFromBech32(refundAddr), coins)
 }
 
-// Set the contract balance in the KV store
+// SetContractBalance sets the contract's balance in the KV store
 func (k Keeper) SetContractBalance(ctx context.Context, fpc *types.FeePayContract, newBalance uint64) {
 	// Get the existing contract in KV store
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
@@ -213,7 +213,7 @@ func (k Keeper) SetContractBalance(ctx context.Context, fpc *types.FeePayContrac
 	contractsPrefix.Set([]byte(fpc.ContractAddress), k.cdc.MustMarshal(fpc))
 }
 
-// Fund an existing fee pay contract
+// FundContract funds an existing feepay contract with tokens
 func (k Keeper) FundContract(ctx context.Context, fpc *types.FeePayContract, senderAddr sdk.AccAddress, coins sdk.Coins) error {
 	// Only transfer the bond denom
 	var transferCoin sdk.Coin
@@ -238,12 +238,12 @@ func (k Keeper) FundContract(ctx context.Context, fpc *types.FeePayContract, sen
 	return nil
 }
 
-// Check if a fee pay contract has a balance greater than or equal to the fee
+// CanContractCoverFee checks if a feepay contract has a balance greater than or equal to the fee to pay
 func (Keeper) CanContractCoverFee(fpc *types.FeePayContract, fee uint64) bool {
 	return fpc.Balance >= fee
 }
 
-// Get the number of times a wallet has interacted with a fee pay contract (err only if contract not registered)
+// GetContractUses gets the number of times a wallet has interacted with a feepay contract (err only if contract not registered)
 func (k Keeper) GetContractUses(ctx context.Context, fpc *types.FeePayContract, walletAddress string) (uint64, error) {
 	// Get usage from store
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
@@ -259,7 +259,7 @@ func (k Keeper) GetContractUses(ctx context.Context, fpc *types.FeePayContract, 
 	return walletUsage.Uses, nil
 }
 
-// Set the number of times a wallet has interacted with a fee pay contract
+// IncrementContractUses sets the number of times a wallet has interacted with a feepay contract
 func (k Keeper) IncrementContractUses(ctx context.Context, fpc *types.FeePayContract, walletAddress string, increment uint64) error {
 	uses, err := k.GetContractUses(ctx, fpc, walletAddress)
 	if err != nil {
@@ -283,7 +283,7 @@ func (k Keeper) IncrementContractUses(ctx context.Context, fpc *types.FeePayCont
 	return nil
 }
 
-// Check if a wallet exceeded usage limit (defaults to true if contract not registered)
+// HasWalletExceededUsageLimit checks if a wallet exceeded usage limit (defaults to true if contract not registered)
 func (k Keeper) HasWalletExceededUsageLimit(ctx context.Context, fpc *types.FeePayContract, walletAddress string) bool {
 	// Get account uses
 	uses, err := k.GetContractUses(ctx, fpc, walletAddress)
@@ -295,7 +295,7 @@ func (k Keeper) HasWalletExceededUsageLimit(ctx context.Context, fpc *types.FeeP
 	return uses >= fpc.WalletLimit
 }
 
-// Update the wallet limit of an existing fee pay contract
+// UpdateContractWalletLimit updates the wallet limit of an existing feepay contract
 func (k Keeper) UpdateContractWalletLimit(ctx context.Context, fpc *types.FeePayContract, senderAddress string, walletLimit uint64) error {
 	// Check if a cw contract
 	contractAddr, err := sdk.AccAddressFromBech32(fpc.ContractAddress)
@@ -323,7 +323,7 @@ func (k Keeper) UpdateContractWalletLimit(ctx context.Context, fpc *types.FeePay
 	return nil
 }
 
-// Check if a wallet is eligible to interact with a contract
+// IsWalletEligible checks if a wallet is eligible to interact with a contract
 func (k Keeper) IsWalletEligible(ctx context.Context, fpc *types.FeePayContract, walletAddress string) (bool, error) {
 	// Check if wallet has exceeded usage limit
 	if k.HasWalletExceededUsageLimit(ctx, fpc, walletAddress) {
@@ -333,7 +333,7 @@ func (k Keeper) IsWalletEligible(ctx context.Context, fpc *types.FeePayContract,
 	return true, nil
 }
 
-// Check if the sender is the designated contract manager for the FeePay contract. If
+// IsContractManager checks if the sender is the designated contract manager for the feepay contract. If
 // an admin is present, they are considered the manager. If there is no admin, the
 // contract creator is considered the manager.
 func (Keeper) IsContractManager(senderAddress string, contractInfo *wasmtypes.ContractInfo) (bool, error) {

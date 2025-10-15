@@ -51,8 +51,6 @@ func (s *KeeperTestSuite) TestQueryContractBalance() {
 			{balance: 0},
 			{balance: 1_000_000},
 		} {
-			bal := bal
-
 			// Instantiate the contractAddr
 			contractAddr := s.InstantiateContract(sender.String(), "", wasmContract)
 			s.registerFeePayContract(sender.String(), contractAddr, bal.balance, 1)
