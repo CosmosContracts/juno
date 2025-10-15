@@ -1,9 +1,10 @@
 package types
 
 import (
-	"fmt"
+	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // NewParams creates new, configurable params for the tokenfactory module.
@@ -31,11 +32,11 @@ func (p Params) Validate() error {
 func validateDenomCreationFee(i any) error {
 	v, ok := i.(sdk.Coins)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "expected sdk.Coins, got %T", i)
 	}
 
-	if v.Validate() != nil {
-		return fmt.Errorf("invalid denom creation fee: %+v", i)
+	if err := v.Validate(); err != nil {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "invalid denom creation fee: %+v", err)
 	}
 
 	return nil
