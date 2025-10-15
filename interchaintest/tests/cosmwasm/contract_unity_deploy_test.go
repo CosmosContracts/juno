@@ -8,7 +8,7 @@ import (
 	"cosmossdk.io/math"
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/cosmos/interchaintest/v10/chain/cosmos"
 	"github.com/stretchr/testify/require"
 )
 

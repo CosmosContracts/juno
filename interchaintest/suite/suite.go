@@ -45,15 +45,15 @@ import (
 	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 
-	interchaintest "github.com/strangelove-ventures/interchaintest/v8"
-	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v8/ibc"
-	"github.com/strangelove-ventures/interchaintest/v8/testutil"
+	interchaintest "github.com/cosmos/interchaintest/v10"
+	"github.com/cosmos/interchaintest/v10/chain/cosmos"
+	"github.com/cosmos/interchaintest/v10/ibc"
+	"github.com/cosmos/interchaintest/v10/testutil"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	dockerclient "github.com/docker/docker/client"
+	dockerclient "github.com/moby/moby/client"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"

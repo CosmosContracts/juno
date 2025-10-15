@@ -7,9 +7,9 @@ import (
 	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	interchaintest "github.com/strangelove-ventures/interchaintest/v8"
-	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	interchaintest "github.com/cosmos/interchaintest/v10"
+	"github.com/cosmos/interchaintest/v10/chain/cosmos"
+	"github.com/cosmos/interchaintest/v10/ibc"
 
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
@@ -41,11 +41,10 @@ var (
 	DefaultBaseGasPrice     = sdkmath.LegacyMustNewDecFromStr("1")
 	DefaultNoHostMount      = false
 
-	JunoRepo              = "ghcr.io/cosmoscontracts/juno"
-	junoRepo, junoVersion = GetDockerImageInfo()
+	JunoRepo, JunoVersion = GetDockerImageInfo()
 	JunoImage             = ibc.DockerImage{
-		Repository: junoRepo,
-		Version:    junoVersion,
+		Repository: JunoRepo,
+		Version:    JunoVersion,
 		UIDGID:     "1025:1025",
 	}
 
@@ -129,7 +128,7 @@ var (
 		Name:          "juno",
 		NumValidators: &DefaultNumValidators,
 		NumFullNodes:  &DefaultNumFullNodes,
-		Version:       junoVersion,
+		Version:       JunoVersion,
 		NoHostMount:   &DefaultNoHostMount,
 		ChainConfig:   DefaultConfig,
 	}

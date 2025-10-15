@@ -6,7 +6,7 @@ import (
 
 	"cosmossdk.io/math"
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
-	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/cosmos/interchaintest/v10"
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

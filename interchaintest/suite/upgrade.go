@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/docker/docker/client"
-	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v8/testutil"
+	"github.com/moby/moby/client"
+	"github.com/cosmos/interchaintest/v10/chain/cosmos"
+	"github.com/cosmos/interchaintest/v10/testutil"
 	"github.com/stretchr/testify/require"
 )
 

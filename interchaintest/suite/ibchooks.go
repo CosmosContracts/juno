@@ -3,7 +3,7 @@ package suite
 import (
 	"strings"
 
-	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/cosmos/interchaintest/v10/chain/cosmos"
 	"github.com/stretchr/testify/require"
 )
 

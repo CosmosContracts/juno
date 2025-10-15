@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/cosmos/interchaintest/v10"
 	"github.com/stretchr/testify/suite"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"

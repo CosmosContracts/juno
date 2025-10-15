@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-	"github.com/strangelove-ventures/interchaintest/v8"
+	"github.com/cosmos/interchaintest/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
