@@ -22,11 +22,24 @@ linters:
     - unused
     - unparam
     - revive
+    - containedctx
+    - copyloopvar
+    - decorder
+    - dupl
+    - dupword
+    - err113
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - exptostd
+    - fatcontext
+    - funcorder
+    - ginkgolinter
   settings:
     staticcheck:
       checks:
         - "all"
-        - "-SA4006" # Disable shadow checking
         - "-ST1000" # Disable required package comment
     revive:
       enable-all-rules: true
@@ -67,6 +80,8 @@ linters:
           disabled: true
         - name: deep-exit
           disabled: true
+        - name: "var-naming"
+          disabled: true
     gosec:
       excludes:
         - G404
@@ -99,6 +114,11 @@ formatters:
         - prefix(github.com/cosmos/cosmos-sdk)
         - prefix(github.com/CosmosContracts/juno)
       custom-order: true
+  exclusions:
+    paths:
+      - ".*.pb.go"
+      - ".*.pb.gw.go"
+      - "./api/*.*"
 
 issues:
   max-issues-per-linter: 0
