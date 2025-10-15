@@ -120,7 +120,7 @@ func (k Keeper) SetWithdrawerMap(
 	withdrawerPrefix.Set(key, []byte{1})
 }
 
-// DeleteWithdrawMap deletes a contract-by-withdrawer mapping
+// DeleteWithdrawerMap deletes a contract-by-withdrawer mapping
 func (k Keeper) DeleteWithdrawerMap(
 	ctx context.Context,
 	withdrawer sdk.AccAddress,

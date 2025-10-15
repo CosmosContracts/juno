@@ -116,6 +116,7 @@ func (s *KeeperTestSuite) TestFeeShare() {
 	s.Require().Equal(resp.Feeshare, feeShare)
 }
 
+// nolint: dupl
 func (s *KeeperTestSuite) TestDeployerFeeShares() {
 	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
@@ -182,6 +183,7 @@ func (s *KeeperTestSuite) TestDeployerFeeShares() {
 	})
 }
 
+// nolint: dupl
 func (s *KeeperTestSuite) TestWithdrawerFeeShares() {
 	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
