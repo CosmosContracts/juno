@@ -1,18 +1,32 @@
----
-version: "3"
+name: juno-development
 services:
   node:
     build:
       context: .
       args:
         - arch=${ARCH:-x86_64}
-    command: ./setup_and_run.sh juno16g2rahf5846rxzp3fwlswy08fz8ccuwk03k57y juno14juhdqftm8zd9n9pv4shjf92jzrm8ey4422jky
+    image: ghcr.io/cosmoscontracts/juno:dev
+    pull_policy: never
+    init: true
+    healthcheck:
+      test: ["CMD", "/bin/sh", "-lc", "junod status >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 30s
+    volumes:
+      - .:/work
+    working_dir: /work
+    entrypoint: ["/bin/sh", "-lc"]
+    command:
+      - ./scripts/init.sh && ./scripts/start.sh
     ports:
       - 1317:1317 # rest
       - 26656:26656 # p2p
       - 26657:26657 # rpc
+      - 9090:9090 # grpc
     environment:
-      - GAS_LIMIT=${GAS_LIMIT:-10000000}
-      - STAKE_TOKEN=${STAKE_TOKEN:-ujunox}
-      - TIMEOUT_COMMIT=${TIMEOUT_COMMIT:-5s}
-      - UNSAFE_CORS=true
+      - GAS_LIMIT=10000000
+      - DENOM=ujunox
+      - TIMEOUT_COMMIT=3s
