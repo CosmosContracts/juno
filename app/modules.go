@@ -77,7 +77,6 @@ import (
 	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 	tokenfactorymodule "github.com/CosmosContracts/juno/v30/x/tokenfactory/module"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
-
 	// wrappers
 	wrappedgovmodule "github.com/CosmosContracts/juno/v30/x/wrappers/gov/module"
 )

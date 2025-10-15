@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Execute contract, recover from panic
+// ExecuteContract executes a contract and recovers from panic
 func ExecuteContract(k wasmtypes.ContractOpsKeeper, childCtx sdk.Context, contractAddr sdk.AccAddress, msgBz []byte, err *error) {
 	// Recover from panic, return error
 	defer func() {
@@ -26,7 +26,7 @@ func ExecuteContract(k wasmtypes.ContractOpsKeeper, childCtx sdk.Context, contra
 	_, *err = k.Sudo(childCtx, contractAddr, msgBz)
 }
 
-// Check if error is out of gas error
+// IsOutOfGasError checks if error is out of gas error
 func IsOutOfGasError(err any) (bool, string) {
 	switch e := err.(type) {
 	case storetypes.ErrorOutOfGas:

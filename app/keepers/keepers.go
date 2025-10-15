@@ -80,7 +80,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	bindings "github.com/CosmosContracts/juno/v30/wasmbindings"
+	"github.com/CosmosContracts/juno/v30/wasmbindings"
 	junoburn "github.com/CosmosContracts/juno/v30/x/burn"
 	clockkeeper "github.com/CosmosContracts/juno/v30/x/clock/keeper"
 	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
@@ -100,7 +100,6 @@ import (
 	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
-
 	// wrappers
 	wrappedgovkeeper "github.com/CosmosContracts/juno/v30/x/wrappers/gov/keeper"
 )
@@ -521,7 +520,7 @@ func NewAppKeepers(
 	}
 
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
-	tfOpts := bindings.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
+	tfOpts := wasmbindings.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
 
 	// Stargate Queries
@@ -610,7 +609,7 @@ func NewAppKeepers(
 		appKeepers.keys[streamtypes.StoreKey],
 		govModAddress,
 		appKeepers.BankKeeper,
-		appKeepers.StakingKeeper,
+		stakingKeeper,
 		bApp.Logger(),
 		0, // maxConnections - will be set from config
 		0, // maxSubscriptionsPerClient - will be set from config

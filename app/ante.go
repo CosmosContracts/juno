@@ -1,8 +1,6 @@
 package app
 
 import (
-	"errors"
-
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -67,10 +65,10 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
 	}
 	if options.NodeConfig == nil {
-		return nil, errors.New("wasm config is required for ante builder")
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "wasm config is required for ante builder")
 	}
 	if options.TXCounterStoreService == nil {
-		return nil, errors.New("wasm store service is required for ante builder")
+		return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "wasm store service is required for ante builder")
 	}
 	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {

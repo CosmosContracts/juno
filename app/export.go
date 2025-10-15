@@ -2,11 +2,11 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	errorsmod "cosmossdk.io/errors"
 	storetypes "cosmossdk.io/store/types"
 
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -90,9 +90,9 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	}
 
 	for _, delegation := range dels {
-		valAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
-		if err != nil {
-			panic(err)
+		valAddr, valErr := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
+		if valErr != nil {
+			panic(valErr)
 		}
 
 		delAddr := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
@@ -114,14 +114,14 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 
 	// reinitialize all validators
 	err = app.AppKeepers.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
-		valBz, err := app.AppKeepers.StakingKeeper.ValidatorAddressCodec().StringToBytes(val.GetOperator())
-		if err != nil {
-			panic(err)
+		valBz, valErr := app.AppKeepers.StakingKeeper.ValidatorAddressCodec().StringToBytes(val.GetOperator())
+		if valErr != nil {
+			panic(valErr)
 		}
 		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
-		scraps, err := app.AppKeepers.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, valBz)
-		if err != nil {
-			panic(err)
+		scraps, rewardErr := app.AppKeepers.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, valBz)
+		if rewardErr != nil {
+			panic(rewardErr)
 		}
 		feePool, err := app.AppKeepers.DistrKeeper.FeePool.Get(ctx)
 		if err != nil {
@@ -151,12 +151,12 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 
 		if err := app.AppKeepers.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddr, valAddr); err != nil {
 			// never called as BeforeDelegationCreated always returns nil
-			panic(fmt.Errorf("error while incrementing period: %w", err))
+			panic(errorsmod.Wrap(err, "error while incrementing period"))
 		}
 
 		if err := app.AppKeepers.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr); err != nil {
 			// never called as AfterDelegationModified always returns nil
-			panic(fmt.Errorf("error while creating a new delegation period record: %w", err))
+			panic(errorsmod.Wrap(err, "error while creating a new delegation period record"))
 		}
 	}
 

@@ -1,13 +1,15 @@
 package app
 
 import (
-	_ "embed"
 	"net/http"
 
 	scalargo "github.com/bdpiprava/scalar-go"
-	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/httprule"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+
+	_ "embed"
+
+	"github.com/cosmos/cosmos-sdk/server/api"
 )
 
 //go:embed openapi.yaml
@@ -32,7 +34,7 @@ func (*App) RegisterScalarUI(apiSvr *api.Server) error {
 	apiSvr.GRPCGatewayRouter.Handle(
 		"GET",
 		compilePattern("/openapi.yaml"),
-		func(w http.ResponseWriter, r *http.Request, _ map[string]string) {
+		func(w http.ResponseWriter, _ *http.Request, _ map[string]string) {
 			w.Header().Set("Content-Type", "plain/text; charset=utf-8")
 			_, err := w.Write(specYAML)
 			if err != nil {
@@ -42,7 +44,7 @@ func (*App) RegisterScalarUI(apiSvr *api.Server) error {
 		},
 	)
 
-	scalarHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	scalarHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		content, err := scalargo.NewV2(
 			scalargo.WithSpecURL("http://localhost:1317/openapi.yaml"),
 			scalargo.WithBaseServerURL("/scalar"),
@@ -143,7 +145,7 @@ func (*App) RegisterScalarUI(apiSvr *api.Server) error {
 		func(
 			w http.ResponseWriter,
 			r *http.Request,
-			pathParams map[string]string,
+			_ map[string]string,
 		) {
 			http.StripPrefix("/scalar", scalarHandler).ServeHTTP(w, r)
 		},

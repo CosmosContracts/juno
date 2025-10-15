@@ -190,8 +190,8 @@ func New(
 	)
 
 	// load state streaming if enabled
-	if err := app.RegisterStreamingServices(appOpts, app.AppKeepers.GetKVStoreKeys()); err != nil {
-		panic(err)
+	if regErr := app.RegisterStreamingServices(appOpts, app.AppKeepers.GetKVStoreKeys()); regErr != nil {
+		panic(regErr)
 	}
 
 	// Start the stream keeper dispatcher
@@ -393,51 +393,6 @@ func New(
 	app.setupStreamKeeper(homePath)
 
 	return app
-}
-
-// setupStreamKeeper loads our config.toml and updates stream keeper limits
-func (app *App) setupStreamKeeper(homePath string) {
-	// Try to load config.toml
-	configPath := filepath.Join(homePath, "config", "config.toml")
-
-	// Ensure stream config exists in config.toml
-	if err := ensureStreamConfigExists(configPath); err != nil {
-		app.Logger().Debug("failed to ensure stream config exists", "error", err)
-	}
-
-	v := viper.New()
-	v.SetConfigFile(configPath)
-	v.SetConfigType("toml")
-
-	if err := v.ReadInConfig(); err != nil {
-		app.Logger().Info("could not read config.toml, using defaults for stream module", "error", err)
-		return
-	}
-
-	// Read WebSocket connection limits from RPC section
-	if app.AppKeepers.StreamKeeper != nil {
-		maxConnections := v.GetInt("rpc.max_open_connections")
-		maxSubscriptionsPerClient := v.GetInt("rpc.max_subscriptions_per_client")
-		app.AppKeepers.StreamKeeper.SetConnectionLimits(maxConnections, maxSubscriptionsPerClient)
-
-		// Read and set stream-specific configuration
-		streamConfig := streamkeeper.StreamConfig{
-			IntakeBufferSize:        v.GetInt("stream.intake_buffer_size"),
-			SubscriptionBufferSize:  v.GetInt("stream.subscription_buffer_size"),
-			EnableConnectionUUID:    v.GetBool("stream.enable_connection_uuid"),
-			ConnectionTimeout:       v.GetDuration("stream.connection_timeout"),
-			CircuitBreakerEnabled:   v.GetBool("stream.circuit_breaker_enabled"),
-			CircuitBreakerThreshold: v.GetInt("stream.circuit_breaker_threshold"),
-			CircuitBreakerTimeout:   v.GetDuration("stream.circuit_breaker_timeout"),
-		}
-		if err := app.AppKeepers.StreamKeeper.SetStreamConfig(streamConfig); err != nil {
-			app.Logger().Error("failed to set stream config", "error", err)
-		}
-
-		// Set CORS origins from RPC config
-		corsOrigins := v.GetStringSlice("rpc.cors_allowed_origins")
-		app.AppKeepers.StreamKeeper.SetCORSOrigins(corsOrigins)
-	}
 }
 
 // ensureStreamConfigExists adds stream configuration to config.toml if it doesn't exist
@@ -681,6 +636,40 @@ func (app *App) RegisterNodeService(clientCtx client.Context, cfg config.Config)
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter(), cfg)
 }
 
+// SimulationManager implements the SimulationApp interface
+func (app *App) SimulationManager() *module.SimulationManager {
+	return app.sm
+}
+
+func (app *App) GetChainBondDenom() string {
+	d := "ujuno"
+	if strings.HasPrefix(app.ChainID(), "uni-") {
+		d = "ujunox"
+	}
+	return d
+}
+
+// Close stops the stream dispatcher and performs cleanup
+func (app *App) Close() error {
+	app.Logger().Info("App.Close() called, stopping stream dispatcher")
+
+	// Stop the stream dispatcher with timeout
+	done := make(chan struct{})
+	go func() {
+		app.AppKeepers.StreamKeeper.StopDispatcher()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		app.Logger().Info("Stream dispatcher stopped successfully")
+	case <-time.After(5 * time.Second):
+		app.Logger().Error("timeout waiting for stream dispatcher to stop")
+	}
+
+	return app.BaseApp.Close()
+}
+
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
 func (app *App) setupUpgradeStoreLoaders() {
 	upgradeInfo, err := app.AppKeepers.UpgradeKeeper.ReadUpgradeInfoFromDisk()
@@ -715,36 +704,47 @@ func (app *App) setupUpgradeHandlers() {
 	}
 }
 
-// SimulationManager implements the SimulationApp interface
-func (app *App) SimulationManager() *module.SimulationManager {
-	return app.sm
-}
+// setupStreamKeeper loads our config.toml and updates stream keeper limits
+func (app *App) setupStreamKeeper(homePath string) {
+	// Try to load config.toml
+	configPath := filepath.Join(homePath, "config", "config.toml")
 
-func (app *App) GetChainBondDenom() string {
-	d := "ujuno"
-	if strings.HasPrefix(app.ChainID(), "uni-") {
-		d = "ujunox"
-	}
-	return d
-}
-
-// Close stops the stream dispatcher and performs cleanup
-func (app *App) Close() error {
-	app.Logger().Info("App.Close() called, stopping stream dispatcher")
-
-	// Stop the stream dispatcher with timeout
-	done := make(chan struct{})
-	go func() {
-		app.AppKeepers.StreamKeeper.StopDispatcher()
-		close(done)
-	}()
-
-	select {
-	case <-done:
-		app.Logger().Info("Stream dispatcher stopped successfully")
-	case <-time.After(5 * time.Second):
-		app.Logger().Error("timeout waiting for stream dispatcher to stop")
+	// Ensure stream config exists in config.toml
+	if err := ensureStreamConfigExists(configPath); err != nil {
+		app.Logger().Debug("failed to ensure stream config exists", "error", err)
 	}
 
-	return app.BaseApp.Close()
+	v := viper.New()
+	v.SetConfigFile(configPath)
+	v.SetConfigType("toml")
+
+	if err := v.ReadInConfig(); err != nil {
+		app.Logger().Info("could not read config.toml, using defaults for stream module", "error", err)
+		return
+	}
+
+	// Read WebSocket connection limits from RPC section
+	if app.AppKeepers.StreamKeeper != nil {
+		maxConnections := v.GetInt("rpc.max_open_connections")
+		maxSubscriptionsPerClient := v.GetInt("rpc.max_subscriptions_per_client")
+		app.AppKeepers.StreamKeeper.SetConnectionLimits(maxConnections, maxSubscriptionsPerClient)
+
+		// Read and set stream-specific configuration
+		streamConfig := streamkeeper.StreamConfig{
+			IntakeBufferSize:        v.GetInt("stream.intake_buffer_size"),
+			SubscriptionBufferSize:  v.GetInt("stream.subscription_buffer_size"),
+			EnableConnectionUUID:    v.GetBool("stream.enable_connection_uuid"),
+			ConnectionTimeout:       v.GetDuration("stream.connection_timeout"),
+			CircuitBreakerEnabled:   v.GetBool("stream.circuit_breaker_enabled"),
+			CircuitBreakerThreshold: v.GetInt("stream.circuit_breaker_threshold"),
+			CircuitBreakerTimeout:   v.GetDuration("stream.circuit_breaker_timeout"),
+		}
+		if err := app.AppKeepers.StreamKeeper.SetStreamConfig(streamConfig); err != nil {
+			app.Logger().Error("failed to set stream config", "error", err)
+		}
+
+		// Set CORS origins from RPC config
+		corsOrigins := v.GetStringSlice("rpc.cors_allowed_origins")
+		app.AppKeepers.StreamKeeper.SetCORSOrigins(corsOrigins)
+	}
 }
