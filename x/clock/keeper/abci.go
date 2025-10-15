@@ -85,9 +85,9 @@ func handleError(
 		errorExecs[idx] = contractAddress
 
 		// Attempt to jail contract, log error if present
-		err := k.SetJailStatus(ctx, contractAddress, true)
-		if err != nil {
-			logger.Error("Failed to jail contract", "contract", contractAddress, "error", err)
+		jailErr := k.SetJailStatus(ctx, contractAddress, true)
+		if jailErr != nil {
+			logger.Error("Failed to jail contract", "contract", contractAddress, "error", jailErr)
 		}
 	}
 

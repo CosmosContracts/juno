@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	globalerrors "github.com/CosmosContracts/juno/v30/app/helpers"
 )
@@ -46,7 +47,7 @@ func (msg MsgUnjailClockContract) ValidateBasic() error {
 // ValidateBasic does a sanity check on the provided data.
 func (msg MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
-		return errors.Wrap(err, "invalid authority address")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "invalid authority address")
 	}
 
 	return msg.Params.Validate()

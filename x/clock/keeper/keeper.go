@@ -94,7 +94,7 @@ func (k Keeper) GetCdc() codec.BinaryCodec {
 	return k.cdc
 }
 
-// GetStore returns the x/clock module's store service.
+// GetStoreService returns the x/clock module's store service.
 func (k Keeper) GetStoreService() storetypes.KVStoreService {
 	return k.storeService
 }
