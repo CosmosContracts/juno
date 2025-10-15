@@ -256,6 +256,7 @@ func (q queryServer) TallyResult(ctx context.Context, req *v1.QueryTallyResultRe
 
 	var tallyResult v1.TallyResult
 
+	// nolint: exhaustive
 	switch proposal.Status {
 	case v1.StatusDepositPeriod:
 		tallyResult = v1.EmptyTallyResult()
