@@ -43,7 +43,6 @@ func (s *KeeperTestSuite) TestDripQueryParams() {
 			},
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Set the params to what is expected, then query and ensure the query is the same
 			err := s.App.AppKeepers.DripKeeper.SetParams(s.Ctx, tc.Expected)
