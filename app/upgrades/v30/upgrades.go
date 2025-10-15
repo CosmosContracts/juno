@@ -2,13 +2,14 @@ package v30
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	log "cosmossdk.io/log"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/CosmosContracts/juno/v30/app/keepers"
@@ -42,16 +43,16 @@ func CreateV30UpgradeHandler(
 }
 
 func configureFeemarketParams(ctx context.Context, k *keepers.AppKeepers, logger log.Logger) error {
-	mintParams, err := k.MintKeeper.GetParams(ctx)
+	stakingParams, err := k.StakingKeeper.GetParams(ctx)
 	if err != nil {
-		logger.Error("v30: failed to get x/mint params")
-		return errors.New("v30: failed to get x/mint params")
+		logger.Error("v30: failed to get x/staking params")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "v30: failed to get x/staking params")
 	}
 
 	consensusParams, err := k.ConsensusParamsKeeper.ParamsStore.Get(ctx)
 	if err != nil {
 		logger.Error("v30: failed to get x/consensus params")
-		return errors.New("v30: failed to get x/consensus params")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "v30: failed to get x/consensus params")
 	}
 
 	newFeemarketParams := feemarkettypes.Params{
@@ -64,7 +65,7 @@ func configureFeemarketParams(ctx context.Context, k *keepers.AppKeepers, logger
 		MaxLearningRate:     feemarkettypes.DefaultAIMDMaxLearningRate,
 		MaxBlockUtilization: uint64(consensusParams.Block.MaxGas),
 		Window:              16,
-		FeeDenom:            mintParams.MintDenom,
+		FeeDenom:            stakingParams.BondDenom,
 		Enabled:             true,
 		DistributeFees:      true,
 	}
@@ -73,7 +74,7 @@ func configureFeemarketParams(ctx context.Context, k *keepers.AppKeepers, logger
 	err = k.FeeMarketKeeper.SetParams(sdkCtx, newFeemarketParams)
 	if err != nil {
 		logger.Error("v30: failed to set x/feemarket params")
-		return errors.New("v30: failed to set x/feemarket params")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "v30: failed to set x/feemarket params")
 	}
 
 	logger.Info("v30: successfully set x/feemarket params")

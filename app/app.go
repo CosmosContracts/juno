@@ -73,8 +73,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v30/app/keepers"
 	upgrades "github.com/CosmosContracts/juno/v30/app/upgrades"
-	v28 "github.com/CosmosContracts/juno/v30/app/upgrades/v28"
-	v29 "github.com/CosmosContracts/juno/v30/app/upgrades/v29"
+	v30 "github.com/CosmosContracts/juno/v30/app/upgrades/v30"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	streamkeeper "github.com/CosmosContracts/juno/v30/x/stream/keeper"
 	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
@@ -97,8 +96,7 @@ var (
 	EnableSpecificProposals = ""
 
 	Upgrades = []upgrades.Upgrade{
-		v28.Upgrade,
-		v29.Upgrade,
+		v30.Upgrade,
 	}
 
 	_ runtime.AppI            = (*App)(nil)
