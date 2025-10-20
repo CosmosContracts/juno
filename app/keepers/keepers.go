@@ -44,8 +44,6 @@ import (
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
-	"cosmossdk.io/x/nft"
-	nftkeeper "cosmossdk.io/x/nft/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -114,7 +112,6 @@ var maccPerms = map[string][]string{
 	stakingtypes.BondedPoolName:     {authtypes.Burner, authtypes.Staking},
 	stakingtypes.NotBondedPoolName:  {authtypes.Burner, authtypes.Staking},
 	govtypes.ModuleName:             {authtypes.Burner},
-	nft.ModuleName:                  nil,
 	icqtypes.ModuleName:             nil,
 	ibctransfertypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:             nil,
@@ -150,7 +147,6 @@ type AppKeepers struct {
 	TransferKeeper      ibctransferkeeper.Keeper
 	AuthzKeeper         authzkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
-	NFTKeeper           nftkeeper.Keeper
 	FeePayKeeper        feepaykeeper.Keeper
 	FeeShareKeeper      feesharekeeper.Keeper
 	ContractKeeper      wasmtypes.ContractOpsKeeper
@@ -344,13 +340,6 @@ func NewAppKeepers(
 		bApp.MsgServiceRouter(),
 		govConfig,
 		govModAddress,
-	)
-
-	appKeepers.NFTKeeper = nftkeeper.NewKeeper(
-		runtime.NewKVStoreService(keys[nftkeeper.StoreKey]),
-		appCodec,
-		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
 	)
 
 	// Configure the hooks keeper

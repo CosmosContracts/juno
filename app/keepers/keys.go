@@ -16,7 +16,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
-	nftkeeper "cosmossdk.io/x/nft/keeper"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -54,7 +53,6 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		feegrant.StoreKey,
 		evidencetypes.StoreKey,
 		authzkeeper.StoreKey,
-		nftkeeper.StoreKey,
 
 		// ibc store keys
 		capabilitytypes.StoreKey,

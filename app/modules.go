@@ -26,8 +26,6 @@ import (
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	feegrantmodule "cosmossdk.io/x/feegrant/module"
-	"cosmossdk.io/x/nft"
-	nftmodule "cosmossdk.io/x/nft/module"
 	"cosmossdk.io/x/upgrade"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -102,7 +100,6 @@ func appModules(
 		upgrade.NewAppModule(app.AppKeepers.UpgradeKeeper, app.AppKeepers.AccountKeeper.AddressCodec()),
 		evidence.NewAppModule(app.AppKeepers.EvidenceKeeper),
 		authzmodule.NewAppModule(appCodec, app.AppKeepers.AuthzKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
-		nftmodule.NewAppModule(appCodec, app.AppKeepers.NFTKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(appCodec, app.AppKeepers.ConsensusParamsKeeper),
 		// Juno modules
 		mintmodule.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
@@ -146,7 +143,6 @@ func orderBeginBlockers() []string {
 		authz.ModuleName,
 		feegrant.ModuleName,
 		vestingtypes.ModuleName,
-		nft.ModuleName,
 		consensusparamtypes.ModuleName,
 		// additional modules
 		ibctransfertypes.ModuleName,
@@ -183,7 +179,6 @@ func orderEndBlockers() []string {
 		feegrant.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
-		nft.ModuleName,
 		consensusparamtypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
@@ -226,7 +221,6 @@ func orderInitBlockers() []string {
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		feegrant.ModuleName,
-		nft.ModuleName,
 		consensusparamtypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
@@ -264,7 +258,6 @@ var AppModuleBasics = module.NewBasicManager(
 	upgrade.AppModuleBasic{},
 	evidence.AppModuleBasic{},
 	authzmodule.AppModuleBasic{},
-	nftmodule.AppModuleBasic{},
 	consensus.AppModuleBasic{},
 	// Juno modules
 	mintmodule.AppModuleBasic{},

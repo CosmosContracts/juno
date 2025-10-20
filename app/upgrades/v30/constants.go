@@ -17,6 +17,7 @@ var Upgrade = upgrades.Upgrade{
 			"globalfee",
 			"crisis",
 			"params",
+			"nft",
 		},
 		Added: []string{
 			feemarkettypes.ModuleName,

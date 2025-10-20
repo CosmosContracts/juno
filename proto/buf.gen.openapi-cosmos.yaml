@@ -27,6 +27,8 @@ inputs:
       - cosmos/params/v1beta1
       - cosmos/crisis/module/v1
       - cosmos/crisis/v1beta1
+      - cosmos/nft/module/v1
+      - cosmos/nft/v1beta1
 plugins:
   - remote: buf.build/community/google-gnostic-openapi:v0.7.1
     out: ./gen/cosmos
@@ -50,12 +52,10 @@ plugins:
       - Mcosmos/feegrant/module/v1/module.proto=cosmossdk.io/api/cosmos/feegrant/module/v1
       - Mcosmos/genutil/module/v1/module.proto=cosmossdk.io/api/cosmos/genutil/module/v1
       - Mcosmos/msg/textual/v1/textual.proto=cosmossdk.io/api/cosmos/msg/textual/v1
-      - Mcosmos/nft/module/v1/module.proto=cosmossdk.io/api/cosmos/nft/module/v1
       - Mcosmos/orm/module/v1alpha1/module.proto=cosmossdk.io/api/cosmos/orm/module/v1alpha1
       - Mcosmos/orm/query/v1alpha1/query.proto=cosmossdk.io/api/cosmos/orm/query/v1alpha1
       - Mcosmos/orm/v1/orm.proto=cosmossdk.io/api/cosmos/orm/v1
       - Mcosmos/orm/v1alpha1/schema.proto=cosmossdk.io/api/cosmos/orm/v1alpha1
-      - Mcosmos/params/module/v1/module.proto=cosmossdk.io/api/cosmos/params/module/v1
       - Mcosmos/reflection/v1/reflection.proto=cosmossdk.io/api/cosmos/reflection/v1
       - Mcosmos/slashing/module/v1/module.proto=cosmossdk.io/api/cosmos/slashing/module/v1
       - Mcosmos/staking/module/v1/module.proto=cosmossdk.io/api/cosmos/staking/module/v1
