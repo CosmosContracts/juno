@@ -11,7 +11,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/app/decorators"
+	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
 )
 
 type input struct {

@@ -64,6 +64,8 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	junoante "github.com/CosmosContracts/juno/v30/app/ante"
+	endpoints "github.com/CosmosContracts/juno/v30/app/endpoints"
 	"github.com/CosmosContracts/juno/v30/app/keepers"
 	upgrades "github.com/CosmosContracts/juno/v30/app/upgrades"
 	v30 "github.com/CosmosContracts/juno/v30/app/upgrades/v30"
@@ -270,8 +272,8 @@ func New(
 		StopNodeOnErr: false,
 	})
 
-	anteHandler, err := NewAnteHandler(
-		HandlerOptions{
+	anteHandler, err := junoante.NewAnteHandler(
+		junoante.HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
 				FeegrantKeeper:  app.AppKeepers.FeeGrantKeeper,
 				SignModeHandler: app.txConfig.SignModeHandler(),
@@ -570,12 +572,12 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	// Needs to be before registering the grpc-gateway routes
 	// so its not registered after a '*' wildcard route is set
 	// which for some reason overrides the scalar route.
-	if err := app.RegisterScalarUI(apiSvr); err != nil {
+	if err := endpoints.RegisterScalarUI(apiSvr); err != nil {
 		panic(err)
 	}
 
 	// Register WebSocket routes for the stream module
-	if err := app.RegisterWebSocketRoutes(apiSvr); err != nil {
+	if err := endpoints.RegisterWebSocketRoutes(apiSvr, app.AppKeepers.StreamKeeper); err != nil {
 		panic(err)
 	}
 

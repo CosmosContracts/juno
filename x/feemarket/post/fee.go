@@ -10,7 +10,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/CosmosContracts/juno/v30/app/decorators"
+	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
 	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )

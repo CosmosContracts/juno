@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	helpers "github.com/CosmosContracts/juno/v30/app/helpers"
+	"github.com/CosmosContracts/juno/v30/app/utils"
 )
 
 func (k Keeper) SetContract(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {
@@ -76,7 +76,7 @@ func (k Keeper) ExecuteMessageOnContracts(ctx context.Context, keyPrefix []byte,
 		addr := sdk.AccAddress(c.Bytes())
 
 		var err error
-		helpers.ExecuteContract(k.GetContractKeeper(), gasLimitCtx, addr, msgBz, &err)
+		utils.ExecuteContract(k.GetContractKeeper(), gasLimitCtx, addr, msgBz, &err)
 		if err != nil {
 			k.Logger(ctx).Error("ExecuteMessageOnContracts err", err, "contract", addr.String())
 			return err

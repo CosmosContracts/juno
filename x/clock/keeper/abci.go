@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	helpers "github.com/CosmosContracts/juno/v30/app/helpers"
+	"github.com/CosmosContracts/juno/v30/app/utils"
 	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 
@@ -53,7 +53,7 @@ func EndBlocker(ctx context.Context, k Keeper) error {
 		childCtx := sdkCtx.WithGasMeter(storetypes.NewGasMeter(p.ContractGasLimit))
 
 		// Execute contract
-		helpers.ExecuteContract(k.GetContractKeeper(), childCtx, contractAddr, endBlockSudoMessage, &err)
+		utils.ExecuteContract(k.GetContractKeeper(), childCtx, contractAddr, endBlockSudoMessage, &err)
 		if handleError(ctx, k, logger, errorExecs, &errorExists, err, idx, contract.ContractAddress) {
 			continue
 		}

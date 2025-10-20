@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	globalerrors "github.com/CosmosContracts/juno/v30/app/helpers"
+	globalerrors "github.com/CosmosContracts/juno/v30/app/utils"
 	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 

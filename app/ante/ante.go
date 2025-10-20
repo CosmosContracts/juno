@@ -1,4 +1,4 @@
-package app
+package ante
 
 import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -18,7 +18,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	decorators "github.com/CosmosContracts/juno/v30/app/decorators"
+	decorators "github.com/CosmosContracts/juno/v30/app/ante/decorators"
 	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
 	feeshareante "github.com/CosmosContracts/juno/v30/x/feeshare/ante"
@@ -86,7 +86,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		wasmkeeper.NewTxContractsDecorator(),
 
 		// custom decorators
-		decorators.MsgFilterDecorator{},
+		MsgFilterDecorator{},
 		decorators.NewChangeRateDecorator(&options.StakingKeeper),
 
 		// cosmos sdk

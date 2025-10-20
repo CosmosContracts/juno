@@ -1,4 +1,4 @@
-package decorators
+package ante
 
 import (
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"

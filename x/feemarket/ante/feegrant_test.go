@@ -21,7 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/CosmosContracts/juno/v30/app/decorators"
+	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
 	"github.com/CosmosContracts/juno/v30/testutil"
 )
 

@@ -1,4 +1,4 @@
-package app
+package endpoints
 
 import (
 	"net/http"
@@ -30,7 +30,7 @@ func compilePattern(rule string) runtime.Pattern {
 }
 
 // RegisterScalarUI registers the Scalar UI <address>:<api-port>/scalar.
-func (*App) RegisterScalarUI(apiSvr *api.Server) error {
+func RegisterScalarUI(apiSvr *api.Server) error {
 	apiSvr.GRPCGatewayRouter.Handle(
 		"GET",
 		compilePattern("/openapi.yaml"),

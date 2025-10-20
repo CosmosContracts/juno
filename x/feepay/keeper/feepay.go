@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	globalerrors "github.com/CosmosContracts/juno/v30/app/helpers"
+	"github.com/CosmosContracts/juno/v30/app/utils"
 	"github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
@@ -28,7 +28,7 @@ func (k Keeper) IsContractRegistered(ctx context.Context, contractAddr string) b
 func (k Keeper) GetContract(ctx context.Context, contractAddress string) (*types.FeePayContract, error) {
 	// Return nil, contract not registered
 	if !k.IsContractRegistered(ctx, contractAddress) {
-		return nil, globalerrors.ErrContractNotRegistered
+		return nil, utils.ErrContractNotRegistered
 	}
 
 	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
@@ -109,7 +109,7 @@ func (k Keeper) RegisterContract(ctx context.Context, rfp *types.MsgRegisterFeeP
 
 	// Return false because the contract was already registered
 	if k.IsContractRegistered(ctx, rfp.FeePayContract.ContractAddress) {
-		return globalerrors.ErrContractAlreadyRegistered
+		return utils.ErrContractAlreadyRegistered
 	}
 
 	// Check if sender is the owner of the cw contract
@@ -119,7 +119,7 @@ func (k Keeper) RegisterContract(ctx context.Context, rfp *types.MsgRegisterFeeP
 	}
 
 	if ok := k.wasmKeeper.HasContractInfo(ctx, contractAddr); !ok {
-		return globalerrors.ErrInvalidCWContract
+		return utils.ErrInvalidCWContract
 	}
 
 	// Get the contract owner
@@ -163,7 +163,7 @@ func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregister
 
 	// Ensure CW contract is valid
 	if ok := k.wasmKeeper.HasContractInfo(ctx, contractAddr); !ok {
-		return globalerrors.ErrInvalidCWContract
+		return utils.ErrInvalidCWContract
 	}
 
 	// Get the contract info
@@ -304,7 +304,7 @@ func (k Keeper) UpdateContractWalletLimit(ctx context.Context, fpc *types.FeePay
 	}
 
 	if ok := k.wasmKeeper.HasContractInfo(ctx, contractAddr); !ok {
-		return globalerrors.ErrInvalidCWContract
+		return utils.ErrInvalidCWContract
 	}
 
 	// Get the contract info & ensure sender is the manager
@@ -343,9 +343,9 @@ func (Keeper) IsContractManager(senderAddress string, contractInfo *wasmtypes.Co
 	isSenderCreator := contractInfo.Creator == senderAddress
 
 	if adminExists && !isSenderAdmin {
-		return false, globalerrors.ErrContractNotAdmin
+		return false, utils.ErrContractNotAdmin
 	} else if !adminExists && !isSenderCreator {
-		return false, globalerrors.ErrContractNotCreator
+		return false, utils.ErrContractNotCreator
 	}
 
 	return true, nil

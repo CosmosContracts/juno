@@ -17,7 +17,7 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
-	"github.com/CosmosContracts/juno/v30/app/decorators"
+	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
 	"github.com/CosmosContracts/juno/v30/testutil"
 	keeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	feemarketpost "github.com/CosmosContracts/juno/v30/x/feemarket/post"
