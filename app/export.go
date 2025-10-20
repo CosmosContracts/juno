@@ -65,11 +65,7 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 		allowedAddrsMap[addr] = true
 	}
 
-	/* Just to be safe, assert the invariants on current state. */
-	app.AppKeepers.CrisisKeeper.AssertInvariants(ctx)
-
 	/* Handle fee distribution state. */
-
 	// withdraw all validator commission
 	err := app.AppKeepers.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
 		valBz, err := app.AppKeepers.StakingKeeper.ValidatorAddressCodec().StringToBytes(val.GetOperator())

@@ -25,6 +25,8 @@ inputs:
       - cosmos/group/v1
       - cosmos/params/module/v1
       - cosmos/params/v1beta1
+      - cosmos/crisis/module/v1
+      - cosmos/crisis/v1beta1
 plugins:
   - remote: buf.build/community/google-gnostic-openapi:v0.7.1
     out: ./gen/cosmos
@@ -41,15 +43,12 @@ plugins:
       - Mcosmos/auth/module/v1/module.proto=cosmossdk.io/api/cosmos/auth/module/v1
       - Mcosmos/authz/module/v1/module.proto=cosmossdk.io/api/cosmos/authz/module/v1
       - Mcosmos/bank/module/v1/module.proto=cosmossdk.io/api/cosmos/bank/module/v1
-      - Mcosmos/circuit/module/v1/module.proto=cosmossdk.io/api/cosmos/circuit/module/v1
       - Mcosmos/gov/module/v1/module.proto=cosmossdk.io/api/cosmos/gov/module/v1
       - Mcosmos/consensus/module/v1/module.proto=cosmossdk.io/api/cosmos/consensus/module/v1
-      - Mcosmos/crisis/module/v1/module.proto=cosmossdk.io/api/cosmos/crisis/module/v1
       - Mcosmos/distribution/module/v1/module.proto=cosmossdk.io/api/cosmos/distribution/module/v1
       - Mcosmos/evidence/module/v1/module.proto=cosmossdk.io/api/cosmos/evidence/module/v1
       - Mcosmos/feegrant/module/v1/module.proto=cosmossdk.io/api/cosmos/feegrant/module/v1
       - Mcosmos/genutil/module/v1/module.proto=cosmossdk.io/api/cosmos/genutil/module/v1
-      - Mcosmos/group/module/v1/module.proto=cosmossdk.io/api/cosmos/group/module/v1
       - Mcosmos/msg/textual/v1/textual.proto=cosmossdk.io/api/cosmos/msg/textual/v1
       - Mcosmos/nft/module/v1/module.proto=cosmossdk.io/api/cosmos/nft/module/v1
       - Mcosmos/orm/module/v1alpha1/module.proto=cosmossdk.io/api/cosmos/orm/module/v1alpha1

@@ -13,7 +13,6 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -61,7 +60,6 @@ import (
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -155,7 +153,6 @@ func New(
 	appCodec := codec.NewProtoCodec(interfaceRegistry)
 	legacyAmino := codec.NewLegacyAmino()
 	txConfig := authtx.NewTxConfig(appCodec, authtx.DefaultSignModes)
-	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
 	std.RegisterLegacyAminoCodec(legacyAmino)
 	std.RegisterInterfaces(interfaceRegistry)
@@ -218,7 +215,7 @@ func New(
 	}
 
 	app.configurator = module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
-	app.ModuleManager = module.NewManager(appModules(app, txConfig, appCodec, skipGenesisInvariants)...)
+	app.ModuleManager = module.NewManager(appModules(app, txConfig, appCodec)...)
 
 	app.BasicModuleManager = module.NewBasicManagerFromManager(
 		app.ModuleManager,

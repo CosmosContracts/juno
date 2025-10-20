@@ -37,4 +37,4 @@ JUNOD_P2P_SEEDS="$(curl -s https://raw.githubusercontent.com/cosmos/chain-regist
 export JUNOD_P2P_SEEDS
 
 # Start chain.
-junod start --x-crisis-skip-assert-invariants
+junod start

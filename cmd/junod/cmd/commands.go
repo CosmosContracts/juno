@@ -25,7 +25,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	"github.com/CosmosContracts/juno/v30/app"
@@ -42,7 +41,6 @@ var tempDir = func() string {
 }
 
 func addModuleInitFlags(startCmd *cobra.Command) {
-	crisis.AddModuleInitFlags(startCmd)
 	wasm.AddModuleInitFlags(startCmd)
 }
 

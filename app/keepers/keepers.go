@@ -65,8 +65,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -149,7 +147,6 @@ type AppKeepers struct {
 	MintKeeper          mintkeeper.Keeper
 	DistrKeeper         distrkeeper.Keeper
 	GovKeeper           *wrappedgovkeeper.KeeperWrapper // x/wrappers/gov wrapper to modify the gov module without forking it
-	CrisisKeeper        *crisiskeeper.Keeper
 	UpgradeKeeper       *upgradekeeper.Keeper
 	ParamsKeeper        paramskeeper.Keeper
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
@@ -222,7 +219,6 @@ func NewAppKeepers(
 	govModAddress := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 	bech32Prefix := sdk.GetConfig().GetBech32AccountAddrPrefix()
 	ac := authcodec.NewBech32Codec(bech32Prefix)
-	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
 	dataDir := path.Join(homePath, "data")
 	wasmDir := path.Join(dataDir, "wasm")
 
@@ -306,16 +302,6 @@ func NewAppKeepers(
 		runtime.NewKVStoreService(appKeepers.keys[slashingtypes.StoreKey]),
 		stakingKeeper,
 		govModAddress,
-	)
-
-	appKeepers.CrisisKeeper = crisiskeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(keys[crisistypes.StoreKey]),
-		invCheckPeriod,
-		appKeepers.BankKeeper,
-		authtypes.FeeCollectorName,
-		govModAddress,
-		ac,
 	)
 
 	skipUpgradeHeights := map[int64]bool{}
@@ -713,7 +699,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName)
-	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(stakingtypes.ModuleName).WithKeyTable(stakingtypes.ParamKeyTable()) //nolint:staticcheck
 	paramsKeeper.Subspace(minttypes.ModuleName)
 

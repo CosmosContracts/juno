@@ -44,8 +44,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -85,7 +83,6 @@ func appModules(
 	app *App,
 	txConfig client.TxConfig,
 	appCodec codec.Codec,
-	skipGenesisInvariants bool,
 ) []module.AppModule {
 	return []module.AppModule{
 		// Cosmos SDK modules
@@ -111,8 +108,6 @@ func appModules(
 		authzmodule.NewAppModule(appCodec, app.AppKeepers.AuthzKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
 		nftmodule.NewAppModule(appCodec, app.AppKeepers.NFTKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(appCodec, app.AppKeepers.ConsensusParamsKeeper),
-		// TODO: remove crisis module from app
-		crisis.NewAppModule(app.AppKeepers.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		// Juno modules
 		mintmodule.NewAppModule(appCodec, app.AppKeepers.MintKeeper, app.AppKeepers.AccountKeeper),
 		tokenfactorymodule.NewAppModule(app.AppKeepers.TokenFactoryKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper),
@@ -151,7 +146,6 @@ func orderBeginBlockers() []string {
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		govtypes.ModuleName,
-		crisistypes.ModuleName,
 		genutiltypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
@@ -180,7 +174,6 @@ func orderBeginBlockers() []string {
 
 func orderEndBlockers() []string {
 	return []string{
-		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		capabilitytypes.ModuleName,
@@ -233,7 +226,6 @@ func orderInitBlockers() []string {
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
 		minttypes.ModuleName,
-		crisistypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		authz.ModuleName,
@@ -282,7 +274,6 @@ var AppModuleBasics = module.NewBasicManager(
 	authzmodule.AppModuleBasic{},
 	nftmodule.AppModuleBasic{},
 	consensus.AppModuleBasic{},
-	crisis.AppModuleBasic{},
 	// Juno modules
 	mintmodule.AppModuleBasic{},
 	tokenfactorymodule.AppModuleBasic{},
