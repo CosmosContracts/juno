@@ -17,8 +17,8 @@ managed:
 
 plugins:
   - local: protoc-gen-go-pulsar
-    out: api
+    out: .
     opt: paths=source_relative
   - local: protoc-gen-go-grpc
-    out: api
+    out: .
     opt: paths=source_relative

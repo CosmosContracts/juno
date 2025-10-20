@@ -49,21 +49,21 @@ func (*App) RegisterScalarUI(apiSvr *api.Server) error {
 			scalargo.WithSpecURL("http://localhost:1317/openapi.yaml"),
 			scalargo.WithBaseServerURL("/scalar"),
 			scalargo.WithHideDownloadButton(),
+			scalargo.WithDarkMode(),
+			scalargo.WithHideDarkModeToggle(),
+			scalargo.WithSearchHotKey("s"),
+			scalargo.WithMetaDataOpts(scalargo.WithTitle("Juno Augur - REST API Explorer")),
 			scalargo.WithTheme("kepler"),
 			scalargo.WithOverrideCSS(`
 				.section-flare {
 					width: 100vw;
 					background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 123, 124, 0.4), transparent);
-					height: 100vh;
+					height: 100dvh;
 				}
 
 				.open-api-client {
 					visibility: hidden;
 					display: none;
-				}
-
-				span.endpoint-method {
-					color: var(--scalar-color-green) !important;
 				}
 
 				.open-api-client-button {
@@ -108,13 +108,12 @@ func (*App) RegisterScalarUI(apiSvr *api.Server) error {
 				}
 
 				.dark-mode {
-					--scalar-color-blue: var(--scalar-color-green);
 					--scalar-sidebar-search-border-color: 1px solid rgba(0, 0, 0, 0.1);
 					--scalar-sidebar-search-color: #ADADAD;
 					--scalar-sidebar-search-background: rgba(0, 0, 0, 0.1);
 					--scalar-sidebar-font-weight-active: 900;
-					--scalar-background-1: #1D1D1D;
-					--scalar-background-2: #2C2C2C;
+					--scalar-background-1: #121219;
+					--scalar-background-2: #121219;
 					--scalar-background-3: #202020;
 					--scalar-color-1: #ADADAD;
 					--scalar-color-2: #ADADAD;

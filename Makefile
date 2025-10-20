@@ -212,17 +212,27 @@ local-image: setup-builder
 		.
 	@echo "✅ Built Docker Image successfully!"
 
-.PHONY: local-image
+proto-image: setup-builder
+	@echo "🔄 Building Protobuilder Image..."
+	$(DOCKER) buildx build \
+		--load \
+		--platform=$(LOCAL_PLATFORM) \
+		-t $(PROTO_IMAGE_NAME) \
+		-f proto/Dockerfile proto
+	@echo "✅ Built Proto Image successfully!"
+
+.PHONY: setup-builder local-image proto-image
 
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
 
-PROTO_VER := 0.17.1
-PROTO_IMAGE_NAME := ghcr.io/cosmos/proto-builder:$(PROTO_VER)
+PROTO_IMAGE_NAME := juno-protobuilder:latest
 PROTO_IMAGE := $(DOCKER) run --rm -v "$(CURDIR)":/workspace --workdir /workspace $(PROTO_IMAGE_NAME)
 
-proto-all: proto-format proto-lint proto-check-breaking proto-gogo proto-pulsar proto-openapi
+proto-all: proto-check proto-gen
+proto-gen: proto-gogo proto-pulsar proto-openapi
+proto-check: proto-format proto-lint
 
 proto-gogo:
 	@echo "🛠️ Generating Gogo types from Protobuffers"
@@ -234,10 +244,9 @@ proto-pulsar:
 	@$(PROTO_IMAGE) sh ./scripts/buf/buf-pulsar.sh
 	@echo "✅ Generated Pulsar types successfully!"
 
-# not using docker here because of the yq dependency network call
 proto-openapi:
 	@echo "🛠️ Generating OpenAPI Spec from Protobuffers"
-	@sh ./scripts/buf/buf-openapi.sh
+	@$(PROTO_IMAGE) sh ./scripts/buf/buf-openapi.sh
 	@echo "✅ Generated OpenAPI Spec successfully!"
 
 proto-format:
@@ -250,9 +259,9 @@ proto-lint:
 	@$(PROTO_IMAGE) buf lint --error-format=json
 	@echo "✅ Linted Protobuffers successfully!"
 
-proto-check-breaking:
+proto-breaking:
 	@echo "🔎 Checking breaking Protobuffers changes against branch main"
-	@$(PROTO_IMAGE) buf breaking --against $(HTTPS_GIT)#branch=main
+	@$(PROTO_IMAGE) buf breaking ./proto --against $(HTTPS_GIT).git#branch=main
 	@echo "✅ Protobuffers are non-breaking, checked successfully!"
 
-.PHONY: proto-all proto-format proto-lint proto-check-breaking proto-gogo proto-pulsar proto-openapi
+.PHONY: proto-all proto-gen proto-check proto-format proto-lint proto-breaking proto-gogo proto-pulsar proto-openapi

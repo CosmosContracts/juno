@@ -3,13 +3,14 @@ version: v2
 clean: true
 
 inputs:
-  - git_repo: https://github.com/cosmos/ibc-apps.git
-    tag: modules/async-icq/v8.0.0
-    subdir: modules/async-icq/proto
+  - git_repo: https://github.com/CosmWasm/wasmd.git
+    tag: v0.54.2
+    paths:
+      - proto/cosmwasm/wasm/v1
 
 plugins:
   - remote: buf.build/community/google-gnostic-openapi:v0.7.1
-    out: ./gen/ibcapps
+    out: ./gen/wasm
     include_imports: true
     opt:
       - default_response=true
