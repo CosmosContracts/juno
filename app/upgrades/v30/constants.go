@@ -16,6 +16,7 @@ var Upgrade = upgrades.Upgrade{
 		Deleted: []string{
 			"globalfee",
 			"crisis",
+			"params",
 		},
 		Added: []string{
 			feemarkettypes.ModuleName,

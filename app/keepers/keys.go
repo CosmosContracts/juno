@@ -25,7 +25,6 @@ import (
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -50,7 +49,6 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		distrtypes.StoreKey,
 		slashingtypes.StoreKey,
 		govtypes.StoreKey,
-		paramstypes.StoreKey,
 		consensusparamtypes.StoreKey,
 		upgradetypes.StoreKey,
 		feegrant.StoreKey,
@@ -83,7 +81,6 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		cwhookstypes.StoreKey,
 	)
 
-	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
 	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(
 		capabilitytypes.MemStoreKey,
 	)
@@ -93,20 +90,12 @@ func (appKeepers *AppKeepers) GetKVStoreKeys() map[string]*storetypes.KVStoreKey
 	return appKeepers.keys
 }
 
-func (appKeepers *AppKeepers) GetTransientStoreKeys() map[string]*storetypes.TransientStoreKey {
-	return appKeepers.tkeys
-}
-
 func (appKeepers *AppKeepers) GetMemoryStoreKeys() map[string]*storetypes.MemoryStoreKey {
 	return appKeepers.memKeys
 }
 
 func (appKeepers *AppKeepers) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return appKeepers.keys[storeKey]
-}
-
-func (appKeepers *AppKeepers) GetTKey(storeKey string) *storetypes.TransientStoreKey {
-	return appKeepers.tkeys[storeKey]
 }
 
 func (appKeepers *AppKeepers) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {

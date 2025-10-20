@@ -62,11 +62,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/CosmosContracts/juno/v30/app/keepers"
@@ -221,11 +216,6 @@ func New(
 		app.ModuleManager,
 		map[string]module.AppModuleBasic{
 			genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
-			govtypes.ModuleName: gov.NewAppModuleBasic(
-				[]govclient.ProposalHandler{
-					paramsclient.ProposalHandler,
-				},
-			),
 		},
 	)
 	app.BasicModuleManager.RegisterLegacyAminoCodec(legacyAmino)
@@ -255,7 +245,6 @@ func New(
 
 	// initialize stores
 	app.MountKVStores(app.AppKeepers.GetKVStoreKeys())
-	app.MountTransientStores(app.AppKeepers.GetTransientStoreKeys())
 	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKeys())
 
 	nodeConfig, err := wasm.ReadNodeConfig(appOpts)
@@ -570,14 +559,6 @@ func (app *App) InterfaceRegistry() types.InterfaceRegistry {
 // TxConfig returns Juno's TxConfig
 func (app *App) TxConfig() client.TxConfig {
 	return app.txConfig
-}
-
-// GetSubspace returns a param subspace for a given module name.
-//
-// NOTE: Still used in ibc-go, wait for them to remove params usage before removing this.
-func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
-	subspace, _ := app.AppKeepers.ParamsKeeper.GetSubspace(moduleName)
-	return subspace
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
