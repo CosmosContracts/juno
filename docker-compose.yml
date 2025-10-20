@@ -26,7 +26,6 @@ services:
       - 26656:26656 # p2p
       - 26657:26657 # rpc
       - 9090:9090 # grpc
-    environment:
-      - GAS_LIMIT=10000000
-      - DENOM=ujunox
-      - TIMEOUT_COMMIT=3s
+    # Uncomment to override default values in scripts/init.sh
+    # environment:
+      # - DENOM=ujuno

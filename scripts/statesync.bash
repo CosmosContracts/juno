@@ -15,9 +15,6 @@ wget https://download.dimi.sh/juno-phoenix2-genesis.tar.gz
 tar -xvf juno-phoenix2-genesis.tar.gz
 mv juno-phoenix2-genesis.json "$HOME/.juno/config/genesis.json"
 
-
-
-
 # Get "trust_hash" and "trust_height".
 INTERVAL=1000
 LATEST_HEIGHT="$(curl -s https://juno-rpc.polkachu.com/block | jq -r .result.block.header.height)"
@@ -40,4 +37,4 @@ JUNOD_P2P_SEEDS="$(curl -s https://raw.githubusercontent.com/cosmos/chain-regist
 export JUNOD_P2P_SEEDS
 
 # Start chain.
-junod start --x-crisis-skip-assert-invariants 
+junod start --x-crisis-skip-assert-invariants
