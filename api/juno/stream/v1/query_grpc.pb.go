@@ -8,6 +8,8 @@ package streamv1
 
 import (
 	context "context"
+	v1beta1 "cosmossdk.io/api/cosmos/bank/v1beta1"
+	v1beta11 "cosmossdk.io/api/cosmos/staking/v1beta1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -30,13 +32,21 @@ const (
 // QueryClient is the client API for Query service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Query defines the gRPC querier service for the stream module.
 type QueryClient interface {
-	StreamBalance(ctx context.Context, in *StreamBalanceRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamBalanceResponse], error)
-	StreamAllBalances(ctx context.Context, in *StreamAllBalancesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamAllBalancesResponse], error)
-	StreamDelegations(ctx context.Context, in *StreamDelegationsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamDelegationsResponse], error)
-	StreamDelegation(ctx context.Context, in *StreamDelegationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamDelegationResponse], error)
-	StreamUnbondingDelegations(ctx context.Context, in *StreamUnbondingDelegationsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamUnbondingDelegationsResponse], error)
-	StreamUnbondingDelegation(ctx context.Context, in *StreamUnbondingDelegationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamUnbondingDelegationResponse], error)
+	// StreamBalance streams real-time balance updates for a specific address.
+	StreamBalance(ctx context.Context, in *v1beta1.QueryBalanceRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta1.QueryBalanceResponse], error)
+	// StreamAllBalances streams real-time balance updates for all addresses.
+	StreamAllBalances(ctx context.Context, in *v1beta1.QueryAllBalancesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta1.QueryAllBalancesResponse], error)
+	// StreamDelegations streams real-time delegation updates for a specific address.
+	StreamDelegations(ctx context.Context, in *v1beta11.QueryDelegatorDelegationsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta11.QueryDelegatorDelegationsResponse], error)
+	// StreamDelegation streams real-time updates for a specific delegation.
+	StreamDelegation(ctx context.Context, in *v1beta11.QueryDelegationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta11.QueryDelegationResponse], error)
+	// StreamUnbondingDelegations streams real-time unbonding delegation updates for a specific address.
+	StreamUnbondingDelegations(ctx context.Context, in *v1beta11.QueryDelegatorUnbondingDelegationsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta11.QueryDelegatorUnbondingDelegationsResponse], error)
+	// StreamUnbondingDelegation streams real-time updates for a specific unbonding delegation.
+	StreamUnbondingDelegation(ctx context.Context, in *v1beta11.QueryUnbondingDelegationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta11.QueryUnbondingDelegationResponse], error)
 }
 
 type queryClient struct {
@@ -47,13 +57,13 @@ func NewQueryClient(cc grpc.ClientConnInterface) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) StreamBalance(ctx context.Context, in *StreamBalanceRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamBalanceResponse], error) {
+func (c *queryClient) StreamBalance(ctx context.Context, in *v1beta1.QueryBalanceRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta1.QueryBalanceResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Query_ServiceDesc.Streams[0], Query_StreamBalance_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[StreamBalanceRequest, StreamBalanceResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[v1beta1.QueryBalanceRequest, v1beta1.QueryBalanceResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -64,15 +74,15 @@ func (c *queryClient) StreamBalance(ctx context.Context, in *StreamBalanceReques
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamBalanceClient = grpc.ServerStreamingClient[StreamBalanceResponse]
+type Query_StreamBalanceClient = grpc.ServerStreamingClient[v1beta1.QueryBalanceResponse]
 
-func (c *queryClient) StreamAllBalances(ctx context.Context, in *StreamAllBalancesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamAllBalancesResponse], error) {
+func (c *queryClient) StreamAllBalances(ctx context.Context, in *v1beta1.QueryAllBalancesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta1.QueryAllBalancesResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Query_ServiceDesc.Streams[1], Query_StreamAllBalances_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[StreamAllBalancesRequest, StreamAllBalancesResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[v1beta1.QueryAllBalancesRequest, v1beta1.QueryAllBalancesResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -83,15 +93,15 @@ func (c *queryClient) StreamAllBalances(ctx context.Context, in *StreamAllBalanc
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamAllBalancesClient = grpc.ServerStreamingClient[StreamAllBalancesResponse]
+type Query_StreamAllBalancesClient = grpc.ServerStreamingClient[v1beta1.QueryAllBalancesResponse]
 
-func (c *queryClient) StreamDelegations(ctx context.Context, in *StreamDelegationsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamDelegationsResponse], error) {
+func (c *queryClient) StreamDelegations(ctx context.Context, in *v1beta11.QueryDelegatorDelegationsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta11.QueryDelegatorDelegationsResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Query_ServiceDesc.Streams[2], Query_StreamDelegations_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[StreamDelegationsRequest, StreamDelegationsResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[v1beta11.QueryDelegatorDelegationsRequest, v1beta11.QueryDelegatorDelegationsResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -102,15 +112,15 @@ func (c *queryClient) StreamDelegations(ctx context.Context, in *StreamDelegatio
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamDelegationsClient = grpc.ServerStreamingClient[StreamDelegationsResponse]
+type Query_StreamDelegationsClient = grpc.ServerStreamingClient[v1beta11.QueryDelegatorDelegationsResponse]
 
-func (c *queryClient) StreamDelegation(ctx context.Context, in *StreamDelegationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamDelegationResponse], error) {
+func (c *queryClient) StreamDelegation(ctx context.Context, in *v1beta11.QueryDelegationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta11.QueryDelegationResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Query_ServiceDesc.Streams[3], Query_StreamDelegation_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[StreamDelegationRequest, StreamDelegationResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[v1beta11.QueryDelegationRequest, v1beta11.QueryDelegationResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -121,15 +131,15 @@ func (c *queryClient) StreamDelegation(ctx context.Context, in *StreamDelegation
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamDelegationClient = grpc.ServerStreamingClient[StreamDelegationResponse]
+type Query_StreamDelegationClient = grpc.ServerStreamingClient[v1beta11.QueryDelegationResponse]
 
-func (c *queryClient) StreamUnbondingDelegations(ctx context.Context, in *StreamUnbondingDelegationsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamUnbondingDelegationsResponse], error) {
+func (c *queryClient) StreamUnbondingDelegations(ctx context.Context, in *v1beta11.QueryDelegatorUnbondingDelegationsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta11.QueryDelegatorUnbondingDelegationsResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Query_ServiceDesc.Streams[4], Query_StreamUnbondingDelegations_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[StreamUnbondingDelegationsRequest, StreamUnbondingDelegationsResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[v1beta11.QueryDelegatorUnbondingDelegationsRequest, v1beta11.QueryDelegatorUnbondingDelegationsResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -140,15 +150,15 @@ func (c *queryClient) StreamUnbondingDelegations(ctx context.Context, in *Stream
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamUnbondingDelegationsClient = grpc.ServerStreamingClient[StreamUnbondingDelegationsResponse]
+type Query_StreamUnbondingDelegationsClient = grpc.ServerStreamingClient[v1beta11.QueryDelegatorUnbondingDelegationsResponse]
 
-func (c *queryClient) StreamUnbondingDelegation(ctx context.Context, in *StreamUnbondingDelegationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamUnbondingDelegationResponse], error) {
+func (c *queryClient) StreamUnbondingDelegation(ctx context.Context, in *v1beta11.QueryUnbondingDelegationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1beta11.QueryUnbondingDelegationResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Query_ServiceDesc.Streams[5], Query_StreamUnbondingDelegation_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[StreamUnbondingDelegationRequest, StreamUnbondingDelegationResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[v1beta11.QueryUnbondingDelegationRequest, v1beta11.QueryUnbondingDelegationResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -159,18 +169,26 @@ func (c *queryClient) StreamUnbondingDelegation(ctx context.Context, in *StreamU
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamUnbondingDelegationClient = grpc.ServerStreamingClient[StreamUnbondingDelegationResponse]
+type Query_StreamUnbondingDelegationClient = grpc.ServerStreamingClient[v1beta11.QueryUnbondingDelegationResponse]
 
 // QueryServer is the server API for Query service.
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility.
+//
+// Query defines the gRPC querier service for the stream module.
 type QueryServer interface {
-	StreamBalance(*StreamBalanceRequest, grpc.ServerStreamingServer[StreamBalanceResponse]) error
-	StreamAllBalances(*StreamAllBalancesRequest, grpc.ServerStreamingServer[StreamAllBalancesResponse]) error
-	StreamDelegations(*StreamDelegationsRequest, grpc.ServerStreamingServer[StreamDelegationsResponse]) error
-	StreamDelegation(*StreamDelegationRequest, grpc.ServerStreamingServer[StreamDelegationResponse]) error
-	StreamUnbondingDelegations(*StreamUnbondingDelegationsRequest, grpc.ServerStreamingServer[StreamUnbondingDelegationsResponse]) error
-	StreamUnbondingDelegation(*StreamUnbondingDelegationRequest, grpc.ServerStreamingServer[StreamUnbondingDelegationResponse]) error
+	// StreamBalance streams real-time balance updates for a specific address.
+	StreamBalance(*v1beta1.QueryBalanceRequest, grpc.ServerStreamingServer[v1beta1.QueryBalanceResponse]) error
+	// StreamAllBalances streams real-time balance updates for all addresses.
+	StreamAllBalances(*v1beta1.QueryAllBalancesRequest, grpc.ServerStreamingServer[v1beta1.QueryAllBalancesResponse]) error
+	// StreamDelegations streams real-time delegation updates for a specific address.
+	StreamDelegations(*v1beta11.QueryDelegatorDelegationsRequest, grpc.ServerStreamingServer[v1beta11.QueryDelegatorDelegationsResponse]) error
+	// StreamDelegation streams real-time updates for a specific delegation.
+	StreamDelegation(*v1beta11.QueryDelegationRequest, grpc.ServerStreamingServer[v1beta11.QueryDelegationResponse]) error
+	// StreamUnbondingDelegations streams real-time unbonding delegation updates for a specific address.
+	StreamUnbondingDelegations(*v1beta11.QueryDelegatorUnbondingDelegationsRequest, grpc.ServerStreamingServer[v1beta11.QueryDelegatorUnbondingDelegationsResponse]) error
+	// StreamUnbondingDelegation streams real-time updates for a specific unbonding delegation.
+	StreamUnbondingDelegation(*v1beta11.QueryUnbondingDelegationRequest, grpc.ServerStreamingServer[v1beta11.QueryUnbondingDelegationResponse]) error
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -181,22 +199,22 @@ type QueryServer interface {
 // pointer dereference when methods are called.
 type UnimplementedQueryServer struct{}
 
-func (UnimplementedQueryServer) StreamBalance(*StreamBalanceRequest, grpc.ServerStreamingServer[StreamBalanceResponse]) error {
+func (UnimplementedQueryServer) StreamBalance(*v1beta1.QueryBalanceRequest, grpc.ServerStreamingServer[v1beta1.QueryBalanceResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamBalance not implemented")
 }
-func (UnimplementedQueryServer) StreamAllBalances(*StreamAllBalancesRequest, grpc.ServerStreamingServer[StreamAllBalancesResponse]) error {
+func (UnimplementedQueryServer) StreamAllBalances(*v1beta1.QueryAllBalancesRequest, grpc.ServerStreamingServer[v1beta1.QueryAllBalancesResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamAllBalances not implemented")
 }
-func (UnimplementedQueryServer) StreamDelegations(*StreamDelegationsRequest, grpc.ServerStreamingServer[StreamDelegationsResponse]) error {
+func (UnimplementedQueryServer) StreamDelegations(*v1beta11.QueryDelegatorDelegationsRequest, grpc.ServerStreamingServer[v1beta11.QueryDelegatorDelegationsResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamDelegations not implemented")
 }
-func (UnimplementedQueryServer) StreamDelegation(*StreamDelegationRequest, grpc.ServerStreamingServer[StreamDelegationResponse]) error {
+func (UnimplementedQueryServer) StreamDelegation(*v1beta11.QueryDelegationRequest, grpc.ServerStreamingServer[v1beta11.QueryDelegationResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamDelegation not implemented")
 }
-func (UnimplementedQueryServer) StreamUnbondingDelegations(*StreamUnbondingDelegationsRequest, grpc.ServerStreamingServer[StreamUnbondingDelegationsResponse]) error {
+func (UnimplementedQueryServer) StreamUnbondingDelegations(*v1beta11.QueryDelegatorUnbondingDelegationsRequest, grpc.ServerStreamingServer[v1beta11.QueryDelegatorUnbondingDelegationsResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamUnbondingDelegations not implemented")
 }
-func (UnimplementedQueryServer) StreamUnbondingDelegation(*StreamUnbondingDelegationRequest, grpc.ServerStreamingServer[StreamUnbondingDelegationResponse]) error {
+func (UnimplementedQueryServer) StreamUnbondingDelegation(*v1beta11.QueryUnbondingDelegationRequest, grpc.ServerStreamingServer[v1beta11.QueryUnbondingDelegationResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamUnbondingDelegation not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
@@ -221,70 +239,70 @@ func RegisterQueryServer(s grpc.ServiceRegistrar, srv QueryServer) {
 }
 
 func _Query_StreamBalance_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamBalanceRequest)
+	m := new(v1beta1.QueryBalanceRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(QueryServer).StreamBalance(m, &grpc.GenericServerStream[StreamBalanceRequest, StreamBalanceResponse]{ServerStream: stream})
+	return srv.(QueryServer).StreamBalance(m, &grpc.GenericServerStream[v1beta1.QueryBalanceRequest, v1beta1.QueryBalanceResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamBalanceServer = grpc.ServerStreamingServer[StreamBalanceResponse]
+type Query_StreamBalanceServer = grpc.ServerStreamingServer[v1beta1.QueryBalanceResponse]
 
 func _Query_StreamAllBalances_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamAllBalancesRequest)
+	m := new(v1beta1.QueryAllBalancesRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(QueryServer).StreamAllBalances(m, &grpc.GenericServerStream[StreamAllBalancesRequest, StreamAllBalancesResponse]{ServerStream: stream})
+	return srv.(QueryServer).StreamAllBalances(m, &grpc.GenericServerStream[v1beta1.QueryAllBalancesRequest, v1beta1.QueryAllBalancesResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamAllBalancesServer = grpc.ServerStreamingServer[StreamAllBalancesResponse]
+type Query_StreamAllBalancesServer = grpc.ServerStreamingServer[v1beta1.QueryAllBalancesResponse]
 
 func _Query_StreamDelegations_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamDelegationsRequest)
+	m := new(v1beta11.QueryDelegatorDelegationsRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(QueryServer).StreamDelegations(m, &grpc.GenericServerStream[StreamDelegationsRequest, StreamDelegationsResponse]{ServerStream: stream})
+	return srv.(QueryServer).StreamDelegations(m, &grpc.GenericServerStream[v1beta11.QueryDelegatorDelegationsRequest, v1beta11.QueryDelegatorDelegationsResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamDelegationsServer = grpc.ServerStreamingServer[StreamDelegationsResponse]
+type Query_StreamDelegationsServer = grpc.ServerStreamingServer[v1beta11.QueryDelegatorDelegationsResponse]
 
 func _Query_StreamDelegation_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamDelegationRequest)
+	m := new(v1beta11.QueryDelegationRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(QueryServer).StreamDelegation(m, &grpc.GenericServerStream[StreamDelegationRequest, StreamDelegationResponse]{ServerStream: stream})
+	return srv.(QueryServer).StreamDelegation(m, &grpc.GenericServerStream[v1beta11.QueryDelegationRequest, v1beta11.QueryDelegationResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamDelegationServer = grpc.ServerStreamingServer[StreamDelegationResponse]
+type Query_StreamDelegationServer = grpc.ServerStreamingServer[v1beta11.QueryDelegationResponse]
 
 func _Query_StreamUnbondingDelegations_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamUnbondingDelegationsRequest)
+	m := new(v1beta11.QueryDelegatorUnbondingDelegationsRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(QueryServer).StreamUnbondingDelegations(m, &grpc.GenericServerStream[StreamUnbondingDelegationsRequest, StreamUnbondingDelegationsResponse]{ServerStream: stream})
+	return srv.(QueryServer).StreamUnbondingDelegations(m, &grpc.GenericServerStream[v1beta11.QueryDelegatorUnbondingDelegationsRequest, v1beta11.QueryDelegatorUnbondingDelegationsResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamUnbondingDelegationsServer = grpc.ServerStreamingServer[StreamUnbondingDelegationsResponse]
+type Query_StreamUnbondingDelegationsServer = grpc.ServerStreamingServer[v1beta11.QueryDelegatorUnbondingDelegationsResponse]
 
 func _Query_StreamUnbondingDelegation_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamUnbondingDelegationRequest)
+	m := new(v1beta11.QueryUnbondingDelegationRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(QueryServer).StreamUnbondingDelegation(m, &grpc.GenericServerStream[StreamUnbondingDelegationRequest, StreamUnbondingDelegationResponse]{ServerStream: stream})
+	return srv.(QueryServer).StreamUnbondingDelegation(m, &grpc.GenericServerStream[v1beta11.QueryUnbondingDelegationRequest, v1beta11.QueryUnbondingDelegationResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Query_StreamUnbondingDelegationServer = grpc.ServerStreamingServer[StreamUnbondingDelegationResponse]
+type Query_StreamUnbondingDelegationServer = grpc.ServerStreamingServer[v1beta11.QueryUnbondingDelegationResponse]
 
 // Query_ServiceDesc is the grpc.ServiceDesc for Query service.
 // It's only intended for direct use with grpc.RegisterService,
