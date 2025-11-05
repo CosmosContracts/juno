@@ -6,10 +6,9 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	types "github.com/cosmos/cosmos-sdk/types"
-	types1 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
+	any "github.com/cosmos/gogoproto/types/any"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -29,25 +28,28 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// --- BANK ---
-// StreamBalanceRequest is the request type for the Query/StreamBalance RPC method.
-type StreamBalanceRequest struct {
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	Denom   string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+// StreamDynamicRequest describes a dynamic stream subscription targeting a registered stream definition
+type StreamDynamicRequest struct {
+	// module identifies the module that owns the target stream definition (e.g. bank, staking)
+	Module string `protobuf:"bytes,1,opt,name=module,proto3" json:"module,omitempty"`
+	// stream identifies the stream name within the module (e.g. balance, delegations)
+	Method string `protobuf:"bytes,2,opt,name=method,proto3" json:"method,omitempty"`
+	// Params contains the respective unary query parameters provided to the original module query
+	Params map[string]string `protobuf:"bytes,3,rep,name=params,proto3" json:"params,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
-func (m *StreamBalanceRequest) Reset()         { *m = StreamBalanceRequest{} }
-func (m *StreamBalanceRequest) String() string { return proto.CompactTextString(m) }
-func (*StreamBalanceRequest) ProtoMessage()    {}
-func (*StreamBalanceRequest) Descriptor() ([]byte, []int) {
+func (m *StreamDynamicRequest) Reset()         { *m = StreamDynamicRequest{} }
+func (m *StreamDynamicRequest) String() string { return proto.CompactTextString(m) }
+func (*StreamDynamicRequest) ProtoMessage()    {}
+func (*StreamDynamicRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_7b650ebd09490d9f, []int{0}
 }
-func (m *StreamBalanceRequest) XXX_Unmarshal(b []byte) error {
+func (m *StreamDynamicRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *StreamBalanceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *StreamDynamicRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_StreamBalanceRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_StreamDynamicRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -57,49 +59,57 @@ func (m *StreamBalanceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *StreamBalanceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamBalanceRequest.Merge(m, src)
+func (m *StreamDynamicRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamDynamicRequest.Merge(m, src)
 }
-func (m *StreamBalanceRequest) XXX_Size() int {
+func (m *StreamDynamicRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *StreamBalanceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamBalanceRequest.DiscardUnknown(m)
+func (m *StreamDynamicRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StreamDynamicRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_StreamBalanceRequest proto.InternalMessageInfo
+var xxx_messageInfo_StreamDynamicRequest proto.InternalMessageInfo
 
-func (m *StreamBalanceRequest) GetAddress() string {
+func (m *StreamDynamicRequest) GetModule() string {
 	if m != nil {
-		return m.Address
+		return m.Module
 	}
 	return ""
 }
 
-func (m *StreamBalanceRequest) GetDenom() string {
+func (m *StreamDynamicRequest) GetMethod() string {
 	if m != nil {
-		return m.Denom
+		return m.Method
 	}
 	return ""
 }
 
-// StreamBalanceResponse is the response type for the Query/StreamBalance RPC method.
-type StreamBalanceResponse struct {
-	Balance *types.Coin `protobuf:"bytes,1,opt,name=balance,proto3" json:"balance,omitempty"`
+func (m *StreamDynamicRequest) GetParams() map[string]string {
+	if m != nil {
+		return m.Params
+	}
+	return nil
 }
 
-func (m *StreamBalanceResponse) Reset()         { *m = StreamBalanceResponse{} }
-func (m *StreamBalanceResponse) String() string { return proto.CompactTextString(m) }
-func (*StreamBalanceResponse) ProtoMessage()    {}
-func (*StreamBalanceResponse) Descriptor() ([]byte, []int) {
+// StreamDynamicResponse returns the streamed data in its native protobuf representation.
+type StreamDynamicResponse struct {
+	// result carries the latest query response as an opaque protobuf Any.
+	Result *any.Any `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+}
+
+func (m *StreamDynamicResponse) Reset()         { *m = StreamDynamicResponse{} }
+func (m *StreamDynamicResponse) String() string { return proto.CompactTextString(m) }
+func (*StreamDynamicResponse) ProtoMessage()    {}
+func (*StreamDynamicResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_7b650ebd09490d9f, []int{1}
 }
-func (m *StreamBalanceResponse) XXX_Unmarshal(b []byte) error {
+func (m *StreamDynamicResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *StreamBalanceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *StreamDynamicResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_StreamBalanceResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_StreamDynamicResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -109,548 +119,57 @@ func (m *StreamBalanceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *StreamBalanceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamBalanceResponse.Merge(m, src)
+func (m *StreamDynamicResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamDynamicResponse.Merge(m, src)
 }
-func (m *StreamBalanceResponse) XXX_Size() int {
+func (m *StreamDynamicResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *StreamBalanceResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamBalanceResponse.DiscardUnknown(m)
+func (m *StreamDynamicResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StreamDynamicResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_StreamBalanceResponse proto.InternalMessageInfo
+var xxx_messageInfo_StreamDynamicResponse proto.InternalMessageInfo
 
-func (m *StreamBalanceResponse) GetBalance() *types.Coin {
+func (m *StreamDynamicResponse) GetResult() *any.Any {
 	if m != nil {
-		return m.Balance
-	}
-	return nil
-}
-
-// StreamAllBalancesRequest is the request type for the Query/StreamAllBalances RPC method.
-type StreamAllBalancesRequest struct {
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-}
-
-func (m *StreamAllBalancesRequest) Reset()         { *m = StreamAllBalancesRequest{} }
-func (m *StreamAllBalancesRequest) String() string { return proto.CompactTextString(m) }
-func (*StreamAllBalancesRequest) ProtoMessage()    {}
-func (*StreamAllBalancesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{2}
-}
-func (m *StreamAllBalancesRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamAllBalancesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamAllBalancesRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamAllBalancesRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamAllBalancesRequest.Merge(m, src)
-}
-func (m *StreamAllBalancesRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamAllBalancesRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamAllBalancesRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamAllBalancesRequest proto.InternalMessageInfo
-
-func (m *StreamAllBalancesRequest) GetAddress() string {
-	if m != nil {
-		return m.Address
-	}
-	return ""
-}
-
-// StreamAllBalancesResponse is the response type for the Query/StreamAllBalances RPC method.
-type StreamAllBalancesResponse struct {
-	Balances []*types.Coin `protobuf:"bytes,1,rep,name=balances,proto3" json:"balances,omitempty"`
-}
-
-func (m *StreamAllBalancesResponse) Reset()         { *m = StreamAllBalancesResponse{} }
-func (m *StreamAllBalancesResponse) String() string { return proto.CompactTextString(m) }
-func (*StreamAllBalancesResponse) ProtoMessage()    {}
-func (*StreamAllBalancesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{3}
-}
-func (m *StreamAllBalancesResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamAllBalancesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamAllBalancesResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamAllBalancesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamAllBalancesResponse.Merge(m, src)
-}
-func (m *StreamAllBalancesResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamAllBalancesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamAllBalancesResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamAllBalancesResponse proto.InternalMessageInfo
-
-func (m *StreamAllBalancesResponse) GetBalances() []*types.Coin {
-	if m != nil {
-		return m.Balances
-	}
-	return nil
-}
-
-// --- STAKING ---
-// StreamDelegationsRequest is the request type for the Query/StreamDelegations RPC method.
-type StreamDelegationsRequest struct {
-	DelegatorAddress string `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
-}
-
-func (m *StreamDelegationsRequest) Reset()         { *m = StreamDelegationsRequest{} }
-func (m *StreamDelegationsRequest) String() string { return proto.CompactTextString(m) }
-func (*StreamDelegationsRequest) ProtoMessage()    {}
-func (*StreamDelegationsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{4}
-}
-func (m *StreamDelegationsRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamDelegationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamDelegationsRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamDelegationsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamDelegationsRequest.Merge(m, src)
-}
-func (m *StreamDelegationsRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamDelegationsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamDelegationsRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamDelegationsRequest proto.InternalMessageInfo
-
-func (m *StreamDelegationsRequest) GetDelegatorAddress() string {
-	if m != nil {
-		return m.DelegatorAddress
-	}
-	return ""
-}
-
-// StreamDelegationsResponse is the response type for the Query/StreamDelegations RPC method.
-type StreamDelegationsResponse struct {
-	Delegations []*types1.DelegationResponse `protobuf:"bytes,1,rep,name=delegations,proto3" json:"delegations,omitempty"`
-}
-
-func (m *StreamDelegationsResponse) Reset()         { *m = StreamDelegationsResponse{} }
-func (m *StreamDelegationsResponse) String() string { return proto.CompactTextString(m) }
-func (*StreamDelegationsResponse) ProtoMessage()    {}
-func (*StreamDelegationsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{5}
-}
-func (m *StreamDelegationsResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamDelegationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamDelegationsResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamDelegationsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamDelegationsResponse.Merge(m, src)
-}
-func (m *StreamDelegationsResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamDelegationsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamDelegationsResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamDelegationsResponse proto.InternalMessageInfo
-
-func (m *StreamDelegationsResponse) GetDelegations() []*types1.DelegationResponse {
-	if m != nil {
-		return m.Delegations
-	}
-	return nil
-}
-
-// StreamDelegationRequest is the request type for the Query/StreamDelegation RPC method.
-type StreamDelegationRequest struct {
-	DelegatorAddress string `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
-	ValidatorAddress string `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
-}
-
-func (m *StreamDelegationRequest) Reset()         { *m = StreamDelegationRequest{} }
-func (m *StreamDelegationRequest) String() string { return proto.CompactTextString(m) }
-func (*StreamDelegationRequest) ProtoMessage()    {}
-func (*StreamDelegationRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{6}
-}
-func (m *StreamDelegationRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamDelegationRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamDelegationRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamDelegationRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamDelegationRequest.Merge(m, src)
-}
-func (m *StreamDelegationRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamDelegationRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamDelegationRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamDelegationRequest proto.InternalMessageInfo
-
-func (m *StreamDelegationRequest) GetDelegatorAddress() string {
-	if m != nil {
-		return m.DelegatorAddress
-	}
-	return ""
-}
-
-func (m *StreamDelegationRequest) GetValidatorAddress() string {
-	if m != nil {
-		return m.ValidatorAddress
-	}
-	return ""
-}
-
-// StreamDelegationResponse is the response type for the Query/StreamDelegation RPC method.
-type StreamDelegationResponse struct {
-	Delegation *types1.DelegationResponse `protobuf:"bytes,1,opt,name=delegation,proto3" json:"delegation,omitempty"`
-}
-
-func (m *StreamDelegationResponse) Reset()         { *m = StreamDelegationResponse{} }
-func (m *StreamDelegationResponse) String() string { return proto.CompactTextString(m) }
-func (*StreamDelegationResponse) ProtoMessage()    {}
-func (*StreamDelegationResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{7}
-}
-func (m *StreamDelegationResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamDelegationResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamDelegationResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamDelegationResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamDelegationResponse.Merge(m, src)
-}
-func (m *StreamDelegationResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamDelegationResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamDelegationResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamDelegationResponse proto.InternalMessageInfo
-
-func (m *StreamDelegationResponse) GetDelegation() *types1.DelegationResponse {
-	if m != nil {
-		return m.Delegation
-	}
-	return nil
-}
-
-// StreamUnbondingDelegationsRequest is the request type for the Query/StreamUnbondingDelegations RPC method.
-type StreamUnbondingDelegationsRequest struct {
-	DelegatorAddress string `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
-}
-
-func (m *StreamUnbondingDelegationsRequest) Reset()         { *m = StreamUnbondingDelegationsRequest{} }
-func (m *StreamUnbondingDelegationsRequest) String() string { return proto.CompactTextString(m) }
-func (*StreamUnbondingDelegationsRequest) ProtoMessage()    {}
-func (*StreamUnbondingDelegationsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{8}
-}
-func (m *StreamUnbondingDelegationsRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamUnbondingDelegationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamUnbondingDelegationsRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamUnbondingDelegationsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamUnbondingDelegationsRequest.Merge(m, src)
-}
-func (m *StreamUnbondingDelegationsRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamUnbondingDelegationsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamUnbondingDelegationsRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamUnbondingDelegationsRequest proto.InternalMessageInfo
-
-func (m *StreamUnbondingDelegationsRequest) GetDelegatorAddress() string {
-	if m != nil {
-		return m.DelegatorAddress
-	}
-	return ""
-}
-
-// StreamUnbondingDelegationsResponse is the response type for the Query/StreamUnbondingDelegations RPC method.
-type StreamUnbondingDelegationsResponse struct {
-	Delegations []*types1.UnbondingDelegation `protobuf:"bytes,1,rep,name=delegations,proto3" json:"delegations,omitempty"`
-}
-
-func (m *StreamUnbondingDelegationsResponse) Reset()         { *m = StreamUnbondingDelegationsResponse{} }
-func (m *StreamUnbondingDelegationsResponse) String() string { return proto.CompactTextString(m) }
-func (*StreamUnbondingDelegationsResponse) ProtoMessage()    {}
-func (*StreamUnbondingDelegationsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{9}
-}
-func (m *StreamUnbondingDelegationsResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamUnbondingDelegationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamUnbondingDelegationsResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamUnbondingDelegationsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamUnbondingDelegationsResponse.Merge(m, src)
-}
-func (m *StreamUnbondingDelegationsResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamUnbondingDelegationsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamUnbondingDelegationsResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamUnbondingDelegationsResponse proto.InternalMessageInfo
-
-func (m *StreamUnbondingDelegationsResponse) GetDelegations() []*types1.UnbondingDelegation {
-	if m != nil {
-		return m.Delegations
-	}
-	return nil
-}
-
-// StreamUnbondingDelegationRequest is the request type for the Query/StreamUnbondingDelegation RPC method.
-type StreamUnbondingDelegationRequest struct {
-	DelegatorAddress string `protobuf:"bytes,1,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
-	ValidatorAddress string `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
-}
-
-func (m *StreamUnbondingDelegationRequest) Reset()         { *m = StreamUnbondingDelegationRequest{} }
-func (m *StreamUnbondingDelegationRequest) String() string { return proto.CompactTextString(m) }
-func (*StreamUnbondingDelegationRequest) ProtoMessage()    {}
-func (*StreamUnbondingDelegationRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{10}
-}
-func (m *StreamUnbondingDelegationRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamUnbondingDelegationRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamUnbondingDelegationRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamUnbondingDelegationRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamUnbondingDelegationRequest.Merge(m, src)
-}
-func (m *StreamUnbondingDelegationRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamUnbondingDelegationRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamUnbondingDelegationRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamUnbondingDelegationRequest proto.InternalMessageInfo
-
-func (m *StreamUnbondingDelegationRequest) GetDelegatorAddress() string {
-	if m != nil {
-		return m.DelegatorAddress
-	}
-	return ""
-}
-
-func (m *StreamUnbondingDelegationRequest) GetValidatorAddress() string {
-	if m != nil {
-		return m.ValidatorAddress
-	}
-	return ""
-}
-
-// StreamUnbondingDelegationResponse is the response type for the Query/StreamUnbondingDelegation RPC method.
-type StreamUnbondingDelegationResponse struct {
-	Delegation *types1.UnbondingDelegation `protobuf:"bytes,1,opt,name=delegation,proto3" json:"delegation,omitempty"`
-}
-
-func (m *StreamUnbondingDelegationResponse) Reset()         { *m = StreamUnbondingDelegationResponse{} }
-func (m *StreamUnbondingDelegationResponse) String() string { return proto.CompactTextString(m) }
-func (*StreamUnbondingDelegationResponse) ProtoMessage()    {}
-func (*StreamUnbondingDelegationResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7b650ebd09490d9f, []int{11}
-}
-func (m *StreamUnbondingDelegationResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *StreamUnbondingDelegationResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_StreamUnbondingDelegationResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *StreamUnbondingDelegationResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamUnbondingDelegationResponse.Merge(m, src)
-}
-func (m *StreamUnbondingDelegationResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *StreamUnbondingDelegationResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamUnbondingDelegationResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamUnbondingDelegationResponse proto.InternalMessageInfo
-
-func (m *StreamUnbondingDelegationResponse) GetDelegation() *types1.UnbondingDelegation {
-	if m != nil {
-		return m.Delegation
+		return m.Result
 	}
 	return nil
 }
 
 func init() {
-	proto.RegisterType((*StreamBalanceRequest)(nil), "juno.stream.v1.StreamBalanceRequest")
-	proto.RegisterType((*StreamBalanceResponse)(nil), "juno.stream.v1.StreamBalanceResponse")
-	proto.RegisterType((*StreamAllBalancesRequest)(nil), "juno.stream.v1.StreamAllBalancesRequest")
-	proto.RegisterType((*StreamAllBalancesResponse)(nil), "juno.stream.v1.StreamAllBalancesResponse")
-	proto.RegisterType((*StreamDelegationsRequest)(nil), "juno.stream.v1.StreamDelegationsRequest")
-	proto.RegisterType((*StreamDelegationsResponse)(nil), "juno.stream.v1.StreamDelegationsResponse")
-	proto.RegisterType((*StreamDelegationRequest)(nil), "juno.stream.v1.StreamDelegationRequest")
-	proto.RegisterType((*StreamDelegationResponse)(nil), "juno.stream.v1.StreamDelegationResponse")
-	proto.RegisterType((*StreamUnbondingDelegationsRequest)(nil), "juno.stream.v1.StreamUnbondingDelegationsRequest")
-	proto.RegisterType((*StreamUnbondingDelegationsResponse)(nil), "juno.stream.v1.StreamUnbondingDelegationsResponse")
-	proto.RegisterType((*StreamUnbondingDelegationRequest)(nil), "juno.stream.v1.StreamUnbondingDelegationRequest")
-	proto.RegisterType((*StreamUnbondingDelegationResponse)(nil), "juno.stream.v1.StreamUnbondingDelegationResponse")
+	proto.RegisterType((*StreamDynamicRequest)(nil), "juno.stream.v1.StreamDynamicRequest")
+	proto.RegisterMapType((map[string]string)(nil), "juno.stream.v1.StreamDynamicRequest.ParamsEntry")
+	proto.RegisterType((*StreamDynamicResponse)(nil), "juno.stream.v1.StreamDynamicResponse")
 }
 
 func init() { proto.RegisterFile("juno/stream/v1/query.proto", fileDescriptor_7b650ebd09490d9f) }
 
 var fileDescriptor_7b650ebd09490d9f = []byte{
-	// 583 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x95, 0xc1, 0x6e, 0xd3, 0x40,
-	0x10, 0x86, 0x63, 0x50, 0x28, 0x4c, 0x05, 0x4a, 0x57, 0x45, 0xa4, 0x3e, 0x58, 0xc5, 0x2a, 0x22,
-	0x50, 0x69, 0x1d, 0xa7, 0xf0, 0x00, 0x6d, 0x10, 0x20, 0x28, 0x12, 0x04, 0x71, 0xe1, 0x00, 0x5a,
-	0xc7, 0x4b, 0x70, 0x49, 0x76, 0x53, 0xef, 0x26, 0xa2, 0x12, 0x27, 0x24, 0xee, 0xbc, 0x0c, 0xef,
-	0xc0, 0xb1, 0x47, 0x8e, 0x28, 0x79, 0x11, 0x14, 0xef, 0xae, 0x13, 0x27, 0x76, 0xd2, 0x80, 0x38,
-	0x7a, 0xe7, 0x9f, 0x7f, 0xbe, 0xf1, 0xac, 0xc7, 0x60, 0x9f, 0x0c, 0x18, 0xf7, 0x84, 0x8c, 0x29,
-	0xe9, 0x79, 0x43, 0xdf, 0x3b, 0x1d, 0xd0, 0xf8, 0x0c, 0xf7, 0x63, 0x2e, 0x39, 0xba, 0x31, 0x89,
-	0x61, 0x15, 0xc3, 0x43, 0xdf, 0x76, 0xda, 0x5c, 0xf4, 0xb8, 0xf0, 0x02, 0x22, 0xa8, 0x37, 0xf4,
-	0x03, 0x2a, 0x89, 0xef, 0xb5, 0x79, 0xc4, 0x94, 0xde, 0xde, 0xd3, 0x71, 0x21, 0xc9, 0xa7, 0x88,
-	0x75, 0x52, 0x89, 0x7e, 0x56, 0x2a, 0xf7, 0x31, 0x6c, 0xbf, 0x4e, 0x2c, 0x8f, 0x48, 0x97, 0xb0,
-	0x36, 0x6d, 0xd1, 0xd3, 0x01, 0x15, 0x12, 0x55, 0x61, 0x83, 0x84, 0x61, 0x4c, 0x85, 0xa8, 0x5a,
-	0xbb, 0x56, 0xed, 0x5a, 0xcb, 0x3c, 0xa2, 0x6d, 0x28, 0x87, 0x94, 0xf1, 0x5e, 0xf5, 0x52, 0x72,
-	0xae, 0x1e, 0xdc, 0x63, 0xb8, 0x39, 0xe7, 0x23, 0xfa, 0x9c, 0x09, 0x8a, 0x0e, 0x60, 0x23, 0x50,
-	0x47, 0x89, 0xd1, 0x66, 0x63, 0x07, 0x2b, 0x30, 0x3c, 0x01, 0xc7, 0x9a, 0x0a, 0x37, 0x79, 0xc4,
-	0x5a, 0x46, 0xe9, 0x3e, 0x80, 0xaa, 0x72, 0x3b, 0xec, 0x76, 0xb5, 0xa1, 0x58, 0x49, 0xe6, 0xb6,
-	0x60, 0x27, 0x27, 0x4b, 0x73, 0x3c, 0x84, 0xab, 0xda, 0x7d, 0x92, 0x77, 0x79, 0x39, 0x48, 0x2a,
-	0x75, 0x9f, 0x18, 0x92, 0x47, 0xb4, 0x4b, 0x3b, 0x44, 0x46, 0x9c, 0xa5, 0x24, 0xfb, 0xb0, 0x15,
-	0xaa, 0x53, 0x1e, 0xbf, 0xcf, 0x32, 0x55, 0xd2, 0xc0, 0xa1, 0x86, 0x8b, 0x0c, 0x5c, 0xc6, 0x48,
-	0xc3, 0x1d, 0xc3, 0x66, 0x38, 0x3d, 0xd6, 0x7c, 0xf7, 0x0d, 0x9f, 0x99, 0x98, 0x41, 0x9c, 0x3a,
-	0x18, 0x83, 0xd6, 0x6c, 0xba, 0x2b, 0xe0, 0xd6, 0x7c, 0xa9, 0xbf, 0x41, 0x9e, 0x88, 0x87, 0xa4,
-	0x1b, 0x85, 0x19, 0xb1, 0x9a, 0x7a, 0x25, 0x0d, 0x98, 0xfe, 0x3e, 0x2c, 0xbe, 0xa8, 0xb4, 0xbd,
-	0x67, 0x00, 0x53, 0x3e, 0x7d, 0x0d, 0xd6, 0xe9, 0x6e, 0x26, 0xdb, 0x7d, 0x09, 0xb7, 0x55, 0x9d,
-	0x37, 0x2c, 0xe0, 0x2c, 0x8c, 0x58, 0xe7, 0x5f, 0x27, 0x23, 0xc0, 0x5d, 0xe6, 0xa8, 0x7b, 0x78,
-	0x91, 0x37, 0xa2, 0xfd, 0xa2, 0x26, 0x72, 0xac, 0xb2, 0x33, 0xfa, 0x02, 0xbb, 0x85, 0x45, 0xff,
-	0xff, 0xb0, 0xfa, 0x4b, 0x5e, 0x62, 0xda, 0xf1, 0xf3, 0x9c, 0xa9, 0xad, 0xd5, 0xf0, 0x4c, 0x7a,
-	0xe3, 0x47, 0x19, 0xca, 0xaf, 0x26, 0xdb, 0x0c, 0xbd, 0x83, 0xeb, 0x99, 0x4d, 0x81, 0xf6, 0x70,
-	0x76, 0xb3, 0xe1, 0xbc, 0x85, 0x64, 0xdf, 0x59, 0xa1, 0x52, 0xd0, 0x75, 0x0b, 0x9d, 0xc0, 0xd6,
-	0xc2, 0x16, 0x40, 0xb5, 0xfc, 0xec, 0xc5, 0xf5, 0x62, 0xdf, 0xbb, 0x80, 0x72, 0xb1, 0xd6, 0xcc,
-	0x8d, 0x29, 0xaa, 0xb5, 0x78, 0x4d, 0x8b, 0x6a, 0xe5, 0x5c, 0xbf, 0xba, 0x85, 0x3a, 0x50, 0x99,
-	0x0f, 0xa3, 0xbb, 0xab, 0x0c, 0x4c, 0xa5, 0xda, 0x6a, 0x61, 0x5a, 0xe8, 0x9b, 0x05, 0x76, 0xf1,
-	0x07, 0x81, 0xfc, 0x7c, 0xab, 0x25, 0x9f, 0xa3, 0xdd, 0x58, 0x27, 0x25, 0xe5, 0xf8, 0x6a, 0x99,
-	0x95, 0x99, 0x23, 0x44, 0xf5, 0x0b, 0x7b, 0x1a, 0x0a, 0x7f, 0x8d, 0x0c, 0x03, 0x71, 0xf4, 0xf4,
-	0xe7, 0xc8, 0xb1, 0xce, 0x47, 0x8e, 0xf5, 0x7b, 0xe4, 0x58, 0xdf, 0xc7, 0x4e, 0xe9, 0x7c, 0xec,
-	0x94, 0x7e, 0x8d, 0x9d, 0xd2, 0x5b, 0xdc, 0x89, 0xe4, 0xc7, 0x41, 0x80, 0xdb, 0xbc, 0xe7, 0x35,
-	0x93, 0x8f, 0xa2, 0xc9, 0x99, 0x8c, 0x49, 0x5b, 0x0a, 0x2f, 0xf9, 0x8d, 0x7f, 0x36, 0x3f, 0x72,
-	0x79, 0xd6, 0xa7, 0x22, 0xb8, 0x92, 0xfc, 0x70, 0x0f, 0xfe, 0x04, 0x00, 0x00, 0xff, 0xff, 0x56,
-	0x8f, 0x51, 0x8d, 0xe4, 0x07, 0x00, 0x00,
+	// 337 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x51, 0x4d, 0x4b, 0x42, 0x41,
+	0x14, 0x75, 0x14, 0x1f, 0x34, 0x42, 0xc4, 0x60, 0x61, 0x6f, 0xf1, 0x10, 0x29, 0x70, 0x11, 0x33,
+	0x6a, 0x9b, 0x6a, 0x57, 0x26, 0xb8, 0xac, 0xd7, 0x22, 0x68, 0xd5, 0xa8, 0x93, 0x5a, 0xef, 0xcd,
+	0x3c, 0xe7, 0x43, 0x9a, 0x7f, 0xd1, 0xcf, 0x0a, 0xda, 0xb8, 0x6c, 0x19, 0xfa, 0x47, 0xc2, 0x79,
+	0x23, 0x54, 0x04, 0xb5, 0x9b, 0x7b, 0xce, 0x99, 0x7b, 0xcf, 0x3d, 0x17, 0x86, 0x8f, 0x86, 0x0b,
+	0xa2, 0xb4, 0x64, 0x34, 0x25, 0xf3, 0x36, 0x99, 0x19, 0x26, 0x2d, 0xce, 0xa4, 0xd0, 0x02, 0x6d,
+	0xaf, 0x39, 0x9c, 0x73, 0x78, 0xde, 0x0e, 0xf7, 0xc7, 0x42, 0x8c, 0x13, 0x46, 0x1c, 0x3b, 0x30,
+	0x0f, 0x84, 0x72, 0x2f, 0x6d, 0xbc, 0x01, 0x58, 0xbd, 0x71, 0xc2, 0x4b, 0xcb, 0x69, 0x3a, 0x1d,
+	0xc6, 0x6c, 0x66, 0x98, 0xd2, 0x68, 0x0f, 0x06, 0xa9, 0x18, 0x99, 0x84, 0xd5, 0x40, 0x1d, 0x34,
+	0xb7, 0x62, 0x5f, 0x39, 0x9c, 0xe9, 0x89, 0x18, 0xd5, 0x8a, 0x1e, 0x77, 0x15, 0xea, 0xc3, 0x20,
+	0xa3, 0x92, 0xa6, 0xaa, 0x56, 0xaa, 0x97, 0x9a, 0x95, 0x4e, 0x0b, 0x7f, 0x37, 0x81, 0x7f, 0x9b,
+	0x82, 0xaf, 0xdc, 0x97, 0x1e, 0xd7, 0xd2, 0xc6, 0xfe, 0x7f, 0x78, 0x0a, 0x2b, 0x5f, 0x60, 0xb4,
+	0x03, 0x4b, 0x4f, 0xcc, 0x7a, 0x17, 0xeb, 0x27, 0xaa, 0xc2, 0xf2, 0x9c, 0x26, 0x86, 0x79, 0x07,
+	0x79, 0x71, 0x56, 0x3c, 0x01, 0x8d, 0x1e, 0xdc, 0xfd, 0x31, 0x46, 0x65, 0x82, 0x2b, 0x86, 0x8e,
+	0x60, 0x20, 0x99, 0x32, 0x89, 0x76, 0x7d, 0x2a, 0x9d, 0x2a, 0xce, 0x23, 0xc1, 0x9b, 0x48, 0xf0,
+	0x39, 0xb7, 0xb1, 0xd7, 0x74, 0xee, 0x61, 0xf9, 0x7a, 0x1d, 0x27, 0xba, 0x85, 0x41, 0xde, 0x0f,
+	0x1d, 0xfc, 0x67, 0x9d, 0xf0, 0xf0, 0x0f, 0x55, 0xee, 0xa6, 0x05, 0x2e, 0xfa, 0xaf, 0xcb, 0x08,
+	0x2c, 0x96, 0x11, 0xf8, 0x58, 0x46, 0xe0, 0x65, 0x15, 0x15, 0x16, 0xab, 0xa8, 0xf0, 0xbe, 0x8a,
+	0x0a, 0x77, 0x78, 0x3c, 0xd5, 0x13, 0x33, 0xc0, 0x43, 0x91, 0x92, 0xae, 0x50, 0xa9, 0x50, 0x5d,
+	0xc1, 0xb5, 0xa4, 0x43, 0xad, 0x88, 0x3b, 0xf9, 0xf3, 0xe6, 0xe8, 0xda, 0x66, 0x4c, 0x0d, 0x02,
+	0xb7, 0xc1, 0xf1, 0x67, 0x00, 0x00, 0x00, 0xff, 0xff, 0x64, 0x54, 0x7a, 0x86, 0x10, 0x02, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -665,18 +184,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// StreamBalance streams real-time balance updates for a specific address.
-	StreamBalance(ctx context.Context, in *StreamBalanceRequest, opts ...grpc.CallOption) (Query_StreamBalanceClient, error)
-	// StreamAllBalances streams real-time balance updates for all addresses.
-	StreamAllBalances(ctx context.Context, in *StreamAllBalancesRequest, opts ...grpc.CallOption) (Query_StreamAllBalancesClient, error)
-	// StreamDelegations streams real-time delegation updates for a specific address.
-	StreamDelegations(ctx context.Context, in *StreamDelegationsRequest, opts ...grpc.CallOption) (Query_StreamDelegationsClient, error)
-	// StreamDelegation streams real-time updates for a specific delegation.
-	StreamDelegation(ctx context.Context, in *StreamDelegationRequest, opts ...grpc.CallOption) (Query_StreamDelegationClient, error)
-	// StreamUnbondingDelegations streams real-time unbonding delegation updates for a specific address.
-	StreamUnbondingDelegations(ctx context.Context, in *StreamUnbondingDelegationsRequest, opts ...grpc.CallOption) (Query_StreamUnbondingDelegationsClient, error)
-	// StreamUnbondingDelegation streams real-time updates for a specific unbonding delegation.
-	StreamUnbondingDelegation(ctx context.Context, in *StreamUnbondingDelegationRequest, opts ...grpc.CallOption) (Query_StreamUnbondingDelegationClient, error)
+	// Stream is a dynamic streaming endpoint to add streaming support to any registered grpc unary query
+	Stream(ctx context.Context, in *StreamDynamicRequest, opts ...grpc.CallOption) (Query_StreamClient, error)
 }
 
 type queryClient struct {
@@ -687,12 +196,12 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) StreamBalance(ctx context.Context, in *StreamBalanceRequest, opts ...grpc.CallOption) (Query_StreamBalanceClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Query_serviceDesc.Streams[0], "/juno.stream.v1.Query/StreamBalance", opts...)
+func (c *queryClient) Stream(ctx context.Context, in *StreamDynamicRequest, opts ...grpc.CallOption) (Query_StreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Query_serviceDesc.Streams[0], "/juno.stream.v1.Query/Stream", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &queryStreamBalanceClient{stream}
+	x := &queryStreamClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -702,177 +211,17 @@ func (c *queryClient) StreamBalance(ctx context.Context, in *StreamBalanceReques
 	return x, nil
 }
 
-type Query_StreamBalanceClient interface {
-	Recv() (*StreamBalanceResponse, error)
+type Query_StreamClient interface {
+	Recv() (*StreamDynamicResponse, error)
 	grpc.ClientStream
 }
 
-type queryStreamBalanceClient struct {
+type queryStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *queryStreamBalanceClient) Recv() (*StreamBalanceResponse, error) {
-	m := new(StreamBalanceResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *queryClient) StreamAllBalances(ctx context.Context, in *StreamAllBalancesRequest, opts ...grpc.CallOption) (Query_StreamAllBalancesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Query_serviceDesc.Streams[1], "/juno.stream.v1.Query/StreamAllBalances", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &queryStreamAllBalancesClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Query_StreamAllBalancesClient interface {
-	Recv() (*StreamAllBalancesResponse, error)
-	grpc.ClientStream
-}
-
-type queryStreamAllBalancesClient struct {
-	grpc.ClientStream
-}
-
-func (x *queryStreamAllBalancesClient) Recv() (*StreamAllBalancesResponse, error) {
-	m := new(StreamAllBalancesResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *queryClient) StreamDelegations(ctx context.Context, in *StreamDelegationsRequest, opts ...grpc.CallOption) (Query_StreamDelegationsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Query_serviceDesc.Streams[2], "/juno.stream.v1.Query/StreamDelegations", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &queryStreamDelegationsClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Query_StreamDelegationsClient interface {
-	Recv() (*StreamDelegationsResponse, error)
-	grpc.ClientStream
-}
-
-type queryStreamDelegationsClient struct {
-	grpc.ClientStream
-}
-
-func (x *queryStreamDelegationsClient) Recv() (*StreamDelegationsResponse, error) {
-	m := new(StreamDelegationsResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *queryClient) StreamDelegation(ctx context.Context, in *StreamDelegationRequest, opts ...grpc.CallOption) (Query_StreamDelegationClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Query_serviceDesc.Streams[3], "/juno.stream.v1.Query/StreamDelegation", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &queryStreamDelegationClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Query_StreamDelegationClient interface {
-	Recv() (*StreamDelegationResponse, error)
-	grpc.ClientStream
-}
-
-type queryStreamDelegationClient struct {
-	grpc.ClientStream
-}
-
-func (x *queryStreamDelegationClient) Recv() (*StreamDelegationResponse, error) {
-	m := new(StreamDelegationResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *queryClient) StreamUnbondingDelegations(ctx context.Context, in *StreamUnbondingDelegationsRequest, opts ...grpc.CallOption) (Query_StreamUnbondingDelegationsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Query_serviceDesc.Streams[4], "/juno.stream.v1.Query/StreamUnbondingDelegations", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &queryStreamUnbondingDelegationsClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Query_StreamUnbondingDelegationsClient interface {
-	Recv() (*StreamUnbondingDelegationsResponse, error)
-	grpc.ClientStream
-}
-
-type queryStreamUnbondingDelegationsClient struct {
-	grpc.ClientStream
-}
-
-func (x *queryStreamUnbondingDelegationsClient) Recv() (*StreamUnbondingDelegationsResponse, error) {
-	m := new(StreamUnbondingDelegationsResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *queryClient) StreamUnbondingDelegation(ctx context.Context, in *StreamUnbondingDelegationRequest, opts ...grpc.CallOption) (Query_StreamUnbondingDelegationClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Query_serviceDesc.Streams[5], "/juno.stream.v1.Query/StreamUnbondingDelegation", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &queryStreamUnbondingDelegationClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Query_StreamUnbondingDelegationClient interface {
-	Recv() (*StreamUnbondingDelegationResponse, error)
-	grpc.ClientStream
-}
-
-type queryStreamUnbondingDelegationClient struct {
-	grpc.ClientStream
-}
-
-func (x *queryStreamUnbondingDelegationClient) Recv() (*StreamUnbondingDelegationResponse, error) {
-	m := new(StreamUnbondingDelegationResponse)
+func (x *queryStreamClient) Recv() (*StreamDynamicResponse, error) {
+	m := new(StreamDynamicResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -881,170 +230,40 @@ func (x *queryStreamUnbondingDelegationClient) Recv() (*StreamUnbondingDelegatio
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// StreamBalance streams real-time balance updates for a specific address.
-	StreamBalance(*StreamBalanceRequest, Query_StreamBalanceServer) error
-	// StreamAllBalances streams real-time balance updates for all addresses.
-	StreamAllBalances(*StreamAllBalancesRequest, Query_StreamAllBalancesServer) error
-	// StreamDelegations streams real-time delegation updates for a specific address.
-	StreamDelegations(*StreamDelegationsRequest, Query_StreamDelegationsServer) error
-	// StreamDelegation streams real-time updates for a specific delegation.
-	StreamDelegation(*StreamDelegationRequest, Query_StreamDelegationServer) error
-	// StreamUnbondingDelegations streams real-time unbonding delegation updates for a specific address.
-	StreamUnbondingDelegations(*StreamUnbondingDelegationsRequest, Query_StreamUnbondingDelegationsServer) error
-	// StreamUnbondingDelegation streams real-time updates for a specific unbonding delegation.
-	StreamUnbondingDelegation(*StreamUnbondingDelegationRequest, Query_StreamUnbondingDelegationServer) error
+	// Stream is a dynamic streaming endpoint to add streaming support to any registered grpc unary query
+	Stream(*StreamDynamicRequest, Query_StreamServer) error
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) StreamBalance(req *StreamBalanceRequest, srv Query_StreamBalanceServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamBalance not implemented")
-}
-func (*UnimplementedQueryServer) StreamAllBalances(req *StreamAllBalancesRequest, srv Query_StreamAllBalancesServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamAllBalances not implemented")
-}
-func (*UnimplementedQueryServer) StreamDelegations(req *StreamDelegationsRequest, srv Query_StreamDelegationsServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamDelegations not implemented")
-}
-func (*UnimplementedQueryServer) StreamDelegation(req *StreamDelegationRequest, srv Query_StreamDelegationServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamDelegation not implemented")
-}
-func (*UnimplementedQueryServer) StreamUnbondingDelegations(req *StreamUnbondingDelegationsRequest, srv Query_StreamUnbondingDelegationsServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamUnbondingDelegations not implemented")
-}
-func (*UnimplementedQueryServer) StreamUnbondingDelegation(req *StreamUnbondingDelegationRequest, srv Query_StreamUnbondingDelegationServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamUnbondingDelegation not implemented")
+func (*UnimplementedQueryServer) Stream(req *StreamDynamicRequest, srv Query_StreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method Stream not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_StreamBalance_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamBalanceRequest)
+func _Query_Stream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamDynamicRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(QueryServer).StreamBalance(m, &queryStreamBalanceServer{stream})
+	return srv.(QueryServer).Stream(m, &queryStreamServer{stream})
 }
 
-type Query_StreamBalanceServer interface {
-	Send(*StreamBalanceResponse) error
+type Query_StreamServer interface {
+	Send(*StreamDynamicResponse) error
 	grpc.ServerStream
 }
 
-type queryStreamBalanceServer struct {
+type queryStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *queryStreamBalanceServer) Send(m *StreamBalanceResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _Query_StreamAllBalances_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamAllBalancesRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(QueryServer).StreamAllBalances(m, &queryStreamAllBalancesServer{stream})
-}
-
-type Query_StreamAllBalancesServer interface {
-	Send(*StreamAllBalancesResponse) error
-	grpc.ServerStream
-}
-
-type queryStreamAllBalancesServer struct {
-	grpc.ServerStream
-}
-
-func (x *queryStreamAllBalancesServer) Send(m *StreamAllBalancesResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _Query_StreamDelegations_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamDelegationsRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(QueryServer).StreamDelegations(m, &queryStreamDelegationsServer{stream})
-}
-
-type Query_StreamDelegationsServer interface {
-	Send(*StreamDelegationsResponse) error
-	grpc.ServerStream
-}
-
-type queryStreamDelegationsServer struct {
-	grpc.ServerStream
-}
-
-func (x *queryStreamDelegationsServer) Send(m *StreamDelegationsResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _Query_StreamDelegation_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamDelegationRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(QueryServer).StreamDelegation(m, &queryStreamDelegationServer{stream})
-}
-
-type Query_StreamDelegationServer interface {
-	Send(*StreamDelegationResponse) error
-	grpc.ServerStream
-}
-
-type queryStreamDelegationServer struct {
-	grpc.ServerStream
-}
-
-func (x *queryStreamDelegationServer) Send(m *StreamDelegationResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _Query_StreamUnbondingDelegations_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamUnbondingDelegationsRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(QueryServer).StreamUnbondingDelegations(m, &queryStreamUnbondingDelegationsServer{stream})
-}
-
-type Query_StreamUnbondingDelegationsServer interface {
-	Send(*StreamUnbondingDelegationsResponse) error
-	grpc.ServerStream
-}
-
-type queryStreamUnbondingDelegationsServer struct {
-	grpc.ServerStream
-}
-
-func (x *queryStreamUnbondingDelegationsServer) Send(m *StreamUnbondingDelegationsResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _Query_StreamUnbondingDelegation_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamUnbondingDelegationRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(QueryServer).StreamUnbondingDelegation(m, &queryStreamUnbondingDelegationServer{stream})
-}
-
-type Query_StreamUnbondingDelegationServer interface {
-	Send(*StreamUnbondingDelegationResponse) error
-	grpc.ServerStream
-}
-
-type queryStreamUnbondingDelegationServer struct {
-	grpc.ServerStream
-}
-
-func (x *queryStreamUnbondingDelegationServer) Send(m *StreamUnbondingDelegationResponse) error {
+func (x *queryStreamServer) Send(m *StreamDynamicResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -1055,40 +274,15 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "StreamBalance",
-			Handler:       _Query_StreamBalance_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "StreamAllBalances",
-			Handler:       _Query_StreamAllBalances_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "StreamDelegations",
-			Handler:       _Query_StreamDelegations_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "StreamDelegation",
-			Handler:       _Query_StreamDelegation_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "StreamUnbondingDelegations",
-			Handler:       _Query_StreamUnbondingDelegations_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "StreamUnbondingDelegation",
-			Handler:       _Query_StreamUnbondingDelegation_Handler,
+			StreamName:    "Stream",
+			Handler:       _Query_Stream_Handler,
 			ServerStreams: true,
 		},
 	},
 	Metadata: "juno/stream/v1/query.proto",
 }
 
-func (m *StreamBalanceRequest) Marshal() (dAtA []byte, err error) {
+func (m *StreamDynamicRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1098,34 +292,53 @@ func (m *StreamBalanceRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *StreamBalanceRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *StreamDynamicRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *StreamBalanceRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *StreamDynamicRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Denom) > 0 {
-		i -= len(m.Denom)
-		copy(dAtA[i:], m.Denom)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Denom)))
+	if len(m.Params) > 0 {
+		for k := range m.Params {
+			v := m.Params[k]
+			baseI := i
+			i -= len(v)
+			copy(dAtA[i:], v)
+			i = encodeVarintQuery(dAtA, i, uint64(len(v)))
+			i--
+			dAtA[i] = 0x12
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintQuery(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintQuery(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Method) > 0 {
+		i -= len(m.Method)
+		copy(dAtA[i:], m.Method)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Method)))
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
+	if len(m.Module) > 0 {
+		i -= len(m.Module)
+		copy(dAtA[i:], m.Module)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Module)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *StreamBalanceResponse) Marshal() (dAtA []byte, err error) {
+func (m *StreamDynamicResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1135,364 +348,19 @@ func (m *StreamBalanceResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *StreamBalanceResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *StreamDynamicResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *StreamBalanceResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *StreamDynamicResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Balance != nil {
+	if m.Result != nil {
 		{
-			size, err := m.Balance.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintQuery(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamAllBalancesRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamAllBalancesRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamAllBalancesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamAllBalancesResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamAllBalancesResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamAllBalancesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Balances) > 0 {
-		for iNdEx := len(m.Balances) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Balances[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamDelegationsRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamDelegationsRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamDelegationsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.DelegatorAddress) > 0 {
-		i -= len(m.DelegatorAddress)
-		copy(dAtA[i:], m.DelegatorAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.DelegatorAddress)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamDelegationsResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamDelegationsResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamDelegationsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Delegations) > 0 {
-		for iNdEx := len(m.Delegations) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Delegations[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamDelegationRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamDelegationRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamDelegationRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.ValidatorAddress) > 0 {
-		i -= len(m.ValidatorAddress)
-		copy(dAtA[i:], m.ValidatorAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.ValidatorAddress)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.DelegatorAddress) > 0 {
-		i -= len(m.DelegatorAddress)
-		copy(dAtA[i:], m.DelegatorAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.DelegatorAddress)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamDelegationResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamDelegationResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamDelegationResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Delegation != nil {
-		{
-			size, err := m.Delegation.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintQuery(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamUnbondingDelegationsRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamUnbondingDelegationsRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamUnbondingDelegationsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.DelegatorAddress) > 0 {
-		i -= len(m.DelegatorAddress)
-		copy(dAtA[i:], m.DelegatorAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.DelegatorAddress)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamUnbondingDelegationsResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamUnbondingDelegationsResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamUnbondingDelegationsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Delegations) > 0 {
-		for iNdEx := len(m.Delegations) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Delegations[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamUnbondingDelegationRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamUnbondingDelegationRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamUnbondingDelegationRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.ValidatorAddress) > 0 {
-		i -= len(m.ValidatorAddress)
-		copy(dAtA[i:], m.ValidatorAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.ValidatorAddress)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.DelegatorAddress) > 0 {
-		i -= len(m.DelegatorAddress)
-		copy(dAtA[i:], m.DelegatorAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.DelegatorAddress)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *StreamUnbondingDelegationResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *StreamUnbondingDelegationResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *StreamUnbondingDelegationResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Delegation != nil {
-		{
-			size, err := m.Delegation.MarshalToSizedBuffer(dAtA[:i])
+			size, err := m.Result.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -1516,175 +384,39 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *StreamBalanceRequest) Size() (n int) {
+func (m *StreamDynamicRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Address)
+	l = len(m.Module)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
-	l = len(m.Denom)
+	l = len(m.Method)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
-	return n
-}
-
-func (m *StreamBalanceResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Balance != nil {
-		l = m.Balance.Size()
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *StreamAllBalancesRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *StreamAllBalancesResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.Balances) > 0 {
-		for _, e := range m.Balances {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
+	if len(m.Params) > 0 {
+		for k, v := range m.Params {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovQuery(uint64(len(k))) + 1 + len(v) + sovQuery(uint64(len(v)))
+			n += mapEntrySize + 1 + sovQuery(uint64(mapEntrySize))
 		}
 	}
 	return n
 }
 
-func (m *StreamDelegationsRequest) Size() (n int) {
+func (m *StreamDynamicResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.DelegatorAddress)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *StreamDelegationsResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.Delegations) > 0 {
-		for _, e := range m.Delegations {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *StreamDelegationRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.DelegatorAddress)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.ValidatorAddress)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *StreamDelegationResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Delegation != nil {
-		l = m.Delegation.Size()
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *StreamUnbondingDelegationsRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.DelegatorAddress)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *StreamUnbondingDelegationsResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.Delegations) > 0 {
-		for _, e := range m.Delegations {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *StreamUnbondingDelegationRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.DelegatorAddress)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.ValidatorAddress)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *StreamUnbondingDelegationResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Delegation != nil {
-		l = m.Delegation.Size()
+	if m.Result != nil {
+		l = m.Result.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
@@ -1696,7 +428,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *StreamBalanceRequest) Unmarshal(dAtA []byte) error {
+func (m *StreamDynamicRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1719,15 +451,15 @@ func (m *StreamBalanceRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: StreamBalanceRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: StreamDynamicRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamBalanceRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: StreamDynamicRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Module", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1755,11 +487,11 @@ func (m *StreamBalanceRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Address = string(dAtA[iNdEx:postIndex])
+			m.Module = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Method", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1787,61 +519,11 @@ func (m *StreamBalanceRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Denom = string(dAtA[iNdEx:postIndex])
+			m.Method = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamBalanceResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamBalanceResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamBalanceResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
+		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Balance", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1868,12 +550,103 @@ func (m *StreamBalanceResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Balance == nil {
-				m.Balance = &types.Coin{}
+			if m.Params == nil {
+				m.Params = make(map[string]string)
 			}
-			if err := m.Balance.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
+			var mapkey string
+			var mapvalue string
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowQuery
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowQuery
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthQuery
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthQuery
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var stringLenmapvalue uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowQuery
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapvalue |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapvalue := int(stringLenmapvalue)
+					if intStringLenmapvalue < 0 {
+						return ErrInvalidLengthQuery
+					}
+					postStringIndexmapvalue := iNdEx + intStringLenmapvalue
+					if postStringIndexmapvalue < 0 {
+						return ErrInvalidLengthQuery
+					}
+					if postStringIndexmapvalue > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = string(dAtA[iNdEx:postStringIndexmapvalue])
+					iNdEx = postStringIndexmapvalue
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipQuery(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthQuery
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
 			}
+			m.Params[mapkey] = mapvalue
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -1896,7 +669,7 @@ func (m *StreamBalanceResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *StreamAllBalancesRequest) Unmarshal(dAtA []byte) error {
+func (m *StreamDynamicResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1919,97 +692,15 @@ func (m *StreamAllBalancesRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: StreamAllBalancesRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: StreamDynamicResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamAllBalancesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: StreamDynamicResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Address = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamAllBalancesResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamAllBalancesResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamAllBalancesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Balances", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Result", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2036,740 +727,10 @@ func (m *StreamAllBalancesResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Balances = append(m.Balances, &types.Coin{})
-			if err := m.Balances[len(m.Balances)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
+			if m.Result == nil {
+				m.Result = &any.Any{}
 			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamDelegationsRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamDelegationsRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamDelegationsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamDelegationsResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamDelegationsResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamDelegationsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Delegations", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Delegations = append(m.Delegations, &types1.DelegationResponse{})
-			if err := m.Delegations[len(m.Delegations)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamDelegationRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamDelegationRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamDelegationRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ValidatorAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamDelegationResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamDelegationResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamDelegationResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Delegation", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Delegation == nil {
-				m.Delegation = &types1.DelegationResponse{}
-			}
-			if err := m.Delegation.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamUnbondingDelegationsRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamUnbondingDelegationsRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamUnbondingDelegationsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamUnbondingDelegationsResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamUnbondingDelegationsResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamUnbondingDelegationsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Delegations", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Delegations = append(m.Delegations, &types1.UnbondingDelegation{})
-			if err := m.Delegations[len(m.Delegations)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamUnbondingDelegationRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamUnbondingDelegationRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamUnbondingDelegationRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ValidatorAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StreamUnbondingDelegationResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StreamUnbondingDelegationResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StreamUnbondingDelegationResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Delegation", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Delegation == nil {
-				m.Delegation = &types1.UnbondingDelegation{}
-			}
-			if err := m.Delegation.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Result.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

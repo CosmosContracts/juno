@@ -2,68 +2,35 @@ package keeper
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
+	"cosmossdk.io/schema"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket"
-	"github.com/CosmosContracts/juno/v30/x/stream/keeper/websocket/middleware"
 	"github.com/CosmosContracts/juno/v30/x/stream/types"
+	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
 )
 
 // Keeper defines the stream module keeper
 type Keeper struct {
-	cdc       codec.BinaryCodec
-	storeKey  storetypes.StoreKey
-	authority string
-
-	bankKeeper    bankkeeper.Keeper
-	stakingKeeper *stakingkeeper.Keeper
+	baseApp *baseapp.BaseApp
 
 	// State listening components
-	intake     chan types.StreamEvent
-	registry   *types.SubscriptionRegistry
-	dispatcher *Dispatcher
+	registry       *types.SubscriptionRegistry
+	dispatcher     *types.Dispatcher
+	invoker        *types.RouterInvoker
+	methodRegistry *encoding.DynamicRegistry
 
-	// stores the node's context.Context for streaming queries
-	// TODO: find a better solution for accessing the main node context
-	// in the stream queries since grpc stream servers only have their own
-	// context instance. This would also increase the chains performance
-	// again because we don't need to run a preblocker before every block.
-	queryContext atomic.Value
+	// App lifecycle signalling
+	appDone   <-chan struct{}
+	appCancel context.CancelFunc
+	stopOnce  sync.Once
 
-	// App context for shutdown handling
-	appContext context.Context
-	appCancel  context.CancelFunc
-	stopOnce   sync.Once
-
-	// Connection limits from CometBFT config
-	maxConnections            int
-	maxSubscriptionsPerClient int
-	connectionManager         *ConnectionManager
-
-	// Stream configuration
-	config StreamConfig
-
-	// CORS configuration
-	allowAllOrigins bool
-	corsOrigins     []string
-
-	// Circuit breaker for connection protection
-	circuitBreaker *middleware.CircuitBreaker
-
-	// WebSocket handler
-	wsHandler *websocket.Handler
+	moduleCodecs map[string]schema.ModuleCodec
 
 	logger log.Logger
 }
@@ -71,71 +38,48 @@ type Keeper struct {
 // NewKeeper creates a new stream keeper
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey storetypes.StoreKey,
-	authority string,
-	bankKeeper bankkeeper.Keeper,
-	stakingKeeper *stakingkeeper.Keeper,
-	logger log.Logger,
-	maxConnections int,
-	maxSubscriptionsPerClient int,
+	homePath string,
+	baseApp *baseapp.BaseApp,
 ) *Keeper {
-	// Start with default config
-	config := DefaultStreamConfig()
+	logger := baseApp.Logger()
 
-	// Create buffered intake channel for state events
-	intake := make(chan types.StreamEvent, config.IntakeBufferSize)
+	streamCfg, err := types.LoadStreamConfig(homePath)
+	if err != nil {
+		logger.Error("failed to load stream config, using defaults", "error", err)
+	}
 
-	// Create subscription registry
-	registry := types.NewSubscriptionRegistry(logger)
+	registry := types.NewSubscriptionRegistry(logger, streamCfg)
+	dispatcher := types.NewDispatcher(int(streamCfg.SubscriptionBufferSize), registry, logger)
 
-	// Create dispatcher
-	dispatcher := NewDispatcher(intake, registry, logger)
+	invoker, err := types.NewRouterInvoker(baseApp, cdc)
+	if err != nil {
+		logger.Error("create router invoker: %w", err)
+	}
 
-	// Create app context for lifecycle management
+	methodRegistry, err := encoding.NewDynamicRegistry(baseApp)
+	if err != nil {
+		logger.Error("create dynamic method registry: %w", err)
+	}
+
 	appCtx, appCancel := context.WithCancel(context.Background())
 
-	// Set default values if not provided
-	if maxConnections <= 0 {
-		maxConnections = 900 // CometBFT default
-	}
-	if maxSubscriptionsPerClient <= 0 {
-		maxSubscriptionsPerClient = 5 // CometBFT default
-	}
-
-	// Create connection manager
-	connectionManager := NewConnectionManager(maxConnections, maxSubscriptionsPerClient, logger)
-
-	// Create circuit breaker (will be configured when SetStreamConfig is called)
-	circuitBreaker := middleware.NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
-
 	k := &Keeper{
-		cdc:                       cdc,
-		storeKey:                  storeKey,
-		authority:                 authority,
-		bankKeeper:                bankKeeper,
-		stakingKeeper:             stakingKeeper,
-		intake:                    intake,
-		registry:                  registry,
-		dispatcher:                dispatcher,
-		appContext:                appCtx,
-		appCancel:                 appCancel,
-		maxConnections:            maxConnections,
-		maxSubscriptionsPerClient: maxSubscriptionsPerClient,
-		connectionManager:         connectionManager,
-		config:                    config,
-		circuitBreaker:            circuitBreaker,
-		logger:                    logger.With("module", "x/stream"),
+		baseApp:        baseApp,
+		registry:       registry,
+		dispatcher:     dispatcher,
+		invoker:        invoker,
+		methodRegistry: methodRegistry,
+		appDone:        appCtx.Done(),
+		appCancel:      appCancel,
+		moduleCodecs:   make(map[string]schema.ModuleCodec),
+		logger:         logger.With("module", "x/stream"),
 	}
 
-	// Initialize WebSocket handler
-	k.InitializeWebSocketHandler()
+	if err := k.methodRegistry.Refresh(k.baseApp); err != nil {
+		k.logger.Error("failed to refresh method registry", "error", err)
+	}
 
 	return k
-}
-
-// GetAuthority returns the module's authority.
-func (k *Keeper) GetAuthority() string {
-	return k.authority
 }
 
 // Logger returns a module-specific logger.
@@ -143,20 +87,40 @@ func (k *Keeper) Logger() log.Logger {
 	return k.logger
 }
 
-// Intake returns the intake channel for the state listener
-func (k *Keeper) Intake() chan<- types.StreamEvent {
-	return k.intake
+// Dispatcher returns the event dispatcher for the stream module.
+func (k *Keeper) Dispatcher() *types.Dispatcher {
+	return k.dispatcher
 }
+
+// TODO: we need to wait until ALL cosmos sdk and juno modules FULLY implement SDK collections
+// until we can simplify the state decode by A LOT. Keeping this here for future reference.
+//
+// // RegisterModuleSchema builds and registers a module codec for the provided store key.
+// func (k *Keeper) RegisterModuleSchema(storeKey string, schema collections.Schema, opts collections.IndexingOptions) error {
+// 	if storeKey == "" {
+// 		return fmt.Errorf("store key cannot be empty")
+// 	}
+
+// 	moduleCodec, err := schema.ModuleCodec(opts)
+// 	if err != nil {
+// 		return fmt.Errorf("build module codec for store %s: %w", storeKey, err)
+// 	}
+
+// 	k.moduleCodecs[storeKey] = moduleCodec
+// 	return nil
+// }
+
+// // ModuleCodecs returns a snapshot copy of the registered module codecs keyed by store name.
+// func (k *Keeper) ModuleCodecs() map[string]schema.ModuleCodec {
+// 	out := make(map[string]schema.ModuleCodec, len(k.moduleCodecs))
+// 	maps.Copy(out, k.moduleCodecs)
+// 	return out
+// }
 
 // StartDispatcher starts the event dispatcher goroutine
 func (k *Keeper) StartDispatcher() {
-	go k.dispatcher.Start()
+	k.dispatcher.Start(newDoneContext(k.appDone))
 	k.logger.Info("stream dispatcher started")
-
-	// Start periodic cleanup for circuit breaker if enabled
-	if k.config.CircuitBreakerEnabled && k.circuitBreaker != nil {
-		go k.runCircuitBreakerCleanup()
-	}
 }
 
 // StopDispatcher stops the event dispatcher
@@ -187,189 +151,54 @@ func (k *Keeper) Registry() *types.SubscriptionRegistry {
 	return k.registry
 }
 
-// SetQueryContext updates the context used for streaming queries
-// This should be called at the beginning of each block
-func (k *Keeper) SetQueryContext(ctx context.Context) {
-	if sdkCtx, ok := ctx.(sdk.Context); ok {
-		k.queryContext.Store(ctx)
-		k.logger.Info("query context updated with SDK context",
-			"height", sdkCtx.BlockHeight(),
-			"has_multistore", sdkCtx.MultiStore() != nil)
-	}
+// MethodRegistry returns the dynamically discovered gRPC method registry.
+func (k *Keeper) MethodRegistry() *encoding.DynamicRegistry {
+	return k.methodRegistry
 }
 
-// GetQueryContext returns the current query context
-// Returns an error if context is not yet available
-func (k *Keeper) GetQueryContext() (context.Context, error) {
-	val := k.queryContext.Load()
-
-	if val != nil {
-		storedCtx := val.(context.Context)
-		select {
-		case <-storedCtx.Done():
-			k.logger.Warn("stored query context is cancelled")
-			return nil, errors.New("query context is no longer valid")
-		default:
-			return storedCtx, nil
-		}
-	}
-
-	// This happens when no block has been processed yet
-	k.logger.Debug("no query context available yet")
-	return nil, types.ErrNoQueryContext
+// Invoker returns the router invoker used by the stream module.
+func (k *Keeper) Invoker() *types.RouterInvoker {
+	return k.invoker
 }
 
 // GetAppContext returns the app context used for lifecycle management
 func (k *Keeper) GetAppContext() context.Context {
-	return k.appContext
+	return newDoneContext(k.appDone)
 }
 
-// SetConnectionLimits updates the connection limits from config
-func (k *Keeper) SetConnectionLimits(maxConnections, maxSubscriptionsPerClient int) {
-	if maxConnections > 0 {
-		k.maxConnections = maxConnections
-		k.connectionManager.maxConnections = int32(maxConnections)
-	}
-	if maxSubscriptionsPerClient > 0 {
-		k.maxSubscriptionsPerClient = maxSubscriptionsPerClient
-		k.connectionManager.maxSubscriptionsPerClient = int32(maxSubscriptionsPerClient)
-	}
-	k.logger.Info("connection limits updated",
-		"max_connections", k.maxConnections,
-		"max_subscriptions_per_client", k.maxSubscriptionsPerClient)
+type doneContext struct {
+	done <-chan struct{}
 }
 
-// SetAllowAllOrigins sets whether to allow all origins for WebSocket connections
-func (k *Keeper) SetAllowAllOrigins(allow bool) {
-	k.allowAllOrigins = allow
-	k.logger.Info("CORS configuration updated", "allow_all_origins", allow)
-
-	// Reinitialize WebSocket handler with new CORS settings
-	k.InitializeWebSocketHandler()
+func newDoneContext(done <-chan struct{}) context.Context {
+	if done == nil {
+		return context.Background()
+	}
+	return doneContext{done: done}
 }
 
-// SetStreamConfig updates the stream configuration
-func (k *Keeper) SetStreamConfig(config StreamConfig) error {
-	// Apply defaults to fill any zero values
-	config.ApplyDefaults()
+func (d doneContext) Deadline() (time.Time, bool) {
+	_ = d
+	return time.Time{}, false
+}
 
-	// Validate the configuration
-	if err := config.Validate(); err != nil {
-		return fmt.Errorf("invalid stream config: %w", err)
+func (d doneContext) Done() <-chan struct{} {
+	return d.done
+}
+
+func (d doneContext) Err() error {
+	if d.done == nil {
+		return nil
 	}
-
-	k.config = config
-
-	// Recreate intake channel with new buffer size if it changed
-	if cap(k.intake) != config.IntakeBufferSize {
-		// Note: This is safe only during initialization before the dispatcher starts
-		k.intake = make(chan types.StreamEvent, config.IntakeBufferSize)
-		k.dispatcher = NewDispatcher(k.intake, k.registry, k.logger)
+	select {
+	case <-d.done:
+		return context.Canceled
+	default:
+		return nil
 	}
+}
 
-	// Update connection manager settings
-	if k.connectionManager != nil {
-		k.connectionManager.SetEnableUUID(config.EnableConnectionUUID)
-	}
-
-	// Update circuit breaker configuration
-	switch {
-	case config.CircuitBreakerEnabled && k.circuitBreaker == nil:
-		k.circuitBreaker = middleware.NewCircuitBreaker(config.CircuitBreakerThreshold, config.CircuitBreakerTimeout)
-	case config.CircuitBreakerEnabled && k.circuitBreaker != nil:
-		// Update existing circuit breaker settings
-		k.circuitBreaker.UpdateThreshold(config.CircuitBreakerThreshold)
-		k.circuitBreaker.UpdateTimeout(config.CircuitBreakerTimeout)
-	case !config.CircuitBreakerEnabled:
-		// Disable circuit breaker
-		k.circuitBreaker = nil
-	}
-
-	k.logger.Info("stream configuration updated",
-		"intake_buffer_size", config.IntakeBufferSize,
-		"subscription_buffer_size", config.SubscriptionBufferSize,
-		"enable_connection_uuid", config.EnableConnectionUUID,
-		"circuit_breaker_enabled", config.CircuitBreakerEnabled)
-
-	// Reinitialize WebSocket handler with new config
-	k.InitializeWebSocketHandler()
-
+func (d doneContext) Value(_ any) any {
+	_ = d
 	return nil
-}
-
-// SetCORSOrigins updates the allowed CORS origins
-func (k *Keeper) SetCORSOrigins(origins []string) {
-	k.corsOrigins = origins
-	k.allowAllOrigins = len(origins) == 1 && origins[0] == "*"
-	k.logger.Info("CORS origins updated", "origins", origins, "allow_all", k.allowAllOrigins)
-}
-
-// GetConfig returns the current stream configuration
-func (k *Keeper) GetConfig() StreamConfig {
-	return k.config
-}
-
-// ValidateDenom validates if a denom is valid for streaming
-func (*Keeper) ValidateDenom(_ context.Context, denom string) error {
-	if denom == "" {
-		return errors.New("denom cannot be empty")
-	}
-
-	// Check if it's a valid denom format
-	if err := sdk.ValidateDenom(denom); err != nil {
-		return fmt.Errorf("invalid denom format: %w", err)
-	}
-
-	return nil
-}
-
-// GetCircuitBreakerMetrics returns circuit breaker metrics for monitoring
-func (k *Keeper) GetCircuitBreakerMetrics() map[string]any {
-	if k.circuitBreaker == nil {
-		return map[string]any{
-			"enabled": false,
-		}
-	}
-
-	metrics := k.circuitBreaker.GetMetrics()
-	metrics["enabled"] = true
-	return metrics
-}
-
-// runCircuitBreakerCleanup periodically cleans up stale circuit breaker entries
-func (k *Keeper) runCircuitBreakerCleanup() {
-	ticker := time.NewTicker(5 * time.Minute)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ticker.C:
-			k.performCircuitBreakerCleanup()
-		case <-k.appContext.Done():
-			k.logger.Info("stopping circuit breaker cleanup")
-			return
-		}
-	}
-}
-
-// performCircuitBreakerCleanup performs the actual cleanup and metrics update
-func (k *Keeper) performCircuitBreakerCleanup() {
-	if k.circuitBreaker == nil || k.connectionManager == nil {
-		return
-	}
-
-	activeConnections := k.connectionManager.GetActiveConnections()
-	k.circuitBreaker.CleanupStaleConnections(activeConnections)
-
-	// Update metrics
-	metrics := k.circuitBreaker.GetMetrics()
-	openCircuits, okOpen := metrics["open_circuits"].(int)
-	halfOpenCircuits, okHalf := metrics["half_open_circuits"].(int)
-	closedCircuits, okClosed := metrics["closed_circuits"].(int)
-
-	if okOpen && okHalf && okClosed {
-		types.UpdateCircuitBreakerMetrics(openCircuits, halfOpenCircuits, closedCircuits)
-	}
-
-	k.logger.Debug("circuit breaker cleanup completed", "active_connections", len(activeConnections))
 }

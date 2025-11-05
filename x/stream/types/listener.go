@@ -2,35 +2,34 @@ package types
 
 import (
 	"context"
-	"errors"
-	"fmt"
+	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
 )
 
 // StreamingListener implements the ABCIListener interface for the stream module
 type StreamingListener struct {
 	logger log.Logger
-	intake chan<- StreamEvent
+	intake chan<- encoding.StreamEvent
+	// decoders map[string]schema.ModuleCodec
 }
 
 // NewStreamingListener creates a new streaming listener
-func NewStreamingListener(intake chan<- StreamEvent) *StreamingListener {
+func NewStreamingListener(
+	intake chan<- encoding.StreamEvent,
+	logger log.Logger,
+	// decoders map[string]schema.ModuleCodec,
+) *StreamingListener {
 	return &StreamingListener{
-		logger: log.NewNopLogger(),
+		logger: logger,
 		intake: intake,
+		// decoders: decoders,
 	}
-}
-
-// WithLogger sets the logger for the streaming listener
-func (l *StreamingListener) WithLogger(logger log.Logger) *StreamingListener {
-	l.logger = logger
-	return l
 }
 
 // ListenFinalizeBlock implements the ABCIListener interface
@@ -39,230 +38,73 @@ func (*StreamingListener) ListenFinalizeBlock(_ context.Context, _ abci.RequestF
 }
 
 // ListenCommit implements the ABCIListener interface
-func (l *StreamingListener) ListenCommit(_ context.Context, _ abci.ResponseCommit, changeSet []*storetypes.StoreKVPair) error {
-	// Process each KV pair in the changeset
-	for _, kvPair := range changeSet {
-		if kvPair == nil {
-			continue
-		}
+func (l *StreamingListener) ListenCommit(_ context.Context, _ abci.ResponseCommit, _ []*storetypes.StoreKVPair) error {
+	// Event-based decoding is in a weird limbo because of the way the SDK handles collections versus
+	// grpc endpoints so there is no clean translation between kv state changes and actual query endpoints.
+	// So we just emit a single event to refresh all active subscriptions every block for the time being.
+	//
+	// for _, kvPair := range changeSet {
+	//     if kvPair == nil {
+	//         continue
+	//     }
 
-		// Parse the store name from the store key
-		storeName := kvPair.StoreKey
+	// 	events, err := l.parseStoreEvents(kvPair.StoreKey, kvPair.Key)
+	// 	if err != nil {
+	// 		l.logger.Error("failed to parse store event", "error", err, "store", kvPair.StoreKey)
+	// 		continue
+	// 	}
 
-		// Parse the event
-		event, err := l.parseStoreEvent(storeName, kvPair.Key, kvPair.Value, kvPair.Delete)
-		if err != nil {
-			l.logger.Error("failed to parse store event", "error", err, "store", storeName)
-			continue
-		}
+	//     l.emitEvents(events)
+	// }
 
-		if event == nil {
-			continue // Not a key we care about
-		}
+	// temp solution until automatic event decoding is better supported
+	l.emitEvents([]encoding.StreamEvent{{
+		Module: "new_block",
+		Method: "temp",
+		Params: map[string]string{},
+	}})
 
-		// Non-blocking send to intake channel with backpressure
+	return nil
+}
+
+func (l *StreamingListener) emitEvents(events []encoding.StreamEvent) {
+	if len(events) == 0 {
+		return
+	}
+
+	for _, event := range events {
 		select {
-		case l.intake <- *event:
-			l.logger.Debug("sent event to intake", "event", event)
+		case l.intake <- event:
+			l.logger.Debug("sent event to intake", "key", event.String())
 		default:
-			// Check channel capacity
 			channelLen := len(l.intake)
 			channelCap := cap(l.intake)
-			fillPercent := float64(channelLen) / float64(channelCap) * 100
+			fillPercent := 0.0
+			if channelCap > 0 {
+				fillPercent = float64(channelLen) / float64(channelCap) * 100
+			}
 
-			l.logger.Warn("intake channel full, dropping event",
-				"event", event,
-				"channel_len", channelLen,
-				"channel_cap", channelCap,
-				"fill_percent", fillPercent)
+			if fillPercent >= 95 {
+				l.logger.Warn("intake channel full, dropping event",
+					"key", event.String(),
+					"channel_len", channelLen,
+					"channel_cap", channelCap,
+					"fill_percent", fillPercent)
+				continue
+			}
+
+			timer := time.NewTimer(5 * time.Millisecond)
+			select {
+			case l.intake <- event:
+				timer.Stop()
+				l.logger.Debug("sent event to intake after wait", "key", event.String())
+			case <-timer.C:
+				l.logger.Warn("intake channel full after wait, dropping event",
+					"key", event.String(),
+					"channel_len", channelLen,
+					"channel_cap", channelCap,
+					"fill_percent", fillPercent)
+			}
 		}
-	}
-
-	return nil
-}
-
-// OnWrite implements the ABCIListener interface
-func (l *StreamingListener) OnWrite(storeKey storetypes.StoreKey, key []byte, value []byte, isDelete bool) error {
-	// Parse the key and emit events based on the store and key prefix
-	event, err := l.parseStoreEvent(storeKey.Name(), key, value, isDelete)
-	if err != nil {
-		l.logger.Error("failed to parse store event", "error", err, "store", storeKey.Name())
-		return nil
-	}
-
-	if event == nil {
-		return nil // Not a key we care about
-	}
-
-	// Non-blocking send to intake channel with backpressure
-	select {
-	case l.intake <- *event:
-	default:
-		// Check channel capacity
-		channelLen := len(l.intake)
-		channelCap := cap(l.intake)
-		fillPercent := float64(channelLen) / float64(channelCap) * 100
-
-		l.logger.Warn("intake channel full, dropping event",
-			"event", event,
-			"channel_len", channelLen,
-			"channel_cap", channelCap,
-			"fill_percent", fillPercent)
-	}
-
-	return nil
-}
-
-// parseStoreEvent parses a store event and returns a StreamEvent if it matches our criteria
-func (l *StreamingListener) parseStoreEvent(storeName string, key []byte, value []byte, isDelete bool) (*StreamEvent, error) {
-	switch storeName {
-	case "bank":
-		return l.parseBankEvent(key, value, isDelete)
-	case "staking":
-		return l.parseStakingEvent(key, value, isDelete)
-	default:
-		return nil, nil // Not a store we care about
-	}
-}
-
-// parseBankEvent parses bank module events
-func (l *StreamingListener) parseBankEvent(key []byte, _ []byte, isDelete bool) (*StreamEvent, error) {
-	if len(key) == 0 {
-		return nil, nil
-	}
-
-	l.logger.Debug("parsing bank event", "key_hex", fmt.Sprintf("%x", key), "key_len", len(key), "delete", isDelete)
-
-	// Check if this is a balance key (prefix 0x02)
-	if key[0] != BankBalancesPrefix[0] {
-		return nil, nil
-	}
-
-	// Parse bank balance key format: prefix + address_length + address + denom
-	if len(key) < 2 {
-		return nil, errors.New("invalid bank balance key length")
-	}
-
-	addrLen := key[1]
-	if len(key) < int(2+addrLen) {
-		return nil, errors.New("invalid bank balance key: insufficient length for address")
-	}
-
-	addressBytes := key[2 : 2+addrLen]
-	denom := string(key[2+addrLen:])
-
-	// Convert address bytes to Bech32
-	address, err := sdk.Bech32ifyAddressBytes("juno", addressBytes)
-	if err != nil {
-		l.logger.Error("failed to convert address to bech32", "error", err, "addr_bytes", fmt.Sprintf("%x", addressBytes))
-		return nil, fmt.Errorf("failed to convert address: %w", err)
-	}
-
-	l.logger.Info("bank balance change detected", "address", address, "denom", denom, "delete", isDelete)
-
-	return &StreamEvent{
-		Module:      ModuleNameBank,
-		EventType:   EventTypeBalanceChange,
-		Address:     address,
-		Denom:       denom,
-		BlockHeight: 0, // Will be set by the dispatcher
-	}, nil
-}
-
-// parseStakingEvent parses staking module events
-func (l *StreamingListener) parseStakingEvent(key []byte, value []byte, isDelete bool) (*StreamEvent, error) {
-	if len(key) == 0 {
-		return nil, nil
-	}
-
-	prefix := key[0]
-
-	switch prefix {
-	case StakingDelegationPrefix[0]:
-		return l.parseStakingDelegationEvent(key, value, isDelete)
-	case StakingUnbondingDelegationPrefix[0]:
-		return l.parseStakingUnbondingEvent(key, value, isDelete)
-	default:
-		return nil, nil
-	}
-}
-
-// parseStakingDelegationEvent parses delegation events
-func (*StreamingListener) parseStakingDelegationEvent(key []byte, _ []byte, _ bool) (*StreamEvent, error) {
-	// Parse delegation key format: prefix + delegator_addr_len + delegator_addr + validator_addr
-	if len(key) < 2 {
-		return nil, errors.New("invalid delegation key length")
-	}
-
-	delAddrLen := key[1]
-	if len(key) < int(2+delAddrLen) {
-		return nil, errors.New("invalid delegation key: insufficient length for delegator address")
-	}
-
-	delegatorAddrBytes := key[2 : 2+delAddrLen]
-	validatorAddrBytes := key[2+delAddrLen:]
-
-	// Convert addresses to Bech32
-	delegatorAddr, err := sdk.Bech32ifyAddressBytes("juno", delegatorAddrBytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert delegator address: %w", err)
-	}
-
-	validatorAddr, err := sdk.Bech32ifyAddressBytes("junovaloper", validatorAddrBytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert validator address: %w", err)
-	}
-
-	return &StreamEvent{
-		Module:           ModuleNameStaking,
-		EventType:        EventTypeDelegationChange,
-		Address:          delegatorAddr,
-		SecondaryAddress: validatorAddr,
-		BlockHeight:      0, // Will be set by the dispatcher
-	}, nil
-}
-
-// parseStakingUnbondingEvent parses unbonding delegation events
-func (*StreamingListener) parseStakingUnbondingEvent(key []byte, _ []byte, _ bool) (*StreamEvent, error) {
-	// Parse unbonding delegation key format: prefix + delegator_addr_len + delegator_addr + validator_addr
-	if len(key) < 2 {
-		return nil, errors.New("invalid unbonding delegation key length")
-	}
-
-	delAddrLen := key[1]
-	if len(key) < int(2+delAddrLen) {
-		return nil, errors.New("invalid unbonding delegation key: insufficient length for delegator address")
-	}
-
-	delegatorAddrBytes := key[2 : 2+delAddrLen]
-	validatorAddrBytes := key[2+delAddrLen:]
-
-	// Convert addresses to Bech32
-	delegatorAddr, err := sdk.Bech32ifyAddressBytes("juno", delegatorAddrBytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert delegator address: %w", err)
-	}
-
-	validatorAddr, err := sdk.Bech32ifyAddressBytes("junovaloper", validatorAddrBytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert validator address: %w", err)
-	}
-
-	return &StreamEvent{
-		Module:           ModuleNameStaking,
-		EventType:        EventTypeUnbondingDelegationChange,
-		Address:          delegatorAddr,
-		SecondaryAddress: validatorAddr,
-		BlockHeight:      0, // Will be set by the dispatcher
-	}, nil
-}
-
-// GenerateSubscriptionKey creates a subscription key from a StreamEvent
-func GenerateSubscriptionKey(subscriptionType, address, secondaryAddress, denom string) SubscriptionKey {
-	return SubscriptionKey{
-		SubscriptionType: subscriptionType,
-		Address:          address,
-		SecondaryAddress: secondaryAddress,
-		Denom:            denom,
 	}
 }
