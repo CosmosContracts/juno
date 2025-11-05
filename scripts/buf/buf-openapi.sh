@@ -412,7 +412,7 @@ yq eval -i '
 ' openapi.yaml
 
 # move the final openapi.yaml to the correct location
-mv openapi.yaml ../app/openapi.yaml
+mv openapi.yaml ../app/endpoints/openapi.yaml
 
 cd ..
 rm -rf gen

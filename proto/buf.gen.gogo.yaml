@@ -26,13 +26,13 @@ inputs:
       - proto/feemarket/feemarket/module/v1
 
 plugins:
-  - local: protoc-gen-gocosmos
+  - local: ["go", "tool", "protoc-gen-gocosmos"]
     out: .
     strategy: "directory"
     opt:
       - plugins=grpc
       - Mgoogle/protobuf/any.proto=github.com/cosmos/gogoproto/types/any
-  - local: protoc-gen-grpc-gateway
+  - local: ["go", "tool", "protoc-gen-grpc-gateway"]
     strategy: "directory"
     out: .
     opt:
