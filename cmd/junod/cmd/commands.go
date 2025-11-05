@@ -28,6 +28,7 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	"github.com/CosmosContracts/juno/v30/app"
+	"github.com/CosmosContracts/juno/v30/cmd/junod/cmd/stream"
 )
 
 var tempDir = func() string {
@@ -66,6 +67,8 @@ func queryCommand() *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
+
+	cmd.PersistentFlags().Bool(stream.StreamFlagName, false, "Stream updates and keep watching for changes")
 
 	cmd.AddCommand(
 		rpc.ValidatorCommand(),

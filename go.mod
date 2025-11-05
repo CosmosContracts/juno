@@ -4,7 +4,9 @@ go 1.25.2
 
 tool (
 	github.com/cosmos/cosmos-proto/cmd/protoc-gen-go-pulsar
+	github.com/cosmos/gogoproto/protoc-gen-gocosmos
 	github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+	github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	mvdan.cc/gofumpt
 )
@@ -17,6 +19,7 @@ require (
 	cosmossdk.io/errors v1.0.2
 	cosmossdk.io/log v1.6.1
 	cosmossdk.io/math v1.5.3
+	cosmossdk.io/schema v1.1.0
 	cosmossdk.io/store v1.1.2
 	cosmossdk.io/tools/confix v0.1.2
 	cosmossdk.io/x/evidence v0.2.0
@@ -38,7 +41,6 @@ require (
 	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/hashicorp/go-metrics v0.5.4
 	github.com/prometheus/client_golang v1.23.2
 	github.com/spf13/cast v1.10.0
 	github.com/spf13/cobra v1.10.1
@@ -47,6 +49,7 @@ require (
 	go.uber.org/mock v0.6.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20251014184007-4626949a642f
 	google.golang.org/grpc v1.76.0
+	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.5.2
 )
 
@@ -63,7 +66,6 @@ require (
 	cloud.google.com/go/storage v1.53.0 // indirect
 	codeberg.org/chavacava/garif v0.2.0 // indirect
 	cosmossdk.io/depinject v1.2.1 // indirect
-	cosmossdk.io/schema v1.1.0 // indirect
 	dev.gaijin.team/go/exhaustruct/v4 v4.0.0 // indirect
 	dev.gaijin.team/go/golib v0.6.0 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -168,6 +170,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fzipp/gocyclo v0.6.0 // indirect
 	github.com/getsentry/sentry-go v0.33.0 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/ghostiam/protogetter v0.3.16 // indirect
 	github.com/go-critic/go-critic v0.13.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.2 // indirect
@@ -228,6 +231,7 @@ require (
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-immutable-radix/v2 v2.1.0 // indirect
+	github.com/hashicorp/go-metrics v0.5.4 // indirect
 	github.com/hashicorp/go-plugin v1.6.3 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
@@ -328,7 +332,7 @@ require (
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/sourcegraph/go-diff v0.7.0 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
-	github.com/spf13/pflag v1.0.10 // indirect
+	github.com/spf13/pflag v1.0.10
 	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.2.0 // indirect
@@ -396,7 +400,6 @@ require (
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1 // indirect
 	google.golang.org/protobuf v1.36.10
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/tools v0.6.1 // indirect
 	mvdan.cc/gofumpt v0.9.1 // indirect
 	mvdan.cc/unparam v0.0.0-20250301125049-0df0534333a4 // indirect

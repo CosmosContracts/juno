@@ -87,7 +87,6 @@ import (
 	mintkeeper "github.com/CosmosContracts/juno/v30/x/mint/keeper"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
 	streamkeeper "github.com/CosmosContracts/juno/v30/x/stream/keeper"
-	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 	// wrappers
@@ -564,14 +563,13 @@ func NewAppKeepers(
 
 	appKeepers.StreamKeeper = streamkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[streamtypes.StoreKey],
-		govModAddress,
-		appKeepers.BankKeeper,
-		stakingKeeper,
-		bApp.Logger(),
-		0, // maxConnections - will be set from config
-		0, // maxSubscriptionsPerClient - will be set from config
+		homePath,
+		bApp,
 	)
+
+	// if err := appKeepers.registerStreamModuleCodecs(appCodec); err != nil {
+	// 	panic(fmt.Sprintf("failed to register stream module codecs: %v", err))
+	// }
 
 	appKeepers.ClockKeeper = clockkeeper.NewKeeper(
 		appCodec,
@@ -659,6 +657,27 @@ func NewAppKeepers(
 
 	return appKeepers
 }
+
+// TODO: we need to wait until ALL cosmos sdk and juno modules FULLY implement SDK collections
+// until we can simplify the state decode by A LOT. Keeping this here for future reference.
+// type moduleEntry struct {
+// 	storeKey string
+// 	schema   collections.Schema
+// }
+
+// func (appKeepers *AppKeepers) registerStreamModuleCodecs(appCodec codec.Codec) error {
+// 	modules := []moduleEntry{
+// 		{storeKey: distrtypes.StoreKey, schema: appKeepers.DistrKeeper.Schema},
+// 	}
+
+// 	for _, module := range modules {
+// 		if err := appKeepers.StreamKeeper.RegisterModuleSchema(module.storeKey, module.schema, collections.IndexingOptions{}); err != nil {
+// 			return err
+// 		}
+// 	}
+
+// 	return nil
+// }
 
 // BlockedAddresses returns all the app's blocked account addresses.
 func BlockedAddresses() map[string]bool {

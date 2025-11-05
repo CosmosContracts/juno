@@ -7,13 +7,8 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/httprule"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
-	_ "embed"
-
 	"github.com/cosmos/cosmos-sdk/server/api"
 )
-
-//go:embed openapi.yaml
-var specYAML []byte
 
 // compilePattern parses a path template and returns a runtime.Pattern
 func compilePattern(rule string) runtime.Pattern {
@@ -36,7 +31,7 @@ func RegisterScalarUI(apiSvr *api.Server) error {
 		compilePattern("/openapi.yaml"),
 		func(w http.ResponseWriter, _ *http.Request, _ map[string]string) {
 			w.Header().Set("Content-Type", "plain/text; charset=utf-8")
-			_, err := w.Write(specYAML)
+			_, err := w.Write(RawOpenAPISpec())
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return

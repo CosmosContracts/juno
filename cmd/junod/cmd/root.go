@@ -40,6 +40,7 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	"github.com/CosmosContracts/juno/v30/app"
+	"github.com/CosmosContracts/juno/v30/cmd/junod/cmd/stream"
 )
 
 var (
@@ -181,6 +182,10 @@ func NewRootCmd() *cobra.Command {
 		panic(err)
 	}
 
+	if err := stream.EnableQueryStreaming(rootCmd, autoCliOpts); err != nil {
+		panic(err)
+	}
+
 	return rootCmd
 }
 
@@ -287,7 +292,7 @@ func initRootCmd(
 	txConfig client.TxConfig,
 ) {
 	rootCmd.AddCommand(
-		WrapInitCmd(genutilcli.InitCmd(basicManager, app.DefaultNodeHome)),
+		stream.WrapInitCmd(genutilcli.InitCmd(basicManager, app.DefaultNodeHome)),
 		cmtcli.NewCompletionCmd(rootCmd, false),
 		DebugCmd(),
 		confixcmd.ConfigCommand(),
