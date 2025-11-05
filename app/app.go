@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -13,7 +12,6 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/spf13/viper"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
@@ -59,18 +57,16 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	junoante "github.com/CosmosContracts/juno/v30/app/ante"
 	endpoints "github.com/CosmosContracts/juno/v30/app/endpoints"
+	wsendpoints "github.com/CosmosContracts/juno/v30/app/endpoints/websocket"
 	"github.com/CosmosContracts/juno/v30/app/keepers"
 	upgrades "github.com/CosmosContracts/juno/v30/app/upgrades"
 	v30 "github.com/CosmosContracts/juno/v30/app/upgrades/v30"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	streamkeeper "github.com/CosmosContracts/juno/v30/x/stream/keeper"
 	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
@@ -181,15 +177,6 @@ func New(
 		app.homePath,
 	)
 
-	// load state streaming if enabled
-	if regErr := app.RegisterStreamingServices(appOpts, app.AppKeepers.GetKVStoreKeys()); regErr != nil {
-		panic(regErr)
-	}
-
-	// Start the stream keeper dispatcher
-	app.AppKeepers.StreamKeeper.StartDispatcher()
-
-	// optional: enable sign mode textual by overwriting the default tx config (after setting the bank keeper)
 	// nolint:gocritic
 	enabledSignModes := append(authtx.DefaultSignModes, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 	txConfigOpts := authtx.ConfigOptions{
@@ -213,7 +200,6 @@ func New(
 
 	app.configurator = module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.ModuleManager = module.NewManager(appModules(app, txConfig, appCodec)...)
-
 	app.BasicModuleManager = module.NewBasicManagerFromManager(
 		app.ModuleManager,
 		map[string]module.AppModuleBasic{
@@ -222,7 +208,6 @@ func New(
 	)
 	app.BasicModuleManager.RegisterLegacyAminoCodec(legacyAmino)
 	app.BasicModuleManager.RegisterInterfaces(interfaceRegistry)
-
 	err = app.ModuleManager.RegisterServices(app.configurator)
 	if err != nil {
 		panic(err)
@@ -230,7 +215,6 @@ func New(
 	app.ModuleManager.SetOrderPreBlockers(
 		upgradetypes.ModuleName,
 		authtypes.ModuleName,
-		streamtypes.ModuleName,
 	)
 	app.ModuleManager.SetOrderBeginBlockers(orderBeginBlockers()...)
 	app.ModuleManager.SetOrderEndBlockers(orderEndBlockers()...)
@@ -249,29 +233,30 @@ func New(
 	app.MountKVStores(app.AppKeepers.GetKVStoreKeys())
 	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKeys())
 
-	nodeConfig, err := wasm.ReadNodeConfig(appOpts)
-	if err != nil {
-		panic("error while reading wasm config: " + err.Error())
+	// setup streaming support
+	app.AppKeepers.StreamKeeper.StartDispatcher()
+	streamListener := streamtypes.NewStreamingListener(
+		app.AppKeepers.StreamKeeper.Dispatcher().Intake(),
+		app.Logger().With("module", "stream listener"),
+		// app.AppKeepers.StreamKeeper.ModuleCodecs(),
+	)
+	keys := app.AppKeepers.GetKVStoreKeys()
+	storeKeys := make([]storetypes.StoreKey, 0, len(keys))
+	for _, key := range keys {
+		if key != nil {
+			storeKeys = append(storeKeys, key)
+		}
 	}
-
-	// Set up the stream listener for state changes
-	streamListener := streamtypes.NewStreamingListener(app.AppKeepers.StreamKeeper.Intake()).
-		WithLogger(logger.With("module", "stream-listener"))
-
-	// Register the listener for specific store keys
-	storeKeys := []storetypes.StoreKey{
-		app.AppKeepers.GetKey(banktypes.StoreKey),
-		app.AppKeepers.GetKey(stakingtypes.StoreKey),
-	}
-
-	// Add listeners to the store
 	app.BaseApp.CommitMultiStore().AddListeners(storeKeys)
-
 	app.SetStreamingManager(storetypes.StreamingManager{
 		ABCIListeners: []storetypes.ABCIListener{streamListener},
 		StopNodeOnErr: false,
 	})
 
+	nodeConfig, err := wasm.ReadNodeConfig(appOpts)
+	if err != nil {
+		panic("error while reading wasm config: " + err.Error())
+	}
 	anteHandler, err := junoante.NewAnteHandler(
 		junoante.HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -375,70 +360,7 @@ func New(
 		app.AppKeepers.CapabilityKeeper.Seal()
 	}
 
-	// configure x/stream module keeper
-	app.setupStreamKeeper(homePath)
-
 	return app
-}
-
-// ensureStreamConfigExists adds stream configuration to config.toml if it doesn't exist
-func ensureStreamConfigExists(configPath string) error {
-	// Check if config.toml exists
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return nil
-	}
-
-	// Read existing config
-	content, err := os.ReadFile(configPath)
-	if err != nil {
-		return err
-	}
-
-	// Check if stream config already exists
-	if strings.Contains(string(content), "[stream]") {
-		return nil
-	}
-
-	// Append default stream config
-	streamConfig := `
-
-#######################################################
-###            Stream Module Configuration          ###
-#######################################################
-
-[stream]
-# Buffer size for intake channel that receives state events
-# Default: 1000
-intake_buffer_size = 1000
-
-# Buffer size for subscription channels per client
-# Default: 32
-subscription_buffer_size = 32
-
-# Enable UUID-based connection tracking for better connection management
-# When enabled, each connection gets a unique ID regardless of IP address
-# Default: true
-enable_connection_uuid = true
-
-# Connection timeout duration (e.g., "60s", "5m")
-# Default: 60s
-connection_timeout = "60s"
-
-# Circuit breaker prevents cascading failures by temporarily blocking failing connections
-# Default: true
-circuit_breaker_enabled = true
-
-# Number of consecutive failures before circuit breaker opens
-# Default: 5
-circuit_breaker_threshold = 5
-
-# Duration to wait before attempting to close circuit breaker (e.g., "30s", "1m")
-# Default: 30s
-circuit_breaker_timeout = "30s"
-`
-
-	newContent := string(content) + streamConfig
-	return os.WriteFile(configPath, []byte(newContent), 0o600)
 }
 
 func GetDefaultBypassFeeMessages() []string {
@@ -576,11 +498,6 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 		panic(err)
 	}
 
-	// Register WebSocket routes for the stream module
-	if err := endpoints.RegisterWebSocketRoutes(apiSvr, app.AppKeepers.StreamKeeper); err != nil {
-		panic(err)
-	}
-
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
@@ -592,11 +509,19 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 
 	// Register grpc-gateway routes for all modules.
 	app.BasicModuleManager.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+
+	// Register WebSocket routes for the stream module
+	if err := wsendpoints.RegisterRoutes(apiSvr, app.AppKeepers.StreamKeeper, app.homePath); err != nil {
+		panic(err)
+	}
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
 func (app *App) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.GRPCQueryRouter(), clientCtx, app.Simulate, app.interfaceRegistry)
+	if err := app.AppKeepers.StreamKeeper.MethodRegistry().Refresh(app.BaseApp); err != nil {
+		panic(err)
+	}
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
@@ -627,10 +552,8 @@ func (app *App) GetChainBondDenom() string {
 	return d
 }
 
-// Close stops the stream dispatcher and performs cleanup
+// Close stops the stream dispatcher and performs cleanup and then shuts down the node
 func (app *App) Close() error {
-	app.Logger().Info("App.Close() called, stopping stream dispatcher")
-
 	// Stop the stream dispatcher with timeout
 	done := make(chan struct{})
 	go func() {
@@ -679,50 +602,5 @@ func (app *App) setupUpgradeHandlers() {
 				&app.AppKeepers,
 			),
 		)
-	}
-}
-
-// setupStreamKeeper loads our config.toml and updates stream keeper limits
-func (app *App) setupStreamKeeper(homePath string) {
-	// Try to load config.toml
-	configPath := filepath.Join(homePath, "config", "config.toml")
-
-	// Ensure stream config exists in config.toml
-	if err := ensureStreamConfigExists(configPath); err != nil {
-		app.Logger().Debug("failed to ensure stream config exists", "error", err)
-	}
-
-	v := viper.New()
-	v.SetConfigFile(configPath)
-	v.SetConfigType("toml")
-
-	if err := v.ReadInConfig(); err != nil {
-		app.Logger().Info("could not read config.toml, using defaults for stream module", "error", err)
-		return
-	}
-
-	// Read WebSocket connection limits from RPC section
-	if app.AppKeepers.StreamKeeper != nil {
-		maxConnections := v.GetInt("rpc.max_open_connections")
-		maxSubscriptionsPerClient := v.GetInt("rpc.max_subscriptions_per_client")
-		app.AppKeepers.StreamKeeper.SetConnectionLimits(maxConnections, maxSubscriptionsPerClient)
-
-		// Read and set stream-specific configuration
-		streamConfig := streamkeeper.StreamConfig{
-			IntakeBufferSize:        v.GetInt("stream.intake_buffer_size"),
-			SubscriptionBufferSize:  v.GetInt("stream.subscription_buffer_size"),
-			EnableConnectionUUID:    v.GetBool("stream.enable_connection_uuid"),
-			ConnectionTimeout:       v.GetDuration("stream.connection_timeout"),
-			CircuitBreakerEnabled:   v.GetBool("stream.circuit_breaker_enabled"),
-			CircuitBreakerThreshold: v.GetInt("stream.circuit_breaker_threshold"),
-			CircuitBreakerTimeout:   v.GetDuration("stream.circuit_breaker_timeout"),
-		}
-		if err := app.AppKeepers.StreamKeeper.SetStreamConfig(streamConfig); err != nil {
-			app.Logger().Error("failed to set stream config", "error", err)
-		}
-
-		// Set CORS origins from RPC config
-		corsOrigins := v.GetStringSlice("rpc.cors_allowed_origins")
-		app.AppKeepers.StreamKeeper.SetCORSOrigins(corsOrigins)
 	}
 }
