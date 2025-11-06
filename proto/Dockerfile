@@ -11,6 +11,7 @@ ARG PROTO_BUILDER_VERSION="0.17.1"
 # --------------------------------------------------------
 
 FROM ghcr.io/cosmos/proto-builder:${PROTO_BUILDER_VERSION}
+ENV GOTOOLCHAIN=go1.25.2
 
 USER root
 
