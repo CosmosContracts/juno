@@ -4751,97 +4751,6 @@ paths:
       summary: Limits Config
       tags:
         - CosmWasm
-  /feemarket/feemarket/v1/gas_price/{denom}:
-    get:
-      description: |-
-        GasPrice returns the current feemarket module gas price
-         for specified denom.
-      operationId: feemarket_gas_price
-      parameters:
-        - name: denom
-          in: path
-          description: denom we are querying gas price in
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GasPriceResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      summary: Gas Price
-      tags:
-        - Feemarket
-  /feemarket/feemarket/v1/gas_prices:
-    get:
-      description: |-
-        GasPrices returns the current feemarket module list of gas prices
-         in all available denoms.
-      operationId: feemarket_gas_prices
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GasPricesResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      summary: Gas Prices
-      tags:
-        - Feemarket
-  /feemarket/feemarket/v1/params:
-    get:
-      description: Params returns the current feemarket module parameters.
-      operationId: feemarket_params
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ParamsResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      summary: Params
-      tags:
-        - Feemarket
-  /feemarket/feemarket/v1/state:
-    get:
-      description: State returns the current feemarket module state.
-      operationId: feemarket_state
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StateResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      summary: State
-      tags:
-        - Feemarket
   /ibc/apps/interchain_accounts/controller/v1/owners/{owner}/connections/{connectionId}:
     get:
       description: InterchainAccount returns the interchain account address for a given owner address on a given connection
@@ -6648,6 +6557,97 @@ paths:
       summary: Params
       tags:
         - Drip
+  /juno/feemarket/v1/gas_price/{denom}:
+    get:
+      description: |-
+        GasPrice returns the current feemarket module gas price
+         for specified denom.
+      operationId: feemarket_gas_price
+      parameters:
+        - name: denom
+          in: path
+          description: denom we are querying gas price in
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GasPriceResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      summary: Gas Price
+      tags:
+        - Feemarket
+  /juno/feemarket/v1/gas_prices:
+    get:
+      description: |-
+        GasPrices returns the current feemarket module list of gas prices
+         in all available denoms.
+      operationId: feemarket_gas_prices
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GasPricesResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      summary: Gas Prices
+      tags:
+        - Feemarket
+  /juno/feemarket/v1/params:
+    get:
+      description: Params returns the current feemarket module parameters.
+      operationId: feemarket_params
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParamsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      summary: Params
+      tags:
+        - Feemarket
+  /juno/feemarket/v1/state:
+    get:
+      description: State returns the current feemarket module state.
+      operationId: feemarket_state
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      summary: State
+      tags:
+        - Feemarket
   /juno/feepay/v1/all_contracts:
     get:
       description: Retrieve all fee pay contracts
@@ -8366,7 +8366,7 @@ components:
       properties:
         contractGasLimit:
           type: string
-          description: contract_gas_limit defines the maximum amount of gas that can be used by a contract.
+          description: contract_gas_limit is the contract call gas limit
         sendEnabled:
           type: array
           items:

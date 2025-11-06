@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: feemarket/feemarket/v1/query.proto
+// source: juno/feemarket/v1/query.proto
 
 package feemarketv1
 
@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Query_Params_FullMethodName    = "/feemarket.feemarket.v1.Query/Params"
-	Query_State_FullMethodName     = "/feemarket.feemarket.v1.Query/State"
-	Query_GasPrice_FullMethodName  = "/feemarket.feemarket.v1.Query/GasPrice"
-	Query_GasPrices_FullMethodName = "/feemarket.feemarket.v1.Query/GasPrices"
+	Query_Params_FullMethodName    = "/juno.feemarket.v1.Query/Params"
+	Query_State_FullMethodName     = "/juno.feemarket.v1.Query/State"
+	Query_GasPrice_FullMethodName  = "/juno.feemarket.v1.Query/GasPrice"
+	Query_GasPrices_FullMethodName = "/juno.feemarket.v1.Query/GasPrices"
 )
 
 // QueryClient is the client API for Query service.
@@ -226,7 +226,7 @@ func _Query_GasPrices_Handler(srv interface{}, ctx context.Context, dec func(int
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "feemarket.feemarket.v1.Query",
+	ServiceName: "juno.feemarket.v1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -247,5 +247,5 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "feemarket/feemarket/v1/query.proto",
+	Metadata: "juno/feemarket/v1/query.proto",
 }

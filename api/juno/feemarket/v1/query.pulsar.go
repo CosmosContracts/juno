@@ -21,8 +21,8 @@ var (
 )
 
 func init() {
-	file_feemarket_feemarket_v1_query_proto_init()
-	md_ParamsRequest = File_feemarket_feemarket_v1_query_proto.Messages().ByName("ParamsRequest")
+	file_juno_feemarket_v1_query_proto_init()
+	md_ParamsRequest = File_juno_feemarket_v1_query_proto.Messages().ByName("ParamsRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_ParamsRequest)(nil)
@@ -34,7 +34,7 @@ func (x *ParamsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ParamsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[0]
+	mi := &file_juno_feemarket_v1_query_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -107,9 +107,9 @@ func (x *fastReflection_ParamsRequest) Has(fd protoreflect.FieldDescriptor) bool
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -123,9 +123,9 @@ func (x *fastReflection_ParamsRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -139,9 +139,9 @@ func (x *fastReflection_ParamsRequest) Get(descriptor protoreflect.FieldDescript
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -159,9 +159,9 @@ func (x *fastReflection_ParamsRequest) Set(fd protoreflect.FieldDescriptor, valu
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -179,9 +179,9 @@ func (x *fastReflection_ParamsRequest) Mutable(fd protoreflect.FieldDescriptor) 
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -192,9 +192,9 @@ func (x *fastReflection_ParamsRequest) NewField(fd protoreflect.FieldDescriptor)
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -204,7 +204,7 @@ func (x *fastReflection_ParamsRequest) NewField(fd protoreflect.FieldDescriptor)
 func (x *fastReflection_ParamsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feemarket.feemarket.v1.ParamsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.ParamsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -378,8 +378,8 @@ var (
 )
 
 func init() {
-	file_feemarket_feemarket_v1_query_proto_init()
-	md_ParamsResponse = File_feemarket_feemarket_v1_query_proto.Messages().ByName("ParamsResponse")
+	file_juno_feemarket_v1_query_proto_init()
+	md_ParamsResponse = File_juno_feemarket_v1_query_proto.Messages().ByName("ParamsResponse")
 	fd_ParamsResponse_params = md_ParamsResponse.Fields().ByName("params")
 }
 
@@ -392,7 +392,7 @@ func (x *ParamsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ParamsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[1]
+	mi := &file_juno_feemarket_v1_query_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -469,13 +469,13 @@ func (x *fastReflection_ParamsResponse) Range(f func(protoreflect.FieldDescripto
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_ParamsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.ParamsResponse.params":
+	case "juno.feemarket.v1.ParamsResponse.params":
 		return x.Params != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -487,13 +487,13 @@ func (x *fastReflection_ParamsResponse) Has(fd protoreflect.FieldDescriptor) boo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.ParamsResponse.params":
+	case "juno.feemarket.v1.ParamsResponse.params":
 		x.Params = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -505,14 +505,14 @@ func (x *fastReflection_ParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_ParamsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "feemarket.feemarket.v1.ParamsResponse.params":
+	case "juno.feemarket.v1.ParamsResponse.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -528,13 +528,13 @@ func (x *fastReflection_ParamsResponse) Get(descriptor protoreflect.FieldDescrip
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ParamsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.ParamsResponse.params":
+	case "juno.feemarket.v1.ParamsResponse.params":
 		x.Params = value.Message().Interface().(*Params)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -550,16 +550,16 @@ func (x *fastReflection_ParamsResponse) Set(fd protoreflect.FieldDescriptor, val
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ParamsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.ParamsResponse.params":
+	case "juno.feemarket.v1.ParamsResponse.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -568,14 +568,14 @@ func (x *fastReflection_ParamsResponse) Mutable(fd protoreflect.FieldDescriptor)
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_ParamsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.ParamsResponse.params":
+	case "juno.feemarket.v1.ParamsResponse.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.ParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.ParamsResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.ParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -585,7 +585,7 @@ func (x *fastReflection_ParamsResponse) NewField(fd protoreflect.FieldDescriptor
 func (x *fastReflection_ParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feemarket.feemarket.v1.ParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.ParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -812,8 +812,8 @@ var (
 )
 
 func init() {
-	file_feemarket_feemarket_v1_query_proto_init()
-	md_StateRequest = File_feemarket_feemarket_v1_query_proto.Messages().ByName("StateRequest")
+	file_juno_feemarket_v1_query_proto_init()
+	md_StateRequest = File_juno_feemarket_v1_query_proto.Messages().ByName("StateRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_StateRequest)(nil)
@@ -825,7 +825,7 @@ func (x *StateRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *StateRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[2]
+	mi := &file_juno_feemarket_v1_query_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -898,9 +898,9 @@ func (x *fastReflection_StateRequest) Has(fd protoreflect.FieldDescriptor) bool 
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -914,9 +914,9 @@ func (x *fastReflection_StateRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -930,9 +930,9 @@ func (x *fastReflection_StateRequest) Get(descriptor protoreflect.FieldDescripto
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -950,9 +950,9 @@ func (x *fastReflection_StateRequest) Set(fd protoreflect.FieldDescriptor, value
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -970,9 +970,9 @@ func (x *fastReflection_StateRequest) Mutable(fd protoreflect.FieldDescriptor) p
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -983,9 +983,9 @@ func (x *fastReflection_StateRequest) NewField(fd protoreflect.FieldDescriptor) 
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -995,7 +995,7 @@ func (x *fastReflection_StateRequest) NewField(fd protoreflect.FieldDescriptor) 
 func (x *fastReflection_StateRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feemarket.feemarket.v1.StateRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.StateRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1169,8 +1169,8 @@ var (
 )
 
 func init() {
-	file_feemarket_feemarket_v1_query_proto_init()
-	md_StateResponse = File_feemarket_feemarket_v1_query_proto.Messages().ByName("StateResponse")
+	file_juno_feemarket_v1_query_proto_init()
+	md_StateResponse = File_juno_feemarket_v1_query_proto.Messages().ByName("StateResponse")
 	fd_StateResponse_state = md_StateResponse.Fields().ByName("state")
 }
 
@@ -1183,7 +1183,7 @@ func (x *StateResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *StateResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[3]
+	mi := &file_juno_feemarket_v1_query_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1260,13 +1260,13 @@ func (x *fastReflection_StateResponse) Range(f func(protoreflect.FieldDescriptor
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_StateResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.StateResponse.state":
+	case "juno.feemarket.v1.StateResponse.state":
 		return x.State != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1278,13 +1278,13 @@ func (x *fastReflection_StateResponse) Has(fd protoreflect.FieldDescriptor) bool
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_StateResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.StateResponse.state":
+	case "juno.feemarket.v1.StateResponse.state":
 		x.State = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1296,14 +1296,14 @@ func (x *fastReflection_StateResponse) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_StateResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "feemarket.feemarket.v1.StateResponse.state":
+	case "juno.feemarket.v1.StateResponse.state":
 		value := x.State
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1319,13 +1319,13 @@ func (x *fastReflection_StateResponse) Get(descriptor protoreflect.FieldDescript
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_StateResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.StateResponse.state":
+	case "juno.feemarket.v1.StateResponse.state":
 		x.State = value.Message().Interface().(*State)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1341,16 +1341,16 @@ func (x *fastReflection_StateResponse) Set(fd protoreflect.FieldDescriptor, valu
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_StateResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.StateResponse.state":
+	case "juno.feemarket.v1.StateResponse.state":
 		if x.State == nil {
 			x.State = new(State)
 		}
 		return protoreflect.ValueOfMessage(x.State.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1359,14 +1359,14 @@ func (x *fastReflection_StateResponse) Mutable(fd protoreflect.FieldDescriptor) 
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_StateResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.StateResponse.state":
+	case "juno.feemarket.v1.StateResponse.state":
 		m := new(State)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.StateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.StateResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.StateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1376,7 +1376,7 @@ func (x *fastReflection_StateResponse) NewField(fd protoreflect.FieldDescriptor)
 func (x *fastReflection_StateResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feemarket.feemarket.v1.StateResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.StateResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1604,8 +1604,8 @@ var (
 )
 
 func init() {
-	file_feemarket_feemarket_v1_query_proto_init()
-	md_GasPriceRequest = File_feemarket_feemarket_v1_query_proto.Messages().ByName("GasPriceRequest")
+	file_juno_feemarket_v1_query_proto_init()
+	md_GasPriceRequest = File_juno_feemarket_v1_query_proto.Messages().ByName("GasPriceRequest")
 	fd_GasPriceRequest_denom = md_GasPriceRequest.Fields().ByName("denom")
 }
 
@@ -1618,7 +1618,7 @@ func (x *GasPriceRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *GasPriceRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[4]
+	mi := &file_juno_feemarket_v1_query_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1695,13 +1695,13 @@ func (x *fastReflection_GasPriceRequest) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_GasPriceRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceRequest.denom":
+	case "juno.feemarket.v1.GasPriceRequest.denom":
 		return x.Denom != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1713,13 +1713,13 @@ func (x *fastReflection_GasPriceRequest) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GasPriceRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceRequest.denom":
+	case "juno.feemarket.v1.GasPriceRequest.denom":
 		x.Denom = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1731,14 +1731,14 @@ func (x *fastReflection_GasPriceRequest) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_GasPriceRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "feemarket.feemarket.v1.GasPriceRequest.denom":
+	case "juno.feemarket.v1.GasPriceRequest.denom":
 		value := x.Denom
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1754,13 +1754,13 @@ func (x *fastReflection_GasPriceRequest) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GasPriceRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceRequest.denom":
+	case "juno.feemarket.v1.GasPriceRequest.denom":
 		x.Denom = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1776,13 +1776,13 @@ func (x *fastReflection_GasPriceRequest) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GasPriceRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceRequest.denom":
-		panic(fmt.Errorf("field denom of message feemarket.feemarket.v1.GasPriceRequest is not mutable"))
+	case "juno.feemarket.v1.GasPriceRequest.denom":
+		panic(fmt.Errorf("field denom of message juno.feemarket.v1.GasPriceRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1791,13 +1791,13 @@ func (x *fastReflection_GasPriceRequest) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_GasPriceRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceRequest.denom":
+	case "juno.feemarket.v1.GasPriceRequest.denom":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1807,7 +1807,7 @@ func (x *fastReflection_GasPriceRequest) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_GasPriceRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feemarket.feemarket.v1.GasPriceRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.GasPriceRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2024,8 +2024,8 @@ var (
 )
 
 func init() {
-	file_feemarket_feemarket_v1_query_proto_init()
-	md_GasPriceResponse = File_feemarket_feemarket_v1_query_proto.Messages().ByName("GasPriceResponse")
+	file_juno_feemarket_v1_query_proto_init()
+	md_GasPriceResponse = File_juno_feemarket_v1_query_proto.Messages().ByName("GasPriceResponse")
 	fd_GasPriceResponse_price = md_GasPriceResponse.Fields().ByName("price")
 }
 
@@ -2038,7 +2038,7 @@ func (x *GasPriceResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *GasPriceResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[5]
+	mi := &file_juno_feemarket_v1_query_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2115,13 +2115,13 @@ func (x *fastReflection_GasPriceResponse) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_GasPriceResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceResponse.price":
+	case "juno.feemarket.v1.GasPriceResponse.price":
 		return x.Price != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2133,13 +2133,13 @@ func (x *fastReflection_GasPriceResponse) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GasPriceResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceResponse.price":
+	case "juno.feemarket.v1.GasPriceResponse.price":
 		x.Price = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2151,14 +2151,14 @@ func (x *fastReflection_GasPriceResponse) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_GasPriceResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "feemarket.feemarket.v1.GasPriceResponse.price":
+	case "juno.feemarket.v1.GasPriceResponse.price":
 		value := x.Price
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2174,13 +2174,13 @@ func (x *fastReflection_GasPriceResponse) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GasPriceResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceResponse.price":
+	case "juno.feemarket.v1.GasPriceResponse.price":
 		x.Price = value.Message().Interface().(*v1beta1.DecCoin)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2196,16 +2196,16 @@ func (x *fastReflection_GasPriceResponse) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GasPriceResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceResponse.price":
+	case "juno.feemarket.v1.GasPriceResponse.price":
 		if x.Price == nil {
 			x.Price = new(v1beta1.DecCoin)
 		}
 		return protoreflect.ValueOfMessage(x.Price.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2214,14 +2214,14 @@ func (x *fastReflection_GasPriceResponse) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_GasPriceResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPriceResponse.price":
+	case "juno.feemarket.v1.GasPriceResponse.price":
 		m := new(v1beta1.DecCoin)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPriceResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPriceResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPriceResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2231,7 +2231,7 @@ func (x *fastReflection_GasPriceResponse) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_GasPriceResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feemarket.feemarket.v1.GasPriceResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.GasPriceResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2458,8 +2458,8 @@ var (
 )
 
 func init() {
-	file_feemarket_feemarket_v1_query_proto_init()
-	md_GasPricesRequest = File_feemarket_feemarket_v1_query_proto.Messages().ByName("GasPricesRequest")
+	file_juno_feemarket_v1_query_proto_init()
+	md_GasPricesRequest = File_juno_feemarket_v1_query_proto.Messages().ByName("GasPricesRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_GasPricesRequest)(nil)
@@ -2471,7 +2471,7 @@ func (x *GasPricesRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *GasPricesRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[6]
+	mi := &file_juno_feemarket_v1_query_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2544,9 +2544,9 @@ func (x *fastReflection_GasPricesRequest) Has(fd protoreflect.FieldDescriptor) b
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2560,9 +2560,9 @@ func (x *fastReflection_GasPricesRequest) Clear(fd protoreflect.FieldDescriptor)
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2576,9 +2576,9 @@ func (x *fastReflection_GasPricesRequest) Get(descriptor protoreflect.FieldDescr
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2596,9 +2596,9 @@ func (x *fastReflection_GasPricesRequest) Set(fd protoreflect.FieldDescriptor, v
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2616,9 +2616,9 @@ func (x *fastReflection_GasPricesRequest) Mutable(fd protoreflect.FieldDescripto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2629,9 +2629,9 @@ func (x *fastReflection_GasPricesRequest) NewField(fd protoreflect.FieldDescript
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesRequest"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2641,7 +2641,7 @@ func (x *fastReflection_GasPricesRequest) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_GasPricesRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feemarket.feemarket.v1.GasPricesRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.GasPricesRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2866,8 +2866,8 @@ var (
 )
 
 func init() {
-	file_feemarket_feemarket_v1_query_proto_init()
-	md_GasPricesResponse = File_feemarket_feemarket_v1_query_proto.Messages().ByName("GasPricesResponse")
+	file_juno_feemarket_v1_query_proto_init()
+	md_GasPricesResponse = File_juno_feemarket_v1_query_proto.Messages().ByName("GasPricesResponse")
 	fd_GasPricesResponse_prices = md_GasPricesResponse.Fields().ByName("prices")
 }
 
@@ -2880,7 +2880,7 @@ func (x *GasPricesResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *GasPricesResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[7]
+	mi := &file_juno_feemarket_v1_query_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2957,13 +2957,13 @@ func (x *fastReflection_GasPricesResponse) Range(f func(protoreflect.FieldDescri
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_GasPricesResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPricesResponse.prices":
+	case "juno.feemarket.v1.GasPricesResponse.prices":
 		return len(x.Prices) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2975,13 +2975,13 @@ func (x *fastReflection_GasPricesResponse) Has(fd protoreflect.FieldDescriptor) 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GasPricesResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPricesResponse.prices":
+	case "juno.feemarket.v1.GasPricesResponse.prices":
 		x.Prices = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2993,7 +2993,7 @@ func (x *fastReflection_GasPricesResponse) Clear(fd protoreflect.FieldDescriptor
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_GasPricesResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "feemarket.feemarket.v1.GasPricesResponse.prices":
+	case "juno.feemarket.v1.GasPricesResponse.prices":
 		if len(x.Prices) == 0 {
 			return protoreflect.ValueOfList(&_GasPricesResponse_1_list{})
 		}
@@ -3001,9 +3001,9 @@ func (x *fastReflection_GasPricesResponse) Get(descriptor protoreflect.FieldDesc
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3019,15 +3019,15 @@ func (x *fastReflection_GasPricesResponse) Get(descriptor protoreflect.FieldDesc
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GasPricesResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPricesResponse.prices":
+	case "juno.feemarket.v1.GasPricesResponse.prices":
 		lv := value.List()
 		clv := lv.(*_GasPricesResponse_1_list)
 		x.Prices = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3043,7 +3043,7 @@ func (x *fastReflection_GasPricesResponse) Set(fd protoreflect.FieldDescriptor, 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GasPricesResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPricesResponse.prices":
+	case "juno.feemarket.v1.GasPricesResponse.prices":
 		if x.Prices == nil {
 			x.Prices = []*v1beta1.DecCoin{}
 		}
@@ -3051,9 +3051,9 @@ func (x *fastReflection_GasPricesResponse) Mutable(fd protoreflect.FieldDescript
 		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3062,14 +3062,14 @@ func (x *fastReflection_GasPricesResponse) Mutable(fd protoreflect.FieldDescript
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_GasPricesResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feemarket.feemarket.v1.GasPricesResponse.prices":
+	case "juno.feemarket.v1.GasPricesResponse.prices":
 		list := []*v1beta1.DecCoin{}
 		return protoreflect.ValueOfList(&_GasPricesResponse_1_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feemarket.feemarket.v1.GasPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: juno.feemarket.v1.GasPricesResponse"))
 		}
-		panic(fmt.Errorf("message feemarket.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message juno.feemarket.v1.GasPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3079,7 +3079,7 @@ func (x *fastReflection_GasPricesResponse) NewField(fd protoreflect.FieldDescrip
 func (x *fastReflection_GasPricesResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feemarket.feemarket.v1.GasPricesResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in juno.feemarket.v1.GasPricesResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3307,7 +3307,7 @@ func (x *fastReflection_GasPricesResponse) ProtoMethods() *protoiface.Methods {
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: feemarket/feemarket/v1/query.proto
+// source: juno/feemarket/v1/query.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -3326,7 +3326,7 @@ type ParamsRequest struct {
 func (x *ParamsRequest) Reset() {
 	*x = ParamsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[0]
+		mi := &file_juno_feemarket_v1_query_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3340,7 +3340,7 @@ func (*ParamsRequest) ProtoMessage() {}
 
 // Deprecated: Use ParamsRequest.ProtoReflect.Descriptor instead.
 func (*ParamsRequest) Descriptor() ([]byte, []int) {
-	return file_feemarket_feemarket_v1_query_proto_rawDescGZIP(), []int{0}
+	return file_juno_feemarket_v1_query_proto_rawDescGZIP(), []int{0}
 }
 
 // ParamsResponse is the response type for the Query/Params RPC method.
@@ -3355,7 +3355,7 @@ type ParamsResponse struct {
 func (x *ParamsResponse) Reset() {
 	*x = ParamsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[1]
+		mi := &file_juno_feemarket_v1_query_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3369,7 +3369,7 @@ func (*ParamsResponse) ProtoMessage() {}
 
 // Deprecated: Use ParamsResponse.ProtoReflect.Descriptor instead.
 func (*ParamsResponse) Descriptor() ([]byte, []int) {
-	return file_feemarket_feemarket_v1_query_proto_rawDescGZIP(), []int{1}
+	return file_juno_feemarket_v1_query_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ParamsResponse) GetParams() *Params {
@@ -3389,7 +3389,7 @@ type StateRequest struct {
 func (x *StateRequest) Reset() {
 	*x = StateRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[2]
+		mi := &file_juno_feemarket_v1_query_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3403,7 +3403,7 @@ func (*StateRequest) ProtoMessage() {}
 
 // Deprecated: Use StateRequest.ProtoReflect.Descriptor instead.
 func (*StateRequest) Descriptor() ([]byte, []int) {
-	return file_feemarket_feemarket_v1_query_proto_rawDescGZIP(), []int{2}
+	return file_juno_feemarket_v1_query_proto_rawDescGZIP(), []int{2}
 }
 
 // StateResponse is the response type for the Query/State RPC method.
@@ -3418,7 +3418,7 @@ type StateResponse struct {
 func (x *StateResponse) Reset() {
 	*x = StateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[3]
+		mi := &file_juno_feemarket_v1_query_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3432,7 +3432,7 @@ func (*StateResponse) ProtoMessage() {}
 
 // Deprecated: Use StateResponse.ProtoReflect.Descriptor instead.
 func (*StateResponse) Descriptor() ([]byte, []int) {
-	return file_feemarket_feemarket_v1_query_proto_rawDescGZIP(), []int{3}
+	return file_juno_feemarket_v1_query_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *StateResponse) GetState() *State {
@@ -3455,7 +3455,7 @@ type GasPriceRequest struct {
 func (x *GasPriceRequest) Reset() {
 	*x = GasPriceRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[4]
+		mi := &file_juno_feemarket_v1_query_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3469,7 +3469,7 @@ func (*GasPriceRequest) ProtoMessage() {}
 
 // Deprecated: Use GasPriceRequest.ProtoReflect.Descriptor instead.
 func (*GasPriceRequest) Descriptor() ([]byte, []int) {
-	return file_feemarket_feemarket_v1_query_proto_rawDescGZIP(), []int{4}
+	return file_juno_feemarket_v1_query_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GasPriceRequest) GetDenom() string {
@@ -3492,7 +3492,7 @@ type GasPriceResponse struct {
 func (x *GasPriceResponse) Reset() {
 	*x = GasPriceResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[5]
+		mi := &file_juno_feemarket_v1_query_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3506,7 +3506,7 @@ func (*GasPriceResponse) ProtoMessage() {}
 
 // Deprecated: Use GasPriceResponse.ProtoReflect.Descriptor instead.
 func (*GasPriceResponse) Descriptor() ([]byte, []int) {
-	return file_feemarket_feemarket_v1_query_proto_rawDescGZIP(), []int{5}
+	return file_juno_feemarket_v1_query_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GasPriceResponse) GetPrice() *v1beta1.DecCoin {
@@ -3526,7 +3526,7 @@ type GasPricesRequest struct {
 func (x *GasPricesRequest) Reset() {
 	*x = GasPricesRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[6]
+		mi := &file_juno_feemarket_v1_query_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3540,7 +3540,7 @@ func (*GasPricesRequest) ProtoMessage() {}
 
 // Deprecated: Use GasPricesRequest.ProtoReflect.Descriptor instead.
 func (*GasPricesRequest) Descriptor() ([]byte, []int) {
-	return file_feemarket_feemarket_v1_query_proto_rawDescGZIP(), []int{6}
+	return file_juno_feemarket_v1_query_proto_rawDescGZIP(), []int{6}
 }
 
 // GasPricesResponse is the response type for the Query/GasPrices RPC method.
@@ -3556,7 +3556,7 @@ type GasPricesResponse struct {
 func (x *GasPricesResponse) Reset() {
 	*x = GasPricesResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feemarket_feemarket_v1_query_proto_msgTypes[7]
+		mi := &file_juno_feemarket_v1_query_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3570,7 +3570,7 @@ func (*GasPricesResponse) ProtoMessage() {}
 
 // Deprecated: Use GasPricesResponse.ProtoReflect.Descriptor instead.
 func (*GasPricesResponse) Descriptor() ([]byte, []int) {
-	return file_feemarket_feemarket_v1_query_proto_rawDescGZIP(), []int{7}
+	return file_juno_feemarket_v1_query_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GasPricesResponse) GetPrices() []*v1beta1.DecCoin {
@@ -3580,143 +3580,136 @@ func (x *GasPricesResponse) GetPrices() []*v1beta1.DecCoin {
 	return nil
 }
 
-var File_feemarket_feemarket_v1_query_proto protoreflect.FileDescriptor
+var File_juno_feemarket_v1_query_proto protoreflect.FileDescriptor
 
-var file_feemarket_feemarket_v1_query_proto_rawDesc = []byte{
-	0x0a, 0x22, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x66, 0x65, 0x65, 0x6d,
-	0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x12, 0x16, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e,
-	0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x1a, 0x11, 0x61, 0x6d,
-	0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a,
-	0x1e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a,
-	0x24, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61,
-	0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x67, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x23, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74,
-	0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x70, 0x61,
-	0x72, 0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x1a, 0x1c, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61, 0x6e, 0x6e,
-	0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x0f,
-	0x0a, 0x0d, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22,
-	0x4e, 0x0a, 0x0e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x12, 0x3c, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x1e, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x66, 0x65,
-	0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d,
-	0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22,
-	0x0e, 0x0a, 0x0c, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22,
-	0x4a, 0x0a, 0x0d, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x12, 0x39, 0x0a, 0x05, 0x73, 0x74, 0x61, 0x74, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x1d, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x66, 0x65, 0x65, 0x6d,
-	0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x65, 0x42, 0x04,
-	0xc8, 0xde, 0x1f, 0x00, 0x52, 0x05, 0x73, 0x74, 0x61, 0x74, 0x65, 0x22, 0x27, 0x0a, 0x0f, 0x47,
-	0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14,
-	0x0a, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x64,
-	0x65, 0x6e, 0x6f, 0x6d, 0x22, 0x51, 0x0a, 0x10, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3d, 0x0a, 0x05, 0x70, 0x72, 0x69, 0x63,
-	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
-	0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65,
-	0x63, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0, 0x2a, 0x01,
-	0x52, 0x05, 0x70, 0x72, 0x69, 0x63, 0x65, 0x22, 0x12, 0x0a, 0x10, 0x47, 0x61, 0x73, 0x50, 0x72,
-	0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x83, 0x01, 0x0a, 0x11,
-	0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x12, 0x6e, 0x0a, 0x06, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
-	0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x63, 0x43, 0x6f, 0x69, 0x6e, 0x42,
-	0x38, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
-	0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
-	0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x44, 0x65, 0x63, 0x43,
-	0x6f, 0x69, 0x6e, 0x73, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x70, 0x72, 0x69, 0x63, 0x65,
-	0x73, 0x32, 0xa7, 0x04, 0x0a, 0x05, 0x51, 0x75, 0x65, 0x72, 0x79, 0x12, 0x7f, 0x0a, 0x06, 0x50,
-	0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x25, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65,
-	0x74, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x50,
-	0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x26, 0x2e, 0x66,
-	0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b,
-	0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x26, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x20, 0x12, 0x1e, 0x2f, 0x66,
-	0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b,
-	0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x7b, 0x0a, 0x05,
-	0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x24, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65,
-	0x74, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x53,
-	0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x25, 0x2e, 0x66, 0x65,
-	0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65,
-	0x74, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x25, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1f, 0x12, 0x1d, 0x2f, 0x66, 0x65, 0x65,
-	0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74,
-	0x2f, 0x76, 0x31, 0x2f, 0x73, 0x74, 0x61, 0x74, 0x65, 0x12, 0x90, 0x01, 0x0a, 0x08, 0x47, 0x61,
-	0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x12, 0x27, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b,
-	0x65, 0x74, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e,
-	0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
-	0x28, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x66, 0x65, 0x65, 0x6d,
-	0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63,
-	0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4, 0x93, 0x02,
-	0x2b, 0x12, 0x29, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x66, 0x65,
-	0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x67, 0x61, 0x73, 0x5f, 0x70,
-	0x72, 0x69, 0x63, 0x65, 0x2f, 0x7b, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x7d, 0x12, 0x8c, 0x01, 0x0a,
-	0x09, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x12, 0x28, 0x2e, 0x66, 0x65, 0x65,
-	0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74,
-	0x2e, 0x76, 0x31, 0x2e, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x29, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74,
-	0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x61,
-	0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x2a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x24, 0x12, 0x22, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72,
-	0x6b, 0x65, 0x74, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31,
-	0x2f, 0x67, 0x61, 0x73, 0x5f, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x42, 0xd7, 0x01, 0x0a, 0x1a,
-	0x63, 0x6f, 0x6d, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x66, 0x65,
+var file_juno_feemarket_v1_query_proto_rawDesc = []byte{
+	0x0a, 0x1d, 0x6a, 0x75, 0x6e, 0x6f, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74,
+	0x2f, 0x76, 0x31, 0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12,
+	0x11, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e,
+	0x76, 0x31, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61,
+	0x73, 0x65, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1f, 0x6a, 0x75, 0x6e, 0x6f, 0x2f, 0x66, 0x65, 0x65, 0x6d,
+	0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x67, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x6a, 0x75, 0x6e, 0x6f, 0x2f, 0x66, 0x65, 0x65,
+	0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1c, 0x67, 0x6f,
+	0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x0f, 0x0a, 0x0d, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x49, 0x0a, 0x0e, 0x50,
+	0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x37, 0x0a,
+	0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e,
+	0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76,
+	0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06,
+	0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x0e, 0x0a, 0x0c, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x45, 0x0a, 0x0d, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x34, 0x0a, 0x05, 0x73, 0x74, 0x61, 0x74, 0x65,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65,
+	0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x65,
+	0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x05, 0x73, 0x74, 0x61, 0x74, 0x65, 0x22, 0x27, 0x0a,
+	0x0f, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x14, 0x0a, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x22, 0x51, 0x0a, 0x10, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69,
+	0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3d, 0x0a, 0x05, 0x70, 0x72,
+	0x69, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
+	0x44, 0x65, 0x63, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x09, 0xc8, 0xde, 0x1f, 0x00, 0xa8, 0xe7, 0xb0,
+	0x2a, 0x01, 0x52, 0x05, 0x70, 0x72, 0x69, 0x63, 0x65, 0x22, 0x12, 0x0a, 0x10, 0x47, 0x61, 0x73,
+	0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x83, 0x01,
+	0x0a, 0x11, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x6e, 0x0a, 0x06, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x18, 0x01, 0x20,
+	0x03, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73,
+	0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x63, 0x43, 0x6f, 0x69,
+	0x6e, 0x42, 0x38, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x44, 0x65,
+	0x63, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x70, 0x72, 0x69,
+	0x63, 0x65, 0x73, 0x32, 0xea, 0x03, 0x0a, 0x05, 0x51, 0x75, 0x65, 0x72, 0x79, 0x12, 0x70, 0x0a,
+	0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x20, 0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66,
+	0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61,
+	0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x6a, 0x75, 0x6e, 0x6f,
+	0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x21, 0x82, 0xd3,
+	0xe4, 0x93, 0x02, 0x1b, 0x12, 0x19, 0x2f, 0x6a, 0x75, 0x6e, 0x6f, 0x2f, 0x66, 0x65, 0x65, 0x6d,
+	0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12,
+	0x6c, 0x0a, 0x05, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x1f, 0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e,
+	0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x74, 0x61,
+	0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x6a, 0x75, 0x6e, 0x6f,
+	0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x74,
+	0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x20, 0x82, 0xd3, 0xe4,
+	0x93, 0x02, 0x1a, 0x12, 0x18, 0x2f, 0x6a, 0x75, 0x6e, 0x6f, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61,
+	0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x73, 0x74, 0x61, 0x74, 0x65, 0x12, 0x81, 0x01,
+	0x0a, 0x08, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x12, 0x22, 0x2e, 0x6a, 0x75, 0x6e,
+	0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x47,
+	0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x23,
+	0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e,
+	0x76, 0x31, 0x2e, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x22, 0x2c, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x26, 0x12, 0x24, 0x2f, 0x6a, 0x75,
+	0x6e, 0x6f, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f,
+	0x67, 0x61, 0x73, 0x5f, 0x70, 0x72, 0x69, 0x63, 0x65, 0x2f, 0x7b, 0x64, 0x65, 0x6e, 0x6f, 0x6d,
+	0x7d, 0x12, 0x7d, 0x0a, 0x09, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x12, 0x23,
+	0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e,
+	0x76, 0x31, 0x2e, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65, 0x65, 0x6d, 0x61,
+	0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x25, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x1f, 0x12, 0x1d, 0x2f, 0x6a, 0x75, 0x6e, 0x6f, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b,
+	0x65, 0x74, 0x2f, 0x76, 0x31, 0x2f, 0x67, 0x61, 0x73, 0x5f, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73,
+	0x42, 0xb9, 0x01, 0x0a, 0x15, 0x63, 0x6f, 0x6d, 0x2e, 0x6a, 0x75, 0x6e, 0x6f, 0x2e, 0x66, 0x65,
 	0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x76, 0x31, 0x42, 0x0a, 0x51, 0x75, 0x65, 0x72,
-	0x79, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x33, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
-	0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61,
-	0x72, 0x6b, 0x65, 0x74, 0x2f, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76,
-	0x31, 0x3b, 0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x76, 0x31, 0xa2, 0x02, 0x03,
-	0x46, 0x46, 0x58, 0xaa, 0x02, 0x16, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e,
-	0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x16, 0x46,
-	0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x5c, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b,
-	0x65, 0x74, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x22, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65,
-	0x74, 0x5c, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x5c, 0x56, 0x31, 0x5c, 0x47,
-	0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x18, 0x46, 0x65, 0x65,
-	0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x3a, 0x3a, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65,
-	0x74, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x79, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x6a, 0x75, 0x6e, 0x6f, 0x2f,
+	0x66, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2f, 0x76, 0x31, 0x3b, 0x66, 0x65, 0x65,
+	0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x4a, 0x46, 0x58, 0xaa, 0x02,
+	0x11, 0x4a, 0x75, 0x6e, 0x6f, 0x2e, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x2e,
+	0x56, 0x31, 0xca, 0x02, 0x11, 0x4a, 0x75, 0x6e, 0x6f, 0x5c, 0x46, 0x65, 0x65, 0x6d, 0x61, 0x72,
+	0x6b, 0x65, 0x74, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1d, 0x4a, 0x75, 0x6e, 0x6f, 0x5c, 0x46, 0x65,
+	0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65,
+	0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x13, 0x4a, 0x75, 0x6e, 0x6f, 0x3a, 0x3a, 0x46,
+	0x65, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_feemarket_feemarket_v1_query_proto_rawDescOnce sync.Once
-	file_feemarket_feemarket_v1_query_proto_rawDescData = file_feemarket_feemarket_v1_query_proto_rawDesc
+	file_juno_feemarket_v1_query_proto_rawDescOnce sync.Once
+	file_juno_feemarket_v1_query_proto_rawDescData = file_juno_feemarket_v1_query_proto_rawDesc
 )
 
-func file_feemarket_feemarket_v1_query_proto_rawDescGZIP() []byte {
-	file_feemarket_feemarket_v1_query_proto_rawDescOnce.Do(func() {
-		file_feemarket_feemarket_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_feemarket_feemarket_v1_query_proto_rawDescData)
+func file_juno_feemarket_v1_query_proto_rawDescGZIP() []byte {
+	file_juno_feemarket_v1_query_proto_rawDescOnce.Do(func() {
+		file_juno_feemarket_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_juno_feemarket_v1_query_proto_rawDescData)
 	})
-	return file_feemarket_feemarket_v1_query_proto_rawDescData
+	return file_juno_feemarket_v1_query_proto_rawDescData
 }
 
-var file_feemarket_feemarket_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_feemarket_feemarket_v1_query_proto_goTypes = []interface{}{
-	(*ParamsRequest)(nil),     // 0: feemarket.feemarket.v1.ParamsRequest
-	(*ParamsResponse)(nil),    // 1: feemarket.feemarket.v1.ParamsResponse
-	(*StateRequest)(nil),      // 2: feemarket.feemarket.v1.StateRequest
-	(*StateResponse)(nil),     // 3: feemarket.feemarket.v1.StateResponse
-	(*GasPriceRequest)(nil),   // 4: feemarket.feemarket.v1.GasPriceRequest
-	(*GasPriceResponse)(nil),  // 5: feemarket.feemarket.v1.GasPriceResponse
-	(*GasPricesRequest)(nil),  // 6: feemarket.feemarket.v1.GasPricesRequest
-	(*GasPricesResponse)(nil), // 7: feemarket.feemarket.v1.GasPricesResponse
-	(*Params)(nil),            // 8: feemarket.feemarket.v1.Params
-	(*State)(nil),             // 9: feemarket.feemarket.v1.State
+var file_juno_feemarket_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_juno_feemarket_v1_query_proto_goTypes = []interface{}{
+	(*ParamsRequest)(nil),     // 0: juno.feemarket.v1.ParamsRequest
+	(*ParamsResponse)(nil),    // 1: juno.feemarket.v1.ParamsResponse
+	(*StateRequest)(nil),      // 2: juno.feemarket.v1.StateRequest
+	(*StateResponse)(nil),     // 3: juno.feemarket.v1.StateResponse
+	(*GasPriceRequest)(nil),   // 4: juno.feemarket.v1.GasPriceRequest
+	(*GasPriceResponse)(nil),  // 5: juno.feemarket.v1.GasPriceResponse
+	(*GasPricesRequest)(nil),  // 6: juno.feemarket.v1.GasPricesRequest
+	(*GasPricesResponse)(nil), // 7: juno.feemarket.v1.GasPricesResponse
+	(*Params)(nil),            // 8: juno.feemarket.v1.Params
+	(*State)(nil),             // 9: juno.feemarket.v1.State
 	(*v1beta1.DecCoin)(nil),   // 10: cosmos.base.v1beta1.DecCoin
 }
-var file_feemarket_feemarket_v1_query_proto_depIdxs = []int32{
-	8,  // 0: feemarket.feemarket.v1.ParamsResponse.params:type_name -> feemarket.feemarket.v1.Params
-	9,  // 1: feemarket.feemarket.v1.StateResponse.state:type_name -> feemarket.feemarket.v1.State
-	10, // 2: feemarket.feemarket.v1.GasPriceResponse.price:type_name -> cosmos.base.v1beta1.DecCoin
-	10, // 3: feemarket.feemarket.v1.GasPricesResponse.prices:type_name -> cosmos.base.v1beta1.DecCoin
-	0,  // 4: feemarket.feemarket.v1.Query.Params:input_type -> feemarket.feemarket.v1.ParamsRequest
-	2,  // 5: feemarket.feemarket.v1.Query.State:input_type -> feemarket.feemarket.v1.StateRequest
-	4,  // 6: feemarket.feemarket.v1.Query.GasPrice:input_type -> feemarket.feemarket.v1.GasPriceRequest
-	6,  // 7: feemarket.feemarket.v1.Query.GasPrices:input_type -> feemarket.feemarket.v1.GasPricesRequest
-	1,  // 8: feemarket.feemarket.v1.Query.Params:output_type -> feemarket.feemarket.v1.ParamsResponse
-	3,  // 9: feemarket.feemarket.v1.Query.State:output_type -> feemarket.feemarket.v1.StateResponse
-	5,  // 10: feemarket.feemarket.v1.Query.GasPrice:output_type -> feemarket.feemarket.v1.GasPriceResponse
-	7,  // 11: feemarket.feemarket.v1.Query.GasPrices:output_type -> feemarket.feemarket.v1.GasPricesResponse
+var file_juno_feemarket_v1_query_proto_depIdxs = []int32{
+	8,  // 0: juno.feemarket.v1.ParamsResponse.params:type_name -> juno.feemarket.v1.Params
+	9,  // 1: juno.feemarket.v1.StateResponse.state:type_name -> juno.feemarket.v1.State
+	10, // 2: juno.feemarket.v1.GasPriceResponse.price:type_name -> cosmos.base.v1beta1.DecCoin
+	10, // 3: juno.feemarket.v1.GasPricesResponse.prices:type_name -> cosmos.base.v1beta1.DecCoin
+	0,  // 4: juno.feemarket.v1.Query.Params:input_type -> juno.feemarket.v1.ParamsRequest
+	2,  // 5: juno.feemarket.v1.Query.State:input_type -> juno.feemarket.v1.StateRequest
+	4,  // 6: juno.feemarket.v1.Query.GasPrice:input_type -> juno.feemarket.v1.GasPriceRequest
+	6,  // 7: juno.feemarket.v1.Query.GasPrices:input_type -> juno.feemarket.v1.GasPricesRequest
+	1,  // 8: juno.feemarket.v1.Query.Params:output_type -> juno.feemarket.v1.ParamsResponse
+	3,  // 9: juno.feemarket.v1.Query.State:output_type -> juno.feemarket.v1.StateResponse
+	5,  // 10: juno.feemarket.v1.Query.GasPrice:output_type -> juno.feemarket.v1.GasPriceResponse
+	7,  // 11: juno.feemarket.v1.Query.GasPrices:output_type -> juno.feemarket.v1.GasPricesResponse
 	8,  // [8:12] is the sub-list for method output_type
 	4,  // [4:8] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
@@ -3724,15 +3717,15 @@ var file_feemarket_feemarket_v1_query_proto_depIdxs = []int32{
 	0,  // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_feemarket_feemarket_v1_query_proto_init() }
-func file_feemarket_feemarket_v1_query_proto_init() {
-	if File_feemarket_feemarket_v1_query_proto != nil {
+func init() { file_juno_feemarket_v1_query_proto_init() }
+func file_juno_feemarket_v1_query_proto_init() {
+	if File_juno_feemarket_v1_query_proto != nil {
 		return
 	}
-	file_feemarket_feemarket_v1_genesis_proto_init()
-	file_feemarket_feemarket_v1_params_proto_init()
+	file_juno_feemarket_v1_genesis_proto_init()
+	file_juno_feemarket_v1_params_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_feemarket_feemarket_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_juno_feemarket_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ParamsRequest); i {
 			case 0:
 				return &v.state
@@ -3744,7 +3737,7 @@ func file_feemarket_feemarket_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_feemarket_feemarket_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_juno_feemarket_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ParamsResponse); i {
 			case 0:
 				return &v.state
@@ -3756,7 +3749,7 @@ func file_feemarket_feemarket_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_feemarket_feemarket_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_juno_feemarket_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StateRequest); i {
 			case 0:
 				return &v.state
@@ -3768,7 +3761,7 @@ func file_feemarket_feemarket_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_feemarket_feemarket_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_juno_feemarket_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StateResponse); i {
 			case 0:
 				return &v.state
@@ -3780,7 +3773,7 @@ func file_feemarket_feemarket_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_feemarket_feemarket_v1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_juno_feemarket_v1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GasPriceRequest); i {
 			case 0:
 				return &v.state
@@ -3792,7 +3785,7 @@ func file_feemarket_feemarket_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_feemarket_feemarket_v1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_juno_feemarket_v1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GasPriceResponse); i {
 			case 0:
 				return &v.state
@@ -3804,7 +3797,7 @@ func file_feemarket_feemarket_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_feemarket_feemarket_v1_query_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_juno_feemarket_v1_query_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GasPricesRequest); i {
 			case 0:
 				return &v.state
@@ -3816,7 +3809,7 @@ func file_feemarket_feemarket_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_feemarket_feemarket_v1_query_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_juno_feemarket_v1_query_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GasPricesResponse); i {
 			case 0:
 				return &v.state
@@ -3833,18 +3826,18 @@ func file_feemarket_feemarket_v1_query_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_feemarket_feemarket_v1_query_proto_rawDesc,
+			RawDescriptor: file_juno_feemarket_v1_query_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_feemarket_feemarket_v1_query_proto_goTypes,
-		DependencyIndexes: file_feemarket_feemarket_v1_query_proto_depIdxs,
-		MessageInfos:      file_feemarket_feemarket_v1_query_proto_msgTypes,
+		GoTypes:           file_juno_feemarket_v1_query_proto_goTypes,
+		DependencyIndexes: file_juno_feemarket_v1_query_proto_depIdxs,
+		MessageInfos:      file_juno_feemarket_v1_query_proto_msgTypes,
 	}.Build()
-	File_feemarket_feemarket_v1_query_proto = out.File
-	file_feemarket_feemarket_v1_query_proto_rawDesc = nil
-	file_feemarket_feemarket_v1_query_proto_goTypes = nil
-	file_feemarket_feemarket_v1_query_proto_depIdxs = nil
+	File_juno_feemarket_v1_query_proto = out.File
+	file_juno_feemarket_v1_query_proto_rawDesc = nil
+	file_juno_feemarket_v1_query_proto_goTypes = nil
+	file_juno_feemarket_v1_query_proto_depIdxs = nil
 }

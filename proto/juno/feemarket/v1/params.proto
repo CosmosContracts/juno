@@ -1,5 +1,5 @@
 syntax = "proto3";
-package feemarket.feemarket.v1;
+package juno.feemarket.v1;
 
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
