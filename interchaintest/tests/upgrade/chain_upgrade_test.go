@@ -1,6 +1,8 @@
 package upgrade_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -8,6 +10,7 @@ import (
 	"github.com/cosmos/interchaintest/v10"
 	"github.com/cosmos/interchaintest/v10/chain/cosmos"
 	"github.com/cosmos/interchaintest/v10/ibc"
+	"github.com/cosmos/interchaintest/v10/testutil"
 
 	"github.com/stretchr/testify/suite"
 
@@ -17,7 +20,6 @@ import (
 )
 
 const (
-	chainName   = "juno"
 	upgradeName = "v30"
 )
 
@@ -28,11 +30,17 @@ var baseChain = ibc.DockerImage{
 	UIDGID:     "1025:1025",
 }
 
-type BasicUpgradeTestSuite struct {
+type UpgradeTestSuite struct {
 	*e2esuite.E2ETestSuite
 }
 
-func TestBasicUpgradeTestSuite(t *testing.T) {
+func TestUpgradeTestSuite(t *testing.T) {
+	cfg := e2esuite.DefaultConfig
+	cfg.Images = []ibc.DockerImage{baseChain}
+
+	numValidators := 2
+	numFullNodes := 1
+
 	previousVersionGenesis := []cosmos.GenesisKV{
 		{
 			Key:   "app_state.gov.params.voting_period",
@@ -47,17 +55,11 @@ func TestBasicUpgradeTestSuite(t *testing.T) {
 			Value: e2esuite.DefaultDenom,
 		},
 	}
-
-	cfg := e2esuite.DefaultConfig
 	cfg.ModifyGenesis = cosmos.ModifyGenesis(previousVersionGenesis)
-	cfg.Images = []ibc.DockerImage{baseChain}
-
-	numValidators := 4
-	numFullNodes := 1
 
 	spec := &interchaintest.ChainSpec{
-		ChainName:     "juno-upgrade",
-		Name:          "juno-upgrade",
+		ChainName:     "juno",
+		Name:          "juno",
 		NumValidators: &numValidators,
 		NumFullNodes:  &numFullNodes,
 		Version:       baseChain.Version,
@@ -71,16 +73,15 @@ func TestBasicUpgradeTestSuite(t *testing.T) {
 		e2esuite.DefaultTxCfg,
 	)
 
-	t.Parallel()
 	t.Cleanup(func() {
 		_ = s.Ic.Close()
 	})
 
-	testSuite := &BasicUpgradeTestSuite{E2ETestSuite: s}
+	testSuite := &UpgradeTestSuite{E2ETestSuite: s}
 	suite.Run(t, testSuite)
 }
 
-func (s *BasicUpgradeTestSuite) TestBasicChainUpgrade() {
+func (s *UpgradeTestSuite) TestV30ChainUpgrade() {
 	t := s.T()
 	require := s.Require()
 	if testing.Short() {
@@ -88,11 +89,27 @@ func (s *BasicUpgradeTestSuite) TestBasicChainUpgrade() {
 	}
 
 	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(100_000)))
-	repo, version := e2esuite.GetDockerImageInfo()
 	user := s.GetAndFundTestUser(t.Name(), 10_000_000_000, s.Chain)
 
-	// execute a contract before the upgrade
-	beforeContract := s.StdExecute(s.Chain, user)
+	// prepare a cw-hooks staking contract and ensure it is functional prior to upgrade
+	const cwHooksExampleWasm = "../../contracts/juno_staking_hooks_example.wasm"
+	_, hookContract := s.SetupContract(s.Chain, user.KeyName(), cwHooksExampleWasm, `{}`, false, fees)
+	s.legacyCwHooksCmd("register-staking", user, hookContract, fees)
+	stakingContracts := s.legacyGetCwHooksContracts("staking-contracts")
+	require.Contains(stakingContracts, hookContract, "cw-hooks contract was not registered with the staking module")
+
+	vals := s.QueryValidators(s.Chain)
+	require.NotEmpty(vals, "expected at least one validator")
+	valoper := vals[0]
+	initialStakeAmt := int64(1_000_000)
+	initialStakeCoins := fmt.Sprintf("%d%s", initialStakeAmt, s.Denom)
+	s.StakeTokens(s.Chain, user, valoper.String(), initialStakeCoins, fees, false)
+
+	initialHookState := s.GetCwStakingHookLastDelegationChange(s.Chain, hookContract, user.FormattedAddress())
+	require.NotNil(initialHookState.Data, "pre-upgrade cw-hooks contract did not record the delegation event")
+	require.Equal(user.FormattedAddress(), initialHookState.Data.DelegatorAddress)
+	require.Equal(valoper, sdk.MustValAddressFromBech32(initialHookState.Data.ValidatorAddress))
+	require.Equal(fmt.Sprintf("%d.000000000000000000", initialStakeAmt), initialHookState.Data.Shares)
 
 	// upgrade
 	height, err := s.Chain.Height(s.Ctx)
@@ -105,12 +122,73 @@ func (s *BasicUpgradeTestSuite) TestBasicChainUpgrade() {
 	require.NoError(err, "failed to parse proposal ID")
 
 	s.ValidatorVoting(s.Chain, proposalIDInt, height, haltHeight)
+	repo, version := e2esuite.GetDockerImageInfo()
 	s.UpgradeNodes(s.Chain, s.DockerClient, haltHeight, repo, version)
 
-	// confirm we can execute against the beforeContract (ref: v20 upgrade patch)
-	_, err = s.ExecuteMsgWithFeeReturn(s.Chain, user, beforeContract, "", `{"increment":{}}`, false, fees)
+	// verify cw-hooks state survived the migration
+	postUpgradeContracts := s.GetCwHooksStakingContracts()
+	require.Contains(postUpgradeContracts, hookContract, "cw-hooks contract no longer registered after migration")
+
+	additionalStakeAmt := int64(500_000)
+	additionalStakeCoins := fmt.Sprintf("%d%s", additionalStakeAmt, s.Denom)
+	s.StakeTokens(s.Chain, user, valoper.String(), additionalStakeCoins, fees, false)
+
+	postHookState := s.GetCwStakingHookLastDelegationChange(s.Chain, hookContract, user.FormattedAddress())
+	require.NotNil(postHookState.Data, "post-upgrade cw-hooks contract failed to record delegation event")
+	require.Equal(user.FormattedAddress(), postHookState.Data.DelegatorAddress)
+	require.Equal(valoper, sdk.MustValAddressFromBech32(postHookState.Data.ValidatorAddress))
+	require.Equal(fmt.Sprintf("%d.000000000000000000", initialStakeAmt+additionalStakeAmt), postHookState.Data.Shares)
+}
+
+func (s *UpgradeTestSuite) legacyCwHooksCmd(command string, user ibc.Wallet, contractAddr string, fees sdk.Coins) {
+	t := s.T()
+	require := s.Require()
+
+	stdout, err := s.ExecTx(
+		s.Chain,
+		user.KeyName(),
+		false,
+		false,
+		"cw-hooks",
+		command,
+		contractAddr,
+		user.FormattedAddress(),
+		"--fees",
+		fees.String(),
+		"--gas",
+		"auto",
+	)
+	require.NoError(err, "failed to execute legacy cw-hooks command")
+
+	s.DebugOutput(string(stdout))
+
+	if err := testutil.WaitForBlocks(s.Ctx, 2, s.Chain); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func (s *UpgradeTestSuite) legacyGetCwHooksContracts(subCmd string) []string {
+	t := s.T()
+	require := s.Require()
+	cmd := []string{
+		"junod", "query", "cw-hooks", subCmd,
+		"--output", "json",
+		"--node", s.Chain.GetRPCAddress(),
+	}
+
+	stdout, _, err := s.Chain.Exec(s.Ctx, cmd, nil)
 	require.NoError(err)
 
-	// Post Upgrade: Conformance Validation
-	s.ConformanceCosmWasm(s.Chain, user)
+	s.DebugOutput(string(stdout))
+
+	type contracts struct {
+		Contracts []string `json:"contracts"`
+	}
+
+	var c contracts
+	if err := json.Unmarshal(stdout, &c); err != nil {
+		t.Fatal(err)
+	}
+
+	return c.Contracts
 }

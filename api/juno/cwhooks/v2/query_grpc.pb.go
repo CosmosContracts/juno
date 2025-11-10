@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: juno/cwhooks/v1/query.proto
+// source: juno/cwhooks/v2/query.proto
 
-package cwhooksv1
+package cwhooksv2
 
 import (
 	context "context"
@@ -19,23 +19,23 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Query_Params_FullMethodName              = "/juno.cwhooks.v1.Query/Params"
-	Query_StakingContracts_FullMethodName    = "/juno.cwhooks.v1.Query/StakingContracts"
-	Query_GovernanceContracts_FullMethodName = "/juno.cwhooks.v1.Query/GovernanceContracts"
+	Query_Params_FullMethodName       = "/juno.cwhooks.v2.Query/Params"
+	Query_Contracts_FullMethodName    = "/juno.cwhooks.v2.Query/Contracts"
+	Query_ContractInfo_FullMethodName = "/juno.cwhooks.v2.Query/ContractInfo"
 )
 
 // QueryClient is the client API for Query service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Query defines the gRPC querier service.
+// Query defines the gRPC querier service
 type QueryClient interface {
-	// Params
+	// Params gets all module params
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// StakingContracts
-	StakingContracts(ctx context.Context, in *QueryStakingContractsRequest, opts ...grpc.CallOption) (*QueryStakingContractsResponse, error)
-	// GovernanceContracts
-	GovernanceContracts(ctx context.Context, in *QueryGovernanceContractsRequest, opts ...grpc.CallOption) (*QueryGovernanceContractsResponse, error)
+	// Contracts gets all contracts for a module
+	Contracts(ctx context.Context, in *QueryContractsRequest, opts ...grpc.CallOption) (*QueryContractsResponse, error)
+	// ContractInfo gets a contract info for a module and contract address
+	ContractInfo(ctx context.Context, in *QueryContractInfoRequest, opts ...grpc.CallOption) (*QueryContractInfoResponse, error)
 }
 
 type queryClient struct {
@@ -56,20 +56,20 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
-func (c *queryClient) StakingContracts(ctx context.Context, in *QueryStakingContractsRequest, opts ...grpc.CallOption) (*QueryStakingContractsResponse, error) {
+func (c *queryClient) Contracts(ctx context.Context, in *QueryContractsRequest, opts ...grpc.CallOption) (*QueryContractsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(QueryStakingContractsResponse)
-	err := c.cc.Invoke(ctx, Query_StakingContracts_FullMethodName, in, out, cOpts...)
+	out := new(QueryContractsResponse)
+	err := c.cc.Invoke(ctx, Query_Contracts_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) GovernanceContracts(ctx context.Context, in *QueryGovernanceContractsRequest, opts ...grpc.CallOption) (*QueryGovernanceContractsResponse, error) {
+func (c *queryClient) ContractInfo(ctx context.Context, in *QueryContractInfoRequest, opts ...grpc.CallOption) (*QueryContractInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(QueryGovernanceContractsResponse)
-	err := c.cc.Invoke(ctx, Query_GovernanceContracts_FullMethodName, in, out, cOpts...)
+	out := new(QueryContractInfoResponse)
+	err := c.cc.Invoke(ctx, Query_ContractInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,14 +80,14 @@ func (c *queryClient) GovernanceContracts(ctx context.Context, in *QueryGovernan
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility.
 //
-// Query defines the gRPC querier service.
+// Query defines the gRPC querier service
 type QueryServer interface {
-	// Params
+	// Params gets all module params
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// StakingContracts
-	StakingContracts(context.Context, *QueryStakingContractsRequest) (*QueryStakingContractsResponse, error)
-	// GovernanceContracts
-	GovernanceContracts(context.Context, *QueryGovernanceContractsRequest) (*QueryGovernanceContractsResponse, error)
+	// Contracts gets all contracts for a module
+	Contracts(context.Context, *QueryContractsRequest) (*QueryContractsResponse, error)
+	// ContractInfo gets a contract info for a module and contract address
+	ContractInfo(context.Context, *QueryContractInfoRequest) (*QueryContractInfoResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -101,11 +101,11 @@ type UnimplementedQueryServer struct{}
 func (UnimplementedQueryServer) Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
-func (UnimplementedQueryServer) StakingContracts(context.Context, *QueryStakingContractsRequest) (*QueryStakingContractsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StakingContracts not implemented")
+func (UnimplementedQueryServer) Contracts(context.Context, *QueryContractsRequest) (*QueryContractsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Contracts not implemented")
 }
-func (UnimplementedQueryServer) GovernanceContracts(context.Context, *QueryGovernanceContractsRequest) (*QueryGovernanceContractsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GovernanceContracts not implemented")
+func (UnimplementedQueryServer) ContractInfo(context.Context, *QueryContractInfoRequest) (*QueryContractInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ContractInfo not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 func (UnimplementedQueryServer) testEmbeddedByValue()               {}
@@ -146,38 +146,38 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_StakingContracts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryStakingContractsRequest)
+func _Query_Contracts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryContractsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).StakingContracts(ctx, in)
+		return srv.(QueryServer).Contracts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Query_StakingContracts_FullMethodName,
+		FullMethod: Query_Contracts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).StakingContracts(ctx, req.(*QueryStakingContractsRequest))
+		return srv.(QueryServer).Contracts(ctx, req.(*QueryContractsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_GovernanceContracts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryGovernanceContractsRequest)
+func _Query_ContractInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryContractInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).GovernanceContracts(ctx, in)
+		return srv.(QueryServer).ContractInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Query_GovernanceContracts_FullMethodName,
+		FullMethod: Query_ContractInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).GovernanceContracts(ctx, req.(*QueryGovernanceContractsRequest))
+		return srv.(QueryServer).ContractInfo(ctx, req.(*QueryContractInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -186,7 +186,7 @@ func _Query_GovernanceContracts_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "juno.cwhooks.v1.Query",
+	ServiceName: "juno.cwhooks.v2.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -194,14 +194,14 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Query_Params_Handler,
 		},
 		{
-			MethodName: "StakingContracts",
-			Handler:    _Query_StakingContracts_Handler,
+			MethodName: "Contracts",
+			Handler:    _Query_Contracts_Handler,
 		},
 		{
-			MethodName: "GovernanceContracts",
-			Handler:    _Query_GovernanceContracts_Handler,
+			MethodName: "ContractInfo",
+			Handler:    _Query_ContractInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "juno/cwhooks/v1/query.proto",
+	Metadata: "juno/cwhooks/v2/query.proto",
 }

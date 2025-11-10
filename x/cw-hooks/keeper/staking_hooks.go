@@ -49,7 +49,7 @@ func (h StakingHooks) AfterValidatorCreated(ctx context.Context, valAddr sdk.Val
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "AfterValidatorCreated")
 }
 
 // AfterValidatorRemoved is a hook that runs after anyone deletes their validator
@@ -75,7 +75,7 @@ func (h StakingHooks) AfterValidatorRemoved(ctx context.Context, _ sdk.ConsAddre
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "AfterValidatorRemoved")
 }
 
 // BeforeDelegationCreated is a hook that runs BEFORE any user stakes some tokens
@@ -101,7 +101,7 @@ func (h StakingHooks) BeforeDelegationCreated(ctx context.Context, delAddr sdk.A
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "BeforeDelegationCreated")
 }
 
 // BeforeDelegationSharesModified that runs BEFORE we update the staked amount for a user in a validator
@@ -127,7 +127,7 @@ func (h StakingHooks) BeforeDelegationSharesModified(ctx context.Context, delAdd
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "BeforeDelegationSharesModified")
 }
 
 // AfterDelegationModified is a hook that runs AFTER any user redelegates/unstakes from a validator
@@ -153,7 +153,7 @@ func (h StakingHooks) AfterDelegationModified(ctx context.Context, delAddr sdk.A
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "AfterDelegationModified")
 }
 
 // BeforeValidatorSlashed is a hook that runs right BEFORE a validator is slashed for misbehaviour
@@ -179,7 +179,7 @@ func (h StakingHooks) BeforeValidatorSlashed(ctx context.Context, valAddr sdk.Va
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "BeforeValidatorSlashed")
 }
 
 // BeforeValidatorModified is a hook that runs BEFORE a validator updates their validator configuration
@@ -205,7 +205,7 @@ func (h StakingHooks) BeforeValidatorModified(ctx context.Context, valAddr sdk.V
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "BeforeValidatorModified")
 }
 
 func (h StakingHooks) AfterValidatorBonded(ctx context.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
@@ -230,7 +230,7 @@ func (h StakingHooks) AfterValidatorBonded(ctx context.Context, _ sdk.ConsAddres
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "AfterValidatorBonded")
 }
 
 func (h StakingHooks) AfterValidatorBeginUnbonding(ctx context.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
@@ -255,7 +255,7 @@ func (h StakingHooks) AfterValidatorBeginUnbonding(ctx context.Context, _ sdk.Co
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.ExecuteMessageOnContracts(ctx, types.StakingPrefixKey, msgBz)
 }
 
 // BeforeDelegationRemoved is a hook that runs BEFORE a user claims their unstaked tokens back
@@ -281,7 +281,7 @@ func (h StakingHooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.A
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixStaking, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "BeforeDelegationRemoved")
 }
 
 func (StakingHooks) AfterUnbondingInitiated(_ context.Context, _ uint64) error {

@@ -3,85 +3,111 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/store/prefix"
+	"cosmossdk.io/collections"
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/CosmosContracts/juno/v30/app/utils"
+	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 )
 
-func (k Keeper) SetContract(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {
-	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	loadedPrefix := prefix.NewStore(store, keyPrefix)
-	loadedPrefix.Set(contractAddr.Bytes(), []byte{})
-}
-
-func (k Keeper) IsContractRegistered(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) bool {
-	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	loadedPrefix := prefix.NewStore(store, keyPrefix)
-	return loadedPrefix.Has(contractAddr.Bytes())
-}
-
-func (k Keeper) IterateContracts(
-	ctx context.Context,
-	keyPrefix []byte,
-	handlerFn func(contractAddr []byte) (stop bool),
-) {
-	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	iterator := storetypes.KVStorePrefixIterator(store, keyPrefix)
-	defer iterator.Close() //nolint:errcheck
-
-	for ; iterator.Valid(); iterator.Next() {
-		keyAddr := iterator.Key()[len(keyPrefix):]
-		addr := sdk.AccAddress(keyAddr)
-
-		if handlerFn(addr) {
-			break
-		}
+func (k Keeper) SetContract(ctx context.Context, key collections.Prefix, info types.ContractInfo) error {
+	contractAddr, err := sdk.AccAddressFromBech32(info.ContractAddress)
+	if err != nil {
+		return err
 	}
+
+	return k.Contracts.Set(ctx, types.BuildContractPrimaryKey(key, contractAddr), info)
 }
 
-func (k Keeper) GetAllContracts(ctx context.Context, keyPrefix []byte) (list []sdk.Address) {
-	k.IterateContracts(ctx, keyPrefix, func(addr []byte) bool {
-		list = append(list, sdk.AccAddress(addr))
-		return false
-	})
-	return list
+func (k Keeper) IsContractRegistered(ctx context.Context, key collections.Prefix, contractAddr sdk.AccAddress) (bool, error) {
+	return k.Contracts.Has(ctx, types.BuildContractPrimaryKey(key, contractAddr))
 }
 
-func (k Keeper) GetAllContractsBech32(ctx context.Context, keyPrefix []byte) []string {
-	contracts := k.GetAllContracts(ctx, keyPrefix)
-
-	list := make([]string, 0, len(contracts))
-	for _, c := range contracts {
-		list = append(list, c.String())
+func (k Keeper) GetAllContracts(ctx context.Context, key collections.Prefix) (list []types.ContractInfo, err error) {
+	iter, err := k.Contracts.Iterate(ctx, collections.NewPrefixedPairRange[[]byte, sdk.AccAddress](key.Bytes()))
+	if err != nil {
+		return nil, err
 	}
-	return list
+	values, err := iter.Values()
+	if err != nil {
+		return nil, err
+	}
+	return values, nil
 }
 
-func (k Keeper) DeleteContract(ctx context.Context, keyPrefix []byte, contractAddr sdk.AccAddress) {
-	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	loadedPrefix := prefix.NewStore(store, keyPrefix)
-	loadedPrefix.Delete(contractAddr)
+func (k Keeper) DeleteContract(ctx context.Context, key collections.Prefix, contractAddr sdk.AccAddress) error {
+	return k.Contracts.Remove(ctx, types.BuildContractPrimaryKey(key, contractAddr))
 }
 
-func (k Keeper) ExecuteMessageOnContracts(ctx context.Context, keyPrefix []byte, msgBz []byte) error {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
+func (k Keeper) ExecuteMessageOnContracts(ctx context.Context, key collections.Prefix, msgBz []byte) error {
 	p := k.GetParams(ctx)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
-	for _, c := range k.GetAllContracts(ctx, keyPrefix) {
+	contracts, err := k.GetAllContracts(ctx, key)
+	if err != nil {
+		return err
+	}
+
+	for _, c := range contracts {
 		gasLimitCtx := sdkCtx.WithGasMeter(storetypes.NewGasMeter(p.ContractGasLimit))
-		addr := sdk.AccAddress(c.Bytes())
-
-		var err error
-		utils.ExecuteContract(k.GetContractKeeper(), gasLimitCtx, addr, msgBz, &err)
+		addr, err := sdk.AccAddressFromBech32(c.ContractAddress)
 		if err != nil {
-			k.Logger(ctx).Error("ExecuteMessageOnContracts err", err, "contract", addr.String())
+			return err
+		}
+
+		var execErr error
+		utils.ExecuteContract(k.GetContractKeeper(), gasLimitCtx, addr, msgBz, &execErr)
+		if execErr != nil {
+			k.Logger(ctx).Debug("ExecuteMessageOnContracts err", "error", execErr, "contract", c.ContractAddress)
+			if err := k.handleContractFailure(ctx, key, addr, c, execErr, p.ContractFailureRemovalThreshold); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if err := k.resetFailureCounter(ctx, key, c); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (k Keeper) dispatchHookMessage(ctx context.Context, keyPrefix collections.Prefix, msgBz []byte, hookName string) error {
+	if err := k.ExecuteMessageOnContracts(ctx, keyPrefix, msgBz); err != nil {
+		k.Logger(ctx).Error("cw-hook contract execution failed", "hook", hookName, "error", err)
+	}
+
+	return nil
+}
+
+func (k Keeper) handleContractFailure(
+	ctx context.Context,
+	key collections.Prefix,
+	addr sdk.AccAddress,
+	info types.ContractInfo,
+	execErr error,
+	threshold uint64,
+) error {
+	info.FailureCounter++
+	info.LatestError = execErr.Error()
+
+	if threshold > 0 && uint64(info.FailureCounter) >= threshold {
+		k.Logger(ctx).Info("removing contract due to repeated failures", "contract", info.ContractAddress, "module", key)
+		return k.DeleteContract(ctx, key, addr)
+	}
+
+	return k.SetContract(ctx, key, info)
+}
+
+func (k Keeper) resetFailureCounter(ctx context.Context, key collections.Prefix, info types.ContractInfo) error {
+	if info.FailureCounter == 0 && info.LatestError == "" {
+		return nil
+	}
+
+	info.FailureCounter = 0
+	info.LatestError = ""
+	return k.SetContract(ctx, key, info)
 }

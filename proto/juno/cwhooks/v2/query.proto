@@ -1,0 +1,75 @@
+syntax = "proto3";
+package juno.cwhooks.v2;
+
+import "amino/amino.proto";
+import "cosmos/query/v1/query.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "juno/cwhooks/v2/contract.proto";
+import "juno/cwhooks/v2/genesis.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
+
+// Query defines the gRPC querier service
+service Query {
+  // Params gets all module params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get = "/juno/cwhooks/v2/params";
+  }
+
+  // Contracts gets all contracts for a module
+  rpc Contracts(QueryContractsRequest) returns (QueryContractsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get = "/juno/cwhooks/v2/contracts/{module}";
+  }
+
+  // ContractInfo gets a contract info for a module and contract address
+  rpc ContractInfo(QueryContractInfoRequest) returns (QueryContractInfoResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get = "/juno/cwhooks/v2/contracts/{module}/{contract_address}";
+  }
+}
+
+// QueryParamsRequest is the request type to get all module params
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method
+message QueryParamsResponse {
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}
+
+// QueryContractsRequest is the request type to get all contracts for a module
+message QueryContractsRequest {
+  // The module key the contracts are registered for
+  string module = 1;
+}
+
+// QueryContractsResponse is the response type for the Query/Contracts RPC method
+message QueryContractsResponse {
+  // The contracts registered for the module
+  repeated ContractInfo contracts = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}
+
+// QueryContractInfoRequest is the request type to get a contract info for a module and contract address
+message QueryContractInfoRequest {
+  // The module key the contract is registered for
+  string module = 1;
+  // The contract address to get info for
+  string contract_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryContractInfoResponse is the response type for the Query/ContractInfo RPC method
+message QueryContractInfoResponse {
+  ContractInfo contract = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}

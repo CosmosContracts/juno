@@ -16,13 +16,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/CosmosContracts/juno/v30/x/cw-hooks/keeper"
+	"github.com/CosmosContracts/juno/v30/x/cw-hooks/migrations"
 	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 )
 
 const (
 	ModuleName = types.ModuleName
 
-	ConsensusVersion = 1
+	ConsensusVersion = 2
 )
 
 var (
@@ -30,7 +31,6 @@ var (
 	_ module.HasGenesis     = AppModule{}
 	_ module.HasServices    = AppModule{}
 
-	_ appmodule.AppModule = AppModule{}
 	_ appmodule.AppModule = AppModule{}
 )
 
@@ -43,7 +43,7 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec registers the mint module's types on the given LegacyAmino codec.
+// RegisterLegacyAminoCodec registers the module's types on the given LegacyAmino codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	types.RegisterLegacyAminoCodec(cdc)
 }
@@ -105,6 +105,11 @@ func (AppModule) IsAppModule() {}
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
+
+	m := migrations.NewMigrator(&am.keeper)
+	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
+		panic(errorsmod.Wrapf(err, "failed to migrate x/cw-hooks from version 1 to 2"))
+	}
 }
 
 // InitGenesis performs genesis initialization for the mint module. It returns

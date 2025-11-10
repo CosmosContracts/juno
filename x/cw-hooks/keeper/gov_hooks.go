@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"cosmossdk.io/collections"
@@ -90,12 +89,7 @@ func (h GovHooks) AfterProposalSubmission(ctx context.Context, proposalID uint64
 		return err
 	}
 
-	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		_, err = fmt.Println("AfterProposalSubmission: ", err)
-		return err
-	}
-
-	return nil
+	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalSubmission")
 }
 
 func (h GovHooks) AfterProposalDeposit(ctx context.Context, proposalID uint64, _ sdk.AccAddress) error {
@@ -111,12 +105,7 @@ func (h GovHooks) AfterProposalDeposit(ctx context.Context, proposalID uint64, _
 		return err
 	}
 
-	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		_, err = fmt.Println("AfterProposalDeposit: ", err)
-		return err
-	}
-
-	return nil
+	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalDeposit")
 }
 
 func (h GovHooks) AfterProposalVote(ctx context.Context, proposalID uint64, voterAddr sdk.AccAddress) error {
@@ -132,12 +121,7 @@ func (h GovHooks) AfterProposalVote(ctx context.Context, proposalID uint64, vote
 		return err
 	}
 
-	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		_, err = fmt.Println("AfterProposalVote: ", err)
-		return err
-	}
-
-	return nil
+	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalVote")
 }
 
 func (GovHooks) AfterProposalFailedMinDeposit(_ context.Context, _ uint64) error {
@@ -152,10 +136,5 @@ func (h GovHooks) AfterProposalVotingPeriodEnded(ctx context.Context, proposalID
 		return err
 	}
 
-	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		_, err = fmt.Println("AfterProposalVotingPeriodEnded: ", err)
-		return err
-	}
-
-	return nil
+	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalVotingPeriodEnded")
 }

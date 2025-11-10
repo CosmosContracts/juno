@@ -8,20 +8,28 @@ import (
 )
 
 // NewGenesisState - Create a new genesis state
-func NewGenesisState(params Params, stakingContracts, govContracts []string) *GenesisState {
+func NewGenesisState(params Params, stakingContracts, govContracts map[string]ContractInfo) *GenesisState {
+	stakingContractAddresses := make([]ContractInfo, 0, len(stakingContracts))
+	for _, v := range stakingContracts {
+		stakingContractAddresses = append(stakingContractAddresses, v)
+	}
+	govContractAddresses := make([]ContractInfo, 0, len(govContracts))
+	for _, v := range govContracts {
+		govContractAddresses = append(govContractAddresses, v)
+	}
 	return &GenesisState{
 		Params:                   params,
-		StakingContractAddresses: stakingContracts,
-		GovContractAddresses:     govContracts,
+		StakingContractAddresses: stakingContractAddresses,
+		GovContractAddresses:     govContractAddresses,
 	}
 }
 
 // DefaultGenesisState - Return a default genesis state
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), []string{}, []string{})
+	return NewGenesisState(DefaultParams(), map[string]ContractInfo{}, map[string]ContractInfo{})
 }
 
-// GetGenesisStateFromAppState returns x/auth GenesisState given raw application
+// GetGenesisStateFromAppState returns x/cw-hooks GenesisState given raw application
 // genesis state.
 func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMessage) *GenesisState {
 	var genesisState GenesisState
@@ -35,13 +43,13 @@ func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMe
 
 func ValidateGenesis(data GenesisState) error {
 	for _, v := range data.StakingContractAddresses {
-		if _, err := sdk.AccAddressFromBech32(v); err != nil {
+		if _, err := sdk.AccAddressFromBech32(v.ContractAddress); err != nil {
 			return err
 		}
 	}
 
 	for _, v := range data.GovContractAddresses {
-		if _, err := sdk.AccAddressFromBech32(v); err != nil {
+		if _, err := sdk.AccAddressFromBech32(v.ContractAddress); err != nil {
 			return err
 		}
 	}

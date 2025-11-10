@@ -1,9 +1,9 @@
 syntax = "proto3";
-package juno.cwhooks.v1;
+package juno.cwhooks.v2;
 
 import "amino/amino.proto";
-import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
+import "juno/cwhooks/v2/contract.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
 
@@ -16,10 +16,16 @@ message GenesisState {
   ];
 
   // staking_contract_addresses
-  repeated string staking_contract_addresses = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  repeated ContractInfo staking_contract_addresses = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 
   // gov_contract_addresses
-  repeated string gov_contract_addresses = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  repeated ContractInfo gov_contract_addresses = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // Params defines the set of module parameters.
@@ -27,4 +33,7 @@ message Params {
   option (gogoproto.equal) = true;
   // contract_gas_limit is the contract call gas limit
   uint64 contract_gas_limit = 1;
+
+  // contract_failure_removal_threshold is the threshold for removing a contract after consecutive failures
+  uint64 contract_failure_removal_threshold = 2;
 }

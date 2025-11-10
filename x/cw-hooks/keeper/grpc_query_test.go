@@ -14,44 +14,69 @@ func (s *KeeperTestSuite) TestContracts() {
 	_, _, sender := testdata.KeyTestPubAddr()
 	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
-	var contractAddressList []string
-	var index uint64
-	for index < 5 {
-		contractAddress := s.InstantiateContract(sender.String(), "", wasmContract)
-		contractAddressList = append(contractAddressList, contractAddress)
-		index++
-	}
-
-	// Register Staking & Gov
-	var staking []types.Contract
-	var governance []types.Contract
-	for _, contractAddress := range contractAddressList {
-		c := types.Contract{
-			ContractAddress: contractAddress,
-			RegisterAddress: sender.String(),
+	var registered []types.ContractInfo
+	for range 5 {
+		addr := s.InstantiateContract(sender.String(), "", wasmContract)
+		info := types.ContractInfo{
+			ContractAddress: addr,
+			FailureCounter:  0,
 		}
+		registered = append(registered, info)
 
-		_, err := s.msgServer.RegisterStaking(s.Ctx, &types.MsgRegisterStaking{
-			ContractAddress: c.ContractAddress,
-			RegisterAddress: c.RegisterAddress,
-		})
-		staking = append(staking, c)
-		s.Require().NoError(err)
-
-		_, err = s.msgServer.RegisterGovernance(s.Ctx, &types.MsgRegisterGovernance{
-			ContractAddress: c.ContractAddress,
-			RegisterAddress: c.RegisterAddress,
-		})
-		governance = append(governance, c)
-		s.Require().NoError(err)
+		s.Require().NoError(s.registerContract("staking", sender.String(), addr))
+		s.Require().NoError(s.registerContract("gov", sender.String(), addr))
 	}
 
-	// verify outputs
-	resp, err := s.queryClient.StakingContracts(s.Ctx, &types.QueryStakingContractsRequest{})
+	storedStaking, err := s.App.AppKeepers.CWHooksKeeper.GetAllContracts(s.Ctx, types.StakingPrefixKey)
 	s.Require().NoError(err)
-	s.Require().LessOrEqual(len(resp.Contracts), len(staking))
+	s.T().Logf("stored staking contracts: %d", len(storedStaking))
+	s.Require().Len(storedStaking, len(registered))
 
-	resp2, err := s.queryClient.GovernanceContracts(s.Ctx, &types.QueryGovernanceContractsRequest{})
+	iter, err := s.App.AppKeepers.CWHooksKeeper.Contracts.Iterate(s.Ctx, nil)
 	s.Require().NoError(err)
-	s.Require().LessOrEqual(len(resp2.Contracts), len(governance))
+	allContracts, err := iter.Values()
+	s.Require().NoError(err)
+	s.T().Logf("total contracts stored: %d", len(allContracts))
+	s.Require().Len(allContracts, len(registered)*2)
+
+	iterAll, err := s.App.AppKeepers.CWHooksKeeper.Contracts.Iterate(s.Ctx, nil)
+	s.Require().NoError(err)
+	keyValues, err := iterAll.KeyValues()
+	s.Require().NoError(err)
+	for _, kv := range keyValues {
+		s.T().Logf("stored contract module=%q address=%s", string(kv.Key.K1()), kv.Value.ContractAddress)
+	}
+
+	storedGov, err := s.App.AppKeepers.CWHooksKeeper.GetAllContracts(s.Ctx, types.GovPrefixKey)
+	s.Require().NoError(err)
+	s.T().Logf("stored gov contracts: %d", len(storedGov))
+	s.Require().Len(storedGov, len(registered))
+
+	stakingResp, err := s.queryClient.Contracts(s.Ctx, &types.QueryContractsRequest{Module: "staking"})
+	s.Require().NoError(err)
+	s.Require().Len(stakingResp.Contracts, len(registered))
+	s.Require().ElementsMatch(registered, stakingResp.Contracts)
+
+	govResp, err := s.queryClient.Contracts(s.Ctx, &types.QueryContractsRequest{Module: "gov"})
+	s.Require().NoError(err)
+	s.Require().Len(govResp.Contracts, len(registered))
+	s.Require().ElementsMatch(registered, govResp.Contracts)
+
+	target := registered[0]
+	infoResp, err := s.queryClient.ContractInfo(s.Ctx, &types.QueryContractInfoRequest{
+		Module:          "staking",
+		ContractAddress: target.ContractAddress,
+	})
+	s.Require().NoError(err)
+	s.Require().Equal(target, infoResp.Contract)
+
+	// invalid module should error
+	_, err = s.queryClient.Contracts(s.Ctx, &types.QueryContractsRequest{Module: "invalid"})
+	s.Require().Error(err)
+
+	_, err = s.queryClient.ContractInfo(s.Ctx, &types.QueryContractInfoRequest{
+		Module:          "invalid",
+		ContractAddress: target.ContractAddress,
+	})
+	s.Require().Error(err)
 }

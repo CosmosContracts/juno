@@ -13,32 +13,32 @@ import (
 // RegisterCwHooksStaking registers a contract for staking hooks
 func (s *E2ETestSuite) RegisterCwHooksStaking(chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(1000000)))
-	s.cwHooksCmd(chain, "register-staking", user, contractAddr, fees)
+	s.cwHooksCmd(chain, "register", "staking", user, contractAddr, fees)
 }
 
 func (s *E2ETestSuite) RegisterCwHooksGovernance(chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(1000000)))
-	s.cwHooksCmd(chain, "register-governance", user, contractAddr, fees)
+	s.cwHooksCmd(chain, "register", "gov", user, contractAddr, fees)
 }
 
 // UnregisterCwHooksStaking unregisters a contract from staking hooks
 func (s *E2ETestSuite) UnregisterCwHooksStaking(chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(1000000)))
-	s.cwHooksCmd(chain, "unregister-staking", user, contractAddr, fees)
+	s.cwHooksCmd(chain, "unregister", "staking", user, contractAddr, fees)
 }
 
 func (s *E2ETestSuite) UnregisterCwHooksGovernance(chain *cosmos.CosmosChain, user ibc.Wallet, contractAddr string) {
 	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(1000000)))
-	s.cwHooksCmd(chain, "unregister-governance", user, contractAddr, fees)
+	s.cwHooksCmd(chain, "unregister", "gov", user, contractAddr, fees)
 }
 
 // GetCwHooksStakingContracts retrieves all registered staking hook contracts
 func (s *E2ETestSuite) GetCwHooksStakingContracts() []string {
-	return s.getContracts(s.Chain, "staking-contracts")
+	return s.getContracts(s.Chain, "staking")
 }
 
 func (s *E2ETestSuite) GetCwHooksGovernanceContracts() []string {
-	return s.getContracts(s.Chain, "governance-contracts")
+	return s.getContracts(s.Chain, "gov")
 }
 
 // GetCwStakingHookLastDelegationChange gets the last delegation change from a contract
@@ -51,7 +51,7 @@ func (s *E2ETestSuite) GetCwStakingHookLastDelegationChange(chain *cosmos.Cosmos
 }
 
 // helpers
-func (s *E2ETestSuite) cwHooksCmd(chain *cosmos.CosmosChain, command string, user ibc.Wallet, contractAddr string, fees sdk.Coins) {
+func (s *E2ETestSuite) cwHooksCmd(chain *cosmos.CosmosChain, command, module string, user ibc.Wallet, contractAddr string, fees sdk.Coins) {
 	t := s.T()
 	require := s.Require()
 
@@ -62,8 +62,9 @@ func (s *E2ETestSuite) cwHooksCmd(chain *cosmos.CosmosChain, command string, use
 		false,
 		"cw-hooks",
 		command,
-		contractAddr,
 		user.FormattedAddress(),
+		module,
+		contractAddr,
 		"--fees",
 		fees.String(),
 		"--gas",
@@ -73,16 +74,16 @@ func (s *E2ETestSuite) cwHooksCmd(chain *cosmos.CosmosChain, command string, use
 
 	s.DebugOutput(string(stdout))
 
-	if err := testutil.WaitForBlocks(s.Ctx, 2, chain); err != nil {
+	if err := testutil.WaitForBlocks(s.Ctx, 1, chain); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func (s *E2ETestSuite) getContracts(chain *cosmos.CosmosChain, subCmd string) []string {
+func (s *E2ETestSuite) getContracts(chain *cosmos.CosmosChain, module string) []string {
 	t := s.T()
 	require := s.Require()
 	cmd := []string{
-		"junod", "query", "cw-hooks", subCmd,
+		"junod", "query", "cw-hooks", "contracts", module,
 		"--output", "json",
 		"--node", chain.GetRPCAddress(),
 	}
@@ -92,8 +93,11 @@ func (s *E2ETestSuite) getContracts(chain *cosmos.CosmosChain, subCmd string) []
 
 	s.DebugOutput(string(stdout))
 
+	type contractInfo struct {
+		ContractAddress string `json:"contract_address"`
+	}
 	type contracts struct {
-		Contracts []string `json:"contracts"`
+		Contracts []contractInfo `json:"contracts"`
 	}
 
 	var c contracts
@@ -101,5 +105,10 @@ func (s *E2ETestSuite) getContracts(chain *cosmos.CosmosChain, subCmd string) []
 		t.Fatal(err)
 	}
 
-	return c.Contracts
+	addrs := make([]string, 0, len(c.Contracts))
+	for _, info := range c.Contracts {
+		addrs = append(addrs, info.ContractAddress)
+	}
+
+	return addrs
 }

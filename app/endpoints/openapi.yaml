@@ -6477,29 +6477,69 @@ paths:
       summary: Params
       tags:
         - Clock
-  /juno/cwhooks/v1/governance_contracts:
+  /juno/cwhooks/v2/contracts/{module}:
     get:
-      description: GovernanceContracts
-      operationId: cwhooks_governance_contracts
+      description: Contracts gets all contracts for a module
+      operationId: cwhooks_contracts
+      parameters:
+        - name: module
+          in: path
+          description: The module key the contracts are registered for
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QueryGovernanceContractsResponse'
+                $ref: '#/components/schemas/QueryContractsResponse'
         default:
           description: Default error response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Status'
-      summary: Governance Contracts
+      summary: Contracts
       tags:
         - Hooks
-  /juno/cwhooks/v1/params:
+  /juno/cwhooks/v2/contracts/{module}/{contractAddress}:
     get:
-      description: Params
+      description: ContractInfo gets a contract info for a module and contract address
+      operationId: cwhooks_{module}
+      parameters:
+        - name: module
+          in: path
+          description: The module key the contract is registered for
+          required: true
+          schema:
+            type: string
+        - name: contractAddress
+          in: path
+          description: The contract address to get info for
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryContractInfoResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      summary: '{module}'
+      tags:
+        - Hooks
+  /juno/cwhooks/v2/params:
+    get:
+      description: Params gets all module params
       operationId: cwhooks_params
       responses:
         "200":
@@ -6515,26 +6555,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Status'
       summary: Params
-      tags:
-        - Hooks
-  /juno/cwhooks/v1/staking_contracts:
-    get:
-      description: StakingContracts
-      operationId: cwhooks_staking_contracts
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QueryStakingContractsResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      summary: Staking Contracts
       tags:
         - Hooks
   /juno/drip/v1/params:
@@ -7533,6 +7553,13 @@ components:
     ContractInfo:
       type: object
       properties:
+        contractAddress:
+          type: string
+        failureCounter:
+          type: integer
+          format: uint32
+        latestError:
+          type: string
         codeId:
           type: string
           description: CodeID is the reference to the stored Wasm code
@@ -8367,6 +8394,9 @@ components:
         contractGasLimit:
           type: string
           description: contract_gas_limit is the contract call gas limit
+        contractFailureRemovalThreshold:
+          type: string
+          description: contract_failure_removal_threshold is the threshold for removing a contract after consecutive failures
         sendEnabled:
           type: array
           items:
@@ -9091,6 +9121,8 @@ components:
     QueryContractInfoResponse:
       type: object
       properties:
+        contract:
+          $ref: '#/components/schemas/ContractInfo'
         address:
           type: string
           description: address is the address of the contract
@@ -9129,6 +9161,15 @@ components:
       description: |-
         QueryContractsByCreatorResponse is the response type for the
          Query/ContractsByCreator RPC method.
+    QueryContractsResponse:
+      type: object
+      properties:
+        contracts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractInfo'
+          description: The contracts registered for the module
+      description: QueryContractsResponse is the response type for the Query/Contracts RPC method
     QueryCurrentPlanResponse:
       type: object
       properties:
@@ -9455,14 +9496,6 @@ components:
       description: |-
         QueryFeeSharesResponse is the response type for the Query/FeeShares RPC
          method.
-    QueryGovernanceContractsResponse:
-      type: object
-      properties:
-        contracts:
-          type: array
-          items:
-            type: string
-      description: QueryGovernanceContractsResponse
     QueryGranteeGrantsResponse:
       type: object
       properties:
@@ -9832,14 +9865,6 @@ components:
       description: |-
         QuerySpendableBalancesResponse defines the gRPC response structure for querying
          an account's spendable balances.
-    QueryStakingContractsResponse:
-      type: object
-      properties:
-        contracts:
-          type: array
-          items:
-            type: string
-      description: QueryStakingContractsResponse
     QuerySupplyOfResponse:
       type: object
       properties:

@@ -20,29 +20,43 @@ func (k Keeper) InitGenesis(
 	}
 
 	for _, v := range data.StakingContractAddresses {
-		accAddr, err := sdk.AccAddressFromBech32(v)
+		_, err := sdk.AccAddressFromBech32(v.ContractAddress)
 		if err != nil {
 			panic(err)
 		}
 
-		k.SetContract(ctx, types.KeyPrefixStaking, accAddr)
+		err = k.SetContract(ctx, types.StakingPrefixKey, v)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	for _, v := range data.GovContractAddresses {
-		accAddr, err := sdk.AccAddressFromBech32(v)
+		_, err := sdk.AccAddressFromBech32(v.ContractAddress)
 		if err != nil {
 			panic(err)
 		}
 
-		k.SetContract(ctx, types.KeyPrefixGov, accAddr)
+		err = k.SetContract(ctx, types.GovPrefixKey, v)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
 // ExportGenesis export module state
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
+	stakingContracts, err := k.GetAllContracts(ctx, types.StakingPrefixKey)
+	if err != nil {
+		panic(err)
+	}
+	govContracts, err := k.GetAllContracts(ctx, types.GovPrefixKey)
+	if err != nil {
+		panic(err)
+	}
 	return &types.GenesisState{
 		Params:                   k.GetParams(ctx),
-		StakingContractAddresses: k.GetAllContractsBech32(ctx, types.KeyPrefixStaking),
-		GovContractAddresses:     k.GetAllContractsBech32(ctx, types.KeyPrefixGov),
+		StakingContractAddresses: stakingContracts,
+		GovContractAddresses:     govContracts,
 	}
 }
