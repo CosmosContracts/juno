@@ -181,7 +181,7 @@ func (s *KeeperTestSuite) TestMintDenom() {
 			desc: "error: try minting non-tokenfactory denom",
 			mintMsg: types.MsgMint{
 				Sender:        s.TestAccs[0].String(),
-				Amount:        sdk.NewInt64Coin("ujuno", 10),
+				Amount:        sdk.NewInt64Coin(sdk.DefaultBondDenom, 10),
 				MintToAddress: s.TestAccs[1].String(),
 			},
 			expectPass: false,
@@ -277,7 +277,7 @@ func (s *KeeperTestSuite) TestBurnDenom() {
 			desc: "fail case - burn non-tokenfactory denom",
 			burnMsg: types.MsgBurn{
 				Sender:          s.TestAccs[0].String(),
-				Amount:          sdk.NewInt64Coin("ujuno", 10),
+				Amount:          sdk.NewInt64Coin(sdk.DefaultBondDenom, 10),
 				BurnFromAddress: moduleAdress.String(),
 			},
 			expectPass: false,
@@ -566,7 +566,7 @@ func (s *KeeperTestSuite) TestSetDenomMetaData() {
 					Description: "yeehaw",
 					DenomUnits: []*banktypes.DenomUnit{
 						{
-							Denom:    "ujuno",
+							Denom:    sdk.DefaultBondDenom,
 							Exponent: 0,
 						},
 						{
@@ -574,7 +574,7 @@ func (s *KeeperTestSuite) TestSetDenomMetaData() {
 							Exponent: 6,
 						},
 					},
-					Base:    "ujuno",
+					Base:    sdk.DefaultBondDenom,
 					Display: "juno",
 					Name:    "JUNO",
 					Symbol:  "JUNO",
