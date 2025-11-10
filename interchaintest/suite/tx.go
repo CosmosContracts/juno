@@ -48,7 +48,7 @@ func (s *E2ETestSuite) SimulateTx(user cosmos.User, height uint64, expectFail bo
 	return gas
 }
 
-func (s *E2ETestSuite) SendCoinsMultiBroadcast(sender, receiver ibc.Wallet, amt, fees sdk.Coins, gas int64, numMsg int) (*coretypes.ResultBroadcastTxCommit, error) {
+func (s *E2ETestSuite) SendCoinsMultiBroadcast(sender, receiver ibc.Wallet, amt, fees sdk.Coins, gas int64, numMsg int, memo string) (*coretypes.ResultBroadcastTxCommit, error) {
 	msgs := make([]sdk.Msg, numMsg)
 	for i := range numMsg {
 		msgs[i] = &banktypes.MsgSend{
@@ -58,7 +58,7 @@ func (s *E2ETestSuite) SendCoinsMultiBroadcast(sender, receiver ibc.Wallet, amt,
 		}
 	}
 
-	tx := s.CreateTx(s.Chain, sender, fees.String(), gas, true, msgs...)
+	tx := s.CreateTx(s.Chain, sender, fees.String(), gas, true, memo, msgs...)
 
 	// get an rpc endpoint for the chain
 	c := s.Chain.Nodes()[0].Client
@@ -66,7 +66,7 @@ func (s *E2ETestSuite) SendCoinsMultiBroadcast(sender, receiver ibc.Wallet, amt,
 }
 
 func (s *E2ETestSuite) SendCoinsMultiBroadcastAsync(sender, receiver ibc.Wallet, amt, fees sdk.Coins,
-	gas int64, numMsg int, bumpSequence bool,
+	gas int64, numMsg int, bumpSequence bool, memo string,
 ) (*coretypes.ResultBroadcastTx, error) {
 	msgs := make([]sdk.Msg, numMsg)
 	for i := range numMsg {
@@ -77,7 +77,7 @@ func (s *E2ETestSuite) SendCoinsMultiBroadcastAsync(sender, receiver ibc.Wallet,
 		}
 	}
 
-	tx := s.CreateTx(s.Chain, sender, fees.String(), gas, bumpSequence, msgs...)
+	tx := s.CreateTx(s.Chain, sender, fees.String(), gas, bumpSequence, memo, msgs...)
 
 	// get an rpc endpoint for the chain
 	c := s.Chain.Nodes()[0].Client
@@ -90,7 +90,7 @@ func (s *E2ETestSuite) SendCoins(chain *cosmos.CosmosChain, keyName, sender, rec
 		chain,
 		keyName,
 		false,
-		false,
+		true,
 		"bank",
 		"send",
 		sender,
@@ -137,6 +137,35 @@ func (s *E2ETestSuite) FundUser(chain ibc.Chain, amount int64, user ibc.Wallet) 
 		sdk.NewCoins(sdk.NewCoin(chainCfg.Denom, sdkmath.NewInt(1_000_000))),
 	)
 	s.Require().NoError(err, "failed to get funds from faucet")
+}
+
+// GetAndFundTestUsers creates `count` wallets with names prefix0..prefixN-1 and funds them concurrently.
+func (s *E2ETestSuite) GetAndFundTestUsers(
+	keyNamePrefix string,
+	count int,
+	amount int64,
+	chain ibc.Chain,
+) []ibc.Wallet {
+	t := s.T()
+	t.Helper()
+
+	wallets := make([]ibc.Wallet, count)
+	var eg errgroup.Group
+	for i := 0; i < count; i++ {
+		idx := i
+		prefix := fmt.Sprintf("%s%d", keyNamePrefix, idx+1)
+		eg.Go(func() error {
+			wallet, err := s.GetAndFundTestUserWithMnemonic(prefix, "", amount, chain)
+			if err != nil {
+				return err
+			}
+			wallets[idx] = wallet
+			return nil
+		})
+	}
+
+	s.Require().NoError(eg.Wait())
+	return wallets
 }
 
 // GetAndFundTestUser generates and funds a chain user with the native chain denom.
@@ -204,16 +233,20 @@ func (s *E2ETestSuite) ExecTx(chain *cosmos.CosmosChain, keyName string, blockin
 	s.Require().NoError(err)
 	s.WaitForHeight(chain, height+1)
 
-	stdout, stderr, err := chain.FullNodes[0].ExecQuery(s.Ctx, "tx", resp, "--type", "hash")
+	txResp, err := chain.GetTransaction(resp)
 	s.Require().NoError(err)
-	s.Require().Nil(stderr)
+	s.Require().Equal(uint32(0), txResp.Code, "transaction failed with code %d: %s", txResp.Code, txResp.RawLog)
 
-	return string(stdout), nil
+	if txResp.TxHash != "" {
+		return txResp.TxHash, nil
+	}
+
+	return resp, nil
 }
 
 // CreateTx creates a new transaction to be signed by the given user, including a provided set of messages
 func (s *E2ETestSuite) CreateTx(chain *cosmos.CosmosChain, user cosmos.User, fee string, gas int64,
-	bumpSequence bool, msgs ...sdk.Msg,
+	bumpSequence bool, memo string, msgs ...sdk.Msg,
 ) []byte {
 	bc := cosmos.NewBroadcaster(s.T(), chain)
 
@@ -234,6 +267,7 @@ func (s *E2ETestSuite) CreateTx(chain *cosmos.CosmosChain, user cosmos.User, fee
 	txf = txf.WithGasAdjustment(0)
 	txf = txf.WithGasPrices("")
 	txf = txf.WithFees(fee)
+	txf = txf.WithMemo(memo)
 
 	// update sequence number
 	txf = txf.WithSequence(txf.Sequence())
@@ -243,6 +277,51 @@ func (s *E2ETestSuite) CreateTx(chain *cosmos.CosmosChain, user cosmos.User, fee
 		}
 		txf = txf.WithSequence(txf.Sequence())
 	}
+
+	// sign the tx
+	txBuilder, err := txf.BuildUnsignedTx(msgs...)
+	s.Require().NoError(err)
+	s.Require().NoError(tx.Sign(cc.CmdContext, txf, cc.GetFromName(), txBuilder, true))
+
+	// encode and return
+	bz, err := cc.TxConfig.TxEncoder()(txBuilder.GetTx())
+	s.Require().NoError(err)
+	return bz
+}
+
+// CreateTxWithMemoAndSequence creates a tx with a custom memo and explicit sequence override.
+func (s *E2ETestSuite) CreateTxWithMemoAndSequence(
+	chain *cosmos.CosmosChain,
+	user cosmos.User,
+	fee string,
+	gas int64,
+	memo string,
+	sequence uint64,
+	msgs ...sdk.Msg,
+) []byte {
+	bc := cosmos.NewBroadcaster(s.T(), chain)
+
+	// create tx factory + Client Context
+	txf, err := bc.GetFactory(s.Ctx, user)
+	s.Require().NoError(err)
+
+	cc, err := bc.GetClientContext(s.Ctx, user)
+	s.Require().NoError(err)
+
+	txf = txf.WithSimulateAndExecute(false)
+
+	txf, err = txf.Prepare(cc)
+	s.Require().NoError(err)
+
+	// get gas and fee
+	txf = txf.WithGas(uint64(gas))
+	txf = txf.WithGasAdjustment(0)
+	txf = txf.WithGasPrices("")
+	txf = txf.WithFees(fee)
+	txf = txf.WithMemo(memo)
+
+	// force sequence
+	txf = txf.WithSequence(sequence)
 
 	// sign the tx
 	txBuilder, err := txf.BuildUnsignedTx(msgs...)

@@ -7,7 +7,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/interchaintest/v10"
-	"github.com/cosmos/interchaintest/v10/ibc"
 	"github.com/cosmos/interchaintest/v10/testutil"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -23,15 +22,9 @@ func TestFeemarketTestSuite(t *testing.T) {
 	numValidators := 1
 	numFullNodes := 0
 
-	spec := &interchaintest.ChainSpec{
-		ChainName:     "juno-fees",
-		Name:          "juno",
-		NumValidators: &numValidators,
-		NumFullNodes:  &numFullNodes,
-		Version:       e2esuite.DefaultSpec.Version,
-		NoHostMount:   &e2esuite.DefaultNoHostMount,
-		ChainConfig:   e2esuite.DefaultConfig,
-	}
+	spec := e2esuite.DefaultSpec
+	spec.NumValidators = &numValidators
+	spec.NumFullNodes = &numFullNodes
 
 	s := e2esuite.NewE2ETestSuite(
 		[]*interchaintest.ChainSpec{spec},
@@ -47,17 +40,6 @@ func TestFeemarketTestSuite(t *testing.T) {
 	suite.Run(t, testSuite)
 }
 
-func (s *FeemarketTestSuite) SetupSubTest() {
-	height, err := s.Chain.Height(s.Ctx)
-	s.Require().NoError(err)
-	s.WaitForHeight(s.Chain, height+1)
-
-	state := s.QueryFeemarketState()
-	s.T().Log("state at block height", height+1, ":", state.String())
-	gasPrice := s.QueryFeemarketGasPrice(s.Denom)
-	s.T().Log("gas price at block height", height+1, ":", gasPrice.String())
-}
-
 // TestFeemarketUpdate tests that the feemarket will increase
 // when gas utilization is above the target block utilization
 // and that the gas price will decrease after the congestion ends
@@ -66,11 +48,6 @@ func (s *FeemarketTestSuite) TestFeemarketUpdate() {
 	s.Require().True(len(nodes) > 0)
 
 	params := s.QueryFeemarketParams()
-	sendAmt := int64(100)
-
-	// Wait for gas price to reach minimum before starting the test
-	s.T().Log("Waiting for gas price to reach minimum...")
-	s.waitForMinimumGasPrice(params)
 
 	// Record initial state
 	initialGasPrice := s.QueryFeemarketGasPrice(s.Denom)
@@ -82,23 +59,18 @@ func (s *FeemarketTestSuite) TestFeemarketUpdate() {
 		initialGasPrice.String(), params.MinBaseGasPrice.String())
 
 	// Setup test users
-	users := []ibc.Wallet{
-		s.GetAndFundTestUser("user1", 200000000000, s.Chain),
-		s.GetAndFundTestUser("user2", 200000000000, s.Chain),
-		s.GetAndFundTestUser("user3", 200000000000, s.Chain),
-		s.GetAndFundTestUser("user4", 200000000000, s.Chain),
-		s.GetAndFundTestUser("user5", 200000000000, s.Chain),
-	}
+	users := s.GetAndFundTestUsers("user", 20, 200000000000, s.Chain)
 
-	// Monitor gas prices in separate goroutine
+	// Monitor gas price and state via streams
 	priceUpdates := make(chan sdk.DecCoin, 300)
 	stopMonitoring := make(chan struct{})
 	monitoringDone := make(chan struct{})
-
+	stateMonitoringDone := make(chan struct{})
 	go s.monitorGasPrice(priceUpdates, stopMonitoring, monitoringDone)
+	go s.monitorFeemarketState(stopMonitoring, stateMonitoringDone)
 
 	// Send transactions to create congestion
-	txErrors := s.createNetworkCongestion(users, sendAmt)
+	txErrors := s.createNetworkCongestion(users)
 
 	if len(txErrors) > 0 {
 		s.T().Logf("Some transactions failed during network congestion: %v", txErrors)
@@ -107,6 +79,7 @@ func (s *FeemarketTestSuite) TestFeemarketUpdate() {
 	// Stop monitoring and collect results
 	close(stopMonitoring)
 	<-monitoringDone
+	<-stateMonitoringDone
 	close(priceUpdates)
 
 	// Analyze price changes
@@ -166,6 +139,7 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 			sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(1_000_000))),
 			0,
 			1,
+			"",
 		)
 		s.Require().NoError(err)
 		s.Require().NotNil(txResp)
@@ -182,6 +156,7 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 			sdk.NewCoins(),
 			gas,
 			1,
+			"",
 		)
 		s.Require().NoError(err)
 		s.Require().NotNil(txResp)
@@ -200,6 +175,7 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 			sdk.NewCoins(balance),
 			gas,
 			1,
+			"",
 		)
 		s.Require().NoError(err)
 		s.Require().NotNil(txResp)
@@ -228,6 +204,7 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 			minBaseFeeCoins,
 			gas,
 			1,
+			"",
 		)
 		s.Require().NoError(err)
 		s.Require().NotNil(txResp)
@@ -252,6 +229,7 @@ func (s *FeemarketTestSuite) TestSendTxFailures() {
 			sdk.NewCoins(balance.AddAmount(math.NewInt(110000))),
 			gas,
 			1,
+			"",
 		)
 		s.Require().NoError(err)
 		s.Require().NotNil(txResp)

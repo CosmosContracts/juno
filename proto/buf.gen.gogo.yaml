@@ -8,7 +8,7 @@ inputs:
       - proto/juno
     exclude_paths:
       - proto/juno/clock/module/v1
-      - proto/juno/cwhooks/module/v1
+      - proto/juno/cwhooks/module/v2
       - proto/juno/drip/module/v1
       - proto/juno/feepay/module/v1
       - proto/juno/feeshare/module/v1

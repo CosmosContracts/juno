@@ -19,5 +19,5 @@ func GetDockerImageInfo() (repo, version string) {
         }
     }
 
-	return repo, "dev"
+	return repo, "local"
 }

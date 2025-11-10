@@ -1,67 +1,17 @@
 package feemarket_test
 
 import (
+	"context"
 	"fmt"
 	"sync"
-	"time"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/interchaintest/v10/ibc"
-	"github.com/cosmos/interchaintest/v10/testutil"
 
 	feemarketypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 )
-
-// waitForMinimumGasPrice waits for the gas price to reach the minimum by sending minimal transactions
-func (s *FeemarketTestSuite) waitForMinimumGasPrice(params feemarketypes.Params) {
-	// Setup temporary users for this operation
-	// tempUsers := []ibc.Wallet{
-	// 	s.GetAndFundTestUser("temp1", 200000000000, s.Chain),
-	// 	s.GetAndFundTestUser("temp2", 200000000000, s.Chain),
-	// 	s.GetAndFundTestUser("temp3", 200000000000, s.Chain),
-	// }
-
-	// gasPerTx := int64(200000) // Use minimal gas
-	// sendAmt := int64(100)
-	maxAttempts := 10
-	attempt := 0
-
-	for attempt < maxAttempts {
-		currentGasPrice := s.QueryFeemarketGasPrice(s.Denom)
-		s.T().Logf("Attempt %d: Current gas price: %s, Target min: %s",
-			attempt+1, currentGasPrice.String(), params.MinBaseGasPrice.String())
-
-		// If we've reached the minimum, we're done
-		if currentGasPrice.Amount.Equal(params.MinBaseGasPrice) {
-			s.T().Log("Gas price has reached minimum")
-			return
-		}
-
-		// // Send minimal transactions to allow price to decrease
-		// txErrors := s.sendMinimalTransactions(tempUsers, gasPerTx, sendAmt)
-		// if len(txErrors) > 0 {
-		// 	s.T().Logf("Some transactions failed during gas price normalization: %v", txErrors)
-		// }
-
-		// Wait for a few blocks to allow the price to adjust
-		currentHeight, err := s.Chain.Height(s.Ctx)
-		s.Require().NoError(err)
-		s.WaitForHeight(s.Chain, currentHeight+2)
-
-		attempt++
-	}
-
-	finalGasPrice := s.QueryFeemarketGasPrice(s.Denom)
-	if !finalGasPrice.Amount.Equal(params.MinBaseGasPrice) {
-		s.T().Logf("Warning: Gas price did not fully reach minimum after %d attempts. Current: %s, Min: %s",
-			maxAttempts, finalGasPrice.String(), params.MinBaseGasPrice.String())
-
-		// Wait for chain to stabilize anyway
-		err := testutil.WaitForBlocks(s.Ctx, 2, s.Chain)
-		s.Require().NoError(err)
-	}
-}
 
 // monitorGasPrice continuously monitors gas price changes
 func (s *FeemarketTestSuite) monitorGasPrice(
@@ -71,136 +21,195 @@ func (s *FeemarketTestSuite) monitorGasPrice(
 ) {
 	defer close(done)
 
-	ticker := time.NewTicker(100 * time.Millisecond)
-	defer ticker.Stop()
+	// establish a cancellable context so we can stop the stream cleanly
+	ctx, cancel := context.WithCancel(s.Ctx)
+	defer cancel()
+
+	// cancel the stream when stop is signaled
+	go func() {
+		<-stop
+		cancel()
+	}()
+
+	// subscribe to the feemarket GasPrice stream for the suite denom
+	stream, err := s.QueryClients.StreamClient.Stream(ctx, &streamtypes.StreamDynamicRequest{
+		Module: "feemarket",
+		Method: "GasPrice",
+		Params: map[string]string{
+			"denom": s.Denom,
+		},
+	})
+	if err != nil {
+		s.T().Logf("failed to open gas price stream: %v", err)
+		return
+	}
 
 	for {
+		resp, err := stream.Recv()
+		if err != nil {
+			// stream closed or context canceled
+			return
+		}
+
+		if resp == nil || resp.Result == nil {
+			continue
+		}
+
+		var out feemarketypes.GasPriceResponse
+		if err := out.Unmarshal(resp.Result.Value); err != nil {
+			s.T().Logf("failed to decode gas price stream response: %v", err)
+			continue
+		}
+
 		select {
+		case updates <- out.Price:
 		case <-stop:
 			return
-		case <-ticker.C:
-			gasPrice := s.QueryFeemarketGasPrice(s.Denom)
-			select {
-			case updates <- gasPrice:
-			case <-stop:
-				return
-			}
 		}
 	}
 }
 
-func (s *FeemarketTestSuite) createNetworkCongestion(
-	users []ibc.Wallet,
-	sendAmt int64,
-) []error {
+// monitorFeemarketState streams the feemarket State and logs per-block details
+// including current-slot utilization, average utilization, and learning rate.
+func (s *FeemarketTestSuite) monitorFeemarketState(stop <-chan struct{}, done chan<- struct{}) {
+	defer close(done)
+
+	// fetch params once to compute average utilization with correct MaxBlockUtilization
+	params := s.QueryFeemarketParams()
+
+	ctx, cancel := context.WithCancel(s.Ctx)
+	defer cancel()
+
+	go func() {
+		<-stop
+		cancel()
+	}()
+
+	stream, err := s.QueryClients.StreamClient.Stream(ctx, &streamtypes.StreamDynamicRequest{
+		Module: "feemarket",
+		Method: "State",
+		Params: map[string]string{},
+	})
+	if err != nil {
+		s.T().Logf("failed to open feemarket state stream: %v", err)
+		return
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err != nil {
+			return
+		}
+		if resp == nil || resp.Result == nil {
+			continue
+		}
+
+		var out feemarketypes.StateResponse
+		if err := out.Unmarshal(resp.Result.Value); err != nil {
+			s.T().Logf("failed to decode state stream response: %v", err)
+			continue
+		}
+
+		st := out.State
+		idx := int(st.Index)
+		// window[idx] is the next slot (already zeroed in IncrementHeight),
+		// so the last block's utilization sits at the previous index.
+		prev := 0
+		if l := len(st.Window); l > 0 {
+			prev = (idx - 1 + l) % l
+		}
+		cur := uint64(0)
+		if prev >= 0 && prev < len(st.Window) {
+			cur = st.Window[prev]
+		}
+
+		avg := st.GetAverageUtilization(params)
+		lr := st.LearningRate
+
+		s.T().Logf("feemarket state: slot_util=%d avg_util=%s lr=%s", cur, avg.String(), lr.String())
+	}
+}
+
+func (s *FeemarketTestSuite) createNetworkCongestion(users []ibc.Wallet) []error {
 	var allErrors []error
 
-	// Simple approach: send very few transactions but with many messages each
-	// Goal: ensure we exceed MaxBlockUtilization (3M gas) per block with actual gas consumption
-	s.T().Logf("Using %d users for network congestion", len(users))
+	// Deploy the staking hooks high-gas contract once
+	deployer := s.GetAndFundTestUser("deployer", 200000000000, s.Chain)
+	setupFees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
+	codeID := s.StoreContract(s.Chain, deployer.KeyName(), "../../contracts/juno_staking_hooks_high_gas_example.wasm", setupFees)
 
-	// Each bank send consumes ~70k gas
-	// To exceed 3M gas target, we need: 3,000,000 / 70,000 = ~43 bank sends minimum
-	// Let's use 50 messages per transaction to be safe, and send one transaction per user
-	messagesPerTransaction := 100       // 50 * 70k = 3.5M gas per transaction - exceeds target
-	gasPerTransaction := int64(4000000) // High gas limit to accommodate 50 messages
+	numContracts := 20
+	for i := range numContracts {
+		contractAddr, err := s.InstantiateContract(s.Chain, deployer.KeyName(), codeID, `{}`, setupFees, true, false)
+		if err != nil {
+			return []error{fmt.Errorf("failed to instantiate hook contract %d: %w", i, err)}
+		}
+		s.RegisterCwHooksStaking(s.Chain, deployer, contractAddr)
+	}
+	s.T().Logf("Registered %d staking-hooks high-gas contracts", numContracts)
 
-	s.T().Logf("Congesting network: %d users, %d msgs per tx (~3.5M actual gas per tx)",
-		len(users), messagesPerTransaction)
+	// Choose a validator to delegate to
+	vals := s.QueryValidators(s.Chain)
+	if len(vals) == 0 {
+		s.T().Logf("no validators found; aborting load")
+		return []error{fmt.Errorf("no validators found")}
+	}
+	valoper := vals[0].String()
 
-	// Get current gas price and calculate fees
-	currentGasPrice := s.QueryFeemarketGasPrice(s.Denom)
-	feeMultiplier := math.LegacyNewDec(3) // High multiplier to ensure inclusion
-	feeAmount := currentGasPrice.Amount.Mul(math.LegacyNewDec(gasPerTransaction)).Mul(feeMultiplier)
-	fees := sdk.NewCoins(sdk.NewCoin(currentGasPrice.Denom, feeAmount.TruncateInt()))
+	rounds := 20
+	s.T().Logf("Congesting network (staking-async) for %d rounds with %d users", rounds, len(users))
 
-	var wg sync.WaitGroup
-	var roundErrors []error
-	var errorsMu sync.Mutex
-	successCount := 0
-
-	// Send one big transaction per user simultaneously
-	for userIdx, sender := range users {
-		wg.Add(1)
-
-		go func(from ibc.Wallet, userIndex int) {
-			defer wg.Done()
-
-			// Send to a different user in round-robin fashion
-			receiver := users[(userIndex+1)%len(users)]
-
-			s.T().Logf("User %d sending transaction with %d messages", userIndex, messagesPerTransaction)
-
-			_, _ = s.SendCoinsMultiBroadcast(
-				from,
-				receiver,
-				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
-				fees,
-				gasPerTransaction,
-				messagesPerTransaction,
-			)
-
-			_, _ = s.SendCoinsMultiBroadcast(
-				from,
-				receiver,
-				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
-				fees,
-				gasPerTransaction,
-				messagesPerTransaction,
-			)
-
-			txResp, err := s.SendCoinsMultiBroadcast(
-				from,
-				receiver,
-				sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(sendAmt))),
-				fees,
-				gasPerTransaction,
-				messagesPerTransaction,
-			)
-			if err != nil {
-				errorsMu.Lock()
-				roundErrors = append(roundErrors,
-					fmt.Errorf("user %d: broadcast error: %w", userIndex, err))
-				errorsMu.Unlock()
-				return
-			}
-
-			if txResp != nil && txResp.CheckTx.Code != 0 {
-				errorsMu.Lock()
-				roundErrors = append(roundErrors,
-					fmt.Errorf("user %d: broadcast failed with code %d: %s",
-						userIndex, txResp.CheckTx.Code, txResp.CheckTx.Log))
-				errorsMu.Unlock()
-			} else {
-				errorsMu.Lock()
-				successCount++
-				errorsMu.Unlock()
-				s.T().Logf("User %d transaction successful", userIndex)
-			}
-		}(sender, userIdx)
+	// Prepare per-account next sequence
+	nextSeq := make(map[string]uint64, len(users))
+	for _, u := range users {
+		addr := u.FormattedAddress()
+		nextSeq[addr] = 0
 	}
 
-	wg.Wait()
+	for r := range rounds {
+		currentGasPrice := s.QueryFeemarketGasPrice(s.Denom)
+		gasBudget := int64(1_000_000)
+		feeAmount := currentGasPrice.Amount.Mul(math.LegacyNewDec(gasBudget)).Mul(math.LegacyNewDec(3))
+		fees := sdk.NewCoins(sdk.NewCoin(currentGasPrice.Denom, feeAmount.TruncateInt()))
 
-	// Wait for transactions to be included in blocks
-	currentHeight, _ := s.Chain.Height(s.Ctx)
-	s.WaitForHeight(s.Chain, currentHeight+2)
+		var wg sync.WaitGroup
+		var roundErrors []error
+		var errorsMu sync.Mutex
+		var seqMu sync.Mutex
 
-	totalMessages := successCount * messagesPerTransaction
-	expectedGasConsumption := totalMessages * 70000 // ~70k gas per bank send
-	s.T().Logf("Sent %d/%d successful transactions (%d total messages, ~%d gas consumption)",
-		successCount, len(users), totalMessages, expectedGasConsumption)
+		for i := range users {
+			sender := users[i]
+			wg.Add(1)
+			go func(idx int, from ibc.Wallet) {
+				defer wg.Done()
+				addr := from.FormattedAddress()
+				seqMu.Lock()
+				seq := nextSeq[addr]
+				nextSeq[addr] = seq + 1
+				seqMu.Unlock()
+				memo := fmt.Sprintf("stake-u%03d-r%02d-s%06d", idx, r, seq)
+				amount := sdk.NewInt64Coin(s.Denom, 100_000)
+				_, err := s.StakeTokensAsync(from, valoper, amount, fees, gasBudget, memo, seq)
+				if err != nil {
+					errorsMu.Lock()
+					roundErrors = append(roundErrors, fmt.Errorf("round %d user %s: %v", r, addr, err))
+					errorsMu.Unlock()
+					return
+				}
+			}(i, sender)
+		}
 
-	if len(roundErrors) > 0 {
-		s.T().Logf("Transaction errors: %d", len(roundErrors))
-		allErrors = append(allErrors, roundErrors...)
+		wg.Wait()
+
+		if len(roundErrors) > 0 {
+			s.T().Logf("round %d had %d tx errors", r, len(roundErrors))
+			allErrors = append(allErrors, roundErrors...)
+		}
 	}
 
-	// Check gas price change
-	newGasPrice := s.QueryFeemarketGasPrice(s.Denom)
-	priceRatio := newGasPrice.Amount.Quo(currentGasPrice.Amount)
-	s.T().Logf("Gas price after congestion: %s -> %s (%.2fx)",
-		currentGasPrice.String(), newGasPrice.String(), priceRatio.MustFloat64())
+	// settle and allow inclusion of pending txs
+	h, _ := s.Chain.Height(s.Ctx)
+	s.WaitForHeight(s.Chain, h+6)
 
 	return allErrors
 }

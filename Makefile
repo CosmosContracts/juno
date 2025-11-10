@@ -207,7 +207,7 @@ local-image: setup-builder
 	$(DOCKER) buildx build \
 		--load \
 		--platform=$(LOCAL_PLATFORM) \
-		-t $(IMAGE):dev \
+		-t $(IMAGE):local \
 		-f Dockerfile \
 		.
 	@echo "✅ Built Docker Image successfully!"
@@ -218,7 +218,7 @@ proto-image: setup-builder
 		--load \
 		--platform=$(LOCAL_PLATFORM) \
 		-t $(PROTO_IMAGE_NAME) \
-		-f proto/Dockerfile proto
+		-f proto/Dockerfile .
 	@echo "✅ Built Proto Image successfully!"
 
 .PHONY: setup-builder local-image proto-image

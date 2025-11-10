@@ -58,6 +58,7 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
+	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
 // E2ETestSuite runs the feemarket e2e test-suite against a given interchaintest specification
@@ -155,6 +156,7 @@ type QueryClients struct {
 	FeeShareClient     feesharetypes.QueryClient
 	TokenfactoryClient tokenfactorytypes.QueryClient
 	WasmClient         wasmtypes.QueryClient
+	StreamClient       streamtypes.QueryClient
 }
 
 func (s *E2ETestSuite) setupQueryClients() {
@@ -200,6 +202,8 @@ func (s *E2ETestSuite) setupQueryClients() {
 	s.TokenfactoryClient = tokenfactoryClient
 	wasmClient := wasmtypes.NewQueryClient(s.GrpcClient)
 	s.WasmClient = wasmClient
+	streamClient := streamtypes.NewQueryClient(s.GrpcClient)
+	s.StreamClient = streamClient
 }
 
 // Option is a function that modifies the E2ETestSuite

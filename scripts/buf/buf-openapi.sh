@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
 set -eo pipefail
 
-buf dep update
-buf generate --template ./proto/buf.gen.openapi.yaml
-buf generate --template ./proto/buf.gen.openapi-cosmos.yaml
-buf generate --template ./proto/buf.gen.openapi-ibc.yaml
-buf generate --template ./proto/buf.gen.openapi-ibcapps.yaml
-buf generate --template ./proto/buf.gen.openapi-wasm.yaml
+go tool buf dep update
+go tool buf generate --template ./proto/buf.gen.openapi.yaml
+go tool buf generate --template ./proto/buf.gen.openapi-cosmos.yaml
+go tool buf generate --template ./proto/buf.gen.openapi-ibc.yaml
+go tool buf generate --template ./proto/buf.gen.openapi-ibcapps.yaml
+go tool buf generate --template ./proto/buf.gen.openapi-wasm.yaml
 
 yq eval -i \
   '.paths |= with_entries(select(.key | test("/cosmos/mint/") | not))' \

@@ -67,7 +67,7 @@ var (
 		},
 		{
 			Key:   "consensus.params.block.max_gas",
-			Value: "100000000",
+			Value: "5000000",
 		},
 		{
 			Key:   "consensus.params.abci.vote_extensions_enable_height",
@@ -78,28 +78,30 @@ var (
 			Value: false,
 		},
 		{
+			// this resembles the params from the v30 upgrade handler for prod mirroring e2e tests
+			// max block utilization is set to 1M gas to reach target block utilization in tests easier
 			Key: "app_state.feemarket.params",
 			Value: feemarkettypes.Params{
-				Alpha:               feemarkettypes.DefaultAIMDAlpha,
-				Beta:                feemarkettypes.DefaultAIMDBeta,
-				Gamma:               feemarkettypes.DefaultAIMDGamma,
-				Delta:               feemarkettypes.DefaultAIMDDelta,
-				MinBaseGasPrice:     DefaultMinBaseGasPrice,
-				MinLearningRate:     feemarkettypes.DefaultAIMDMinLearningRate,
-				MaxLearningRate:     feemarkettypes.DefaultAIMDMaxLearningRate,
-				MaxBlockUtilization: 3_000_000,
-				Window:              8,
+				Alpha:               sdkmath.LegacyMustNewDecFromStr("0.004"),
+				Beta:                sdkmath.LegacyMustNewDecFromStr("0.983"),
+				Gamma:               sdkmath.LegacyMustNewDecFromStr("0.2"),
+				Delta:               sdkmath.LegacyMustNewDecFromStr("0.00000000000125"),
+				MinBaseGasPrice:     sdkmath.LegacyMustNewDecFromStr("0.075"),
+				MinLearningRate:     sdkmath.LegacyMustNewDecFromStr("0.0015"),
+				MaxLearningRate:     sdkmath.LegacyMustNewDecFromStr("0.05"),
+				MaxBlockUtilization: 5000000,
+				Window:              60,
 				FeeDenom:            DefaultDenom,
 				Enabled:             true,
-				DistributeFees:      false,
+				DistributeFees:      true,
 			},
 		},
 		{
 			Key: "app_state.feemarket.state",
 			Value: feemarkettypes.State{
-				BaseGasPrice: DefaultBaseGasPrice,
-				LearningRate: feemarkettypes.DefaultAIMDMaxLearningRate,
-				Window:       make([]uint64, 8),
+				BaseGasPrice: sdkmath.LegacyMustNewDecFromStr("0.075"),
+				LearningRate: sdkmath.LegacyMustNewDecFromStr("0.0015"),
+				Window:       make([]uint64, 60),
 				Index:        0,
 			},
 		},

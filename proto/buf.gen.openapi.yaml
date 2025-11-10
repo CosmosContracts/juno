@@ -15,7 +15,7 @@ plugins:
       - title=Juno REST API
       - version=v30.0.0
       - Mjuno/clock/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/clock/module/v1
-      - Mjuno/cwhooks/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/cwhooks/module/v1
+      - Mjuno/cwhooks/module/v2/module.proto=github.com/CosmosContracts/juno/v30/api/juno/cwhooks/module/v2
       - Mjuno/drip/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/drip/module/v1
       - Mjuno/feepay/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/feepay/module/v1
       - Mjuno/feeshare/module/v1/module.proto=github.com/CosmosContracts/juno/v30/api/juno/feeshare/module/v1
