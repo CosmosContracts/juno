@@ -107,7 +107,14 @@ func DefaultInterchainConstructor(ctx context.Context, t *testing.T, chains []*c
 	// create docker network
 	client, networkID := interchaintest.DockerSetup(t)
 
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	// 5-minute timeout: the v30 binary's keeper set is materially heavier
+	// than v29's (new x/voting-snapshot, ibc-go v10 + wasmd v0.61 keeper
+	// re-wiring), and the chain takes longer to reach the readiness
+	// criteria interchaintest checks during Build. 2 minutes was tight
+	// even on v29 hardware; on the v30 image, observed runs hit the
+	// 2-min ceiling exactly while the chain itself was still healthy
+	// (committing blocks at height 49+).
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
 	defer cancel()
 
 	// build the interchain
