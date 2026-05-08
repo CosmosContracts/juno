@@ -14,9 +14,6 @@ import (
 	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward"
 	packetforwardkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/keeper"
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/types"
-	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
-	icqkeeper "github.com/cosmos/ibc-apps/modules/async-icq/v8/keeper"
-	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
 	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10"
 	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10/keeper"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10/types"
@@ -25,6 +22,7 @@ import (
 	icacontroller "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/types"
+	ibctm "github.com/cosmos/ibc-go/v10/modules/light-clients/07-tendermint"
 	icahost "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host/types"
@@ -108,7 +106,6 @@ var maccPerms = map[string][]string{
 	stakingtypes.BondedPoolName:     {authtypes.Burner, authtypes.Staking},
 	stakingtypes.NotBondedPoolName:  {authtypes.Burner, authtypes.Staking},
 	govtypes.ModuleName:             {authtypes.Burner},
-	icqtypes.ModuleName:             nil,
 	ibctransfertypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:             nil,
 	wasmtypes.ModuleName:            {},
@@ -134,7 +131,7 @@ type AppKeepers struct {
 	GovKeeper           *wrappedgovkeeper.KeeperWrapper // x/wrappers/gov wrapper to modify the gov module without forking it
 	UpgradeKeeper       *upgradekeeper.Keeper
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	ICQKeeper           icqkeeper.Keeper
+	TmLightClientModule ibctm.LightClientModule
 	IBCHooksKeeper      *ibchookskeeper.Keeper
 	PacketForwardKeeper *packetforwardkeeper.Keeper
 	EvidenceKeeper      evidencekeeper.Keeper
@@ -154,7 +151,6 @@ type AppKeepers struct {
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
-	ScopedICQKeeper           capabilitykeeper.ScopedKeeper
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedFeeMockKeeper       capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
@@ -216,7 +212,6 @@ func NewAppKeepers(
 	scopedIBCKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName)
 	scopedICAControllerKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedICAHostKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
-	scopedICQKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
 	scopedTransferKeeper := appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := appKeepers.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
 
@@ -292,16 +287,20 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	// Create IBC Keeper
+	// Create IBC Keeper (ibc-go v10: drops StakingKeeper + scoped capability keeper)
 	appKeepers.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[ibcexported.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[ibcexported.StoreKey]),
 		nil,
-		stakingKeeper,
 		appKeepers.UpgradeKeeper,
-		scopedIBCKeeper,
 		govModAddress,
 	)
+
+	// Tendermint light client module — ibc-go v10 requires explicit registration
+	clientKeeper := appKeepers.IBCKeeper.ClientKeeper
+	storeProvider := clientKeeper.GetStoreProvider()
+	appKeepers.TmLightClientModule = ibctm.NewLightClientModule(appCodec, storeProvider)
+	clientKeeper.AddRoute(ibctm.ModuleName, &appKeepers.TmLightClientModule)
 
 	appKeepers.FeeGrantKeeper = feegrantkeeper.NewKeeper(
 		appCodec,
@@ -354,10 +353,10 @@ func NewAppKeepers(
 		appKeepers.Ics20WasmHooks,
 	)
 
-	// Initialize packet forward middleware router
+	// Initialize packet forward middleware router (PFM v10: KVStoreService)
 	appKeepers.PacketForwardKeeper = packetforwardkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[packetforwardtypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[packetforwardtypes.StoreKey]),
 		appKeepers.TransferKeeper, // Will be zero-value here. Reference is set later on with SetTransferKeeper.
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.BankKeeper,
@@ -365,58 +364,46 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
-	// Create Transfer Keepers
+	// Create Transfer Keeper (ibc-go v10: drops PortKeeper + scoped capability keeper, adds MessageRouter)
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[ibctransfertypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[ibctransfertypes.StoreKey]),
 		nil,
 		// The ICS4Wrapper is replaced by the PacketForwardKeeper instead of the channel so that sending can be overridden by the middleware
 		appKeepers.PacketForwardKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.IBCKeeper.PortKeeper,
+		bApp.MsgServiceRouter(),
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
-		scopedTransferKeeper,
 		govModAddress,
 	)
 
 	appKeepers.PacketForwardKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
-	// ICQ Keeper
-	appKeepers.ICQKeeper = icqkeeper.NewKeeper(
+	// async-icq dropped from v30: ibc-apps maintainers haven't published a /v9/v10/v11
+	// line, and the latest /v8 commit (2026-04-27) still pins ibc-go/v8 — incompatible
+	// with our ibc-go/v10. Reintroduce in v30.x once ibc-apps publishes /v10.
+
+	// ICA Host Keeper (ibc-go v10: QueryRouter now passed to NewKeeper, WithQueryRouter removed)
+	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[icqtypes.StoreKey],
-		appKeepers.IBCKeeper.ChannelKeeper, // may be replaced with middleware
+		runtime.NewKVStoreService(appKeepers.keys[icahosttypes.StoreKey]),
+		nil,
+		appKeepers.HooksICS4Wrapper,
 		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.IBCKeeper.PortKeeper,
-		scopedICQKeeper,
+		appKeepers.AccountKeeper,
+		bApp.MsgServiceRouter(),
 		bApp.GRPCQueryRouter(),
 		govModAddress,
 	)
 
-	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[icahosttypes.StoreKey],
-		nil,
-		appKeepers.HooksICS4Wrapper,
-		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.IBCKeeper.PortKeeper,
-		appKeepers.AccountKeeper,
-		scopedICAHostKeeper,
-		bApp.MsgServiceRouter(),
-		govModAddress,
-	)
-	appKeepers.ICAHostKeeper.WithQueryRouter(bApp.GRPCQueryRouter())
-
-	// ICA Controller keeper
+	// ICA Controller keeper (ibc-go v10: ICS-29 dropped, capability keepers no longer needed)
 	appKeepers.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[icacontrollertypes.StoreKey],
+		runtime.NewKVStoreService(appKeepers.keys[icacontrollertypes.StoreKey]),
 		nil,
-		appKeepers.IBCFeeKeeper, // use ics29 fee as ics4Wrapper in middleware stack
+		appKeepers.IBCKeeper.ChannelKeeper, // ics4Wrapper (was IBCFeeKeeper before 29-fee removal)
 		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.IBCKeeper.PortKeeper,
-		scopedICAControllerKeeper,
 		bApp.MsgServiceRouter(),
 		govModAddress,
 	)
@@ -489,6 +476,8 @@ func NewAppKeepers(
 	}
 	wasmOpts = append(wasmOpts, wasmkeeper.WithWasmEngine(wasmer))
 
+	// wasmd v0.61: IBCFeeKeeper + PortKeeper + scoped capability keeper dropped;
+	// adds ChannelKeeperV2 between ChannelKeeper and TransferKeeper
 	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[wasmtypes.StoreKey]),
@@ -496,10 +485,9 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		stakingKeeper,
 		distrkeeper.NewQuerier(appKeepers.DistrKeeper),
-		appKeepers.IBCFeeKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper, // ICS4Wrapper (was IBCFeeKeeper)
 		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.IBCKeeper.PortKeeper,
-		scopedWasmKeeper,
+		appKeepers.IBCKeeper.ChannelKeeperV2,
 		appKeepers.TransferKeeper,
 		bApp.MsgServiceRouter(),
 		bApp.GRPCQueryRouter(),
@@ -600,9 +588,10 @@ func NewAppKeepers(
 		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
 	)
 
-	// ICA controller stack (29-fee removed in ibc-go v10)
+	// ICA controller stack (ibc-go v10: NewIBCMiddleware takes only the keeper now;
+	// the auth-module stack arg was dropped along with the capability scoping)
 	var icaControllerStack porttypes.IBCModule
-	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, appKeepers.ICAControllerKeeper)
+	icaControllerStack = icacontroller.NewIBCMiddleware(appKeepers.ICAControllerKeeper)
 
 	// ICA host stack
 	var icaHostStack porttypes.IBCModule
@@ -613,21 +602,16 @@ func NewAppKeepers(
 	var wasmStack porttypes.IBCModule
 	wasmStack = wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.TransferKeeper, appKeepers.IBCKeeper.ChannelKeeper)
 
-	// create ICQ module
-	icqModule := icq.NewIBCModule(appKeepers.ICQKeeper)
-
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter().
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
 		AddRoute(wasmtypes.ModuleName, wasmStack).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
-		AddRoute(icahosttypes.SubModuleName, icaHostStack).
-		AddRoute(icqtypes.ModuleName, icqModule)
+		AddRoute(icahosttypes.SubModuleName, icaHostStack)
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
 	appKeepers.ScopedIBCKeeper = scopedIBCKeeper
 	appKeepers.ScopedTransferKeeper = scopedTransferKeeper
-	appKeepers.ScopedICQKeeper = scopedICQKeeper
 	appKeepers.scopedWasmKeeper = scopedWasmKeeper
 	appKeepers.ScopedICAHostKeeper = scopedICAHostKeeper
 	appKeepers.ScopedICAControllerKeeper = scopedICAControllerKeeper

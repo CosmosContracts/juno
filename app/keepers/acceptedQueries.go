@@ -33,8 +33,8 @@ func AcceptedQueries() map[string]func() proto.Message {
 		// interchain accounts
 		"/ibc.applications.interchain_accounts.controller.v1.Query/InterchainAccount": func() proto.Message { return &icacontrollertypes.QueryInterchainAccountResponse{} },
 
-		// transfer
-		"/ibc.applications.transfer.v1.Query/DenomTrace":    func() proto.Message { return &ibctransfertypes.QueryDenomTraceResponse{} },
+		// transfer (ibc-go v10: DenomTrace renamed to Denom)
+		"/ibc.applications.transfer.v1.Query/Denom":         func() proto.Message { return &ibctransfertypes.QueryDenomResponse{} },
 		"/ibc.applications.transfer.v1.Query/EscrowAddress": func() proto.Message { return &ibctransfertypes.QueryEscrowAddressResponse{} },
 
 		// auth

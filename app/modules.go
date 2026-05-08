@@ -6,8 +6,6 @@ import (
 
 	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward"
 	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/types"
-	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
-	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
 	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10"
 	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10/types"
 	"github.com/cosmos/ibc-go/modules/capability"
@@ -110,13 +108,12 @@ func appModules(
 		clockmodule.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
 		cwhooksmodule.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
 		// IBC modules
-		ibctm.NewAppModule(),
+		ibctm.NewAppModule(app.AppKeepers.TmLightClientModule),
 		capability.NewAppModule(appCodec, *app.AppKeepers.CapabilityKeeper, false),
 		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
 		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
 		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
-		icq.NewAppModule(app.AppKeepers.ICQKeeper, nil),
 		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper, nil),
 		// Wasm modules
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), nil),
@@ -146,7 +143,6 @@ func orderBeginBlockers() []string {
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
@@ -181,7 +177,6 @@ func orderEndBlockers() []string {
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
@@ -222,7 +217,6 @@ func orderInitBlockers() []string {
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
 		feepaytypes.ModuleName,
@@ -270,7 +264,6 @@ var AppModuleBasics = module.NewBasicManager(
 	transfer.AppModuleBasic{},
 	ica.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
-	icq.AppModuleBasic{},
 	packetforward.AppModuleBasic{},
 	// Wasm modules
 	wasm.AppModuleBasic{},
