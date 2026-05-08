@@ -50,7 +50,8 @@ func (s *KeeperTestSuite) TestMsgCreateDenom() {
 
 	// Make sure that creation fee was deducted
 	postCreateBalance := bankKeeper.GetBalance(s.Ctx, s.TestAccs[0], tokenFactoryKeeper.GetParams(s.Ctx).DenomCreationFee[0].Denom)
-	s.Require().True(preCreateBalance.Sub(postCreateBalance).IsEqual(denomCreationFee[0]))
+	diff := preCreateBalance.Sub(postCreateBalance)
+	s.Require().True(diff.Equal(denomCreationFee[0]))
 
 	// Make sure that a second version of the same denom can't be recreated
 	_, err = s.msgServer.CreateDenom(s.Ctx, &types.MsgCreateDenom{

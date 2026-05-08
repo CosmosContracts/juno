@@ -7,6 +7,8 @@ import (
 	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 )
 
+const invalidAddr = "Invalid"
+
 func (s *KeeperTestSuite) TestRegisterContracts() {
 	type registerCase struct {
 		desc         string
@@ -22,7 +24,7 @@ func (s *KeeperTestSuite) TestRegisterContracts() {
 			desc:   "invalid contract address",
 			module: "staking",
 			contractAddr: func(contractTestContext) string {
-				return "Invalid"
+				return invalidAddr
 			},
 			senderAddr: func(ctx contractTestContext) string {
 				return ctx.sender.String()
@@ -36,7 +38,7 @@ func (s *KeeperTestSuite) TestRegisterContracts() {
 				return ctx.contract
 			},
 			senderAddr: func(contractTestContext) string {
-				return "Invalid"
+				return invalidAddr
 			},
 			shouldErr: true,
 		},
@@ -191,7 +193,7 @@ func (s *KeeperTestSuite) TestUnRegisterContracts() {
 			desc:   "invalid contract address",
 			module: "staking",
 			contractAddr: func(contractTestContext) string {
-				return "Invalid"
+				return invalidAddr
 			},
 			shouldErr: true,
 		},
@@ -199,7 +201,7 @@ func (s *KeeperTestSuite) TestUnRegisterContracts() {
 			desc:   "invalid register address",
 			module: "staking",
 			senderAddr: func(contractTestContext) string {
-				return "Invalid"
+				return invalidAddr
 			},
 			pre: func(ctx contractTestContext) {
 				s.Require().NoError(s.registerContract("staking", ctx.sender.String(), ctx.contract))

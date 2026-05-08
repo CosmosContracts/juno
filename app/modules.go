@@ -71,6 +71,12 @@ import (
 	wrappedgovmodule "github.com/CosmosContracts/juno/v30/x/wrappers/gov/module"
 )
 
+// SA1019 module.AppModule is deprecated upstream in favor of appmodule.AppModule
+// with extension interfaces. The cosmos-sdk itself + most ecosystem modules
+// haven't migrated yet (as of v0.53.7); suppress until the broader ecosystem
+// catches up — tracked for v31.
+//
+//nolint:staticcheck // module.AppModule deprecation deferred to v31
 func appModules(
 	app *App,
 	txConfig client.TxConfig,
