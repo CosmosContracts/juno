@@ -28,8 +28,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/root/go/pkg/mod \
     go mod download
 
-# Fetch wasmvm
-RUN WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm/v2 | cut -d ' ' -f 2) && \
+# Fetch wasmvm — bumped from /v2 to /v3 to match the Path A+ wasmvm v3.0.4
+# pinned in go.mod. v2.x's libwasmvm.a is ABI-incompatible with the v3 Go
+# bindings; using the wrong archive silently produces a dynamically-linked
+# binary because the muslc tag is unsatisfied.
+RUN WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm/v3 | cut -d ' ' -f 2) && \
     wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm_muslc.$(uname -m).a \
     -O /lib/libwasmvm_muslc.$(uname -m).a && \
     # verify checksum
