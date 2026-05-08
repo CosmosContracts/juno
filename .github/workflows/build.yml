@@ -37,7 +37,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Test
-        run: go test ./...
+        # -p 1 (sequential) until B7 in planning/09-deferred-work.md is
+        # fixed: TestEscrowFunds in x/feemarket/ante is flaky under
+        # parallel package execution due to cross-package global state
+        # (proto registry init / process-globals). Sequential is
+        # deterministic.
+        run: go test -p 1 ./...
 
   tidy:
     runs-on: ubuntu-latest
