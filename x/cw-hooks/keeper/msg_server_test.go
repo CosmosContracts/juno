@@ -178,21 +178,29 @@ func (s *KeeperTestSuite) TestRegisterContracts() {
 
 func (s *KeeperTestSuite) TestUnRegisterContracts() {
 	type unregisterCase struct {
-		desc      string
-		module    string
-		pre       func(contractTestContext)
-		shouldErr bool
+		desc         string
+		module       string
+		contractAddr func(contractTestContext) string
+		senderAddr   func(contractTestContext) string
+		pre          func(contractTestContext)
+		shouldErr    bool
 	}
 
 	cases := []unregisterCase{
 		{
-			desc:      "invalid contract address",
-			module:    "staking",
+			desc:   "invalid contract address",
+			module: "staking",
+			contractAddr: func(contractTestContext) string {
+				return "Invalid"
+			},
 			shouldErr: true,
 		},
 		{
 			desc:   "invalid register address",
 			module: "staking",
+			senderAddr: func(contractTestContext) string {
+				return "Invalid"
+			},
 			pre: func(ctx contractTestContext) {
 				s.Require().NoError(s.registerContract("staking", ctx.sender.String(), ctx.contract))
 			},
@@ -201,6 +209,9 @@ func (s *KeeperTestSuite) TestUnRegisterContracts() {
 		{
 			desc:   "unauthorized sender",
 			module: "staking",
+			senderAddr: func(ctx contractTestContext) string {
+				return ctx.notAuthorized.String()
+			},
 			pre: func(ctx contractTestContext) {
 				s.Require().NoError(s.registerContract("staking", ctx.sender.String(), ctx.contract))
 			},
@@ -254,10 +265,19 @@ func (s *KeeperTestSuite) TestUnRegisterContracts() {
 				tc.pre(ctxData)
 			}
 
+			contractAddr := ctxData.contract
+			if tc.contractAddr != nil {
+				contractAddr = tc.contractAddr(ctxData)
+			}
+			senderAddr := ctxData.sender.String()
+			if tc.senderAddr != nil {
+				senderAddr = tc.senderAddr(ctxData)
+			}
+
 			resp, err := s.msgServer.UnregisterContract(s.Ctx, &types.MsgUnregisterContract{
 				Module:          tc.module,
-				SenderAddress:   ctxData.sender.String(),
-				ContractAddress: ctxData.contract,
+				SenderAddress:   senderAddr,
+				ContractAddress: contractAddr,
 			})
 			if !tc.shouldErr {
 				s.Require().NoError(err)

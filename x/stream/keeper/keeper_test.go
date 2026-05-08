@@ -137,6 +137,11 @@ func (s *KeeperTestSuite) TestIntakeChannel() {
 func (s *KeeperTestSuite) TestExecuteQueryBalance() {
 	keeper := s.App.AppKeepers.StreamKeeper
 	s.Commit()
+	// Refresh ensures gRPC handlers registered after keeper construction
+	// are picked up before lookup. Bank's hybrid handlers are registered
+	// during module manager init, which can run after the stream keeper
+	// is built depending on ordering.
+	s.Require().NoError(keeper.MethodRegistry().Refresh(s.App.BaseApp))
 	registry := keeper.MethodRegistry()
 	s.Require().NotNil(registry)
 
