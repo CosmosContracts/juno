@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GO_VERSION: 1.23.9
+  GO_VERSION: 1.25.2
 
 jobs:
   analyze:
