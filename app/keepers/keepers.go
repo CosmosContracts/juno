@@ -84,6 +84,8 @@ import (
 	streamkeeper "github.com/CosmosContracts/juno/v30/x/stream/keeper"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+	votingsnapshotkeeper "github.com/CosmosContracts/juno/v30/x/voting-snapshot/keeper"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
 	// wrappers
 	wrappedgovkeeper "github.com/CosmosContracts/juno/v30/x/wrappers/gov/keeper"
 )
@@ -121,28 +123,29 @@ type AppKeepers struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper       authkeeper.AccountKeeper
-	BankKeeper          bankkeeper.Keeper
-	CapabilityKeeper    *capabilitykeeper.Keeper
-	StakingKeeper       *stakingkeeper.Keeper
-	SlashingKeeper      slashingkeeper.Keeper
-	MintKeeper          mintkeeper.Keeper
-	DistrKeeper         distrkeeper.Keeper
-	GovKeeper           *wrappedgovkeeper.KeeperWrapper // x/wrappers/gov wrapper to modify the gov module without forking it
-	UpgradeKeeper       *upgradekeeper.Keeper
-	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	TmLightClientModule ibctm.LightClientModule
-	IBCHooksKeeper      *ibchookskeeper.Keeper
-	PacketForwardKeeper *packetforwardkeeper.Keeper
-	EvidenceKeeper      evidencekeeper.Keeper
-	TransferKeeper      ibctransferkeeper.Keeper
-	AuthzKeeper         authzkeeper.Keeper
-	FeeGrantKeeper      feegrantkeeper.Keeper
-	FeePayKeeper        feepaykeeper.Keeper
-	FeeShareKeeper      feesharekeeper.Keeper
-	ContractKeeper      wasmtypes.ContractOpsKeeper
-	ClockKeeper         clockkeeper.Keeper
-	CWHooksKeeper       cwhookskeeper.Keeper
+	AccountKeeper        authkeeper.AccountKeeper
+	BankKeeper           bankkeeper.Keeper
+	CapabilityKeeper     *capabilitykeeper.Keeper
+	StakingKeeper        *stakingkeeper.Keeper
+	SlashingKeeper       slashingkeeper.Keeper
+	MintKeeper           mintkeeper.Keeper
+	DistrKeeper          distrkeeper.Keeper
+	GovKeeper            *wrappedgovkeeper.KeeperWrapper // x/wrappers/gov wrapper to modify the gov module without forking it
+	UpgradeKeeper        *upgradekeeper.Keeper
+	IBCKeeper            *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	TmLightClientModule  ibctm.LightClientModule
+	IBCHooksKeeper       *ibchookskeeper.Keeper
+	PacketForwardKeeper  *packetforwardkeeper.Keeper
+	EvidenceKeeper       evidencekeeper.Keeper
+	TransferKeeper       ibctransferkeeper.Keeper
+	AuthzKeeper          authzkeeper.Keeper
+	FeeGrantKeeper       feegrantkeeper.Keeper
+	FeePayKeeper         feepaykeeper.Keeper
+	FeeShareKeeper       feesharekeeper.Keeper
+	ContractKeeper       wasmtypes.ContractOpsKeeper
+	ClockKeeper          clockkeeper.Keeper
+	CWHooksKeeper        cwhookskeeper.Keeper
+	VotingSnapshotKeeper votingsnapshotkeeper.Keeper
 
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 
@@ -446,7 +449,7 @@ func NewAppKeepers(
 	}
 
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
-	tfOpts := wasmbindings.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)
+	tfOpts := wasmbindings.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper, appKeepers.VotingSnapshotKeeper)
 	wasmOpts = append(wasmOpts, tfOpts...)
 
 	// Stargate Queries
@@ -559,6 +562,13 @@ func NewAppKeepers(
 		govModAddress,
 	)
 
+	appKeepers.VotingSnapshotKeeper = votingsnapshotkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[votingsnapshottypes.StoreKey]),
+		stakingKeeper,
+		govModAddress,
+	)
+
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	// this must be at the end so CWHooksKeeper can use the contractKeeper
@@ -567,6 +577,7 @@ func NewAppKeepers(
 			appKeepers.DistrKeeper.Hooks(),
 			appKeepers.SlashingKeeper.Hooks(),
 			appKeepers.CWHooksKeeper.StakingHooks(),
+			appKeepers.VotingSnapshotKeeper.Hooks(),
 		),
 	)
 	appKeepers.StakingKeeper = stakingKeeper

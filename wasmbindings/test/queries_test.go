@@ -76,7 +76,7 @@ func (s *BindingsTestSuite) TestDenomAdmin() {
 	s.Require().NoError(err)
 	s.Require().NotEmpty(tfDenom)
 
-	queryPlugin := wasmbindings.NewQueryPlugin(s.App.AppKeepers.BankKeeper, &s.App.AppKeepers.TokenFactoryKeeper)
+	queryPlugin := wasmbindings.NewQueryPlugin(s.App.AppKeepers.BankKeeper, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.VotingSnapshotKeeper)
 
 	testCases := []struct {
 		name        string

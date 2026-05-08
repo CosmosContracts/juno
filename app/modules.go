@@ -67,6 +67,8 @@ import (
 	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 	tokenfactorymodule "github.com/CosmosContracts/juno/v30/x/tokenfactory/module"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+	votingsnapshotmodule "github.com/CosmosContracts/juno/v30/x/voting-snapshot/module"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
 	// wrappers
 	wrappedgovmodule "github.com/CosmosContracts/juno/v30/x/wrappers/gov/module"
 )
@@ -113,6 +115,7 @@ func appModules(
 		streammodule.NewAppModule(appCodec, app.AppKeepers.StreamKeeper),
 		clockmodule.NewAppModule(appCodec, app.AppKeepers.ClockKeeper),
 		cwhooksmodule.NewAppModule(appCodec, app.AppKeepers.CWHooksKeeper),
+		votingsnapshotmodule.NewAppModule(app.AppKeepers.VotingSnapshotKeeper),
 		// IBC modules
 		ibctm.NewAppModule(app.AppKeepers.TmLightClientModule),
 		capability.NewAppModule(appCodec, *app.AppKeepers.CapabilityKeeper, false),
@@ -158,6 +161,7 @@ func orderBeginBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhookstypes.ModuleName,
+		votingsnapshottypes.ModuleName,
 	}
 }
 
@@ -191,6 +195,7 @@ func orderEndBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhookstypes.ModuleName,
+		votingsnapshottypes.ModuleName,
 		feemarkettypes.ModuleName,
 	}
 }
@@ -233,6 +238,7 @@ func orderInitBlockers() []string {
 		ibchookstypes.ModuleName,
 		clocktypes.ModuleName,
 		cwhookstypes.ModuleName,
+		votingsnapshottypes.ModuleName,
 	}
 }
 
@@ -263,6 +269,7 @@ var AppModuleBasics = module.NewBasicManager(
 	streammodule.AppModuleBasic{},
 	clockmodule.AppModuleBasic{},
 	cwhooksmodule.AppModuleBasic{},
+	votingsnapshotmodule.AppModuleBasic{},
 	// IBC modules
 	ibctm.AppModuleBasic{},
 	capability.AppModuleBasic{},

@@ -9,18 +9,21 @@ import (
 
 	types "github.com/CosmosContracts/juno/v30/wasmbindings/types"
 	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
+	votingsnapshotkeeper "github.com/CosmosContracts/juno/v30/x/voting-snapshot/keeper"
 )
 
 type QueryPlugin struct {
-	bankKeeper         bankkeeper.Keeper
-	tokenFactoryKeeper *tokenfactorykeeper.Keeper
+	bankKeeper           bankkeeper.Keeper
+	tokenFactoryKeeper   *tokenfactorykeeper.Keeper
+	votingSnapshotKeeper votingsnapshotkeeper.Keeper
 }
 
 // NewQueryPlugin returns a reference to a new QueryPlugin.
-func NewQueryPlugin(b bankkeeper.Keeper, tfk *tokenfactorykeeper.Keeper) *QueryPlugin {
+func NewQueryPlugin(b bankkeeper.Keeper, tfk *tokenfactorykeeper.Keeper, vsk votingsnapshotkeeper.Keeper) *QueryPlugin {
 	return &QueryPlugin{
-		bankKeeper:         b,
-		tokenFactoryKeeper: tfk,
+		bankKeeper:           b,
+		tokenFactoryKeeper:   tfk,
+		votingSnapshotKeeper: vsk,
 	}
 }
 
@@ -55,4 +58,28 @@ func (qp QueryPlugin) GetParams(ctx sdk.Context) (*types.ParamsResponse, error) 
 			DenomCreationFee: ConvertSdkCoinsToWasmCoins(params.DenomCreationFee),
 		},
 	}, nil
+}
+
+// GetVotingPowerAt returns the bonded voting power of `address` at `height`,
+// excluding LST-held delegations. Resolves to the most recent snapshot
+// at-or-before the requested height.
+func (qp QueryPlugin) GetVotingPowerAt(ctx sdk.Context, address string, height int64) (*types.VotingPowerResponse, error) {
+	addr, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid voter address: %s", address)
+	}
+	power, err := qp.votingSnapshotKeeper.VotingPowerAt(ctx, addr, height)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "voting power lookup failed")
+	}
+	return &types.VotingPowerResponse{Power: power.String()}, nil
+}
+
+// GetTotalVotingPowerAt returns the total bonded supply at `height`.
+func (qp QueryPlugin) GetTotalVotingPowerAt(ctx sdk.Context, height int64) (*types.VotingPowerResponse, error) {
+	power, err := qp.votingSnapshotKeeper.TotalVotingPowerAt(ctx, height)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "total voting power lookup failed")
+	}
+	return &types.VotingPowerResponse{Power: power.String()}, nil
 }

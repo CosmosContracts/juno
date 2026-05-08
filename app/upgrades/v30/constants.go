@@ -5,6 +5,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v30/app/upgrades"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
 )
 
 const UpgradeName = "v30"
@@ -23,6 +24,7 @@ var Upgrade = upgrades.Upgrade{
 		},
 		Added: []string{
 			feemarkettypes.ModuleName,
+			votingsnapshottypes.ModuleName,
 		},
 	},
 }

@@ -43,6 +43,14 @@ func CreateV30UpgradeHandler(
 			return nil, err
 		}
 
+		// Seed x/voting-snapshot with the current staking state so DAO
+		// vote queries at heights >= upgrade return real power immediately.
+		// See planning/05-staking-snapshot.md.
+		if err := k.VotingSnapshotKeeper.BackfillFromStaking(ctx); err != nil {
+			return nil, errorsmod.Wrap(err, "v30: failed to backfill x/voting-snapshot")
+		}
+		logger.Info("v30: successfully backfilled x/voting-snapshot from staking state")
+
 		return versionMap, nil
 	}
 }

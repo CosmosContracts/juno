@@ -33,6 +33,7 @@ import (
 	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -71,6 +72,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		driptypes.StoreKey,
 		clocktypes.StoreKey,
 		cwhookstypes.StoreKey,
+		votingsnapshottypes.StoreKey,
 	)
 
 	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(

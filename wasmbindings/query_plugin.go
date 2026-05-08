@@ -94,6 +94,28 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			return bz, nil
 
+		case contractQuery.VotingPowerAt != nil:
+			res, err := qp.GetVotingPowerAt(ctx, contractQuery.VotingPowerAt.Address, contractQuery.VotingPowerAt.Height)
+			if err != nil {
+				return nil, err
+			}
+			bz, err := json.Marshal(res)
+			if err != nil {
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal VotingPowerResponse: %v", err)
+			}
+			return bz, nil
+
+		case contractQuery.TotalVotingPowerAt != nil:
+			res, err := qp.GetTotalVotingPowerAt(ctx, contractQuery.TotalVotingPowerAt.Height)
+			if err != nil {
+				return nil, err
+			}
+			bz, err := json.Marshal(res)
+			if err != nil {
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal VotingPowerResponse: %v", err)
+			}
+			return bz, nil
+
 		default:
 			return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown token query variant"}
 		}
