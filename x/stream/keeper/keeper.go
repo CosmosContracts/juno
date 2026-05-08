@@ -25,6 +25,12 @@ type Keeper struct {
 	invoker        *types.RouterInvoker
 	methodRegistry *encoding.DynamicRegistry
 
+	// methodRegistryReady ensures Refresh runs once, on first access,
+	// AFTER module-manager init has registered every module's gRPC
+	// services. NewKeeper runs before that, so an eager refresh there
+	// indexes against an empty router.
+	methodRegistryReady sync.Once
+
 	// App lifecycle signalling
 	appDone   <-chan struct{}
 	appCancel context.CancelFunc
@@ -73,10 +79,6 @@ func NewKeeper(
 		appCancel:      appCancel,
 		moduleCodecs:   make(map[string]schema.ModuleCodec),
 		logger:         logger.With("module", "x/stream"),
-	}
-
-	if err := k.methodRegistry.Refresh(k.baseApp); err != nil {
-		k.logger.Error("failed to refresh method registry", "error", err)
 	}
 
 	return k
@@ -152,7 +154,14 @@ func (k *Keeper) Registry() *types.SubscriptionRegistry {
 }
 
 // MethodRegistry returns the dynamically discovered gRPC method registry.
+// First access triggers a one-shot Refresh against the now-fully-wired
+// baseApp router; subsequent calls are pass-through.
 func (k *Keeper) MethodRegistry() *encoding.DynamicRegistry {
+	k.methodRegistryReady.Do(func() {
+		if err := k.methodRegistry.Refresh(k.baseApp); err != nil {
+			k.logger.Error("failed to refresh method registry on first access", "error", err)
+		}
+	})
 	return k.methodRegistry
 }
 
