@@ -155,3 +155,46 @@ This is a halt-and-replay simulation. It catches what the upgrade handler can't.
 6. CI on push as the final cross-check.
 
 If a step fails, fix it before running the next. Running every test on a broken build burns hours.
+
+## Local verification status (end of dep-bump implementation)
+
+Verified clean on the implementation host:
+
+- ✅ `go build ./...` (root + interchaintest modules)
+- ✅ `make build` — `junod` binary reports `Cosmos SDK: v0.53.7, Comet: v0.38.23`
+- ✅ `make lint` — 0 issues
+- ✅ `go test ./... -p 1` (sequential) — all packages pass, including new
+  `x/voting-snapshot/keeper` tests
+- ✅ `go mod tidy` — clean diff in both modules
+
+**Test parallelism caveat.** `go test ./...` (default parallel) shows
+intermittent flake in `x/feemarket/ante TestEscrowFunds` due to
+cross-package global-state leakage (proto registry + init() side
+effects — common cosmos-sdk pattern). `-p 1` sequential is consistently
+green. CI's parallelism settings should be chosen accordingly, or
+the affected package isolated.
+
+**Stream module note.** A pre-existing wiring issue surfaces in
+`x/stream` tests: the gRPC method registry is built during keeper
+construction, before module manager init has fully wired bank's
+hybrid handlers. The unit test was patched to call `Refresh()` after
+`Commit()` (matching production runtime where `BeginBlock` -> first
+delegation event triggers it). Underlying keeper bug exists at
+runtime too — fix tracked for v30.x.
+
+### Deferred to CI (no buildx in implementation host)
+
+- `make local-image` — Dockerfile uses BuildKit syntax (`--mount=type=cache`,
+  `# syntax=docker/dockerfile:1`); host `docker` 29.4.3 lacks the
+  `buildx` plugin. Plain `docker build` and `DOCKER_BUILDKIT=1
+  docker build` both fail.
+- All `make ictest-*` suites — depend on `local:juno` image.
+
+CI runners ship with buildx by default, so all 13 ictest targets
+should run there. The `interchaintest-E2E.yml` matrix is now
+reconciled to the actual Makefile targets (Phase 0c). The most
+critical suite — `ictest-upgrade` — exercises the v30 upgrade
+handler against a fork of the prior chain state, including the
+new x/voting-snapshot store mount + backfill, removed-store
+purges (`globalfee`/`crisis`/`params`/`nft`/`feeibc`/`interchainquery`),
+and the feemarket params seeding.
