@@ -54,11 +54,46 @@ Jump the SDK minor, take wasmd v0.70, take ibc-go v11, take cometbft v0.39.
 - cometbft v0.39 introduces optional libp2p networking. We don't enable it for v30, but the dependency adds surface.
 - DAO DAO v2.7.0 contracts on chain were compiled against cosmwasm-std 2.x. They run on a wasmvm v3 chain per upstream's compat statement, but it's worth a real test pass before anyone relies on it.
 
+## Path A+ — Pivot (session 2, 2026-05-08)
+
+Discovered after Path B was locked: **the ibc-apps repo has no `/v11` line published** (latest is `/v10`, pinned to `ibc-go v10` + `cosmos-sdk v0.53`). Juno wires PFM, ibc-hooks, and async-icq into `app/keepers/keepers.go` + `app/modules.go` + `app/keepers/keys.go`; pure Path B would either lose all three or require forking ibc-apps to /v11 ourselves.
+
+Pivoted to **Path A+**: take Path A's SDK + IBC line, but still pull in wasmvm v3 (the consensus-break that justifies a v30 upgrade height regardless).
+
+| Component | From | To |
+|---|---|---|
+| cosmos-sdk | v0.53.4 | **v0.53.7** |
+| wasmd | v0.54.2 | **v0.61.11** |
+| wasmvm | v2.2.4 | **v3.0.4** (path change `/v2` → `/v3`) |
+| ibc-go | v8.7.0 | **v10.6.0** (path change `/v8` → `/v10`) |
+| ibc-apps PFM | /v8 v8.2.0 | **/v10 v10.6.0** |
+| ibc-apps ibc-hooks | /v8 v8.0.0 | **/v10 v10.0.0** |
+| ibc-apps async-icq | /v8 v8.0.1-pseudo | **/v8 (latest commit)** — no /v9/v10/v11 published yet |
+| cometbft | v0.38.19 | **v0.38.23** |
+| store | v1.1.2 | v1.1.2 (stay on v1; defer store/v2 to v31) |
+| `cosmossdk.io/*` family | (current) | **unchanged** — v0.53.7 SDK keeps the same pins |
+
+**What we still get:**
+
+- wasmvm v3.0.4 — the consensus-break that ships BN254 precompile (per prop #374). This is the user-facing v30 payoff.
+- cosmos-sdk v0.53.7 patches (security + minor improvements).
+- wasmd v0.61.11 — matched against wasmvm v3 + sdk v0.53 + ibc-go v10.
+- ibc-go v10 + PFM/ibc-hooks/v10 — current widely-deployed IBC stack.
+
+**What we defer to v31:**
+
+- cosmos-sdk v0.54 family (the "2026.1 release line").
+- IBCv2 / Eureka via ibc-go v11.
+- store/v2 migration.
+- cometbft v0.39 with optional libp2p networking.
+
+V31 is sequenced for "once ibc-apps publishes a /v11 line." Tracking task: monitor `cosmos/ibc-apps` for the v11 cut.
+
 ## Recommendation
 
-**Path B, with a hard pre-commit to test cw-hooks + DAO DAO + JunoClaw contracts on a v0.54 + wasmvm v3 devnet before any mainnet halt-height proposal.** The "rebirth, not resurrection" framing implies we should land where the ecosystem is going, not where it's been. We pay the migration tax once; we'd pay it again in six months under Path A.
+**Path A+** as above, with a hard pre-commit to test cw-hooks + DAO DAO + JunoClaw contracts on a v0.53.7 + wasmvm v3 devnet before any mainnet halt-height proposal.
 
-Open question for Jake: is there any external dependency (validator tooling, indexer, JunoClaw integration) that's gated on store/v1 or cometbft v0.38? If yes, Path A becomes the right call. If no, Path B.
+Path A+ doesn't ditch the rebirth thesis — it sequences it. We get the actually-shippable consensus-break (wasmvm v3 + BN254) now, and earn the right to push v31 the moment ibc-apps catches up. Forking ibc-apps to /v11 ourselves was rejected because (a) it adds a forked dep we'd have to re-converge later, (b) it expands security review surface, and (c) BN254 is the user-visible win — IBCv2 is infrastructure that nobody's blocked on yet.
 
 ## Whichever path: locked decisions
 

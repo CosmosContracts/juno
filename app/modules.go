@@ -4,23 +4,21 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
-	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
+	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward"
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/types"
 	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
-	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
-	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/types"
+	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10"
+	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10/types"
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	ica "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts"
-	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
-	ibcfee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
-	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
-	transfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	ica "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts"
+	icatypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/types"
+	transfer "github.com/cosmos/ibc-go/v10/modules/apps/transfer"
+	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v10/modules/core"
+	ibcexported "github.com/cosmos/ibc-go/v10/modules/core/exported"
+	ibctm "github.com/cosmos/ibc-go/v10/modules/light-clients/07-tendermint"
 
 	"cosmossdk.io/x/evidence"
 	evidencetypes "cosmossdk.io/x/evidence/types"
@@ -117,7 +115,6 @@ func appModules(
 		ibc.NewAppModule(app.AppKeepers.IBCKeeper),
 		transfer.NewAppModule(app.AppKeepers.TransferKeeper),
 		ica.NewAppModule(&app.AppKeepers.ICAControllerKeeper, &app.AppKeepers.ICAHostKeeper),
-		ibcfee.NewAppModule(app.AppKeepers.IBCFeeKeeper),
 		ibchooks.NewAppModule(app.AppKeepers.AccountKeeper),
 		icq.NewAppModule(app.AppKeepers.ICQKeeper, nil),
 		packetforward.NewAppModule(app.AppKeepers.PacketForwardKeeper, nil),
@@ -149,7 +146,6 @@ func orderBeginBlockers() []string {
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
@@ -185,7 +181,6 @@ func orderEndBlockers() []string {
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
@@ -227,7 +222,6 @@ func orderInitBlockers() []string {
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		packetforwardtypes.ModuleName,
-		ibcfeetypes.ModuleName,
 		icqtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		driptypes.ModuleName,
@@ -275,7 +269,6 @@ var AppModuleBasics = module.NewBasicManager(
 	ibc.AppModuleBasic{},
 	transfer.AppModuleBasic{},
 	ica.AppModuleBasic{},
-	ibcfee.AppModuleBasic{},
 	ibchooks.AppModuleBasic{},
 	icq.AppModuleBasic{},
 	packetforward.AppModuleBasic{},

@@ -8,36 +8,33 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	wasmvm "github.com/CosmWasm/wasmvm/v2"
+	wasmvm "github.com/CosmWasm/wasmvm/v3"
 	"github.com/spf13/cast"
 
-	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
-	packetforwardkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
-	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
+	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward"
+	packetforwardkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/keeper"
+	packetforwardtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/types"
 	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
 	icqkeeper "github.com/cosmos/ibc-apps/modules/async-icq/v8/keeper"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
-	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8"
-	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/keeper"
-	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v8/types"
+	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10"
+	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10/keeper"
+	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v10/types"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	icacontroller "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller"
-	icacontrollerkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/keeper"
-	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
-	icahost "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host"
-	icahostkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
-	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
-	ibcfee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
-	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
-	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
-	transfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	icacontroller "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller"
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/keeper"
+	icacontrollertypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/types"
+	icahost "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host"
+	icahostkeeper "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host/keeper"
+	icahosttypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/types"
+	transfer "github.com/cosmos/ibc-go/v10/modules/apps/transfer"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+	porttypes "github.com/cosmos/ibc-go/v10/modules/core/05-port/types"
+	ibcexported "github.com/cosmos/ibc-go/v10/modules/core/exported"
+	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
 
 	storetypes "cosmossdk.io/store/types"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
@@ -114,7 +111,6 @@ var maccPerms = map[string][]string{
 	icqtypes.ModuleName:             nil,
 	ibctransfertypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
 	icatypes.ModuleName:             nil,
-	ibcfeetypes.ModuleName:          nil,
 	wasmtypes.ModuleName:            {},
 	tokenfactorytypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	feepaytypes.ModuleName:          nil,
@@ -139,7 +135,6 @@ type AppKeepers struct {
 	UpgradeKeeper       *upgradekeeper.Keeper
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	ICQKeeper           icqkeeper.Keeper
-	IBCFeeKeeper        ibcfeekeeper.Keeper
 	IBCHooksKeeper      *ibchookskeeper.Keeper
 	PacketForwardKeeper *packetforwardkeeper.Keeper
 	EvidenceKeeper      evidencekeeper.Keeper
@@ -357,19 +352,6 @@ func NewAppKeepers(
 	appKeepers.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.Ics20WasmHooks,
-	)
-
-	// Do not use this middleware for anything except x/wasm requirement.
-	// The spec currently requires new channels to be created, to use it.
-	// We need to wait for Channel Upgradability before we can use this for any other middleware.
-	appKeepers.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[ibcfeetypes.StoreKey],
-		appKeepers.HooksICS4Wrapper, // replaced with IBC middleware
-		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.IBCKeeper.PortKeeper,
-		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
 	)
 
 	// Initialize packet forward middleware router
@@ -617,24 +599,19 @@ func NewAppKeepers(
 		0,
 		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
 	)
-	// ibcfee must come after PFM since PFM does not understand IncentivizedAcknowlegements (ICS29)
-	transferStack = ibcfee.NewIBCMiddleware(transferStack, appKeepers.IBCFeeKeeper)
 
-	// initialize ICA module with mock module as the authentication module on the controller side
+	// ICA controller stack (29-fee removed in ibc-go v10)
 	var icaControllerStack porttypes.IBCModule
 	icaControllerStack = icacontroller.NewIBCMiddleware(icaControllerStack, appKeepers.ICAControllerKeeper)
-	icaControllerStack = ibcfee.NewIBCMiddleware(icaControllerStack, appKeepers.IBCFeeKeeper)
 
-	// RecvPacket, message that originates from core IBC and goes down to app, the flow is:
-	// channel.RecvPacket -> fee.OnRecvPacket -> icaHost.OnRecvPacket
+	// ICA host stack
 	var icaHostStack porttypes.IBCModule
 	icaHostStack = icahost.NewIBCModule(appKeepers.ICAHostKeeper)
-	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, appKeepers.IBCFeeKeeper)
 
-	// Create fee enabled wasm ibc Stack
+	// Wasm IBC stack — Phase 2: NewIBCHandler signature changed in wasmd v0.61
+	// (3rd arg is now ICS20TransferPortSource, 4th is appVersionGetter)
 	var wasmStack porttypes.IBCModule
-	wasmStack = wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCFeeKeeper)
-	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, appKeepers.IBCFeeKeeper)
+	wasmStack = wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.TransferKeeper, appKeepers.IBCKeeper.ChannelKeeper)
 
 	// create ICQ module
 	icqModule := icq.NewIBCModule(appKeepers.ICQKeeper)

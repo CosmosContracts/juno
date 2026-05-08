@@ -20,9 +20,9 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/gogoproto/proto"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"

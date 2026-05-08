@@ -2,11 +2,11 @@ package keepers
 
 import (
 	"github.com/cosmos/gogoproto/proto"
-	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	icacontrollertypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v10/modules/core/03-connection/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"

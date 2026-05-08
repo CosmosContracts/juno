@@ -13,19 +13,20 @@ Assumes Path B from `02-targets.md`. If Path A is chosen, phases 2–4 shrink; p
 
 **Exit criterion:** CI runs at all on a no-op commit. We need a working baseline to detect regressions.
 
-## Phase 1 — Dependency bumps (Day 1)
+## Phase 1 — Dependency bumps (Day 1) — Path A+
 
-Update `go.mod` and `go.sum` only:
+Update `go.mod` and `go.sum`, plus mechanical import-path sed for the two paths that changed major-version suffix:
 
-- [ ] `cosmos-sdk` v0.53.4 → v0.54.3
-- [ ] All `cosmossdk.io/*` to versions matching the v0.54 line
-- [ ] `cosmossdk.io/store` v1.1.2 → `cosmossdk.io/store/v2` v2.0.0
-- [ ] `wasmd` v0.54.2 → v0.70.0
-- [ ] `wasmvm/v2` → `wasmvm/v3` v3.0.4 (import path changes)
-- [ ] `ibc-go/v8` → `ibc-go/v11`, all consumer imports updated
-- [ ] `ibc-apps/*/v8` → `/v11` equivalents (or latest)
-- [ ] `cometbft` v0.38.19 → v0.39.3
-- [ ] `interchaintest/go.mod` reconciled — bump wasmd to match parent, bump SDK, IBC, CometBFT
+- [ ] `cosmos-sdk` v0.53.4 → v0.53.7
+- [ ] `cosmossdk.io/*` family — **no changes** (v0.53.7 SDK keeps the current pins)
+- [ ] `wasmd` v0.54.2 → v0.61.11
+- [ ] `wasmvm/v2` v2.2.4 → `wasmvm/v3` v3.0.4 — import path changes (5 files)
+- [ ] `ibc-go/v8` v8.7.0 → `ibc-go/v10` v10.6.0 — import path changes (10 files)
+- [ ] `ibc-apps/middleware/packet-forward-middleware/v8` v8.2.0 → `/v10` v10.6.0 (path change)
+- [ ] `ibc-apps/modules/ibc-hooks/v8` v8.0.0 → `/v10` v10.0.0 (path change)
+- [ ] `ibc-apps/modules/async-icq/v8` — **no /v9/v10/v11 line published**, stay on /v8 latest commit
+- [ ] `cometbft` v0.38.19 → v0.38.23
+- [ ] `interchaintest/go.mod` reconciled — bump wasmd to match parent (v0.61.11), bump SDK, IBC, CometBFT
 
 After this phase the build is **expected to fail**. The point is to commit the version pins and `go mod tidy` output, then fix the breakage in subsequent phases. This makes review tractable.
 

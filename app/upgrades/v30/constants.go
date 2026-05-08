@@ -18,6 +18,7 @@ var Upgrade = upgrades.Upgrade{
 			"crisis",
 			"params",
 			"nft",
+			"feeibc", // ICS-29 fee middleware removed in ibc-go v10
 		},
 		Added: []string{
 			feemarkettypes.ModuleName,

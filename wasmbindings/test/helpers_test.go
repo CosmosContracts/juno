@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/v3/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cometbft/cometbft/crypto"
