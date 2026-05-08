@@ -116,6 +116,18 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 			}
 			return bz, nil
 
+		case contractQuery.VotingPowerOverRange != nil:
+			r := contractQuery.VotingPowerOverRange
+			res, err := qp.GetVotingPowerOverRange(ctx, r.Address, r.FromHeight, r.ToHeight)
+			if err != nil {
+				return nil, err
+			}
+			bz, err := json.Marshal(res)
+			if err != nil {
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal VotingPowerOverRangeResponse: %v", err)
+			}
+			return bz, nil
+
 		default:
 			return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown token query variant"}
 		}

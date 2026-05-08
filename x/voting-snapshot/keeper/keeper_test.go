@@ -102,3 +102,83 @@ func (s *KeeperTestSuite) TestLSTExclusion() {
 	s.Require().NoError(err)
 	s.Require().True(isLST)
 }
+
+// TestVotingPowerOverRange verifies the range query returns only snapshots
+// inside [from, to], in ascending height order.
+func (s *KeeperTestSuite) TestVotingPowerOverRange() {
+	_, _, addr := testdata.KeyTestPubAddr()
+
+	for _, h := range []int64{5, 10, 15, 20, 25} {
+		s.Require().NoError(s.keeper.VotingPower.Set(
+			s.Ctx,
+			collections.Join[[]byte, int64](addr.Bytes(), h),
+			sdkmath.NewInt(h*10),
+		))
+	}
+
+	rows, err := s.keeper.VotingPowerOverRange(s.Ctx, addr, 10, 20)
+	s.Require().NoError(err)
+	s.Require().Len(rows, 3)
+	s.Require().Equal(int64(10), rows[0].Height)
+	s.Require().Equal(sdkmath.NewInt(100), rows[0].Power)
+	s.Require().Equal(int64(20), rows[2].Height)
+	s.Require().Equal(sdkmath.NewInt(200), rows[2].Power)
+
+	// Inverted range returns nil
+	rows, err = s.keeper.VotingPowerOverRange(s.Ctx, addr, 30, 10)
+	s.Require().NoError(err)
+	s.Require().Nil(rows)
+}
+
+// TestPruneRetentionWindow verifies snapshots older than the window get
+// dropped, snapshots inside the window survive, and a zero window
+// disables pruning.
+func (s *KeeperTestSuite) TestPruneRetentionWindow() {
+	_, _, addr := testdata.KeyTestPubAddr()
+
+	// Seed snapshots at heights 100..104 and totals at the same heights.
+	for h := int64(100); h <= 104; h++ {
+		s.Require().NoError(s.keeper.VotingPower.Set(
+			s.Ctx,
+			collections.Join[[]byte, int64](addr.Bytes(), h),
+			sdkmath.NewInt(h),
+		))
+		s.Require().NoError(s.keeper.TotalPower.Set(s.Ctx, h, sdkmath.NewInt(h*1000)))
+	}
+
+	// Set a small retention window (3 blocks). Advance the SDK ctx height to 105.
+	s.Require().NoError(s.keeper.Params.Set(s.Ctx, types.Params{
+		LSTAllowlist:           []string{},
+		RetentionWindowHeights: 3,
+	}))
+	prunedCtx := s.Ctx.WithBlockHeight(105)
+
+	s.Require().NoError(s.keeper.Prune(prunedCtx))
+
+	// Heights 100, 101 (< 105 - 3 = 102) should be gone; 102, 103, 104 remain.
+	for _, h := range []int64{100, 101} {
+		_, err := s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](addr.Bytes(), h))
+		s.Require().Error(err, "height %d should be pruned", h)
+		_, err = s.keeper.TotalPower.Get(prunedCtx, h)
+		s.Require().Error(err, "total at height %d should be pruned", h)
+	}
+	for _, h := range []int64{102, 103, 104} {
+		_, err := s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](addr.Bytes(), h))
+		s.Require().NoError(err, "height %d should survive prune", h)
+	}
+
+	// Disable retention by setting window to 0 — re-seed heights, then prune
+	// and confirm survival.
+	s.Require().NoError(s.keeper.VotingPower.Set(
+		s.Ctx,
+		collections.Join[[]byte, int64](addr.Bytes(), 50),
+		sdkmath.NewInt(50),
+	))
+	s.Require().NoError(s.keeper.Params.Set(s.Ctx, types.Params{
+		LSTAllowlist:           []string{},
+		RetentionWindowHeights: 0,
+	}))
+	s.Require().NoError(s.keeper.Prune(prunedCtx))
+	_, err := s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](addr.Bytes(), 50))
+	s.Require().NoError(err, "zero retention window should disable pruning")
+}

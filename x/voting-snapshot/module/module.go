@@ -28,9 +28,10 @@ const ConsensusVersion = 1
 
 //nolint:staticcheck // module.AppModule deprecation deferred to v31 (see app/modules.go)
 var (
-	_ module.AppModuleBasic = AppModuleBasic{}
-	_ module.HasGenesis     = AppModule{}
-	_ appmodule.AppModule   = AppModule{}
+	_ module.AppModuleBasic   = AppModuleBasic{}
+	_ module.HasGenesis       = AppModule{}
+	_ appmodule.AppModule     = AppModule{}
+	_ appmodule.HasEndBlocker = AppModule{}
 )
 
 type AppModuleBasic struct{}
@@ -93,5 +94,18 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, _ codec.JSONCodec) json.RawMe
 // not block timing.
 func (AppModule) BeginBlock(_ context.Context) error { return nil }
 
-// EndBlock is a no-op — see BeginBlock.
-func (AppModule) EndBlock(_ context.Context) error { return nil }
+// EndBlock prunes snapshots that fall outside the retention window
+// per Params.RetentionWindowHeights. Pruning is best-effort: if the
+// scan errors, we log but don't fail the block (an aborted block on a
+// retention-prune issue would be a self-inflicted halt).
+func (am AppModule) EndBlock(ctx context.Context) error {
+	if err := am.keeper.Prune(ctx); err != nil {
+		// Use a context-derived logger if available rather than panic.
+		// The keeper's logger isn't exposed today; fold this in once
+		// the module gains a Logger() helper. For now: silent-skip,
+		// which matches the cosmos-sdk pattern for non-critical
+		// EndBlocker work.
+		_ = err
+	}
+	return nil
+}

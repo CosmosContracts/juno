@@ -82,3 +82,48 @@ func (k Keeper) TotalVotingPowerAt(ctx context.Context, height int64) (math.Int,
 	}
 	return iter.Value()
 }
+
+// HeightPower is one (height, power) pair returned by VotingPowerOverRange.
+type HeightPower struct {
+	Height int64
+	Power  math.Int
+}
+
+// VotingPowerOverRange returns every recorded snapshot for `del` whose
+// height falls in [fromHeight, toHeight] (inclusive). Useful for
+// time-decay schemes (conviction voting, plural voting) that want to
+// integrate power over a window rather than read at a single height.
+//
+// Caller-side note: pre-existing at-or-before semantics still apply
+// for the boundaries — a delegator who didn't change stake within
+// [fromHeight, toHeight] will produce zero rows here, and the caller
+// should fall back to VotingPowerAt(fromHeight) to learn the
+// constant-over-the-window value.
+func (k Keeper) VotingPowerOverRange(ctx context.Context, del sdk.AccAddress, fromHeight, toHeight int64) ([]HeightPower, error) {
+	if toHeight < fromHeight {
+		return nil, nil
+	}
+	rng := collections.NewPrefixedPairRange[[]byte, int64](del.Bytes()).
+		StartInclusive(fromHeight).
+		EndInclusive(toHeight)
+
+	iter, err := k.VotingPower.Iterate(ctx, rng)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = iter.Close() }()
+
+	var out []HeightPower
+	for ; iter.Valid(); iter.Next() {
+		key, err := iter.Key()
+		if err != nil {
+			return nil, err
+		}
+		val, err := iter.Value()
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, HeightPower{Height: key.K2(), Power: val})
+	}
+	return out, nil
+}

@@ -13,8 +13,9 @@ type TokenFactoryQuery struct {
 
 	// x/voting-snapshot — historical staking-power queries for DAO
 	// proposal-vote tallying. See planning/05-staking-snapshot.md.
-	VotingPowerAt      *VotingPowerAt      `json:"voting_power_at,omitempty"`
-	TotalVotingPowerAt *TotalVotingPowerAt `json:"total_voting_power_at,omitempty"`
+	VotingPowerAt        *VotingPowerAt        `json:"voting_power_at,omitempty"`
+	TotalVotingPowerAt   *TotalVotingPowerAt   `json:"total_voting_power_at,omitempty"`
+	VotingPowerOverRange *VotingPowerOverRange `json:"voting_power_over_range,omitempty"`
 }
 
 // query types
@@ -75,4 +76,19 @@ type VotingPowerResponse struct {
 	// Power is the bonded stake amount as a base-10 string (uint).
 	// Caller compares as Uint128 in CosmWasm contracts.
 	Power string `json:"power"`
+}
+
+type VotingPowerOverRange struct {
+	Address    string `json:"address"`
+	FromHeight int64  `json:"from_height"`
+	ToHeight   int64  `json:"to_height"`
+}
+
+type VotingPowerOverRangeResponse struct {
+	Rows []HeightPowerPair `json:"rows"`
+}
+
+type HeightPowerPair struct {
+	Height int64  `json:"height"`
+	Power  string `json:"power"`
 }

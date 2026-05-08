@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"errors"
 
 	"cosmossdk.io/collections"
 	corestore "cosmossdk.io/core/store"
@@ -82,7 +81,7 @@ func (k Keeper) Authority() string { return k.authority }
 func (k Keeper) IsLST(ctx context.Context, addr sdk.AccAddress) (bool, error) {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		if errors.Is(err, collections.ErrNotFound) {
+		if isNotFound(err) {
 			return false, nil
 		}
 		return false, err

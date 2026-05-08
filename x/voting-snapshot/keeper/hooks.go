@@ -39,10 +39,25 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 	return h.k.recordTotal(ctx)
 }
 
-func (h Hooks) BeforeValidatorSlashed(ctx context.Context, _ sdk.ValAddress, _ math.LegacyDec) error {
-	// On slash, every delegator under the validator loses shares retroactively
-	// once x/staking applies the slash. We re-snapshot the total for now.
-	// (v30 MVP: best-effort; per-validator delegator re-snapshot lands in v30.x.)
+func (h Hooks) BeforeValidatorSlashed(ctx context.Context, valAddr sdk.ValAddress, _ math.LegacyDec) error {
+	// On slash, every delegator under valAddr loses shares retroactively
+	// once x/staking applies the slash. Walk the validator's delegators
+	// and re-snapshot each of them, plus the chain-wide total. Bounded
+	// by the slashed validator's delegator count (typically dozens to
+	// low thousands; well within block-gas budget).
+	dels, err := h.k.stakingKeeper.GetValidatorDelegations(ctx, valAddr)
+	if err != nil {
+		return err
+	}
+	for _, d := range dels {
+		addr, err := sdk.AccAddressFromBech32(d.DelegatorAddress)
+		if err != nil {
+			return err
+		}
+		if err := h.k.recordDelegatorPower(ctx, addr); err != nil {
+			return err
+		}
+	}
 	return h.k.recordTotal(ctx)
 }
 

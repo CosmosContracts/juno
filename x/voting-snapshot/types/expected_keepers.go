@@ -15,4 +15,5 @@ type StakingKeeper interface {
 	GetDelegatorBonded(ctx context.Context, delegator sdk.AccAddress) (math.Int, error)
 	TotalBondedTokens(ctx context.Context) (math.Int, error)
 	IterateAllDelegations(ctx context.Context, fn func(stakingtypes.Delegation) bool) error
+	GetValidatorDelegations(ctx context.Context, valAddr sdk.ValAddress) ([]stakingtypes.Delegation, error)
 }

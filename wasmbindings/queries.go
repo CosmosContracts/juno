@@ -60,10 +60,19 @@ func (qp QueryPlugin) GetParams(ctx sdk.Context) (*types.ParamsResponse, error) 
 	}, nil
 }
 
+// votingPowerQueryGas is the fixed gas charge for each voting-snapshot
+// query, on top of the SDK's ambient store-read gas. Sized to bound
+// the worst-case empty-iterator scan a contract could induce by
+// querying a non-existent delegator at a high height. Tuned to be
+// roughly equivalent to a small bank query plus a slot-read.
+const votingPowerQueryGas uint64 = 5000
+
 // GetVotingPowerAt returns the bonded voting power of `address` at `height`,
 // excluding LST-held delegations. Resolves to the most recent snapshot
 // at-or-before the requested height.
 func (qp QueryPlugin) GetVotingPowerAt(ctx sdk.Context, address string, height int64) (*types.VotingPowerResponse, error) {
+	ctx.GasMeter().ConsumeGas(votingPowerQueryGas, "wasmbindings/voting_power_at")
+
 	addr, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
 		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid voter address: %s", address)
@@ -77,9 +86,33 @@ func (qp QueryPlugin) GetVotingPowerAt(ctx sdk.Context, address string, height i
 
 // GetTotalVotingPowerAt returns the total bonded supply at `height`.
 func (qp QueryPlugin) GetTotalVotingPowerAt(ctx sdk.Context, height int64) (*types.VotingPowerResponse, error) {
+	ctx.GasMeter().ConsumeGas(votingPowerQueryGas, "wasmbindings/total_voting_power_at")
+
 	power, err := qp.votingSnapshotKeeper.TotalVotingPowerAt(ctx, height)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "total voting power lookup failed")
 	}
 	return &types.VotingPowerResponse{Power: power.String()}, nil
+}
+
+// GetVotingPowerOverRange returns every recorded snapshot for `address`
+// in [fromHeight, toHeight]. Empty result is valid (delegator didn't
+// change stake during the window — caller should fall back to
+// VotingPowerAt(fromHeight) for the constant-over-window value).
+func (qp QueryPlugin) GetVotingPowerOverRange(ctx sdk.Context, address string, fromHeight, toHeight int64) (*types.VotingPowerOverRangeResponse, error) {
+	ctx.GasMeter().ConsumeGas(votingPowerQueryGas, "wasmbindings/voting_power_over_range")
+
+	addr, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid voter address: %s", address)
+	}
+	rows, err := qp.votingSnapshotKeeper.VotingPowerOverRange(ctx, addr, fromHeight, toHeight)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "voting power range lookup failed")
+	}
+	out := make([]types.HeightPowerPair, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, types.HeightPowerPair{Height: r.Height, Power: r.Power.String()})
+	}
+	return &types.VotingPowerOverRangeResponse{Rows: out}, nil
 }
