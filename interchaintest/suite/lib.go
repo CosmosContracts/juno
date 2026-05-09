@@ -124,6 +124,9 @@ func DefaultInterchainConstructor(ctx context.Context, t *testing.T, chains []*c
 		NetworkID:        networkID,
 		TestName:         t.Name(),
 	})
+	if err != nil {
+		t.Logf("interchaintest Build returned error: %v", err)
+	}
 	require.NoError(t, err)
 
 	return ic, client, nil
