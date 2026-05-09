@@ -172,10 +172,13 @@ ictest-burn: rm-testcache
 ictest-fixes: rm-testcache
 	cd interchaintest/tests/fixes && go test -race -v -run TestFixTestSuite .
 
+ictest-dao-dao: rm-testcache
+	cd interchaintest/tests/dao-dao && go test -race -v -run TestDaoDaoTestSuite .
+
 rm-testcache:
 	go clean -testcache
 
-.PHONY: ictest-basic ictest-cw ictest-node ictest-feemarket ictest-fees ictest-upgrade ictest-ibc ictest-ibc-hooks ictest-pfm ictest-tokenfactory ictest-drip ictest-burn ictest-fixes rm-testcache
+.PHONY: ictest-basic ictest-cw ictest-node ictest-feemarket ictest-fees ictest-upgrade ictest-ibc ictest-ibc-hooks ictest-pfm ictest-tokenfactory ictest-drip ictest-burn ictest-fixes ictest-dao-dao rm-testcache
 
 ###############################################################################
 ###                                Docker                                   ###
