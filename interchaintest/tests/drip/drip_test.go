@@ -36,10 +36,10 @@ func TestDripTestSuite(t *testing.T) {
 
 	spec := &interchaintest.ChainSpec{
 		ChainName:     "juno-drip",
-		Name:          "juno-drip",
+		Name:          "juno",
 		NumValidators: &e2esuite.DefaultNumValidators,
 		NumFullNodes:  &e2esuite.DefaultNumFullNodes,
-		Version:       "local",
+		Version:       e2esuite.DefaultSpec.Version,
 		NoHostMount:   &e2esuite.DefaultNoHostMount,
 		ChainConfig:   newCfg,
 	}
