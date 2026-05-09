@@ -26,13 +26,23 @@ import (
 )
 
 func (s *AnteTestSuite) TestEscrowFunds() {
-	cases := map[string]struct {
+	// Slice (not map) for deterministic ordering. Several subtests
+	// mutate FeeGrantKeeper state (GrantAllowance) and downstream cases
+	// expect prior cases not to have run — under non-deterministic map
+	// iteration that bug surfaces as an intermittent FAIL on
+	// "no fee grant" finding the allowance from "valid fee grant".
+	// Plus: SetupTest is invoked at the top of each subtest below
+	// so state is fresh per case.
+	type tcDef struct {
+		name     string
 		fee      int64
 		valid    bool
 		err      error
 		malleate func(*AnteTestSuite) (signer testutil.TestAccount, feeAcc sdk.AccAddress)
-	}{
-		"paying with insufficient fee": {
+	}
+	cases := []tcDef{
+		{
+			name:  "paying with insufficient fee",
 			fee:   1,
 			valid: false,
 			err:   sdkerrors.ErrInsufficientFee,
@@ -40,7 +50,8 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 				return s.fullAccs[0], s.fullAccs[1].Account.GetAddress()
 			},
 		},
-		"paying with good funds": {
+		{
+			name:  "paying with good funds",
 			fee:   24497000000,
 			valid: true,
 			malleate: func(s *AnteTestSuite) (testutil.TestAccount, sdk.AccAddress) {
@@ -49,7 +60,8 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 				return s.fullAccs[0], s.fullAccs[0].Account.GetAddress()
 			},
 		},
-		"paying with no account": {
+		{
+			name:  "paying with no account",
 			fee:   24497000000,
 			valid: false,
 			err:   sdkerrors.ErrUnknownAddress,
@@ -62,7 +74,8 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 				}, nil
 			},
 		},
-		"valid fee grant": {
+		{
+			name: "valid fee grant",
 			// note: the original test said "valid fee grant with no account".
 			// this is impossible given that feegrant.GrantAllowance calls
 			// SetAccount for the grantee.
@@ -82,7 +95,8 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 				return s.fullAccs[0], s.fullAccs[1].Account.GetAddress()
 			},
 		},
-		"no fee grant": {
+		{
+			name:  "no fee grant",
 			fee:   36630000000,
 			valid: false,
 			err:   sdkerrors.ErrNotFound,
@@ -90,7 +104,8 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 				return s.fullAccs[0], s.fullAccs[1].Account.GetAddress()
 			},
 		},
-		"allowance smaller than requested fee": {
+		{
+			name:  "allowance smaller than requested fee",
 			fee:   36630000000,
 			valid: false,
 			err:   feegrant.ErrFeeLimitExceeded,
@@ -108,7 +123,8 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 				return s.fullAccs[0], s.fullAccs[1].Account.GetAddress()
 			},
 		},
-		"granter cannot cover allowed fee grant": {
+		{
+			name:  "granter cannot cover allowed fee grant",
 			fee:   36630000000,
 			valid: false,
 			err:   sdkerrors.ErrInsufficientFunds,
@@ -128,9 +144,12 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 		},
 	}
 
-	for name, stc := range cases {
-		tc := stc // to make scopelint happy
-		s.Run(name, func() {
+	for _, tc := range cases {
+		tc := tc
+		s.Run(tc.name, func() {
+			// Reset suite state before each subtest so prior FeeGrantKeeper
+			// mutations (or any other suite-scoped state) don't leak in.
+			s.SetupTest()
 			protoTxCfg := tx.NewTxConfig(codec.NewProtoCodec(s.App.InterfaceRegistry()), tx.DefaultSignModes)
 			// this just tests our handler
 			dfd := decorators.NewDeductFeeDecorator(
@@ -149,7 +168,7 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 			)
 			feeAnteHandler := sdk.ChainAnteDecorators(dfd)
 
-			signer, feeAcc := stc.malleate(s)
+			signer, feeAcc := tc.malleate(s)
 
 			fee := sdk.NewCoins(sdk.NewInt64Coin("ujuno", tc.fee))
 			msgs := []sdk.Msg{testdata.NewTestMsg(signer.Account.GetAddress())}
