@@ -1,0 +1,74 @@
+syntax = "proto3";
+package juno.votingsnapshot.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "juno/votingsnapshot/v1/params.proto";
+
+option go_package = "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types";
+
+// Query exposes the historical voting-power view.
+service Query {
+  // Params returns the current x/voting-snapshot module parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http) = {get: "/juno/votingsnapshot/v1/params"};
+  }
+
+  // VotingPowerAt returns the bonded voting power of `address` at
+  // `height`, excluding LST-held delegations. Resolves to the most
+  // recent snapshot at-or-before the requested height. Returns zero
+  // (with no error) if no snapshot exists.
+  rpc VotingPowerAt(QueryVotingPowerAtRequest) returns (QueryVotingPowerAtResponse) {
+    option (google.api.http) = {get: "/juno/votingsnapshot/v1/voting_power/{address}/{height}"};
+  }
+
+  // TotalVotingPowerAt returns the chain-wide bonded supply at
+  // `height`. Same at-or-before semantics as VotingPowerAt.
+  rpc TotalVotingPowerAt(QueryTotalVotingPowerAtRequest) returns (QueryTotalVotingPowerAtResponse) {
+    option (google.api.http) = {get: "/juno/votingsnapshot/v1/total_voting_power/{height}"};
+  }
+
+  // VotingPowerOverRange returns every recorded snapshot for `address`
+  // in [from_height, to_height]. Useful for time-decay schemes.
+  rpc VotingPowerOverRange(QueryVotingPowerOverRangeRequest) returns (QueryVotingPowerOverRangeResponse) {
+    option (google.api.http) = {get: "/juno/votingsnapshot/v1/voting_power/{address}/range/{from_height}/{to_height}"};
+  }
+}
+
+message QueryParamsRequest {}
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryVotingPowerAtRequest {
+  string address = 1;
+  int64 height = 2;
+}
+
+message QueryVotingPowerAtResponse {
+  // power is the bonded stake amount as a base-10 string (uint).
+  string power = 1;
+}
+
+message QueryTotalVotingPowerAtRequest {
+  int64 height = 1;
+}
+
+message QueryTotalVotingPowerAtResponse {
+  string power = 1;
+}
+
+message QueryVotingPowerOverRangeRequest {
+  string address = 1;
+  int64 from_height = 2;
+  int64 to_height = 3;
+}
+
+message QueryVotingPowerOverRangeResponse {
+  repeated HeightPower rows = 1 [(gogoproto.nullable) = false];
+}
+
+message HeightPower {
+  int64 height = 1;
+  string power = 2;
+}

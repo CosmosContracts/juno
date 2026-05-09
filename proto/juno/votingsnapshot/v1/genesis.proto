@@ -1,0 +1,12 @@
+syntax = "proto3";
+package juno.votingsnapshot.v1;
+
+import "gogoproto/gogo.proto";
+import "juno/votingsnapshot/v1/params.proto";
+
+option go_package = "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types";
+
+// GenesisState is the x/voting-snapshot module's genesis-state structure.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+}

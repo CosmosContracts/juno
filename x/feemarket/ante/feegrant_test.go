@@ -145,7 +145,6 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 	}
 
 	for _, tc := range cases {
-		tc := tc
 		s.Run(tc.name, func() {
 			// Reset suite state before each subtest so prior FeeGrantKeeper
 			// mutations (or any other suite-scoped state) don't leak in.

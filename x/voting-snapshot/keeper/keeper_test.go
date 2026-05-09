@@ -32,14 +32,14 @@ func TestKeeperTestSuite(t *testing.T) {
 func (s *KeeperTestSuite) TestParamsRoundTrip() {
 	params, err := s.keeper.Params.Get(s.Ctx)
 	s.Require().NoError(err)
-	s.Require().Empty(params.LSTAllowlist) // default genesis is empty
+	s.Require().Empty(params.LstAllowlist) // default genesis is empty
 
-	updated := types.Params{LSTAllowlist: []string{"juno1abc"}}
+	updated := types.Params{LstAllowlist: []string{"juno1abc"}}
 	s.Require().NoError(s.keeper.Params.Set(s.Ctx, updated))
 
 	got, err := s.keeper.Params.Get(s.Ctx)
 	s.Require().NoError(err)
-	s.Require().Equal([]string{"juno1abc"}, got.LSTAllowlist)
+	s.Require().Equal([]string{"juno1abc"}, got.LstAllowlist)
 }
 
 // TestVotingPowerAtBeforeFirstSnapshot confirms a query at a height with no
@@ -95,7 +95,7 @@ func (s *KeeperTestSuite) TestLSTExclusion() {
 
 	// Set params with addr in the allowlist
 	s.Require().NoError(s.keeper.Params.Set(s.Ctx, types.Params{
-		LSTAllowlist: []string{addr.String()},
+		LstAllowlist: []string{addr.String()},
 	}))
 
 	isLST, err := s.keeper.IsLST(s.Ctx, addr)
@@ -148,7 +148,7 @@ func (s *KeeperTestSuite) TestPruneRetentionWindow() {
 
 	// Set a small retention window (3 blocks). Advance the SDK ctx height to 105.
 	s.Require().NoError(s.keeper.Params.Set(s.Ctx, types.Params{
-		LSTAllowlist:           []string{},
+		LstAllowlist:           []string{},
 		RetentionWindowHeights: 3,
 	}))
 	prunedCtx := s.Ctx.WithBlockHeight(105)
@@ -175,7 +175,7 @@ func (s *KeeperTestSuite) TestPruneRetentionWindow() {
 		sdkmath.NewInt(50),
 	))
 	s.Require().NoError(s.keeper.Params.Set(s.Ctx, types.Params{
-		LSTAllowlist:           []string{},
+		LstAllowlist:           []string{},
 		RetentionWindowHeights: 0,
 	}))
 	s.Require().NoError(s.keeper.Prune(prunedCtx))

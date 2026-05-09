@@ -36,10 +36,14 @@ var (
 
 type AppModuleBasic struct{}
 
-func (AppModuleBasic) Name() string                                                    { return types.ModuleName }
-func (AppModuleBasic) RegisterLegacyAminoCodec(_ *codec.LegacyAmino)                   {}
-func (AppModuleBasic) RegisterInterfaces(_ cdctypes.InterfaceRegistry)                 {}
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *runtime.ServeMux) {}
+func (AppModuleBasic) Name() string                                    { return types.ModuleName }
+func (AppModuleBasic) RegisterLegacyAminoCodec(_ *codec.LegacyAmino)   {}
+func (AppModuleBasic) RegisterInterfaces(r cdctypes.InterfaceRegistry) { types.RegisterInterfaces(r) }
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
+}
 
 func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
 	b, err := json.Marshal(types.DefaultGenesis())
@@ -63,10 +67,17 @@ func NewAppModule(k keeper.Keeper) AppModule {
 	return AppModule{keeper: k}
 }
 
-func (AppModule) IsOnePerModuleType()                    {}
-func (AppModule) IsAppModule()                           {}
-func (AppModule) ConsensusVersion() uint64               { return ConsensusVersion }
-func (AppModule) RegisterServices(_ module.Configurator) {}
+func (AppModule) IsOnePerModuleType()      {}
+func (AppModule) IsAppModule()             {}
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
+
+// RegisterServices wires up the gRPC msg + query servers and any
+// store-version migrations. Keep migrations empty for v30 — first
+// release of the module.
+func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServer(am.keeper))
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServer(am.keeper))
+}
 
 func (am AppModule) InitGenesis(ctx sdk.Context, _ codec.JSONCodec, raw json.RawMessage) {
 	var gs types.GenesisState

@@ -46,7 +46,7 @@ func NewKeeper(
 			sb,
 			types.ParamsKey,
 			"params",
-			types.ParamsValueCodec(),
+			codec.CollValue[types.Params](cdc),
 		),
 		VotingPower: collections.NewMap(
 			sb,
@@ -87,7 +87,7 @@ func (k Keeper) IsLST(ctx context.Context, addr sdk.AccAddress) (bool, error) {
 		return false, err
 	}
 	bech := addr.String()
-	for _, listed := range params.LSTAllowlist {
+	for _, listed := range params.LstAllowlist {
 		if listed == bech {
 			return true, nil
 		}
