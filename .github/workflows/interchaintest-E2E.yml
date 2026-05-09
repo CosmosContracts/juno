@@ -42,7 +42,12 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          tags: juno:local
+          # Tag must match the repo string in
+          # interchaintest/suite/ci_integration.go's GetDockerImageInfo
+          # (and the IMAGE var in the root Makefile's local-image target),
+          # otherwise the e2e jobs will try to pull from registry and
+          # hit "manifest unknown."
+          tags: ghcr.io/cosmoscontracts/juno:local
           outputs: type=docker,dest=${{ env.TAR_PATH }}
 
       - name: Upload artifact
