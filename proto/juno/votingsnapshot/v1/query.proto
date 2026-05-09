@@ -15,17 +15,17 @@ service Query {
   }
 
   // VotingPowerAt returns the bonded voting power of `address` at
-  // `height`, excluding LST-held delegations. Resolves to the most
-  // recent snapshot at-or-before the requested height. Returns zero
-  // (with no error) if no snapshot exists.
+  // `at_height`, excluding LST-held delegations. Resolves to the
+  // most recent snapshot at-or-before the requested height. Returns
+  // zero (with no error) if no snapshot exists.
   rpc VotingPowerAt(QueryVotingPowerAtRequest) returns (QueryVotingPowerAtResponse) {
-    option (google.api.http) = {get: "/juno/votingsnapshot/v1/voting_power/{address}/{height}"};
+    option (google.api.http) = {get: "/juno/votingsnapshot/v1/voting_power/{address}/{at_height}"};
   }
 
   // TotalVotingPowerAt returns the chain-wide bonded supply at
-  // `height`. Same at-or-before semantics as VotingPowerAt.
+  // `at_height`. Same at-or-before semantics as VotingPowerAt.
   rpc TotalVotingPowerAt(QueryTotalVotingPowerAtRequest) returns (QueryTotalVotingPowerAtResponse) {
-    option (google.api.http) = {get: "/juno/votingsnapshot/v1/total_voting_power/{height}"};
+    option (google.api.http) = {get: "/juno/votingsnapshot/v1/total_voting_power/{at_height}"};
   }
 
   // VotingPowerOverRange returns every recorded snapshot for `address`
@@ -42,7 +42,10 @@ message QueryParamsResponse {
 
 message QueryVotingPowerAtRequest {
   string address = 1;
-  int64 height = 2;
+  // at_height is the chain height to look up power for. Named
+  // distinctly from `height` so it doesn't collide with cosmos-sdk's
+  // standard query --height flag in autocli output.
+  int64 at_height = 2;
 }
 
 message QueryVotingPowerAtResponse {
@@ -51,7 +54,7 @@ message QueryVotingPowerAtResponse {
 }
 
 message QueryTotalVotingPowerAtRequest {
-  int64 height = 1;
+  int64 at_height = 1;
 }
 
 message QueryTotalVotingPowerAtResponse {

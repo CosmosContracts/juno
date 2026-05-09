@@ -26,7 +26,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params is the governance-controlled config for x/voting-snapshot.
 //
-// LstAllowlist: bech32 addresses of LST contracts whose delegations
+// LSTAllowlist: bech32 addresses of LST contracts whose delegations
 // must NOT count toward voting power. Empty at v30 launch.
 //
 // RetentionWindowHeights: snapshots older than this many blocks are

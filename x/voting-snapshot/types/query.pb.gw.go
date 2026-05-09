@@ -73,15 +73,15 @@ func request_Query_VotingPowerAt_0(ctx context.Context, marshaler runtime.Marsha
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "address", err)
 	}
 
-	val, ok = pathParams["height"]
+	val, ok = pathParams["at_height"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "height")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "at_height")
 	}
 
-	protoReq.Height, err = runtime.Int64(val)
+	protoReq.AtHeight, err = runtime.Int64(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "height", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "at_height", err)
 	}
 
 	msg, err := client.VotingPowerAt(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -111,15 +111,15 @@ func local_request_Query_VotingPowerAt_0(ctx context.Context, marshaler runtime.
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "address", err)
 	}
 
-	val, ok = pathParams["height"]
+	val, ok = pathParams["at_height"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "height")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "at_height")
 	}
 
-	protoReq.Height, err = runtime.Int64(val)
+	protoReq.AtHeight, err = runtime.Int64(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "height", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "at_height", err)
 	}
 
 	msg, err := server.VotingPowerAt(ctx, &protoReq)
@@ -138,15 +138,15 @@ func request_Query_TotalVotingPowerAt_0(ctx context.Context, marshaler runtime.M
 		_   = err
 	)
 
-	val, ok = pathParams["height"]
+	val, ok = pathParams["at_height"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "height")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "at_height")
 	}
 
-	protoReq.Height, err = runtime.Int64(val)
+	protoReq.AtHeight, err = runtime.Int64(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "height", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "at_height", err)
 	}
 
 	msg, err := client.TotalVotingPowerAt(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -165,15 +165,15 @@ func local_request_Query_TotalVotingPowerAt_0(ctx context.Context, marshaler run
 		_   = err
 	)
 
-	val, ok = pathParams["height"]
+	val, ok = pathParams["at_height"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "height")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "at_height")
 	}
 
-	protoReq.Height, err = runtime.Int64(val)
+	protoReq.AtHeight, err = runtime.Int64(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "height", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "at_height", err)
 	}
 
 	msg, err := server.TotalVotingPowerAt(ctx, &protoReq)
@@ -504,9 +504,9 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 var (
 	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"juno", "votingsnapshot", "v1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_VotingPowerAt_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"juno", "votingsnapshot", "v1", "voting_power", "address", "height"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_VotingPowerAt_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"juno", "votingsnapshot", "v1", "voting_power", "address", "at_height"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_TotalVotingPowerAt_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"juno", "votingsnapshot", "v1", "total_voting_power", "height"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_TotalVotingPowerAt_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"juno", "votingsnapshot", "v1", "total_voting_power", "at_height"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_VotingPowerOverRange_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5, 1, 0, 4, 1, 5, 6, 1, 0, 4, 1, 5, 7}, []string{"juno", "votingsnapshot", "v1", "voting_power", "address", "range", "from_height", "to_height"}, "", runtime.AssumeColonVerbOpt(false)))
 )

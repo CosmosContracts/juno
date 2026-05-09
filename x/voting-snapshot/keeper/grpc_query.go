@@ -46,7 +46,7 @@ func (q *QueryServer) VotingPowerAt(ctx context.Context, req *types.QueryVotingP
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid address: %s", err)
 	}
-	power, err := q.keeper.VotingPowerAt(ctx, addr, req.Height)
+	power, err := q.keeper.VotingPowerAt(ctx, addr, req.AtHeight)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -57,7 +57,7 @@ func (q *QueryServer) TotalVotingPowerAt(ctx context.Context, req *types.QueryTo
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-	power, err := q.keeper.TotalVotingPowerAt(ctx, req.Height)
+	power, err := q.keeper.TotalVotingPowerAt(ctx, req.AtHeight)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
