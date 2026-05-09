@@ -106,13 +106,13 @@ func RunStream(ctx context.Context, params RunStreamParams) error {
 			return ctx.Err()
 		case raw, ok := <-sendCh:
 			if !ok || raw == nil {
-				logger.Debug("subscription channel closed", "key", keyStr)
+				logger.Debug("subscription channel closed", "key", SanitizeLog(keyStr))
 				return nil
 			}
 
 			event, ok := raw.(encoding.StreamEvent)
 			if !ok {
-				logger.Debug("ignoring non stream event", "key", keyStr, "type", fmt.Sprintf("%T", raw))
+				logger.Debug("ignoring non stream event", "key", SanitizeLog(keyStr), "type", fmt.Sprintf("%T", raw))
 				continue
 			}
 

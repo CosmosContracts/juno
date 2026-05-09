@@ -173,8 +173,8 @@ func (r *SubscriptionRegistry) RegisterConnection(kind ConnectionKind, meta Conn
 
 	r.logger.Debug("connection registered",
 		"connection_id", connectionID,
-		"remote_addr", meta.RemoteAddr,
-		"x_forwarded_for", meta.ForwardedFor,
+		"remote_addr", SanitizeLog(meta.RemoteAddr),
+		"x_forwarded_for", SanitizeLog(meta.ForwardedFor),
 		"kind", kind,
 		"ws_total", r.wsConns,
 		"grpc_total", r.grpcConns)
@@ -323,7 +323,7 @@ func (r *SubscriptionRegistry) Subscribe(ctx context.Context, key encoding.Strea
 		r.methodSubs[methodKey][subscriber] = true
 	}
 
-	r.logger.Debug("new subscription", "key", keyStr, "total_subs", len(r.subscribers[keyStr]))
+	r.logger.Debug("new subscription", "key", SanitizeLog(keyStr), "total_subs", len(r.subscribers[keyStr]))
 
 	return sendCh, subscriber
 }
@@ -343,7 +343,7 @@ func (r *SubscriptionRegistry) Unsubscribe(subscriber *Subscriber) {
 			delete(r.subscribers, keyStr)
 		}
 
-		r.logger.Debug("removed subscription", "key", keyStr, "remaining_subs", len(subs))
+		r.logger.Debug("removed subscription", "key", SanitizeLog(keyStr), "remaining_subs", len(subs))
 	}
 
 	if methodKey := methodKeyFromEvent(subscriber.key); methodKey != "" {

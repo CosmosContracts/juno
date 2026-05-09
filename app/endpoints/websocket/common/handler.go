@@ -129,12 +129,12 @@ func (h *Handler) ServeConnection(params ConnectionParams) (retErr error) {
 	logger := h.Logger
 	var onEvent func(encoding.StreamEvent)
 	if logger != nil {
-		subscriptionKey := params.Resolved.Key.String()
+		subscriptionKey := types.SanitizeLog(params.Resolved.Key.String())
 		onEvent = func(event encoding.StreamEvent) {
 			logger.Debug("websocket stream event received",
 				"module", event.Module,
 				"method", event.Method,
-				"params", event.Params,
+				"params", types.SanitizeLogMap(event.Params),
 				"subscription", subscriptionKey,
 			)
 		}
