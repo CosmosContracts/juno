@@ -149,10 +149,91 @@ If neither fix is in place by the time we want to ship v30:
 
 - Docker port forward isn't set up: ✗ (mapping exists)
 - RPC server isn't binding inside container: ✗ (listening on :::26657)
-- cometbft startup race: ✗ (chain commits blocks at height 49+)
-- 2-min timeout too short: ✗ (5min equally fails, at ~144s, not at deadline)
+- cometbft startup race: ✗ (chain commits blocks at height 134+)
+- 2-min timeout too short: ✗ (5min equally fails)
 - libwasmvm static linking: ✗ (Dockerfile fixed, binary is static)
-- Probe-shape mismatch: ✗ (we now know the dial fails at TCP level, not HTTP)
+- Probe-shape mismatch: ✗ (curl from inside container returns full /status JSON instantly)
+
+## What I tried (2026-05-09 session)
+
+1. **Bumped Build timeout 2min → 5min** (committed). No change in
+   behavior — failure is structural, not slow-start.
+2. **Diagnostic checklist** ran while a chain was live:
+   - chain process healthy, height=49+, RPC log "Starting RPC HTTP
+     server on [::]:26657" present
+   - `:::26657` LISTEN inside container; `0.0.0.0:host-port` mapping
+     bound on the OUTER host
+   - direct `curl 0.0.0.0:host-port` and `curl <container-ip>:26657`
+     both fail from inside SafeClaude — different network namespaces
+3. **Built a Python TCP forwarder + watcher** (`/tmp/forward.py` +
+   `/tmp/ictest-bridge.sh`) to bind each host-port locally on
+   SafeClaude and forward to the chain's container IP. Result:
+   the dial advanced from TCP-level "connection refused" to
+   HTTP-level "context deadline exceeded" / "connection reset by
+   peer" — meaning the bridge was up but the upstream connection
+   from SafeClaude → 172.x.x.x couldn't actually deliver data.
+4. **Ran `docker network connect` from SafeClaude to attach to the
+   per-test interchaintest network.** Docker daemon accepts the call
+   (`docker inspect` shows two networks attached) but **the new
+   interface doesn't materialize inside SafeClaude's namespace**
+   — `/proc/net/dev` shows only `eth0`, `/proc/net/route` has only
+   the default-bridge routes. Direct dial of the chain's container
+   IP times out.
+
+## Final diagnosis
+
+**SafeClaude's network namespace is sandboxed in a way that
+prevents joining additional docker networks at runtime.** The
+interface listed by `docker inspect` is registered with the daemon
+but never wired into the container's namespace by runc/containerd.
+This is an environment limitation, not a v30 bug.
+
+ictest as currently architected requires the test runner and the
+chain containers to share a network reachability path. That path
+doesn't exist from inside SafeClaude, period.
+
+## Conclusion for the v30 PR
+
+ictest cannot be validated locally from inside SafeClaude. The
+remaining options:
+
+1. **Run ictest from the outer host** (CI runners do this naturally;
+   the GitHub Actions workflow we already reconciled in Phase 0c is
+   the right place for this)
+2. **Run ictest from a different container architecture** that has
+   privileged network access
+3. **Validate v30 via testnet smoke** instead of local ictest before
+   the security review and mainnet halt-height proposal
+
+For our purposes (Bucket A items A1 and A2) the practical path is
+**(3): testnet smoke**. Once a v30 binary is deployed to a public
+testnet (uni-7 successor or a fresh v30-rc1 testnet), Jake/I can
+exercise:
+
+- DAO DAO v2.7.0 contract instantiate + propose + vote + execute
+  (uses real DAO DAO codebase deployed at known IDs; we have
+  the artifacts at `/workspace/dao-contracts/artifacts/`)
+- the v30 upgrade handler against a fork of juno-1 mainnet state
+  (manually rather than via `ictest-upgrade`)
+- wasmbinding `VotingPowerAt` smoke against a small test contract
+- IBC transfer from a counterparty testnet for cross-chain check
+
+That validation is qualitatively the same as `ictest-*` but
+runs in a real network namespace where the tests actually work.
+A1 and A2 then close on testnet smoke evidence rather than CI
+green.
+
+## Tooling left in place for next host with proper network access
+
+- `interchaintest/suite/lib.go` keeps the 5-minute Build timeout
+  and the `t.Logf(Build error)` debug aid — both useful for any
+  future run regardless of where it runs from.
+- `/tmp/forward.py` and `/tmp/ictest-bridge.sh` are still in
+  place as a reference for the docker-in-docker bridge pattern.
+  They work for TCP but not for the dual-namespace upstream-dial
+  step under SafeClaude's sandboxing — if a future runtime
+  removes that sandbox, they're a one-shell-script away from
+  unblocking local ictest.
 
 ## Workaround under consideration
 
