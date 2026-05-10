@@ -25,6 +25,7 @@ func (s *E2ETestSuite) ExecuteAuthzGrantMsg(chain *cosmos.CosmosChain, granter i
 		"--chain-id", chain.Config().ChainID,
 		"--home", chain.HomeDir(),
 		"--gas", "500000",
+		"--fees", "50000ujuno",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",

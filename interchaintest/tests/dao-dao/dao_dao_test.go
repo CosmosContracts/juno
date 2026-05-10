@@ -59,7 +59,7 @@ func (s *DaoDaoTestSuite) TestCw4GroupDao() {
 	require := s.Require()
 
 	user := s.GetAndFundTestUser(t.Name(), 10_000_000_000, s.Chain)
-	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(100_000)))
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 
 	// Store the four contracts the cw4-group path needs:
 	//   dao-dao-core, dao-proposal-single, dao-voting-cw4, cw4-group

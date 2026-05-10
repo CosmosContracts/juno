@@ -18,7 +18,8 @@ func (s *E2ETestSuite) ConformanceCosmWasm(chain *cosmos.CosmosChain, user ibc.W
 
 func (s *E2ETestSuite) StdExecute(chain *cosmos.CosmosChain, user ibc.Wallet) (contractAddr string) {
 	t := s.T()
-	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(100000)))
+	// Must cover gas-limit (~3M after gas-adjustment 3) at min base gas price 0.075ujuno → ≥225k; 1M leaves headroom for feemarket dynamics.
+	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(1_000_000)))
 	_, contractAddr = s.SetupContract(chain, user.KeyName(), "../../contracts/cw_template.wasm", `{"count":0}`, false, fees)
 	tx, err := s.ExecuteMsgWithFeeReturn(chain, user, contractAddr, "", `{"increment":{}}`, false, fees)
 	require.NoError(t, err)
@@ -35,7 +36,7 @@ func (s *E2ETestSuite) StdExecute(chain *cosmos.CosmosChain, user ibc.Wallet) (c
 func (s *E2ETestSuite) subMsg(chain *cosmos.CosmosChain, user ibc.Wallet) {
 	// ref: https://github.com/CosmWasm/wasmd/issues/1735
 	requireT := s.Require()
-	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(100000)))
+	fees := sdk.NewCoins(sdk.NewCoin(chain.Config().Denom, math.NewInt(1_000_000)))
 
 	// === execute a contract sub message ===
 	_, senderContractAddr := s.SetupContract(chain, user.KeyName(), "../../contracts/cw721_base.wasm.gz", fmt.Sprintf(`{"name":"Reece #00001", "symbol":"juno-reece-test-#00001", "minter":"%s"}`, user.FormattedAddress()), false, fees)

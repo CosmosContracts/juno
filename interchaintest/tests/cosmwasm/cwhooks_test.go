@@ -15,7 +15,7 @@ func (s *CosmWasmTestSuite) TestCwHooks() {
 	user := s.GetAndFundTestUser("default", 10_000_000_000, s.Chain)
 
 	// Upload & init contract payment to another address
-	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(100000)))
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 	_, contractAddr := s.SetupContract(s.Chain, user.KeyName(), "../../contracts/juno_staking_hooks_example.wasm", `{}`, false, fees)
 
 	// register staking contract (to be tested)

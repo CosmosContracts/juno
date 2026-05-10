@@ -45,7 +45,7 @@ func (s *CosmWasmTestSuite) TestClockModule() {
 
 	// Users
 	user := s.GetAndFundTestUser("default", 10_000_000_000, s.Chain)
-	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(100000)))
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 	// -- REGULAR GAS CONTRACT --
 	// Ensure logic works as expected for a contract that uses less than the gas limit
 	// and has a valid sudo message entry point.

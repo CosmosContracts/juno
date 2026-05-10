@@ -17,7 +17,7 @@ func (s *E2ETestSuite) RegisterClockContract(chain *cosmos.CosmosChain, user ibc
 	cmd := []string{
 		"clock", "register", user.FormattedAddress(), contract,
 		"--home", chain.HomeDir(),
-		"--fees", "500ujuno",
+		"--fees", "50000ujuno",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -45,7 +45,7 @@ func (s *E2ETestSuite) UnregisterClockContract(chain *cosmos.CosmosChain, user i
 	cmd := []string{
 		"clock", "unregister", user.FormattedAddress(), contract,
 		"--home", chain.HomeDir(),
-		"--fees", "500ujuno",
+		"--fees", "50000ujuno",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",
@@ -73,7 +73,7 @@ func (s *E2ETestSuite) UnjailClockContract(chain *cosmos.CosmosChain, user ibc.W
 	cmd := []string{
 		"clock", "unjail", user.FormattedAddress(), contract,
 		"--home", chain.HomeDir(),
-		"--fees", "500ujuno",
+		"--fees", "50000ujuno",
 		"--keyring-dir", chain.HomeDir(),
 		"--keyring-backend", keyring.BackendTest,
 		"-y",

@@ -40,14 +40,16 @@ func TestBurnTestSuite(t *testing.T) {
 func (s *BurnTestSuite) TestBurnModule() {
 	t := s.T()
 	nativeDenom := s.Chain.Config().Denom
-	fees := sdk.NewCoins(sdk.NewCoin(nativeDenom, math.NewInt(30000)))
+	// setupFees covers wasm-store at v30 minBaseGasPrice 0.075; execFees covers a single wasm-execute.
+	setupFees := sdk.NewCoins(sdk.NewCoin(nativeDenom, math.NewInt(1_000_000)))
+	execFees := sdk.NewCoins(sdk.NewCoin(nativeDenom, math.NewInt(50_000)))
 
 	// Users
 	user := s.GetAndFundTestUser("default", int64(10_000_000), s.Chain)
 
 	// Upload & init contract
 
-	_, contractAddr := s.SetupContract(s.Chain, user.KeyName(), "../../contracts/cw_testburn.wasm", `{}`, false, fees)
+	_, contractAddr := s.SetupContract(s.Chain, user.KeyName(), "../../contracts/cw_testburn.wasm", `{}`, false, setupFees)
 
 	// get balance before execute
 	balance, err := s.Chain.GetBalance(s.Ctx, user.FormattedAddress(), nativeDenom)
@@ -57,7 +59,7 @@ func (s *BurnTestSuite) TestBurnModule() {
 
 	// execute burn of tokens
 	burnAmt := int64(1_000_000)
-	_, err = s.ExecuteMsgWithAmount(s.Chain, user, contractAddr, strconv.Itoa(int(burnAmt))+nativeDenom, `{"burn_token":{}}`, fees)
+	_, err = s.ExecuteMsgWithAmount(s.Chain, user, contractAddr, strconv.Itoa(int(burnAmt))+nativeDenom, `{"burn_token":{}}`, execFees)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +70,7 @@ func (s *BurnTestSuite) TestBurnModule() {
 		t.Fatal(err)
 	}
 
-	// Verify the funds were sent, and burned.
+	// Verify the funds were sent, and burned. delta = burn amount + the single execute fee.
 	fmt.Println(balance, updatedBal)
-	assert.Equal(t, burnAmt, balance.Sub(updatedBal).Sub(fees.AmountOf(nativeDenom).Mul(math.NewInt(2))).Int64(), fmt.Sprintf("balance should be %d less than updated balance", burnAmt))
+	assert.Equal(t, burnAmt, balance.Sub(updatedBal).Sub(execFees.AmountOf(nativeDenom)).Int64(), fmt.Sprintf("balance should be %d less than updated balance", burnAmt))
 }

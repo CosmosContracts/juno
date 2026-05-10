@@ -15,9 +15,11 @@ func (s *FeesTestSuite) TestFeeShare() {
 	grantee := s.GetAndFundTestUser("grantee", 10_000_000, s.Chain)
 	feeRcvAddr := "juno1v75wlkccpv7le3560zw32v2zjes5n0e7csr4qh"
 
-	// Upload & init contract payment to another address
-	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(100000)))
-	_, contractAddr := s.SetupContract(s.Chain, granter.KeyName(), "../../contracts/cw_template.wasm", `{"count":0}`, false, fees)
+	// Upload & init contract payment to another address.
+	// setupFees covers wasm-store at v30 minBaseGasPrice 0.075 (≥225k); execFees covers a wasm-execute (~33k req).
+	setupFees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
+	execFees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(50_000)))
+	_, contractAddr := s.SetupContract(s.Chain, granter.KeyName(), "../../contracts/cw_template.wasm", `{"count":0}`, false, setupFees)
 
 	// register contract to a random address (since we are the creator, though not the admin)
 	s.RegisterFeeShare(s.Chain, granter, contractAddr, feeRcvAddr)
@@ -27,30 +29,29 @@ func (s *FeesTestSuite) TestFeeShare() {
 		t.Fatal("balance not 0")
 	}
 
-	// execute with a 10000 fee (so 5000 denom should be in the contract now with 50% feeshare default)
-	_, err := s.ExecuteMsgWithFeeReturn(s.Chain, granter, contractAddr, "", `{"increment":{}}`, false, fees)
+	// 50% default DeveloperShares of the full --fees amount goes to the registered address.
+	expectedShare := execFees.AmountOf(s.Denom).QuoRaw(2).Int64()
+	_, err := s.ExecuteMsgWithFeeReturn(s.Chain, granter, contractAddr, "", `{"increment":{}}`, false, execFees)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// check balance of s.Denom now
 	if balance, err := s.Chain.GetBalance(s.Ctx, feeRcvAddr, s.Denom); err != nil {
 		t.Fatal(err)
-	} else if balance.Int64() != 5000 {
-		t.Fatal("balance not 5,000. it is ", balance, s.Denom)
+	} else if balance.Int64() != expectedShare {
+		t.Fatalf("balance not %d. it is %s%s", expectedShare, balance, s.Denom)
 	}
 
 	// Test authz message execution:
 	// Grant contract execute permission to grantee
 	s.ExecuteAuthzGrantMsg(s.Chain, granter, grantee, "/cosmos.authz.v1beta1.MsgExec")
 
-	// Execute authz msg as grantee
-	s.ExecuteAuthzExecMsgWithFee(s.Chain, grantee, contractAddr, "", "10000"+s.Denom, `{"increment":{}}`)
+	// Execute authz msg as grantee using the same fee amount so we expect another expectedShare added.
+	s.ExecuteAuthzExecMsgWithFee(s.Chain, grantee, contractAddr, "", execFees.String(), `{"increment":{}}`)
 
-	// check balance of s.Denom now
 	if balance, err := s.Chain.GetBalance(s.Ctx, feeRcvAddr, s.Denom); err != nil {
 		t.Fatal(err)
-	} else if balance.Int64() != 10000 {
-		t.Fatal("balance not 10,000. it is ", balance, s.Denom)
+	} else if balance.Int64() != 2*expectedShare {
+		t.Fatalf("balance not %d. it is %s%s", 2*expectedShare, balance, s.Denom)
 	}
 }

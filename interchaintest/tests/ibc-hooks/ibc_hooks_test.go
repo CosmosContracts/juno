@@ -127,7 +127,7 @@ func (s *IbcHooksTestSuite) TestIBCHooks() {
 	channel, err := ibc.GetTransferChannel(s.Ctx, s.Relayer, s.eRep, s.Chain.Config().ChainID, s.Chains[1].Config().ChainID)
 	require.NoError(t, err)
 
-	fees := sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(100_000)))
+	fees := sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, math.NewInt(1_000_000)))
 	_, contractAddr := s.SetupContract(s.Chains[1], gaiaUser.KeyName(), "../../contracts/ibchooks_counter.wasm", `{"count":0}`, false, fees)
 
 	// do an ibc transfer through the memo to the other chain.

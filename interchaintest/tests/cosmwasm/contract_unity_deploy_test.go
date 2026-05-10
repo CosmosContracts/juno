@@ -30,7 +30,7 @@ func (s *CosmWasmTestSuite) TestJunoUnityContractDeploy() {
 	// TEST DEPLOY (./scripts/deploy_ci.sh)
 	// Upload & init unity contract with no admin in test mode
 	msg := fmt.Sprintf(`{"native_denom":"%s","withdraw_address":"%s","withdraw_delay_in_days":28}`, nativeDenom, withdrawAddr)
-	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(100000)))
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 	_, contractAddr := s.SetupContract(juno, user.KeyName(), "../../contracts/cw_unity_prop.wasm", msg, false, fees)
 	t.Log("testing Unity contractAddr", contractAddr)
 

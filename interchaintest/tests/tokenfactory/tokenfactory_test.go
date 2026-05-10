@@ -43,7 +43,10 @@ func (s *TokenfactoryTestSuite) TestTokenfactoryModule() {
 	user2 := s.GetAndFundTestUser("default", 100_000_000, s.Chain)
 	uaddr2 := user2.FormattedAddress()
 
-	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(50_000)))
+	// fees covers SDK-only tokenfactory ops (~33k req at v30 minBaseGasPrice 0.075 with --gas auto×3);
+	// setupFees covers wasm-store + instantiate (≥225k).
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(200_000)))
+	setupFees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 
 	tfDenom := s.CreateTokenFactoryDenom(s.Chain, user, "ictestdenom", fees)
 	t.Log("tfDenom", tfDenom)
@@ -68,7 +71,7 @@ func (s *TokenfactoryTestSuite) TestTokenfactoryModule() {
 
 	// This allows the uaddr here to mint tokens on behalf of the contract. Typically you only allow a contract here, but this is testing.
 	coreInitMsg := fmt.Sprintf(`{"allowed_mint_addresses":["%s"],"existing_denoms":["%s"]}`, uaddr, tfDenom)
-	_, coreTFContract := s.SetupContract(s.Chain, user.KeyName(), "../../contracts/tokenfactory_core.wasm", coreInitMsg, false, fees)
+	_, coreTFContract := s.SetupContract(s.Chain, user.KeyName(), "../../contracts/tokenfactory_core.wasm", coreInitMsg, false, setupFees)
 	t.Log("coreContract", coreTFContract)
 
 	// change admin to the contract

@@ -61,7 +61,7 @@ func TestDripTestSuite(t *testing.T) {
 // TestDripModule ensures the x/drip module properly distributes tokens from whitelisted accounts.
 func (s *DripTestSuite) TestDripMmodule() {
 	t := s.T()
-	fees := sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, sdkmath.NewInt(50_000)))
+	fees := sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, sdkmath.NewInt(200_000)))
 
 	nativeDenom := s.Chain.Config().Denom
 	user, err := s.GetAndFundTestUserWithMnemonic("default", mnemonic, 1_000_000_000_000, s.Chain)
