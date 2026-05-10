@@ -66,8 +66,15 @@ var (
 			Value: 500000,
 		},
 		{
+			// Mirrors mainnet juno-1 (25M). The previous 5M cap was below the
+			// gas-limit produced by `--gas auto --gas-adjustment 3` for larger
+			// wasm-store payloads (cw721_base.wasm.gz lands ~6M after the ×3
+			// multiplier and was failing with code 41 "invalid gas limit").
+			// feemarket.MaxBlockUtilization stays at 5M — that's the dynamic-fee
+			// target, not a hard cap, and tests assert on --fees paid rather
+			// than gas consumed.
 			Key:   "consensus.params.block.max_gas",
-			Value: "5000000",
+			Value: "25000000",
 		},
 		{
 			Key:   "consensus.params.abci.vote_extensions_enable_height",
