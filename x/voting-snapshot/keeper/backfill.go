@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"sort"
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
@@ -34,7 +35,13 @@ func (k Keeper) BackfillFromStaking(ctx context.Context) error {
 		return err
 	}
 
+	delegators := make([]string, 0, len(totals))
 	for delStr := range totals {
+		delegators = append(delegators, delStr)
+	}
+	sort.Strings(delegators)
+
+	for _, delStr := range delegators {
 		addr, err := sdk.AccAddressFromBech32(delStr)
 		if err != nil {
 			return err

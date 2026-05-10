@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -241,9 +242,14 @@ func New(
 		// app.AppKeepers.StreamKeeper.ModuleCodecs(),
 	)
 	keys := app.AppKeepers.GetKVStoreKeys()
+	keyNames := make([]string, 0, len(keys))
+	for name := range keys {
+		keyNames = append(keyNames, name)
+	}
+	sort.Strings(keyNames)
 	storeKeys := make([]storetypes.StoreKey, 0, len(keys))
-	for _, key := range keys {
-		if key != nil {
+	for _, name := range keyNames {
+		if key := keys[name]; key != nil {
 			storeKeys = append(storeKeys, key)
 		}
 	}

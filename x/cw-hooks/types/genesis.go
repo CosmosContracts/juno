@@ -2,26 +2,37 @@ package types
 
 import (
 	"encoding/json"
+	"sort"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// NewGenesisState - Create a new genesis state
+// NewGenesisState - Create a new genesis state.
+//
+// Output slices are sorted by ContractAddress so that genesis state hashes
+// deterministically across nodes — Go map iteration is randomised, and any
+// caller passing a non-empty map (tests, fixtures, custom genesis) would
+// otherwise produce a different InitGenesis byte sequence per run.
 func NewGenesisState(params Params, stakingContracts, govContracts map[string]ContractInfo) *GenesisState {
-	stakingContractAddresses := make([]ContractInfo, 0, len(stakingContracts))
-	for _, v := range stakingContracts {
-		stakingContractAddresses = append(stakingContractAddresses, v)
-	}
-	govContractAddresses := make([]ContractInfo, 0, len(govContracts))
-	for _, v := range govContracts {
-		govContractAddresses = append(govContractAddresses, v)
-	}
+	stakingContractAddresses := contractInfoSlice(stakingContracts)
+	govContractAddresses := contractInfoSlice(govContracts)
 	return &GenesisState{
 		Params:                   params,
 		StakingContractAddresses: stakingContractAddresses,
 		GovContractAddresses:     govContractAddresses,
 	}
+}
+
+func contractInfoSlice(m map[string]ContractInfo) []ContractInfo {
+	out := make([]ContractInfo, 0, len(m))
+	for _, v := range m {
+		out = append(out, v)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].ContractAddress < out[j].ContractAddress
+	})
+	return out
 }
 
 // DefaultGenesisState - Return a default genesis state
