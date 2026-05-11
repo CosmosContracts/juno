@@ -81,8 +81,14 @@ var (
 			Value: "2",
 		},
 		{
+			// Enable feepay so the fees suite's TestFeePay can register a
+			// contract and exercise the zero-fee execute path. With feepay
+			// disabled, IsValidFeePayTransaction short-circuits to false and
+			// the v30 feemarket ante rejects --fees 0 with "no fee coin
+			// provided". Other suites don't register feepay contracts so
+			// this default doesn't change their behavior.
 			Key:   "app_state.feepay.params.enable_feepay",
-			Value: false,
+			Value: true,
 		},
 		{
 			// this resembles the params from the v30 upgrade handler for prod mirroring e2e tests
