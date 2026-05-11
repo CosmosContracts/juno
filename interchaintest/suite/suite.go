@@ -261,7 +261,7 @@ func (s *E2ETestSuite) WithKeyringOptions(cdc codec.Codec, opts keyring.Option) 
 func (s *E2ETestSuite) TearDownSuite() {
 	keepAlive := os.Getenv(EnvKeepAlive)
 	defer s.Teardown()
-	if keepAlive == "false" {
+	if keepAlive != "true" {
 		return
 	}
 
