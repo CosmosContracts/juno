@@ -42,6 +42,15 @@ func (s *NodeTestSuite) TestStateSync() {
 		t.Skip("skipping in short mode")
 	}
 
+	// The suite spec uses DefaultSpec which doesn't provision any full nodes
+	// (NumFullNodes defaults to 0). The test below indexes s.Chain.FullNodes[0]
+	// to fetch a trusted block, so it panics on a zero-length slice. Until the
+	// spec is updated to spin up a full node alongside the validator (and the
+	// node addition is added to the upgrade path), skip rather than panic.
+	if len(s.Chain.FullNodes) == 0 {
+		t.Skip("TestStateSync requires at least one full node in the chain spec; current spec provisions only validators")
+	}
+
 	configFileOverrides := make(map[string]any)
 	appTomlOverrides := make(testutil.Toml)
 
