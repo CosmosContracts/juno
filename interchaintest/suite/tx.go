@@ -143,7 +143,10 @@ func (s *E2ETestSuite) FundUser(chain ibc.Chain, amount int64, user ibc.Wallet) 
 	s.Require().NoError(err, "failed to get funds from faucet")
 }
 
-// GetAndFundTestUsers creates `count` wallets with names prefix0..prefixN-1 and funds them concurrently.
+// GetAndFundTestUsers creates `count` wallets with names prefix0..prefixN-1 and funds them serially.
+// Funding is intentionally NOT parallelized: SendCoins is now synchronous (it waits for tx inclusion),
+// and parallel funding from the same faucet races on the faucet's sequence number — the CLI for the
+// second concurrent send sees a stale sequence and the tx gets rejected at CheckTx.
 func (s *E2ETestSuite) GetAndFundTestUsers(
 	keyNamePrefix string,
 	count int,
@@ -154,21 +157,12 @@ func (s *E2ETestSuite) GetAndFundTestUsers(
 	t.Helper()
 
 	wallets := make([]ibc.Wallet, count)
-	var eg errgroup.Group
 	for i := 0; i < count; i++ {
-		idx := i
-		prefix := fmt.Sprintf("%s%d", keyNamePrefix, idx+1)
-		eg.Go(func() error {
-			wallet, err := s.GetAndFundTestUserWithMnemonic(prefix, "", amount, chain)
-			if err != nil {
-				return err
-			}
-			wallets[idx] = wallet
-			return nil
-		})
+		prefix := fmt.Sprintf("%s%d", keyNamePrefix, i+1)
+		wallet, err := s.GetAndFundTestUserWithMnemonic(prefix, "", amount, chain)
+		s.Require().NoError(err)
+		wallets[i] = wallet
 	}
-
-	s.Require().NoError(eg.Wait())
 	return wallets
 }
 
