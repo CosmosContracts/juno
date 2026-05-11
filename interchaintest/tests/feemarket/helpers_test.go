@@ -207,9 +207,15 @@ func (s *FeemarketTestSuite) createNetworkCongestion(users []ibc.Wallet) []error
 		}
 	}
 
-	// settle and allow inclusion of pending txs
+	// Settle and allow inclusion of pending txs. The congestion loop fires
+	// 20 rounds × 20 users = 400 high-gas staking txs (~1M gas each); at the
+	// 25M-gas/block ceiling the mempool needs ≥16 blocks just to drain, plus
+	// a few more for feemarket gas-price decay so the next subtest's
+	// faucet sends don't race with the backlog. h+6 was too tight — query
+	// tx for the first faucet send in TestSendTxFailures was returning "tx
+	// not found" because the tx sat in mempool past the 2-block ExecTx wait.
 	h, _ := s.Chain.Height(s.Ctx)
-	s.WaitForHeight(s.Chain, h+6)
+	s.WaitForHeight(s.Chain, h+30)
 
 	return allErrors
 }
