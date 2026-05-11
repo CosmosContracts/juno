@@ -246,7 +246,13 @@ func (s *PfmTestSuite) TestPacketForwardMiddlewareRouter() {
 		chainDBalance, err := s.Chains[3].GetBalance(s.Ctx, userD.FormattedAddress(), thirdHopIBCDenom)
 		require.NoError(t, err)
 
-		require.Equal(t, userFunds.Sub(transferAmount), chainABalance)
+		// Under v30 feemarket, the MsgTransfer pays a non-zero fee, so chain A's
+		// balance ends up slightly below userFunds-transferAmount. Allow up to
+		// 1_000_000 ujuno fee tolerance (observed ~856 ujuno per transfer).
+		expectedChainA := userFunds.Sub(transferAmount)
+		require.True(t, chainABalance.LTE(expectedChainA) &&
+			chainABalance.GTE(expectedChainA.Sub(sdkmath.NewInt(1_000_000))),
+			"chainABalance %s outside fee tolerance of expected %s", chainABalance, expectedChainA)
 		require.Equal(t, sdkmath.NewInt(0), chainBBalance)
 		require.Equal(t, sdkmath.NewInt(0), chainCBalance)
 		require.Equal(t, transferAmount.Int64(), chainDBalance.Int64())
