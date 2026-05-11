@@ -8,7 +8,11 @@ import (
 // TestFeeShare ensures the x/feeshare module register and execute sharing functions work properly on smart contracts.
 func (s *FeesTestSuite) TestFeeShare() {
 	t := s.T()
-	t.Parallel()
+	// Do not call t.Parallel here: this runs as a subtest of TestFeesTestSuite which
+	// registers a t.Cleanup to close the interchain. With t.Parallel the cleanup
+	// fires when the parent returns (after the synchronous subtest finishes) but
+	// before this parallel subtest resumes — so DNS lookups against the validator
+	// container fail with "no such host" when the test body actually runs.
 
 	// Users
 	granter := s.GetAndFundTestUser("granter", 10_000_000, s.Chain)
