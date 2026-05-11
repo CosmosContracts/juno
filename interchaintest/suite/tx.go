@@ -86,11 +86,16 @@ func (s *E2ETestSuite) SendCoinsMultiBroadcastAsync(sender, receiver ibc.Wallet,
 
 // SendCoins creates a executes a SendCoins message and broadcasts the transaction.
 func (s *E2ETestSuite) SendCoins(chain *cosmos.CosmosChain, keyName, sender, receiver string, amt, fees sdk.Coins) (string, error) {
+	// blocking + check: wait for tx inclusion and surface any CheckTx/DeliverTx
+	// error. Previously this was fire-and-forget, which masked sequence-number
+	// races when funding multiple users back-to-back from the same faucet —
+	// the second send would be silently rejected and the recipient account
+	// would never come into existence.
 	resp, err := s.ExecTx(
 		chain,
 		keyName,
-		false,
 		true,
+		false,
 		"bank",
 		"send",
 		sender,
@@ -99,7 +104,6 @@ func (s *E2ETestSuite) SendCoins(chain *cosmos.CosmosChain, keyName, sender, rec
 		"--fees",
 		fees.String(),
 		"--gas",
-		// strconv.FormatInt(gas, 10),
 		"auto",
 	)
 
