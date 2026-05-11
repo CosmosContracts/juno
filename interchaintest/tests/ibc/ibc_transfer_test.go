@@ -165,15 +165,19 @@ func (s *IbcTestSuite) TestTwoChainsIBCTransfer() {
 	junoTokenDenom := transfertypes.GetPrefixedDenom(channel.Counterparty.PortID, channel.Counterparty.ChannelID, chain1.Config().Denom)
 	junoIBCDenom := transfertypes.ParseDenomTrace(junoTokenDenom).IBCDenom()
 
-	// Assert that the funds are no longer present in user acc on Juno and are in the user acc on Gaia
+	// Assert that the funds are no longer present in user acc on Juno and are in the user acc on Gaia.
+	// Under v30 feemarket the sender also pays a non-zero fee for the MsgTransfer, so the post-transfer
+	// balance lands slightly below userFunds-transferAmount. Allow up to 1_000_000 ujuno fee tolerance
+	// (observed ~834 ujuno per transfer) — comfortably above the observed fee but still tight enough
+	// to catch real regressions in transfer-amount math.
 	junoUpdateBal, err := chain1.GetBalance(s.Ctx, chain1UserAddr, chain1.Config().Denom)
 	require.NoError(t, err)
-	require.Equal(t,
-		junoOrigBal.
-			Sub(transferAmount).
-			Int64(),
-		junoUpdateBal.
-			Int64(),
+	expectedJunoBal := junoOrigBal.Sub(transferAmount).Int64()
+	require.True(t,
+		junoUpdateBal.Int64() <= expectedJunoBal &&
+			junoUpdateBal.Int64() >= expectedJunoBal-1_000_000,
+		"junoUpdateBal %d outside fee tolerance of expected %d",
+		junoUpdateBal.Int64(), expectedJunoBal,
 	)
 
 	gaiaUpdateBal, err := chain2.GetBalance(s.Ctx, chain2UserAddr, junoIBCDenom)
@@ -197,12 +201,17 @@ func (s *IbcTestSuite) TestTwoChainsIBCTransfer() {
 	_, err = testutil.PollForAck(s.Ctx, chain2, gaiaHeight, gaiaHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 
-	// Assert that the funds are now back on Juno and not on Gaia
+	// Assert that the funds are now back on Juno and not on Gaia. The round-trip cost
+	// one v30 feemarket fee on the outbound Juno->Gaia leg, so the final balance lands
+	// slightly below junoOrigBal. Same 1_000_000 ujuno fee tolerance as above.
 	junoUpdateBal, err = chain1.GetBalance(s.Ctx, chain1UserAddr, chain1.Config().Denom)
 	require.NoError(t, err)
-	require.Equal(t,
-		junoOrigBal.Int64(),
-		junoUpdateBal.Int64())
+	require.True(t,
+		junoUpdateBal.Int64() <= junoOrigBal.Int64() &&
+			junoUpdateBal.Int64() >= junoOrigBal.Int64()-1_000_000,
+		"junoUpdateBal %d outside fee tolerance of original %d",
+		junoUpdateBal.Int64(), junoOrigBal.Int64(),
+	)
 
 	gaiaUpdateBal, err = chain2.GetBalance(s.Ctx, chain2UserAddr, junoIBCDenom)
 	require.NoError(t, err)
