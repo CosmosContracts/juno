@@ -81,8 +81,12 @@ func (s *FeesTestSuite) TestFeePay() {
 
 	require.NoError(err)
 	t.Log("beforeContract", beforeContract)
-	require.Equal(t, beforeContract.FeePayContract.Balance, strconv.Itoa(balance))
-	require.Equal(t, beforeContract.FeePayContract.WalletLimit, strconv.Itoa(int(limit)))
+	// FeePayContract.Balance and .WalletLimit are uint64 (see x/feepay/types/feepay.pb.go);
+	// the prior require.Equal calls (a) wrongly passed `t` as the first arg to a method
+	// on the Assertions object and (b) compared uint64 to strconv.Itoa output. Compare
+	// uint64-to-uint64.
+	require.Equal(uint64(balance), beforeContract.FeePayContract.Balance)
+	require.Equal(uint64(limit), beforeContract.FeePayContract.WalletLimit)
 
 	// execute it from another account with enough fees (standard Tx)
 	txHash, err := s.Chain.ExecuteContract(s.Ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "50000"+nativeDenom)
