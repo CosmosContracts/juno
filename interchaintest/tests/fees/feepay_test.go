@@ -61,7 +61,7 @@ func (s *FeesTestSuite) TestFeePay() {
 		t.Fatal(err)
 	}
 
-	contractAddr, err := s.Chain.InstantiateContract(s.Ctx, admin.KeyName(), codeId, `{"count":0}`, true)
+	contractAddr, err := s.Chain.InstantiateContract(s.Ctx, admin.KeyName(), codeId, `{"count":0}`, true, "--fees", "200000"+nativeDenom)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -128,7 +128,7 @@ func (s *FeesTestSuite) TestFeePay() {
 	require.Equal(t, uses.Uses, "1")
 
 	// Instantiate a new contract
-	contractAddr, err = s.Chain.InstantiateContract(s.Ctx, admin.KeyName(), codeId, `{"count":0}`, true)
+	contractAddr, err = s.Chain.InstantiateContract(s.Ctx, admin.KeyName(), codeId, `{"count":0}`, true, "--fees", "200000"+nativeDenom)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -43,9 +43,10 @@ func (s *TokenfactoryTestSuite) TestTokenfactoryModule() {
 	user2 := s.GetAndFundTestUser("default", 100_000_000, s.Chain)
 	uaddr2 := user2.FormattedAddress()
 
-	// fees covers SDK-only tokenfactory ops (~33k req at v30 minBaseGasPrice 0.075 with --gas auto×3);
+	// tokenfactory create-denom/mint under --gas auto --gas-adjustment 3 simulates
+	// to a ~6.4M gas-limit, requiring ~480k ujuno at v30 minBaseGasPrice 0.075;
 	// setupFees covers wasm-store + instantiate (≥225k).
-	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(200_000)))
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 	setupFees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 
 	tfDenom := s.CreateTokenFactoryDenom(s.Chain, user, "ictestdenom", fees)

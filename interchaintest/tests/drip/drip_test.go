@@ -61,7 +61,9 @@ func TestDripTestSuite(t *testing.T) {
 // TestDripModule ensures the x/drip module properly distributes tokens from whitelisted accounts.
 func (s *DripTestSuite) TestDripMmodule() {
 	t := s.T()
-	fees := sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, sdkmath.NewInt(200_000)))
+	// tokenfactory create-denom under --gas auto --gas-adjustment 3 produces a
+	// ~6.4M gas-limit at v30 minBaseGasPrice 0.075, so requires ~480k ujuno.
+	fees := sdk.NewCoins(sdk.NewCoin(s.Chain.Config().Denom, sdkmath.NewInt(1_000_000)))
 
 	nativeDenom := s.Chain.Config().Denom
 	user, err := s.GetAndFundTestUserWithMnemonic("default", mnemonic, 1_000_000_000_000, s.Chain)
