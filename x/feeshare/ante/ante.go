@@ -10,10 +10,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	"github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
 	"github.com/CosmosContracts/juno/v30/x/feeshare/types"
 )
@@ -148,9 +148,17 @@ func (FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper bankke
 		govPercent := params.DeveloperShares
 		splitFees := FeePayLogic(fees, govPercent, numPairs)
 
-		// pay fees evenly between all withdraw addresses
+		// pay fees evenly between all withdraw addresses. Source from the
+		// feemarket fee collector — the v30 DeductFeeDecorator escrows fees
+		// to feemarkettypes.FeeCollectorName ("feemarket-fee-collector"),
+		// not authtypes.FeeCollectorName ("fee_collector"). The post-handler
+		// then drains feemarket-fee-collector after the tx runs. Reading
+		// from auth.FeeCollector here returned 0 balance and surfaced as
+		// "spendable balance 0ujuno is smaller than 25000ujuno: insufficient
+		// funds: feeshare payment error" the moment any feeshare-registered
+		// contract was executed.
 		for i, withdrawAddr := range toPay {
-			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, withdrawAddr, splitFees)
+			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, feemarkettypes.FeeCollectorName, withdrawAddr, splitFees)
 			feesPaidOutput[i] = FeeSharePayoutEventOutput{
 				WithdrawAddress: withdrawAddr,
 				FeesPaid:        splitFees,
