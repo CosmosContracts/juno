@@ -38,6 +38,17 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 	}
 
+	// In simulate mode the v30 DeductFeeDecorator does not escrow into
+	// feemarket-fee-collector (payCoin is zero in simulate, so the
+	// `else if !fee.IsZero()` branch in HandleFees is skipped). Running the
+	// payout here would then read 0 balance and fail simulate, breaking
+	// `--gas auto` for every feeshare-registered contract execute. Skip the
+	// payout in simulate; --gas-adjustment provides headroom for the small
+	// amount of gas the bank send would consume.
+	if simulate {
+		return next(ctx, tx, simulate)
+	}
+
 	err = fsd.FeeSharePayout(ctx, fsd.bankKeeper, feeTx.GetFee(), fsd.feesharekeeper, tx.GetMsgs())
 	if err != nil {
 		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, "%s", err.Error())

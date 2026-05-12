@@ -11,11 +11,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	"github.com/CosmosContracts/juno/v30/testutil"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	ante "github.com/CosmosContracts/juno/v30/x/feeshare/ante"
 	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
 	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
@@ -47,8 +47,12 @@ func TestAnteSuite(t *testing.T) {
 
 func (s *AnteTestSuite) TestAnteHandle() {
 	s.SetupTest()
-	// Mint coins to FeeCollector to cover fees
-	s.FundModuleAcc(authtypes.FeeCollectorName, sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))))
+	// Mint coins to the feemarket fee collector. The v30 DeductFeeDecorator
+	// escrows tx fees into feemarkettypes.FeeCollectorName, and the feeshare
+	// ante payout reads from that same module account (the post-handler
+	// drains it later). The legacy authtypes.FeeCollectorName is empty at
+	// ante time under v30 and would fail with "spendable balance 0ujuno".
+	s.FundModuleAcc(feemarkettypes.FeeCollectorName, sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))))
 
 	// Create & fund deployer
 	_, _, deployer := testdata.KeyTestPubAddr()
