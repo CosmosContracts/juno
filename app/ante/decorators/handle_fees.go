@@ -130,6 +130,17 @@ func (dfd InnerDeductFeeDecorator) HandleFees(ctx sdk.Context, feeTx sdk.FeeTx, 
 	if isValidFeepayTx {
 		feePayErr = dfd.handleZeroFees(ctx, deductFeesFromAcc, feeTx)
 		if feePayErr != nil {
+			// Only fall back to user-paid escrow when there is an actual fee to
+			// escrow. For a valid feepay tx the user submits --fees 0, so `fee`
+			// is a zero coin and sdk.NewCoins(fee) is empty: escrow becomes a
+			// no-op and the tx slips past the ante. The msg then runs, the
+			// post-handler can't find a fee in feemarket-fee-collector, and
+			// the tx fails with sequence already incremented — leaving the
+			// user's nonce desynced from their on-chain state. Reject in
+			// ante so sequence is not consumed.
+			if fee.IsZero() {
+				return errorsmod.Wrapf(feePayErr, "feepay cannot cover this tx and no user fee was provided")
+			}
 			sdkErr = dfd.escrow(ctx, deductFeesFromAcc, sdk.NewCoins(fee))
 		}
 	} else if !fee.IsZero() {
