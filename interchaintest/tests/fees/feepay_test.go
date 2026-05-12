@@ -107,7 +107,7 @@ func (s *FeesTestSuite) TestFeePay() {
 	require.NoError(err)
 
 	// validate users balance did not change
-	require.Equal(t, beforeBal, afterBal)
+	require.Equal(beforeBal, afterBal)
 
 	// validate the contract balance went down — exact deduction = tx gas-limit × current gas price,
 	// which is non-deterministic test-side; assert it dropped (and stays under the funded balance).
@@ -131,7 +131,8 @@ func (s *FeesTestSuite) TestFeePay() {
 	)
 	require.NoError(err)
 	t.Log("uses", uses)
-	require.Equal(t, uses.Uses, "1")
+	// Uses is uint64 (see x/feepay/types/feepay.pb.go); compare uint64-to-uint64.
+	require.Equal(uint64(1), uses.Uses)
 
 	// Instantiate a new contract
 	contractAddr, err = s.Chain.InstantiateContract(s.Ctx, admin.KeyName(), codeId, `{"count":0}`, true, "--gas", "auto", "--fees", "200000"+nativeDenom)
@@ -175,7 +176,7 @@ func (s *FeesTestSuite) TestFeePay() {
 	require.NoError(err)
 
 	// Validate users balance did not change
-	require.Equal(t, beforeBal, afterBal)
+	require.Equal(beforeBal, afterBal)
 
 	// Test the fallback sdk route is triggered when the FeePay Tx fails
 	// Fail - Test the registered contract - without fees, exceeded wallet limit
