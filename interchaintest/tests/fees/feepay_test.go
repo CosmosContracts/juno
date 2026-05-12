@@ -184,9 +184,12 @@ func (s *FeesTestSuite) TestFeePay() {
 	require.Error(err)
 	fmt.Println("txHash", txHash)
 
-	// Test the registered contract - without fees, but specified gas
-	// Tx should succeed, because it uses the sdk fallback route
-	txHash, err = s.Chain.ExecuteContract(s.Ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--gas", "200000")
+	// Test the registered contract with explicit fees - tx should succeed via the
+	// sdk fallback route because the wallet-limit-exceeded feepay path bails out.
+	// Pre-v30 this could run with implicit "no fees" because the chain accepted
+	// the interchaintest default --gas-prices 0.0025ujuno; under v30 feemarket
+	// the floor is 0.075, so 200000 gas × 0.075 = 15000 minimum — bump to 50000.
+	txHash, err = s.Chain.ExecuteContract(s.Ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--gas", "200000", "--fees", "50000"+nativeDenom)
 	require.NoError(err)
 	fmt.Println("txHash", txHash)
 }
