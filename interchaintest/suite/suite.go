@@ -283,12 +283,14 @@ func (s *E2ETestSuite) Teardown() {
 	_ = s.Chain.StopAllSidecars(ctx)
 }
 
-// WaitForHeight waits for the chain to reach the given height
+// WaitForHeight waits for the chain to reach the given height.
+// Timeout is 120s — sufficient for the longest current caller (h+30 in the
+// feemarket congestion settle, ~60s at 2s/block) plus headroom for slow CI.
 func (s *E2ETestSuite) WaitForHeight(chain *cosmos.CosmosChain, height int64) {
 	s.T().Helper()
 
 	// wait for next height
-	err := testutil.WaitForCondition(30*time.Second, 100*time.Millisecond, func() (bool, error) {
+	err := testutil.WaitForCondition(120*time.Second, 100*time.Millisecond, func() (bool, error) {
 		pollHeight, err := chain.Height(context.Background())
 		if err != nil {
 			return false, err

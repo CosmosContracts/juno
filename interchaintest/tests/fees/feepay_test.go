@@ -96,8 +96,10 @@ func (s *FeesTestSuite) TestFeePay() {
 	beforeBal, err := s.Chain.GetBalance(s.Ctx, user.FormattedAddress(), nativeDenom)
 	require.NoError(err)
 
-	// execute it from another account and have the dev pay it
-	txHash, err = s.Chain.ExecuteContract(s.Ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
+	// execute it from another account and have the dev pay it.
+	// Explicit --gas: SDK default 200000 is too tight under v30 (feepay accounting
+	// + wasmvm v3 increment runs ~202k); zero-fee tx can't use --gas auto reliably.
+	txHash, err = s.Chain.ExecuteContract(s.Ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--gas", "500000", "--fees", "0"+nativeDenom)
 	require.NoError(err)
 	fmt.Println("txHash", txHash)
 
@@ -164,7 +166,7 @@ func (s *FeesTestSuite) TestFeePay() {
 	require.NoError(err)
 
 	// Test the registered FeePay contract - without providing fees
-	txHash, err = s.Chain.ExecuteContract(s.Ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
+	txHash, err = s.Chain.ExecuteContract(s.Ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--gas", "500000", "--fees", "0"+nativeDenom)
 	require.NoError(err)
 	fmt.Println("txHash", txHash)
 
@@ -177,7 +179,7 @@ func (s *FeesTestSuite) TestFeePay() {
 
 	// Test the fallback sdk route is triggered when the FeePay Tx fails
 	// Fail - Test the registered contract - without fees, exceeded wallet limit
-	txHash, err = s.Chain.ExecuteContract(s.Ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--fees", "0"+nativeDenom)
+	txHash, err = s.Chain.ExecuteContract(s.Ctx, user.KeyName(), contractAddr, `{"increment":{}}`, "--gas", "500000", "--fees", "0"+nativeDenom)
 	require.Error(err)
 	fmt.Println("txHash", txHash)
 
