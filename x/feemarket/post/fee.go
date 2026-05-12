@@ -86,9 +86,6 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 	feeCoins := feeTx.GetFee()
 	gas := ctx.GasMeter().GasConsumed() // use context gas consumed
 
-	if len(feeCoins) == 0 && !simulate {
-		return ctx, errorsmod.Wrapf(feemarkettypes.ErrNoFeeCoins, "got length %d", len(feeCoins))
-	}
 	if len(feeCoins) > 1 {
 		return ctx, errorsmod.Wrapf(feemarkettypes.ErrTooManyFeeCoins, "got length %d", len(feeCoins))
 	}
@@ -99,7 +96,21 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 		payCoin = sdk.NewCoin(params.FeeDenom, math.ZeroInt())
 	)
 	if !simulate {
-		payCoin = feeCoins[0]
+		switch {
+		case len(feeCoins) > 0:
+			payCoin = feeCoins[0]
+		default:
+			// Feepay path: the user submitted --fees 0 and x/feepay has
+			// already deposited the required fee into feemarket-fee-collector
+			// in the ante handler. Treat the module's current balance in the
+			// fee denom as the effective fee for accounting (CheckTxFee will
+			// then split it into consumedFee + tip).
+			moduleAddr := dfd.accountKeeper.GetModuleAddress(feemarkettypes.FeeCollectorName)
+			payCoin = dfd.bankKeeper.GetBalance(ctx, moduleAddr, params.FeeDenom)
+			if payCoin.IsZero() {
+				return ctx, errorsmod.Wrapf(feemarkettypes.ErrNoFeeCoins, "got length %d and feemarket-fee-collector empty", len(feeCoins))
+			}
+		}
 	}
 
 	feeGas := int64(feeTx.GetGas())
@@ -156,10 +167,29 @@ func (dfd FeeMarketDeductDecorator) PayOutFeeAndTip(ctx sdk.Context, fee, tip sd
 		return errorsmod.Wrapf(err, "error getting feemarket params")
 	}
 
+	// Cap fee + tip at the current feemarket-fee-collector balance. The
+	// x/feeshare ante decorator may have already drained the dev's share
+	// from the same module account in this same tx, leaving less than the
+	// originally-paid fee available here. Without capping, drains would fail
+	// with "insufficient funds" and roll the whole tx (including the message
+	// effects) back. Cap the fee first; if there is balance left over, the
+	// rest goes to the proposer as tip.
+	if !fee.IsNil() && fee.Denom != "" {
+		moduleAddr := dfd.accountKeeper.GetModuleAddress(feemarkettypes.FeeCollectorName)
+		moduleBal := dfd.bankKeeper.GetBalance(ctx, moduleAddr, fee.Denom).Amount
+		if fee.Amount.GT(moduleBal) {
+			fee.Amount = moduleBal
+		}
+		remaining := moduleBal.Sub(fee.Amount)
+		if !tip.IsNil() && tip.Denom == fee.Denom && tip.Amount.GT(remaining) {
+			tip.Amount = remaining
+		}
+	}
+
 	var events sdk.Events
 
 	// deduct the fees and tip
-	if !fee.IsNil() {
+	if !fee.IsNil() && !fee.IsZero() {
 		err := DeductCoins(dfd.bankKeeper, ctx, sdk.NewCoins(fee), params.DistributeFees)
 		if err != nil {
 			return err
@@ -172,7 +202,7 @@ func (dfd FeeMarketDeductDecorator) PayOutFeeAndTip(ctx sdk.Context, fee, tip sd
 	}
 
 	proposer := sdk.AccAddress(ctx.BlockHeader().ProposerAddress)
-	if !tip.IsNil() {
+	if !tip.IsNil() && !tip.IsZero() {
 		err := SendTip(dfd.bankKeeper, ctx, proposer, sdk.NewCoins(tip))
 		if err != nil {
 			return err
