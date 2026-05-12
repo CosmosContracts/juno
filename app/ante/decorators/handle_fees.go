@@ -187,8 +187,13 @@ func (dfd InnerDeductFeeDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrapf(feemarkettypes.ErrTooManyFeeCoins, "got length %d", len(feeCoins))
 	}
 
+	// Default payCoin to a zero coin in bondDenom. For a valid feepay tx the
+	// user submits with --fees 0 (sdk.ParseCoinsNormalized strips the zero,
+	// so feeCoins is empty), and the actual fee is covered by x/feepay in
+	// HandleFees — there is no feeCoins[0] to read. Pre-fix this indexed
+	// past the end of feeCoins and panicked in CheckTx.
 	payCoin := sdk.NewCoin(dfd.bondDenom, sdkmath.ZeroInt())
-	if !simulate {
+	if !simulate && len(feeCoins) > 0 {
 		payCoin = feeCoins[0]
 	}
 
@@ -206,7 +211,11 @@ func (dfd InnerDeductFeeDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 	ctx = ctx.WithMinGasPrices(sdk.NewDecCoins(feeGasPrice))
 
-	if !simulate {
+	// CheckTxFee compares the user-provided fee against requiredFee
+	// (gasLimit * feeGasPrice). Skip it for valid feepay txs: the user
+	// provided no fee on purpose and x/feepay covers the requiredFee from
+	// the contract balance in HandleFees below.
+	if !simulate && !isValidFeepayTx {
 		_, _, checkErr := CheckTxFee(ctx, feeGasPrice, payCoin, int64(gas), true)
 		if checkErr != nil {
 			return ctx, errorsmod.Wrapf(checkErr, "error checking fee")
