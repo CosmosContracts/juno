@@ -156,9 +156,187 @@ That should leave **zero genuinely unfixable reachable findings**. Re-run before
 - [x] `make lint` 0 issues
 - [x] `make test` green (touched packages)
 - [ ] `make ictest-wasm` green (full integration)
+- [ ] `make ictest-upgrade` green from v29.0.0 base (covers v29 → HEAD)
 - [ ] govulncheck residual matches §4
 - [ ] Two external reviewers signed off on upgrade handler
 - [ ] Two external reviewers signed off on x/voting-snapshot
 - [ ] §2A and §2B follow-up PRs filed (post-v30 if not bundled)
 - [ ] §2D suppression filed
 - [ ] §2C scheduled as a v30.1 coordinated upgrade
+- [ ] uni-7 pre-flight in §6 passes; uni-7 upgrade observed clean before mainnet schedule
+
+## 6. uni-7 testnet upgrade flow — pre-flight
+
+uni-7 is the rehearsal for the juno-1 v30 upgrade. Verifying it goes
+cleanly is the single most important non-source check before mainnet.
+
+### 6.1 Dep delta magnitude
+
+v29.0.0 → v30 is the largest single-upgrade delta in Juno's history:
+
+| Dep | v29.0.0 | v30 (HEAD) | Risk |
+|---|---|---|---|
+| `cosmos-sdk` | v0.50.13 | v0.53.7 | One full minor (v0.50 → v0.53). Multiple module ConsensusVersion bumps along the path. |
+| `ibc-go` | v8.7.0 | v10.6.0 | **Two majors (v8 → v10).** v9 reshaped client-state types; v10 added IBC-eureka. Each major has consensus-breaking store migrations. |
+| `wasmd` | v0.54.0 | v0.61.11 | Seven minors. Includes the wasmd-half of the wasmvm v2 → v3 transition. |
+| `wasmvm` | v2.2.4 | v3.0.4 (`/v3` import path) | **Major.** CGO `libwasmvm.so` swap required on every validator host — common operator footgun. |
+| `cometbft` | v0.38.17 | v0.38.23 | Patch-only, low risk. |
+
+The `ictest-upgrade` suite spins a single juno chain from `v29.0.0` →
+HEAD and verifies cw-hooks survives. It does **not** establish IBC
+connections or ICS-27 ICA channels, so it will not surface bugs in:
+
+- ibc-go v8 → v10 client/connection/channel store migration with active
+  packets in flight
+- residual ICS-29 `feeibc` state on channels that had fees enabled
+  (the store is purged via `StoreUpgrades.Deleted` — any unresolved
+  fee escrow disappears)
+- residual `interchainquery` state for any registered ICQ queries
+
+uni-7 is exactly the place to exercise these. Before scheduling the
+upgrade proposal, take a snapshot of currently-active IBC connections
+and ICQ queries from a uni-7 node:
+
+```bash
+junod q ibc connection connections --node <uni-7-rpc> --output json | jq '.connections | length'
+junod q ibc channel channels        --node <uni-7-rpc> --output json | jq '.channels | length'
+junod q interchain-query queries    --node <uni-7-rpc> --output json 2>/dev/null | head
+```
+
+Any non-empty result is a deliberate test surface — leave those
+connections live across the upgrade height and re-verify them after.
+
+### 6.2 max_gas precondition
+
+`configureFeemarketParams` reads `consensusParams.Block.MaxGas` and
+the new §1 guard halts the upgrade handler if it is `<= 0`. uni-7's
+genesis sets `max_gas = 100000000` (verified by inspecting
+`testnets/uni-7/genesis.zip`), so the genesis-state default is safe.
+
+Risk: a consensus-params change proposal could have set it to `-1`
+in the years since genesis. **Verify live state before scheduling:**
+
+```bash
+junod query consensus params --node <uni-7-rpc> --output json | jq '.params.block.max_gas'
+# Must be a positive int. "-1" = upgrade will halt at handler.
+```
+
+If the live value is non-positive, queue a consensus-params proposal
+to fix `max_gas` first, with a voting period that completes before
+the v30 upgrade height.
+
+### 6.3 Store-purge correctness (no source change needed)
+
+`StoreUpgrades.Deleted` lists: `globalfee`, `crisis`, `params`,
+`nft`, `feeibc`, `interchainquery`. Cross-checked against v29.0.0's
+keys.go — every one of these is a real KV store currently allocated
+on uni-7 (v29 baseline). Cross-checked against upstream `StoreKey`
+string constants — every entry matches:
+
+- `x/crisis` → `"crisis"` ✓
+- `x/params` → `"params"` ✓
+- `cosmossdk.io/x/nft` → `"nft"` ✓
+- `ibc-go/v8/modules/apps/29-fee` → `"feeibc"` ✓
+- `async-icq/types` → `"interchainquery"` ✓
+- `x/globalfee` → `"globalfee"` ✓
+
+uni-7 genesis spot-check confirms all six modules had data at chain
+start. Purge will run as expected.
+
+`StoreUpgrades.Added`: `feemarket`, `votingsnapshot`. Both new in v30,
+no prior data — correct.
+
+### 6.4 BackfillFromStaking — runs twice (latent, non-blocking)
+
+The new `x/voting-snapshot` module's `InitGenesis` already calls
+`BackfillFromStaking(ctx)` (see `x/voting-snapshot/keeper/genesis.go:22`).
+`RunMigrations` triggers that `InitGenesis` for new modules during
+the upgrade handler.
+
+Then `app/upgrades/v30/upgrades.go:50` calls
+`BackfillFromStaking(ctx)` **again**, explicitly.
+
+Both calls run at the same block height, so the second
+`VotingPower.Set` and `TotalPower.Set` overwrite the first with
+identical values. Not a correctness bug — both are wasted O(n)
+work on top of an already-O(n_delegations) BeginBlock at upgrade
+height.
+
+uni-7 has ~tens of validators and probably hundreds of delegators,
+so the cost is invisible. juno-1 has ~50 active vals and ~tens of
+thousands of delegators; double-work is still in the seconds-not-
+minutes range but unnecessary.
+
+**Recommended cleanup (non-blocking for uni-7):** drop the
+explicit handler call, leaving the `InitGenesis` call as the
+single backfill site. Save for a v30.1 cleanup if not bundled now.
+
+### 6.5 wasmvm v3 binary-swap operator instructions
+
+When validators swap the junod binary at the upgrade height, they
+**must also swap `libwasmvm.so`** from the v2 series (`libwasmvm.x86_64.so`
+shipped alongside `wasmvm v2.x`) to the v3 series (shipped alongside
+`wasmvm v3.0.4`). The Go module path is now `wasmvm/v3` and the
+shared library is ABI-incompatible with v2.
+
+`make build` on the v30 binary will fail at link time without the v3
+`.so`. But a worse failure mode: validators who copy the v30 binary
+onto a host that already has `libwasmvm.x86_64.so` from v2 will see
+the binary start, then panic at first wasm execution post-upgrade
+(typically on the first contract tx after upgrade height) with
+either a CGO ABI mismatch or `undefined symbol` errors.
+
+**Add to the uni-7 upgrade announcement** (and reuse for juno-1):
+
+> **Validator action required at upgrade height:**
+>
+> 1. Stop junod
+> 2. Replace `junod` binary with `v30.0.0`
+> 3. Replace `libwasmvm.x86_64.so` (or `libwasmvm.aarch64.so` on ARM)
+>    with the version bundled in the v30.0.0 release tarball.
+>    Old path is typically `/usr/lib/libwasmvm.x86_64.so` or
+>    `$HOME/lib/libwasmvm.x86_64.so` — check with `ldd $(which junod)`.
+> 4. Start junod
+>
+> If post-upgrade you see `undefined symbol: wasmvm_*` or a CGO panic
+> on first contract execution, the `.so` was not swapped.
+
+### 6.6 ibc-go v8 → v10 module ConsensusVersion gap
+
+`mm.RunMigrations` is the load-bearing call. It reads the prior
+ConsensusVersion map from `x/upgrade` store and steps each module
+forward to the version reported by its current `AppModule.ConsensusVersion()`.
+For the modules that crossed two majors (ibc-go's 02-client, 03-connection,
+04-channel, ICA-host, ICA-controller), the migration registry inside
+ibc-go itself owns the per-version migration functions.
+
+Risk surface: if any Juno-side wiring forgot to register one of the
+new keepers' AppModule via `module.NewManager(...)`, RunMigrations
+will skip migrations for that module and the chain will halt at the
+first state read that expects the new format. Verified in `app/modules.go`:
+all ibc-go modules are registered in `NewManager` (`ibc.NewAppModule`,
+`ibctransfer.NewAppModule`, ICA host + controller, packet-forward).
+
+No source change needed, but **the uni-7 dry-run is the only place
+this gets exercised end-to-end with real IBC packet history**.
+Block out a validator on uni-7 to spam IBC transfers from before
+upgrade height into after, and confirm packets that crossed the
+boundary either acked or timed-out cleanly.
+
+### 6.7 Recommended uni-7 dry-run timeline
+
+1. **D-7**: re-tag candidate as `v30.0.0-rc1`; cut Docker image with
+   the matching `libwasmvm.so`. Publish release notes including
+   §6.5 operator instructions.
+2. **D-5**: post upgrade proposal on uni-7 with `--upgrade-height` ≈
+   D+1 block estimate. Voting period 12h (uni-7 genesis setting).
+3. **D-1**: verify §6.2 max_gas live value, §6.3 expected purge,
+   §6.1 snapshot of IBC/ICQ state.
+4. **D**: upgrade height. Watch for the §1 guard panic (max_gas),
+   the §6.5 CGO panic (validators who missed `.so` swap), and any
+   IBC migration halt. If chain produces blocks for >10 min post-
+   upgrade with normal tx throughput, the rehearsal passed.
+5. **D+2**: replay §6.1 IBC/ICQ queries against new chain; verify
+   the §6.4 backfill seeded sensible per-delegator power via
+   `junod q voting-snapshot voting-power <addr> <upgrade-height>`.
+6. **D+7**: if no anomalies, schedule juno-1 mainnet proposal.
