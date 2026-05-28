@@ -25,9 +25,18 @@ func NewGenesisState(params Params, stakingContracts, govContracts map[string]Co
 }
 
 func contractInfoSlice(m map[string]ContractInfo) []ContractInfo {
+	// Collect via sorted keys so the intermediate traversal is
+	// deterministic (Go map iteration is randomised); then sort the
+	// result by ContractAddress to keep the output ordering stable
+	// even if a caller used a non-address map key.
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 	out := make([]ContractInfo, 0, len(m))
-	for _, v := range m {
-		out = append(out, v)
+	for _, k := range keys {
+		out = append(out, m[k])
 	}
 	sort.Slice(out, func(i, j int) bool {
 		return out[i].ContractAddress < out[j].ContractAddress

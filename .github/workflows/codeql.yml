@@ -63,6 +63,14 @@ jobs:
       - name: Filter SARIF
         uses: advanced-security/filter-sarif@v1
         with:
+          # File-level drops: auto-generated code (api/**, *.pb.go,
+          # *_grpc.pb.go) and off-chain runtime layers (CLI builders,
+          # websocket handlers, the x/stream subscription/dispatch/
+          # listener machinery). Per-rule drops: the two intentional
+          # non-consensus goroutines — App.Close()'s shutdown timeout
+          # and newApp()'s SIGINT/SIGTERM handler — which sit in files
+          # that otherwise contain consensus wiring and should keep
+          # full scanning for everything else.
           patterns: |
             -api/**
             -**/*.pb.go
@@ -70,10 +78,15 @@ jobs:
             -**/*_grpc.pb.go
             -cmd/junod/cmd/stream/**
             -app/endpoints/websocket/**
+            -x/stream/keeper/query_server.go
+            -x/stream/types/dispatcher.go
+            -x/stream/types/listener.go
             -x/stream/types/stream.go
             -x/stream/types/subscription_registry.go
             -x/stream/types/log_sanitize.go
             -x/stream/types/encoding/**
+            -app/app.go:crypto-com/cosmos-sdk-codeql/goroutine
+            -cmd/junod/cmd/commands.go:crypto-com/cosmos-sdk-codeql/goroutine
           input: sarif-results/go.sarif
           output: sarif-results/go.sarif
 

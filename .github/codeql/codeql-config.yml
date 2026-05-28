@@ -15,6 +15,9 @@ paths-ignore:
   # unordered fan-out.
   - "cmd/junod/cmd/stream/**"
   - "app/endpoints/websocket/**"
+  - "x/stream/keeper/query_server.go"
+  - "x/stream/types/dispatcher.go"
+  - "x/stream/types/listener.go"
   - "x/stream/types/stream.go"
   - "x/stream/types/subscription_registry.go"
   - "x/stream/types/log_sanitize.go"
