@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "juno/votingsnapshot/v1/params.proto";
 
-option go_package = "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types";
+option go_package = "github.com/CosmosContracts/juno/x/voting-snapshot/types";
 
 // Query exposes the historical voting-power view.
 service Query {

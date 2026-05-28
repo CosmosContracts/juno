@@ -30,10 +30,15 @@ func (k Keeper) recordDelegatorPower(ctx context.Context, del sdk.AccAddress) er
 }
 
 // recordTotal writes a (height) snapshot of total bonded supply.
-// Note: x/staking's TotalBondedTokens includes LST-held delegations.
-// LST exclusion happens on the *delegator-side* read path; the
-// denominator stays whole. (See planning/05-staking-snapshot.md —
-// per-LST subtraction from the denominator is a v30.x refinement.)
+//
+// LST asymmetry: x/staking's TotalBondedTokens includes LST-held
+// delegations. LST exclusion happens on the delegator-side read path
+// (per-address VotingPower goes to zero for allowlisted LSTs), but the
+// denominator stays whole. So Σ VotingPower[d,h] < TotalPower[h] by the
+// LST share. DAO designers computing quorum as Σ votes / TotalPower
+// must account for this. Per-LST subtraction from the denominator is a
+// planned v30.x refinement — see planning/05-staking-snapshot.md
+// "LST asymmetry" for the design call.
 func (k Keeper) recordTotal(ctx context.Context) error {
 	height := sdk.UnwrapSDKContext(ctx).BlockHeight()
 	total, err := k.stakingKeeper.TotalBondedTokens(ctx)

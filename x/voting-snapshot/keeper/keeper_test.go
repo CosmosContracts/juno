@@ -131,8 +131,9 @@ func (s *KeeperTestSuite) TestVotingPowerOverRange() {
 }
 
 // TestPruneRetentionWindow verifies snapshots older than the window get
-// dropped, snapshots inside the window survive, and a zero window
-// disables pruning.
+// dropped while preserving the most recent below-cutoff snapshot per
+// delegator (so at-or-before reads still resolve to the correct value).
+// Also confirms zero window disables pruning.
 func (s *KeeperTestSuite) TestPruneRetentionWindow() {
 	_, _, addr := testdata.KeyTestPubAddr()
 
@@ -150,21 +151,26 @@ func (s *KeeperTestSuite) TestPruneRetentionWindow() {
 	s.Require().NoError(s.keeper.Params.Set(s.Ctx, types.Params{
 		LstAllowlist:           []string{},
 		RetentionWindowHeights: 3,
+		PruneInterval:          1,
 	}))
 	prunedCtx := s.Ctx.WithBlockHeight(105)
 
 	s.Require().NoError(s.keeper.Prune(prunedCtx))
 
-	// Heights 100, 101 (< 105 - 3 = 102) should be gone; 102, 103, 104 remain.
-	for _, h := range []int64{100, 101} {
+	// cutoff = 105 - 3 = 102. Heights < 102 are eligible for prune, but
+	// the most-recent-below-cutoff (101) must survive so at-or-before
+	// reads at any height in [101, 102) still resolve to a real value.
+	// So: 100 is dropped; 101..104 all survive.
+	_, err := s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](addr.Bytes(), 100))
+	s.Require().Error(err, "height 100 should be pruned (older entry below cutoff)")
+	_, err = s.keeper.TotalPower.Get(prunedCtx, 100)
+	s.Require().Error(err, "total at height 100 should be pruned")
+
+	for _, h := range []int64{101, 102, 103, 104} {
 		_, err := s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](addr.Bytes(), h))
-		s.Require().Error(err, "height %d should be pruned", h)
+		s.Require().NoError(err, "voting-power height %d should survive prune", h)
 		_, err = s.keeper.TotalPower.Get(prunedCtx, h)
-		s.Require().Error(err, "total at height %d should be pruned", h)
-	}
-	for _, h := range []int64{102, 103, 104} {
-		_, err := s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](addr.Bytes(), h))
-		s.Require().NoError(err, "height %d should survive prune", h)
+		s.Require().NoError(err, "total-power height %d should survive prune", h)
 	}
 
 	// Disable retention by setting window to 0 — re-seed heights, then prune
@@ -179,6 +185,112 @@ func (s *KeeperTestSuite) TestPruneRetentionWindow() {
 		RetentionWindowHeights: 0,
 	}))
 	s.Require().NoError(s.keeper.Prune(prunedCtx))
-	_, err := s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](addr.Bytes(), 50))
+	_, err = s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](addr.Bytes(), 50))
 	s.Require().NoError(err, "zero retention window should disable pruning")
+}
+
+// TestPruneSparseDelegatorPreserved is the regression for the sparse
+// delegator bug Cascade flagged: a delegator whose only snapshot is older
+// than the retention window must still return their bonded power after a
+// prune, not zero. Without the per-delegator h_max guard the only entry
+// gets deleted and VotingPowerAt collapses to zero — silently zeroing
+// every set-and-forget delegator.
+func (s *KeeperTestSuite) TestPruneSparseDelegatorPreserved() {
+	_, _, alice := testdata.KeyTestPubAddr() // sparse — single snapshot far in the past
+	_, _, bob := testdata.KeyTestPubAddr()   // dense — entries on both sides of cutoff
+
+	// Alice delegated once at height 100 and has not touched her stake since.
+	const alicePower int64 = 10_000
+	s.Require().NoError(s.keeper.VotingPower.Set(
+		s.Ctx,
+		collections.Join[[]byte, int64](alice.Bytes(), 100),
+		sdkmath.NewInt(alicePower),
+	))
+
+	// Bob delegated and re-delegated multiple times: 100, 150, 1_000, 5_000.
+	for _, hp := range []struct {
+		h int64
+		p int64
+	}{{100, 5_000}, {150, 6_000}, {1_000, 7_000}, {5_000, 8_000}} {
+		s.Require().NoError(s.keeper.VotingPower.Set(
+			s.Ctx,
+			collections.Join[[]byte, int64](bob.Bytes(), hp.h),
+			sdkmath.NewInt(hp.p),
+		))
+	}
+
+	// Retention window of 100 blocks; current height 5_100. cutoff = 5_000.
+	// Entries with height < 5_000 (100, 150, 1_000) are below cutoff;
+	// height 5_000 sits exactly at cutoff and is untouched.
+	s.Require().NoError(s.keeper.Params.Set(s.Ctx, types.Params{
+		LstAllowlist:           []string{},
+		RetentionWindowHeights: 100,
+		PruneInterval:          1,
+	}))
+	prunedCtx := s.Ctx.WithBlockHeight(5_100)
+	s.Require().NoError(s.keeper.Prune(prunedCtx))
+
+	// Alice (sparse): her one snapshot at 100 must survive. VotingPowerAt
+	// at the current height must still return the original bonded power.
+	p, err := s.keeper.VotingPowerAt(prunedCtx, alice, 5_100)
+	s.Require().NoError(err)
+	s.Require().Equal(sdkmath.NewInt(alicePower), p, "set-and-forget delegator silently zeroed by prune")
+
+	// Bob (dense): below-cutoff entries are 100, 150, 1_000 — the latest
+	// (h=1_000) survives as h_max-below-cutoff; the earlier two get pruned.
+	// 5_000 is at-or-above cutoff and untouched.
+	_, err = s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](bob.Bytes(), 100))
+	s.Require().Error(err, "bob height 100 should be pruned (older below-cutoff entry)")
+	_, err = s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](bob.Bytes(), 150))
+	s.Require().Error(err, "bob height 150 should be pruned (older below-cutoff entry)")
+	for _, h := range []int64{1_000, 5_000} {
+		_, err := s.keeper.VotingPower.Get(prunedCtx, collections.Join[[]byte, int64](bob.Bytes(), h))
+		s.Require().NoError(err, "bob height %d should survive prune", h)
+	}
+
+	// Bob's at-or-before read between his h_max-below-cutoff (1_000) and
+	// his next snapshot (5_000) must resolve to 7_000.
+	p, err = s.keeper.VotingPowerAt(prunedCtx, bob, 4_999)
+	s.Require().NoError(err)
+	s.Require().Equal(sdkmath.NewInt(7_000), p)
+}
+
+// TestPruneIntervalSkipsNonBoundaryBlocks confirms the governance-tunable
+// PruneInterval lets the EndBlocker amortize the prune sweep across blocks
+// rather than running it every single height.
+func (s *KeeperTestSuite) TestPruneIntervalSkipsNonBoundaryBlocks() {
+	_, _, addr := testdata.KeyTestPubAddr()
+
+	s.Require().NoError(s.keeper.VotingPower.Set(
+		s.Ctx,
+		collections.Join[[]byte, int64](addr.Bytes(), 1),
+		sdkmath.NewInt(1),
+	))
+	s.Require().NoError(s.keeper.VotingPower.Set(
+		s.Ctx,
+		collections.Join[[]byte, int64](addr.Bytes(), 2),
+		sdkmath.NewInt(2),
+	))
+
+	// Window 5, interval 100. At height 200 (a multiple of 100) the prune
+	// fires; at height 201 it should no-op.
+	s.Require().NoError(s.keeper.Params.Set(s.Ctx, types.Params{
+		RetentionWindowHeights: 5,
+		PruneInterval:          100,
+	}))
+
+	// Height 201 — not on the interval boundary, nothing should change.
+	skipCtx := s.Ctx.WithBlockHeight(201)
+	s.Require().NoError(s.keeper.Prune(skipCtx))
+	_, err := s.keeper.VotingPower.Get(skipCtx, collections.Join[[]byte, int64](addr.Bytes(), 1))
+	s.Require().NoError(err, "height 1 should still be present on a non-interval block")
+
+	// Height 200 — on the boundary, sweep runs and h_max-below-cutoff survives.
+	runCtx := s.Ctx.WithBlockHeight(200)
+	s.Require().NoError(s.keeper.Prune(runCtx))
+	// cutoff = 195. h_max-below-cutoff for addr is 2; entry at h=1 gets pruned.
+	_, err = s.keeper.VotingPower.Get(runCtx, collections.Join[[]byte, int64](addr.Bytes(), 1))
+	s.Require().Error(err, "height 1 should be pruned on the interval boundary")
+	_, err = s.keeper.VotingPower.Get(runCtx, collections.Join[[]byte, int64](addr.Bytes(), 2))
+	s.Require().NoError(err, "height 2 (h_max below cutoff) should survive")
 }

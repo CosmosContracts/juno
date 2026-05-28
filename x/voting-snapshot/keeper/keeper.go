@@ -24,10 +24,19 @@ type Keeper struct {
 	authority     string
 	stakingKeeper types.StakingKeeper
 
-	Schema      collections.Schema
-	Params      collections.Item[types.Params]
+	Schema collections.Schema
+	Params collections.Item[types.Params]
+	// VotingPower indexes a delegator's bonded stake per snapshot height.
+	// LST-allowlisted delegators write zero (their stake is excluded from
+	// per-address voting power).
 	VotingPower collections.Map[collections.Pair[[]byte, int64], math.Int]
-	TotalPower  collections.Map[int64, math.Int]
+	// TotalPower indexes the chain's total bonded stake per snapshot height.
+	// Sourced from staking.TotalBondedTokens at write time, which still
+	// includes LST bonded stake — so Σ VotingPower[d,h] < TotalPower[h] by
+	// the LST share. Denominator subtraction is a planned v30.x refinement;
+	// see planning/05-staking-snapshot.md "LST asymmetry" for the design
+	// rationale. DAO designers computing quorum need to account for this.
+	TotalPower collections.Map[int64, math.Int]
 }
 
 func NewKeeper(

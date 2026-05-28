@@ -55,6 +55,7 @@ Communications must include:
 - Required Go version for source builds (1.25.x)
 - Time estimate of node downtime during upgrade
 - Rollback procedure if the upgrade fails
+- **app.toml `minimum-gas-prices` reset** — the v30 upgrade handler resets `x/feemarket` to `MinBaseGasPrice = 0.075 ujuno` and rebuilds EIP-1559 state. Validators running with `minimum-gas-prices = "0.025ujuno"` (or any value below 0.075) in `app.toml` will reject inbound txs once the new floor is active. Either raise the local floor to `"0.075ujuno"` before the upgrade height, or leave the field empty and let `x/feemarket` drive the price. Flag this prominently in `#validators-private`.
 
 ## Stage 5 — Mainnet halt-height execution (Day 14)
 
@@ -109,6 +110,7 @@ If we see a Sev-1 issue in the first 24 hours, the right move is **not** to roll
 - Go 1.25.x required to build from source
 - Binary location unchanged; standard cosmovisor swap
 - Halt height: <to be filled in>
+- **`app.toml` floor**: the upgrade handler resets x/feemarket to `MinBaseGasPrice = 0.075 ujuno`. If your `minimum-gas-prices` is below that (e.g. the historical default `"0.025ujuno"`), raise it to `"0.075ujuno"` or remove it before the upgrade height. Otherwise the node will reject inbound txs that satisfy the chain's fee but not your local floor.
 
 ## Breaking changes for contract devs
 

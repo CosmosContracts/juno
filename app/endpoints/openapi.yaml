@@ -7080,6 +7080,131 @@ paths:
       summary: Params
       tags:
         - Feeshare
+  /juno/votingsnapshot/v1/params:
+    get:
+      description: Params returns the current x/voting-snapshot module parameters.
+      operationId: votingsnapshot_params
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryParamsResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      summary: Params
+      tags:
+        - Votingsnapshot
+  /juno/votingsnapshot/v1/total_voting_power/{atHeight}:
+    get:
+      description: |-
+        TotalVotingPowerAt returns the chain-wide bonded supply at
+         `at_height`. Same at-or-before semantics as VotingPowerAt.
+      operationId: votingsnapshot_total_voting_power
+      parameters:
+        - name: atHeight
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryTotalVotingPowerAtResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      summary: Total Voting Power
+      tags:
+        - Votingsnapshot
+  /juno/votingsnapshot/v1/voting_power/{address}/range/{fromHeight}/{toHeight}:
+    get:
+      description: |-
+        VotingPowerOverRange returns every recorded snapshot for `address`
+         in [from_height, to_height]. Useful for time-decay schemes.
+      operationId: votingsnapshot_{fromHeight}
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fromHeight
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: toHeight
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryVotingPowerOverRangeResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      summary: '{fromHeight}'
+      tags:
+        - Votingsnapshot
+  /juno/votingsnapshot/v1/voting_power/{address}/{atHeight}:
+    get:
+      description: |-
+        VotingPowerAt returns the bonded voting power of `address` at
+         `at_height`, excluding LST-held delegations. Resolves to the
+         most recent snapshot at-or-before the requested height. Returns
+         zero (with no error) if no snapshot exists.
+      operationId: votingsnapshot_{address}
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: atHeight
+          in: path
+          description: |-
+            at_height is the chain height to look up power for. Named
+             distinctly from `height` so it doesn't collide with cosmos-sdk's
+             standard query --height flag in autocli output.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryVotingPowerAtResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+      summary: '{address}'
+      tags:
+        - Votingsnapshot
   /osmosis/tokenfactory/v1beta1/denoms/{denom}/authority_metadata:
     get:
       description: |-
@@ -8131,6 +8256,13 @@ components:
          breaking changes In these cases, the RevisionNumber is incremented so that
          height continues to be monitonically increasing even as the RevisionHeight
          gets reset
+    HeightPower:
+      type: object
+      properties:
+        height:
+          type: string
+        power:
+          type: string
     HistoricalInfo:
       type: object
       properties:
@@ -9912,6 +10044,11 @@ components:
       description: |-
         QueryTotalSupplyResponse is the response type for the Query/TotalSupply RPC
          method
+    QueryTotalVotingPowerAtResponse:
+      type: object
+      properties:
+        power:
+          type: string
     QueryUnbondingDelegationResponse:
       type: object
       properties:
@@ -10158,6 +10295,19 @@ components:
             - $ref: '#/components/schemas/PageResponse'
           description: pagination defines the pagination in the response.
       description: QueryVotesResponse is the response type for the Query/Votes RPC method.
+    QueryVotingPowerAtResponse:
+      type: object
+      properties:
+        power:
+          type: string
+          description: power is the bonded stake amount as a base-10 string (uint).
+    QueryVotingPowerOverRangeResponse:
+      type: object
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeightPower'
     QueryWasmLimitsConfigResponse:
       type: object
       properties:
@@ -10970,4 +11120,6 @@ tags:
   - name: Tx
     description: ""
   - name: Upgrade
+    description: ""
+  - name: Votingsnapshot
     description: ""

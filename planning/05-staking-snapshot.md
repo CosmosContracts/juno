@@ -69,6 +69,25 @@ Mechanism: a module-param allow-list of LST contract addresses. When iterating d
 
 Governance can add to the list with a `MsgUpdateParams`. Default-deny: an unknown LST counts as voting power until governance excludes it.
 
+### LST asymmetry between numerator and denominator (v30 launch)
+
+`VotingPowerAt(d, h)` returns zero for any LST-allowlisted `d`, but `TotalVotingPowerAt(h)` is taken straight from `staking.TotalBondedTokens(ctx)`, which still includes the LST bonded stake. The arithmetic at launch is therefore:
+
+```
+Σ VotingPower[d, h]  =  total_bonded(h) − Σ lst_bonded(h)
+TotalVotingPower(h)  =  total_bonded(h)
+```
+
+A DAO computing quorum as `Σ votes / TotalVotingPowerAt(h)` therefore divides by a denominator inflated by the LST share. If LSTs hold 20% of bonded stake, a configured 33.4% quorum effectively requires 41.75% of vote-eligible stake. DAO designers must account for this until governance moves to denominator subtraction (planned v30.x refinement).
+
+Why we ship the asymmetry rather than fix it at launch:
+
+1. There are no live LST contracts on Juno today (per `memory/juno-voting-design.md`) — the empty allowlist makes the asymmetry purely theoretical at v30 activation.
+2. Subtracting LST stake from the denominator requires deciding whether to subtract on snapshot-write or on read; both have replay-correctness implications that deserve their own design pass, not a bolt-on inside a large upgrade PR.
+3. Shipping the asymmetry visibly documented is safer than shipping a hasty fix.
+
+Treat this section as the canonical pointer for that follow-up. The keeper field comment on `TotalPower` and the docstring in `proto/juno/votingsnapshot/v1/params.proto` cross-reference here.
+
 ## Wasm binding surface
 
 In `wasmbindings/queries.go`, add:
