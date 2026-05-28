@@ -12,6 +12,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
@@ -47,8 +48,12 @@ func AcceptedQueries() map[string]func() proto.Message {
 		"/cosmos.bank.v1beta1.Query/Params":        func() proto.Message { return &banktypes.QueryParamsResponse{} },
 		"/cosmos.bank.v1beta1.Query/SupplyOf":      func() proto.Message { return &banktypes.QuerySupplyOfResponse{} },
 
-		// governance
-		"/cosmos.gov.v1beta1.Query/Vote": func() proto.Message { return &govv1.QueryVoteResponse{} },
+		// governance — both legacy v1beta1 and v1 paths registered with
+		// their correct response proto. The previous v1beta1-path /
+		// v1-response pairing decoded garbage; keep v1beta1 for backward
+		// compat and add v1 as the recommended path going forward.
+		"/cosmos.gov.v1beta1.Query/Vote": func() proto.Message { return &govv1beta1.QueryVoteResponse{} },
+		"/cosmos.gov.v1.Query/Vote":      func() proto.Message { return &govv1.QueryVoteResponse{} },
 
 		// distribution
 		"/cosmos.distribution.v1beta1.Query/DelegationRewards": func() proto.Message { return &distrtypes.QueryDelegationRewardsResponse{} },

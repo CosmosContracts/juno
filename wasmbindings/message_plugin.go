@@ -11,6 +11,7 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -161,7 +162,7 @@ func PerformMint(ctx context.Context, f *tokenfactorykeeper.Keeper, b bankkeeper
 	}
 
 	if b.BlockedAddr(rcpt) {
-		return errorsmod.Wrapf(err, "minting coins to blocked address %s", rcpt.String())
+		return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "minting coins to blocked address %s", rcpt.String())
 	}
 
 	err = b.SendCoins(ctx, contractAddr, rcpt, sdk.NewCoins(coin))

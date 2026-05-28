@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authz "github.com/cosmos/cosmos-sdk/x/authz"
 )
 
 // MsgFilterDecorator defines an AnteHandler decorator for the v9 upgrade that
@@ -25,10 +26,22 @@ func (MsgFilterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, 
 	return next(ctx, tx, simulate)
 }
 
+// hasInvalidMsgs walks top-level messages and recurses into authz.MsgExec
+// payloads so that wrapping a blocked message in MsgExec does not bypass
+// the filter. Mirrors the recursion pattern used by x/feeshare/ante.
 func hasInvalidMsgs(msgs []sdk.Msg) bool {
 	for _, msg := range msgs {
 		if _, ok := msg.(*ibcchanneltypes.MsgTimeoutOnClose); ok {
 			return true
+		}
+		if exec, ok := msg.(*authz.MsgExec); ok {
+			inner, err := exec.GetMessages()
+			if err != nil {
+				return true
+			}
+			if hasInvalidMsgs(inner) {
+				return true
+			}
 		}
 	}
 

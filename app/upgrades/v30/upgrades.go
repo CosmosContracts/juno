@@ -10,6 +10,7 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/CosmosContracts/juno/v30/app/keepers"
@@ -66,6 +67,15 @@ func configureFeemarketParams(ctx context.Context, k *keepers.AppKeepers, logger
 	if err != nil {
 		logger.Error("v30: failed to get x/consensus params")
 		return errorsmod.Wrap(err, "v30: failed to get x/consensus params")
+	}
+
+	// MaxGas == -1 ("unbounded") would cast to 2^64-1 below and seed
+	// feemarket with a nonsense block-utilization ceiling, sending AIMD
+	// base-fee adjustment haywire. juno-1 sets a positive max_gas, but
+	// guard against operators running this binary on a chain that left
+	// max_gas unbounded.
+	if consensusParams.Block == nil || consensusParams.Block.MaxGas <= 0 {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "v30: consensus block.max_gas must be a positive value before feemarket init")
 	}
 
 	newFeemarketParams := feemarkettypes.Params{

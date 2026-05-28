@@ -80,6 +80,11 @@ func (k msgServer) UnregisterContract(ctx context.Context, req *types.MsgUnregis
 	return &types.MsgUnregisterContractResponse{}, nil
 }
 
+// isContractSenderAuthorized enforces "admin if set, else creator" — matching
+// the x/feeshare GetContractAdminOrCreatorAddress pattern. The previous
+// else-if chain rejected any sender that wasn't simultaneously admin AND
+// creator, which bricked registration for any contract instantiated through
+// a factory (admin = DAO core, creator = factory).
 func (k msgServer) isContractSenderAuthorized(ctx context.Context, sender string, contract sdk.AccAddress) error {
 	if ok := k.GetWasmKeeper().HasContractInfo(ctx, contract); !ok {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "contract does not exist: %s", contract)
@@ -87,12 +92,16 @@ func (k msgServer) isContractSenderAuthorized(ctx context.Context, sender string
 
 	contractInfo := k.GetWasmKeeper().GetContractInfo(ctx, contract)
 
-	if contractInfo.Creator != "" && contractInfo.Creator != sender {
-		return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract creator")
-	} else if contractInfo.Admin != "" && contractInfo.Admin != sender {
-		return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract admin")
+	if contractInfo.Admin != "" {
+		if contractInfo.Admin != sender {
+			return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract admin")
+		}
+		return nil
 	}
 
+	if contractInfo.Creator != sender {
+		return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract creator")
+	}
 	return nil
 }
 

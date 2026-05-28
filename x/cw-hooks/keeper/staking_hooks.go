@@ -255,7 +255,7 @@ func (h StakingHooks) AfterValidatorBeginUnbonding(ctx context.Context, _ sdk.Co
 		return nil
 	}
 
-	return h.k.ExecuteMessageOnContracts(ctx, types.StakingPrefixKey, msgBz)
+	return h.k.dispatchHookMessage(ctx, types.StakingPrefixKey, msgBz, "AfterValidatorBeginUnbonding")
 }
 
 // BeforeDelegationRemoved is a hook that runs BEFORE a user claims their unstaked tokens back
