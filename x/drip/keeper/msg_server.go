@@ -38,8 +38,9 @@ func (ms msgServer) DistributeTokens(
 		return nil, errors.New("sender address cannot be empty")
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.SenderAddress); err != nil {
-		return nil, errorsmod.Wrapf(err, "invalid sender address: %s", err.Error())
+	sender, err := sdk.AccAddressFromBech32(msg.SenderAddress)
+	if err != nil {
+		return nil, errorsmod.Wrapf(err, "invalid sender address %s", msg.SenderAddress)
 	}
 
 	if msg.Amount == nil || msg.Amount.Empty() {
@@ -60,12 +61,6 @@ func (ms msgServer) DistributeTokens(
 
 	if !authorized {
 		return nil, types.ErrDripNotAllowed
-	}
-
-	// Get sender
-	sender, err := sdk.AccAddressFromBech32(msg.SenderAddress)
-	if err != nil {
-		return nil, err
 	}
 
 	if err := ms.SendCoinsFromAccountToFeeCollector(ctx, sender, msg.Amount); err != nil {
