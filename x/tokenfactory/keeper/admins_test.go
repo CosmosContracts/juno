@@ -288,6 +288,22 @@ func (s *KeeperTestSuite) TestBurnDenom() {
 			if tc.expectPass {
 				s.Require().NoError(err)
 				balances[tc.burnMsg.BurnFromAddress] -= tc.burnMsg.Amount.Amount.Int64()
+
+				// The tf_burn event must report the address tokens were
+				// burned *from* — not the (possibly different) admin sender.
+				events := s.Ctx.EventManager().Events()
+				var found bool
+				for i := len(events) - 1; i >= 0; i-- {
+					if events[i].Type != "tf_burn" {
+						continue
+					}
+					attr, ok := events[i].GetAttribute(types.AttributeBurnFromAddress)
+					s.Require().True(ok, "tf_burn event missing %s attribute", types.AttributeBurnFromAddress)
+					s.Require().Equal(tc.burnMsg.BurnFromAddress, attr.Value)
+					found = true
+					break
+				}
+				s.Require().True(found, "no tf_burn event emitted")
 			} else {
 				s.Require().Error(err)
 			}

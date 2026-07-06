@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
+	cwhooktypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -80,6 +82,75 @@ func (s *E2ETestSuite) QueryValidators(chain *cosmos.CosmosChain) []sdk.ValAddre
 		addrs[i] = sdk.ValAddress(addrBz)
 	}
 	return addrs
+}
+
+// QueryStakingDelegation returns the delegation (including its bonded balance)
+// of delegator to valoper. It fails the test if the delegation does not exist.
+func (s *E2ETestSuite) QueryStakingDelegation(delegator, valoper string) stakingtypes.DelegationResponse {
+	s.T().Helper()
+
+	resp, err := s.QueryClients.StakingClient.Delegation(s.Ctx, &stakingtypes.QueryDelegationRequest{
+		DelegatorAddr: delegator,
+		ValidatorAddr: valoper,
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(resp.DelegationResponse)
+
+	return *resp.DelegationResponse
+}
+
+// CWHOOKS
+
+// QueryCwHooksContractInfo returns the registration record (including the
+// failure counter and latest error) for a contract registered under module.
+func (s *E2ETestSuite) QueryCwHooksContractInfo(module, contractAddr string) cwhooktypes.ContractInfo {
+	s.T().Helper()
+
+	resp, err := s.QueryClients.CwhooksClient.ContractInfo(s.Ctx, &cwhooktypes.QueryContractInfoRequest{
+		Module:          module,
+		ContractAddress: contractAddr,
+	})
+	s.Require().NoError(err)
+
+	return resp.Contract
+}
+
+// VOTING-SNAPSHOT
+
+func (s *E2ETestSuite) QueryVotingSnapshotParams() votingsnapshottypes.Params {
+	s.T().Helper()
+
+	resp, err := s.QueryClients.VotingSnapshotClient.Params(context.Background(), &votingsnapshottypes.QueryParamsRequest{})
+	s.Require().NoError(err)
+
+	return resp.Params
+}
+
+// QueryVotingPowerAt returns the snapshotted (LST-excluded) bonded voting
+// power of address at the given height.
+func (s *E2ETestSuite) QueryVotingPowerAt(address string, atHeight int64) string {
+	s.T().Helper()
+
+	resp, err := s.QueryClients.VotingSnapshotClient.VotingPowerAt(context.Background(), &votingsnapshottypes.QueryVotingPowerAtRequest{
+		Address:  address,
+		AtHeight: atHeight,
+	})
+	s.Require().NoError(err)
+
+	return resp.Power
+}
+
+// QueryTotalVotingPowerAt returns the chain-wide snapshotted bonded power at
+// the given height.
+func (s *E2ETestSuite) QueryTotalVotingPowerAt(atHeight int64) string {
+	s.T().Helper()
+
+	resp, err := s.QueryClients.VotingSnapshotClient.TotalVotingPowerAt(context.Background(), &votingsnapshottypes.QueryTotalVotingPowerAtRequest{
+		AtHeight: atHeight,
+	})
+	s.Require().NoError(err)
+
+	return resp.Power
 }
 
 // NODE

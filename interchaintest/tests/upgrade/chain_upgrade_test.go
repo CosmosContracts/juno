@@ -138,6 +138,50 @@ func (s *UpgradeTestSuite) TestV30ChainUpgrade() {
 	require.Equal(user.FormattedAddress(), postHookState.Data.DelegatorAddress)
 	require.Equal(valoper, sdk.MustValAddressFromBech32(postHookState.Data.ValidatorAddress))
 	require.Equal(fmt.Sprintf("%d.000000000000000000", initialStakeAmt+additionalStakeAmt), postHookState.Data.Shares)
+
+	// --- new v30 modules: feemarket (added store) must be initialized ---
+	// Params/State/GasPrice must all resolve to sane, positive dynamic-fee
+	// values after InitGenesis of the freshly-added feemarket store.
+	feemarketParams := s.QueryFeemarketParams()
+	require.True(feemarketParams.Enabled, "feemarket should be enabled after upgrade")
+	require.False(feemarketParams.MinBaseGasPrice.IsNil(), "feemarket min base gas price should be set")
+	require.True(feemarketParams.MinBaseGasPrice.IsPositive(), "feemarket min base gas price should be positive")
+
+	feemarketState := s.QueryFeemarketState()
+	require.False(feemarketState.BaseGasPrice.IsNil(), "feemarket base gas price state should be set")
+	require.True(feemarketState.BaseGasPrice.IsPositive(), "feemarket base gas price should be positive after upgrade")
+
+	gasPrice := s.QueryFeemarketGasPrice(s.Denom)
+	require.Equal(s.Denom, gasPrice.Denom)
+	require.True(gasPrice.Amount.IsPositive(), "feemarket gas price for %s should be positive", s.Denom)
+
+	// --- new v30 modules: voting-snapshot (added store) must be initialized ---
+	// The upgrade handler backfills a snapshot of every active delegator, and
+	// the post-upgrade delegation above writes a fresh one. Both the module
+	// params and the gRPC power queries must return sane values.
+	vsParams := s.QueryVotingSnapshotParams()
+	require.Positive(vsParams.PruneInterval, "voting-snapshot prune interval should be a sane positive default")
+
+	snapHeight, err := s.Chain.Height(s.Ctx)
+	require.NoError(err, "error fetching height for voting-snapshot query")
+
+	// Pre-upgrade delegator's snapshotted (LST-excluded) voting power must be
+	// positive — proving the store was initialized and hooks/backfill ran.
+	powerStr := s.QueryVotingPowerAt(user.FormattedAddress(), snapHeight)
+	power, ok := math.NewIntFromString(powerStr)
+	require.True(ok, "voting power %q should parse as an integer", powerStr)
+	require.True(power.IsPositive(), "pre-upgrade delegator should have positive snapshotted voting power")
+
+	// It should not exceed the user's actual bonded delegation.
+	delegation := s.QueryStakingDelegation(user.FormattedAddress(), valoper.String())
+	require.True(power.LTE(delegation.Balance.Amount),
+		"snapshotted voting power (%s) should not exceed bonded delegation (%s)", power, delegation.Balance.Amount)
+
+	// Chain-wide total voting power must be at least this single delegator's.
+	totalStr := s.QueryTotalVotingPowerAt(snapHeight)
+	total, ok := math.NewIntFromString(totalStr)
+	require.True(ok, "total voting power %q should parse as an integer", totalStr)
+	require.True(total.GTE(power), "total voting power (%s) should be >= delegator power (%s)", total, power)
 }
 
 func (s *UpgradeTestSuite) legacyCwHooksCmd(command string, user ibc.Wallet, contractAddr string, fees sdk.Coins) {

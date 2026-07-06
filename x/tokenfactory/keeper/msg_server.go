@@ -116,7 +116,7 @@ func (ms msgServer) Burn(ctx context.Context, msg *types.MsgBurn) (*types.MsgBur
 	sdkCtx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			"tf_burn",
-			sdk.NewAttribute(types.AttributeBurnFromAddress, msg.Sender),
+			sdk.NewAttribute(types.AttributeBurnFromAddress, msg.BurnFromAddress),
 			sdk.NewAttribute(types.AttributeAmount, msg.Amount.String()),
 		),
 	})

@@ -59,6 +59,7 @@ import (
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
 	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
 )
 
 // E2ETestSuite runs the feemarket e2e test-suite against a given interchaintest specification
@@ -135,28 +136,29 @@ func NewE2ETestSuite(specs []*interchaintest.ChainSpec, txCfg TestTxConfig, opts
 }
 
 type QueryClients struct {
-	AuthClient         authtypes.QueryClient
-	AuthzClient        authz.QueryClient
-	BankClient         banktypes.QueryClient
-	ConsensusClient    consensustypes.QueryClient
-	DistributionClient distributiontypes.QueryClient
-	EvidenceClient     evidencetypes.QueryClient
-	FeegrantClient     feegrant.QueryClient
-	GovClient          govv1types.QueryClient
-	NftClient          nft.QueryClient
-	SlashingClient     slashingtypes.QueryClient
-	StakingClient      stakingtypes.QueryClient
-	UpgradeClient      upgradetypes.QueryClient
-	MintClient         minttypes.QueryClient
-	ClockClient        clocktypes.QueryClient
-	CwhooksClient      cwhooktypes.QueryClient
-	DripClient         driptypes.QueryClient
-	FeemarketClient    feemarkettypes.QueryClient
-	FeepayClient       feepaytypes.QueryClient
-	FeeShareClient     feesharetypes.QueryClient
-	TokenfactoryClient tokenfactorytypes.QueryClient
-	WasmClient         wasmtypes.QueryClient
-	StreamClient       streamtypes.QueryClient
+	AuthClient           authtypes.QueryClient
+	AuthzClient          authz.QueryClient
+	BankClient           banktypes.QueryClient
+	ConsensusClient      consensustypes.QueryClient
+	DistributionClient   distributiontypes.QueryClient
+	EvidenceClient       evidencetypes.QueryClient
+	FeegrantClient       feegrant.QueryClient
+	GovClient            govv1types.QueryClient
+	NftClient            nft.QueryClient
+	SlashingClient       slashingtypes.QueryClient
+	StakingClient        stakingtypes.QueryClient
+	UpgradeClient        upgradetypes.QueryClient
+	MintClient           minttypes.QueryClient
+	ClockClient          clocktypes.QueryClient
+	CwhooksClient        cwhooktypes.QueryClient
+	DripClient           driptypes.QueryClient
+	FeemarketClient      feemarkettypes.QueryClient
+	FeepayClient         feepaytypes.QueryClient
+	FeeShareClient       feesharetypes.QueryClient
+	TokenfactoryClient   tokenfactorytypes.QueryClient
+	WasmClient           wasmtypes.QueryClient
+	StreamClient         streamtypes.QueryClient
+	VotingSnapshotClient votingsnapshottypes.QueryClient
 }
 
 func (s *E2ETestSuite) setupQueryClients() {
@@ -204,6 +206,8 @@ func (s *E2ETestSuite) setupQueryClients() {
 	s.WasmClient = wasmClient
 	streamClient := streamtypes.NewQueryClient(s.GrpcClient)
 	s.StreamClient = streamClient
+	votingSnapshotClient := votingsnapshottypes.NewQueryClient(s.GrpcClient)
+	s.VotingSnapshotClient = votingSnapshotClient
 }
 
 // Option is a function that modifies the E2ETestSuite
@@ -378,7 +382,7 @@ func (s *E2ETestSuite) keyringDirFromNode() string {
 	reader, _, err := node.DockerClient.CopyFromContainer(context.Background(), node.ContainerID(), containerKeyringDir)
 	s.Require().NoError(err)
 
-	s.Require().NoError(os.Mkdir(path.Join(localDir, "keyring-test"), 0750))
+	s.Require().NoError(os.Mkdir(path.Join(localDir, "keyring-test"), 0o750))
 
 	tr := tar.NewReader(reader)
 	for {
@@ -402,7 +406,7 @@ func (s *E2ETestSuite) keyringDirFromNode() string {
 		}
 
 		filePath := path.Join(localDir, "keyring-test", extractedFileName)
-		s.Require().NoError(os.WriteFile(filePath, fileBuff.Bytes(), 0600))
+		s.Require().NoError(os.WriteFile(filePath, fileBuff.Bytes(), 0o600))
 	}
 
 	return localDir

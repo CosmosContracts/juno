@@ -6,26 +6,6 @@ info:
   version: v30.0.0
   description: Query provides defines the gRPC querier service
 paths:
-  /async-icq/v1/params:
-    get:
-      description: Params queries all parameters of the ICQ module.
-      operationId: ibc_ICQ_params
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QueryParamsResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-      summary: ICQ Params
-      tags:
-        - IBC
   /cosmos/auth/v1beta1/account_info/{address}:
     get:
       description: AccountInfo queries account info which is common to all account types.
