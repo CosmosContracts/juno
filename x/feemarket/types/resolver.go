@@ -32,8 +32,12 @@ func (*TestDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {
 	return []string{}, nil
 }
 
-// ErrorDenomResolver is a test implementation of the DenomResolver interface.  It returns an error for all coins that are not the baseDenom.
-// NOTE: DO NOT USE THIS IN PRODUCTION
+// ErrorDenomResolver accepts only the base fee denom and returns an error for
+// every other denom. This is the production resolver for v30: fees are payable
+// exclusively in the bond denom. Anything more permissive (e.g. the 1:1
+// TestDenomResolver above) lets permissionless tokenfactory denoms satisfy
+// fees at par with the bond denom — a straight fee bypass. Replace only with
+// an oracle-backed resolver that prices denoms for real.
 type ErrorDenomResolver struct{}
 
 // ConvertToDenom returns an error for all coins that are not the denom.

@@ -17,6 +17,7 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
+	junoapp "github.com/CosmosContracts/juno/v30/app"
 	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
 	"github.com/CosmosContracts/juno/v30/testutil"
 	keeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
@@ -72,7 +73,9 @@ func (s *AnteTestSuite) SetupTest() {
 			s.App.AppKeepers.AccountKeeper,
 			s.App.AppKeepers.BankKeeper,
 			s.App.AppKeepers.FeeGrantKeeper,
-			"ujuno",
+			// bondDenom — matches the feemarket fee denom in test genesis
+			"stake",
+			junoapp.GetDefaultBypassFeeMessages(),
 			authante.NewDeductFeeDecorator(
 				s.App.AppKeepers.AccountKeeper,
 				s.App.AppKeepers.BankKeeper,
@@ -90,6 +93,8 @@ func (s *AnteTestSuite) SetupTest() {
 			s.App.AppKeepers.AccountKeeper,
 			s.App.AppKeepers.BankKeeper,
 			*s.App.AppKeepers.FeeMarketKeeper,
+			s.App.AppKeepers.FeePayKeeper,
+			s.App.AppKeepers.StakingKeeper,
 		),
 	)
 }

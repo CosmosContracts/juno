@@ -26,10 +26,17 @@ func NewState(
 
 // Update updates the block utilization for the current height with the given
 // transaction utilization i.e. gas limit.
+//
+// If the cumulative utilization exceeds MaxBlockUtilization the value is
+// clamped to the maximum rather than returning an error: consensus max_gas
+// can be raised by governance after feemarket params were set, and a stale
+// (smaller) MaxBlockUtilization must degrade gracefully instead of reverting
+// otherwise-legitimate transactions in the post handler.
 func (s *State) Update(gas uint64, params Params) error {
 	update := s.Window[s.Index] + gas
-	if update > params.MaxBlockUtilization {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "block utilization of %d cannot exceed max block utilization of %d", update, params.MaxBlockUtilization)
+	// guard against uint64 overflow as well as a stale max utilization
+	if update > params.MaxBlockUtilization || update < s.Window[s.Index] {
+		update = params.MaxBlockUtilization
 	}
 
 	s.Window[s.Index] = update

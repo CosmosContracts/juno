@@ -36,12 +36,25 @@ func TestState_Update(t *testing.T) {
 		require.Equal(t, uint64(300), state.Window[0])
 	})
 
-	t.Run("errors when it exceeds max block utilization", func(t *testing.T) {
+	t.Run("clamps to max block utilization when exceeded", func(t *testing.T) {
 		state := types.DefaultState()
 		params := types.DefaultParams()
 
 		err := state.Update(params.MaxBlockUtilization+1, params)
-		require.Error(t, err)
+		require.NoError(t, err)
+		require.Equal(t, params.MaxBlockUtilization, state.Window[0])
+	})
+
+	t.Run("clamps to max block utilization on uint64 overflow", func(t *testing.T) {
+		state := types.DefaultState()
+		params := types.DefaultParams()
+
+		err := state.Update(params.MaxBlockUtilization, params)
+		require.NoError(t, err)
+
+		err = state.Update(^uint64(0), params)
+		require.NoError(t, err)
+		require.Equal(t, params.MaxBlockUtilization, state.Window[0])
 	})
 
 	t.Run("can update with several blocks in default eip-1559", func(t *testing.T) {

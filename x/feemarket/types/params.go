@@ -59,8 +59,12 @@ func (p *Params) ValidateBasic() error {
 		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "delta cannot be nil and must be between [0, inf)")
 	}
 
-	if p.MinBaseGasPrice.IsNil() || !p.MinBaseGasPrice.GTE(math.LegacyZeroDec()) {
-		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "min base gas price cannot be nil and must be greater than or equal to zero")
+	// MinBaseGasPrice must be strictly positive: it is the fee floor, and it
+	// seeds State.BaseGasPrice on param updates — State.ValidateBasic requires
+	// a positive base gas price. A zero value would silently remove the fee
+	// floor chain-wide.
+	if p.MinBaseGasPrice.IsNil() || !p.MinBaseGasPrice.GT(math.LegacyZeroDec()) {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "min base gas price cannot be nil and must be greater than zero")
 	}
 
 	if p.MaxLearningRate.IsNil() || p.MinLearningRate.IsNegative() {

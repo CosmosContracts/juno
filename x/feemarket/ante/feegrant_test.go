@@ -55,7 +55,7 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 			fee:   24497000000,
 			valid: true,
 			malleate: func(s *AnteTestSuite) (testutil.TestAccount, sdk.AccAddress) {
-				s.FundAcc(s.fullAccs[0].Account.GetAddress(), sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(24497000000))))
+				s.FundAcc(s.fullAccs[0].Account.GetAddress(), sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(24497000000))))
 
 				return s.fullAccs[0], s.fullAccs[0].Account.GetAddress()
 			},
@@ -82,13 +82,13 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 			fee:   36630000000,
 			valid: true,
 			malleate: func(s *AnteTestSuite) (testutil.TestAccount, sdk.AccAddress) {
-				s.FundAcc(s.fullAccs[1].Account.GetAddress(), sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(36630000000))))
+				s.FundAcc(s.fullAccs[1].Account.GetAddress(), sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(36630000000))))
 				err := s.App.AppKeepers.FeeGrantKeeper.GrantAllowance(
 					s.Ctx,
 					s.fullAccs[1].Account.GetAddress(),
 					s.fullAccs[0].Account.GetAddress(),
 					&feegrant.BasicAllowance{
-						SpendLimit: sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(36630000000))),
+						SpendLimit: sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(36630000000))),
 					},
 				)
 				s.Require().NoError(err)
@@ -110,13 +110,13 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 			valid: false,
 			err:   feegrant.ErrFeeLimitExceeded,
 			malleate: func(s *AnteTestSuite) (testutil.TestAccount, sdk.AccAddress) {
-				s.FundAcc(s.fullAccs[1].Account.GetAddress(), sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(36630000000))))
+				s.FundAcc(s.fullAccs[1].Account.GetAddress(), sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(36630000000))))
 				err := s.App.AppKeepers.FeeGrantKeeper.GrantAllowance(
 					s.Ctx,
 					s.fullAccs[1].Account.GetAddress(),
 					s.fullAccs[0].Account.GetAddress(),
 					&feegrant.BasicAllowance{
-						SpendLimit: sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(20000000000))),
+						SpendLimit: sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(20000000000))),
 					},
 				)
 				s.Require().NoError(err)
@@ -129,13 +129,13 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 			valid: false,
 			err:   sdkerrors.ErrInsufficientFunds,
 			malleate: func(s *AnteTestSuite) (testutil.TestAccount, sdk.AccAddress) {
-				s.FundAcc(s.fullAccs[3].Account.GetAddress(), sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(20000000000))))
+				s.FundAcc(s.fullAccs[3].Account.GetAddress(), sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(20000000000))))
 				err := s.App.AppKeepers.FeeGrantKeeper.GrantAllowance(
 					s.Ctx,
 					s.fullAccs[3].Account.GetAddress(),
 					s.fullAccs[2].Account.GetAddress(),
 					&feegrant.BasicAllowance{
-						SpendLimit: sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(36630000000))),
+						SpendLimit: sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(36630000000))),
 					},
 				)
 				s.Require().NoError(err)
@@ -157,7 +157,8 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 				s.App.AppKeepers.AccountKeeper,
 				s.App.AppKeepers.BankKeeper,
 				s.App.AppKeepers.FeeGrantKeeper,
-				"ujuno",
+				"stake",
+				nil,
 				authante.NewDeductFeeDecorator(
 					s.App.AppKeepers.AccountKeeper,
 					s.App.AppKeepers.BankKeeper,
@@ -169,7 +170,7 @@ func (s *AnteTestSuite) TestEscrowFunds() {
 
 			signer, feeAcc := tc.malleate(s)
 
-			fee := sdk.NewCoins(sdk.NewInt64Coin("ujuno", tc.fee))
+			fee := sdk.NewCoins(sdk.NewInt64Coin("stake", tc.fee))
 			msgs := []sdk.Msg{testdata.NewTestMsg(signer.Account.GetAddress())}
 
 			acc := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, signer.Account.GetAddress())

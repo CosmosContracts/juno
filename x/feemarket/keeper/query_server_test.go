@@ -118,8 +118,9 @@ func (s *KeeperTestSuite) TestBaseFeeRequest() {
 		err = s.App.AppKeepers.FeeMarketKeeper.SetParams(s.Ctx, params)
 		s.Require().NoError(err)
 
+		// the fee denom itself resolves
 		req := &types.GasPriceRequest{
-			Denom: "stake",
+			Denom: "test",
 		}
 		resp, err := s.queryServer.GasPrice(s.Ctx, req)
 		s.Require().NoError(err)
@@ -129,6 +130,10 @@ func (s *KeeperTestSuite) TestBaseFeeRequest() {
 		s.Require().NoError(err)
 
 		s.Require().Equal(resp.GetPrice(), gasPrice)
+
+		// any other denom is rejected by the v30 ErrorDenomResolver
+		_, err = s.queryServer.GasPrice(s.Ctx, &types.GasPriceRequest{Denom: "stake"})
+		s.Require().Error(err)
 	})
 
 	s.Run("can get updated gas price < 1", func() {
@@ -145,7 +150,7 @@ func (s *KeeperTestSuite) TestBaseFeeRequest() {
 		s.Require().NoError(err)
 
 		req := &types.GasPriceRequest{
-			Denom: "stake",
+			Denom: "test",
 		}
 		resp, err := s.queryServer.GasPrice(s.Ctx, req)
 		s.Require().NoError(err)

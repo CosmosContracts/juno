@@ -32,6 +32,15 @@ func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 		return nil, errorsmod.Wrapf(sdkerrors.ErrorInvalidSigner, "expected %s, got %s", ms.k.GetAuthority(), msg.Authority)
 	}
 
+	// Re-validate here as a defense in depth: params that fail validation
+	// (zero window, empty fee denom, nil decimals, inverted learning-rate
+	// bounds, ...) would panic or deterministically error in the ante/post
+	// handlers and EndBlock — halting the chain.
+	params := msg.Params
+	if err := params.ValidateBasic(); err != nil {
+		return nil, errorsmod.Wrap(err, "invalid params")
+	}
+
 	gotParams, err := ms.k.GetParams(ctx)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to get params")
@@ -42,12 +51,14 @@ func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 		ms.k.SetEnabledHeight(ctx, ctx.BlockHeight())
 	}
 
-	params := msg.Params
 	if err := ms.k.SetParams(ctx, params); err != nil {
 		return nil, errorsmod.Wrap(err, "failed to set params")
 	}
 
 	newState := types.NewState(params.Window, params.MinBaseGasPrice, params.MinLearningRate)
+	if err := newState.ValidateBasic(); err != nil {
+		return nil, errorsmod.Wrap(err, "invalid state derived from params")
+	}
 	if err := ms.k.SetState(ctx, newState); err != nil {
 		return nil, errorsmod.Wrap(err, "failed to set state")
 	}

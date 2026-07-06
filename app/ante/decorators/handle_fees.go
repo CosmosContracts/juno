@@ -14,6 +14,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
@@ -24,8 +25,16 @@ import (
 )
 
 const (
-	// gasPricePrecision is the amount of digit precision to scale the gas prices to.
-	gasPricePrecision = 6
+	// gasPricePrecisionMultiplier scales normalized gas prices to integer
+	// priorities (10^6, i.e. 6 digits of precision), precomputed as an
+	// integer so the priority path never touches float math.
+	gasPricePrecisionMultiplier = int64(1_000_000)
+
+	// MaxBypassMinFeeMsgGasUsage is the maximum gas limit a zero-fee tx made up
+	// exclusively of bypass message types (IBC relayer messages) may request.
+	// It bounds the free gas a relayer can consume per tx; anything heavier
+	// must pay fees like everyone else. Matches the pre-v30 x/globalfee value.
+	MaxBypassMinFeeMsgGasUsage = uint64(2_000_000)
 )
 
 type DeductFeeDecorator struct {
@@ -35,11 +44,11 @@ type DeductFeeDecorator struct {
 	fallbackDecorator sdk.AnteDecorator
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantkeeper.Keeper, bondDenom string, fallbackDecorator sdk.AnteDecorator) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantkeeper.Keeper, bondDenom string, bypassMinFeeMsgTypes []string, fallbackDecorator sdk.AnteDecorator) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		feemarketkeeper: fmk,
 		innerDecorator: newInnerDeductFeeDecorator(
-			fpk, fmk, ak, bk, fgk, bondDenom,
+			fpk, fmk, ak, bk, fgk, bondDenom, bypassMinFeeMsgTypes,
 		),
 		fallbackDecorator: fallbackDecorator,
 	}
@@ -54,22 +63,24 @@ func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, 
 // message transactions with no provided fee. If they correspond to a registered FeePay Contract, the FeePay
 // module will cover the cost of the fee (if the balance permits).
 type InnerDeductFeeDecorator struct {
-	feepayKeeper    feepaykeeper.Keeper
-	feemarketKeeper feemarketkeeper.Keeper
-	accountKeeper   authkeeper.AccountKeeper
-	bankKeeper      bankkeeper.Keeper
-	feegrantKeeper  feegrantkeeper.Keeper
-	bondDenom       string
+	feepayKeeper         feepaykeeper.Keeper
+	feemarketKeeper      feemarketkeeper.Keeper
+	accountKeeper        authkeeper.AccountKeeper
+	bankKeeper           bankkeeper.Keeper
+	feegrantKeeper       feegrantkeeper.Keeper
+	bondDenom            string
+	bypassMinFeeMsgTypes []string
 }
 
-func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantkeeper.Keeper, bondDenom string) InnerDeductFeeDecorator {
+func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantkeeper.Keeper, bondDenom string, bypassMinFeeMsgTypes []string) InnerDeductFeeDecorator {
 	return InnerDeductFeeDecorator{
-		feepayKeeper:    fpk,
-		feemarketKeeper: fmk,
-		accountKeeper:   ak,
-		bankKeeper:      bk,
-		feegrantKeeper:  fgk,
-		bondDenom:       bondDenom,
+		feepayKeeper:         fpk,
+		feemarketKeeper:      fmk,
+		accountKeeper:        ak,
+		bankKeeper:           bk,
+		feegrantKeeper:       fgk,
+		bondDenom:            bondDenom,
+		bypassMinFeeMsgTypes: bypassMinFeeMsgTypes,
 	}
 }
 
@@ -190,6 +201,18 @@ func (dfd InnerDeductFeeDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 	if !isValidFeepayTx {
 		if len(feeCoins) == 0 && !simulate {
+			// Min-fee bypass: a zero-fee tx whose messages are ALL in the
+			// bypass allow-list (IBC relayer messages) is let through without
+			// fee escrow, bounded by a gas ceiling so it cannot be abused for
+			// free compute. The post handler skips fee deduction for zero-fee
+			// non-feepay txs, so nothing downstream expects an escrow.
+			if dfd.isBypassMinFeeTx(tx) {
+				if feeTx.GetGas() > MaxBypassMinFeeMsgGasUsage {
+					return ctx, errorsmod.Wrapf(sdkerrors.ErrInvalidGasLimit,
+						"bypass-min-fee tx gas limit %d exceeds maximum of %d", feeTx.GetGas(), MaxBypassMinFeeMsgGasUsage)
+				}
+				return next(ctx, tx, simulate)
+			}
 			return ctx, errorsmod.Wrapf(feemarkettypes.ErrNoFeeCoins, "got length %d", len(feeCoins))
 		}
 	}
@@ -198,12 +221,17 @@ func (dfd InnerDeductFeeDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrapf(feemarkettypes.ErrTooManyFeeCoins, "got length %d", len(feeCoins))
 	}
 
-	// Default payCoin to a zero coin in bondDenom. For a valid feepay tx the
-	// user submits with --fees 0 (sdk.ParseCoinsNormalized strips the zero,
-	// so feeCoins is empty), and the actual fee is covered by x/feepay in
-	// HandleFees — there is no feeCoins[0] to read. Pre-fix this indexed
-	// past the end of feeCoins and panicked in CheckTx.
-	payCoin := sdk.NewCoin(dfd.bondDenom, sdkmath.ZeroInt())
+	params, err := dfd.feemarketKeeper.GetParams(ctx)
+	if err != nil {
+		return ctx, errorsmod.Wrapf(err, "unable to get fee market params")
+	}
+
+	// Default payCoin to a zero coin in the fee market's fee denom. For a
+	// valid feepay tx the user submits with --fees 0 (sdk.ParseCoinsNormalized
+	// strips the zero, so feeCoins is empty), and the actual fee is covered by
+	// x/feepay in HandleFees — there is no feeCoins[0] to read. Pre-fix this
+	// indexed past the end of feeCoins and panicked in CheckTx.
+	payCoin := sdk.NewCoin(params.FeeDenom, sdkmath.ZeroInt())
 	if !simulate && len(feeCoins) > 0 {
 		payCoin = feeCoins[0]
 	}
@@ -239,28 +267,81 @@ func (dfd InnerDeductFeeDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrapf(err, "error escrowing funds")
 	}
 
-	// handle tx priority
+	// handle tx priority: payCoin is denominated in the fee denom (any other
+	// denom was already rejected by GetCurrentGasPrice above), so priority is
+	// computed directly against the fee-denom gas price. No resolver round
+	// trip — with the v30 ErrorDenomResolver a second resolution against a
+	// bond denom that differs from the fee denom would reject every tx.
 	var priority int64
-	bondDenomGasPrice, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, dfd.bondDenom)
-	if err != nil {
-		return ctx, errorsmod.Wrapf(err, "error getting current gas price")
-	}
-	priorityFee, err := dfd.resolveTxPriorityCoins(ctx, payCoin, dfd.bondDenom)
-	if err != nil {
-		return ctx, errorsmod.Wrapf(err, "error resolving fee priority")
-	}
 	if !simulate {
-		priority = GetTxPriority(priorityFee, int64(gas), bondDenomGasPrice)
+		priority = GetTxPriority(payCoin, int64(gas), feeGasPrice)
 	}
 	ctx = ctx.WithPriority(priority)
 
 	return next(ctx, tx, simulate)
 }
 
-// Handle zero fee transactions for x/feepay module
+// isBypassMinFeeTx returns true when every message in the tx (recursing into
+// authz.MsgExec like MsgFilterDecorator does) is in the bypass-min-fee
+// allow-list. An empty tx is not a bypass tx.
+func (dfd InnerDeductFeeDecorator) isBypassMinFeeTx(tx sdk.Tx) bool {
+	msgs := tx.GetMsgs()
+	if len(msgs) == 0 {
+		return false
+	}
+
+	return dfd.allMsgsBypassMinFee(msgs, 0)
+}
+
+// maxBypassRecursionDepth caps authz.MsgExec nesting so a hostile tx cannot
+// stack MsgExec wrappers to burn unmetered decode work in CheckTx.
+const maxBypassRecursionDepth = 3
+
+func (dfd InnerDeductFeeDecorator) allMsgsBypassMinFee(msgs []sdk.Msg, depth int) bool {
+	if depth > maxBypassRecursionDepth {
+		return false
+	}
+
+	for _, msg := range msgs {
+		if exec, ok := msg.(*authz.MsgExec); ok {
+			inner, err := exec.GetMessages()
+			if err != nil || len(inner) == 0 {
+				return false
+			}
+			if !dfd.allMsgsBypassMinFee(inner, depth+1) {
+				return false
+			}
+			continue
+		}
+
+		if !dfd.isBypassMsg(msg) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (dfd InnerDeductFeeDecorator) isBypassMsg(msg sdk.Msg) bool {
+	msgType := sdk.MsgTypeURL(msg)
+	for _, allowed := range dfd.bypassMinFeeMsgTypes {
+		if msgType == allowed {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Handle zero fee transactions for x/feepay module.
+// CONTRACT: the tx was validated by IsValidFeePayTransaction, which enforces
+// exactly one message of type MsgExecuteContract on a registered contract.
 func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc sdk.AccountI, tx sdk.FeeTx) error {
 	msg := tx.GetMsgs()[0]
-	cw := msg.(*wasmtypes.MsgExecuteContract)
+	cw, ok := msg.(*wasmtypes.MsgExecuteContract)
+	if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "feepay tx message must be a MsgExecuteContract, got %T", msg)
+	}
 
 	// Get the fee pay contract
 	feepayContract, err := dfd.feepayKeeper.GetContract(ctx, cw.GetContract())
@@ -313,22 +394,6 @@ func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFro
 	}
 
 	return nil
-}
-
-// resolveTxPriorityCoins converts the coins to the proper denom used for tx prioritization calculation.
-func (dfd InnerDeductFeeDecorator) resolveTxPriorityCoins(ctx sdk.Context, fee sdk.Coin, baseDenom string) (sdk.Coin, error) {
-	if fee.Denom == baseDenom {
-		return fee, nil
-	}
-
-	feeDec := sdk.NewDecCoinFromCoin(fee)
-	convertedDec, err := dfd.feemarketKeeper.ResolveToDenom(ctx, feeDec, baseDenom)
-	if err != nil {
-		return sdk.Coin{}, err
-	}
-
-	// truncate down
-	return sdk.NewCoin(baseDenom, convertedDec.Amount.TruncateInt()), nil
 }
 
 // escrow deducts coins to the escrow.
@@ -395,7 +460,7 @@ func CheckTxFee(ctx sdk.Context, gasPrice sdk.DecCoin, feeCoin sdk.Coin, feeGas 
 //
 //	effectiveGasPrice = feeAmount / gas limit (denominated in fee per gas)
 //	normalizedGasPrice = effectiveGasPrice / currentGasPrice (floor is 1.  The minimum effective gas price can ever be is current gas price)
-//	scaledGasPrice = normalizedGasPrice * 10 ^ gasPricePrecision (amount of decimal places in the normalized gas price to consider when converting to int64).
+//	scaledGasPrice = normalizedGasPrice * gasPricePrecisionMultiplier (10^6 — decimal places in the normalized gas price to consider when converting to int64).
 func GetTxPriority(fee sdk.Coin, gasLimit int64, currentGasPrice sdk.DecCoin) int64 {
 	// protections from dividing by 0
 	if gasLimit == 0 {
@@ -409,7 +474,7 @@ func GetTxPriority(fee sdk.Coin, gasLimit int64, currentGasPrice sdk.DecCoin) in
 
 	effectiveGasPrice := fee.Amount.ToLegacyDec().QuoInt64(gasLimit)
 	normalizedGasPrice := effectiveGasPrice.Quo(currentGasPrice.Amount)
-	scaledGasPrice := normalizedGasPrice.MulInt64(int64(math.Pow10(gasPricePrecision)))
+	scaledGasPrice := normalizedGasPrice.MulInt64(gasPricePrecisionMultiplier)
 
 	// overflow panic protection
 	if scaledGasPrice.GTE(sdkmath.LegacyNewDec(math.MaxInt64)) {

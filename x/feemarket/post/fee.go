@@ -1,6 +1,8 @@
 package post
 
 import (
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
@@ -13,6 +15,9 @@ import (
 	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
 	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	feepayhelpers "github.com/CosmosContracts/juno/v30/x/feepay/helpers"
+	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 // BankSendGasConsumption is the gas consumption of the bank sends that occur during feemarket handler execution.
@@ -28,13 +33,17 @@ type FeeMarketDeductDecorator struct {
 	accountKeeper   authkeeper.AccountKeeper
 	bankKeeper      bankkeeper.Keeper
 	feemarketKeeper feemarketkeeper.Keeper
+	feepayKeeper    feepaykeeper.Keeper
+	stakingKeeper   feemarkettypes.StakingKeeper
 }
 
-func NewFeeMarketDeductDecorator(ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fmk feemarketkeeper.Keeper) FeeMarketDeductDecorator {
+func NewFeeMarketDeductDecorator(ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fmk feemarketkeeper.Keeper, fpk feepaykeeper.Keeper, sk feemarkettypes.StakingKeeper) FeeMarketDeductDecorator {
 	return FeeMarketDeductDecorator{
 		accountKeeper:   ak,
 		bankKeeper:      bk,
 		feemarketKeeper: fmk,
+		feepayKeeper:    fpk,
+		stakingKeeper:   sk,
 	}
 }
 
@@ -92,53 +101,88 @@ func (dfd FeeMarketDeductDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 	// if simulating and user did not provider a fee - create a dummy value for them
 	var (
-		tip     = sdk.NewCoin(params.FeeDenom, math.ZeroInt())
-		payCoin = sdk.NewCoin(params.FeeDenom, math.ZeroInt())
+		tip        = sdk.NewCoin(params.FeeDenom, math.ZeroInt())
+		payCoin    = sdk.NewCoin(params.FeeDenom, math.ZeroInt())
+		isFeePayTx = false
+		feeGas     = int64(feeTx.GetGas())
+		skipDeduct = false
 	)
 	if !simulate {
 		switch {
 		case len(feeCoins) > 0:
 			payCoin = feeCoins[0]
 		default:
-			// Feepay path: the user submitted --fees 0 and x/feepay has
-			// already deposited the required fee into feemarket-fee-collector
-			// in the ante handler. Treat the module's current balance in the
-			// fee denom as the effective fee for accounting (CheckTxFee will
-			// then split it into consumedFee + tip).
-			moduleAddr := dfd.accountKeeper.GetModuleAddress(feemarkettypes.FeeCollectorName)
-			payCoin = dfd.bankKeeper.GetBalance(ctx, moduleAddr, params.FeeDenom)
-			if payCoin.IsZero() {
-				return ctx, errorsmod.Wrapf(feemarkettypes.ErrNoFeeCoins, "got length %d and feemarket-fee-collector empty", len(feeCoins))
+			// Zero-fee tx. Either a feepay tx (the ante escrowed exactly
+			// price × gasLimit out of the contract's feepay balance into
+			// feemarket-fee-collector) or a bypass-min-fee tx (IBC relayer
+			// messages; the ante escrowed nothing).
+			isFeePayTx = feepayhelpers.IsValidFeePayTransaction(ctx, dfd.feepayKeeper, feeTx)
+			if !isFeePayTx {
+				// Bypass tx: nothing escrowed, nothing to deduct. Still record
+				// the gas consumed in the fee market state below.
+				skipDeduct = true
 			}
 		}
 	}
 
-	feeGas := int64(feeTx.GetGas())
-
-	currentGasPrice, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, payCoin.GetDenom())
-	if err != nil {
-		return ctx, errorsmod.Wrapf(err, "unable to get min gas price for denom %s", payCoin.GetDenom())
-	}
-
-	ctx.Logger().Debug("fee deduct post handle",
-		"gas prices", currentGasPrice,
-		"gas consumed", gas,
-	)
-
-	if !simulate {
-		payCoin, tip, err = decorators.CheckTxFee(ctx, currentGasPrice, payCoin, feeGas, false)
+	if !skipDeduct {
+		currentGasPrice, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, payCoin.GetDenom())
 		if err != nil {
-			return ctx, err
+			return ctx, errorsmod.Wrapf(err, "unable to get min gas price for denom %s", payCoin.GetDenom())
 		}
-	}
 
-	ctx.Logger().Debug("fee deduct post handle",
-		"fee", payCoin,
-		"tip", tip,
-	)
+		if isFeePayTx {
+			// Bound the effective fee to exactly THIS tx's escrow:
+			// ceil(gasPrice × gasLimit), mirroring the ante's handleZeroFees.
+			// Never read the whole collector balance — with DistributeFees =
+			// false the module account accumulates funds across txs, and a
+			// feepay tx must not be able to claim them.
+			escrowAmount := currentGasPrice.Amount.Mul(math.LegacyNewDec(feeGas)).Ceil().RoundInt()
+			payCoin = sdk.NewCoin(currentGasPrice.Denom, escrowAmount)
 
-	if err := dfd.PayOutFeeAndTip(ctx, payCoin, tip); err != nil {
-		return ctx, err
+			// Defense in depth: never exceed what is actually in the module
+			// account. (The ante deposited exactly escrowAmount this tx.)
+			moduleAddr := dfd.accountKeeper.GetModuleAddress(feemarkettypes.FeeCollectorName)
+			balance := dfd.bankKeeper.GetBalance(ctx, moduleAddr, payCoin.Denom)
+			if payCoin.Amount.GT(balance.Amount) {
+				payCoin.Amount = balance.Amount
+			}
+			if payCoin.IsZero() {
+				return ctx, errorsmod.Wrapf(feemarkettypes.ErrNoFeeCoins, "feepay escrow missing from feemarket-fee-collector")
+			}
+		}
+
+		ctx.Logger().Debug("fee deduct post handle",
+			"gas prices", currentGasPrice,
+			"gas consumed", gas,
+		)
+
+		if !simulate {
+			payCoin, tip, err = decorators.CheckTxFee(ctx, currentGasPrice, payCoin, feeGas, false)
+			if err != nil {
+				return ctx, err
+			}
+		}
+
+		ctx.Logger().Debug("fee deduct post handle",
+			"fee", payCoin,
+			"tip", tip,
+		)
+
+		if isFeePayTx {
+			// Feepay txs generate NO proposer tip: the "tip" here is only the
+			// unused-gas remainder of the contract's escrow (the contract was
+			// charged for the full gas limit up front). Paying it to the
+			// proposer would let proposers drain funded feepay contracts with
+			// gas-padded txs. Refund it to the contract's feepay balance.
+			if err := dfd.PayOutFeeAndRefundFeePay(ctx, feeTx, payCoin, tip); err != nil {
+				return ctx, err
+			}
+		} else {
+			if err := dfd.PayOutFeeAndTip(ctx, payCoin, tip); err != nil {
+				return ctx, err
+			}
+		}
 	}
 
 	err = state.Update(gas, params)
@@ -174,17 +218,7 @@ func (dfd FeeMarketDeductDecorator) PayOutFeeAndTip(ctx sdk.Context, fee, tip sd
 	// with "insufficient funds" and roll the whole tx (including the message
 	// effects) back. Cap the fee first; if there is balance left over, the
 	// rest goes to the proposer as tip.
-	if !fee.IsNil() && fee.Denom != "" {
-		moduleAddr := dfd.accountKeeper.GetModuleAddress(feemarkettypes.FeeCollectorName)
-		moduleBal := dfd.bankKeeper.GetBalance(ctx, moduleAddr, fee.Denom).Amount
-		if fee.Amount.GT(moduleBal) {
-			fee.Amount = moduleBal
-		}
-		remaining := moduleBal.Sub(fee.Amount)
-		if !tip.IsNil() && tip.Denom == fee.Denom && tip.Amount.GT(remaining) {
-			tip.Amount = remaining
-		}
-	}
+	fee, tip = dfd.capAtCollectorBalance(ctx, fee, tip)
 
 	var events sdk.Events
 
@@ -201,22 +235,143 @@ func (dfd FeeMarketDeductDecorator) PayOutFeeAndTip(ctx sdk.Context, fee, tip sd
 		))
 	}
 
-	proposer := sdk.AccAddress(ctx.BlockHeader().ProposerAddress)
 	if !tip.IsNil() && !tip.IsZero() {
-		err := SendTip(dfd.bankKeeper, ctx, proposer, sdk.NewCoins(tip))
-		if err != nil {
+		// Resolve the proposer's CONSENSUS address to the validator operator
+		// account. ProposerAddress is a consensus (ed25519) address — casting
+		// it straight to an AccAddress produces an account no operator key
+		// controls, stranding the tip forever.
+		proposer, found := dfd.proposerOperatorAccount(ctx)
+		if !found {
+			// No operator account resolvable (should not happen for a block
+			// proposer). Leave the tip in the fee collector instead of
+			// stranding it at an unspendable address; it is distributed (or
+			// soft-burned) with the next DistributeFees sweep.
+			ctx.Logger().Error("feemarket post handler: could not resolve proposer operator account; leaving tip in fee collector",
+				"proposer_cons_address", sdk.ConsAddress(ctx.BlockHeader().ProposerAddress).String(),
+			)
+		} else {
+			err := SendTip(dfd.bankKeeper, ctx, proposer, sdk.NewCoins(tip))
+			if err != nil {
+				return err
+			}
+
+			events = append(events, sdk.NewEvent(
+				feemarkettypes.EventTypeTipPay,
+				sdk.NewAttribute(feemarkettypes.AttributeKeyTip, tip.String()),
+				sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayee, proposer.String()),
+			))
+		}
+	}
+
+	ctx.EventManager().EmitEvents(events)
+	return nil
+}
+
+// PayOutFeeAndRefundFeePay handles the payout for a feepay-covered tx:
+//   - the consumed fee is deducted as usual (distributed or soft-burned per
+//     params.DistributeFees);
+//   - the unused-gas remainder of the escrow is refunded from the
+//     feemarket-fee-collector back to the x/feepay module account and
+//     re-credited to the executing contract's feepay balance.
+//
+// No proposer tip is generated for feepay txs.
+func (dfd FeeMarketDeductDecorator) PayOutFeeAndRefundFeePay(ctx sdk.Context, feeTx sdk.FeeTx, fee, refund sdk.Coin) error {
+	params, err := dfd.feemarketKeeper.GetParams(ctx)
+	if err != nil {
+		return errorsmod.Wrapf(err, "error getting feemarket params")
+	}
+
+	// cap at the collector balance (x/feeshare pays nothing for feepay txs —
+	// the tx fee is zero — but stay defensive)
+	fee, refund = dfd.capAtCollectorBalance(ctx, fee, refund)
+
+	var events sdk.Events
+
+	if !fee.IsNil() && !fee.IsZero() {
+		if err := DeductCoins(dfd.bankKeeper, ctx, sdk.NewCoins(fee), params.DistributeFees); err != nil {
 			return err
 		}
 
 		events = append(events, sdk.NewEvent(
-			feemarkettypes.EventTypeTipPay,
-			sdk.NewAttribute(feemarkettypes.AttributeKeyTip, tip.String()),
-			sdk.NewAttribute(feemarkettypes.AttributeKeyTipPayee, proposer.String()),
+			feemarkettypes.EventTypeFeePay,
+			sdk.NewAttribute(sdk.AttributeKeyFee, fee.String()),
+		))
+	}
+
+	if !refund.IsNil() && !refund.IsZero() {
+		// CONTRACT: a valid feepay tx has exactly one MsgExecuteContract on a
+		// registered contract (enforced by IsValidFeePayTransaction).
+		msgs := feeTx.GetMsgs()
+		if len(msgs) != 1 {
+			return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "feepay tx must contain exactly one message, got %d", len(msgs))
+		}
+		cw, ok := msgs[0].(*wasmtypes.MsgExecuteContract)
+		if !ok {
+			return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "feepay tx message must be a MsgExecuteContract, got %T", msgs[0])
+		}
+
+		contract, err := dfd.feepayKeeper.GetContract(ctx, cw.GetContract())
+		if err != nil {
+			return errorsmod.Wrapf(err, "error getting feepay contract %s for escrow refund", cw.GetContract())
+		}
+
+		if err := dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feemarkettypes.FeeCollectorName, feepaytypes.ModuleName, sdk.NewCoins(refund)); err != nil {
+			return errorsmod.Wrapf(err, "error refunding feepay escrow")
+		}
+
+		dfd.feepayKeeper.SetContractBalance(ctx, contract, contract.Balance+refund.Amount.Uint64())
+
+		events = append(events, sdk.NewEvent(
+			feemarkettypes.EventTypeFeePayRefund,
+			sdk.NewAttribute(feemarkettypes.AttributeKeyRefund, refund.String()),
+			sdk.NewAttribute(feemarkettypes.AttributeKeyRefundPayee, cw.GetContract()),
 		))
 	}
 
 	ctx.EventManager().EmitEvents(events)
 	return nil
+}
+
+// capAtCollectorBalance caps fee + remainder at the feemarket-fee-collector's
+// current balance: fee first, then the remainder gets what is left.
+func (dfd FeeMarketDeductDecorator) capAtCollectorBalance(ctx sdk.Context, fee, remainder sdk.Coin) (sdk.Coin, sdk.Coin) {
+	if fee.IsNil() || fee.Denom == "" {
+		return fee, remainder
+	}
+
+	moduleAddr := dfd.accountKeeper.GetModuleAddress(feemarkettypes.FeeCollectorName)
+	moduleBal := dfd.bankKeeper.GetBalance(ctx, moduleAddr, fee.Denom).Amount
+	if fee.Amount.GT(moduleBal) {
+		fee.Amount = moduleBal
+	}
+	remaining := moduleBal.Sub(fee.Amount)
+	if !remainder.IsNil() && remainder.Denom == fee.Denom && remainder.Amount.GT(remaining) {
+		remainder.Amount = remaining
+	}
+
+	return fee, remainder
+}
+
+// proposerOperatorAccount resolves the current block proposer's consensus
+// address to the validator operator's account address, mirroring
+// x/distribution's proposer attribution.
+func (dfd FeeMarketDeductDecorator) proposerOperatorAccount(ctx sdk.Context) (sdk.AccAddress, bool) {
+	consAddr := sdk.ConsAddress(ctx.BlockHeader().ProposerAddress)
+	if len(consAddr) == 0 {
+		return nil, false
+	}
+
+	validator, err := dfd.stakingKeeper.GetValidatorByConsAddr(ctx, consAddr)
+	if err != nil {
+		return nil, false
+	}
+
+	valAddr, err := sdk.ValAddressFromBech32(validator.GetOperator())
+	if err != nil {
+		return nil, false
+	}
+
+	return sdk.AccAddress(valAddr), true
 }
 
 // DeductCoins deducts coins from the given account.

@@ -78,6 +78,13 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(
 		capabilitytypes.MemStoreKey,
 	)
+
+	// transient store keys: reset automatically at the end of every block.
+	// NOTE: every key registered here must be mounted on the commit
+	// multistore via app.MountTransientStores(GetTransientStoreKeys()).
+	appKeepers.tkeys = storetypes.NewTransientStoreKeys(
+		votingsnapshottypes.TransientStoreKey,
+	)
 }
 
 func (appKeepers *AppKeepers) GetKVStoreKeys() map[string]*storetypes.KVStoreKey {
@@ -88,10 +95,18 @@ func (appKeepers *AppKeepers) GetMemoryStoreKeys() map[string]*storetypes.Memory
 	return appKeepers.memKeys
 }
 
+func (appKeepers *AppKeepers) GetTransientStoreKeys() map[string]*storetypes.TransientStoreKey {
+	return appKeepers.tkeys
+}
+
 func (appKeepers *AppKeepers) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return appKeepers.keys[storeKey]
 }
 
 func (appKeepers *AppKeepers) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	return appKeepers.memKeys[storeKey]
+}
+
+func (appKeepers *AppKeepers) GetTKey(storeKey string) *storetypes.TransientStoreKey {
+	return appKeepers.tkeys[storeKey]
 }

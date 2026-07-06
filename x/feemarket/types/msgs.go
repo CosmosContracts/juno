@@ -20,8 +20,11 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{addr}
 }
 
-// ValidateBasic determines whether the information in the message is formatted correctly, specifically
-// whether the authority is a valid acc-address.
+// ValidateBasic determines whether the information in the message is formatted correctly:
+// the authority must be a valid acc-address and the proposed params must pass their own
+// validation. Without the params check, governance could store params (zero window, empty
+// fee denom, nil decimals, ...) that panic or deterministically fail in the ante/post
+// handlers and EndBlock — halting the chain.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	// validate authority address
 	_, err := sdk.AccAddressFromBech32(m.Authority)
@@ -29,5 +32,5 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 		return err
 	}
 
-	return nil
+	return m.Params.ValidateBasic()
 }

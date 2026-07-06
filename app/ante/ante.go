@@ -25,8 +25,6 @@ import (
 	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
 )
 
-// TODO: readd maxBypassMinFeeMsgGasUsage, gone because of Globalfee removal
-
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
 // channel keeper and a BankKeeper with an added method for fee sharing.
 type HandlerOptions struct {
@@ -106,6 +104,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 			options.BankKeeper,
 			options.FeegrantKeeper,
 			options.BondDenom,
+			options.BypassMinFeeMsgTypes,
 			ante.NewDeductFeeDecorator(
 				options.AccountKeeper,
 				options.BankKeeper,

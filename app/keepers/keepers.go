@@ -121,6 +121,7 @@ type AppKeepers struct {
 	// keys to access the substores
 	keys    map[string]*storetypes.KVStoreKey
 	memKeys map[string]*storetypes.MemoryStoreKey
+	tkeys   map[string]*storetypes.TransientStoreKey
 
 	// keepers
 	AccountKeeper        authkeeper.AccountKeeper
@@ -439,13 +440,35 @@ func NewAppKeepers(
 		appCodec,
 		keys[feemarkettypes.StoreKey],
 		appKeepers.AccountKeeper,
-		&feemarkettypes.TestDenomResolver{},
+		// Fees are payable ONLY in the fee (bond) denom. ErrorDenomResolver
+		// rejects everything else — a permissive resolver would let anyone
+		// mint a tokenfactory denom and pay fees with it 1:1.
+		&feemarkettypes.ErrorDenomResolver{},
 		govModAddress,
+	)
+
+	// VotingSnapshotKeeper MUST be constructed before it is handed to the
+	// wasm query plugin below: RegisterCustomPlugins captures the keeper BY
+	// VALUE, so a zero-value keeper here would nil-deref (chain halt) the
+	// first time a contract queries voting power. Its staking hooks are
+	// registered further down alongside the other staking hooks.
+	appKeepers.VotingSnapshotKeeper = votingsnapshotkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[votingsnapshottypes.StoreKey]),
+		stakingKeeper,
+		govModAddress,
+		votingsnapshottypes.NewTransientKVStoreService(appKeepers.tkeys[votingsnapshottypes.TransientStoreKey]),
 	)
 
 	wasmConfig, err := wasm.ReadNodeConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
+	}
+
+	// C1 regression guard: never hand a zero-value keeper to the wasm query
+	// plugin (it is captured by value — see comment on the construction above).
+	if appKeepers.VotingSnapshotKeeper.Authority() == "" {
+		panic("voting-snapshot keeper must be constructed before wasm plugin registration")
 	}
 
 	// Move custom query of token factory to stargate, still use custom msg which is tfOpts[1]
@@ -522,7 +545,6 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
-		authtypes.FeeCollectorName,
 		govModAddress,
 	)
 
@@ -559,13 +581,6 @@ func NewAppKeepers(
 		*govKeeper.Keeper,
 		appKeepers.WasmKeeper,
 		appKeepers.ContractKeeper,
-		govModAddress,
-	)
-
-	appKeepers.VotingSnapshotKeeper = votingsnapshotkeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(appKeepers.keys[votingsnapshottypes.StoreKey]),
-		stakingKeeper,
 		govModAddress,
 	)
 

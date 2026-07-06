@@ -228,8 +228,11 @@ func (k Keeper) FundContract(ctx context.Context, fpc *types.FeePayContract, sen
 		return types.ErrInvalidJunoFundAmount.Wrapf("contract must be funded with '%s'", k.bondDenom)
 	}
 
-	// Transfer from sender to module
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, coins); err != nil {
+	// Transfer ONLY the bond-denom coin from sender to module. Transferring
+	// the whole `coins` slice would pull non-bond denoms into the module
+	// account while crediting the contract only for the bond-denom amount —
+	// stranding the rest.
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, sdk.NewCoins(transferCoin)); err != nil {
 		return err
 	}
 

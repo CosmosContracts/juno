@@ -5,23 +5,37 @@ import (
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 
+	ibcchanneltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
+
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
 	"github.com/CosmosContracts/juno/v30/testutil"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 )
+
+// newBypassMsg returns an IBC relayer message that is in the default
+// bypass-min-fee allow-list.
+func newBypassMsg(signer sdk.AccAddress) sdk.Msg {
+	return &ibcchanneltypes.MsgRecvPacket{Signer: signer.String()}
+}
 
 func (s *AnteTestSuite) TestAnteHandle() {
 	// Same data for every test case
 	gasLimit := NewTestGasLimit()
 
+	// "stake" is the feemarket fee denom in test genesis (types.DefaultParams).
+	// Any other denom must be REJECTED: v30 wires the ErrorDenomResolver, so
+	// fees are payable only in the fee (bond) denom.
 	validFeeAmount := feemarkettypes.DefaultMinBaseGasPrice.MulInt64(int64(gasLimit))
-	validFee := sdk.NewCoins(sdk.NewCoin("ujuno", validFeeAmount.TruncateInt()))
-	validFeeDifferentDenom := sdk.NewCoins(sdk.NewCoin("uatom", math.Int(validFeeAmount)))
+	validFee := sdk.NewCoins(sdk.NewCoin("stake", validFeeAmount.TruncateInt()))
+	validFeeDifferentDenom := sdk.NewCoins(sdk.NewCoin("uatom", validFeeAmount.TruncateInt()))
+	// permissionless tokenfactory-style denom — the C2 fee-bypass vector
+	tokenfactoryFee := sdk.NewCoins(sdk.NewCoin("factory/juno12creator/fakefee", validFeeAmount.TruncateInt()))
 
 	testCases := []AnteTestCase{
 		{
@@ -63,7 +77,7 @@ func (s *AnteTestSuite) TestAnteHandle() {
 		},
 		{
 			TestCase: testutil.TestCase{
-				Name:     "0 gas given should fail with resolvable denom",
+				Name:     "0 gas given should fail with non-fee denom",
 				RunAnte:  true,
 				RunPost:  false,
 				Simulate: false,
@@ -146,7 +160,7 @@ func (s *AnteTestSuite) TestAnteHandle() {
 				Mock:     false,
 			},
 			Malleate: func(s *AnteTestSuite) testutil.TestCaseArgs {
-				s.FundAcc(s.TestAccs[0], sdk.NewCoins(sdk.NewCoin("ujuno", math.NewInt(100))))
+				s.FundAcc(s.TestAccs[0], sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(100))))
 
 				return testutil.TestCaseArgs{
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
@@ -157,12 +171,12 @@ func (s *AnteTestSuite) TestAnteHandle() {
 		},
 		{
 			TestCase: testutil.TestCase{
-				Name:     "signer has enough funds in resolvable denom, should pass",
+				Name:     "fee in non-fee denom is rejected even with funds",
 				RunAnte:  true,
 				RunPost:  false,
 				Simulate: false,
-				ExpPass:  true,
-				ExpErr:   nil,
+				ExpPass:  false,
+				ExpErr:   sdkerrors.ErrInvalidRequest,
 				Mock:     false,
 			},
 			Malleate: func(s *AnteTestSuite) testutil.TestCaseArgs {
@@ -172,6 +186,80 @@ func (s *AnteTestSuite) TestAnteHandle() {
 					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
 					GasLimit:  gasLimit,
 					FeeAmount: validFeeDifferentDenom,
+				}
+			},
+		},
+		{
+			TestCase: testutil.TestCase{
+				Name:     "fee in permissionless tokenfactory denom is rejected",
+				RunAnte:  true,
+				RunPost:  false,
+				Simulate: false,
+				ExpPass:  false,
+				ExpErr:   sdkerrors.ErrInvalidRequest,
+				Mock:     false,
+			},
+			Malleate: func(s *AnteTestSuite) testutil.TestCaseArgs {
+				s.FundAcc(s.TestAccs[0], tokenfactoryFee)
+
+				return testutil.TestCaseArgs{
+					Msgs:      []sdk.Msg{testdata.NewTestMsg(s.TestAccs[0])},
+					GasLimit:  gasLimit,
+					FeeAmount: tokenfactoryFee,
+				}
+			},
+		},
+		{
+			TestCase: testutil.TestCase{
+				Name:     "zero-fee tx of only bypass msgs passes",
+				RunAnte:  true,
+				RunPost:  false,
+				Simulate: false,
+				ExpPass:  true,
+				ExpErr:   nil,
+				Mock:     false,
+			},
+			Malleate: func(s *AnteTestSuite) testutil.TestCaseArgs {
+				return testutil.TestCaseArgs{
+					Msgs:      []sdk.Msg{newBypassMsg(s.TestAccs[0])},
+					GasLimit:  gasLimit,
+					FeeAmount: nil,
+				}
+			},
+		},
+		{
+			TestCase: testutil.TestCase{
+				Name:     "zero-fee bypass tx over the gas cap fails",
+				RunAnte:  true,
+				RunPost:  false,
+				Simulate: false,
+				ExpPass:  false,
+				ExpErr:   sdkerrors.ErrInvalidGasLimit,
+				Mock:     false,
+			},
+			Malleate: func(s *AnteTestSuite) testutil.TestCaseArgs {
+				return testutil.TestCaseArgs{
+					Msgs:      []sdk.Msg{newBypassMsg(s.TestAccs[0])},
+					GasLimit:  decorators.MaxBypassMinFeeMsgGasUsage + 1,
+					FeeAmount: nil,
+				}
+			},
+		},
+		{
+			TestCase: testutil.TestCase{
+				Name:     "zero-fee tx mixing bypass and normal msgs fails",
+				RunAnte:  true,
+				RunPost:  false,
+				Simulate: false,
+				ExpPass:  false,
+				ExpErr:   feemarkettypes.ErrNoFeeCoins,
+				Mock:     false,
+			},
+			Malleate: func(s *AnteTestSuite) testutil.TestCaseArgs {
+				return testutil.TestCaseArgs{
+					Msgs:      []sdk.Msg{newBypassMsg(s.TestAccs[0]), testdata.NewTestMsg(s.TestAccs[0])},
+					GasLimit:  gasLimit,
+					FeeAmount: nil,
 				}
 			},
 		},

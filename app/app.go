@@ -233,6 +233,7 @@ func New(
 	// initialize stores
 	app.MountKVStores(app.AppKeepers.GetKVStoreKeys())
 	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKeys())
+	app.MountTransientStores(app.AppKeepers.GetTransientStoreKeys())
 
 	// setup streaming support
 	app.AppKeepers.StreamKeeper.StartDispatcher()
@@ -296,17 +297,19 @@ func New(
 		AccountKeeper:   app.AppKeepers.AccountKeeper,
 		BankKeeper:      app.AppKeepers.BankKeeper,
 		FeeMarketKeeper: *app.AppKeepers.FeeMarketKeeper,
+		FeePayKeeper:    app.AppKeepers.FeePayKeeper,
+		StakingKeeper:   app.AppKeepers.StakingKeeper,
 	}
 	postHandler, err := NewPostHandler(postHandlerOptions)
 	if err != nil {
 		panic(err)
 	}
 
-	// TODO: IMPORTANT!!! Create real denom resolver, this one uses the same amount
-	// token amount for every denom. 1ujuno != 1uatom in price.
-	// Resolve to denom should be based on the price of the denom in an oracle module
-	// or temporarily use a hardcoded token price ratio from ujuno to x token
-	app.AppKeepers.FeeMarketKeeper.SetDenomResolver(&feemarkettypes.TestDenomResolver{})
+	// Fees are payable ONLY in the fee (bond) denom for v30. ErrorDenomResolver
+	// rejects every other denom; a permissive resolver would let permissionless
+	// tokenfactory denoms satisfy fees 1:1 with the bond denom. Swap for an
+	// oracle-backed resolver if multi-denom fees are ever wanted.
+	app.AppKeepers.FeeMarketKeeper.SetDenomResolver(&feemarkettypes.ErrorDenomResolver{})
 
 	app.SetAnteHandler(anteHandler)
 	app.SetPostHandler(postHandler)

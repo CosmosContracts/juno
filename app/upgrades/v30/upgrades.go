@@ -15,6 +15,7 @@ import (
 
 	"github.com/CosmosContracts/juno/v30/app/keepers"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
 )
 
 func CreateV30UpgradeHandler(
@@ -44,13 +45,23 @@ func CreateV30UpgradeHandler(
 			return nil, err
 		}
 
-		// Seed x/voting-snapshot with the current staking state so DAO
-		// vote queries at heights >= upgrade return real power immediately.
-		// See planning/05-staking-snapshot.md.
-		if err := k.VotingSnapshotKeeper.BackfillFromStaking(ctx); err != nil {
-			return nil, errorsmod.Wrap(err, "v30: failed to backfill x/voting-snapshot")
+		// x/voting-snapshot seeding happens in the module's InitGenesis, which
+		// RunMigrations above already executed for the newly-added store —
+		// params are set and BackfillFromStaking has walked the delegation
+		// set exactly once. Do NOT backfill again here: the walk is
+		// O(n_delegations) and doubling it doubles the upgrade-block cost.
+		// Cheap insurance in case module-init ordering ever changes: make
+		// sure params exist so reads/hooks never hit a missing-params error.
+		hasParams, err := k.VotingSnapshotKeeper.Params.Has(ctx)
+		if err != nil {
+			return nil, errorsmod.Wrap(err, "v30: failed to check x/voting-snapshot params")
 		}
-		logger.Info("v30: successfully backfilled x/voting-snapshot from staking state")
+		if !hasParams {
+			logger.Error("v30: x/voting-snapshot params missing after RunMigrations (InitGenesis did not run?); setting defaults")
+			if err := k.VotingSnapshotKeeper.Params.Set(ctx, votingsnapshottypes.DefaultParams()); err != nil {
+				return nil, errorsmod.Wrap(err, "v30: failed to set default x/voting-snapshot params")
+			}
+		}
 
 		return versionMap, nil
 	}
