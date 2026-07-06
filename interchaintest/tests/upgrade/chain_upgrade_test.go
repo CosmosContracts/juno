@@ -21,6 +21,10 @@ import (
 
 const (
 	upgradeName = "v30"
+	// Deliberately different from the handler's 25M fallback so the
+	// post-upgrade assertion proves feemarket read consensus max_gas
+	// rather than silently falling back.
+	expectedConsensusMaxGas = uint64(30_000_000)
 )
 
 // baseChain is the current version of the chain that will be upgraded from
@@ -53,6 +57,10 @@ func TestUpgradeTestSuite(t *testing.T) {
 		{
 			Key:   "app_state.gov.params.min_deposit.0.denom",
 			Value: e2esuite.DefaultDenom,
+		},
+		{
+			Key:   "consensus.params.block.max_gas",
+			Value: strconv.FormatUint(expectedConsensusMaxGas, 10),
 		},
 	}
 	cfg.ModifyGenesis = cosmos.ModifyGenesis(previousVersionGenesis)
@@ -129,6 +137,10 @@ func (s *UpgradeTestSuite) TestV30ChainUpgrade() {
 	postUpgradeContracts := s.GetCwHooksStakingContracts()
 	require.Contains(postUpgradeContracts, hookContract, "cw-hooks contract no longer registered after migration")
 
+	cwHooksParams := s.QueryCwHooksParams()
+	require.Equal(uint64(3), cwHooksParams.ContractFailureRemovalThreshold,
+		"cw-hooks contract failure removal threshold should be migrated")
+
 	additionalStakeAmt := int64(500_000)
 	additionalStakeCoins := fmt.Sprintf("%d%s", additionalStakeAmt, s.Denom)
 	s.StakeTokens(s.Chain, user, valoper.String(), additionalStakeCoins, fees, false)
@@ -146,6 +158,8 @@ func (s *UpgradeTestSuite) TestV30ChainUpgrade() {
 	require.True(feemarketParams.Enabled, "feemarket should be enabled after upgrade")
 	require.False(feemarketParams.MinBaseGasPrice.IsNil(), "feemarket min base gas price should be set")
 	require.True(feemarketParams.MinBaseGasPrice.IsPositive(), "feemarket min base gas price should be positive")
+	require.Equal(expectedConsensusMaxGas, feemarketParams.MaxBlockUtilization,
+		"feemarket max block utilization should match consensus block max gas")
 
 	feemarketState := s.QueryFeemarketState()
 	require.False(feemarketState.BaseGasPrice.IsNil(), "feemarket base gas price state should be set")
@@ -156,9 +170,9 @@ func (s *UpgradeTestSuite) TestV30ChainUpgrade() {
 	require.True(gasPrice.Amount.IsPositive(), "feemarket gas price for %s should be positive", s.Denom)
 
 	// --- new v30 modules: voting-snapshot (added store) must be initialized ---
-	// The upgrade handler backfills a snapshot of every active delegator, and
-	// the post-upgrade delegation above writes a fresh one. Both the module
-	// params and the gRPC power queries must return sane values.
+	// InitGenesis seeds active delegators, and the post-upgrade delegation
+	// above writes a fresh snapshot. Both the module params and the gRPC power
+	// queries must return sane values.
 	vsParams := s.QueryVotingSnapshotParams()
 	require.Positive(vsParams.PruneInterval, "voting-snapshot prune interval should be a sane positive default")
 

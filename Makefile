@@ -149,7 +149,7 @@ ictest-fees: rm-testcache
 	cd interchaintest/tests/fees && go test -race -v -run TestFeesTestSuite .
 
 ictest-upgrade: rm-testcache
-	cd interchaintest/tests/upgrade && go test -race -v -run BasicUpgradeTestSuite .
+	cd interchaintest/tests/upgrade && go test -race -v -run TestUpgradeTestSuite .
 
 ictest-ibc: rm-testcache
 	cd interchaintest/tests/ibc && go test -race -v -run TestIbcTestSuite .

@@ -101,6 +101,15 @@ func (s *E2ETestSuite) QueryStakingDelegation(delegator, valoper string) staking
 
 // CWHOOKS
 
+func (s *E2ETestSuite) QueryCwHooksParams() cwhooktypes.Params {
+	s.T().Helper()
+
+	resp, err := s.QueryClients.CwhooksClient.Params(context.Background(), &cwhooktypes.QueryParamsRequest{})
+	s.Require().NoError(err)
+
+	return resp.Params
+}
+
 // QueryCwHooksContractInfo returns the registration record (including the
 // failure counter and latest error) for a contract registered under module.
 func (s *E2ETestSuite) QueryCwHooksContractInfo(module, contractAddr string) cwhooktypes.ContractInfo {

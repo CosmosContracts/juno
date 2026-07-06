@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"errors"
 	"sort"
 
 	"cosmossdk.io/collections"
@@ -16,26 +17,64 @@ import (
 // v30 upgrade handler so contracts querying VotingPowerAt(height >= upgrade)
 // get real data immediately rather than zeros until the next delegation event.
 //
-// Walks all delegations once to collect the unique delegator set, then
-// resolves each delegator's bonded-validator power (same basis as the
-// hook-driven snapshots — see delegatorBondedPower). Linear in the number
-// of delegations — acceptable for a one-shot upgrade migration.
+// Walks all delegations once and caches validator bond status so the upgrade
+// block does not do a second per-delegator delegation walk. Writes remain
+// sorted by delegator address for deterministic IAVL write order.
 func (k Keeper) BackfillFromStaking(ctx context.Context) error {
 	height := sdk.UnwrapSDKContext(ctx).BlockHeight()
 
-	totals := map[string]math.Int{}
+	powers := map[string]math.LegacyDec{}
+	validatorBonded := map[string]bool{}
+	bondedValidators := map[string]stakingtypes.Validator{}
+	var innerErr error
 	err := k.stakingKeeper.IterateAllDelegations(ctx, func(d stakingtypes.Delegation) bool {
-		// Collect unique delegator addresses here; power is resolved per
-		// delegator below via delegatorBondedPower.
-		totals[d.DelegatorAddress] = math.ZeroInt() // sentinel; resolved below
+		if _, ok := powers[d.DelegatorAddress]; !ok {
+			powers[d.DelegatorAddress] = math.LegacyZeroDec()
+		}
+
+		bonded, ok := validatorBonded[d.ValidatorAddress]
+		if !ok {
+			valAddr, err := sdk.ValAddressFromBech32(d.ValidatorAddress)
+			if err != nil {
+				innerErr = err
+				return true
+			}
+			val, err := k.stakingKeeper.GetValidator(ctx, valAddr)
+			if err != nil {
+				if errors.Is(err, stakingtypes.ErrNoValidatorFound) {
+					validatorBonded[d.ValidatorAddress] = false
+					return false
+				}
+				innerErr = err
+				return true
+			}
+			bonded = val.IsBonded()
+			validatorBonded[d.ValidatorAddress] = bonded
+			if bonded {
+				bondedValidators[d.ValidatorAddress] = val
+				powers[d.DelegatorAddress] = powers[d.DelegatorAddress].Add(val.TokensFromSharesTruncated(d.Shares))
+			}
+			return false
+		}
+		if bonded {
+			val, ok := bondedValidators[d.ValidatorAddress]
+			if !ok {
+				innerErr = stakingtypes.ErrNoValidatorFound
+				return true
+			}
+			powers[d.DelegatorAddress] = powers[d.DelegatorAddress].Add(val.TokensFromSharesTruncated(d.Shares))
+		}
 		return false
 	})
 	if err != nil {
 		return err
 	}
+	if innerErr != nil {
+		return innerErr
+	}
 
-	delegators := make([]string, 0, len(totals))
-	for delStr := range totals {
+	delegators := make([]string, 0, len(powers))
+	for delStr := range powers {
 		delegators = append(delegators, delStr)
 	}
 	sort.Strings(delegators)
@@ -55,10 +94,7 @@ func (k Keeper) BackfillFromStaking(ctx context.Context) error {
 		if isLST {
 			power = math.ZeroInt()
 		} else {
-			power, err = k.delegatorBondedPower(ctx, addr)
-			if err != nil {
-				return err
-			}
+			power = powers[delStr].RoundInt()
 		}
 
 		if err := k.VotingPower.Set(ctx, collections.Join[[]byte, int64](addr.Bytes(), height), power); err != nil {

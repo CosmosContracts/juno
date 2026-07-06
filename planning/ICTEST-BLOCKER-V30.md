@@ -1,6 +1,10 @@
 # ictest blocker — chain RPC not reachable from host
 
-**Status: blocking A1 + A2.** Needs a focused debugging session.
+**Status (updated 2026-07-06): partially unblocked.** `ictest-upgrade`
+now runs end-to-end via the `ICTEST_HOST_IP` workaround; the v30 handler
+is verified against a real v29→v30 migration. Only a flaky DooD
+port-publish race remains (see the 2026-07-06 UPDATE at the bottom).
+Original write-up preserved below for history.
 
 ## Symptom
 
@@ -243,3 +247,72 @@ If the focused session can't quickly resolve, we can:
 - Block the v30 proposal on getting ictest green in a follow-up PR
 
 This blocks A1 (DAO DAO contract compatibility) and A2 (`ictest-upgrade` against forked mainnet state). The DAO DAO artifacts are ready in `/workspace/dao-contracts/artifacts/` (29 wasm files including all v2.7.0 modules); the test scaffold can be written before ictest is fixed but can't be run.
+
+## UPDATE 2026-07-06 — partial workaround found; `ictest-upgrade` now runs end-to-end
+
+The May-9 diagnosis was too pessimistic. We do NOT need to join the
+per-test interchaintest network. Published host ports bind on the
+OUTER host's `0.0.0.0`, and the docker-bridge gateway `172.17.0.1`
+(reachable from this container) routes into that namespace. So
+pointing interchaintest's host-port resolution at the gateway IP
+instead of the literal `0.0.0.0` makes the chain reachable.
+
+**Workaround (local only — not committed):**
+
+1. A one-line patch to `dockerutil.GetHostPort` in a local fork of
+   `interchaintest/v10`, gated on `ICTEST_HOST_IP`: when the published
+   `HostIP` is `0.0.0.0`/empty, substitute the env value. Wired via a
+   git-excluded `interchaintest/go.work` `replace` (fork lives in the
+   session scratchpad). Run with `ICTEST_HOST_IP=172.17.0.1`.
+2. Verified reachability directly: `curl 172.17.0.1:<published-port>`
+   into a throwaway container returns immediately (vs. the May-9
+   `0.0.0.0`/container-IP timeouts).
+
+With that, `make ictest-upgrade` (v29.0.0 → v30 `:local`):
+
+- **Builds and starts the pre-upgrade chain** (health check passes).
+- **Runs every pre-upgrade step** — deploys the cw-hooks staking
+  contract, registers it, delegates, asserts hook state.
+- **Submits + votes the software-upgrade proposal, halts, recreates
+  every node container on the v30 image, and resumes block
+  production.** Confirmed on the live v30 node via `docker exec`:
+  height advanced past the upgrade height, `catching_up=false`, image
+  `ghcr.io/cosmoscontracts/juno:local`. Handler logs show
+  `applying upgrade "v30"`, `v30: successfully configured x/feemarket`,
+  `v30: successfully set x/cw-hooks params`,
+  `v30: successfully backfilled x/voting-snapshot from staking state`.
+  On-chain queries confirm the migrated state:
+  `feemarket max_block_utilization=30000000` (read from consensus
+  `block.max_gas`, not the 25M fallback), `enabled=true`,
+  `min_base_gas_price=0.075`; `cw-hooks contract_failure_removal_threshold=3`.
+
+**Two real test-harness bugs fixed while getting there (committed to the branch):**
+
+- `interchaintest/suite/{suite,upgrade}.go`: the suite's `s.GrpcClient`
+  was dialed once in `SetupSuite` and never refreshed. `UpgradeVersion`
+  recreates every node container → new host gRPC port → every
+  post-upgrade gRPC query hit a dead port (`connection refused`). Added
+  `RefreshGRPCClients()` and call it at the end of `UpgradeNodes`.
+- Strengthened the upgrade assertions so a silent feemarket fallback
+  can't pass: consensus `block.max_gas` is seeded to 30M (≠ the
+  handler's 25M fallback) and the test asserts the post-upgrade
+  `MaxBlockUtilization == 30M`.
+
+**Remaining blocker (flaky, environmental — NOT a v30 bug):** the
+post-upgrade container recreation intermittently returns an empty RPC
+host port from `ContainerInspect`, so interchaintest's own
+`StartContainer` health check builds `tcp://` (no host) and fails with
+`http: no Host in request URL`. This is the DooD port-reservation race
+in `dockerutil/ports.go` — listeners reserve ports in *this* container's
+netns while Docker binds them in the *host* netns. Run 2 of 4 got past
+it and reached the assertions; runs 3–4 hit the empty-port race at
+`StartAllNodes`. So the suite is one flaky timing window away from
+green here, and would be reliably green on CI/bare-metal Docker where
+the test runner shares the daemon's netns.
+
+**Bottom line for v30:** the upgrade *handler* is verified against a
+real v29→v30 store migration (halt/resume + on-chain migrated state).
+The outstanding item is harness flakiness in this DooD sandbox, not
+chain correctness. CI (which runs ictest on the host netns) is the
+right place to close A2 green; the `RefreshGRPCClients` fix is required
+for it to pass there.

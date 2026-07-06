@@ -208,22 +208,28 @@ connections live across the upgrade height and re-verify them after.
 
 ### 6.2 max_gas precondition
 
-`configureFeemarketParams` reads `consensusParams.Block.MaxGas` and
-the new §1 guard halts the upgrade handler if it is `<= 0`. uni-7's
-genesis sets `max_gas = 100000000` (verified by inspecting
-`testnets/uni-7/genesis.zip`), so the genesis-state default is safe.
+*(Updated 2026-07-06: the halt guard was softened to a fallback.)*
 
-Risk: a consensus-params change proposal could have set it to `-1`
-in the years since genesis. **Verify live state before scheduling:**
+`configureFeemarketParams` reads `consensusParams.Block.MaxGas`. If it
+is `<= 0` (CometBFT "unbounded"), the handler no longer halts — it
+logs an error and seeds feemarket with a finite fallback ceiling of
+`25_000_000` (`fallbackMaxBlockUtilization`). Feemarket's
+`State.Update` clamps over-utilized blocks to `MaxBlockUtilization`
+rather than erroring, so the fallback cannot halt the chain later
+either. uni-7's genesis sets `max_gas = 100000000` (verified by
+inspecting `testnets/uni-7/genesis.zip`), so the real-read path is
+what both networks should take.
+
+Pre-flight is now advisory rather than halt-critical — still check it
+so the upgrade takes the real-read path instead of the fallback:
 
 ```bash
 junod query consensus params --node <uni-7-rpc> --output json | jq '.params.block.max_gas'
-# Must be a positive int. "-1" = upgrade will halt at handler.
+# Positive int = feemarket seeds from consensus. "-1" = 25M fallback + error log (no halt).
 ```
 
 If the live value is non-positive, queue a consensus-params proposal
-to fix `max_gas` first, with a voting period that completes before
-the v30 upgrade height.
+to fix `max_gas` (before or after the upgrade — no longer blocking).
 
 ### 6.3 Store-purge correctness (no source change needed)
 
@@ -247,6 +253,11 @@ start. Purge will run as expected.
 no prior data — correct.
 
 ### 6.4 BackfillFromStaking — runs twice (latent, non-blocking)
+
+*(Resolved 2026-07-06: the explicit handler call was dropped — the
+handler now only asserts params exist post-RunMigrations, and the
+backfill itself was rewritten to a single delegation walk with cached
+validator lookups. Section kept for history.)*
 
 The new `x/voting-snapshot` module's `InitGenesis` already calls
 `BackfillFromStaking(ctx)` (see `x/voting-snapshot/keeper/genesis.go:22`).
@@ -332,7 +343,8 @@ boundary either acked or timed-out cleanly.
    D+1 block estimate. Voting period 12h (uni-7 genesis setting).
 3. **D-1**: verify §6.2 max_gas live value, §6.3 expected purge,
    §6.1 snapshot of IBC/ICQ state.
-4. **D**: upgrade height. Watch for the §1 guard panic (max_gas),
+4. **D**: upgrade height. Watch for the §6.2 fallback error log
+   (max_gas — degraded, not fatal),
    the §6.5 CGO panic (validators who missed `.so` swap), and any
    IBC migration halt. If chain produces blocks for >10 min post-
    upgrade with normal tx throughput, the rehearsal passed.

@@ -10,13 +10,14 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/CosmosContracts/juno/v30/app/keepers"
 	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
 )
+
+const fallbackMaxBlockUtilization uint64 = 25_000_000
 
 func CreateV30UpgradeHandler(
 	mm *module.Manager,
@@ -80,13 +81,17 @@ func configureFeemarketParams(ctx context.Context, k *keepers.AppKeepers, logger
 		return errorsmod.Wrap(err, "v30: failed to get x/consensus params")
 	}
 
-	// MaxGas == -1 ("unbounded") would cast to 2^64-1 below and seed
-	// feemarket with a nonsense block-utilization ceiling, sending AIMD
-	// base-fee adjustment haywire. juno-1 sets a positive max_gas, but
-	// guard against operators running this binary on a chain that left
-	// max_gas unbounded.
+	maxBlockUtilization := fallbackMaxBlockUtilization
+	// MaxGas == -1 ("unbounded") would cast to 2^64-1 and seed feemarket
+	// with a nonsense block-utilization ceiling. Use a finite fallback instead
+	// so testnets/devnets with unbounded consensus gas do not halt at upgrade.
 	if consensusParams.Block == nil || consensusParams.Block.MaxGas <= 0 {
-		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "v30: consensus block.max_gas must be a positive value before feemarket init")
+		logger.Error(
+			"v30: consensus block.max_gas is missing or unbounded; using fallback feemarket max block utilization",
+			"fallback_max_block_utilization", maxBlockUtilization,
+		)
+	} else {
+		maxBlockUtilization = uint64(consensusParams.Block.MaxGas)
 	}
 
 	newFeemarketParams := feemarkettypes.Params{
@@ -97,7 +102,7 @@ func configureFeemarketParams(ctx context.Context, k *keepers.AppKeepers, logger
 		MinBaseGasPrice:     sdkmath.LegacyMustNewDecFromStr("0.075"),
 		MinLearningRate:     sdkmath.LegacyMustNewDecFromStr("0.0015"),
 		MaxLearningRate:     sdkmath.LegacyMustNewDecFromStr("0.05"),
-		MaxBlockUtilization: uint64(consensusParams.Block.MaxGas),
+		MaxBlockUtilization: maxBlockUtilization,
 		Window:              60,
 		FeeDenom:            stakingParams.BondDenom,
 		Enabled:             true,
@@ -109,6 +114,7 @@ func configureFeemarketParams(ctx context.Context, k *keepers.AppKeepers, logger
 	if err != nil {
 		return errorsmod.Wrap(err, "v30: failed to set x/feemarket params")
 	}
+	k.FeeMarketKeeper.SetEnabledHeight(sdkCtx, sdkCtx.BlockHeight())
 
 	newState := feemarkettypes.NewState(
 		newFeemarketParams.Window,

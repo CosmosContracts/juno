@@ -161,6 +161,27 @@ type QueryClients struct {
 	VotingSnapshotClient votingsnapshottypes.QueryClient
 }
 
+// RefreshGRPCClients (re-)dials the chain's host gRPC endpoint and rebuilds
+// every query client from the new connection.
+//
+// This MUST be called after an in-place chain upgrade. UpgradeVersion
+// recreates each node's Docker container, so the daemon assigns a fresh
+// random host gRPC port; the connection dialed in SetupSuite then points at
+// a dead port and every gRPC query fails with "connection refused". Tx paths
+// are unaffected — they exec inside the container or build a fresh
+// broadcaster per call — so only the long-lived query connection goes stale.
+func (s *E2ETestSuite) RefreshGRPCClients() {
+	if s.GrpcClient != nil {
+		_ = s.GrpcClient.Close()
+	}
+
+	grpcAddr := s.Chain.GetHostGRPCAddress()
+	grpcClient, err := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	s.Require().NoError(err)
+	s.GrpcClient = grpcClient
+	s.setupQueryClients()
+}
+
 func (s *E2ETestSuite) setupQueryClients() {
 	authClient := authtypes.NewQueryClient(s.GrpcClient)
 	s.AuthClient = authClient
@@ -430,12 +451,8 @@ func (s *E2ETestSuite) SetupSuite() {
 	s.Chain = chains[0]
 	s.Chains = chains
 
-	// get grpc address
-	grpcAddr := s.Chain.GetHostGRPCAddress()
-	grpcClient, err := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	s.Require().NoError(err)
-	s.GrpcClient = grpcClient
-	s.setupQueryClients()
+	// dial grpc + build query clients
+	s.RefreshGRPCClients()
 
 	// create the broadcaster
 	s.T().Log("creating broadcaster")

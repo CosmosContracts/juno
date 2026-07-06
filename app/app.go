@@ -221,6 +221,7 @@ func New(
 	app.ModuleManager.SetOrderEndBlockers(orderEndBlockers()...)
 	app.ModuleManager.SetOrderInitGenesis(orderInitBlockers()...)
 	app.ModuleManager.SetOrderExportGenesis(orderInitBlockers()...)
+	app.ModuleManager.SetOrderMigrations(orderMigrations(app.ModuleManager.ModuleNames())...)
 
 	autocliv1.RegisterQueryServer(app.GRPCQueryRouter(), runtimeservices.NewAutoCLIQueryService(app.ModuleManager.Modules))
 

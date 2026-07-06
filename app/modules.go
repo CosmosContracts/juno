@@ -242,6 +242,40 @@ func orderInitBlockers() []string {
 	}
 }
 
+func orderMigrations(moduleNames []string) []string {
+	order := module.DefaultMigrationsOrder(moduleNames)
+	return moveModuleAfter(order, stakingtypes.ModuleName, votingsnapshottypes.ModuleName)
+}
+
+func moveModuleAfter(order []string, dependency, target string) []string {
+	dependencyIndex, targetIndex := -1, -1
+	for i, name := range order {
+		switch name {
+		case dependency:
+			dependencyIndex = i
+		case target:
+			targetIndex = i
+		}
+	}
+	if dependencyIndex == -1 || targetIndex == -1 || dependencyIndex < targetIndex {
+		return order
+	}
+
+	out := make([]string, 0, len(order))
+	for _, name := range order {
+		if name != target {
+			out = append(out, name)
+		}
+	}
+	for i, name := range out {
+		if name == dependency {
+			out = append(out[:i+1], append([]string{target}, out[i+1:]...)...)
+			return out
+		}
+	}
+	return out
+}
+
 // AppModuleBasics returns AppModuleBasics for the module BasicManager.
 // used only for pre-init stuff like DefaultGenesis generation.
 var AppModuleBasics = module.NewBasicManager(

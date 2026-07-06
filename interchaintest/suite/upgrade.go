@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/moby/moby/client"
 	"github.com/cosmos/interchaintest/v10/chain/cosmos"
 	"github.com/cosmos/interchaintest/v10/testutil"
+	"github.com/moby/moby/client"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,4 +40,9 @@ func (s *E2ETestSuite) UpgradeNodes(chain *cosmos.CosmosChain, client *client.Cl
 	require.NoError(t, err, "error fetching height after upgrade")
 
 	require.GreaterOrEqual(t, height, haltHeight+blocksAfterUpgrade, "height did not increment enough after upgrade")
+
+	// UpgradeVersion recreated every node container, so the host gRPC port
+	// changed. Re-dial before any post-upgrade gRPC query, or they all fail
+	// with "connection refused" against the stale pre-upgrade port.
+	s.RefreshGRPCClients()
 }
