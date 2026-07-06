@@ -67,6 +67,11 @@ func (qp QueryPlugin) GetParams(ctx sdk.Context) (*types.ParamsResponse, error) 
 // roughly equivalent to a small bank query plus a slot-read.
 const votingPowerQueryGas uint64 = 5000
 
+// votingPowerRangeRowGas is charged per row returned by the range query,
+// on top of the flat votingPowerQueryGas, so a contract pays proportional
+// to the result size (bounded by keeper.MaxVotingPowerRangeRows).
+const votingPowerRangeRowGas uint64 = 100
+
 // GetVotingPowerAt returns the bonded voting power of `address` at `height`,
 // excluding LST-held delegations. Resolves to the most recent snapshot
 // at-or-before the requested height.
@@ -99,6 +104,11 @@ func (qp QueryPlugin) GetTotalVotingPowerAt(ctx sdk.Context, height int64) (*typ
 // in [fromHeight, toHeight]. Empty result is valid (delegator didn't
 // change stake during the window — caller should fall back to
 // VotingPowerAt(fromHeight) for the constant-over-window value).
+//
+// Hard caps (rejected with an error, never silently truncated): the
+// window may span at most keeper.MaxVotingPowerRangeWidth blocks and
+// the result at most keeper.MaxVotingPowerRangeRows rows. Gas is charged
+// per returned row on top of the flat base charge.
 func (qp QueryPlugin) GetVotingPowerOverRange(ctx sdk.Context, address string, fromHeight, toHeight int64) (*types.VotingPowerOverRangeResponse, error) {
 	ctx.GasMeter().ConsumeGas(votingPowerQueryGas, "wasmbindings/voting_power_over_range")
 
@@ -106,10 +116,11 @@ func (qp QueryPlugin) GetVotingPowerOverRange(ctx sdk.Context, address string, f
 	if err != nil {
 		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid voter address: %s", address)
 	}
-	rows, err := qp.votingSnapshotKeeper.VotingPowerOverRange(ctx, addr, fromHeight, toHeight)
+	rows, err := qp.votingSnapshotKeeper.VotingPowerOverRangeCapped(ctx, addr, fromHeight, toHeight)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "voting power range lookup failed")
 	}
+	ctx.GasMeter().ConsumeGas(uint64(len(rows))*votingPowerRangeRowGas, "wasmbindings/voting_power_over_range rows")
 	out := make([]types.HeightPowerPair, 0, len(rows))
 	for _, r := range rows {
 		out = append(out, types.HeightPowerPair{Height: r.Height, Power: r.Power.String()})

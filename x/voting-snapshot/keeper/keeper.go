@@ -5,6 +5,7 @@ import (
 
 	"cosmossdk.io/collections"
 	corestore "cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -15,10 +16,18 @@ import (
 
 // Keeper holds the event-driven voting-power index for staked JUNO.
 //
-// Per planning/05-staking-snapshot.md (option 2): writes happen on
-// staking events. Reads return the latest snapshot at-or-before the
-// requested height — caller-side semantics line up with proposal-vote
-// tallying ("what was X's power at proposal-open height?").
+// Per planning/05-staking-snapshot.md (option 2): staking hooks mark
+// affected delegators dirty in a transient store, and the module
+// EndBlocker (ordered after staking in app/modules.go) recomputes and
+// writes their snapshots once all staking mutations for the block have
+// settled. Reads return the latest snapshot at-or-before the requested
+// height — caller-side semantics line up with proposal-vote tallying
+// ("what was X's power at proposal-open height?").
+//
+// Writing from EndBlock instead of inside the hooks is load-bearing for
+// correctness: several staking hooks (BeforeDelegationRemoved,
+// BeforeValidatorSlashed) fire while the store still holds the
+// pre-mutation state, so an in-hook recompute records stale power.
 type Keeper struct {
 	cdc           codec.BinaryCodec
 	authority     string
@@ -27,16 +36,25 @@ type Keeper struct {
 	Schema collections.Schema
 	Params collections.Item[types.Params]
 	// VotingPower indexes a delegator's bonded stake per snapshot height.
-	// LST-allowlisted delegators write zero (their stake is excluded from
-	// per-address voting power).
+	// Only delegations to validators in Bonded status count (matching the
+	// TotalBondedTokens basis). LST-allowlisted delegators write zero and
+	// their stake is symmetrically excluded from TotalPower.
 	VotingPower collections.Map[collections.Pair[[]byte, int64], math.Int]
-	// TotalPower indexes the chain's total bonded stake per snapshot height.
-	// Sourced from staking.TotalBondedTokens at write time, which still
-	// includes LST bonded stake — so Σ VotingPower[d,h] < TotalPower[h] by
-	// the LST share. Denominator subtraction is a planned v30.x refinement;
-	// see planning/05-staking-snapshot.md "LST asymmetry" for the design
-	// rationale. DAO designers computing quorum need to account for this.
+	// TotalPower indexes the chain's total voting power per snapshot
+	// height: staking.TotalBondedTokens minus the bonded stake held by
+	// LST-allowlisted addresses. This keeps the numerator/denominator
+	// bases aligned so Σ VotingPower[d,h] <= TotalPower[h] (up to
+	// shares-rounding dust). DAO designers can compute quorum as
+	// Σ votes / TotalPower directly.
 	TotalPower collections.Map[int64, math.Int]
+
+	// TransientSchema and the collections below live in the module's
+	// transient store (reset on every commit). They carry the set of
+	// delegators whose power changed within the current block from the
+	// staking hooks to the EndBlocker drain.
+	TransientSchema collections.Schema
+	DirtyDelegators collections.KeySet[[]byte]
+	TotalDirty      collections.Item[bool]
 }
 
 func NewKeeper(
@@ -44,8 +62,10 @@ func NewKeeper(
 	storeService corestore.KVStoreService,
 	stakingKeeper types.StakingKeeper,
 	authority string,
+	transientService corestore.KVStoreService,
 ) Keeper {
 	sb := collections.NewSchemaBuilder(storeService)
+	tsb := collections.NewSchemaBuilder(transientService)
 
 	k := Keeper{
 		cdc:           cdc,
@@ -71,6 +91,18 @@ func NewKeeper(
 			collections.Int64Key,
 			sdk.IntValue,
 		),
+		DirtyDelegators: collections.NewKeySet(
+			tsb,
+			types.TransientDirtyDelegatorsKey,
+			"dirty_delegators",
+			collections.BytesKey,
+		),
+		TotalDirty: collections.NewItem(
+			tsb,
+			types.TransientTotalDirtyKey,
+			"total_dirty",
+			collections.BoolValue,
+		),
 	}
 
 	schema, err := sb.Build()
@@ -78,10 +110,22 @@ func NewKeeper(
 		panic(err)
 	}
 	k.Schema = schema
+
+	tschema, err := tsb.Build()
+	if err != nil {
+		panic(err)
+	}
+	k.TransientSchema = tschema
+
 	return k
 }
 
 func (k Keeper) Authority() string { return k.authority }
+
+// Logger returns a module-tagged logger derived from the context.
+func (Keeper) Logger(ctx context.Context) log.Logger {
+	return sdk.UnwrapSDKContext(ctx).Logger().With("module", "x/"+types.ModuleName)
+}
 
 // IsLST reports whether the given delegator address is currently in the
 // LST allowlist (delegators whose stake does NOT count toward voting power).

@@ -22,6 +22,17 @@ func (k Keeper) InitGenesis(ctx context.Context, gs *types.GenesisState) error {
 	return k.BackfillFromStaking(ctx)
 }
 
+// ExportGenesis exports Params only — the snapshot index (VotingPower /
+// TotalPower maps) is intentionally NOT exported.
+//
+// This is a documented in-place-upgrade-only assumption: Juno upgrades
+// via x/upgrade in-place migrations, so the snapshot history never needs
+// to round-trip through genesis JSON (it can be millions of rows). If
+// the chain is ever restarted from an exported genesis, InitGenesis's
+// BackfillFromStaking reseeds every delegator's power and the total at
+// the restart height from live staking state — current voting power is
+// correct immediately; only pre-restart *history* is lost, which
+// matches what proposals opened before a hard restart can expect.
 func (k Keeper) ExportGenesis(ctx context.Context) (*types.GenesisState, error) {
 	params, err := k.Params.Get(ctx)
 	if err != nil {

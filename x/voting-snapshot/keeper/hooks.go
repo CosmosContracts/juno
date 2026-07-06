@@ -16,68 +16,62 @@ type Hooks struct {
 	k Keeper
 }
 
-// staking lifecycle: per-event snapshot writes
+// staking lifecycle: dirty-marking only
 //
-// We snapshot on AfterDelegationModified (delegate, redelegate-out,
-// undelegate-up-to-completion) and BeforeDelegationRemoved (full
-// undelegation). BeforeValidatorSlashed snapshots the affected
-// delegators' new power; the post-slash recompute is the right
-// semantic per design doc (a vote shouldn't carry power that no
-// longer exists).
+// Hooks never compute or write power. Several of them fire while the
+// staking store still holds the pre-mutation state:
+//   - BeforeDelegationRemoved fires before the delegation record is
+//     deleted, so an in-hook GetDelegatorBonded-style recompute returns
+//     the un-undelegated amount (permanent phantom voting power);
+//   - BeforeValidatorSlashed fires before RemoveValidatorTokens, so an
+//     in-hook recompute records pre-slash values.
+//
+// Instead every hook marks the affected delegator(s) dirty in the
+// transient store; the module EndBlocker (ordered after staking's
+// EndBlocker in app/modules.go) recomputes each dirty delegator's power
+// from settled state and writes the snapshot at the current height.
 
 func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
-	if err := h.k.recordDelegatorPower(ctx, delAddr); err != nil {
-		return err
-	}
-	return h.k.recordTotal(ctx)
+	return h.k.markDirty(ctx, delAddr)
 }
 
 func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
-	if err := h.k.recordDelegatorPower(ctx, delAddr); err != nil {
-		return err
-	}
-	return h.k.recordTotal(ctx)
+	return h.k.markDirty(ctx, delAddr)
 }
 
 func (h Hooks) BeforeValidatorSlashed(ctx context.Context, valAddr sdk.ValAddress, _ math.LegacyDec) error {
-	// On slash, every delegator under valAddr loses shares retroactively
-	// once x/staking applies the slash. Walk the validator's delegators
-	// and re-snapshot each of them, plus the chain-wide total. Bounded
-	// by the slashed validator's delegator count (typically dozens to
-	// low thousands; well within block-gas budget).
-	dels, err := h.k.stakingKeeper.GetValidatorDelegations(ctx, valAddr)
-	if err != nil {
-		return err
-	}
-	for _, d := range dels {
-		addr, err := sdk.AccAddressFromBech32(d.DelegatorAddress)
-		if err != nil {
-			return err
-		}
-		if err := h.k.recordDelegatorPower(ctx, addr); err != nil {
-			return err
-		}
-	}
-	return h.k.recordTotal(ctx)
+	// Every delegator under valAddr loses tokens once x/staking applies
+	// the slash; mark them all dirty so the EndBlocker re-records their
+	// post-slash power.
+	return h.k.markValidatorDelegatorsDirty(ctx, valAddr)
 }
 
-// remaining staking hooks: no-op (we only need delegation + slashing signals)
+// Validator bond-status transitions change whether a validator's
+// delegations count toward voting power (only Bonded validators count,
+// matching the TotalBondedTokens denominator). Mark all of the
+// validator's delegators dirty so their numerators are re-recorded on
+// the same block the denominator moves.
+
+func (h Hooks) AfterValidatorBonded(ctx context.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
+	return h.k.markValidatorDelegatorsDirty(ctx, valAddr)
+}
+
+func (h Hooks) AfterValidatorBeginUnbonding(ctx context.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
+	return h.k.markValidatorDelegatorsDirty(ctx, valAddr)
+}
+
+func (h Hooks) AfterValidatorRemoved(ctx context.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) error {
+	// By removal time the validator has no delegations left (staking only
+	// removes zero-share validators), so the walk is empty — but the
+	// total may still be stale in edge cases; mark it for recompute.
+	return h.k.markValidatorDelegatorsDirty(ctx, valAddr)
+}
+
+// remaining staking hooks: no-op
 
 func (Hooks) AfterValidatorCreated(_ context.Context, _ sdk.ValAddress) error { return nil }
 
 func (Hooks) BeforeValidatorModified(_ context.Context, _ sdk.ValAddress) error {
-	return nil
-}
-
-func (Hooks) AfterValidatorRemoved(_ context.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
-	return nil
-}
-
-func (Hooks) AfterValidatorBonded(_ context.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
-	return nil
-}
-
-func (Hooks) AfterValidatorBeginUnbonding(_ context.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
 	return nil
 }
 

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"errors"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -72,9 +73,16 @@ func (q *QueryServer) VotingPowerOverRange(ctx context.Context, req *types.Query
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid address: %s", err)
 	}
-	rows, err := q.keeper.VotingPowerOverRange(ctx, addr, req.FromHeight, req.ToHeight)
+	rows, err := q.keeper.VotingPowerOverRangeCapped(ctx, addr, req.FromHeight, req.ToHeight)
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		switch {
+		case errors.Is(err, ErrRangeTooWide):
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		case errors.Is(err, ErrRangeTooManyRows):
+			return nil, status.Error(codes.ResourceExhausted, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, err.Error())
+		}
 	}
 	out := make([]types.HeightPower, 0, len(rows))
 	for _, r := range rows {

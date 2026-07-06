@@ -12,22 +12,21 @@ import (
 )
 
 // BackfillFromStaking writes a snapshot of every active delegator's bonded
-// power and the total bonded supply at the current block height. Used in the
+// power and the total voting power at the current block height. Used in the
 // v30 upgrade handler so contracts querying VotingPowerAt(height >= upgrade)
 // get real data immediately rather than zeros until the next delegation event.
 //
-// Walks all delegations once and accumulates per-delegator totals in memory,
-// then issues one Set per delegator. Linear in the number of delegations —
-// acceptable for a one-shot upgrade migration.
+// Walks all delegations once to collect the unique delegator set, then
+// resolves each delegator's bonded-validator power (same basis as the
+// hook-driven snapshots — see delegatorBondedPower). Linear in the number
+// of delegations — acceptable for a one-shot upgrade migration.
 func (k Keeper) BackfillFromStaking(ctx context.Context) error {
 	height := sdk.UnwrapSDKContext(ctx).BlockHeight()
 
 	totals := map[string]math.Int{}
 	err := k.stakingKeeper.IterateAllDelegations(ctx, func(d stakingtypes.Delegation) bool {
-		// d.Shares is shares held; we want bonded tokens. The delegator-bonded
-		// summation by GetDelegatorBonded is the canonical way to compute this
-		// per-delegator, so we collect addresses here and resolve via
-		// GetDelegatorBonded once per unique delegator.
+		// Collect unique delegator addresses here; power is resolved per
+		// delegator below via delegatorBondedPower.
 		totals[d.DelegatorAddress] = math.ZeroInt() // sentinel; resolved below
 		return false
 	})
@@ -56,7 +55,7 @@ func (k Keeper) BackfillFromStaking(ctx context.Context) error {
 		if isLST {
 			power = math.ZeroInt()
 		} else {
-			power, err = k.stakingKeeper.GetDelegatorBonded(ctx, addr)
+			power, err = k.delegatorBondedPower(ctx, addr)
 			if err != nil {
 				return err
 			}
@@ -67,9 +66,5 @@ func (k Keeper) BackfillFromStaking(ctx context.Context) error {
 		}
 	}
 
-	total, err := k.stakingKeeper.TotalBondedTokens(ctx)
-	if err != nil {
-		return err
-	}
-	return k.TotalPower.Set(ctx, height, total)
+	return k.recordTotal(ctx)
 }

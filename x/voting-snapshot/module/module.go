@@ -55,7 +55,10 @@ func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
 
 func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, raw json.RawMessage) error {
 	var gs types.GenesisState
-	return json.Unmarshal(raw, &gs)
+	if err := json.Unmarshal(raw, &gs); err != nil {
+		return err
+	}
+	return gs.Params.Validate()
 }
 
 type AppModule struct {
@@ -101,22 +104,29 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, _ codec.JSONCodec) json.RawMe
 	return b
 }
 
-// BeginBlock is a no-op — snapshot writes are driven by staking hooks,
-// not block timing.
+// BeginBlock is a no-op — staking hooks mark delegators dirty during the
+// block and the EndBlocker writes the snapshots.
 func (AppModule) BeginBlock(_ context.Context) error { return nil }
 
-// EndBlock prunes snapshots that fall outside the retention window
-// per Params.RetentionWindowHeights. Pruning is best-effort: if the
-// scan errors, we log but don't fail the block (an aborted block on a
-// retention-prune issue would be a self-inflicted halt).
+// EndBlock does two things, in order:
+//
+//  1. Drains the transient dirty-delegator set into persistent snapshots
+//     (keeper.EndBlocker). This is consensus-critical — a skipped drain
+//     leaves stale voting power in state — so its error propagates and
+//     fails the block (deterministically, on every node) rather than
+//     being swallowed.
+//  2. Prunes snapshots outside the retention window. Pruning is
+//     best-effort maintenance: on error we log and retry next interval
+//     instead of halting the chain over housekeeping.
 func (am AppModule) EndBlock(ctx context.Context) error {
+	if err := am.keeper.EndBlocker(ctx); err != nil {
+		return err
+	}
 	if err := am.keeper.Prune(ctx); err != nil {
-		// Use a context-derived logger if available rather than panic.
-		// The keeper's logger isn't exposed today; fold this in once
-		// the module gains a Logger() helper. For now: silent-skip,
-		// which matches the cosmos-sdk pattern for non-critical
-		// EndBlocker work.
-		_ = err
+		sdk.UnwrapSDKContext(ctx).Logger().Error(
+			"x/votingsnapshot: prune failed; retrying next interval",
+			"err", err,
+		)
 	}
 	return nil
 }
