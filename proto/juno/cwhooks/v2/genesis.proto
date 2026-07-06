@@ -36,4 +36,9 @@ message Params {
 
   // contract_failure_removal_threshold is the threshold for removing a contract after consecutive failures
   uint64 contract_failure_removal_threshold = 2;
+
+  // max_contracts caps the number of registered contracts per hook module,
+  // bounding per-hook sudo work so registration cannot be used to inflate
+  // block time.
+  uint64 max_contracts = 3;
 }

@@ -22,6 +22,7 @@ func (s *KeeperTestSuite) TestClockInitGenesis() {
 			types.GenesisState{
 				Params: types.Params{
 					ContractGasLimit: 500_000,
+					MaxContracts:     types.DefaultMaxContracts,
 				},
 			},
 			true,

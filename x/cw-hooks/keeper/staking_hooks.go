@@ -35,11 +35,14 @@ func (h StakingHooks) AfterValidatorCreated(ctx context.Context, valAddr sdk.Val
 
 	val, err := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	h.k.Logger(ctx).Debug("AfterValidatorCreated: ", val)
-	if val == nil {
-		return err
-	}
 	if err != nil {
-		return err
+		// A best-effort notification hook must never fail a staking state
+		// transition — log and continue rather than propagating a halt.
+		h.k.Logger(ctx).Error("AfterValidatorCreated: failed to read validator", "error", err)
+		return nil
+	}
+	if val == nil {
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterValidatorCreated{
@@ -61,11 +64,12 @@ func (h StakingHooks) AfterValidatorRemoved(ctx context.Context, _ sdk.ConsAddre
 
 	val, err := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	h.k.Logger(ctx).Debug("AfterValidatorRemoved: ", val)
-	if val == nil {
+	if err != nil {
+		h.k.Logger(ctx).Error("AfterValidatorRemoved: failed to read validator", "error", err)
 		return nil
 	}
-	if err != nil {
-		return err
+	if val == nil {
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterValidatorRemoved{
@@ -85,17 +89,16 @@ func (h StakingHooks) BeforeDelegationCreated(ctx context.Context, delAddr sdk.A
 		return nil
 	}
 
-	del, err := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
-	h.k.Logger(ctx).Debug("BeforeDelegationCreated: ", del)
-	if del == nil {
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-
+	// The delegation object does not exist yet at the "Before" hook for a first
+	// delegation, so the previous Delegation() lookup always returned nil and
+	// the create event never fired. Build the payload from the addresses
+	// directly (zero shares) so the create notification always dispatches.
 	msgBz, err := json.Marshal(SudoMsgBeforeDelegationCreated{
-		BeforeDelegationCreated: NewDelegation(del),
+		BeforeDelegationCreated: &Delegation{
+			ValidatorAddress: valAddr.String(),
+			DelegatorAddress: delAddr.String(),
+			Shares:           "0",
+		},
 	})
 	if err != nil {
 		return nil
@@ -113,11 +116,13 @@ func (h StakingHooks) BeforeDelegationSharesModified(ctx context.Context, delAdd
 
 	del, err := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
 	h.k.Logger(ctx).Debug("BeforeDelegationSharesModified: ", del)
-	if del == nil {
+	if err != nil {
+		// Best-effort notification: never fail a staking state transition.
+		h.k.Logger(ctx).Error("staking hook: failed to read delegation", "error", err)
 		return nil
 	}
-	if err != nil {
-		return err
+	if del == nil {
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgBeforeDelegationSharesModified{
@@ -139,11 +144,13 @@ func (h StakingHooks) AfterDelegationModified(ctx context.Context, delAddr sdk.A
 
 	del, err := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
 	h.k.Logger(ctx).Debug("BeforeDelegationSharesModified: ", del)
-	if del == nil {
+	if err != nil {
+		// Best-effort notification: never fail a staking state transition.
+		h.k.Logger(ctx).Error("staking hook: failed to read delegation", "error", err)
 		return nil
 	}
-	if err != nil {
-		return err
+	if del == nil {
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterDelegationModified{
@@ -165,11 +172,13 @@ func (h StakingHooks) BeforeValidatorSlashed(ctx context.Context, valAddr sdk.Va
 
 	val, err := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	h.k.Logger(ctx).Debug("BeforeValidatorSlashed: ", val, fraction)
-	if val == nil {
+	if err != nil {
+		// Best-effort notification: never fail a staking state transition.
+		h.k.Logger(ctx).Error("staking hook: failed to read validator", "error", err)
 		return nil
 	}
-	if err != nil {
-		return err
+	if val == nil {
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgBeforeValidatorSlashed{
@@ -191,11 +200,13 @@ func (h StakingHooks) BeforeValidatorModified(ctx context.Context, valAddr sdk.V
 
 	val, err := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	h.k.Logger(ctx).Debug("BeforeValidatorModified: ", val)
-	if val == nil {
+	if err != nil {
+		// Best-effort notification: never fail a staking state transition.
+		h.k.Logger(ctx).Error("staking hook: failed to read validator", "error", err)
 		return nil
 	}
-	if err != nil {
-		return err
+	if val == nil {
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgBeforeValidatorModified{
@@ -216,11 +227,13 @@ func (h StakingHooks) AfterValidatorBonded(ctx context.Context, _ sdk.ConsAddres
 
 	val, err := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	h.k.Logger(ctx).Debug("AfterValidatorBonded: ", val)
-	if val == nil {
+	if err != nil {
+		// Best-effort notification: never fail a staking state transition.
+		h.k.Logger(ctx).Error("staking hook: failed to read validator", "error", err)
 		return nil
 	}
-	if err != nil {
-		return err
+	if val == nil {
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterValidatorBonded{
@@ -241,11 +254,13 @@ func (h StakingHooks) AfterValidatorBeginUnbonding(ctx context.Context, _ sdk.Co
 
 	val, err := h.k.GetStakingKeeper().Validator(ctx, valAddr)
 	h.k.Logger(ctx).Debug("AfterValidatorBeginUnbonding: ", val)
-	if val == nil {
+	if err != nil {
+		// Best-effort notification: never fail a staking state transition.
+		h.k.Logger(ctx).Error("staking hook: failed to read validator", "error", err)
 		return nil
 	}
-	if err != nil {
-		return err
+	if val == nil {
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterValidatorBeginUnbonding{
@@ -267,11 +282,13 @@ func (h StakingHooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.A
 
 	del, err := h.k.GetStakingKeeper().Delegation(ctx, delAddr, valAddr)
 	h.k.Logger(ctx).Debug("BeforeDelegationRemoved: ", del)
-	if del == nil {
+	if err != nil {
+		// Best-effort notification: never fail a staking state transition.
+		h.k.Logger(ctx).Error("staking hook: failed to read delegation", "error", err)
 		return nil
 	}
-	if err != nil {
-		return err
+	if del == nil {
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgBeforeDelegationRemoved{

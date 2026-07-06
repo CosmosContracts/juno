@@ -23,12 +23,14 @@ func (s *KeeperTestSuite) TestQueryClockParams() {
 			desc: "On 500_000",
 			params: types.Params{
 				ContractGasLimit: 500_000,
+				MaxContracts:     types.DefaultMaxContracts,
 			},
 		},
 		{
 			desc: "On 1_000_000",
 			params: types.Params{
 				ContractGasLimit: 1_000_000,
+				MaxContracts:     types.DefaultMaxContracts,
 			},
 		},
 	} {

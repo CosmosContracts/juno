@@ -143,6 +143,20 @@ func (k Keeper) RegisterContract(ctx context.Context, senderAddress string, cont
 		return globalerrors.ErrContractAlreadyRegistered
 	}
 
+	// Enforce the registered-contract cap. Each registered contract is
+	// sudo-executed every EndBlock under a child gas meter not charged to the
+	// block meter, so an unbounded set is a block-time DoS vector.
+	maxContracts := k.GetParams(ctx).MaxContracts
+	if maxContracts > 0 {
+		contracts, err := k.GetAllContracts(ctx)
+		if err != nil {
+			return err
+		}
+		if uint64(len(contracts)) >= maxContracts {
+			return types.ErrMaxContractsRegistered
+		}
+	}
+
 	// Ensure the sender is the contract admin or creator
 	if ok, err := k.IsContractManager(ctx, senderAddress, contractAddress); !ok {
 		return err

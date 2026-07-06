@@ -117,6 +117,19 @@ func (k msgServer) handleContractRegister(ctx context.Context, sender string, co
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "contract already registered for %s", key)
 	}
 
+	// Enforce the registered-contract cap. Each registered contract is
+	// sudo-executed on every matching hook under a child gas meter not charged
+	// to the block meter, so an unbounded set is a block-time DoS vector.
+	if maxContracts := k.GetParams(ctx).MaxContracts; maxContracts > 0 {
+		contracts, err := k.GetAllContracts(ctx, key)
+		if err != nil {
+			return err
+		}
+		if uint64(len(contracts)) >= maxContracts {
+			return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "maximum number of registered contracts (%d) reached for %s", maxContracts, key)
+		}
+	}
+
 	if err := k.isContractSenderAuthorized(ctx, sender, addr); err != nil {
 		return err
 	}

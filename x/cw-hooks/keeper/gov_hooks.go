@@ -79,14 +79,16 @@ type SudoAfterProposalVotingPeriodEnded struct {
 func (h GovHooks) AfterProposalSubmission(ctx context.Context, proposalID uint64) error {
 	prop, err := h.k.govKeeper.Proposals.Get(ctx, proposalID)
 	if err != nil {
-		return err
+		// Best-effort notification: never fail a gov state transition.
+		h.k.Logger(ctx).Error("AfterProposalSubmission: failed to read proposal", "proposal", proposalID, "error", err)
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterProposalSubmission{
 		AfterProposalSubmission: NewProposal(prop),
 	})
 	if err != nil {
-		return err
+		return nil
 	}
 
 	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalSubmission")
@@ -95,14 +97,16 @@ func (h GovHooks) AfterProposalSubmission(ctx context.Context, proposalID uint64
 func (h GovHooks) AfterProposalDeposit(ctx context.Context, proposalID uint64, _ sdk.AccAddress) error {
 	prop, err := h.k.govKeeper.Proposals.Get(ctx, proposalID)
 	if err != nil {
-		return err
+		// Best-effort notification: never fail a gov state transition.
+		h.k.Logger(ctx).Error("AfterProposalDeposit: failed to read proposal", "proposal", proposalID, "error", err)
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterProposalDeposit{
 		AfterProposalDeposit: NewProposal(prop),
 	})
 	if err != nil {
-		return err
+		return nil
 	}
 
 	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalDeposit")
@@ -111,14 +115,16 @@ func (h GovHooks) AfterProposalDeposit(ctx context.Context, proposalID uint64, _
 func (h GovHooks) AfterProposalVote(ctx context.Context, proposalID uint64, voterAddr sdk.AccAddress) error {
 	vote, err := h.k.govKeeper.Votes.Get(ctx, collections.Join(proposalID, voterAddr))
 	if err != nil {
-		return err
+		// Best-effort notification: never fail a gov state transition.
+		h.k.Logger(ctx).Error("AfterProposalVote: failed to read vote", "proposal", proposalID, "voter", voterAddr.String(), "error", err)
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterProposalVote{
 		AfterProposalVote: NewVote(vote),
 	})
 	if err != nil {
-		return err
+		return nil
 	}
 
 	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalVote")

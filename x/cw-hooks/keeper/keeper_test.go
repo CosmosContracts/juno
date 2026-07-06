@@ -73,7 +73,7 @@ func (s *KeeperTestSuite) TestContractFailureNonBlocking() {
 	err = s.App.AppKeepers.CWHooksKeeper.ExecuteMessageOnContracts(s.Ctx, types.StakingPrefixKey, []byte("{}"))
 	s.Require().NoError(err)
 
-	info = s.getContractInfo("staking", failingContract)
+	info = s.getContractInfo(failingContract)
 	s.Require().EqualValues(1, info.FailureCounter)
 	s.Require().NotEmpty(info.LatestError)
 
@@ -117,7 +117,7 @@ func (s *KeeperTestSuite) TestUnregisterContractsOnFailure() {
 
 	err = s.App.AppKeepers.CWHooksKeeper.ExecuteMessageOnContracts(s.Ctx, types.StakingPrefixKey, []byte("{}"))
 	s.Require().NoError(err)
-	info = s.getContractInfo("staking", failingContract)
+	info = s.getContractInfo(failingContract)
 	s.Require().EqualValues(1, info.FailureCounter)
 	s.Require().NotEmpty(info.LatestError)
 	isRegistered, err = s.App.AppKeepers.CWHooksKeeper.IsContractRegistered(s.Ctx, types.StakingPrefixKey, sdk.MustAccAddressFromBech32(failingContract))
@@ -143,8 +143,8 @@ func (s *KeeperTestSuite) unregisterContract(module, sender, contractAddr string
 	return err
 }
 
-func (s *KeeperTestSuite) getContractInfo(module, contractAddr string) types.ContractInfo {
-	prefix, err := types.ModulePrefixFromModule(module)
+func (s *KeeperTestSuite) getContractInfo(contractAddr string) types.ContractInfo {
+	prefix, err := types.ModulePrefixFromModule("staking")
 	s.Require().NoError(err)
 
 	info, err := s.App.AppKeepers.CWHooksKeeper.Contracts.Get(

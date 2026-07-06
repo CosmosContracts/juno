@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"encoding/json"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	_ "embed"
 
 	sdkmath "cosmossdk.io/math"
@@ -94,6 +96,86 @@ func (s *KeeperTestSuite) TestEndBlocker() {
 	s.Require().Equal(int64(2), val)
 }
 
+// Regression test for H1: a failing (low-address) contract must NOT cascade
+// into jailing higher-address healthy contracts. Before the fix, the stale
+// shared `err` out-param caused every contract sorting after the first failure
+// to be jailed and skipped without executing.
+func (s *KeeperTestSuite) TestEndBlockerNoCascadeJail() {
+	clockKeeper := s.App.AppKeepers.ClockKeeper
+
+	// Code id 1 = failing contract (burn does not handle the EndBlock sudo msg).
+	s.StoreCode(burnContract)
+	// Code id 2 = healthy clock contract.
+	clockCodeID := s.storeCodeReturnID(clockContract)
+	s.Require().Equal(uint64(2), clockCodeID)
+
+	// Raise the cap so we can register enough contracts.
+	s.setMaxContracts(1000)
+
+	// Register one failing contract.
+	failAddr := s.instantiateAndRegisterCode(1)
+
+	// Register healthy contracts until at least one sorts AFTER the failing
+	// contract (store iteration order is lexicographic over the bech32 key),
+	// which is precisely the case the cascade bug would have mis-jailed.
+	healthyAddrs := []string{}
+	for {
+		healthyAddrs = append(healthyAddrs, s.instantiateAndRegisterCode(clockCodeID))
+
+		hasHigher := false
+		for _, h := range healthyAddrs {
+			if h > failAddr {
+				hasHigher = true
+				break
+			}
+		}
+		if hasHigher && len(healthyAddrs) >= 3 {
+			break
+		}
+	}
+
+	// Advance past gentx skip height and run the end blocker.
+	s.Ctx = s.Ctx.WithBlockHeight(11)
+	s.EndBlock()
+
+	// The failing contract is jailed.
+	fc, err := clockKeeper.GetClockContract(s.Ctx, failAddr)
+	s.Require().NoError(err)
+	s.Require().True(fc.IsJailed, "failing contract should be jailed")
+
+	// Every healthy contract executed exactly once and is NOT jailed —
+	// including those sorting after the failing contract.
+	for _, a := range healthyAddrs {
+		c, err := clockKeeper.GetClockContract(s.Ctx, a)
+		s.Require().NoError(err)
+		s.Require().False(c.IsJailed, "healthy contract must not be cascade-jailed: %s", a)
+		s.Require().Equal(int64(1), s.queryContract(a), "healthy contract must have executed: %s", a)
+	}
+}
+
+// Registration past the MaxContracts cap must be rejected (M1 DoS fix).
+func (s *KeeperTestSuite) TestRegisterContractCap() {
+	s.StoreCode(clockContract)
+
+	// Set a small cap.
+	s.setMaxContracts(2)
+
+	// First two registrations succeed.
+	first := s.instantiateAndRegisterCode(1)
+	s.Require().NotEmpty(first)
+	second := s.instantiateAndRegisterCode(1)
+	s.Require().NotEmpty(second)
+
+	// The third registration is rejected by the cap.
+	_, _, sender := testdata.KeyTestPubAddr()
+	_, _, admin := testdata.KeyTestPubAddr()
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	addr := s.instantiateCode(1, sender.String(), admin.String())
+	err := s.App.AppKeepers.ClockKeeper.RegisterContract(s.Ctx, admin.String(), addr)
+	s.Require().ErrorIs(err, types.ErrMaxContractsRegistered)
+}
+
 // Test a contract which does not handle the sudo EndBlock msg.
 func (s *KeeperTestSuite) TestInvalidContract() {
 	// Setup test
@@ -115,6 +197,9 @@ func (s *KeeperTestSuite) TestPerformance() {
 	s.StoreCode(burnContract)
 
 	numContracts := 1000
+
+	// Raise the registered-contract cap above the number under test.
+	s.setMaxContracts(uint64(numContracts) + 1)
 
 	// Register numerous contracts
 	for x := 0; x < numContracts; x++ {
@@ -150,6 +235,59 @@ func (s *KeeperTestSuite) updateGasLimit(gasLimit uint64) {
 	store.Set(types.ParamsKey, bz)
 
 	s.Ctx = s.Ctx.WithBlockHeight(s.Ctx.BlockHeight() + 1)
+}
+
+// storeCodeReturnID stores wasm code and returns its assigned code id.
+func (s *KeeperTestSuite) storeCodeReturnID(code []byte) uint64 {
+	_, _, sender := testdata.KeyTestPubAddr()
+	msg := wasmtypes.MsgStoreCodeFixture(func(m *wasmtypes.MsgStoreCode) {
+		m.WASMByteCode = code
+		m.Sender = sender.String()
+	})
+	rsp, err := s.App.MsgServiceRouter().Handler(msg)(s.Ctx, msg)
+	s.Require().NoError(err)
+	var result wasmtypes.MsgStoreCodeResponse
+	s.Require().NoError(s.App.AppCodec().Unmarshal(rsp.Data, &result))
+	return result.CodeID
+}
+
+// instantiateCode instantiates the given code id with the given sender/admin
+// and returns the contract address.
+func (s *KeeperTestSuite) instantiateCode(codeID uint64, sender, admin string) string {
+	msgInstantiate := wasmtypes.MsgInstantiateContractFixture(func(m *wasmtypes.MsgInstantiateContract) {
+		m.Sender = sender
+		m.Admin = admin
+		m.CodeID = codeID
+		m.Msg = []byte(`{}`)
+	})
+	resp, err := s.App.MsgServiceRouter().Handler(msgInstantiate)(s.Ctx, msgInstantiate)
+	s.Require().NoError(err)
+	var result wasmtypes.MsgInstantiateContractResponse
+	s.Require().NoError(s.App.AppCodec().Unmarshal(resp.Data, &result))
+	return result.Address
+}
+
+// instantiateAndRegisterCode instantiates the given code id under a fresh
+// admin and registers it as a clock contract, returning the address.
+func (s *KeeperTestSuite) instantiateAndRegisterCode(codeID uint64) string {
+	_, _, sender := testdata.KeyTestPubAddr()
+	_, _, admin := testdata.KeyTestPubAddr()
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
+
+	addr := s.instantiateCode(codeID, sender.String(), admin.String())
+	err := s.App.AppKeepers.ClockKeeper.RegisterContract(s.Ctx, admin.String(), addr)
+	s.Require().NoError(err)
+	return addr
+}
+
+// Raise/lower the MaxContracts cap
+func (s *KeeperTestSuite) setMaxContracts(maxContracts uint64) {
+	k := s.App.AppKeepers.ClockKeeper
+	params := k.GetParams(s.Ctx)
+	params.MaxContracts = maxContracts
+	err := k.SetParams(s.Ctx, params)
+	s.Require().NoError(err)
 }
 
 // Query the clock contract
