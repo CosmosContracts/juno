@@ -3,12 +3,14 @@ package v30_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	"cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/stretchr/testify/suite"
 
 	v30 "github.com/CosmosContracts/juno/v30/app/upgrades/v30"
 	"github.com/CosmosContracts/juno/v30/testutil"

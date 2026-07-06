@@ -255,6 +255,7 @@ func moveModuleAfter(order []string, dependency, target string) []string {
 			dependencyIndex = i
 		case target:
 			targetIndex = i
+		default:
 		}
 	}
 	if dependencyIndex == -1 || targetIndex == -1 || dependencyIndex < targetIndex {

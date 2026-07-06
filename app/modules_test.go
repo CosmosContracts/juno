@@ -24,6 +24,7 @@ func TestOrderMigrationsKeepsVotingSnapshotAfterStaking(t *testing.T) {
 			stakingIndex = i
 		case votingsnapshottypes.ModuleName:
 			snapshotIndex = i
+		default:
 		}
 	}
 
