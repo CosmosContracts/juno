@@ -298,21 +298,49 @@ With that, `make ictest-upgrade` (v29.0.0 → v30 `:local`):
   handler's 25M fallback) and the test asserts the post-upgrade
   `MaxBlockUtilization == 30M`.
 
-**Remaining blocker (flaky, environmental — NOT a v30 bug):** the
-post-upgrade container recreation intermittently returns an empty RPC
-host port from `ContainerInspect`, so interchaintest's own
-`StartContainer` health check builds `tcp://` (no host) and fails with
-`http: no Host in request URL`. This is the DooD port-reservation race
-in `dockerutil/ports.go` — listeners reserve ports in *this* container's
-netns while Docker binds them in the *host* netns. Run 2 of 4 got past
-it and reached the assertions; runs 3–4 hit the empty-port race at
-`StartAllNodes`. So the suite is one flaky timing window away from
-green here, and would be reliably green on CI/bare-metal Docker where
-the test runner shares the daemon's netns.
+**CORRECTION (2026-07-07): this was NOT DooD-specific — it reproduces on
+CI (GitHub Actions, host netns) and is now fixed.** The earlier note
+blamed a docker-in-docker port-reservation race; that was wrong. CI runs
+`ictest-upgrade` on the daemon's own netns and still failed 2/2 with the
+same `Post "http:": http: no Host in request URL` at `StartAllNodes`.
 
-**Bottom line for v30:** the upgrade *handler* is verified against a
-real v29→v30 store migration (halt/resume + on-chain migrated state).
-The outstanding item is harness flakiness in this DooD sandbox, not
-chain correctness. CI (which runs ictest on the host netns) is the
-right place to close A2 green; the `RefreshGRPCClients` fix is required
-for it to pass there.
+Root cause (confirmed by instrumenting a live run): interchaintest's
+`ChainNode.StartContainer` reads the container's mapped host port with a
+single `ContainerInspect` immediately after `docker start`, and caches
+`""` if the daemon hasn't finished *publishing* the port yet — it never
+re-reads. On a warm post-upgrade recreation the publish lag routinely
+exceeds interchaintest's ~1s buffer, so the RPC client is built as
+`tcp://` and every subsequent call fails. A port-watch during the failure
+proved the containers are fine: **all three nodes reach `running exit=0`
+with `26657/tcp` published and stable** — the framework just read the
+mapping too early. (This also confirms, independently, that the v30
+binary starts cleanly post-upgrade.)
+
+Retrying the whole recreation does not help — under load the lag
+consistently loses the read — so the fix does not depend on winning the
+race:
+
+- `interchaintest/suite/upgrade.go` — after `StartAllNodes` (let it run
+  to completion so containers fully settle), **unconditionally rebuild
+  every node's Tendermint client** from the live mapping via
+  `ChainNode.GetHostAddress` (which re-inspects the running container) +
+  `NewClient`. Idempotent: a no-op refresh on the happy path, a repair on
+  the racy path.
+- `interchaintest/suite/suite.go` — `RefreshGRPCClients` now reads the
+  gRPC port the same way (`GetFullNode().GetHostAddress("9090/tcp")`,
+  polled) instead of the value interchaintest cached at container start,
+  which can likewise be `""` after a recreation.
+
+Validated locally: with the rebuild running, the suite drives the whole
+post-upgrade flow — `WaitForBlocks`, `Height`, and the feemarket +
+cw-hooks gRPC assertions all pass against the rebuilt clients. The only
+remaining local failure is `unknown service juno.votingsnapshot.v1.Query`,
+an artifact of the stale local `:local` image (buildx is unavailable in
+this container, so it can't be rebuilt from current source); CI builds the
+image from source and has that service.
+
+**Bottom line for v30:** the upgrade *handler* is verified against a real
+v29→v30 store migration (halt/resume + on-chain migrated state), and the
+ictest harness race that blocked CI is fixed in-repo. CI is the right
+place to confirm green end-to-end, since it builds a current-source image
+and reliably exercises the recreation race the fix targets.

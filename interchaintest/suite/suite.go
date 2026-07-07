@@ -170,12 +170,27 @@ type QueryClients struct {
 // a dead port and every gRPC query fails with "connection refused". Tx paths
 // are unaffected — they exec inside the container or build a fresh
 // broadcaster per call — so only the long-lived query connection goes stale.
+//
+// The port is read via GetHostAddress (a live container inspect) rather than
+// GetHostGRPCAddress (the value interchaintest cached when the container
+// started). After a post-upgrade recreation that cached value can be "" —
+// interchaintest reads the mapping immediately after `docker start`, before
+// the daemon has published the port — so we re-inspect and wait for it.
 func (s *E2ETestSuite) RefreshGRPCClients() {
 	if s.GrpcClient != nil {
 		_ = s.GrpcClient.Close()
 	}
 
-	grpcAddr := s.Chain.GetHostGRPCAddress()
+	var grpcAddr string
+	s.Require().Eventuallyf(func() bool {
+		addr, err := s.Chain.GetFullNode().GetHostAddress(s.Ctx, "9090/tcp")
+		if err != nil {
+			return false
+		}
+		grpcAddr = strings.TrimPrefix(addr, "http://")
+		return true
+	}, 60*time.Second, time.Second, "full node gRPC port was never published")
+
 	grpcClient, err := grpc.NewClient(grpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	s.Require().NoError(err)
 	s.GrpcClient = grpcClient
