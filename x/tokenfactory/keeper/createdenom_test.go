@@ -8,14 +8,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 func (s *KeeperTestSuite) TestMsgCreateDenom() {
 	var (
 		tokenFactoryKeeper = s.App.AppKeepers.TokenFactoryKeeper
 		bankKeeper         = s.App.AppKeepers.BankKeeper
-		denomCreationFee   = sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1000000)))
+		denomCreationFee   = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1000000)))
 	)
 
 	// Set the denom creation fee. It is currently turned off in favor
@@ -50,7 +50,8 @@ func (s *KeeperTestSuite) TestMsgCreateDenom() {
 
 	// Make sure that creation fee was deducted
 	postCreateBalance := bankKeeper.GetBalance(s.Ctx, s.TestAccs[0], tokenFactoryKeeper.GetParams(s.Ctx).DenomCreationFee[0].Denom)
-	s.Require().True(preCreateBalance.Sub(postCreateBalance).IsEqual(denomCreationFee[0]))
+	diff := preCreateBalance.Sub(postCreateBalance)
+	s.Require().True(diff.Equal(denomCreationFee[0]))
 
 	// Make sure that a second version of the same denom can't be recreated
 	_, err = s.msgServer.CreateDenom(s.Ctx, &types.MsgCreateDenom{
@@ -92,7 +93,7 @@ func (s *KeeperTestSuite) TestMsgCreateDenom() {
 
 func (s *KeeperTestSuite) TestCreateDenom() {
 	var (
-		primaryDenom            = "ujuno"
+		primaryDenom            = sdk.DefaultBondDenom
 		secondaryDenom          = "usecond"
 		defaultDenomCreationFee = types.Params{DenomCreationFee: sdk.NewCoins(sdk.NewCoin(primaryDenom, sdkmath.NewInt(50000000)))}
 		twoDenomCreationFee     = types.Params{DenomCreationFee: sdk.NewCoins(sdk.NewCoin(primaryDenom, sdkmath.NewInt(50000000)), sdk.NewCoin(secondaryDenom, sdkmath.NewInt(50000000)))}
@@ -181,10 +182,10 @@ func (s *KeeperTestSuite) TestCreateDenom() {
 				s.Require().True(preCreateBalance.Sub(postCreateBalance...).Equal(denomCreationFee))
 
 				// Make sure that the admin is set correctly
-				queryRes, err := s.queryClient.DenomAuthorityMetadata(s.Ctx.Context(), &types.QueryDenomAuthorityMetadataRequest{
+				queryRes, denomErr := s.queryClient.DenomAuthorityMetadata(s.Ctx.Context(), &types.QueryDenomAuthorityMetadataRequest{
 					Denom: res.GetNewTokenDenom(),
 				})
-				s.Require().NoError(err)
+				s.Require().NoError(denomErr)
 				s.Require().Equal(s.TestAccs[0].String(), queryRes.AuthorityMetadata.Admin)
 
 				// Make sure that the denom metadata is initialized correctly

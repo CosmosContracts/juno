@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 func (s *KeeperTestSuite) TestGenesis() {
@@ -53,7 +53,7 @@ func (s *KeeperTestSuite) TestGenesis() {
 	tokenfactoryModuleAccount := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName))
 	s.Require().Nil(tokenfactoryModuleAccount)
 
-	err := s.App.AppKeepers.TokenFactoryKeeper.SetParams(s.Ctx, types.Params{DenomCreationFee: sdk.Coins{sdk.NewInt64Coin("ujuno", 100)}})
+	err := s.App.AppKeepers.TokenFactoryKeeper.SetParams(s.Ctx, types.Params{DenomCreationFee: sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 100)}})
 	s.Require().NoError(err)
 	s.App.AppKeepers.TokenFactoryKeeper.InitGenesis(s.Ctx, genesisState)
 

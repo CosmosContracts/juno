@@ -1,4 +1,4 @@
-package bindings_test
+package test
 
 import (
 	"fmt"
@@ -7,9 +7,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bindings "github.com/CosmosContracts/juno/v29/wasmbindings"
-	types "github.com/CosmosContracts/juno/v29/wasmbindings/types"
-	tftypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v30/wasmbindings"
+	types "github.com/CosmosContracts/juno/v30/wasmbindings/types"
+	tftypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 func (s *BindingsTestSuite) TestCreateDenom() {
@@ -49,7 +49,7 @@ func (s *BindingsTestSuite) TestCreateDenom() {
 	for name, spec := range specs {
 		s.Run(name, func() {
 			// when
-			_, gotErr := bindings.PerformCreateDenom(
+			_, gotErr := wasmbindings.PerformCreateDenom(
 				s.Ctx,
 				&s.App.AppKeepers.TokenFactoryKeeper,
 				s.App.AppKeepers.BankKeeper,
@@ -153,12 +153,12 @@ func (s *BindingsTestSuite) TestChangeAdmin() {
 			actorAmount := sdk.NewCoins(sdk.NewCoin(tftypes.DefaultParams().DenomCreationFee[0].Denom, tftypes.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
 			s.FundAcc(tokenCreator, actorAmount)
 
-			_, err := bindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, tokenCreator, &types.CreateDenom{
+			_, err := wasmbindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, tokenCreator, &types.CreateDenom{
 				Subdenom: validDenom,
 			})
 			s.Require().NoError(err)
 
-			err = bindings.ChangeAdmin(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, spec.actor, spec.changeAdmin)
+			err = wasmbindings.ChangeAdmin(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, spec.actor, spec.changeAdmin)
 			if len(spec.expErrMsg) > 0 {
 				s.Require().Error(err)
 				actualErrMsg := err.Error()
@@ -182,13 +182,13 @@ func (s *BindingsTestSuite) TestMint() {
 	validDenom := types.CreateDenom{
 		Subdenom: "MOON",
 	}
-	_, err := bindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, &validDenom)
+	_, err := wasmbindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, &validDenom)
 	s.Require().NoError(err)
 
 	emptyDenom := types.CreateDenom{
 		Subdenom: "",
 	}
-	_, err = bindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, &emptyDenom)
+	_, err = wasmbindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, &emptyDenom)
 	s.Require().NoError(err)
 
 	validDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), validDenom.Subdenom)
@@ -278,7 +278,7 @@ func (s *BindingsTestSuite) TestMint() {
 	for name, spec := range specs {
 		s.Run(name, func() {
 			// when
-			gotErr := bindings.PerformMint(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, spec.mint)
+			gotErr := wasmbindings.PerformMint(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, spec.mint)
 			// then
 			if spec.expErr {
 				s.Require().Error(gotErr)
@@ -301,13 +301,13 @@ func (s *BindingsTestSuite) TestBurn() {
 	validDenom := types.CreateDenom{
 		Subdenom: "MOON",
 	}
-	_, err := bindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, &validDenom)
+	_, err := wasmbindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, &validDenom)
 	s.Require().NoError(err)
 
 	emptyDenom := types.CreateDenom{
 		Subdenom: "",
 	}
-	_, err = bindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, &emptyDenom)
+	_, err = wasmbindings.PerformCreateDenom(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, &emptyDenom)
 	s.Require().NoError(err)
 
 	lucky := s.RandomAccountAddress()
@@ -395,7 +395,7 @@ func (s *BindingsTestSuite) TestBurn() {
 				Amount:        mintAmount,
 				MintToAddress: creator.String(),
 			}
-			err := bindings.PerformMint(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, mintBinding)
+			err := wasmbindings.PerformMint(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, mintBinding)
 			s.Require().NoError(err)
 
 			emptyDenomMintBinding := &types.MintTokens{
@@ -403,11 +403,11 @@ func (s *BindingsTestSuite) TestBurn() {
 				Amount:        mintAmount,
 				MintToAddress: creator.String(),
 			}
-			err = bindings.PerformMint(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, emptyDenomMintBinding)
+			err = wasmbindings.PerformMint(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.BankKeeper, creator, emptyDenomMintBinding)
 			s.Require().NoError(err)
 
 			// when
-			gotErr := bindings.PerformBurn(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, creator, spec.burn)
+			gotErr := wasmbindings.PerformBurn(s.Ctx, &s.App.AppKeepers.TokenFactoryKeeper, creator, spec.burn)
 			// then
 			if spec.expErr {
 				s.Require().Error(gotErr)

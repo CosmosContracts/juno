@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v29/x/clock/types"
+	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 
 // Test register clock contract.
@@ -73,7 +73,6 @@ func (s *KeeperTestSuite) TestRegisterClockContract() {
 			success:  false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Set params
 			params := types.DefaultParams()
@@ -160,7 +159,6 @@ func (s *KeeperTestSuite) TestUnregisterClockContract() {
 			success:  false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			s.RegisterClockContract(addr.String(), contractAddress)
 			s.RegisterClockContract(addr2.String(), contractAddressWithAdmin)
@@ -286,7 +284,6 @@ func (s *KeeperTestSuite) TestUnjailClockContract() {
 			success:  false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			s.RegisterClockContract(addr.String(), contractAddress)
 			s.JailClockContract(contractAddress)

@@ -1,4 +1,4 @@
-package bindings_test
+package test
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bindings "github.com/CosmosContracts/juno/v29/wasmbindings"
+	"github.com/CosmosContracts/juno/v30/wasmbindings"
 )
 
 func (s *BindingsTestSuite) TestFullDenom() {
@@ -48,7 +48,7 @@ func (s *BindingsTestSuite) TestFullDenom() {
 	for name, spec := range specs {
 		s.Run(name, func() {
 			// when
-			gotFullDenom, gotErr := bindings.GetFullDenom(spec.addr, spec.subdenom)
+			gotFullDenom, gotErr := wasmbindings.GetFullDenom(spec.addr, spec.subdenom)
 			// then
 			if spec.expErr {
 				s.Require().Error(gotErr)
@@ -76,7 +76,7 @@ func (s *BindingsTestSuite) TestDenomAdmin() {
 	s.Require().NoError(err)
 	s.Require().NotEmpty(tfDenom)
 
-	queryPlugin := bindings.NewQueryPlugin(s.App.AppKeepers.BankKeeper, &s.App.AppKeepers.TokenFactoryKeeper)
+	queryPlugin := wasmbindings.NewQueryPlugin(s.App.AppKeepers.BankKeeper, &s.App.AppKeepers.TokenFactoryKeeper, s.App.AppKeepers.VotingSnapshotKeeper)
 
 	testCases := []struct {
 		name        string
@@ -98,8 +98,6 @@ func (s *BindingsTestSuite) TestDenomAdmin() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			resp, err := queryPlugin.GetDenomAdmin(s.Ctx, tc.denom)
 			if tc.expectErr {

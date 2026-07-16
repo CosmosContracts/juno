@@ -1,5 +1,17 @@
+# build artifacts
 bin
+
+# IDEs
 .vscode
+.cursor
+.claude
+
+# OS
 .DS_Store
+
+# Heighliner
 heighliner*
 !scripts/heighliner
+
+# random stuff
+x/feemarket/fuzz/testdata

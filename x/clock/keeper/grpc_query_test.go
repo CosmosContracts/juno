@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v29/x/clock/types"
+	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 
 // Query Clock Params
@@ -23,16 +23,17 @@ func (s *KeeperTestSuite) TestQueryClockParams() {
 			desc: "On 500_000",
 			params: types.Params{
 				ContractGasLimit: 500_000,
+				MaxContracts:     types.DefaultMaxContracts,
 			},
 		},
 		{
 			desc: "On 1_000_000",
 			params: types.Params{
 				ContractGasLimit: 1_000_000,
+				MaxContracts:     types.DefaultMaxContracts,
 			},
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Set params
 			err := s.App.AppKeepers.ClockKeeper.SetParams(s.Ctx, tc.params)
@@ -79,7 +80,6 @@ func (s *KeeperTestSuite) TestQueryClockContracts() {
 			},
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Loop through contracts & register
 			for _, contract := range tc.contracts {
@@ -134,7 +134,6 @@ func (s *KeeperTestSuite) TestQueryJailedClockContracts() {
 			},
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Loop through contracts & register
 			for _, contract := range tc.contracts {
@@ -212,7 +211,6 @@ func (s *KeeperTestSuite) TestQueryClockContract() {
 			success:  false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			// Query contract
 			resp, err := s.queryClient.ClockContract(s.Ctx, &types.QueryClockContractRequest{

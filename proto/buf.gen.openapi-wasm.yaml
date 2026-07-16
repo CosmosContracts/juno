@@ -1,0 +1,19 @@
+version: v2
+
+clean: true
+
+inputs:
+  - git_repo: https://github.com/CosmWasm/wasmd.git
+    tag: v0.54.2
+    paths:
+      - proto/cosmwasm/wasm/v1
+
+plugins:
+  - remote: buf.build/community/google-gnostic-openapi:v0.7.1
+    out: ./gen/wasm
+    include_imports: true
+    opt:
+      - default_response=true
+      - fq_schema_naming=false
+      - title=Juno REST API
+      - version=v30.0.0

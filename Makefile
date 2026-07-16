@@ -1,10 +1,12 @@
 #!/usr/bin/make -f
 
 # set variables
+HOST_GOOS := $(shell go env GOOS 2>/dev/null)
+HTTPS_GIT := $(shell git config --get remote.origin.url)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 ifeq (,$(VERSION))
-  VERSION := $(shell git describe --tags)
+  VERSION := $(shell git describe --tags --always 2>/dev/null)
   # if VERSION is empty, then populate it with branch's name and raw commit hash
   ifeq (,$(VERSION))
     VERSION := $(BRANCH)-$(COMMIT)
@@ -17,6 +19,9 @@ DOCKER := $(shell which docker)
 
 # process build tags
 build_tags = netgo
+ifneq ($(strip $(BUILD_TAGS)),)
+  build_tags += $(BUILD_TAGS)
+endif
 ifeq ($(LEDGER_ENABLED),true)
 	ifeq ($(OS),Windows_NT)
     GCCEXE = $(shell where gcc.exe 2> NUL)
@@ -54,34 +59,33 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=juno \
 		  -X github.com/cometbft/cometbft/version.TMCoreSemVer=$(CMT_VERSION)
 
 ifeq ($(LINK_STATICALLY),true)
-  ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
+  ifeq ($(HOST_GOOS),linux)
+    ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
+  endif
 endif
 ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
 
-BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
+BUILD_FLAGS := -trimpath -tags "$(build_tags)" -ldflags '$(ldflags)'
 
 ###############################################################################
 ###                                  Build                                  ###
 ###############################################################################
 
 verify:
-	@echo "🔎 - Verifying Dependencies ..."
+	@echo "🔎 Verifying Dependencies ..."
 	@go mod verify > /dev/null 2>&1
-	@go mod tidy
-	@echo "✅ - Verified dependencies successfully!"
-	@echo ""
+	@echo "✅ Verified dependencies successfully!"
 
 go-cache: verify
-	@echo "📥 - Downloading and caching dependencies..."
+	@echo "📥 Downloading and caching dependencies..."
 	@go mod download
-	@echo "✅ - Downloaded and cached dependencies successfully!"
-	@echo ""
+	@echo "✅ Downloaded and cached dependencies successfully!"
 
 install: go-cache
-	@echo "🔄 - Installing Juno..."
+	@echo "🔄 Installing Juno..."
 	@go install $(BUILD_FLAGS) -mod=readonly ./cmd/junod
-	@echo "✅ - Installed Juno successfully! Run it using 'junod'!"
+	@echo "✅ Installed Juno successfully! Run it using 'junod'!"
 	@echo ""
 	@echo "====== Install Summary ======"
 	@echo "Juno: $(VERSION)"
@@ -90,198 +94,177 @@ install: go-cache
 	@echo "============================="
 
 build: go-cache
-	@echo "🔄 - Building Juno..."
+	@echo "🔄 Building Juno..."
 	@if [ "$(OS)" = "Windows_NT" ]; then \
 		GOOS=windows GOARCH=amd64 go build -mod=readonly $(BUILD_FLAGS) -o bin/junod.exe ./cmd/junod; \
 	else \
 		go build -mod=readonly $(BUILD_FLAGS) -o bin/junod ./cmd/junod; \
 	fi
-	@echo "✅ - Built Juno successfully! Run it using './bin/junod'!"
+	@echo "✅ Built Juno successfully! Run it using './bin/junod'!"
 	@echo ""
-	@echo "====== Install Summary ======"
+	@echo "======= Build Summary ======="
 	@echo "Juno: $(VERSION)"
 	@echo "Cosmos SDK: $(COSMOS_SDK_VERSION)"
 	@echo "Comet: $(CMT_VERSION)"
 	@echo "============================="
 
-test-node:
-	CHAIN_ID="local-1" HOME_DIR="~/.juno" TIMEOUT_COMMIT="500ms" CLEAN=true sh scripts/test_node.sh
+init:
+	sh scripts/init.sh
 
-.PHONY: verify go-cache install build test-node
+.PHONY: verify tidy go-cache install build init
 
 ###############################################################################
 ###                                 Tooling                                 ###
 ###############################################################################
 
-gofumpt=mvdan.cc/gofumpt
-gofumpt_version=v0.8.0
-
-golangci_lint=github.com/golangci/golangci-lint/v2/cmd/golangci-lint
-golangci_lint_version=v2.1.6
-
-install-format:
-	@echo "🔄 - Installing gofumpt $(gofumpt_version)..."
-	@go install $(gofumpt)@$(gofumpt_version)
-	@echo "✅ - Installed gofumpt successfully!"
-	@echo ""
-
-install-lint:
-	@echo "🔄 - Installing golangci-lint $(golangci_lint_version)..."
-	@go install $(golangci_lint)@$(golangci_lint_version)
-	@echo "✅ - Installed golangci-lint successfully!"
-	@echo ""
-
 lint:
-	@if command -v golangci-lint >/dev/null 2>&1; then \
-		INSTALLED=$$(golangci-lint version | head -n1 | awk '{print $$4}'); \
-		echo "Detected golangci-lint $$INSTALLED, required $(golangci_lint_version)"; \
-		if [ "$$(printf '%s\n' "$(golangci_lint_version)" "$$INSTALLED" | sort -V | head -n1)" != "$(golangci_lint_version)" ]; then \
-	   	echo "Updating golangci-lint..."; \
-	   	$(MAKE) install-lint; \
-		fi; \
-	else \
-		echo "golangci-lint not found; installing..."; \
-		$(MAKE) install-lint; \
-	fi
-	@echo "🔄 - Linting code..."
-	@golangci-lint run
-	@echo "✅ - Linted code successfully!"
+	@echo "🔄 Linting code..."
+	@go tool golangci-lint run --config ./.golangci.yml
+	@echo "✅ Linted code successfully!"
 
 format:
-	@if command -v gofumpt >/dev/null 2>&1; then \
-		INSTALLED=$$(go version -m $$(command -v gofumpt) | awk '$$1=="mod" {print $$3; exit}'); \
-		echo "Detected gofumpt $$INSTALLED, required $(gofumpt_version)"; \
-		if [ "$$(printf '%s\n' "$(gofumpt_version)" "$$INSTALLED" | sort -V | head -n1)" != "$(gofumpt_version)" ]; then \
-	   	echo "Updating gofumpt..."; \
-	   	$(MAKE) install-format; \
-		fi; \
-	else \
-		echo "gofumpt not found; installing..."; \
-		$(MAKE) install-format; \
-	fi
-	@echo "🔄 - Formatting code..."
-	@gofumpt -l -w .
-	@echo "✅ - Formatted code successfully!"
+	@echo "🔄 Formatting code..."
+	@go tool gofumpt -l -w .
+	@echo "✅ Formatted code successfully!"
 
-.PHONY: install-format format install-lint lint
+.PHONY: format lint
 
 ###############################################################################
-###                             e2e interchain test                         ###
+###                                 E2E Tests                               ###
 ###############################################################################
 
 ictest-basic: rm-testcache
-	cd interchaintest && go test -race -v -run TestBasicJunoStart .
+	cd interchaintest/tests/basic && go test -race -v -run TestBasicTestSuite .
 
-ictest-statesync: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoStateSync .
+ictest-cw: rm-testcache
+	cd interchaintest/tests/cosmwasm && go test -race -v -run TestCosmWasmTestSuite .
 
-ictest-ibchooks: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoIBCHooks .
+ictest-node: rm-testcache
+	cd interchaintest/tests/node && go test -race -v -run TestNodeTestSuite .
 
-ictest-tokenfactory: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoTokenFactory .
+ictest-feemarket: rm-testcache
+	cd interchaintest/tests/feemarket && go test -race -v -run TestFeemarketTestSuite .
 
-ictest-feeshare: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoFeeShare .
-
-ictest-pfm: rm-testcache
-	cd interchaintest && go test -race -v -run TestPacketForwardMiddlewareRouter .
-
-ictest-globalfee: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoGlobalFee .
+ictest-fees: rm-testcache
+	cd interchaintest/tests/fees && go test -race -v -run TestFeesTestSuite .
 
 ictest-upgrade: rm-testcache
-	cd interchaintest && go test -race -v -run TestBasicJunoUpgrade .
+	cd interchaintest/tests/upgrade && go test -race -v -run TestUpgradeTestSuite .
 
 ictest-ibc: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoGaiaIBCTransfer .
+	cd interchaintest/tests/ibc && go test -race -v -run TestIbcTestSuite .
 
-ictest-unity-deploy: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoUnityContractDeploy .
+ictest-ibc-hooks: rm-testcache
+	cd interchaintest/tests/ibc-hooks && go test -race -v -run TestIbcHooksTestSuite .
+
+ictest-pfm: rm-testcache
+	cd interchaintest/tests/pfm && go test -race -v -run TestPfmTestSuite .
+
+ictest-tokenfactory: rm-testcache
+	cd interchaintest/tests/tokenfactory && go test -race -v -run TestTokenfactoryTestSuite .
 
 ictest-drip: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoDrip .
-
-ictest-feepay: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoFeePay .
+	cd interchaintest/tests/drip && go test -race -v -run TestDripTestSuite .
 
 ictest-burn: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoBurnModule .
+	cd interchaintest/tests/burn && go test -race -v -run TestBurnTestSuite .
 
-ictest-cwhooks: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoCwHooks .
+ictest-fixes: rm-testcache
+	cd interchaintest/tests/fixes && go test -race -v -run TestFixTestSuite .
 
-ictest-clock: rm-testcache
-	cd interchaintest && go test -race -v -run TestJunoClock .
-
-ictest-gov-fix: rm-testcache
-	cd interchaintest && go test -race -v -run TestFixRemovedMsgTypeQueryPanic .
+ictest-dao-dao: rm-testcache
+	cd interchaintest/tests/dao-dao && go test -race -v -run TestDaoDaoTestSuite .
 
 rm-testcache:
 	go clean -testcache
 
-.PHONY: ictest-basic ictest-statesync ictest-ibchooks ictest-tokenfactory ictest-feeshare ictest-pfm ictest-globalfee ictest-upgrade ictest-upgrade-local ictest-ibc ictest-unity-deploy ictest-unity-gov ictest-drip ictest-burn ictest-feepay ictest-cwhooks ictest-clock ictest-gov-fix rm-testcache
+.PHONY: ictest-basic ictest-cw ictest-node ictest-feemarket ictest-fees ictest-upgrade ictest-ibc ictest-ibc-hooks ictest-pfm ictest-tokenfactory ictest-drip ictest-burn ictest-fixes ictest-dao-dao rm-testcache
 
 ###############################################################################
-###                                  heighliner                             ###
+###                                Docker                                   ###
 ###############################################################################
 
-heighliner=github.com/strangelove-ventures/heighliner
-heighliner_version=v1.7.2
+IMAGE ?= ghcr.io/cosmoscontracts/juno
+PLATFORMS ?= linux/amd64,linux/arm64
+BUILDER ?= multiarch
 
-install-heighliner:
-	@if ! command -v heighliner > /dev/null; then \
-   	echo "🔄 - Installing heighliner $(heighliner_version)..."; \
-      go install $(heighliner)@$(heighliner_version); \
-		echo "✅ - Installed heighliner successfully!"; \
-		echo ""; \
-   fi
+UNAME_ARCH := $(shell uname -m)
+ifeq ($(UNAME_ARCH),x86_64)
+  LOCAL_PLATFORM ?= linux/amd64
+else ifeq ($(UNAME_ARCH),arm64)
+  LOCAL_PLATFORM ?= linux/arm64
+else ifeq ($(UNAME_ARCH),aarch64)
+  LOCAL_PLATFORM ?= linux/arm64
+else
+  LOCAL_PLATFORM ?= linux/amd64
+endif
 
-local-image: install-heighliner
-	@echo "🔄 - Building Docker Image..."
-	heighliner build --chain juno --local -f ./chains.yaml
-	@echo "✅ - Built Docker Image successfully!"
+setup-builder:
+	@$(DOCKER) buildx inspect $(BUILDER) >/dev/null 2>&1 || \
+		$(DOCKER) buildx create --name $(BUILDER) --driver docker-container --use
+	@$(DOCKER) buildx use $(BUILDER)
+	@$(DOCKER) buildx inspect --bootstrap
 
-.PHONY: install-heighliner local-image
+local-image: setup-builder
+	@echo "🔄 Building Docker Image..."
+	$(DOCKER) buildx build \
+		--load \
+		--platform=$(LOCAL_PLATFORM) \
+		-t $(IMAGE):local \
+		-f Dockerfile \
+		.
+	@echo "✅ Built Docker Image successfully!"
+
+proto-image: setup-builder
+	@echo "🔄 Building Protobuilder Image..."
+	$(DOCKER) buildx build \
+		--load \
+		--platform=$(LOCAL_PLATFORM) \
+		-t $(PROTO_IMAGE_NAME) \
+		-f proto/Dockerfile .
+	@echo "✅ Built Proto Image successfully!"
+
+.PHONY: setup-builder local-image proto-image
 
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
 
-protoVer=0.17.0
-protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
-protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace -v /var/run/docker.sock:/var/run/docker.sock --workdir /workspace $(protoImageName)
+PROTO_IMAGE_NAME := juno-protobuilder:latest
+PROTO_IMAGE := $(DOCKER) run --rm -v "$(CURDIR)":/workspace --workdir /workspace $(PROTO_IMAGE_NAME)
 
-proto-all: proto-format proto-lint proto-gen proto-gen-2 proto-swagger-gen
+proto-all: proto-check proto-gen
+proto-gen: proto-gogo proto-pulsar proto-openapi
+proto-check: proto-format proto-lint
 
-proto-gen:
-	@echo "🛠️ - Generating Protobuf"
-	@$(protoImage) sh ./scripts/protoc/protocgen.sh
-	@echo "✅ - Generated Protobuf successfully!"
+proto-gogo:
+	@echo "🛠️ Generating Gogo types from Protobuffers"
+	@$(PROTO_IMAGE) sh ./scripts/buf/buf-gogo.sh
+	@echo "✅ Generated Gogo types successfully!"
 
-proto-gen-2:
-	@echo "🛠️ - Generating Protobuf v2"
-	@$(protoImage) sh ./scripts/protoc/protocgen2.sh
-	@echo "✅ - Generated Protobuf v2 successfully!"
+proto-pulsar:
+	@echo "🛠️ Generating Pulsar types from Protobuffers"
+	@$(PROTO_IMAGE) sh ./scripts/buf/buf-pulsar.sh
+	@echo "✅ Generated Pulsar types successfully!"
 
-proto-swagger-gen:
-	@echo "📖 - Generating Protobuf Swagger"
-	@$(protoImage) sh ./scripts/protoc/protoc-swagger-gen.sh
-	@echo "✅ - Generated Protobuf Swagger successfully!"
+proto-openapi:
+	@echo "🛠️ Generating OpenAPI Spec from Protobuffers"
+	@$(PROTO_IMAGE) sh ./scripts/buf/buf-openapi.sh
+	@echo "✅ Generated OpenAPI Spec successfully!"
 
 proto-format:
-	@echo "🖊️ - Formatting Protobuf Swagger"
-	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
-	@echo "✅ - Formatted Protobuf successfully!"
+	@echo "🖊️ Formatting Protobuffers"
+	@$(PROTO_IMAGE) buf format ./proto --error-format=json
+	@echo "✅ Formatted Protobuffers successfully!"
 
 proto-lint:
-	@echo "🔎 - Linting Protobuf"
-	@$(protoImage) buf lint --error-format=json
-	@echo "✅ - Linted Protobuf successfully!"
+	@echo "🔎 Linting Protobuffers"
+	@$(PROTO_IMAGE) buf lint --error-format=json
+	@echo "✅ Linted Protobuffers successfully!"
 
-proto-check-breaking:
-	@echo "🔎 - Checking breaking Protobuf changes"
-	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
-	@echo "✅ - Checked Protobuf changes successfully!"
+proto-breaking:
+	@echo "🔎 Checking breaking Protobuffers changes against branch main"
+	@$(PROTO_IMAGE) buf breaking ./proto --against $(HTTPS_GIT).git#branch=main
+	@echo "✅ Protobuffers are non-breaking, checked successfully!"
 
-.PHONY: proto-all proto-gen proto-gen-2 proto-swagger-gen proto-format proto-lint proto-check-breaking
+.PHONY: proto-all proto-gen proto-check proto-format proto-lint proto-breaking proto-gogo proto-pulsar proto-openapi

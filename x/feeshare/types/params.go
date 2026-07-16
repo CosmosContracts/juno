@@ -1,10 +1,10 @@
 package types
 
 import (
-	"errors"
-	"fmt"
-
+	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var (
@@ -37,7 +37,7 @@ func DefaultParams() Params {
 func validateBool(i any) error {
 	_, ok := i.(bool)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "expected bool, got %T", i)
 	}
 
 	return nil
@@ -47,19 +47,19 @@ func validateShares(i any) error {
 	v, ok := i.(sdkmath.LegacyDec)
 
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "expected sdkmath.LegacyDec, got %T", i)
 	}
 
 	if v.IsNil() {
-		return errors.New("invalid parameter: nil")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid parameter: nil")
 	}
 
 	if v.IsNegative() {
-		return fmt.Errorf("value cannot be negative: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "value cannot be negative (%s)", v.String())
 	}
 
 	if v.GT(sdkmath.LegacyOneDec()) {
-		return fmt.Errorf("value cannot be greater than 1: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "value cannot be greater than 1 (%s)", v.String())
 	}
 
 	return nil
@@ -68,12 +68,12 @@ func validateShares(i any) error {
 func validateArray(i any) error {
 	_, ok := i.([]string)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "expected []string, got %T", i)
 	}
 
 	for _, denom := range i.([]string) {
 		if denom == "" {
-			return errors.New("denom cannot be blank")
+			return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "denom cannot be blank")
 		}
 	}
 

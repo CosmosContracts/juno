@@ -16,24 +16,16 @@ option go_package = "github.com/CosmosContracts/juno/x/feepay/types";
 service Msg {
   option (cosmos.msg.v1.service) = true;
   // RegisterFeeShare registers a new contract for receiving transaction fees
-  rpc RegisterFeePayContract(MsgRegisterFeePayContract) returns (MsgRegisterFeePayContractResponse) {
-    option (google.api.http).post = "/juno/feepay/v1/tx/register";
-  }
+  rpc RegisterFeePayContract(MsgRegisterFeePayContract) returns (MsgRegisterFeePayContractResponse);
 
   // UnregisterFeeShare unregisters a contract for receiving transaction fees
-  rpc UnregisterFeePayContract(MsgUnregisterFeePayContract) returns (MsgUnregisterFeePayContractResponse) {
-    option (google.api.http).post = "/juno/feepay/v1/tx/unregister";
-  }
+  rpc UnregisterFeePayContract(MsgUnregisterFeePayContract) returns (MsgUnregisterFeePayContractResponse);
 
   // Fund a fee pay contract
-  rpc FundFeePayContract(MsgFundFeePayContract) returns (MsgFundFeePayContractResponse) {
-    option (google.api.http).post = "/juno/feepay/v1/tx/fund";
-  }
+  rpc FundFeePayContract(MsgFundFeePayContract) returns (MsgFundFeePayContractResponse);
 
   // Update a fee pay contract wallet limit
-  rpc UpdateFeePayContractWalletLimit(MsgUpdateFeePayContractWalletLimit) returns (MsgUpdateFeePayContractWalletLimitResponse) {
-    option (google.api.http).post = "/juno/feepay/v1/tx/update_wallet_limit";
-  }
+  rpc UpdateFeePayContractWalletLimit(MsgUpdateFeePayContractWalletLimit) returns (MsgUpdateFeePayContractWalletLimitResponse);
 
   // Update the params of the module through gov v1 type.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);

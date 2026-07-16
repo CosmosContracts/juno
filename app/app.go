@@ -4,16 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/fs"
-	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
@@ -22,15 +21,16 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/gogoproto/proto"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/tx/signing"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -55,24 +55,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
-	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/CosmosContracts/juno/v29/app/keepers"
-	upgrades "github.com/CosmosContracts/juno/v29/app/upgrades"
-	v28 "github.com/CosmosContracts/juno/v29/app/upgrades/v28"
-	v29 "github.com/CosmosContracts/juno/v29/app/upgrades/v29"
-	"github.com/CosmosContracts/juno/v29/docs"
+	junoante "github.com/CosmosContracts/juno/v30/app/ante"
+	endpoints "github.com/CosmosContracts/juno/v30/app/endpoints"
+	wsendpoints "github.com/CosmosContracts/juno/v30/app/endpoints/websocket"
+	"github.com/CosmosContracts/juno/v30/app/keepers"
+	upgrades "github.com/CosmosContracts/juno/v30/app/upgrades"
+	v30 "github.com/CosmosContracts/juno/v30/app/upgrades/v30"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
 )
 
 const (
@@ -92,8 +88,7 @@ var (
 	EnableSpecificProposals = ""
 
 	Upgrades = []upgrades.Upgrade{
-		v28.Upgrade,
-		v29.Upgrade,
+		v30.Upgrade,
 	}
 
 	_ runtime.AppI            = (*App)(nil)
@@ -152,7 +147,6 @@ func New(
 	appCodec := codec.NewProtoCodec(interfaceRegistry)
 	legacyAmino := codec.NewLegacyAmino()
 	txConfig := authtx.NewTxConfig(appCodec, authtx.DefaultSignModes)
-	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
 	std.RegisterLegacyAminoCodec(legacyAmino)
 	std.RegisterInterfaces(interfaceRegistry)
@@ -169,6 +163,7 @@ func New(
 		appCodec:          appCodec,
 		txConfig:          txConfig,
 		interfaceRegistry: interfaceRegistry,
+		homePath:          homePath,
 	}
 	app.homePath = homePath
 
@@ -183,12 +178,6 @@ func New(
 		app.homePath,
 	)
 
-	// load state streaming if enabled
-	if err := app.RegisterStreamingServices(appOpts, app.AppKeepers.GetKVStoreKeys()); err != nil {
-		panic(err)
-	}
-
-	// optional: enable sign mode textual by overwriting the default tx config (after setting the bank keeper)
 	// nolint:gocritic
 	enabledSignModes := append(authtx.DefaultSignModes, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 	txConfigOpts := authtx.ConfigOptions{
@@ -211,34 +200,28 @@ func New(
 	}
 
 	app.configurator = module.NewConfigurator(appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
-	app.ModuleManager = module.NewManager(appModules(app, txConfig, appCodec, skipGenesisInvariants)...)
-
+	app.ModuleManager = module.NewManager(appModules(app, txConfig, appCodec)...)
 	app.BasicModuleManager = module.NewBasicManagerFromManager(
 		app.ModuleManager,
 		map[string]module.AppModuleBasic{
 			genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
-			govtypes.ModuleName: gov.NewAppModuleBasic(
-				[]govclient.ProposalHandler{
-					paramsclient.ProposalHandler,
-				},
-			),
 		},
 	)
 	app.BasicModuleManager.RegisterLegacyAminoCodec(legacyAmino)
 	app.BasicModuleManager.RegisterInterfaces(interfaceRegistry)
-
 	err = app.ModuleManager.RegisterServices(app.configurator)
 	if err != nil {
 		panic(err)
 	}
 	app.ModuleManager.SetOrderPreBlockers(
 		upgradetypes.ModuleName,
+		authtypes.ModuleName,
 	)
 	app.ModuleManager.SetOrderBeginBlockers(orderBeginBlockers()...)
 	app.ModuleManager.SetOrderEndBlockers(orderEndBlockers()...)
 	app.ModuleManager.SetOrderInitGenesis(orderInitBlockers()...)
 	app.ModuleManager.SetOrderExportGenesis(orderInitBlockers()...)
-	app.ModuleManager.RegisterInvariants(app.AppKeepers.CrisisKeeper)
+	app.ModuleManager.SetOrderMigrations(orderMigrations(app.ModuleManager.ModuleNames())...)
 
 	autocliv1.RegisterQueryServer(app.GRPCQueryRouter(), runtimeservices.NewAutoCLIQueryService(app.ModuleManager.Modules))
 
@@ -250,26 +233,47 @@ func New(
 
 	// initialize stores
 	app.MountKVStores(app.AppKeepers.GetKVStoreKeys())
-	app.MountTransientStores(app.AppKeepers.GetTransientStoreKeys())
 	app.MountMemoryStores(app.AppKeepers.GetMemoryStoreKeys())
+	app.MountTransientStores(app.AppKeepers.GetTransientStoreKeys())
+
+	// setup streaming support
+	app.AppKeepers.StreamKeeper.StartDispatcher()
+	streamListener := streamtypes.NewStreamingListener(
+		app.AppKeepers.StreamKeeper.Dispatcher().Intake(),
+		app.Logger().With("module", "stream listener"),
+		// app.AppKeepers.StreamKeeper.ModuleCodecs(),
+	)
+	keys := app.AppKeepers.GetKVStoreKeys()
+	keyNames := make([]string, 0, len(keys))
+	for name := range keys {
+		keyNames = append(keyNames, name)
+	}
+	sort.Strings(keyNames)
+	storeKeys := make([]storetypes.StoreKey, 0, len(keys))
+	for _, name := range keyNames {
+		if key := keys[name]; key != nil {
+			storeKeys = append(storeKeys, key)
+		}
+	}
+	app.BaseApp.CommitMultiStore().AddListeners(storeKeys)
+	app.SetStreamingManager(storetypes.StreamingManager{
+		ABCIListeners: []storetypes.ABCIListener{streamListener},
+		StopNodeOnErr: false,
+	})
 
 	nodeConfig, err := wasm.ReadNodeConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
 	}
-
-	anteHandler, err := NewAnteHandler(
-		HandlerOptions{
+	anteHandler, err := junoante.NewAnteHandler(
+		junoante.HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
-				AccountKeeper:   app.AppKeepers.AccountKeeper,
-				BankKeeper:      app.AppKeepers.BankKeeper,
 				FeegrantKeeper:  app.AppKeepers.FeeGrantKeeper,
 				SignModeHandler: app.txConfig.SignModeHandler(),
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
 			StakingKeeper: *app.AppKeepers.StakingKeeper,
 			BondDenom:     app.GetChainBondDenom(),
-			BankKeeper:    app.AppKeepers.BankKeeper,
 
 			IBCKeeper: app.AppKeepers.IBCKeeper,
 
@@ -277,18 +281,39 @@ func New(
 			NodeConfig:            &nodeConfig,
 			WasmKeeper:            &app.AppKeepers.WasmKeeper,
 
-			FeePayKeeper:         app.AppKeepers.FeePayKeeper,
-			FeeShareKeeper:       app.AppKeepers.FeeShareKeeper,
+			BankKeeper:    app.AppKeepers.BankKeeper,
+			AccountKeeper: app.AppKeepers.AccountKeeper,
+
+			FeepayKeeper:         app.AppKeepers.FeePayKeeper,
+			FeeshareKeeper:       app.AppKeepers.FeeShareKeeper,
+			FeemarketKeeper:      *app.AppKeepers.FeeMarketKeeper,
 			BypassMinFeeMsgTypes: GetDefaultBypassFeeMessages(),
-			GlobalFeeKeeper:      app.AppKeepers.GlobalFeeKeeper,
 		},
 	)
 	if err != nil {
 		panic(err)
 	}
 
+	postHandlerOptions := PostHandlerOptions{
+		AccountKeeper:   app.AppKeepers.AccountKeeper,
+		BankKeeper:      app.AppKeepers.BankKeeper,
+		FeeMarketKeeper: *app.AppKeepers.FeeMarketKeeper,
+		FeePayKeeper:    app.AppKeepers.FeePayKeeper,
+		StakingKeeper:   app.AppKeepers.StakingKeeper,
+	}
+	postHandler, err := NewPostHandler(postHandlerOptions)
+	if err != nil {
+		panic(err)
+	}
+
+	// Fees are payable ONLY in the fee (bond) denom for v30. ErrorDenomResolver
+	// rejects every other denom; a permissive resolver would let permissionless
+	// tokenfactory denoms satisfy fees 1:1 with the bond denom. Swap for an
+	// oracle-backed resolver if multi-denom fees are ever wanted.
+	app.AppKeepers.FeeMarketKeeper.SetDenomResolver(&feemarkettypes.ErrorDenomResolver{})
+
 	app.SetAnteHandler(anteHandler)
-	app.setPostHandler()
+	app.SetPostHandler(postHandler)
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -345,15 +370,6 @@ func New(
 		app.AppKeepers.CapabilityKeeper.Seal()
 	}
 
-	// create the simulation manager and define the order of the modules for deterministic simulations
-	//
-	// no override for simulation for now, but we can add it in the future if needed
-	app.sm = module.NewSimulationManagerFromAppModules(
-		app.ModuleManager.Modules,
-		make(map[string]module.AppModuleSimulation, 0),
-	)
-	app.sm.RegisterStoreDecoders()
-
 	return app
 }
 
@@ -399,17 +415,6 @@ func (app *App) AutoCLIOpts(initClientCtx client.Context) autocli.AppOptions {
 // DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
 func (app *App) DefaultGenesis() map[string]json.RawMessage {
 	return app.BasicModuleManager.DefaultGenesis(app.appCodec)
-}
-
-func (app *App) setPostHandler() {
-	postHandler, err := posthandler.NewPostHandler(
-		posthandler.HandlerOptions{},
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	app.SetPostHandler(postHandler)
 }
 
 // Name returns the name of the App
@@ -485,35 +490,24 @@ func (app *App) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
-// InterfaceRegistry returns Juno's TxConfig
+// TxConfig returns Juno's TxConfig
 func (app *App) TxConfig() client.TxConfig {
 	return app.txConfig
-}
-
-// GetSubspace returns a param subspace for a given module name.
-//
-// NOTE: Still used in ibc-go, wait for them to remove params usage before removing this.
-func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
-	subspace, _ := app.AppKeepers.ParamsKeeper.GetSubspace(moduleName)
-	return subspace
-}
-
-func (*App) RegisterSwaggerUI(apiSvr *api.Server) error {
-	staticSubDir, err := fs.Sub(docs.Docs, "static")
-	if err != nil {
-		return err
-	}
-
-	staticServer := http.FileServer(http.FS(staticSubDir))
-	apiSvr.Router.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
-
-	return nil
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided
 // API server.
 func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
+
+	// Register Scalar UI to <address>:<port>/scalar
+	// Needs to be before registering the grpc-gateway routes
+	// so its not registered after a '*' wildcard route is set
+	// which for some reason overrides the scalar route.
+	if err := endpoints.RegisterScalarUI(apiSvr); err != nil {
+		panic(err)
+	}
+
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
@@ -526,8 +520,8 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 	// Register grpc-gateway routes for all modules.
 	app.BasicModuleManager.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
-	// Register Swagger UI to <address>:<port>/swagger
-	if err := app.RegisterSwaggerUI(apiSvr); err != nil {
+	// Register WebSocket routes for the stream module
+	if err := wsendpoints.RegisterRoutes(apiSvr, app.AppKeepers.StreamKeeper, app.homePath); err != nil {
 		panic(err)
 	}
 }
@@ -535,6 +529,9 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ config.APIConfig) {
 // RegisterTxService implements the Application.RegisterTxService method.
 func (app *App) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.GRPCQueryRouter(), clientCtx, app.Simulate, app.interfaceRegistry)
+	if err := app.AppKeepers.StreamKeeper.MethodRegistry().Refresh(app.BaseApp); err != nil {
+		panic(err)
+	}
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
@@ -550,6 +547,38 @@ func (app *App) RegisterTendermintService(clientCtx client.Context) {
 
 func (app *App) RegisterNodeService(clientCtx client.Context, cfg config.Config) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter(), cfg)
+}
+
+// SimulationManager implements the SimulationApp interface
+func (app *App) SimulationManager() *module.SimulationManager {
+	return app.sm
+}
+
+func (app *App) GetChainBondDenom() string {
+	d := "ujuno"
+	if strings.HasPrefix(app.ChainID(), "uni-") {
+		d = "ujunox"
+	}
+	return d
+}
+
+// Close stops the stream dispatcher and performs cleanup and then shuts down the node
+func (app *App) Close() error {
+	// Stop the stream dispatcher with timeout
+	done := make(chan struct{})
+	go func() {
+		app.AppKeepers.StreamKeeper.StopDispatcher()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		app.Logger().Info("Stream dispatcher stopped successfully")
+	case <-time.After(5 * time.Second):
+		app.Logger().Error("timeout waiting for stream dispatcher to stop")
+	}
+
+	return app.BaseApp.Close()
 }
 
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
@@ -584,17 +613,4 @@ func (app *App) setupUpgradeHandlers() {
 			),
 		)
 	}
-}
-
-// SimulationManager implements the SimulationApp interface
-func (app *App) SimulationManager() *module.SimulationManager {
-	return app.sm
-}
-
-func (app *App) GetChainBondDenom() string {
-	d := "ujuno"
-	if strings.HasPrefix(app.ChainID(), "uni-") {
-		d = "ujunox"
-	}
-	return d
 }

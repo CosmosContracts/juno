@@ -1,11 +1,12 @@
 package types
 
 import (
-	"errors"
-	"fmt"
 	"strings"
 
+	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 func NewParams(
@@ -17,7 +18,7 @@ func NewParams(
 	}
 }
 
-// default minting module parameters
+// DefaultParams are the default module parameters for x/mint
 func DefaultParams() Params {
 	return Params{
 		MintDenom:     sdk.DefaultBondDenom,
@@ -25,7 +26,7 @@ func DefaultParams() Params {
 	}
 }
 
-// validate params
+// Validate validates the x/mint module parameters
 func (p Params) Validate() error {
 	if err := validateMintDenom(p.MintDenom); err != nil {
 		return err
@@ -38,11 +39,11 @@ func (p Params) Validate() error {
 func validateMintDenom(i any) error {
 	v, ok := i.(string)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "expected string, got %T", i)
 	}
 
 	if strings.TrimSpace(v) == "" {
-		return errors.New("mint denom cannot be blank")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "mint denom cannot be blank")
 	}
 	err := sdk.ValidateDenom(v)
 	return err
@@ -51,11 +52,11 @@ func validateMintDenom(i any) error {
 func validateBlocksPerYear(i any) error {
 	v, ok := i.(uint64)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "expected uint64, got %T", i)
 	}
 
 	if v == 0 {
-		return fmt.Errorf("blocks per year must be positive: %d", v)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "blocks per year must be positive (%d)", v)
 	}
 
 	return nil

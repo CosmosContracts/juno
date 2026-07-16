@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v29/x/clock/types"
+	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 
 // Keeper of the clock store
@@ -94,7 +94,7 @@ func (k Keeper) GetCdc() codec.BinaryCodec {
 	return k.cdc
 }
 
-// GetStore returns the x/clock module's store service.
+// GetStoreService returns the x/clock module's store service.
 func (k Keeper) GetStoreService() storetypes.KVStoreService {
 	return k.storeService
 }

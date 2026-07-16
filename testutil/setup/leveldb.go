@@ -17,12 +17,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	junoapp "github.com/CosmosContracts/juno/v29/app"
-	"github.com/CosmosContracts/juno/v29/testutil/common"
+	junoapp "github.com/CosmosContracts/juno/v30/app"
+	"github.com/CosmosContracts/juno/v30/testutil/common"
 )
 
-// SetupTestingAppWithLevelDb initializes a new App intended for testing,
-// with LevelDB as a db.
+// SetupTestingAppWithLevelDB initializes a new App intended for testing,
+// with LevelDB as a database backend.
 func SetupTestingAppWithLevelDB(isCheckTx bool) (app *junoapp.App, cleanupFn func()) { // nolint:revive
 	dir, err := os.MkdirTemp(os.TempDir(), "juno_leveldb_testing")
 	if err != nil {

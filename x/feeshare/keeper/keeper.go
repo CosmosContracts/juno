@@ -14,7 +14,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	revtypes "github.com/CosmosContracts/juno/v29/x/feeshare/types"
+	revtypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
 )
 
 // Keeper of this module maintains collections of feeshares for contracts
@@ -27,31 +27,29 @@ type Keeper struct {
 	wasmKeeper    wasmkeeper.Keeper
 	accountKeeper authkeeper.AccountKeeper
 
-	feeCollectorName string
-
 	// the address capable of executing a MsgUpdateParams message. Typically, this
 	// should be the x/gov module account.
 	authority string
 }
 
-// NewKeeper creates new instances of the fees Keeper
+// NewKeeper creates new instances of the fees Keeper.
+// Note: the payout source is hardcoded to feemarkettypes.FeeCollectorName in
+// x/feeshare/ante — no fee collector name is configurable here.
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	ss storetypes.KVStoreService,
 	bk bankkeeper.Keeper,
 	wk wasmkeeper.Keeper,
 	ak authkeeper.AccountKeeper,
-	feeCollector string,
 	authority string,
 ) Keeper {
 	return Keeper{
-		cdc:              cdc,
-		storeService:     ss,
-		bankKeeper:       bk,
-		wasmKeeper:       wk,
-		accountKeeper:    ak,
-		feeCollectorName: feeCollector,
-		authority:        authority,
+		cdc:           cdc,
+		storeService:  ss,
+		bankKeeper:    bk,
+		wasmKeeper:    wk,
+		accountKeeper: ak,
+		authority:     authority,
 	}
 }
 

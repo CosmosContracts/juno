@@ -2,26 +2,54 @@ package types
 
 import (
 	"encoding/json"
+	"sort"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// NewGenesisState - Create a new genesis state
-func NewGenesisState(params Params, stakingContracts, govContracts []string) *GenesisState {
+// NewGenesisState - Create a new genesis state.
+//
+// Output slices are sorted by ContractAddress so that genesis state hashes
+// deterministically across nodes — Go map iteration is randomised, and any
+// caller passing a non-empty map (tests, fixtures, custom genesis) would
+// otherwise produce a different InitGenesis byte sequence per run.
+func NewGenesisState(params Params, stakingContracts, govContracts map[string]ContractInfo) *GenesisState {
+	stakingContractAddresses := contractInfoSlice(stakingContracts)
+	govContractAddresses := contractInfoSlice(govContracts)
 	return &GenesisState{
 		Params:                   params,
-		StakingContractAddresses: stakingContracts,
-		GovContractAddresses:     govContracts,
+		StakingContractAddresses: stakingContractAddresses,
+		GovContractAddresses:     govContractAddresses,
 	}
+}
+
+func contractInfoSlice(m map[string]ContractInfo) []ContractInfo {
+	// Collect via sorted keys so the intermediate traversal is
+	// deterministic (Go map iteration is randomised); then sort the
+	// result by ContractAddress to keep the output ordering stable
+	// even if a caller used a non-address map key.
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	out := make([]ContractInfo, 0, len(m))
+	for _, k := range keys {
+		out = append(out, m[k])
+	}
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].ContractAddress < out[j].ContractAddress
+	})
+	return out
 }
 
 // DefaultGenesisState - Return a default genesis state
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), []string{}, []string{})
+	return NewGenesisState(DefaultParams(), map[string]ContractInfo{}, map[string]ContractInfo{})
 }
 
-// GetGenesisStateFromAppState returns x/auth GenesisState given raw application
+// GetGenesisStateFromAppState returns x/cw-hooks GenesisState given raw application
 // genesis state.
 func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMessage) *GenesisState {
 	var genesisState GenesisState
@@ -35,13 +63,13 @@ func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMe
 
 func ValidateGenesis(data GenesisState) error {
 	for _, v := range data.StakingContractAddresses {
-		if _, err := sdk.AccAddressFromBech32(v); err != nil {
+		if _, err := sdk.AccAddressFromBech32(v.ContractAddress); err != nil {
 			return err
 		}
 	}
 
 	for _, v := range data.GovContractAddresses {
-		if _, err := sdk.AccAddressFromBech32(v); err != nil {
+		if _, err := sdk.AccAddressFromBech32(v.ContractAddress); err != nil {
 			return err
 		}
 	}

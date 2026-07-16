@@ -1,0 +1,22 @@
+version: v2
+
+clean: true
+
+inputs:
+  - git_repo: https://github.com/cosmos/ibc-go.git
+    tag: v8.7.0
+    paths:
+      - proto/ibc/core
+      - proto/ibc/applications/transfer
+      - proto/ibc/applications/interchain_accounts
+      - proto/ibc/lightclients/tendermint
+
+plugins:
+  - remote: buf.build/community/google-gnostic-openapi:v0.7.1
+    out: ./gen/ibc
+    include_imports: true
+    opt:
+      - default_response=true
+      - fq_schema_naming=false
+      - title=Juno REST API
+      - version=v30.0.0

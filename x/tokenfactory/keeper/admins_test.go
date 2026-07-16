@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 func (s *KeeperTestSuite) TestAdminMsgs() {
@@ -181,7 +181,7 @@ func (s *KeeperTestSuite) TestMintDenom() {
 			desc: "error: try minting non-tokenfactory denom",
 			mintMsg: types.MsgMint{
 				Sender:        s.TestAccs[0].String(),
-				Amount:        sdk.NewInt64Coin("ujuno", 10),
+				Amount:        sdk.NewInt64Coin(sdk.DefaultBondDenom, 10),
 				MintToAddress: s.TestAccs[1].String(),
 			},
 			expectPass: false,
@@ -277,7 +277,7 @@ func (s *KeeperTestSuite) TestBurnDenom() {
 			desc: "fail case - burn non-tokenfactory denom",
 			burnMsg: types.MsgBurn{
 				Sender:          s.TestAccs[0].String(),
-				Amount:          sdk.NewInt64Coin("ujuno", 10),
+				Amount:          sdk.NewInt64Coin(sdk.DefaultBondDenom, 10),
 				BurnFromAddress: moduleAdress.String(),
 			},
 			expectPass: false,
@@ -288,6 +288,22 @@ func (s *KeeperTestSuite) TestBurnDenom() {
 			if tc.expectPass {
 				s.Require().NoError(err)
 				balances[tc.burnMsg.BurnFromAddress] -= tc.burnMsg.Amount.Amount.Int64()
+
+				// The tf_burn event must report the address tokens were
+				// burned *from* — not the (possibly different) admin sender.
+				events := s.Ctx.EventManager().Events()
+				var found bool
+				for i := len(events) - 1; i >= 0; i-- {
+					if events[i].Type != "tf_burn" {
+						continue
+					}
+					attr, ok := events[i].GetAttribute(types.AttributeBurnFromAddress)
+					s.Require().True(ok, "tf_burn event missing %s attribute", types.AttributeBurnFromAddress)
+					s.Require().Equal(tc.burnMsg.BurnFromAddress, attr.Value)
+					found = true
+					break
+				}
+				s.Require().True(found, "no tf_burn event emitted")
 			} else {
 				s.Require().Error(err)
 			}
@@ -566,7 +582,7 @@ func (s *KeeperTestSuite) TestSetDenomMetaData() {
 					Description: "yeehaw",
 					DenomUnits: []*banktypes.DenomUnit{
 						{
-							Denom:    "ujuno",
+							Denom:    sdk.DefaultBondDenom,
 							Exponent: 0,
 						},
 						{
@@ -574,7 +590,7 @@ func (s *KeeperTestSuite) TestSetDenomMetaData() {
 							Exponent: 6,
 						},
 					},
-					Base:    "ujuno",
+					Base:    sdk.DefaultBondDenom,
 					Display: "juno",
 					Name:    "JUNO",
 					Symbol:  "JUNO",

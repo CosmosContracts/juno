@@ -1,16 +1,16 @@
-package bindings
+package wasmbindings
 
 import (
 	"encoding/json"
-	"fmt"
 
-	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/v3/types"
 
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	types "github.com/CosmosContracts/juno/v29/wasmbindings/types"
+	types "github.com/CosmosContracts/juno/v30/wasmbindings/types"
 )
 
 // CustomQuerier dispatches custom CosmWasm bindings queries.
@@ -50,7 +50,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			bz, err := json.Marshal(res)
 			if err != nil {
-				return nil, fmt.Errorf("failed to JSON marshal AdminResponse: %w", err)
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal AdminResponse: %v", err)
 			}
 
 			return bz, nil
@@ -63,7 +63,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			bz, err := json.Marshal(res)
 			if err != nil {
-				return nil, fmt.Errorf("failed to JSON marshal MetadataResponse: %w", err)
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal MetadataResponse: %v", err)
 			}
 
 			return bz, nil
@@ -76,7 +76,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			bz, err := json.Marshal(res)
 			if err != nil {
-				return nil, fmt.Errorf("failed to JSON marshal DenomsByCreatorResponse: %w", err)
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal DenomsByCreatorResponse: %v", err)
 			}
 
 			return bz, nil
@@ -89,9 +89,43 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			bz, err := json.Marshal(res)
 			if err != nil {
-				return nil, fmt.Errorf("failed to JSON marshal ParamsResponse: %w", err)
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal ParamsResponse: %v", err)
 			}
 
+			return bz, nil
+
+		case contractQuery.VotingPowerAt != nil:
+			res, err := qp.GetVotingPowerAt(ctx, contractQuery.VotingPowerAt.Address, contractQuery.VotingPowerAt.Height)
+			if err != nil {
+				return nil, err
+			}
+			bz, err := json.Marshal(res)
+			if err != nil {
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal VotingPowerResponse: %v", err)
+			}
+			return bz, nil
+
+		case contractQuery.TotalVotingPowerAt != nil:
+			res, err := qp.GetTotalVotingPowerAt(ctx, contractQuery.TotalVotingPowerAt.Height)
+			if err != nil {
+				return nil, err
+			}
+			bz, err := json.Marshal(res)
+			if err != nil {
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal VotingPowerResponse: %v", err)
+			}
+			return bz, nil
+
+		case contractQuery.VotingPowerOverRange != nil:
+			r := contractQuery.VotingPowerOverRange
+			res, err := qp.GetVotingPowerOverRange(ctx, r.Address, r.FromHeight, r.ToHeight)
+			if err != nil {
+				return nil, err
+			}
+			bz, err := json.Marshal(res)
+			if err != nil {
+				return nil, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "failed to JSON marshal VotingPowerOverRangeResponse: %v", err)
+			}
 			return bz, nil
 
 		default:

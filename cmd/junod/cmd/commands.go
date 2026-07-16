@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"errors"
 	"io"
 	"os"
+	"os/signal"
+	"syscall"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -13,6 +14,7 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -20,12 +22,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"github.com/CosmosContracts/juno/v29/app"
+	"github.com/CosmosContracts/juno/v30/app"
+	"github.com/CosmosContracts/juno/v30/cmd/junod/cmd/stream"
 )
 
 var tempDir = func() string {
@@ -39,7 +42,6 @@ var tempDir = func() string {
 }
 
 func addModuleInitFlags(startCmd *cobra.Command) {
-	crisis.AddModuleInitFlags(startCmd)
 	wasm.AddModuleInitFlags(startCmd)
 }
 
@@ -65,6 +67,8 @@ func queryCommand() *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
+
+	cmd.PersistentFlags().Bool(stream.StreamFlagName, false, "Stream updates and keep watching for changes")
 
 	cmd.AddCommand(
 		rpc.ValidatorCommand(),
@@ -127,7 +131,7 @@ func newApp(
 		homePath = app.DefaultNodeHome
 	}
 
-	return app.New(
+	junoApp := app.New(
 		logger,
 		db,
 		traceStore,
@@ -137,6 +141,21 @@ func newApp(
 		wasmOpts,
 		baseappOptions...,
 	)
+
+	// Set up a deferred cleanup that ensures Close is called
+	// This is a workaround for cases where the SDK doesn't call Close
+	go func() {
+		sigCh := make(chan os.Signal, 1)
+		signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+		<-sigCh
+		logger.Info("Received shutdown signal in newApp")
+		if err := junoApp.Close(); err != nil {
+			logger.Error("Error closing app", "error", err)
+		}
+		os.Exit(0)
+	}()
+
+	return junoApp
 }
 
 func appExport(
@@ -152,7 +171,7 @@ func appExport(
 	var junoApp *app.App
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
-		return servertypes.ExportedApp{}, errors.New("application home is not set")
+		return servertypes.ExportedApp{}, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "application home is not set")
 	}
 
 	loadLatest := height == -1

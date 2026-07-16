@@ -14,7 +14,7 @@ permissions:
   packages: write
 
 env:
-  GO_VERSION: 1.23.9
+  GO_VERSION: 1.25.2
   TAR_PATH: /tmp/juno-docker-image.tar
   IMAGE_NAME: juno-docker-image
 
@@ -42,7 +42,12 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          tags: juno:local
+          # Tag must match the repo string in
+          # interchaintest/suite/ci_integration.go's GetDockerImageInfo
+          # (and the IMAGE var in the root Makefile's local-image target),
+          # otherwise the e2e jobs will try to pull from registry and
+          # hit "manifest unknown."
+          tags: ghcr.io/cosmoscontracts/juno:local
           outputs: type=docker,dest=${{ env.TAR_PATH }}
 
       - name: Upload artifact
@@ -57,23 +62,22 @@ jobs:
     strategy:
       matrix:
         # names of `make` commands to run tests
+        # Must match the ictest-* targets in the root Makefile.
         test:
           - "ictest-basic"
-          - "ictest-statesync"
-          - "ictest-ibchooks"
-          - "ictest-tokenfactory"
-          - "ictest-feeshare"
-          - "ictest-pfm"
-          - "ictest-globalfee"
-          - "ictest-upgrade"
-          - "ictest-ibc"
-          - "ictest-unity-deploy"
-          - "ictest-drip"
-          - "ictest-feepay"
           - "ictest-burn"
-          - "ictest-cwhooks"
-          - "ictest-clock"
-          - "ictest-gov-fix"
+          - "ictest-cw"
+          - "ictest-drip"
+          - "ictest-feemarket"
+          - "ictest-fees"
+          - "ictest-fixes"
+          - "ictest-ibc"
+          - "ictest-ibc-hooks"
+          - "ictest-node"
+          - "ictest-pfm"
+          - "ictest-tokenfactory"
+          - "ictest-upgrade"
+          - "ictest-dao-dao"
       fail-fast: false
 
     steps:

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v29/x/clock/types"
+	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 
 func TestParamsValidate(t *testing.T) {
@@ -21,32 +21,37 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"Success - Meets min Gas",
-			types.NewParams(100_000),
+			types.NewParams(100_000, types.DefaultMaxContracts),
 			true,
 		},
 		{
 			"Success - Meets min Gas",
-			types.NewParams(500_000),
+			types.NewParams(500_000, types.DefaultMaxContracts),
 			true,
 		},
 		{
 			"Fail - Not Enough Gas",
-			types.NewParams(1),
+			types.NewParams(1, types.DefaultMaxContracts),
 			false,
 		},
 		{
 			"Fail - Not Enough Gas",
-			types.NewParams(100),
+			types.NewParams(100, types.DefaultMaxContracts),
 			false,
 		},
 		{
 			"Fail - Not Enough Gas",
-			types.NewParams(1_000),
+			types.NewParams(1_000, types.DefaultMaxContracts),
 			false,
 		},
 		{
 			"Fail - Not Enough Gas",
-			types.NewParams(10_000),
+			types.NewParams(10_000, types.DefaultMaxContracts),
+			false,
+		},
+		{
+			"Fail - Zero MaxContracts",
+			types.NewParams(100_000, 0),
 			false,
 		},
 	}

@@ -1,22 +1,23 @@
-package bindings
+package wasmbindings
 
 import (
 	"context"
 	"encoding/json"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/v3/types"
 
 	errorsmod "cosmossdk.io/errors"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v29/wasmbindings/types"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v29/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v30/wasmbindings/types"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 // CustomMessageDecorator returns decorator for custom CosmWasm bindings messages
@@ -161,7 +162,7 @@ func PerformMint(ctx context.Context, f *tokenfactorykeeper.Keeper, b bankkeeper
 	}
 
 	if b.BlockedAddr(rcpt) {
-		return errorsmod.Wrapf(err, "minting coins to blocked address %s", rcpt.String())
+		return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "minting coins to blocked address %s", rcpt.String())
 	}
 
 	err = b.SendCoins(ctx, contractAddr, rcpt, sdk.NewCoins(coin))

@@ -1,0 +1,44 @@
+syntax = "proto3";
+package juno.cwhooks.v2;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "juno/cwhooks/v2/contract.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
+
+// GenesisState - initial state of module
+message GenesisState {
+  // Params of this module
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+
+  // staking_contract_addresses
+  repeated ContractInfo staking_contract_addresses = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+
+  // gov_contract_addresses
+  repeated ContractInfo gov_contract_addresses = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}
+
+// Params defines the set of module parameters.
+message Params {
+  option (gogoproto.equal) = true;
+  // contract_gas_limit is the contract call gas limit
+  uint64 contract_gas_limit = 1;
+
+  // contract_failure_removal_threshold is the threshold for removing a contract after consecutive failures
+  uint64 contract_failure_removal_threshold = 2;
+
+  // max_contracts caps the number of registered contracts per hook module,
+  // bounding per-hook sudo work so registration cannot be used to inflate
+  // block time.
+  uint64 max_contracts = 3;
+}

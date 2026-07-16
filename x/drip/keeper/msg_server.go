@@ -2,16 +2,14 @@ package keeper
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"slices"
 
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/CosmosContracts/juno/v29/x/drip/types"
+	"github.com/CosmosContracts/juno/v30/x/drip/types"
 )
 
 var _ types.MsgServer = msgServer{}
@@ -35,7 +33,7 @@ func (ms msgServer) DistributeTokens(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if msg.SenderAddress == "" {
-		return nil, errors.New("sender address cannot be empty")
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, "sender address cannot be empty")
 	}
 
 	sender, err := sdk.AccAddressFromBech32(msg.SenderAddress)
@@ -44,11 +42,11 @@ func (ms msgServer) DistributeTokens(
 	}
 
 	if msg.Amount == nil || msg.Amount.Empty() {
-		return nil, fmt.Errorf("invalid coins: %s", msg.Amount.String())
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidCoins, "invalid coins: %s", msg.Amount.String())
 	}
 
 	if !msg.Amount.IsValid() {
-		return nil, fmt.Errorf("invalid coins: %s", msg.Amount.String())
+		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidCoins, "invalid coins: %s", msg.Amount.String())
 	}
 
 	params := ms.GetParams(ctx)
@@ -72,7 +70,7 @@ func (ms msgServer) DistributeTokens(
 
 func (ms msgServer) UpdateParams(ctx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	if ms.authority != req.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", ms.authority, req.Authority)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrorInvalidSigner, "expected %s, got %s", ms.authority, req.Authority)
 	}
 	err := req.Params.Validate()
 	if err != nil {

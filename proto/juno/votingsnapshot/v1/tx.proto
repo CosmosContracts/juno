@@ -1,0 +1,35 @@
+syntax = "proto3";
+package juno.votingsnapshot.v1;
+
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "juno/votingsnapshot/v1/params.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/voting-snapshot/types";
+
+// Msg defines the x/voting-snapshot Msg service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // UpdateParams updates the module parameters. Authority-only —
+  // the gov module address.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}
+
+// MsgUpdateParams sets new module parameters. Sent by the governance
+// module after a passing proposal.
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name) = "juno/votingsnapshot/MsgUpdateParams";
+
+  // authority is the address that controls the module (defaults to the
+  // governance module account).
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // params is the full new parameter set.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+message MsgUpdateParamsResponse {}

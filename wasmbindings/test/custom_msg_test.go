@@ -1,4 +1,4 @@
-package bindings_test
+package test
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	types "github.com/CosmosContracts/juno/v29/wasmbindings/types"
-	tftypes "github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	types "github.com/CosmosContracts/juno/v30/wasmbindings/types"
+	tftypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 func (s *BindingsTestSuite) TestCreateDenomMsg() {

@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/CosmosContracts/juno/v29/testutil/common/nullify"
-	"github.com/CosmosContracts/juno/v29/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v30/testutil/common/nullify"
+	"github.com/CosmosContracts/juno/v30/x/feeshare/types"
 )
 
 func (s *KeeperTestSuite) TestFeeShares() {
@@ -116,6 +116,7 @@ func (s *KeeperTestSuite) TestFeeShare() {
 	s.Require().Equal(resp.Feeshare, feeShare)
 }
 
+// nolint: dupl
 func (s *KeeperTestSuite) TestDeployerFeeShares() {
 	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
@@ -182,6 +183,7 @@ func (s *KeeperTestSuite) TestDeployerFeeShares() {
 	})
 }
 
+// nolint: dupl
 func (s *KeeperTestSuite) TestWithdrawerFeeShares() {
 	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()

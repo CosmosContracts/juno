@@ -1,0 +1,39 @@
+package utils
+
+import (
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
+	storetypes "cosmossdk.io/store/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// ExecuteContract executes a contract and recovers from panic
+func ExecuteContract(k wasmtypes.ContractOpsKeeper, childCtx sdk.Context, contractAddr sdk.AccAddress, msgBz []byte, err *error) {
+	// Recover from panic, return error
+	defer func() {
+		if recoveryError := recover(); recoveryError != nil {
+			// Determine error associated with panic
+			if isOutofGas, msg := IsOutOfGasError(recoveryError); isOutofGas {
+				*err = ErrOutOfGas.Wrapf("%s", msg)
+			} else {
+				*err = ErrContractExecutionPanic.Wrapf("%s", recoveryError)
+			}
+		}
+	}()
+
+	// Execute contract with sudo
+	_, *err = k.Sudo(childCtx, contractAddr, msgBz)
+}
+
+// IsOutOfGasError checks if error is out of gas error
+func IsOutOfGasError(err any) (bool, string) {
+	switch e := err.(type) {
+	case storetypes.ErrorOutOfGas:
+		return true, e.Descriptor
+	case storetypes.ErrorGasOverflow:
+		return true, e.Descriptor
+	default:
+		return false, ""
+	}
+}

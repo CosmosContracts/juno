@@ -14,9 +14,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmosContracts/juno/v29/testutil"
-	"github.com/CosmosContracts/juno/v29/x/tokenfactory/keeper"
-	"github.com/CosmosContracts/juno/v29/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v30/testutil"
+	"github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
+	"github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
 )
 
 type KeeperTestSuite struct {
@@ -40,7 +40,7 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.Setup()
 
 	// Fund every TestAcc with two denoms, one of which is the denom creation fee
-	fundAccsAmount := sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(100000000)), sdk.NewCoin("usecond", sdkmath.NewInt(100000000)))
+	fundAccsAmount := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(100000000)), sdk.NewCoin("usecond", sdkmath.NewInt(100000000)))
 	for _, acc := range s.TestAccs {
 		s.FundAcc(acc, fundAccsAmount)
 	}

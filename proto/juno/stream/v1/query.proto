@@ -1,0 +1,30 @@
+syntax = "proto3";
+package juno.stream.v1;
+
+import "google/protobuf/any.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/stream/types";
+
+// Query defines the gRPC querier service for the stream module
+service Query {
+  // Stream is a dynamic streaming endpoint to add streaming support to any registered grpc unary query
+  rpc Stream(StreamDynamicRequest) returns (stream StreamDynamicResponse);
+}
+
+// StreamDynamicRequest describes a dynamic stream subscription targeting a registered stream definition
+message StreamDynamicRequest {
+  // module identifies the module that owns the target stream definition (e.g. bank, staking)
+  string module = 1;
+
+  // stream identifies the stream name within the module (e.g. balance, delegations)
+  string method = 2;
+
+  // Params contains the respective unary query parameters provided to the original module query
+  map<string, string> params = 3;
+}
+
+// StreamDynamicResponse returns the streamed data in its native protobuf representation.
+message StreamDynamicResponse {
+  // result carries the latest query response as an opaque protobuf Any.
+  google.protobuf.Any result = 1;
+}

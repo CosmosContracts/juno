@@ -12,7 +12,7 @@ Juno is a **sovereign public blockchain** in the Cosmos Ecosystem. It aims to pr
 
 Juno originates from a **community-driven initiative**, prompted by developers, validators and delegators in the Cosmos Ecosystem. The common vision is to preserve the neutrality, performance, and reliability of the Cosmos Hub. This is achieved by offloading smart contract deployment to a dedicated sister Hub.
 
-**Juno** is a blockchain built using Cosmos SDK and Comet BFT.
+**Juno** is a blockchain built using Cosmos SDK and CometBFT.
 
 ## Get started
 
@@ -34,7 +34,7 @@ STAKE_TOKEN=ujunox UNSAFE_CORS=true TIMEOUT_COMMIT=1s docker-compose up
 
 We'd like to thank the following teams for their contributions to Juno:
 
-- [EVMOS](https://twitter.com/EvmosOrg) - x/feeshare
-- [tgrade](https://twitter.com/TgradeFinance) - x/globalfee
-- [confio](https://twitter.com/confio_tech) - CosmWasm
-- [osmosis](https://twitter.com/osmosiszone) - Osmosis
+- [Evmos](https://twitter.com/EvmosOrg) - Initial x/feeshare
+- [Confio](https://twitter.com/confio_tech) - CosmWasm
+- [Osmosis](https://twitter.com/osmosiszone) - Initial test framework, x/tokenfactory and more
+- [Interchain Labs (Skip)](https://twitter.com/SkipProtocol) - Initial x/feemarket

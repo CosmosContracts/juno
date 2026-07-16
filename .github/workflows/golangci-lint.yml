@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GO_VERSION: 1.23.9
+  GO_VERSION: 1.25.2
 
 jobs:
   golangci:
@@ -28,7 +28,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-      - name: golangci-lint-junod
-        uses: golangci/golangci-lint-action@v8
-        with:
-          version: v2.1.6
+      # Use `make lint` (which invokes `go tool golangci-lint`) so the
+      # linter is compiled with our Go 1.25 toolchain and matches the
+      # version pinned in go.mod (v2.5.0). The standalone
+      # golangci-lint-action ships pre-built binaries that lag the Go
+      # release cycle and break on go.mod files declaring 1.25+.
+      - name: lint
+        run: make lint

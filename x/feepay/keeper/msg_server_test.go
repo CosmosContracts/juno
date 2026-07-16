@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	// govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/CosmosContracts/juno/v29/x/feepay/types"
+	"github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 func (s *KeeperTestSuite) TestRegisterFeePayContract() {
@@ -66,8 +66,6 @@ func (s *KeeperTestSuite) TestRegisterFeePayContract() {
 			shouldErr:       true,
 		},
 	} {
-		tc := tc
-
 		s.Run(tc.desc, func() {
 			_, err := s.msgServer.RegisterFeePayContract(s.Ctx, &types.MsgRegisterFeePayContract{
 				SenderAddress: tc.senderAddress,
@@ -142,8 +140,6 @@ func (s *KeeperTestSuite) TestUnregisterFeePayContract() {
 			shouldErr:       true,
 		},
 	} {
-		tc := tc
-
 		s.Run(tc.desc, func() {
 			_, err := s.msgServer.UnregisterFeePayContract(s.Ctx, &types.MsgUnregisterFeePayContract{
 				SenderAddress:   tc.senderAddress,
@@ -213,8 +209,6 @@ func (s *KeeperTestSuite) TestFundFeePayContract() {
 			shouldErr:       false,
 		},
 	} {
-		tc := tc
-
 		s.Run(tc.desc, func() {
 			_, err := s.msgServer.FundFeePayContract(s.Ctx, &types.MsgFundFeePayContract{
 				SenderAddress:   tc.senderAddress,
@@ -301,8 +295,6 @@ func (s *KeeperTestSuite) TestUpdateFeePayContractWalletLimit() {
 			shouldErr:       false,
 		},
 	} {
-		tc := tc
-
 		s.Run(tc.desc, func() {
 			_, err := s.msgServer.UpdateFeePayContractWalletLimit(s.Ctx, &types.MsgUpdateFeePayContractWalletLimit{
 				SenderAddress:   tc.senderAddress,

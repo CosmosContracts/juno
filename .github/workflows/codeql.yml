@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GO_VERSION: 1.23.9
+  GO_VERSION: 1.25.2
 
 jobs:
   analyze:
@@ -47,5 +47,51 @@ jobs:
       - name: Build
         run: make build
 
+      # `paths-ignore` in codeql-config.yml suppresses alerts in the security
+      # tab but is not honored by the GitHub Advanced Security PR-decoration
+      # check — the PR check diffs the raw SARIF against the base ref, so
+      # alerts in ignored files still surface as "new alerts in code changed
+      # by this PR". Split analyze + upload so we can rewrite the SARIF in
+      # between with the same path patterns.
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+        with:
+          upload: false
+          output: sarif-results
+          category: "/language:go"
+
+      - name: Filter SARIF
+        uses: advanced-security/filter-sarif@v1
+        with:
+          # File-level drops: auto-generated code (api/**, *.pb.go,
+          # *_grpc.pb.go) and off-chain runtime layers (CLI builders,
+          # websocket handlers, the x/stream subscription/dispatch/
+          # listener machinery). Per-rule drops: the two intentional
+          # non-consensus goroutines — App.Close()'s shutdown timeout
+          # and newApp()'s SIGINT/SIGTERM handler — which sit in files
+          # that otherwise contain consensus wiring and should keep
+          # full scanning for everything else.
+          patterns: |
+            -api/**
+            -**/*.pb.go
+            -**/*.pb.gw.go
+            -**/*_grpc.pb.go
+            -cmd/junod/cmd/stream/**
+            -app/endpoints/websocket/**
+            -x/stream/keeper/query_server.go
+            -x/stream/types/dispatcher.go
+            -x/stream/types/listener.go
+            -x/stream/types/stream.go
+            -x/stream/types/subscription_registry.go
+            -x/stream/types/log_sanitize.go
+            -x/stream/types/encoding/**
+            -app/app.go:crypto-com/cosmos-sdk-codeql/goroutine
+            -cmd/junod/cmd/commands.go:crypto-com/cosmos-sdk-codeql/goroutine
+          input: sarif-results/go.sarif
+          output: sarif-results/go.sarif
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sarif-results/go.sarif
+          category: "/language:go"

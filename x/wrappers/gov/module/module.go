@@ -11,7 +11,7 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/CosmosContracts/juno/v29/x/wrappers/gov/keeper"
+	"github.com/CosmosContracts/juno/v30/x/wrappers/gov/keeper"
 )
 
 // AppModuleBasic defines the basic application module used for the wrapped gov module.

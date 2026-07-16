@@ -1,0 +1,29 @@
+syntax = "proto3";
+package juno.votingsnapshot.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/voting-snapshot/types";
+
+// Params is the governance-controlled config for x/voting-snapshot.
+//
+// LSTAllowlist: bech32 addresses of LST contracts whose delegations
+// must NOT count toward voting power. Empty at v30 launch.
+//
+// RetentionWindowHeights: snapshots older than this many blocks are
+// pruned by the EndBlocker. Zero disables pruning. Default is 0 at
+// v30 launch — pruning is an opt-in operation governance can turn
+// on once the on-chain history outgrows what the chain wants to keep.
+//
+// PruneInterval: only run the prune sweep when block_height %
+// prune_interval == 0. Lets governance batch the sweep to amortize
+// its iteration cost on busy chains. Zero/one both mean "every block".
+message Params {
+  option (amino.name) = "juno/votingsnapshot/Params";
+  option (gogoproto.equal) = true;
+
+  repeated string lst_allowlist = 1;
+  uint64 retention_window_heights = 2;
+  uint64 prune_interval = 3;
+}

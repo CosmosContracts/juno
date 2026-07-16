@@ -1,0 +1,25 @@
+version: v2
+
+clean: true
+
+# async-icq (interchainquery) was removed in the v30 upgrade
+# (see app/upgrades/v30/constants.go — "interchainquery" store deleted, no
+# ibc-go v10 maintainer support). It was the only ibc-app exposing REST
+# queries, so this generator currently has no inputs. Re-add an input block
+# here if/when another ibc-app with a Query service is wired into the chain.
+#
+# inputs:
+#   - git_repo: https://github.com/cosmos/ibc-apps.git
+#     tag: modules/async-icq/v8.0.0
+#     subdir: modules/async-icq/proto
+inputs: []
+
+plugins:
+  - remote: buf.build/community/google-gnostic-openapi:v0.7.1
+    out: ./gen/ibcapps
+    include_imports: true
+    opt:
+      - default_response=true
+      - fq_schema_naming=false
+      - title=Juno REST API
+      - version=v30.0.0

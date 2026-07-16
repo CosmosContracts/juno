@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"cosmossdk.io/collections"
+	errorsmod "cosmossdk.io/errors"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -40,7 +41,7 @@ func CollectionFilteredPaginate[K, V any, C query.Collection[K, V], T any](
 	reverse := pageReq.Reverse
 
 	if offset > 0 && key != nil {
-		return nil, nil, errors.New("invalid request, either offset or key is expected, got both")
+		return nil, nil, errorsmod.Wrap(err, "invalid request, either offset or key is expected, got both")
 	}
 
 	opt := new(query.CollectionsPaginateOptions[K])
@@ -163,6 +164,7 @@ func collFilteredPaginateNoKey[K, V any, C query.Collection[K, V], T any](
 	)
 
 	for ; iterator.Valid(); iterator.Next() {
+		// nolint: revive
 		switch {
 		// first case, we still haven't found all the results up to the limit
 		case count < limit:
@@ -220,9 +222,9 @@ func collFilteredPaginateNoKey[K, V any, C query.Collection[K, V], T any](
 			}
 			// otherwise we fallthrough the third case
 			fallthrough
-		// this is the case in which we found all the required results
-		// but we need to count how many possible results exist in total.
-		// so we keep increasing the count until the iterator is fully consumed.
+			// this is the case in which we found all the required results
+			// but we need to count how many possible results exist in total.
+			// so we keep increasing the count until the iterator is fully consumed.
 		case count > limit:
 			if predicateFunc == nil {
 				count++

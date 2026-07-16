@@ -14,8 +14,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/CosmosContracts/juno/v29/x/feeshare/keeper"
-	"github.com/CosmosContracts/juno/v29/x/feeshare/types"
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
+	"github.com/CosmosContracts/juno/v30/x/feeshare/types"
 )
 
 // FeeSharePayoutDecorator Run his after we already deduct the fee from the account with
@@ -38,6 +39,17 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 	}
 
+	// In simulate mode the v30 DeductFeeDecorator does not escrow into
+	// feemarket-fee-collector (payCoin is zero in simulate, so the
+	// `else if !fee.IsZero()` branch in HandleFees is skipped). Running the
+	// payout here would then read 0 balance and fail simulate, breaking
+	// `--gas auto` for every feeshare-registered contract execute. Skip the
+	// payout in simulate; --gas-adjustment provides headroom for the small
+	// amount of gas the bank send would consume.
+	if simulate {
+		return next(ctx, tx, simulate)
+	}
+
 	err = fsd.FeeSharePayout(ctx, fsd.bankKeeper, feeTx.GetFee(), fsd.feesharekeeper, tx.GetMsgs())
 	if err != nil {
 		return ctx, errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, "%s", err.Error())
@@ -46,19 +58,50 @@ func (fsd FeeSharePayoutDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	return next(ctx, tx, simulate)
 }
 
-// FeePayLogic takes the total fees and splits them based on the governance params
-// and the number of contracts we are executing on.
-// This returns the amount of fees each contract developer should get.
+// CalculateFeeSharePool computes the total developer pool per denom:
+// RoundInt(govPercent * feeAmount). The pool is computed ONCE for the whole
+// tx — never per recipient — so the aggregate paid out can never exceed
+// govPercent of the fee.
 // tested in ante_test.go
-func FeePayLogic(fees sdk.Coins, govPercent sdkmath.LegacyDec, numPairs int) sdk.Coins {
-	var splitFees sdk.Coins
+func CalculateFeeSharePool(fees sdk.Coins, govPercent sdkmath.LegacyDec) sdk.Coins {
+	var pool sdk.Coins
 	for _, c := range fees.Sort() {
-		rewardAmount := govPercent.MulInt(c.Amount).QuoInt64(int64(numPairs)).RoundInt()
-		if !rewardAmount.IsZero() {
-			splitFees = splitFees.Add(sdk.NewCoin(c.Denom, rewardAmount))
+		poolAmount := govPercent.MulInt(c.Amount).RoundInt()
+		if !poolAmount.IsZero() {
+			pool = pool.Add(sdk.NewCoin(c.Denom, poolAmount))
 		}
 	}
-	return splitFees
+	return pool
+}
+
+// SplitFeeSharePool splits the developer pool between numPairs recipients with
+// a running remainder: everyone gets pool/numPairs (truncated) and the LAST
+// recipient additionally receives the leftover. The aggregate always equals
+// the pool exactly — the old per-recipient RoundInt(pool/numPairs) could sum
+// to MORE than the pool and overdraw the escrow, reverting the tx.
+// tested in ante_test.go
+func SplitFeeSharePool(pool sdk.Coins, numPairs int) []sdk.Coins {
+	splits := make([]sdk.Coins, numPairs)
+	if numPairs == 0 {
+		return splits
+	}
+
+	for _, c := range pool {
+		share := c.Amount.QuoRaw(int64(numPairs))
+		remainder := c.Amount.Sub(share.MulRaw(int64(numPairs)))
+
+		for i := range numPairs {
+			amount := share
+			if i == numPairs-1 {
+				amount = amount.Add(remainder)
+			}
+			if !amount.IsZero() {
+				splits[i] = splits[i].Add(sdk.NewCoin(c.Denom, amount))
+			}
+		}
+	}
+
+	return splits
 }
 
 type FeeSharePayoutEventOutput struct {
@@ -146,14 +189,36 @@ func (FeeSharePayoutDecorator) FeeSharePayout(ctx sdk.Context, bankKeeper bankke
 	feesPaidOutput := make([]FeeSharePayoutEventOutput, numPairs)
 	if numPairs > 0 {
 		govPercent := params.DeveloperShares
-		splitFees := FeePayLogic(fees, govPercent, numPairs)
 
-		// pay fees evenly between all withdraw addresses
+		// Compute the developer pool ONCE (govPercent of the fee), then clamp
+		// it to what is actually escrowed so the payout can never overdraw
+		// the module account and revert the tx.
+		pool := CalculateFeeSharePool(fees, govPercent)
+		collectorAddr := authtypes.NewModuleAddress(feemarkettypes.FeeCollectorName)
+		for i, c := range pool {
+			escrowed := bankKeeper.GetBalance(ctx, collectorAddr, c.Denom).Amount
+			if c.Amount.GT(escrowed) {
+				pool[i].Amount = escrowed
+			}
+		}
+
+		splits := SplitFeeSharePool(pool, numPairs)
+
+		// pay fees between all withdraw addresses (last recipient absorbs the
+		// integer-division remainder). Source from the feemarket fee
+		// collector — the v30 DeductFeeDecorator escrows fees to
+		// feemarkettypes.FeeCollectorName ("feemarket-fee-collector"),
+		// not authtypes.FeeCollectorName ("fee_collector"). The post-handler
+		// then drains feemarket-fee-collector after the tx runs. Reading
+		// from auth.FeeCollector here returned 0 balance and surfaced as
+		// "spendable balance 0ujuno is smaller than 25000ujuno: insufficient
+		// funds: feeshare payment error" the moment any feeshare-registered
+		// contract was executed.
 		for i, withdrawAddr := range toPay {
-			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, authtypes.FeeCollectorName, withdrawAddr, splitFees)
+			err := bankKeeper.SendCoinsFromModuleToAccount(ctx, feemarkettypes.FeeCollectorName, withdrawAddr, splits[i])
 			feesPaidOutput[i] = FeeSharePayoutEventOutput{
 				WithdrawAddress: withdrawAddr,
-				FeesPaid:        splitFees,
+				FeesPaid:        splits[i],
 			}
 
 			if err != nil {

@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v29/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v30/x/feeshare/types"
 )
 
 func (s *KeeperTestSuite) TestGetContractAdminOrCreatorAddress() {
@@ -46,7 +46,6 @@ func (s *KeeperTestSuite) TestGetContractAdminOrCreatorAddress() {
 			shouldErr:       true,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			if !tc.shouldErr {
 				_, err := s.App.AppKeepers.FeeShareKeeper.GetContractAdminOrCreatorAddress(s.Ctx, sdk.MustAccAddressFromBech32(tc.contractAddress), tc.deployerAddress)
@@ -171,7 +170,6 @@ func (s *KeeperTestSuite) TestRegisterFeeShare() {
 			shouldErr: false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			if !tc.shouldErr {
 				resp, err := s.msgServer.RegisterFeeShare(s.Ctx, tc.msg)
@@ -264,7 +262,6 @@ func (s *KeeperTestSuite) TestUpdateFeeShare() {
 			shouldErr: false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			if !tc.shouldErr {
 				_, err := s.msgServer.UpdateFeeShare(s.Ctx, tc.msg)
@@ -328,7 +325,6 @@ func (s *KeeperTestSuite) TestCancelFeeShare() {
 			shouldErr: false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			if !tc.shouldErr {
 				resp, err := s.msgServer.CancelFeeShare(s.Ctx, tc.msg)

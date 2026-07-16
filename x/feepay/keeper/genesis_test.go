@@ -3,7 +3,9 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v29/x/feepay/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 func (s *KeeperTestSuite) TestFeeShareInitGenesis() {
@@ -37,4 +39,43 @@ func (s *KeeperTestSuite) TestFeeShareInitGenesis() {
 			s.Require().Equal(tc.genesis.Params, params)
 		})
 	}
+}
+
+// TestInitGenesisBalanceValidation asserts that imported contract balances
+// must be backed by the feepay module account's bank balance.
+func (s *KeeperTestSuite) TestInitGenesisBalanceValidation() {
+	contractAddr := "juno1qsrercqegvs4ye0yqg93knv73ye5dc3prqwd6jcdcuj8ggp6w0us66deup"
+
+	genesisWithBalance := types.GenesisState{
+		Params: types.DefaultParams(),
+		FeePayContracts: []types.FeePayContract{
+			{
+				ContractAddress: contractAddr,
+				Balance:         1_000_000,
+				WalletLimit:     10,
+			},
+		},
+	}
+
+	s.Run("unfunded module account panics", func() {
+		s.SetupTest() // reset
+
+		s.Require().Panics(func() {
+			s.App.AppKeepers.FeePayKeeper.InitGenesis(s.Ctx, genesisWithBalance)
+		})
+	})
+
+	s.Run("funded module account imports cleanly", func() {
+		s.SetupTest() // reset
+
+		s.FundModuleAcc(types.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("ujuno", 1_000_000)))
+
+		s.Require().NotPanics(func() {
+			s.App.AppKeepers.FeePayKeeper.InitGenesis(s.Ctx, genesisWithBalance)
+		})
+
+		contract, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+		s.Require().NoError(err)
+		s.Require().Equal(uint64(1_000_000), contract.Balance)
+	})
 }

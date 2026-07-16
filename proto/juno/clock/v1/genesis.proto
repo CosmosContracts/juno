@@ -20,4 +20,9 @@ message Params {
   option (gogoproto.equal) = true;
   // contract_gas_limit defines the maximum amount of gas that can be used by a contract.
   uint64 contract_gas_limit = 1;
+
+  // max_contracts caps the number of registered clock contracts, bounding
+  // per-block EndBlock sudo work so registration cannot be used to inflate
+  // block time.
+  uint64 max_contracts = 2;
 }

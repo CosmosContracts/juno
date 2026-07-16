@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v29/x/feeshare/types"
+	"github.com/CosmosContracts/juno/v30/x/feeshare/types"
 )
 
 // GetFeeShares returns all registered FeeShares.
@@ -120,7 +120,7 @@ func (k Keeper) SetWithdrawerMap(
 	withdrawerPrefix.Set(key, []byte{1})
 }
 
-// DeleteWithdrawMap deletes a contract-by-withdrawer mapping
+// DeleteWithdrawerMap deletes a contract-by-withdrawer mapping
 func (k Keeper) DeleteWithdrawerMap(
 	ctx context.Context,
 	withdrawer sdk.AccAddress,

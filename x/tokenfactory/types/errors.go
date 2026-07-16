@@ -1,14 +1,12 @@
 package types
 
-// DONTCOVER
-
 import (
 	fmt "fmt"
 
 	errorsmod "cosmossdk.io/errors"
 )
 
-// x/tokenfactory module sentinel errors
+// x/tokenfactory module errors
 var (
 	ErrDenomExists              = errorsmod.Register(ModuleName, 2, "attempting to create a denom that already exists (has bank metadata)")
 	ErrUnauthorized             = errorsmod.Register(ModuleName, 3, "unauthorized account")

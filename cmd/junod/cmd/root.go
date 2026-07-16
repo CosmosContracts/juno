@@ -39,7 +39,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"github.com/CosmosContracts/juno/v29/app"
+	"github.com/CosmosContracts/juno/v30/app"
+	"github.com/CosmosContracts/juno/v30/cmd/junod/cmd/stream"
 )
 
 var (
@@ -65,7 +66,6 @@ var (
 // main function.
 func NewRootCmd() *cobra.Command {
 	tempDir := tempDir()
-	sdk.DefaultBondDenom = "ujuno"
 	cfg := sdk.GetConfig()
 	cfg.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
 	cfg.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
@@ -182,6 +182,10 @@ func NewRootCmd() *cobra.Command {
 		panic(err)
 	}
 
+	if err := stream.EnableQueryStreaming(rootCmd, autoCliOpts); err != nil {
+		panic(err)
+	}
+
 	return rootCmd
 }
 
@@ -238,7 +242,7 @@ func initAppConfig() (string, any) {
 	return customAppTemplate, customAppConfig
 }
 
-// Reads the custom extra values in the config.toml file if set.
+// SetCustomEnvVariablesFromClientToml reads the custom extra values in the config.toml file if set.
 // If they are, then use them.
 func SetCustomEnvVariablesFromClientToml(ctx client.Context) {
 	configFilePath := filepath.Join(ctx.HomeDir, "config", "client.toml")
@@ -288,7 +292,7 @@ func initRootCmd(
 	txConfig client.TxConfig,
 ) {
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
+		stream.WrapInitCmd(genutilcli.InitCmd(basicManager, app.DefaultNodeHome)),
 		cmtcli.NewCompletionCmd(rootCmd, false),
 		DebugCmd(),
 		confixcmd.ConfigCommand(),

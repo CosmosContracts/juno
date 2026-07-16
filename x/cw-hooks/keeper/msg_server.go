@@ -3,13 +3,13 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/collections"
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v29/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 )
 
 var _ types.MsgServer = &msgServer{}
@@ -26,16 +26,15 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
-func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+func (k msgServer) UpdateParams(ctx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	if k.authority != req.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, req.Authority)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrorInvalidSigner, "expected %s, got %s", k.authority, req.Authority)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.Authority); err != nil {
-		return nil, errorsmod.Wrap(err, "invalid authority address")
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid authority address")
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
 	if err := k.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
@@ -43,128 +42,121 @@ func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
-func (k msgServer) RegisterStaking(goCtx context.Context, req *types.MsgRegisterStaking) (*types.MsgRegisterStakingResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	if _, err := sdk.AccAddressFromBech32(req.RegisterAddress); err != nil {
-		return nil, errorsmod.Wrap(err, "invalid register address")
+func (k msgServer) RegisterContract(ctx context.Context, req *types.MsgRegisterContract) (*types.MsgRegisterContractResponse, error) {
+	modulePrefix, err := types.ModulePrefixFromModule(req.Module)
+	if err != nil {
+		return nil, err
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
 		return nil, errorsmod.Wrap(err, "invalid contract address")
 	}
 
-	if err := k.handleContractRegister(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixStaking, "staking"); err != nil {
+	if err := k.handleContractRegister(ctx, req.SenderAddress, req.ContractAddress, modulePrefix); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgRegisterStakingResponse{}, nil
+	return &types.MsgRegisterContractResponse{}, nil
 }
 
-func (k msgServer) RegisterGovernance(goCtx context.Context, req *types.MsgRegisterGovernance) (*types.MsgRegisterGovernanceResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+func (k msgServer) UnregisterContract(ctx context.Context, req *types.MsgUnregisterContract) (*types.MsgUnregisterContractResponse, error) {
+	modulePrefix, err := types.ModulePrefixFromModule(req.Module)
+	if err != nil {
+		return nil, err
+	}
 
-	if _, err := sdk.AccAddressFromBech32(req.RegisterAddress); err != nil {
-		return nil, errorsmod.Wrap(err, "invalid register address")
+	if _, err := sdk.AccAddressFromBech32(req.SenderAddress); err != nil {
+		return nil, errorsmod.Wrap(err, "invalid sender address")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
 		return nil, errorsmod.Wrap(err, "invalid contract address")
 	}
 
-	if err := k.handleContractRegister(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixGov, "governance"); err != nil {
+	if err := k.handleContractRemoval(ctx, req.SenderAddress, req.ContractAddress, modulePrefix); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgRegisterGovernanceResponse{}, nil
+	return &types.MsgUnregisterContractResponse{}, nil
 }
 
-func (k msgServer) UnregisterGovernance(goCtx context.Context, req *types.MsgUnregisterGovernance) (*types.MsgUnregisterGovernanceResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	if _, err := sdk.AccAddressFromBech32(req.RegisterAddress); err != nil {
-		return nil, errorsmod.Wrap(err, "invalid register address")
-	}
-
-	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, errorsmod.Wrap(err, "invalid contract address")
-	}
-
-	if err := k.handleContractRemoval(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixGov, "governance"); err != nil {
-		return nil, err
-	}
-
-	return &types.MsgUnregisterGovernanceResponse{}, nil
-}
-
-func (k msgServer) UnregisterStaking(goCtx context.Context, req *types.MsgUnregisterStaking) (*types.MsgUnregisterStakingResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	if _, err := sdk.AccAddressFromBech32(req.RegisterAddress); err != nil {
-		return nil, errorsmod.Wrap(err, "invalid register address")
-	}
-
-	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-		return nil, errorsmod.Wrap(err, "invalid contract address")
-	}
-
-	if err := k.handleContractRemoval(ctx, req.RegisterAddress, req.ContractAddress, types.KeyPrefixStaking, "staking"); err != nil {
-		return nil, err
-	}
-
-	return &types.MsgUnregisterStakingResponse{}, nil
-}
-
-func (k msgServer) isContractSenderAuthorized(ctx sdk.Context, sender string, contract sdk.AccAddress) error {
+// isContractSenderAuthorized enforces "admin if set, else creator" — matching
+// the x/feeshare GetContractAdminOrCreatorAddress pattern. The previous
+// else-if chain rejected any sender that wasn't simultaneously admin AND
+// creator, which bricked registration for any contract instantiated through
+// a factory (admin = DAO core, creator = factory).
+func (k msgServer) isContractSenderAuthorized(ctx context.Context, sender string, contract sdk.AccAddress) error {
 	if ok := k.GetWasmKeeper().HasContractInfo(ctx, contract); !ok {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "contract does not exist: %s", contract)
 	}
 
 	contractInfo := k.GetWasmKeeper().GetContractInfo(ctx, contract)
 
-	if contractInfo.Creator != "" && contractInfo.Creator != sender {
+	if contractInfo.Admin != "" {
+		if contractInfo.Admin != sender {
+			return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract admin")
+		}
+		return nil
+	}
+
+	if contractInfo.Creator != sender {
 		return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract creator")
-	} else if contractInfo.Admin != "" && contractInfo.Admin != sender {
-		return errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "sender is not the contract admin")
 	}
-
 	return nil
 }
 
-func (k msgServer) handleContractRegister(ctx sdk.Context, sender, contractAddr string, keyPrefix []byte, prefixModuleName string) error {
-	contract, err := sdk.AccAddressFromBech32(contractAddr)
+func (k msgServer) handleContractRegister(ctx context.Context, sender string, contractAddr string, key collections.Prefix) error {
+	addr, err := sdk.AccAddressFromBech32(contractAddr)
 	if err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
 	}
 
-	if k.IsContractRegistered(ctx, keyPrefix, contract) {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "contract already registered for %s", prefixModuleName)
+	if ok, err := k.IsContractRegistered(ctx, key, addr); err != nil {
+		return err
+	} else if ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "contract already registered for %s", key)
 	}
 
-	if err := k.isContractSenderAuthorized(ctx, sender, contract); err != nil {
+	// Enforce the registered-contract cap. Each registered contract is
+	// sudo-executed on every matching hook under a child gas meter not charged
+	// to the block meter, so an unbounded set is a block-time DoS vector.
+	if maxContracts := k.GetParams(ctx).MaxContracts; maxContracts > 0 {
+		contracts, err := k.GetAllContracts(ctx, key)
+		if err != nil {
+			return err
+		}
+		if uint64(len(contracts)) >= maxContracts {
+			return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "maximum number of registered contracts (%d) reached for %s", maxContracts, key)
+		}
+	}
+
+	if err := k.isContractSenderAuthorized(ctx, sender, addr); err != nil {
 		return err
 	}
 
-	k.SetContract(ctx, keyPrefix, contract)
+	contract := types.ContractInfo{
+		ContractAddress: contractAddr,
+		FailureCounter:  0,
+	}
 
-	return nil
+	return k.SetContract(ctx, key, contract)
 }
 
-func (k msgServer) handleContractRemoval(ctx sdk.Context, sender, contractAddr string, keyPrefix []byte, prefixModuleName string) error {
-	contract, err := sdk.AccAddressFromBech32(contractAddr)
+func (k msgServer) handleContractRemoval(ctx context.Context, sender, contractAddr string, key collections.Prefix) error {
+	addr, err := sdk.AccAddressFromBech32(contractAddr)
 	if err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract address (%s)", err)
 	}
 
-	if !k.IsContractRegistered(ctx, keyPrefix, contract) {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "contract is not registered for %s", prefixModuleName)
+	if ok, err := k.IsContractRegistered(ctx, key, addr); err != nil {
+		return err
+	} else if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "contract is not registered for %s", key)
 	}
 
-	if err := k.isContractSenderAuthorized(ctx, sender, contract); err != nil {
+	if err := k.isContractSenderAuthorized(ctx, sender, addr); err != nil {
 		return err
 	}
 
-	k.DeleteContract(ctx, keyPrefix, contract)
-
-	return nil
+	return k.DeleteContract(ctx, key, addr)
 }

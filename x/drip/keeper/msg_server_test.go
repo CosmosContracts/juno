@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v29/x/drip/types"
+	"github.com/CosmosContracts/juno/v30/x/drip/types"
 )
 
 func (s *KeeperTestSuite) TestDripDistributeTokensMsgs() {
@@ -73,7 +73,6 @@ func (s *KeeperTestSuite) TestDripDistributeTokensMsgs() {
 			success:    false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			msg := types.MsgDistributeTokens{
 				SenderAddress: tc.senderAddr,
@@ -137,7 +136,6 @@ func (s *KeeperTestSuite) TestUpdateDripParams() {
 			success:          false,
 		},
 	} {
-		tc := tc
 		s.Run(tc.desc, func() {
 			params := types.Params{
 				EnableDrip:       tc.isEnabled,

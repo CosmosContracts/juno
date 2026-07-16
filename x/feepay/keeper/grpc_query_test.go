@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/CosmosContracts/juno/v29/testutil/common/nullify"
-	"github.com/CosmosContracts/juno/v29/x/feepay/types"
+	"github.com/CosmosContracts/juno/v30/testutil/common/nullify"
+	"github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
 func (s *KeeperTestSuite) TestQueryContract() {
@@ -51,8 +51,6 @@ func (s *KeeperTestSuite) TestQueryContractBalance() {
 			{balance: 0},
 			{balance: 1_000_000},
 		} {
-			bal := bal
-
 			// Instantiate the contractAddr
 			contractAddr := s.InstantiateContract(sender.String(), "", wasmContract)
 			s.registerFeePayContract(sender.String(), contractAddr, bal.balance, 1)

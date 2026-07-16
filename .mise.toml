@@ -1,4 +1,4 @@
-# macOS/Linux with curl (recommended):
+# macOS/Linux with curl:
 # curl https://mise.run | sh
 #
 # Using Homebrew on macOS:
@@ -26,4 +26,10 @@
 # mise ls         # List installed tools
 
 [tools]
-go = "1.23.9"
+# Go 1.25.10 includes fixes for GO-2026-4341 (net/url), GO-2026-4340 +
+# GO-2026-4337 (crypto/tls), GO-2025-4175 + GO-2025-4155 + GO-2025-4007
+# (crypto/x509) — all flagged as reachable by govulncheck against the
+# previously-pinned 1.25.2.
+go = "1.25.10"
+buf = "latest"
+yq = "latest"

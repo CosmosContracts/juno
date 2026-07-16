@@ -1,11 +1,10 @@
 package types
 
 import (
-	"fmt"
-
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var (
@@ -35,7 +34,7 @@ func DefaultParams() Params {
 func validateBool(i any) error {
 	_, ok := i.(bool)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "expected bool, got %T", i)
 	}
 
 	return nil
@@ -44,7 +43,7 @@ func validateBool(i any) error {
 func validateArray(i any) error {
 	_, ok := i.([]string)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "expected []string, got %T", i)
 	}
 
 	return nil

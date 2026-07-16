@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"cosmossdk.io/collections"
@@ -12,7 +11,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	"github.com/CosmosContracts/juno/v29/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
 )
 
 type GovHooks struct {
@@ -80,64 +79,55 @@ type SudoAfterProposalVotingPeriodEnded struct {
 func (h GovHooks) AfterProposalSubmission(ctx context.Context, proposalID uint64) error {
 	prop, err := h.k.govKeeper.Proposals.Get(ctx, proposalID)
 	if err != nil {
-		return err
+		// Best-effort notification: never fail a gov state transition.
+		h.k.Logger(ctx).Error("AfterProposalSubmission: failed to read proposal", "proposal", proposalID, "error", err)
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterProposalSubmission{
 		AfterProposalSubmission: NewProposal(prop),
 	})
 	if err != nil {
-		return err
+		return nil
 	}
 
-	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		_, err = fmt.Println("AfterProposalSubmission: ", err)
-		return err
-	}
-
-	return nil
+	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalSubmission")
 }
 
 func (h GovHooks) AfterProposalDeposit(ctx context.Context, proposalID uint64, _ sdk.AccAddress) error {
 	prop, err := h.k.govKeeper.Proposals.Get(ctx, proposalID)
 	if err != nil {
-		return err
+		// Best-effort notification: never fail a gov state transition.
+		h.k.Logger(ctx).Error("AfterProposalDeposit: failed to read proposal", "proposal", proposalID, "error", err)
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterProposalDeposit{
 		AfterProposalDeposit: NewProposal(prop),
 	})
 	if err != nil {
-		return err
+		return nil
 	}
 
-	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		_, err = fmt.Println("AfterProposalDeposit: ", err)
-		return err
-	}
-
-	return nil
+	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalDeposit")
 }
 
 func (h GovHooks) AfterProposalVote(ctx context.Context, proposalID uint64, voterAddr sdk.AccAddress) error {
 	vote, err := h.k.govKeeper.Votes.Get(ctx, collections.Join(proposalID, voterAddr))
 	if err != nil {
-		return err
+		// Best-effort notification: never fail a gov state transition.
+		h.k.Logger(ctx).Error("AfterProposalVote: failed to read vote", "proposal", proposalID, "voter", voterAddr.String(), "error", err)
+		return nil
 	}
 
 	msgBz, err := json.Marshal(SudoMsgAfterProposalVote{
 		AfterProposalVote: NewVote(vote),
 	})
 	if err != nil {
-		return err
+		return nil
 	}
 
-	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		_, err = fmt.Println("AfterProposalVote: ", err)
-		return err
-	}
-
-	return nil
+	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalVote")
 }
 
 func (GovHooks) AfterProposalFailedMinDeposit(_ context.Context, _ uint64) error {
@@ -152,10 +142,5 @@ func (h GovHooks) AfterProposalVotingPeriodEnded(ctx context.Context, proposalID
 		return err
 	}
 
-	if err := h.k.ExecuteMessageOnContracts(ctx, types.KeyPrefixGov, msgBz); err != nil {
-		_, err = fmt.Println("AfterProposalVotingPeriodEnded: ", err)
-		return err
-	}
-
-	return nil
+	return h.k.dispatchHookMessage(ctx, types.GovPrefixKey, msgBz, "AfterProposalVotingPeriodEnded")
 }

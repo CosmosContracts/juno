@@ -8,12 +8,6 @@
 # cosmoscontracts/juno:X        # is updated to X.Y.Z
 # cosmoscontracts/juno:latest   # is updated to X.Y.Z
 #
-# cosmoscontracts/juno-e2e:vX.Y.Z   # is pushed
-# cosmoscontracts/juno-e2e:X.Y.Z    # is pushed
-# cosmoscontracts/juno-e2e:X.Y      # is updated to X.Y.Z
-# cosmoscontracts/juno-e2e:X        # is updated to X.Y.Z
-# cosmoscontracts/juno-e2e:latest   # is updated to X.Y.Z
-#
 # All the images above have support for linux/amd64 and linux/arm64.
 #
 # Due to QEMU virtualization used to build multi-platform docker images

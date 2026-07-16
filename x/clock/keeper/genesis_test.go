@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/CosmosContracts/juno/v29/x/clock/types"
+	"github.com/CosmosContracts/juno/v30/x/clock/types"
 )
 
 func (s *KeeperTestSuite) TestClockInitGenesis() {
@@ -22,6 +22,7 @@ func (s *KeeperTestSuite) TestClockInitGenesis() {
 			types.GenesisState{
 				Params: types.Params{
 					ContractGasLimit: 500_000,
+					MaxContracts:     types.DefaultMaxContracts,
 				},
 			},
 			true,

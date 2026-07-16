@@ -1,0 +1,15 @@
+syntax = "proto3";
+package juno.cwhooks.v2;
+
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/CosmosContracts/juno/x/cw-hooks/types";
+
+// ContractInfo defines the registered contract address and the address used for registering the contract.
+message ContractInfo {
+  option (gogoproto.equal) = true;
+  string contract_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint32 failure_counter = 2;
+  string latest_error = 3;
+}
