@@ -37,7 +37,7 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: "go"
           config-file: ./.github/codeql/codeql-config.yml
@@ -54,7 +54,7 @@ jobs:
       # by this PR". Split analyze + upload so we can rewrite the SARIF in
       # between with the same path patterns.
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           upload: false
           output: sarif-results
@@ -91,7 +91,7 @@ jobs:
           output: sarif-results/go.sarif
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: sarif-results/go.sarif
           category: "/language:go"
