@@ -89,7 +89,7 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/ethereum/go-ethereum v1.17.0 // indirect
 	github.com/go-chi/chi/v5 v5.2.3 // indirect
-	github.com/google/cel-go v0.26.1 // indirect
+	github.com/google/cel-go v0.29.0 // indirect
 	github.com/google/go-containerregistry v0.20.6 // indirect
 	github.com/holiman/uint256 v1.3.2 // indirect
 	github.com/jdx/go-netrc v1.0.0 // indirect
@@ -104,7 +104,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/segmentio/encoding v0.5.3 // indirect
-	github.com/stoewer/go-strcase v1.3.1 // indirect
 	github.com/tetratelabs/wazero v1.9.0 // indirect
 	github.com/vbatts/tar-split v0.12.1 // indirect
 	github.com/zondax/golem v0.27.0 // indirect
