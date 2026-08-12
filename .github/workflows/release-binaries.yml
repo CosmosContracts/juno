@@ -1,0 +1,55 @@
+name: Release Binaries
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to upload binaries for (for example `v30.0.0`)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  upload-release-binaries:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve release tag
+        id: resolve-tag
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          tag="${RELEASE_TAG:-$INPUT_TAG}"
+          if [ -z "$tag" ]; then
+            echo "Release tag is required"
+            exit 1
+          fi
+
+          echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.resolve-tag.outputs.release_tag }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.25.10
+
+      - name: Build junod
+        run: VERSION="${{ steps.resolve-tag.outputs.release_tag }}" LEDGER_ENABLED=false make build
+
+      - name: Create release assets
+        run: |
+          cp bin/junod junod
+          sha256sum junod > junod_sha256.txt
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ steps.resolve-tag.outputs.release_tag }}" junod junod_sha256.txt --clobber
