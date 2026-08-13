@@ -85,6 +85,47 @@ func (s *AnteTestSuite) TestNewAnteHandlerUsesEmbeddedFeegrantKeeper() {
 	s.Require().True(after.Amount.Equal(before.Amount.Sub(fee.Amount)))
 }
 
+func (s *AnteTestSuite) TestFeegranterWithoutKeeperReturnsError() {
+	s.SetupTest()
+
+	grantee := s.fullAccs[0]
+	granter := s.fullAccs[1]
+	fee := sdk.NewInt64Coin("stake", 36_630_000_000)
+	s.FundAcc(granter.Account.GetAddress(), sdk.NewCoins(fee))
+
+	dfd := decorators.NewDeductFeeDecorator(
+		s.App.AppKeepers.FeePayKeeper,
+		*s.App.AppKeepers.FeeMarketKeeper,
+		s.App.AppKeepers.AccountKeeper,
+		s.App.AppKeepers.BankKeeper,
+		nil,
+		"stake",
+		nil,
+		nil,
+	)
+	handler := sdk.ChainAnteDecorators(dfd)
+
+	txConfig := tx.NewTxConfig(codec.NewProtoCodec(s.App.InterfaceRegistry()), tx.DefaultSignModes)
+	account := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, grantee.Account.GetAddress())
+	signedTx, err := genTxWithFeeGranter(
+		txConfig,
+		[]sdk.Msg{testdata.NewTestMsg(grantee.Account.GetAddress())},
+		sdk.NewCoins(fee),
+		200_000,
+		s.Ctx.ChainID(),
+		[]uint64{account.GetAccountNumber()},
+		[]uint64{account.GetSequence()},
+		granter.Account.GetAddress(),
+		grantee.Priv,
+	)
+	s.Require().NoError(err)
+
+	s.Require().NotPanics(func() {
+		_, err = handler(s.Ctx, signedTx, false)
+	})
+	s.Require().ErrorIs(err, sdkerrors.ErrInvalidRequest)
+}
+
 func (s *AnteTestSuite) TestEscrowFunds() {
 	// Slice (not map) for deterministic ordering. Several subtests
 	// mutate FeeGrantKeeper state (GrantAllowance) and downstream cases

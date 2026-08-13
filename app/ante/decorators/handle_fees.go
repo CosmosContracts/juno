@@ -116,6 +116,9 @@ func (dfd InnerDeductFeeDecorator) HandleFees(ctx sdk.Context, feeTx sdk.FeeTx, 
 		feeGranterAddr := sdk.AccAddress(feeGranter)
 		feePayerAddr := sdk.AccAddress(feePayer)
 		if !bytes.Equal(feeGranterAddr, feePayerAddr) {
+			if dfd.feegrantKeeper == nil {
+				return sdkerrors.ErrInvalidRequest.Wrap("fee grants are not enabled")
+			}
 			err := dfd.feegrantKeeper.UseGrantedFees(ctx, feeGranterAddr, feePayerAddr, sdk.NewCoins(fee), feeTx.GetMsgs())
 			if err != nil {
 				return errorsmod.Wrapf(err, "%s does not allow to pay fees for %s", feeGranterAddr, feePayerAddr)
