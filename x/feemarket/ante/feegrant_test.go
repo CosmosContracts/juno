@@ -7,10 +7,12 @@ import (
 
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/feegrant"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -21,9 +23,108 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	junoante "github.com/CosmosContracts/juno/v30/app/ante"
 	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
 	"github.com/CosmosContracts/juno/v30/testutil"
 )
+
+func (s *AnteTestSuite) TestNewAnteHandlerUsesEmbeddedFeegrantKeeper() {
+	s.SetupTest()
+
+	grantee := s.fullAccs[0]
+	granter := s.fullAccs[1]
+	fee := sdk.NewInt64Coin("stake", 36_630_000_000)
+	s.FundAcc(granter.Account.GetAddress(), sdk.NewCoins(fee))
+	s.Require().NoError(s.App.AppKeepers.FeeGrantKeeper.GrantAllowance(
+		s.Ctx,
+		granter.Account.GetAddress(),
+		grantee.Account.GetAddress(),
+		&feegrant.BasicAllowance{SpendLimit: sdk.NewCoins(fee)},
+	))
+
+	handler, err := junoante.NewAnteHandler(junoante.HandlerOptions{
+		HandlerOptions: authante.HandlerOptions{
+			FeegrantKeeper:  s.App.AppKeepers.FeeGrantKeeper,
+			SignModeHandler: s.App.TxConfig().SignModeHandler(),
+		},
+		AccountKeeper:         s.App.AppKeepers.AccountKeeper,
+		BankKeeper:            s.App.AppKeepers.BankKeeper,
+		StakingKeeper:         *s.App.AppKeepers.StakingKeeper,
+		BondDenom:             "stake",
+		IBCKeeper:             s.App.AppKeepers.IBCKeeper,
+		TXCounterStoreService: runtime.NewKVStoreService(s.App.AppKeepers.GetKey(wasmtypes.StoreKey)),
+		NodeConfig:            &wasmtypes.NodeConfig{},
+		WasmKeeper:            &s.App.AppKeepers.WasmKeeper,
+		FeemarketKeeper:       *s.App.AppKeepers.FeeMarketKeeper,
+		FeepayKeeper:          s.App.AppKeepers.FeePayKeeper,
+		FeeshareKeeper:        s.App.AppKeepers.FeeShareKeeper,
+	})
+	s.Require().NoError(err)
+
+	txConfig := tx.NewTxConfig(codec.NewProtoCodec(s.App.InterfaceRegistry()), tx.DefaultSignModes)
+	account := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, grantee.Account.GetAddress())
+	signedTx, err := genTxWithFeeGranter(
+		txConfig,
+		[]sdk.Msg{testdata.NewTestMsg(grantee.Account.GetAddress())},
+		sdk.NewCoins(fee),
+		200_000,
+		s.Ctx.ChainID(),
+		[]uint64{account.GetAccountNumber()},
+		[]uint64{account.GetSequence()},
+		granter.Account.GetAddress(),
+		grantee.Priv,
+	)
+	s.Require().NoError(err)
+
+	before := s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, granter.Account.GetAddress(), fee.Denom)
+	s.Require().NotPanics(func() {
+		_, err = handler(s.Ctx, signedTx, false)
+	})
+	s.Require().NoError(err)
+	after := s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, granter.Account.GetAddress(), fee.Denom)
+	s.Require().True(after.Amount.Equal(before.Amount.Sub(fee.Amount)))
+}
+
+func (s *AnteTestSuite) TestFeegranterWithoutKeeperReturnsError() {
+	s.SetupTest()
+
+	grantee := s.fullAccs[0]
+	granter := s.fullAccs[1]
+	fee := sdk.NewInt64Coin("stake", 36_630_000_000)
+	s.FundAcc(granter.Account.GetAddress(), sdk.NewCoins(fee))
+
+	dfd := decorators.NewDeductFeeDecorator(
+		s.App.AppKeepers.FeePayKeeper,
+		*s.App.AppKeepers.FeeMarketKeeper,
+		s.App.AppKeepers.AccountKeeper,
+		s.App.AppKeepers.BankKeeper,
+		nil,
+		"stake",
+		nil,
+		nil,
+	)
+	handler := sdk.ChainAnteDecorators(dfd)
+
+	txConfig := tx.NewTxConfig(codec.NewProtoCodec(s.App.InterfaceRegistry()), tx.DefaultSignModes)
+	account := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, grantee.Account.GetAddress())
+	signedTx, err := genTxWithFeeGranter(
+		txConfig,
+		[]sdk.Msg{testdata.NewTestMsg(grantee.Account.GetAddress())},
+		sdk.NewCoins(fee),
+		200_000,
+		s.Ctx.ChainID(),
+		[]uint64{account.GetAccountNumber()},
+		[]uint64{account.GetSequence()},
+		granter.Account.GetAddress(),
+		grantee.Priv,
+	)
+	s.Require().NoError(err)
+
+	s.Require().NotPanics(func() {
+		_, err = handler(s.Ctx, signedTx, false)
+	})
+	s.Require().ErrorIs(err, sdkerrors.ErrInvalidRequest)
+}
 
 func (s *AnteTestSuite) TestEscrowFunds() {
 	// Slice (not map) for deterministic ordering. Several subtests
