@@ -44,11 +44,11 @@ type DeductFeeDecorator struct {
 	fallbackDecorator sdk.AnteDecorator
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk authante.FeegrantKeeper, bondDenom string, bypassMinFeeMsgTypes []string, fallbackDecorator sdk.AnteDecorator) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk authante.FeegrantKeeper, _ string, bypassMinFeeMsgTypes []string, fallbackDecorator sdk.AnteDecorator) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		feemarketkeeper: fmk,
 		innerDecorator: newInnerDeductFeeDecorator(
-			fpk, fmk, ak, bk, fgk, bondDenom, bypassMinFeeMsgTypes,
+			fpk, fmk, ak, bk, fgk, bypassMinFeeMsgTypes,
 		),
 		fallbackDecorator: fallbackDecorator,
 	}
@@ -68,18 +68,16 @@ type InnerDeductFeeDecorator struct {
 	accountKeeper        authkeeper.AccountKeeper
 	bankKeeper           bankkeeper.Keeper
 	feegrantKeeper       authante.FeegrantKeeper
-	bondDenom            string
 	bypassMinFeeMsgTypes []string
 }
 
-func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk authante.FeegrantKeeper, bondDenom string, bypassMinFeeMsgTypes []string) InnerDeductFeeDecorator {
+func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk authante.FeegrantKeeper, bypassMinFeeMsgTypes []string) InnerDeductFeeDecorator {
 	return InnerDeductFeeDecorator{
 		feepayKeeper:         fpk,
 		feemarketKeeper:      fmk,
 		accountKeeper:        ak,
 		bankKeeper:           bk,
 		feegrantKeeper:       fgk,
-		bondDenom:            bondDenom,
 		bypassMinFeeMsgTypes: bypassMinFeeMsgTypes,
 	}
 }
@@ -357,18 +355,14 @@ func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFro
 		return errorsmod.Wrapf(err, "error getting contract %s", cw.GetContract())
 	}
 
-	// Get the fee price in the chain denom
-	fmMinGasPriceBondDenom, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, dfd.bondDenom)
+	params, err := dfd.feemarketKeeper.GetParams(ctx)
 	if err != nil {
 		return errorsmod.Wrapf(err, "error getting feemarket params")
 	}
-	feePrice := sdk.DecCoin{}
-	if fmMinGasPriceBondDenom.Denom == dfd.bondDenom {
-		feePrice = fmMinGasPriceBondDenom
-	}
 
-	if feePrice == (sdk.DecCoin{}) {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidCoins, "fee price not found for denom %s in feemarket keeper", dfd.bondDenom)
+	feePrice, err := dfd.feemarketKeeper.GetCurrentGasPrice(ctx, params.FeeDenom)
+	if err != nil {
+		return errorsmod.Wrapf(err, "error getting gas price for fee denom %s", params.FeeDenom)
 	}
 
 	gas := sdkmath.LegacyNewDec(int64(tx.GetGas()))

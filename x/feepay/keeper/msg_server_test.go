@@ -155,11 +155,46 @@ func (s *KeeperTestSuite) TestUnregisterFeePayContract() {
 	}
 }
 
+func (s *KeeperTestSuite) TestUnregisterFeePayContractPreservesStateWhenRefundFails() {
+	s.SetupTest()
+	_, _, sender := testdata.KeyTestPubAddr()
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewInt64Coin("stake", 1_000_000)))
+
+	contractAddr := s.InstantiateContract(sender.String(), "", wasmContract)
+	params, err := s.App.AppKeepers.FeeMarketKeeper.GetParams(s.Ctx)
+	s.Require().NoError(err)
+	params.FeeDenom = "urefund"
+	s.Require().NoError(s.App.AppKeepers.FeeMarketKeeper.SetParams(s.Ctx, params))
+
+	s.registerFeePayContract(sender.String(), contractAddr, 0, 3)
+	contract, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(err)
+	s.App.AppKeepers.FeePayKeeper.SetContractBalance(s.Ctx, contract, 100)
+	s.Require().Equal(uint64(100), contract.Balance)
+	s.Require().True(s.bankKeeper.GetBalance(s.Ctx, s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName), "urefund").IsZero())
+	s.Require().NoError(s.App.AppKeepers.FeePayKeeper.IncrementContractUses(s.Ctx, contract, sender.String(), 2))
+
+	_, err = s.msgServer.UnregisterFeePayContract(s.Ctx, &types.MsgUnregisterFeePayContract{
+		SenderAddress:   sender.String(),
+		ContractAddress: contractAddr,
+	})
+	s.Require().Error(err)
+
+	preserved, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(100), preserved.Balance)
+	uses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, preserved, sender.String())
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(2), uses)
+}
+
 func (s *KeeperTestSuite) TestFundFeePayContract() {
 	s.SetupTest()
 	_, _, sender := testdata.KeyTestPubAddr()
 	_, _, admin := testdata.KeyTestPubAddr()
-	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
+	// Contract instantiation consumes one stake, so fund beyond the exact
+	// FeePay deposit to keep this fixture focused on denomination handling.
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(2_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
 	s.FundAcc(admin, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))))
 
 	contract := s.InstantiateContract(sender.String(), "", wasmContract)
@@ -198,14 +233,14 @@ func (s *KeeperTestSuite) TestFundFeePayContract() {
 			desc:            "Fail - Wallet Not Enough Funds",
 			contractAddress: contract,
 			senderAddress:   sender.String(),
-			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000_000))),
+			amount:          sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(100_000_000_000))),
 			shouldErr:       true,
 		},
 		{
 			desc:            "Success - Contract Funded",
 			contractAddress: contract,
 			senderAddress:   sender.String(),
-			amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))),
+			amount:          sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))),
 			shouldErr:       false,
 		},
 	} {
@@ -223,6 +258,47 @@ func (s *KeeperTestSuite) TestFundFeePayContract() {
 			}
 		})
 	}
+}
+
+func (s *KeeperTestSuite) TestConfiguredFeeDenomFundingAndUnregisterRefund() {
+	s.SetupTest()
+	_, _, sender := testdata.KeyTestPubAddr()
+	const feeDenom = "ufee"
+	const amount = int64(1_000_000)
+
+	params, err := s.App.AppKeepers.FeeMarketKeeper.GetParams(s.Ctx)
+	s.Require().NoError(err)
+	params.FeeDenom = feeDenom
+	s.Require().NoError(s.App.AppKeepers.FeeMarketKeeper.SetParams(s.Ctx, params))
+
+	s.FundAcc(sender, sdk.NewCoins(
+		sdk.NewInt64Coin("stake", 1_000_000),
+		sdk.NewInt64Coin(feeDenom, amount),
+	))
+	contract := s.InstantiateContract(sender.String(), "", wasmContract)
+	s.registerFeePayContract(sender.String(), contract, 0, 1)
+
+	_, err = s.msgServer.FundFeePayContract(s.Ctx, &types.MsgFundFeePayContract{
+		SenderAddress:   sender.String(),
+		ContractAddress: contract,
+		Amount:          sdk.NewCoins(sdk.NewInt64Coin(feeDenom, amount)),
+	})
+	s.Require().NoError(err)
+
+	moduleAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName)
+	s.Require().Equal(sdkmath.NewInt(amount), s.bankKeeper.GetBalance(s.Ctx, moduleAddr, feeDenom).Amount)
+	funded, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contract)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(amount), funded.Balance)
+
+	beforeRefund := s.bankKeeper.GetBalance(s.Ctx, sender, feeDenom).Amount
+	_, err = s.msgServer.UnregisterFeePayContract(s.Ctx, &types.MsgUnregisterFeePayContract{
+		SenderAddress:   sender.String(),
+		ContractAddress: contract,
+	})
+	s.Require().NoError(err)
+	s.Require().Equal(beforeRefund.AddRaw(amount), s.bankKeeper.GetBalance(s.Ctx, sender, feeDenom).Amount)
+	s.Require().True(s.bankKeeper.GetBalance(s.Ctx, moduleAddr, feeDenom).IsZero())
 }
 
 func (s *KeeperTestSuite) TestUpdateFeePayContractWalletLimit() {

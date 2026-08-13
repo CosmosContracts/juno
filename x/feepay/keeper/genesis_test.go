@@ -68,7 +68,7 @@ func (s *KeeperTestSuite) TestInitGenesisBalanceValidation() {
 	s.Run("funded module account imports cleanly", func() {
 		s.SetupTest() // reset
 
-		s.FundModuleAcc(types.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("ujuno", 1_000_000)))
+		s.FundModuleAcc(types.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("stake", 1_000_000)))
 
 		s.Require().NotPanics(func() {
 			s.App.AppKeepers.FeePayKeeper.InitGenesis(s.Ctx, genesisWithBalance)

@@ -31,12 +31,16 @@ func (k Keeper) InitGenesis(
 		totalBalances = totalBalances.Add(math.NewIntFromUint64(feepay.Balance))
 	}
 
+	feeDenom, err := k.feeDenom(ctx)
+	if err != nil {
+		panic(err)
+	}
 	moduleAddr := authtypes.NewModuleAddress(types.ModuleName)
-	moduleBalance := k.bankKeeper.GetBalance(ctx, moduleAddr, k.bondDenom).Amount
+	moduleBalance := k.bankKeeper.GetBalance(ctx, moduleAddr, feeDenom).Amount
 	if totalBalances.GT(moduleBalance) {
 		panic(fmt.Sprintf(
 			"feepay genesis: sum of imported contract balances (%s%s) exceeds feepay module account balance (%s%s)",
-			totalBalances, k.bondDenom, moduleBalance, k.bondDenom,
+			totalBalances, feeDenom, moduleBalance, feeDenom,
 		))
 	}
 }

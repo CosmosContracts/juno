@@ -14,6 +14,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
+	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
 	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
 )
 
@@ -32,11 +33,16 @@ type Keeper struct {
 	wasmKeeper    wasmkeeper.Keeper
 	accountKeeper authkeeper.AccountKeeper
 
-	bondDenom string
+	feeMarketKeeper FeeMarketKeeper
 
 	// the address capable of executing a MsgUpdateParams message. Typically, this
 	// should be the x/gov module account.
 	authority string
+}
+
+// FeeMarketKeeper provides the denomination backing FeePay balances.
+type FeeMarketKeeper interface {
+	GetParams(ctx sdk.Context) (feemarkettypes.Params, error)
 }
 
 // NewKeeper creates new instances of the fees Keeper
@@ -46,18 +52,27 @@ func NewKeeper(
 	bk bankkeeper.Keeper,
 	wk wasmkeeper.Keeper,
 	ak authkeeper.AccountKeeper,
-	bondDenom string,
+	fmk FeeMarketKeeper,
 	authority string,
 ) Keeper {
 	return Keeper{
-		cdc:           cdc,
-		storeService:  ss,
-		bankKeeper:    bk,
-		wasmKeeper:    wk,
-		accountKeeper: ak,
-		bondDenom:     bondDenom,
-		authority:     authority,
+		cdc:             cdc,
+		storeService:    ss,
+		bankKeeper:      bk,
+		wasmKeeper:      wk,
+		accountKeeper:   ak,
+		feeMarketKeeper: fmk,
+		authority:       authority,
 	}
+}
+
+func (k Keeper) feeDenom(ctx context.Context) (string, error) {
+	params, err := k.feeMarketKeeper.GetParams(sdk.UnwrapSDKContext(ctx))
+	if err != nil {
+		return "", err
+	}
+
+	return params.FeeDenom, nil
 }
 
 // GetAuthority returns the x/feeshare module's authority.

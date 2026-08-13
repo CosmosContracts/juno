@@ -151,7 +151,9 @@ func (s *KeeperTestSuite) TestQueryContracts() {
 func (s *KeeperTestSuite) TestQueryEligibility() {
 	// Get & fund creator
 	_, _, sender := testdata.KeyTestPubAddr()
-	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
+	// Contract instantiation consumes one stake, so fund beyond the exact
+	// FeePay deposit to keep this fixture focused on eligibility behavior.
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(2_000_000)), sdk.NewCoin("ujuno", sdkmath.NewInt(100_000_000))))
 
 	// Instantiate the contractAddr
 	contractAddr := s.InstantiateContract(sender.String(), "", wasmContract)
@@ -175,7 +177,7 @@ func (s *KeeperTestSuite) TestQueryEligibility() {
 	_, err := s.msgServer.FundFeePayContract(s.Ctx, &types.MsgFundFeePayContract{
 		SenderAddress:   sender.String(),
 		ContractAddress: contractAddr,
-		Amount:          sdk.NewCoins(sdk.NewCoin("ujuno", sdkmath.NewInt(1_000_000))),
+		Amount:          sdk.NewCoins(sdk.NewCoin("stake", sdkmath.NewInt(1_000_000))),
 	})
 	s.Require().NoError(err)
 

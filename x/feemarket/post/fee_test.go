@@ -858,6 +858,130 @@ func (s *PostTestSuite) TestFeePayNoProposerTipAndRefund() {
 	s.Require().Equal(preExisting+consumed, s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, collectorAddr, "stake").Amount.Int64())
 }
 
+// TestFeePayUsesConfiguredFeeDenom covers the consensus-sensitive case where
+// feemarket's configured fee denom differs from the staking bond denom.
+func (s *PostTestSuite) TestFeePayUsesConfiguredFeeDenom() {
+	s.SetupTest()
+
+	const (
+		feeDenom       = "ufee"
+		gasLimit       = uint64(300_000)
+		initialBalance = uint64(10_000_000)
+	)
+
+	params, err := s.App.AppKeepers.FeeMarketKeeper.GetParams(s.Ctx)
+	s.Require().NoError(err)
+	params.FeeDenom = feeDenom
+	s.Require().NoError(s.App.AppKeepers.FeeMarketKeeper.SetParams(s.Ctx, params))
+
+	contractAddr := sdk.AccAddress([]byte("fee_denom_contract_x")).String()
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, feepaytypes.FeePayContract{
+		ContractAddress: contractAddr,
+		Balance:         initialBalance,
+		WalletLimit:     100,
+	})
+	s.FundModuleAcc(feepaytypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin(feeDenom, int64(initialBalance))))
+
+	signerPriv, _, signerAddr := testdata.KeyTestPubAddr()
+	acc := s.App.AppKeepers.AccountKeeper.NewAccountWithAddress(s.Ctx, signerAddr)
+	s.Require().NoError(acc.SetPubKey(signerPriv.PubKey()))
+	s.App.AppKeepers.AccountKeeper.SetAccount(s.Ctx, acc)
+
+	execMsg := &wasmtypes.MsgExecuteContract{Sender: signerAddr.String(), Contract: contractAddr, Msg: []byte("{}")}
+	s.Require().NoError(s.TxBuilder.SetMsgs(execMsg))
+	s.TxBuilder.SetFeeAmount(nil)
+	s.TxBuilder.SetGasLimit(gasLimit)
+	testTx, err := s.CreateTestTx(
+		[]cryptotypes.PrivKey{signerPriv},
+		[]uint64{acc.GetAccountNumber()},
+		[]uint64{0},
+		s.Ctx.ChainID(),
+	)
+	s.Require().NoError(err)
+	s.Ctx = s.Ctx.WithGasMeter(storetypes.NewGasMeter(NewTestGasLimit()))
+
+	newCtx, err := s.AnteHandler(s.Ctx, testTx, false)
+	s.Require().NoError(err)
+	s.Ctx = newCtx
+
+	escrow := int64(gasLimit)
+	feepayAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(feepaytypes.ModuleName)
+	collectorAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.FeeCollectorName)
+	s.Require().Equal(int64(initialBalance)-escrow, s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, feepayAddr, feeDenom).Amount.Int64())
+	s.Require().Equal(escrow, s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, collectorAddr, feeDenom).Amount.Int64())
+
+	_, err = s.PostHandler(s.Ctx, testTx, false, true)
+	s.Require().NoError(err)
+
+	contract, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(err)
+	consumed := int64(initialBalance) - int64(contract.Balance)
+	s.Require().Positive(consumed)
+	s.Require().Less(consumed, escrow)
+	s.Require().Equal(int64(initialBalance)-consumed, s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, feepayAddr, feeDenom).Amount.Int64())
+	s.Require().Equal(consumed, s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, collectorAddr, feeDenom).Amount.Int64())
+	s.Require().True(s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, feepayAddr, "stake").IsZero())
+}
+
+func (s *PostTestSuite) TestFeePayMissingConfiguredFeeDenomFundsHasNoMutation() {
+	s.SetupTest()
+
+	const (
+		feeDenom       = "ufee"
+		gasLimit       = uint64(300_000)
+		initialBalance = uint64(10_000_000)
+	)
+
+	params, err := s.App.AppKeepers.FeeMarketKeeper.GetParams(s.Ctx)
+	s.Require().NoError(err)
+	params.FeeDenom = feeDenom
+	s.Require().NoError(s.App.AppKeepers.FeeMarketKeeper.SetParams(s.Ctx, params))
+
+	contractAddr := sdk.AccAddress([]byte("missing_fee_funds_xx")).String()
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, feepaytypes.FeePayContract{
+		ContractAddress: contractAddr,
+		Balance:         initialBalance,
+		WalletLimit:     100,
+	})
+	// Deliberately fund only the bond denom. Accounting claims sufficient
+	// funds, but the configured fee-denom escrow is absent.
+	s.FundModuleAcc(feepaytypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("stake", int64(initialBalance))))
+
+	signerPriv, _, signerAddr := testdata.KeyTestPubAddr()
+	acc := s.App.AppKeepers.AccountKeeper.NewAccountWithAddress(s.Ctx, signerAddr)
+	s.Require().NoError(acc.SetPubKey(signerPriv.PubKey()))
+	s.App.AppKeepers.AccountKeeper.SetAccount(s.Ctx, acc)
+
+	execMsg := &wasmtypes.MsgExecuteContract{Sender: signerAddr.String(), Contract: contractAddr, Msg: []byte("{}")}
+	s.Require().NoError(s.TxBuilder.SetMsgs(execMsg))
+	s.TxBuilder.SetFeeAmount(nil)
+	s.TxBuilder.SetGasLimit(gasLimit)
+	testTx, err := s.CreateTestTx(
+		[]cryptotypes.PrivKey{signerPriv},
+		[]uint64{acc.GetAccountNumber()},
+		[]uint64{0},
+		s.Ctx.ChainID(),
+	)
+	s.Require().NoError(err)
+	s.Ctx = s.Ctx.WithGasMeter(storetypes.NewGasMeter(NewTestGasLimit()))
+
+	_, err = s.AnteHandler(s.Ctx, testTx, false)
+	s.Require().ErrorIs(err, sdkerrors.ErrInsufficientFunds)
+	s.Require().ErrorContains(err, "error transferring funds from FeePay to FeeCollector")
+
+	contract, getErr := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(getErr)
+	s.Require().Equal(initialBalance, contract.Balance)
+	uses, getErr := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, contract, signerAddr.String())
+	s.Require().NoError(getErr)
+	s.Require().Zero(uses)
+	feepayAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(feepaytypes.ModuleName)
+	collectorAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.FeeCollectorName)
+	s.Require().Equal(int64(initialBalance), s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, feepayAddr, "stake").Amount.Int64())
+	s.Require().True(s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, feepayAddr, feeDenom).IsZero())
+	s.Require().True(s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, collectorAddr, feeDenom).IsZero())
+}
+
 // TestTipPaidToProposerOperatorAccount asserts the proposer tip goes to the
 // validator OPERATOR account resolved via the consensus address — not to the
 // raw consensus address cast to an AccAddress (an unspendable account).

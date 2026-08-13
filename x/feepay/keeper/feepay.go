@@ -96,6 +96,24 @@ func (k Keeper) GetAllContracts(ctx context.Context) []types.FeePayContract {
 	return contracts
 }
 
+// HasOutstandingBalances reports whether changing the configured fee denom
+// would reinterpret any existing denomination-less FeePay liability.
+func (k Keeper) HasOutstandingBalances(ctx sdk.Context) bool {
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	iterator := storetypes.KVStorePrefixIterator(store, StoreKeyContracts)
+	defer iterator.Close() //nolint:errcheck
+
+	for ; iterator.Valid(); iterator.Next() {
+		var contract types.FeePayContract
+		k.cdc.MustUnmarshal(iterator.Value(), &contract)
+		if contract.Balance != 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
 // RegisterContract registers a contract in the KV store
 func (k Keeper) RegisterContract(ctx context.Context, rfp *types.MsgRegisterFeePayContract) error {
 	_, err := sdk.AccAddressFromBech32(rfp.SenderAddress)
@@ -174,21 +192,13 @@ func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregister
 		return err
 	}
 
-	// Remove contract from KV store
-	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-	prefixStore := prefix.NewStore(store, StoreKeyContracts)
-	prefixStore.Delete([]byte(rfp.ContractAddress))
-
-	// Remove all usage entries for contract
-	prefixStore = prefix.NewStore(store, StoreKeyContractUses)
-	iterator := storetypes.KVStorePrefixIterator(prefixStore, []byte(rfp.ContractAddress))
-
-	for ; iterator.Valid(); iterator.Next() {
-		store.Delete(iterator.Key())
+	feeDenom, err := k.feeDenom(ctx)
+	if err != nil {
+		return err
 	}
 
 	// Calculate coins to refund
-	coins := sdk.NewCoins(sdk.NewCoin(k.bondDenom, math.NewIntFromUint64(contract.Balance)))
+	coins := sdk.NewCoins(sdk.NewCoin(feeDenom, math.NewIntFromUint64(contract.Balance)))
 
 	// Default refund address to admin, fallback to creator
 	var refundAddr string
@@ -197,9 +207,33 @@ func (k Keeper) UnregisterContract(ctx context.Context, rfp *types.MsgUnregister
 	} else {
 		refundAddr = contractInfo.Creator
 	}
+	refundAccount, err := sdk.AccAddressFromBech32(refundAddr)
+	if err != nil {
+		return err
+	}
 
-	// Send coins from the FeePay module to the refund address
-	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.MustAccAddressFromBech32(refundAddr), coins)
+	// Complete every fallible operation before deleting the contract ledger and
+	// usage state. This keeps direct keeper calls atomic on refund failure, not
+	// only calls wrapped by BaseApp's transaction cache.
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, refundAccount, coins); err != nil {
+		return err
+	}
+
+	// Remove contract from KV store
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	prefixStore := prefix.NewStore(store, StoreKeyContracts)
+	prefixStore.Delete([]byte(rfp.ContractAddress))
+
+	// Remove all usage entries for contract
+	prefixStore = prefix.NewStore(store, StoreKeyContractUses)
+	iterator := storetypes.KVStorePrefixIterator(prefixStore, []byte(rfp.ContractAddress))
+	defer iterator.Close() //nolint:errcheck
+
+	for ; iterator.Valid(); iterator.Next() {
+		prefixStore.Delete(iterator.Key())
+	}
+
+	return nil
 }
 
 // SetContractBalance sets the contract's balance in the KV store
@@ -215,22 +249,27 @@ func (k Keeper) SetContractBalance(ctx context.Context, fpc *types.FeePayContrac
 
 // FundContract funds an existing feepay contract with tokens
 func (k Keeper) FundContract(ctx context.Context, fpc *types.FeePayContract, senderAddr sdk.AccAddress, coins sdk.Coins) error {
-	// Only transfer the bond denom
+	feeDenom, err := k.feeDenom(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Only transfer the configured fee denom.
 	var transferCoin sdk.Coin
 	for _, c := range coins {
-		if c.Denom == k.bondDenom {
+		if c.Denom == feeDenom {
 			transferCoin = c
 		}
 	}
 
 	// Ensure the transfer coin was set
 	if transferCoin == (sdk.Coin{}) {
-		return types.ErrInvalidJunoFundAmount.Wrapf("contract must be funded with '%s'", k.bondDenom)
+		return types.ErrInvalidJunoFundAmount.Wrapf("contract must be funded with '%s'", feeDenom)
 	}
 
-	// Transfer ONLY the bond-denom coin from sender to module. Transferring
-	// the whole `coins` slice would pull non-bond denoms into the module
-	// account while crediting the contract only for the bond-denom amount —
+	// Transfer ONLY the fee-denom coin from sender to module. Transferring
+	// the whole `coins` slice would pull non-fee denoms into the module
+	// account while crediting the contract only for the fee-denom amount —
 	// stranding the rest.
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, sdk.NewCoins(transferCoin)); err != nil {
 		return err

@@ -45,6 +45,9 @@ func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to get params")
 	}
+	if gotParams.FeeDenom != params.FeeDenom && ms.k.feePayLiabilities != nil && ms.k.feePayLiabilities.HasOutstandingBalances(ctx) {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "cannot change fee denom while FeePay has outstanding FeePay balances")
+	}
 
 	// if going from disabled -> enabled, set enabled height
 	if !gotParams.Enabled && msg.Params.Enabled {

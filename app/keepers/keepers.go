@@ -531,9 +531,10 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
-		bondDenom,
+		appKeepers.FeeMarketKeeper,
 		govModAddress,
 	)
+	appKeepers.FeeMarketKeeper.SetFeePayLiabilityChecker(appKeepers.FeePayKeeper)
 
 	// set the contract keeper for the Ics20WasmHooks
 	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)
