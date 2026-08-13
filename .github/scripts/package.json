@@ -1,0 +1,10 @@
+{
+  "name": "juno-release-dispatch-tests",
+  "private": true,
+  "scripts": {
+    "test": "node --test release-dispatch.test.js"
+  },
+  "devDependencies": {
+    "yaml": "2.9.0"
+  }
+}

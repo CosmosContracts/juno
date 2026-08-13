@@ -2,21 +2,35 @@ name: Dispatch Release to juno-std
 
 on:
   release:
-    types: [released]
+    # "published" covers both full releases and draft-to-prerelease transitions.
+    # Payload fields below determine whether the published release is a prerelease.
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag to redispatch
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
 env:
   JUNO_REPO: "https://github.com/CosmosContracts/juno.git"
   JUNO_DIR: "proto"
+  # Keep these selected proto revisions aligned with the dependency graph in go.mod.
+  # .github/scripts/release-dispatch.test.js enforces that relationship offline.
   COSMOS_SDK_REPO: "https://github.com/cosmos/cosmos-sdk.git"
-  COSMOS_SDK_REV: "v0.53.4"
+  COSMOS_SDK_REV: "v0.53.7"
   COSMOS_SDK_DIR: "proto"
   WASMD_REPO: "https://github.com/CosmWasm/wasmd.git"
-  WASMD_REV: "v0.54.2"
+  WASMD_REV: "v0.61.11"
   WASMD_DIR: "proto"
   COMETBFT_REPO: "https://github.com/cometbft/cometbft.git"
-  COMETBFT_REV: "v0.38.19"
+  COMETBFT_REV: "v0.38.23"
   COMETBFT_DIR: "proto"
   IBC_GO_REPO: "https://github.com/cosmos/ibc-go.git"
-  IBC_GO_REV: "v8.7.0"
+  IBC_GO_REV: "v10.6.0"
   IBC_GO_DIR: "proto"
   ICS23_REPO: "https://github.com/cosmos/ics23.git"
   ICS23_REV: "go/v0.11.0"
@@ -26,90 +40,36 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out payload builder
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          # Never execute code from the release tag while DISPATCH_TOKEN is present.
+          # The builder must be the exact revision containing this workflow run.
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+
       - name: Dispatch release event
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
           github-token: ${{ secrets.DISPATCH_TOKEN }}
           script: |
-            const { context, core, github } = require('@actions/github-script');
+            const { buildDispatchRequest, validateReleaseTag } = require('./.github/scripts/release-dispatch');
 
-            // Resolve target repository (owner/repo) from env
-            const repoStr = "CosmosContracts/juno-std";
-            if (!repoStr.includes('/')) {
-              core.setFailed(`Invalid repository: '${repoStr}'`);
-              return;
+            let payload = context.payload;
+            try {
+              if (!payload.release) {
+                const releaseTag = validateReleaseTag(payload.inputs.release_tag);
+                const { data: release } = await github.rest.repos.getReleaseByTag({
+                  ...context.repo,
+                  tag: releaseTag,
+                });
+                payload = { ...payload, release };
+              }
+
+              const request = buildDispatchRequest(payload, process.env);
+              core.info(`Dispatching to ${request.owner}/${request.repo} with payload: ${JSON.stringify(request.client_payload)}`);
+              await github.rest.repos.createDispatchEvent(request);
+              core.info('Repository dispatch event sent successfully.');
+            } catch (error) {
+              core.setFailed(error.message);
             }
-            const [targetOwner, targetRepo] = "CosmosContracts/juno-std".split('/', 2);
-
-            // Determine release_tag and flags based on event type or manual inputs
-            const inputs = (context.payload && context.payload.inputs) || {};
-            const releaseTag = inputs.release_tag || '';
-            const isDraft = String(inputs.is_draft || '').toLowerCase() === 'true';
-            const isPrerelease = String(inputs.is_prerelease || '').toLowerCase() === 'true';
-
-            if (!releaseTag) {
-              core.setFailed('Unable to determine release_tag');
-              return;
-            }
-
-            // Build 'repos' as a structured JSON object keyed by name
-            const repos = {
-              juno: {
-                name: 'juno',
-                repo: process.env.JUNO_REPO,
-                rev: releaseTag,
-                dir: process.env.JUNO_DIR,
-                exclude_mods: [],
-              },
-              cosmos_sdk: {
-                name: 'cosmos',
-                repo: process.env.COSMOS_SDK_REPO,
-                rev: process.env.COSMOS_SDK_REV,
-                dir: process.env.COSMOS_SDK_DIR,
-                exclude_mods: ['cosmos/benchmark', 'cosmos/counter', 'cosmos/epochs', 'cosmos/protocolpool],
-              },
-              wasmd: {
-                name: 'wasm',
-                repo: process.env.WASMD_REPO,
-                rev: process.env.WASMD_REV,
-                dir: process.env.WASMD_DIR,
-                exclude_mods: [],
-              },
-              cometbft: {
-                name: 'cometbft',
-                repo: process.env.COMETBFT_REPO,
-                rev: process.env.COMETBFT_REV,
-                dir: process.env.COMETBFT_DIR,
-                exclude_mods: [],
-              },
-              ibc_go: {
-                name: 'ibc-go',
-                repo: process.env.IBC_GO_REPO,
-                rev: process.env.IBC_GO_REV,
-                dir: process.env.IBC_GO_DIR,
-                exclude_mods: [],
-              },
-              ics23: {
-                name: 'ics23',
-                repo: process.env.ICS23_REPO,
-                rev: process.env.ICS23_REV,
-                dir: process.env.ICS23_DIR,
-                exclude_mods: [],
-              },
-            };
-
-            const payload = {
-              is_draft: isDraft,
-              is_prerelease: isPrerelease,
-              release_tag: releaseTag,
-              repos,
-            };
-
-            core.info(`Dispatching to ${targetOwner}/${targetRepo} with payload: ${JSON.stringify(payload)}`);
-            await github.rest.repos.createDispatchEvent({
-              owner: targetOwner,
-              repo: targetRepo,
-              event_type: "juno-release",
-              client_payload: payload,
-            });
-            core.info('Repository dispatch event sent successfully.');
