@@ -2,10 +2,39 @@
 name: build
 
 on:
+  pull_request:
+    paths:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - "interchaintest/go.mod"
+      - "interchaintest/go.sum"
+      - "proto/**"
+      - "api/**"
+      - "app/endpoints/**"
+      - "Dockerfile"
+      - "**/Dockerfile"
+      - "Makefile"
+      - "scripts/**"
+      - ".github/workflows/**"
   push:
     paths:
-      - "**.go"
+      - "**/*.go"
+      - "go.mod"
       - "go.sum"
+      - "interchaintest/go.mod"
+      - "interchaintest/go.sum"
+      - "proto/**"
+      - "api/**"
+      - "app/endpoints/**"
+      - "Dockerfile"
+      - "**/Dockerfile"
+      - "Makefile"
+      - "scripts/**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,44 +44,121 @@ env:
   GO_VERSION: 1.25.10
 
 jobs:
-  build:
+  workflow-lint:
+    name: workflow syntax
     runs-on: ubuntu-latest
-    name: build
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - run: go build ./...
-
-  test:
-    runs-on: ubuntu-latest
-    name: test
-    steps:
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Test
-        run: go test ./...
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install and run actionlint
+        env:
+          ACTIONLINT_VERSION: "1.7.7"
+          ACTIONLINT_SHA256: "023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757"
+        run: |
+          archive="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl --fail --location --silent --show-error \
+            --output "$archive" \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/${archive}"
+          printf '%s  %s\n' "$ACTIONLINT_SHA256" "$archive" | sha256sum --check
+          tar --extract --gzip --file "$archive" actionlint
+          ./actionlint
+
+  verify:
+    name: verify (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: root
+            directory: .
+          - module: interchaintest
+            directory: interchaintest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: ${{ matrix.directory }}/go.sum
+      - name: Verify dependencies
+        working-directory: ${{ matrix.directory }}
+        run: go mod verify
 
   tidy:
+    name: tidy-clean (${{ matrix.module }})
     runs-on: ubuntu-latest
-    name: tidy
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: root
+            directory: .
+          - module: interchaintest
+            directory: interchaintest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup go
-        uses: actions/setup-go@v5
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version: ${{ env.GO_VERSION }}
-      - run: |
+          cache-dependency-path: ${{ matrix.directory }}/go.sum
+      - name: Check that go mod tidy is clean
+        working-directory: ${{ matrix.directory }}
+        run: |
           go mod tidy
-          CHANGES_IN_REPO=$(git status --porcelain)
-          if [[ -n "$CHANGES_IN_REPO" ]]; then
-            echo "Repository is dirty. Showing 'git status' and 'git --no-pager diff' for debugging now:"
-            git status && git --no-pager diff
-            exit 1
-          fi
+          git diff --exit-code -- go.mod go.sum
+
+  build:
+    name: build (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: root
+            directory: .
+          - module: interchaintest
+            directory: interchaintest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: ${{ matrix.directory }}/go.sum
+      - name: Build packages
+        working-directory: ${{ matrix.directory }}
+        run: go build -mod=readonly ./...
+
+  test:
+    name: test (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: root
+            directory: .
+            arguments: "-race"
+          # E2E suites run in independent Docker-backed lanes in
+          # interchaintest-E2E.yml. This gate compiles every nested-module test.
+          - module: interchaintest
+            directory: interchaintest
+            arguments: "-race -run=^$"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: ${{ matrix.directory }}/go.sum
+      - name: Test packages
+        working-directory: ${{ matrix.directory }}
+        run: go test -mod=readonly ${{ matrix.arguments }} ./...

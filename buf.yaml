@@ -4,10 +4,10 @@ modules:
     name: buf.build/CosmosContracts/juno
 deps:
   - buf.build/cosmos/cosmos-sdk:34ac2e8322d44db08830e553ad21b93c
-  - buf.build/cosmos/cosmos-proto
-  - buf.build/cosmos/gogo-proto
-  - buf.build/googleapis/googleapis
-  - buf.build/protocolbuffers/wellknowntypes
+  - buf.build/cosmos/cosmos-proto:04467658e59e44bbb22fe568206e1f70
+  - buf.build/cosmos/gogo-proto:88ef6483f90f478fb938c37dde52ece3
+  - buf.build/googleapis/googleapis:c17df5b2beca46928cc87d5656bd5343
+  - buf.build/protocolbuffers/wellknowntypes:122a3d2fdc814e0bb6fcf821bcce7957
 breaking:
   use:
     - FILE
