@@ -14,8 +14,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 // ConsensusVersion is the x/feemarket module's consensus version identifier.

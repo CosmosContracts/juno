@@ -13,9 +13,9 @@ import (
 
 	"cosmossdk.io/log"
 
-	"github.com/CosmosContracts/juno/v30/app/endpoints"
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/app/endpoints"
+	"github.com/CosmosContracts/juno/v31/x/stream/types"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 const wsRoutePrefix = "/ws"

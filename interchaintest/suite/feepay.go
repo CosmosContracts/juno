@@ -11,7 +11,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 func (s *E2ETestSuite) RegisterFeePay(chain *cosmos.CosmosChain, user ibc.Wallet, contract string, walletLimit int) {

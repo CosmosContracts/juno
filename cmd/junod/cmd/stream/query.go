@@ -16,7 +16,7 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	flagbuilder "cosmossdk.io/client/v2/autocli/flag"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 const StreamFlagName = "stream"

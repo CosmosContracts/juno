@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
-	cwhooktypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	cwhooktypes "github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

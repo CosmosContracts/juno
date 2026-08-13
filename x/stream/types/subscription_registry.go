@@ -13,7 +13,7 @@ import (
 
 	"cosmossdk.io/log"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 // ConnectionMetadata captures identifying information for a subscriber connection.

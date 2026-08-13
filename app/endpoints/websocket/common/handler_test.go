@@ -15,8 +15,8 @@ import (
 
 	"cosmossdk.io/log"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/x/stream/types"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 func TestHandlerServeConnectionConnectionLimit(t *testing.T) {

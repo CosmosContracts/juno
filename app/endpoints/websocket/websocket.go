@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/CosmosContracts/juno/v30/app/endpoints/websocket/common"
-	"github.com/CosmosContracts/juno/v30/x/stream/keeper"
+	"github.com/CosmosContracts/juno/v31/app/endpoints/websocket/common"
+	"github.com/CosmosContracts/juno/v31/x/stream/keeper"
 )
 
 // RegisterRoutes registers WebSocket routes for the stream module using the configuration

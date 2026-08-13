@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/CosmosContracts/juno/v30/testutil"
+	"github.com/CosmosContracts/juno/v31/testutil"
 )
 
 type KeepersTestSuite struct {

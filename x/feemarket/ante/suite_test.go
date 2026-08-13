@@ -17,12 +17,12 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
-	junoapp "github.com/CosmosContracts/juno/v30/app"
-	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
-	"github.com/CosmosContracts/juno/v30/testutil"
-	keeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	feemarketpost "github.com/CosmosContracts/juno/v30/x/feemarket/post"
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	junoapp "github.com/CosmosContracts/juno/v31/app"
+	"github.com/CosmosContracts/juno/v31/app/ante/decorators"
+	"github.com/CosmosContracts/juno/v31/testutil"
+	keeper "github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	feemarketpost "github.com/CosmosContracts/juno/v31/x/feemarket/post"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 type AnteTestSuite struct {

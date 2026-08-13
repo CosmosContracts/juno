@@ -13,8 +13,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/CosmosContracts/juno/v30/app/utils"
-	"github.com/CosmosContracts/juno/v30/x/feepay/types"
+	"github.com/CosmosContracts/juno/v31/app/utils"
+	"github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 // IsContractRegistered checks if a contract is registered as a feepay contract

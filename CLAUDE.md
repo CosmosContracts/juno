@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Juno is a sovereign Cosmos SDK / CometBFT chain with CosmWasm smart-contract support (via `wasmd`). The binary is `junod`. Go module path is `github.com/CosmosContracts/juno/v30` — the `/v30` suffix tracks the current chain upgrade name and is bumped each consensus-breaking release (see `RELEASES.md`).
+Juno is a sovereign Cosmos SDK / CometBFT chain with CosmWasm smart-contract support (via `wasmd`). The binary is `junod`. Go module path is `github.com/CosmosContracts/juno/v31` — the `/v31` suffix tracks the current chain upgrade name and is bumped each consensus-breaking release (see `RELEASES.md`).
 
 ## Toolchain
 
@@ -96,7 +96,7 @@ Tx fee handling is *not* a single decorator; the order in `app/ante/ante.go` mat
 
 ### Versioned upgrades and module path
 
-The Go module is `…/juno/v30`. Internal imports use `github.com/CosmosContracts/juno/v30/...`. When the chain is bumped to v31 the entire repo is mass-rewritten: `go.mod` major version, every import, and the upgrade name string in `app/upgrades/v31/`. Don't introduce code that pins the literal `"v30"` outside the upgrade package and import paths.
+The Go module is `…/juno/v31`. Internal imports use `github.com/CosmosContracts/juno/v31/...`. For each consensus-breaking major release the entire repo is mass-rewritten: `go.mod` major version, every import, and the new upgrade package/name. Don't pin the current major version outside module/import identity and the corresponding upgrade package.
 
 ## Conventions worth knowing
 

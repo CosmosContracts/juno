@@ -13,9 +13,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/testutil/setup"
-	v2 "github.com/CosmosContracts/juno/v30/x/cw-hooks/migrations/v2"
-	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v31/testutil/setup"
+	v2 "github.com/CosmosContracts/juno/v31/x/cw-hooks/migrations/v2"
+	"github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
 )
 
 func TestMigrateStoreToCollections(t *testing.T) {

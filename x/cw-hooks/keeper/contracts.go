@@ -8,8 +8,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/app/utils"
-	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v31/app/utils"
+	"github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
 )
 
 func (k Keeper) SetContract(ctx context.Context, key collections.Prefix, info types.ContractInfo) error {

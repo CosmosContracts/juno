@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 func (s *KeeperTestSuite) TestInitGenesis() {

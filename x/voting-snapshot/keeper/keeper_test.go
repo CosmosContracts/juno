@@ -30,8 +30,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmosContracts/juno/v30/x/voting-snapshot/keeper"
-	"github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	"github.com/CosmosContracts/juno/v31/x/voting-snapshot/keeper"
+	"github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 const mintModuleName = "mint" // faucet module account for funding test delegators

@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/app/utils"
-	"github.com/CosmosContracts/juno/v30/x/clock/types"
+	"github.com/CosmosContracts/juno/v31/app/utils"
+	"github.com/CosmosContracts/juno/v31/x/clock/types"
 )
 
 var endBlockSudoMessage = []byte(types.EndBlockSudoMessage)

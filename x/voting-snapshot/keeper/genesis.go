@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	"github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 func (k Keeper) InitGenesis(ctx context.Context, gs *types.GenesisState) error {

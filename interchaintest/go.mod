@@ -3,14 +3,14 @@ module github.com/CosmosContracts/juno/tests/interchaintest
 go 1.25.10
 
 // For this nested module, you always want to replace the parent reference with the current worktree.
-replace github.com/CosmosContracts/juno/v30 v30.0.0 => ../
+replace github.com/CosmosContracts/juno/v31 v31.0.0 => ../
 
 require (
 	cosmossdk.io/math v1.5.3
 	cosmossdk.io/x/nft v0.2.0
 	cosmossdk.io/x/upgrade v0.2.0
 	github.com/CosmWasm/wasmd v0.61.14
-	github.com/CosmosContracts/juno/v30 v30.0.0
+	github.com/CosmosContracts/juno/v31 v31.0.0
 	github.com/cosmos/cosmos-sdk v0.53.8
 	github.com/cosmos/ibc-go/v10 v10.7.0
 	github.com/cosmos/interchaintest/v10 v10.0.0

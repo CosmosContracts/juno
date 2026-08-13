@@ -7,9 +7,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	types "github.com/CosmosContracts/juno/v30/wasmbindings/types"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
-	votingsnapshotkeeper "github.com/CosmosContracts/juno/v30/x/voting-snapshot/keeper"
+	types "github.com/CosmosContracts/juno/v31/wasmbindings/types"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v31/x/tokenfactory/keeper"
+	votingsnapshotkeeper "github.com/CosmosContracts/juno/v31/x/voting-snapshot/keeper"
 )
 
 type QueryPlugin struct {

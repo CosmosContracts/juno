@@ -717,6 +717,8 @@ github.com/CosmWasm/wasmd v0.61.14 h1:SUWM32AC/i1RiAedvJdCxR74YLzqZlwUD+9TRHCEUB
 github.com/CosmWasm/wasmd v0.61.14/go.mod h1:T61FkmvyR7FUpI0LJ++tqUJwUynRLROgKQVIr4RLKnc=
 github.com/CosmWasm/wasmvm/v3 v3.0.7 h1:jNndgpVJ1EFAY61oy6GhmZCSCWbd+rp1LlkTftHPW+A=
 github.com/CosmWasm/wasmvm/v3 v3.0.7/go.mod h1:oknpb1bFERvvKcY7vHRp1F/Y/z66xVrsl7n9uWkOAlM=
+github.com/CosmosContracts/juno/v30 v30.0.0 h1:J6PYFK+1gSfRDrDDiSwaT8zkhrrnL1VxwzzWDCeZWDg=
+github.com/CosmosContracts/juno/v30 v30.0.0/go.mod h1:HH0XppeC35N3holZ3MGzTcAUsFi2Z+o4gngXYWduvy4=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/datadog-go v4.8.3+incompatible h1:fNGaYSuObuQb5nzeTQqowRAd9bpDIRRV4/gUtIBjh8Q=
 github.com/DataDog/datadog-go v4.8.3+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=

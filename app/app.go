@@ -61,14 +61,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	junoante "github.com/CosmosContracts/juno/v30/app/ante"
-	endpoints "github.com/CosmosContracts/juno/v30/app/endpoints"
-	wsendpoints "github.com/CosmosContracts/juno/v30/app/endpoints/websocket"
-	"github.com/CosmosContracts/juno/v30/app/keepers"
-	upgrades "github.com/CosmosContracts/juno/v30/app/upgrades"
-	v30 "github.com/CosmosContracts/juno/v30/app/upgrades/v30"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
+	junoante "github.com/CosmosContracts/juno/v31/app/ante"
+	endpoints "github.com/CosmosContracts/juno/v31/app/endpoints"
+	wsendpoints "github.com/CosmosContracts/juno/v31/app/endpoints/websocket"
+	"github.com/CosmosContracts/juno/v31/app/keepers"
+	upgrades "github.com/CosmosContracts/juno/v31/app/upgrades"
+	v31 "github.com/CosmosContracts/juno/v31/app/upgrades/v31"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	streamtypes "github.com/CosmosContracts/juno/v31/x/stream/types"
 )
 
 const (
@@ -88,7 +88,7 @@ var (
 	EnableSpecificProposals = ""
 
 	Upgrades = []upgrades.Upgrade{
-		v30.Upgrade,
+		v31.Upgrade,
 	}
 
 	_ runtime.AppI            = (*App)(nil)

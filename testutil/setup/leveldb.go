@@ -17,8 +17,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	junoapp "github.com/CosmosContracts/juno/v30/app"
-	"github.com/CosmosContracts/juno/v30/testutil/common"
+	junoapp "github.com/CosmosContracts/juno/v31/app"
+	"github.com/CosmosContracts/juno/v31/testutil/common"
 )
 
 // SetupTestingAppWithLevelDB initializes a new App intended for testing,

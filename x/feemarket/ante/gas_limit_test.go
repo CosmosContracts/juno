@@ -10,8 +10,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
-	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
+	"github.com/CosmosContracts/juno/v31/app/ante/decorators"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 type gasLimitFeeTx struct {

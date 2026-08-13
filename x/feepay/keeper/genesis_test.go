@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/x/feepay/types"
+	"github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 func (s *KeeperTestSuite) TestFeeShareInitGenesis() {
