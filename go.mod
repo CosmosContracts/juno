@@ -1,6 +1,6 @@
 module github.com/CosmosContracts/juno/v30
 
-go 1.25.2
+go 1.25.10
 
 tool (
 	github.com/bufbuild/buf/cmd/buf
@@ -27,17 +27,17 @@ require (
 	cosmossdk.io/x/feegrant v0.2.0
 	cosmossdk.io/x/tx v0.14.0
 	cosmossdk.io/x/upgrade v0.2.0
-	github.com/CosmWasm/wasmd v0.61.11
-	github.com/CosmWasm/wasmvm/v3 v3.0.4
+	github.com/CosmWasm/wasmd v0.61.14
+	github.com/CosmWasm/wasmvm/v3 v3.0.7
 	github.com/bdpiprava/scalar-go v0.12.1
-	github.com/cometbft/cometbft v0.38.23
+	github.com/cometbft/cometbft v0.38.25
 	github.com/cosmos/cosmos-db v1.1.3
-	github.com/cosmos/cosmos-sdk v0.53.7
+	github.com/cosmos/cosmos-sdk v0.53.8
 	github.com/cosmos/gogoproto v1.7.2
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10 v10.6.0
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v10 v10.0.0
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
-	github.com/cosmos/ibc-go/v10 v10.6.0
+	github.com/cosmos/ibc-go/v10 v10.7.0
 	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0

@@ -1,6 +1,6 @@
 module github.com/CosmosContracts/juno/tests/interchaintest
 
-go 1.25.2
+go 1.25.10
 
 // For this nested module, you always want to replace the parent reference with the current worktree.
 replace github.com/CosmosContracts/juno/v30 v30.0.0 => ../
@@ -9,10 +9,10 @@ require (
 	cosmossdk.io/math v1.5.3
 	cosmossdk.io/x/nft v0.2.0
 	cosmossdk.io/x/upgrade v0.2.0
-	github.com/CosmWasm/wasmd v0.61.11
+	github.com/CosmWasm/wasmd v0.61.14
 	github.com/CosmosContracts/juno/v30 v30.0.0
-	github.com/cosmos/cosmos-sdk v0.53.7
-	github.com/cosmos/ibc-go/v10 v10.6.0
+	github.com/cosmos/cosmos-sdk v0.53.8
+	github.com/cosmos/ibc-go/v10 v10.7.0
 	github.com/cosmos/interchaintest/v10 v10.0.0
 	github.com/moby/moby v27.5.1+incompatible
 	// main branch of x/builder with sdk 0.5x support
@@ -45,7 +45,7 @@ require (
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.2 // indirect
 	github.com/BurntSushi/toml v1.5.0 // indirect
-	github.com/CosmWasm/wasmvm/v3 v3.0.4 // indirect
+	github.com/CosmWasm/wasmvm/v3 v3.0.7 // indirect
 	github.com/DataDog/datadog-go v4.8.3+incompatible // indirect
 	github.com/DataDog/zstd v1.5.7 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0 // indirect
@@ -72,7 +72,7 @@ require (
 	github.com/cockroachdb/pebble v1.1.5 // indirect
 	github.com/cockroachdb/redact v1.1.6 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
-	github.com/cometbft/cometbft v0.38.23
+	github.com/cometbft/cometbft v0.38.25
 	github.com/cometbft/cometbft-db v0.14.1 // indirect
 	github.com/consensys/gnark-crypto v0.18.1 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect

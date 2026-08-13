@@ -8,7 +8,7 @@ Juno is a sovereign Cosmos SDK / CometBFT chain with CosmWasm smart-contract sup
 
 ## Toolchain
 
-Go 1.25.2 is pinned in `.mise.toml` (also: `buf`, `yq`). Run `mise install` once to provision them. Dev tools (`golangci-lint`, `gofumpt`, `buf`, protoc plugins) are declared as Go tool dependencies in `go.mod` and invoked via `go tool …` — do not install them separately.
+Go 1.25.10 is pinned in `.mise.toml` (also: `buf`, `yq`). Run `mise install` once to provision them. Dev tools (`golangci-lint`, `gofumpt`, `buf`, protoc plugins) are declared as Go tool dependencies in `go.mod` and invoked via `go tool …` — do not install them separately.
 
 ## Common commands
 

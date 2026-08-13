@@ -4,7 +4,7 @@
 # Build arguments
 # --------------------------------------------------------
 
-ARG GO_VERSION="1.25.2"
+ARG GO_VERSION="1.25.10"
 ARG ALPINE_VERSION="3.22"
 
 # --------------------------------------------------------
@@ -13,7 +13,7 @@ ARG ALPINE_VERSION="3.22"
 
 FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
 
-ENV GOTOOLCHAIN=go1.25.2 \
+ENV GOTOOLCHAIN=go1.25.10 \
     PATH=/go/bin:/usr/local/go/bin:/usr/local/bin:$PATH
 
 RUN apk add --no-cache \
