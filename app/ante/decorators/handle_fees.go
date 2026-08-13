@@ -87,6 +87,11 @@ func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Kee
 // AnteHandle calls the feemarket antehandler if the keeper is enabled.  If disabled, the fallback
 // fee antehandler is fallen back to.
 func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if feeTx, ok := tx.(sdk.FeeTx); ok && feeTx.GetGas() > math.MaxInt64 {
+		return ctx, errorsmod.Wrapf(sdkerrors.ErrInvalidGasLimit,
+			"gas limit %d exceeds maximum of %d", feeTx.GetGas(), int64(math.MaxInt64))
+	}
+
 	params, err := dfd.feemarketkeeper.GetParams(ctx)
 	if err != nil {
 		return ctx, err
