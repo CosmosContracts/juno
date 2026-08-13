@@ -8,10 +8,10 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
-	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -44,7 +44,7 @@ type DeductFeeDecorator struct {
 	fallbackDecorator sdk.AnteDecorator
 }
 
-func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantkeeper.Keeper, bondDenom string, bypassMinFeeMsgTypes []string, fallbackDecorator sdk.AnteDecorator) DeductFeeDecorator {
+func NewDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk authante.FeegrantKeeper, bondDenom string, bypassMinFeeMsgTypes []string, fallbackDecorator sdk.AnteDecorator) DeductFeeDecorator {
 	return DeductFeeDecorator{
 		feemarketkeeper: fmk,
 		innerDecorator: newInnerDeductFeeDecorator(
@@ -67,12 +67,12 @@ type InnerDeductFeeDecorator struct {
 	feemarketKeeper      feemarketkeeper.Keeper
 	accountKeeper        authkeeper.AccountKeeper
 	bankKeeper           bankkeeper.Keeper
-	feegrantKeeper       feegrantkeeper.Keeper
+	feegrantKeeper       authante.FeegrantKeeper
 	bondDenom            string
 	bypassMinFeeMsgTypes []string
 }
 
-func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk feegrantkeeper.Keeper, bondDenom string, bypassMinFeeMsgTypes []string) InnerDeductFeeDecorator {
+func newInnerDeductFeeDecorator(fpk feepaykeeper.Keeper, fmk feemarketkeeper.Keeper, ak authkeeper.AccountKeeper, bk bankkeeper.Keeper, fgk authante.FeegrantKeeper, bondDenom string, bypassMinFeeMsgTypes []string) InnerDeductFeeDecorator {
 	return InnerDeductFeeDecorator{
 		feepayKeeper:         fpk,
 		feemarketKeeper:      fmk,
