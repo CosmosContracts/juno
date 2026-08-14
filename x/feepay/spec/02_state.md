@@ -36,7 +36,7 @@ message FeePayWalletUsage {
 
 ## Genesis & Params
 
-The `x/feepay` module's `GenesisState` defines the state necessary for initializing the chain from a previously exported height. It contains the module parameters and the fee pay contracts. As of now, it does not contain the wallet usage. The params are used to enable or disable the module. This value can be modified with a governance proposal.
+The `x/feepay` module's `GenesisState` defines the state necessary for initializing the chain from a previously exported height. It contains the module parameters, fee pay contracts, and per-contract wallet usage counters. Exporting and importing these counters preserves wallet-limit enforcement across a restart. During initialization, the sum of contract ledger balances must not exceed the module account's balance in the configured fee denom. The params are used to enable or disable the module. This value can be modified with a governance proposal.
 
 ```go
 // GenesisState defines the module's genesis state.
@@ -46,6 +46,9 @@ message GenesisState {
 
   // fee_pay_contracts are the feepay module contracts
   repeated FeePayContract fee_pay_contracts = 2 [ (gogoproto.nullable) = false ];
+
+  // wallet_usages are the per-contract wallet counters that enforce wallet limits
+  repeated FeePayWalletUsage wallet_usages = 3 [ (gogoproto.nullable) = false ];
 }
 
 // Params defines the feepay module params

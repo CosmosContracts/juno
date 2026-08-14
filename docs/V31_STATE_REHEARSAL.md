@@ -18,13 +18,15 @@ a cloned volume. Keep keys and private-validator state out of the rehearsal.
 
 ## Inputs
 
-Record before execution:
+Record before execution in the evidence JSON:
 
 - source tag, full commit, and `sha256:` image digest;
 - target full commit and `sha256:` image digest;
-- chain ID and sanitized source-state provenance;
+- chain ID and a non-empty, sanitized description of the source-state
+  provenance (provider/snapshot identity and source height, but no secrets);
 - export, snapshot, trust, upgrade, and verification heights;
-- commands and runner identity needed to reproduce the run.
+- every command used for the export/import, state-sync, and upgrade gates;
+- the runner's identity and execution environment.
 
 Resolve tags to commits and images to registry digests before starting. The
 source version must be exactly `v30.0.0`; do not substitute `latest` or a moving
@@ -81,7 +83,72 @@ Preserve the test line beginning `state-sync verified:` in the evidence record.
 python3 scripts/rehearsal/validate_evidence.py /path/to/evidence.json
 ```
 
-The evidence JSON must contain the fields enforced by the validator. App hashes
-are compared only at identical heights. Amount strings must include their denom.
+## Evidence schema
+
+The validator is the executable schema. Use this shape (values are illustrative):
+
+```json
+{
+  "source": {
+    "version": "v30.0.0",
+    "git_commit": "<40 lowercase hex>",
+    "image_digest": "sha256:<64 lowercase hex>",
+    "chain_id": "juno-1",
+    "state_provenance": "sanitized snapshot/provider and source-height description"
+  },
+  "target": {
+    "version": "v31",
+    "git_commit": "<40 lowercase hex>",
+    "image_digest": "sha256:<64 lowercase hex>"
+  },
+  "runner": {"identity": "operator or CI identity", "environment": "runner/OS/architecture"},
+  "commands": {
+    "export_import": ["<exact command>", "<exact command>"],
+    "state_sync": ["<exact command>"],
+    "upgrade": ["<exact command>"]
+  },
+  "export_import": {
+    "export_height": 100,
+    "pre_export_app_hash_height": 100,
+    "pre_export_app_hash": "<64 lowercase hex>",
+    "post_import_app_hash_height": 101,
+    "post_import_app_hash": "<64 lowercase hex>",
+    "module_version_map_preserved": true
+  },
+  "state_sync": {
+    "snapshot_height": 120,
+    "trust_height": 110,
+    "verified_height": 130,
+    "provider_app_hash_height": 130,
+    "provider_app_hash": "<64 lowercase hex>",
+    "synced_app_hash_height": 130,
+    "synced_app_hash": "<64 lowercase hex>"
+  },
+  "upgrade": {"upgrade_height": 140, "verified_height": 141},
+  "modules": {
+    "feepay": {
+      "pre_restart": {"height": 100, "ledger_total": "1000000ujuno", "module_backing": "1000001ujuno"},
+      "post_restart": {"height": 101, "ledger_total": "1000000ujuno", "module_backing": "1000001ujuno"},
+      "wallet_usages_preserved": true
+    },
+    "voting_snapshot": {
+      "pre_restart": {"height": 100, "total": "42"},
+      "post_restart": {"height": 101, "total": "42"},
+      "queryable": true
+    }
+  },
+  "result": {"export_import_passed": true, "state_sync_passed": true, "upgrade_passed": true}
+}
+```
+
+All heights are positive JSON integers (not strings or booleans). App hashes
+are exactly 64 lowercase hexadecimal characters, and provider/restored hashes
+are compared only at the shared `verified_height`. FeePay totals are structured
+as pre/post evidence at exact heights. Coin strings are comma-separated positive
+arbitrary-precision integer amounts with denoms; backing may contain surplus
+amounts or additional denoms, but must cover every ledger denom and amount.
+Pre/post ledgers must be equal. Voting totals are positive integer strings,
+must be non-zero, and must be equal across the restart.
+
 Attach sanitized logs, the JSON record, and checksums to the release candidate;
 never attach homes, databases, keys, or private validator state.
