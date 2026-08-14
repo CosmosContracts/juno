@@ -54,6 +54,20 @@ def app_hash(value: Any, name: str) -> str:
     return value
 
 
+def canonical_evidence(value: Any, name: str) -> tuple[int, str]:
+    """Validate a count and SHA-256 of a documented canonical JSON array."""
+    if not isinstance(value, dict):
+        fail(f"{name} must be an object")
+    required(value, name, "count", "sha256")
+    count = value["count"]
+    if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+        fail(f"{name}.count must be a non-negative integer")
+    digest = value["sha256"]
+    if not isinstance(digest, str) or not APP_HASH.fullmatch(digest):
+        fail(f"{name}.sha256 must be 64-character lowercase hex")
+    return count, digest
+
+
 def parse_coins(value: Any, name: str) -> dict[str, int]:
     """Parse canonical comma-separated Cosmos coins using arbitrary-size ints."""
     if not isinstance(value, str) or not value:
@@ -129,17 +143,25 @@ def validate(record: dict[str, Any]) -> None:
         "pre_export_app_hash",
         "post_import_app_hash_height",
         "post_import_app_hash",
-        "module_version_map_preserved",
+        "module_version_map",
     )
     export_height = height(export_import["export_height"], "export_import.export_height")
     pre_export_height = height(export_import["pre_export_app_hash_height"], "export_import.pre_export_app_hash_height")
     post_import_height = height(export_import["post_import_app_hash_height"], "export_import.post_import_app_hash_height")
     if pre_export_height != export_height:
         fail("export_import.pre_export_app_hash_height must equal export_height")
+    if post_import_height <= export_height:
+        fail("export_import.post_import_app_hash_height must be after export_height")
     app_hash(export_import["pre_export_app_hash"], "export_import.pre_export_app_hash")
     app_hash(export_import["post_import_app_hash"], "export_import.post_import_app_hash")
-    if export_import["module_version_map_preserved"] is not True:
-        fail("module version map was not preserved")
+    if "module_version_map_preserved" in export_import:
+        fail("export_import.module_version_map_preserved is unsupported; use module_version_map evidence")
+    version_map = object_field(export_import, "module_version_map", "export_import")
+    required(version_map, "export_import.module_version_map", "pre_export", "post_import")
+    version_map_pre = canonical_evidence(version_map["pre_export"], "export_import.module_version_map.pre_export")
+    version_map_post = canonical_evidence(version_map["post_import"], "export_import.module_version_map.post_import")
+    if version_map_pre != version_map_post:
+        fail("module version map changed across restart")
 
     required(
         state_sync,
@@ -174,11 +196,14 @@ def validate(record: dict[str, Any]) -> None:
 
     feepay = object_field(modules, "feepay", "modules")
     voting = object_field(modules, "voting_snapshot", "modules")
-    required(feepay, "modules.feepay", "pre_restart", "post_restart", "wallet_usages_preserved")
+    required(feepay, "modules.feepay", "pre_restart", "post_restart")
+    if "wallet_usages_preserved" in feepay:
+        fail("modules.feepay.wallet_usages_preserved is unsupported; use pre/post wallet_usages evidence")
     fee_ledgers: list[dict[str, int]] = []
+    wallet_usages: list[tuple[int, str]] = []
     for phase, expected_height in (("pre_restart", export_height), ("post_restart", post_import_height)):
         evidence = object_field(feepay, phase, "modules.feepay")
-        required(evidence, f"modules.feepay.{phase}", "height", "ledger_total", "module_backing")
+        required(evidence, f"modules.feepay.{phase}", "height", "ledger_total", "module_backing", "wallet_usages")
         if height(evidence["height"], f"modules.feepay.{phase}.height") != expected_height:
             fail(f"modules.feepay.{phase}.height does not match its exact restart height")
         ledger = parse_coins(evidence["ledger_total"], f"modules.feepay.{phase}.ledger_total")
@@ -186,10 +211,11 @@ def validate(record: dict[str, Any]) -> None:
         if any(backing.get(denom, 0) < amount for denom, amount in ledger.items()):
             fail(f"FeePay ledger is not fully backed at {phase}")
         fee_ledgers.append(ledger)
+        wallet_usages.append(canonical_evidence(evidence["wallet_usages"], f"modules.feepay.{phase}.wallet_usages"))
     if fee_ledgers[0] != fee_ledgers[1]:
         fail("FeePay ledger changed across restart")
-    if feepay["wallet_usages_preserved"] is not True:
-        fail("FeePay wallet usages were not preserved")
+    if wallet_usages[0] != wallet_usages[1]:
+        fail("FeePay wallet usages changed across restart")
 
     required(voting, "modules.voting_snapshot", "pre_restart", "post_restart", "queryable")
     voting_totals: list[int] = []

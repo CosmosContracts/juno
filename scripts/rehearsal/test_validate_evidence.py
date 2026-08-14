@@ -13,6 +13,7 @@ SPEC.loader.exec_module(validator)
 
 APP_HASH_A = "a" * 64
 APP_HASH_B = "b" * 64
+CANONICAL_HASH_A = "c" * 64
 
 
 def valid_record():
@@ -44,7 +45,10 @@ def valid_record():
             "pre_export_app_hash": APP_HASH_A,
             "post_import_app_hash_height": 101,
             "post_import_app_hash": APP_HASH_B,
-            "module_version_map_preserved": True,
+            "module_version_map": {
+                "pre_export": {"count": 3, "sha256": CANONICAL_HASH_A},
+                "post_import": {"count": 3, "sha256": CANONICAL_HASH_A},
+            },
         },
         "state_sync": {
             "snapshot_height": 120,
@@ -65,13 +69,14 @@ def valid_record():
                     "height": 100,
                     "ledger_total": "1000000000000000000000000000000ujuno,7ibc/ABC",
                     "module_backing": "1000000000000000000000000000001ujuno,9ibc/ABC,5uatom",
+                    "wallet_usages": {"count": 2, "sha256": CANONICAL_HASH_A},
                 },
                 "post_restart": {
                     "height": 101,
                     "ledger_total": "1000000000000000000000000000000ujuno,7ibc/ABC",
                     "module_backing": "1000000000000000000000000000001ujuno,9ibc/ABC,5uatom",
+                    "wallet_usages": {"count": 2, "sha256": CANONICAL_HASH_A},
                 },
-                "wallet_usages_preserved": True,
             },
             "voting_snapshot": {
                 "pre_restart": {"height": 100, "total": "42"},
@@ -130,6 +135,51 @@ class EvidenceValidationTest(unittest.TestCase):
         record["state_sync"]["synced_app_hash_height"] = 129
         with self.assertRaisesRegex(ValueError, "same verified_height"):
             validator.validate(record)
+
+    def test_rejects_post_import_height_at_or_before_export_height(self):
+        for post_height in (100, 99):
+            with self.subTest(post_height=post_height):
+                record = valid_record()
+                record["export_import"]["post_import_app_hash_height"] = post_height
+                record["modules"]["feepay"]["post_restart"]["height"] = post_height
+                record["modules"]["voting_snapshot"]["post_restart"]["height"] = post_height
+                with self.assertRaisesRegex(ValueError, "must be after export_height"):
+                    validator.validate(record)
+
+    def test_rejects_unsupported_preservation_booleans(self):
+        record = valid_record()
+        del record["export_import"]["module_version_map"]
+        record["export_import"]["module_version_map_preserved"] = True
+        with self.assertRaisesRegex(ValueError, "module_version_map"):
+            validator.validate(record)
+
+        record = valid_record()
+        for phase in ("pre_restart", "post_restart"):
+            del record["modules"]["feepay"][phase]["wallet_usages"]
+        record["modules"]["feepay"]["wallet_usages_preserved"] = True
+        with self.assertRaisesRegex(ValueError, "wallet_usages"):
+            validator.validate(record)
+
+    def test_rejects_changed_module_version_map_evidence(self):
+        for field, value in (("count", 4), ("sha256", "d" * 64)):
+            with self.subTest(field=field):
+                record = valid_record()
+                record["export_import"]["module_version_map"]["post_import"][field] = value
+                with self.assertRaisesRegex(ValueError, "module version map changed"):
+                    validator.validate(record)
+
+    def test_rejects_changed_or_malformed_wallet_usage_evidence(self):
+        record = valid_record()
+        record["modules"]["feepay"]["post_restart"]["wallet_usages"]["sha256"] = "d" * 64
+        with self.assertRaisesRegex(ValueError, "wallet usages changed"):
+            validator.validate(record)
+
+        for field, value in (("count", True), ("count", -1), ("sha256", "ABC")):
+            with self.subTest(field=field, value=value):
+                record = valid_record()
+                record["modules"]["feepay"]["pre_restart"]["wallet_usages"][field] = value
+                with self.assertRaisesRegex(ValueError, "wallet_usages"):
+                    validator.validate(record)
 
     def test_rejects_invalid_app_hashes(self):
         for bad_hash in ("AA", "A" * 64, "a" * 63, "g" * 64, 123):

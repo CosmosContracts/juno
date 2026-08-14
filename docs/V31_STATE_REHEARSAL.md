@@ -69,9 +69,12 @@ Preserve the test line beginning `state-sync verified:` in the evidence record.
 2. Start the clone with the digest-pinned `v30.0.0` binary and verify its app
    hash against the source node at the same height.
 3. Query and save the module version map, FeePay contracts/usages and module
-   account backing, and current voting-snapshot totals.
+   account backing, and current voting-snapshot totals. For each module-version
+   map and wallet-usage snapshot, save the raw JSON array plus its canonical
+   count and SHA-256 as described below.
 4. Stop v30 and export at the recorded height. Import that export into a clean
-   v31 home and start it at the documented initial height.
+   v31 home, start it at the documented initial height, and wait for a committed
+   block strictly after the export height before collecting post-import evidence.
 5. Separately run the repository upgrade interchaintest using exact
    `v30.0.0 -> v31` images.
 6. Query the same invariants after import/upgrade. Do not mark the run passed if
@@ -113,7 +116,10 @@ The validator is the executable schema. Use this shape (values are illustrative)
     "pre_export_app_hash": "<64 lowercase hex>",
     "post_import_app_hash_height": 101,
     "post_import_app_hash": "<64 lowercase hex>",
-    "module_version_map_preserved": true
+    "module_version_map": {
+      "pre_export": {"count": 3, "sha256": "<64 lowercase hex>"},
+      "post_import": {"count": 3, "sha256": "<same 64 lowercase hex>"}
+    }
   },
   "state_sync": {
     "snapshot_height": 120,
@@ -127,9 +133,18 @@ The validator is the executable schema. Use this shape (values are illustrative)
   "upgrade": {"upgrade_height": 140, "verified_height": 141},
   "modules": {
     "feepay": {
-      "pre_restart": {"height": 100, "ledger_total": "1000000ujuno", "module_backing": "1000001ujuno"},
-      "post_restart": {"height": 101, "ledger_total": "1000000ujuno", "module_backing": "1000001ujuno"},
-      "wallet_usages_preserved": true
+      "pre_restart": {
+        "height": 100,
+        "ledger_total": "1000000ujuno",
+        "module_backing": "1000001ujuno",
+        "wallet_usages": {"count": 2, "sha256": "<64 lowercase hex>"}
+      },
+      "post_restart": {
+        "height": 101,
+        "ledger_total": "1000000ujuno",
+        "module_backing": "1000001ujuno",
+        "wallet_usages": {"count": 2, "sha256": "<same 64 lowercase hex>"}
+      }
     },
     "voting_snapshot": {
       "pre_restart": {"height": 100, "total": "42"},
@@ -141,14 +156,46 @@ The validator is the executable schema. Use this shape (values are illustrative)
 }
 ```
 
-All heights are positive JSON integers (not strings or booleans). App hashes
-are exactly 64 lowercase hexadecimal characters, and provider/restored hashes
-are compared only at the shared `verified_height`. FeePay totals are structured
-as pre/post evidence at exact heights. Coin strings are comma-separated positive
-arbitrary-precision integer amounts with denoms; backing may contain surplus
-amounts or additional denoms, but must cover every ledger denom and amount.
-Pre/post ledgers must be equal. Voting totals are positive integer strings,
-must be non-zero, and must be equal across the restart.
+All heights are positive JSON integers (not strings or booleans). The
+`pre_export_app_hash_height` must equal `export_height`, while
+`post_import_app_hash_height` must be strictly greater than `export_height` so
+that the evidence proves the imported node committed a post-restart block. App
+hashes are exactly 64 lowercase hexadecimal characters, and provider/restored
+hashes are compared only at the shared `verified_height`. FeePay totals are
+structured as pre/post evidence at exact heights. Coin strings are
+comma-separated positive arbitrary-precision integer amounts with denoms;
+backing may contain surplus amounts or additional denoms, but must cover every
+ledger denom and amount. Pre/post ledgers must be equal. Voting totals are
+positive integer strings, must be non-zero, and must be equal across the
+restart.
+
+### Canonical collection evidence
+
+Boolean claims are not evidence. `module_version_map_preserved` and
+`wallet_usages_preserved` are unsupported. For each phase, retain the raw JSON
+array and record both its element count and the SHA-256 of a canonical JSON
+line:
+
+```sh
+# Input arrays are extracted from the exact-height query/export JSON first.
+jq -cS 'sort_by(.name, .version)' module-versions-array.json \
+  | tee module-versions.canonical.json | sha256sum
+jq 'length' module-versions-array.json
+
+jq -cS 'sort_by(.contract_address, .wallet_address, .uses)' wallet-usages-array.json \
+  | tee wallet-usages.canonical.json | sha256sum
+jq 'length' wallet-usages-array.json
+```
+
+The SHA-256 covers the UTF-8 bytes emitted by `jq`, including its terminating
+newline. `-S` sorts every object's keys; `sort_by` fixes array order. Extract
+FeePay arrays from `app_state.feepay.wallet_usages` in the export at the exact
+pre/post heights, and extract module versions from the exact-height upgrade
+module-version query response. Store the raw source JSON, canonical JSON, count,
+and checksum in the rehearsal attachment. The validator requires non-negative
+integer counts and lowercase 64-hex SHA-256 values, and compares the complete
+`(count, sha256)` pair across pre/post phases. A zero-count wallet-usage array is
+valid evidence; it still has a deterministic SHA-256.
 
 Attach sanitized logs, the JSON record, and checksums to the release candidate;
 never attach homes, databases, keys, or private validator state.
