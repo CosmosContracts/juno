@@ -1,35 +1,206 @@
----
-name: release binary
+name: Immutable v31 release
 
 on:
-  release:
-    types: [created]
+  push:
+    tags: ["v31.[0-9]*.[0-9]*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing v31 semantic tag to publish (fails if already released)
+        required: true
+        type: string
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+  IMAGE: ghcr.io/${{ github.repository_owner }}/juno
 
 jobs:
-  release-alpine-static:
-    permissions: write-all
-    runs-on: ubuntu-latest
+  guard:
+    runs-on: ubuntu-24.04
+    outputs:
+      commit: ${{ steps.guard.outputs.commit }}
+      epoch: ${{ steps.guard.outputs.epoch }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Docker compose
-        run: STAKE_TOKEN="ujunox" TIMEOUT_COMMIT=500ms docker compose up -d
-
-      - name: Copy binary
-        run: docker cp juno-node-1:/usr/bin/junod ./junod
-
-      - name: Save sha256 sum
-        run: sha256sum ./junod > ./junod_sha256.txt
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
+      # Publication policy comes from the reviewed workflow revision, never the tag.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          token: ${{ github.token }}
-          files: |
-            junod
-            junod_sha256.txt
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+      - id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          . scripts/release/lib.sh
+          validate_version "$TAG"
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" >/dev/null 2>&1; then
+            echo "refusing replay: release $TAG already exists" >&2
+            exit 1
+          fi
+          commit=$(gh api "repos/$GITHUB_REPOSITORY/commits/$TAG" --jq .sha)
+          validate_commit "$commit"
+          epoch=$(gh api "repos/$GITHUB_REPOSITORY/commits/$commit" --jq '.commit.committer.date | fromdateiso8601')
+          echo "commit=$commit" >>"$GITHUB_OUTPUT"
+          echo "epoch=$epoch" >>"$GITHUB_OUTPUT"
 
-      - name: Dump docker logs on failure
-        if: failure()
-        uses: jwalton/gh-docker-logs@v2
+  binaries:
+    needs: guard
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ env.TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - name: Build and verify tagged binary
+        env:
+          VERSION: ${{ env.TAG }}
+          COMMIT: ${{ needs.guard.outputs.commit }}
+          SOURCE_DATE_EPOCH: ${{ needs.guard.outputs.epoch }}
+          ARCH: ${{ matrix.arch }}
+          OUT_DIR: dist
+        run: scripts/release/build.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: binary-${{ matrix.arch }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 1
+
+  container:
+    needs: guard
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ env.TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      # Build release-tag code before registry credentials are introduced.
+      - name: Build multi-platform image before registry login
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          context: .
+          file: release.Dockerfile
+          target: image
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            VERSION=${{ env.TAG }}
+            COMMIT=${{ needs.guard.outputs.commit }}
+            SOURCE_DATE_EPOCH=${{ needs.guard.outputs.epoch }}
+          push: false
+          cache-to: type=gha,mode=max
+      - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Refuse existing immutable image tags
+        env:
+          COMMIT: ${{ needs.guard.outputs.commit }}
+        run: |
+          for ref in "$TAG" "sha-$COMMIT"; do
+            if docker buildx imagetools inspect "$IMAGE:$ref" >/dev/null 2>&1; then
+              echo "refusing replay: container $IMAGE:$ref already exists" >&2
+              exit 1
+            fi
+          done
+      - name: Publish by immutable version and commit tags
+        id: push
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          context: .
+          file: release.Dockerfile
+          target: image
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            VERSION=${{ env.TAG }}
+            COMMIT=${{ needs.guard.outputs.commit }}
+            SOURCE_DATE_EPOCH=${{ needs.guard.outputs.epoch }}
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ env.TAG }}
+            ${{ env.IMAGE }}:sha-${{ needs.guard.outputs.commit }}
+          cache-from: type=gha
+          provenance: mode=max
+          sbom: true
+      - name: Record manifest-list and per-platform digests
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          docker buildx imagetools inspect --raw "$IMAGE@$DIGEST" >manifest.json
+          jq -n --arg image "$IMAGE" --arg manifest "$DIGEST" \
+            --slurpfile index manifest.json \
+            '{image:$image,manifest_digest:$manifest,platforms:[$index[0].manifests[]|{platform:(.platform.os+"/"+.platform.architecture),digest:.digest}]}' \
+            >container-digests.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: container-digests
+          path: container-digests.json
+          retention-days: 1
+
+  publish:
+    needs: [guard, binaries, container]
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    runs-on: ubuntu-24.04
+    steps:
+      # Only trusted workflow-revision scripts run while the write token exists.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: binary-*
+          path: dist
+          merge-multiple: true
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: container-digests
+          path: dist
+      - name: Generate offline metadata and checksums
+        env:
+          COMMIT: ${{ needs.guard.outputs.commit }}
+        run: |
+          cp RELEASE-VERIFICATION.md dist/
+          python3 scripts/release/metadata.py --directory dist --version "$TAG" \
+            --commit "$COMMIT" --repository "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          . scripts/release/lib.sh
+          generate_checksums dist
+          (cd dist && sha256sum --check SHA256SUMS)
+      - name: Attest binaries and archives
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        with:
+          subject-path: |
+            dist/junod-linux-*
+            dist/juno-*.tar.gz
+      - name: Atomically claim release tag and upload immutable assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT: ${{ needs.guard.outputs.commit }}
+        run: |
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" >/dev/null 2>&1; then
+            echo "refusing replay/race: release $TAG now exists" >&2
+            exit 1
+          fi
+          gh release create "$TAG" dist/* --verify-tag --title "$TAG" \
+            --notes "Immutable Juno release built from $COMMIT. Verify with RELEASE-VERIFICATION.md."
