@@ -127,6 +127,7 @@ grep -Fq 'existence guard failed closed' "$ROOT/scripts/release/lib.sh" || fail 
 grep -Fq 'release-publication-${{ github.repository }}' "$workflow" || fail "global release serialization absent"
 grep -Fq 'ref: ${{ needs.guard.outputs.commit }}' "$workflow" || fail "validated commit checkout absent"
 grep -Fq 'EVENT_AFTER: ${{ github.event.after }}' "$workflow" || fail "tag push is not bound to event.after"
+grep -Fq 'if [ "$EVENT_AFTER" != "$tag_oid" ]; then' "$workflow" || fail "tag push does not bind the exact event ref object"
 grep -Fq "printf 'Authorization: Bearer %s' \"\$GH_TOKEN\"" "$workflow" || fail "authorization token is not interpolated"
 grep -Fq 'push-by-digest=true,name-canonical=true,push=true' "$workflow" || fail "digest-only container publication absent"
 if grep -Fq '${{ env.IMAGE }}:' "$workflow"; then fail "mutable container tag publication present"; fi

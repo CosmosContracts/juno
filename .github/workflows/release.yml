@@ -46,13 +46,10 @@ jobs:
           commit=$2
           if [ "$EVENT_NAME" = push ]; then
             validate_commit "$EVENT_AFTER"
-            case "$EVENT_AFTER" in
-              "$tag_oid"|"$commit") ;;
-              *)
-                echo "push event identity $EVENT_AFTER is no longer current ($tag_oid peeled to $commit)" >&2
-                exit 1
-                ;;
-            esac
+            if [ "$EVENT_AFTER" != "$tag_oid" ]; then
+              echo "push event tag object $EVENT_AFTER is no longer current ($tag_oid peeled to $commit)" >&2
+              exit 1
+            fi
           fi
           github_auth=$(printf 'Authorization: Bearer %s' "$GH_TOKEN")
           response=$(mktemp)
