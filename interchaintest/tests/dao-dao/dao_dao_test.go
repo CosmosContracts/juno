@@ -17,11 +17,13 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/interchaintest/v10"
 	"github.com/cosmos/interchaintest/v10/chain/cosmos"
 	"github.com/stretchr/testify/suite"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 const (
@@ -34,6 +36,7 @@ var cw4Artifacts = map[string]string{
 	"dao_voting_cw4.wasm":      "d0e6bac4d7c1861f36328e7c0367f863999f999e2ae21df612e301eea5fe90d8",
 	"dao_proposal_single.wasm": "e38fc5bb1b5e74ef154340567c673492515498b2120e5f15b0c990cd9fa5fe6a",
 	"dao_dao_core.wasm":        "5d078fc9aec04df18c335446eb8df03d24c73ee745f76fd39624d4c5fa768b4c",
+	"voting_power_probe.wasm":  "a074bc275b8b38eebd79db1603645ae71759a679385da2ccd82622f39f1f57af",
 }
 
 type DaoDaoTestSuite struct {
@@ -120,8 +123,105 @@ func (s *DaoDaoTestSuite) TestCw20StakedDao() {
 	s.T().Skip("follow-up: cw20-staked is outside issue #14")
 }
 
+// TestWasmbindingsVotingPowerAt deploys a source-controlled probe contract,
+// delegates real stake, and compares current, historical, total, and range
+// custom-query responses against the module's gRPC API.
 func (s *DaoDaoTestSuite) TestWasmbindingsVotingPowerAt() {
-	s.T().Skip("follow-up: voting-snapshot probe is outside issue #14")
+	t := s.T()
+	require := s.Require()
+	const stakeAmount = int64(1_000_000)
+
+	require.NoError(verifyCw4Artifacts(contractsDir), "checked-in probe must match its source-controlled SHA-256")
+	user := s.GetAndFundTestUser(t.Name(), 10_000_000_000, s.Chain)
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
+
+	probeCodeID := s.StoreContract(s.Chain, user.KeyName(), filepath.Join(contractsDir, "voting_power_probe.wasm"), fees)
+	require.NotEmpty(probeCodeID)
+	probe, err := s.InstantiateContract(s.Chain, user.KeyName(), probeCodeID, `{}`, fees, false, false)
+	require.NoError(err)
+	require.NotEmpty(probe)
+
+	beforeHeight, err := s.Chain.Height(s.Ctx)
+	require.NoError(err)
+	before, err := s.VotingSnapshotClient.VotingPowerAt(s.Ctx, &votingsnapshottypes.QueryVotingPowerAtRequest{
+		Address: user.FormattedAddress(), AtHeight: beforeHeight,
+	})
+	require.NoError(err)
+	require.Equal("0", before.Power)
+
+	validators, err := s.StakingClient.Validators(s.Ctx, &stakingtypes.QueryValidatorsRequest{
+		Status: stakingtypes.BondStatusBonded,
+	})
+	require.NoError(err)
+	require.NotEmpty(validators.Validators)
+	s.StakeTokens(
+		s.Chain,
+		user,
+		validators.Validators[0].OperatorAddress,
+		sdk.NewInt64Coin(s.Denom, stakeAmount).String(),
+		fees,
+		false,
+	)
+
+	afterHeight, err := s.Chain.Height(s.Ctx)
+	require.NoError(err)
+	require.Greater(afterHeight, beforeHeight)
+
+	directPower, err := s.VotingSnapshotClient.VotingPowerAt(s.Ctx, &votingsnapshottypes.QueryVotingPowerAtRequest{
+		Address: user.FormattedAddress(), AtHeight: afterHeight,
+	})
+	require.NoError(err)
+	require.Equal(fmt.Sprint(stakeAmount), directPower.Power)
+	directTotal, err := s.VotingSnapshotClient.TotalVotingPowerAt(s.Ctx, &votingsnapshottypes.QueryTotalVotingPowerAtRequest{
+		AtHeight: afterHeight,
+	})
+	require.NoError(err)
+	directRange, err := s.VotingSnapshotClient.VotingPowerOverRange(s.Ctx, &votingsnapshottypes.QueryVotingPowerOverRangeRequest{
+		Address: user.FormattedAddress(), FromHeight: beforeHeight, ToHeight: afterHeight,
+	})
+	require.NoError(err)
+	require.NotEmpty(directRange.Rows)
+
+	var historical votingPowerResponse
+	require.NoError(s.Chain.QueryContract(s.Ctx, probe, map[string]any{
+		"voting_power_at": map[string]any{"address": user.FormattedAddress(), "height": beforeHeight},
+	}, &historical))
+	require.Equal(before.Power, historical.Power)
+
+	var current votingPowerResponse
+	require.NoError(s.Chain.QueryContract(s.Ctx, probe, map[string]any{
+		"voting_power_at": map[string]any{"address": user.FormattedAddress(), "height": afterHeight},
+	}, &current))
+	require.Equal(directPower.Power, current.Power)
+
+	var total votingPowerResponse
+	require.NoError(s.Chain.QueryContract(s.Ctx, probe, map[string]any{
+		"total_voting_power_at": map[string]any{"height": afterHeight},
+	}, &total))
+	require.Equal(directTotal.Power, total.Power)
+
+	var powerRange votingPowerRangeResponse
+	require.NoError(s.Chain.QueryContract(s.Ctx, probe, map[string]any{
+		"voting_power_over_range": map[string]any{
+			"address": user.FormattedAddress(), "from_height": beforeHeight, "to_height": afterHeight,
+		},
+	}, &powerRange))
+	require.Len(powerRange.Rows, len(directRange.Rows))
+	for i := range directRange.Rows {
+		require.Equal(directRange.Rows[i].Height, powerRange.Rows[i].Height)
+		require.Equal(directRange.Rows[i].Power, powerRange.Rows[i].Power)
+	}
+}
+
+type votingPowerResponse struct {
+	Power string `json:"power"`
+}
+
+type votingPowerRangeResponse struct {
+	Rows []struct {
+		Height int64  `json:"height"`
+		Power  string `json:"power"`
+	} `json:"rows"`
 }
 
 type moduleInstantiateInfo struct {
