@@ -13,12 +13,28 @@ validate_commit() {
 	printf '%s' "${1-}" | grep -Eq '^[0-9a-f]{40}$'
 }
 
-refuse_replay() {
-	assets_file=$1
-	if [ -s "$assets_file" ]; then
-		echo "refusing replay: release/tag already has published artifacts" >&2
+resolve_local_tag_commit() {
+	repository=$1
+	tag=$2
+	validate_version "$tag"
+	git -C "$repository" show-ref --verify --quiet "refs/tags/$tag" || {
+		echo "requested release is not an exact Git tag: $tag" >&2
 		return 1
-	fi
+	}
+	commit=$(git -C "$repository" rev-parse --verify "refs/tags/$tag^{commit}") || return 1
+	validate_commit "$commit" || return 1
+	printf '%s\n' "$commit"
+}
+
+require_absent_http_status() {
+	status=$1
+	identity=$2
+	case "$status" in
+	404) return 0 ;;
+	200) echo "refusing replay: $identity already exists" >&2 ;;
+	*) echo "existence guard failed closed for $identity (HTTP $status)" >&2 ;;
+	esac
+	return 1
 }
 
 package_binary() {
