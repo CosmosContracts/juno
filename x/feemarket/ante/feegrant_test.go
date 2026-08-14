@@ -26,6 +26,7 @@ import (
 	junoante "github.com/CosmosContracts/juno/v31/app/ante"
 	"github.com/CosmosContracts/juno/v31/app/ante/decorators"
 	"github.com/CosmosContracts/juno/v31/testutil"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 func (s *AnteTestSuite) TestNewAnteHandlerUsesEmbeddedFeegrantKeeper() {
@@ -83,6 +84,72 @@ func (s *AnteTestSuite) TestNewAnteHandlerUsesEmbeddedFeegrantKeeper() {
 	s.Require().NoError(err)
 	after := s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, granter.Account.GetAddress(), fee.Denom)
 	s.Require().True(after.Amount.Equal(before.Amount.Sub(fee.Amount)))
+}
+
+func (s *AnteTestSuite) TestFeePayUsageTracksAuthenticatedSenderWhenFeeGranterPays() {
+	s.SetupTest()
+
+	grantee := s.fullAccs[0]
+	granter := s.fullAccs[1]
+	contractAddr := sdk.AccAddress([]byte("12345678901234567890")).String()
+	contract := feepaytypes.FeePayContract{
+		ContractAddress: contractAddr,
+		Balance:         1_000_000,
+		WalletLimit:     1,
+	}
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, contract)
+	s.FundModuleAcc(feepaytypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("stake", 1_000_000)))
+	s.Require().NoError(s.App.AppKeepers.FeeGrantKeeper.GrantAllowance(
+		s.Ctx,
+		granter.Account.GetAddress(),
+		grantee.Account.GetAddress(),
+		&feegrant.BasicAllowance{SpendLimit: sdk.NewCoins(sdk.NewInt64Coin("stake", 1_000_000))},
+	))
+
+	dfd := decorators.NewDeductFeeDecorator(
+		s.App.AppKeepers.FeePayKeeper,
+		*s.App.AppKeepers.FeeMarketKeeper,
+		s.App.AppKeepers.AccountKeeper,
+		s.App.AppKeepers.BankKeeper,
+		s.App.AppKeepers.FeeGrantKeeper,
+		"stake",
+		nil,
+		authante.NewDeductFeeDecorator(
+			s.App.AppKeepers.AccountKeeper,
+			s.App.AppKeepers.BankKeeper,
+			s.App.AppKeepers.FeeGrantKeeper,
+			nil,
+		),
+	)
+	handler := sdk.ChainAnteDecorators(dfd)
+	txConfig := tx.NewTxConfig(codec.NewProtoCodec(s.App.InterfaceRegistry()), tx.DefaultSignModes)
+	account := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, grantee.Account.GetAddress())
+	signedTx, err := genTxWithFeeGranter(
+		txConfig,
+		[]sdk.Msg{&wasmtypes.MsgExecuteContract{
+			Sender: grantee.Account.GetAddress().String(), Contract: contractAddr, Msg: []byte("{}"),
+		}},
+		nil,
+		10,
+		s.Ctx.ChainID(),
+		[]uint64{account.GetAccountNumber()},
+		[]uint64{account.GetSequence()},
+		granter.Account.GetAddress(),
+		grantee.Priv,
+	)
+	s.Require().NoError(err)
+
+	_, err = handler(s.Ctx, signedTx, false)
+	s.Require().NoError(err)
+
+	updated, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(err)
+	signerUses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, updated, grantee.Account.GetAddress().String())
+	s.Require().NoError(err)
+	granterUses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, updated, granter.Account.GetAddress().String())
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(1), signerUses)
+	s.Require().Zero(granterUses)
 }
 
 func (s *AnteTestSuite) TestFeegranterWithoutKeeperReturnsError() {
