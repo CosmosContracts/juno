@@ -46,7 +46,7 @@ voting-snapshot current total, and module version map survive.
 
 ## Docker state-sync gate
 
-From `interchaintest/` with the exact candidate image configured:
+From the repository root with the exact candidate image configured:
 
 ```sh
 make ictest-node
@@ -76,7 +76,11 @@ Preserve the test line beginning `state-sync verified:` in the evidence record.
    v31 home, start it at the documented initial height, and wait for a committed
    block strictly after the export height before collecting post-import evidence.
 5. Separately run the repository upgrade interchaintest using exact
-   `v30.0.0 -> v31` images.
+   `v30.0.0 -> v31` images from the repository root:
+
+   ```sh
+   make ictest-upgrade
+   ```
 6. Query the same invariants after import/upgrade. Do not mark the run passed if
    FeePay is under-backed, wallet usages reset, voting power changes, module
    versions regress, or any node fails to catch up.
