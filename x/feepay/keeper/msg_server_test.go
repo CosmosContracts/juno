@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	_ "embed"
+	"math"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -299,6 +300,74 @@ func (s *KeeperTestSuite) TestConfiguredFeeDenomFundingAndUnregisterRefund() {
 	s.Require().NoError(err)
 	s.Require().Equal(beforeRefund.AddRaw(amount), s.bankKeeper.GetBalance(s.Ctx, sender, feeDenom).Amount)
 	s.Require().True(s.bankKeeper.GetBalance(s.Ctx, moduleAddr, feeDenom).IsZero())
+}
+
+func (s *KeeperTestSuite) TestFundFeePayContractRejectsUint64OverflowAtomically() {
+	s.SetupTest()
+	_, _, sender := testdata.KeyTestPubAddr()
+	contractAddr := sdk.AccAddress([]byte("12345678901234567890")).String()
+	moduleAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName)
+
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, types.FeePayContract{
+		ContractAddress: contractAddr,
+		Balance:         math.MaxUint64 - 1,
+	})
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewInt64Coin("stake", 2)))
+	beforeSender := s.bankKeeper.GetBalance(s.Ctx, sender, "stake").Amount
+	beforeModule := s.bankKeeper.GetBalance(s.Ctx, moduleAddr, "stake").Amount
+
+	_, err := s.msgServer.FundFeePayContract(s.Ctx, &types.MsgFundFeePayContract{
+		SenderAddress: sender.String(), ContractAddress: contractAddr,
+		Amount: sdk.NewCoins(sdk.NewInt64Coin("stake", 2)),
+	})
+	s.Require().ErrorIs(err, types.ErrFeePayBalanceOverflow)
+
+	contract, getErr := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(getErr)
+	s.Require().Equal(uint64(math.MaxUint64-1), contract.Balance)
+	s.Require().Equal(beforeSender, s.bankKeeper.GetBalance(s.Ctx, sender, "stake").Amount)
+	s.Require().Equal(beforeModule, s.bankKeeper.GetBalance(s.Ctx, moduleAddr, "stake").Amount)
+}
+
+func (s *KeeperTestSuite) TestFundFeePayContractRejectsAmountAboveUint64Atomically() {
+	s.SetupTest()
+	_, _, sender := testdata.KeyTestPubAddr()
+	contractAddr := sdk.AccAddress([]byte("12345678901234567890")).String()
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, types.FeePayContract{ContractAddress: contractAddr})
+	aboveMax := sdkmath.NewIntFromUint64(math.MaxUint64).AddRaw(1)
+	moduleAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName)
+
+	_, err := s.msgServer.FundFeePayContract(s.Ctx, &types.MsgFundFeePayContract{
+		SenderAddress: sender.String(), ContractAddress: contractAddr,
+		Amount: sdk.NewCoins(sdk.NewCoin("stake", aboveMax)),
+	})
+	s.Require().ErrorIs(err, types.ErrFeePayAmountOutOfRange)
+
+	contract, getErr := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(getErr)
+	s.Require().Zero(contract.Balance)
+	s.Require().True(s.bankKeeper.GetBalance(s.Ctx, moduleAddr, "stake").IsZero())
+}
+
+func (s *KeeperTestSuite) TestFundFeePayContractSupportsMaxUint64AndPreservesBacking() {
+	s.SetupTest()
+	_, _, sender := testdata.KeyTestPubAddr()
+	contractAddr := sdk.AccAddress([]byte("12345678901234567890")).String()
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, types.FeePayContract{ContractAddress: contractAddr})
+	maxAmount := sdkmath.NewIntFromUint64(math.MaxUint64)
+	s.FundAcc(sender, sdk.NewCoins(sdk.NewCoin("stake", maxAmount)))
+
+	_, err := s.msgServer.FundFeePayContract(s.Ctx, &types.MsgFundFeePayContract{
+		SenderAddress: sender.String(), ContractAddress: contractAddr,
+		Amount: sdk.NewCoins(sdk.NewCoin("stake", maxAmount)),
+	})
+	s.Require().NoError(err)
+
+	contract, getErr := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(getErr)
+	s.Require().Equal(uint64(math.MaxUint64), contract.Balance)
+	moduleAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName)
+	s.Require().Equal(maxAmount, s.bankKeeper.GetBalance(s.Ctx, moduleAddr, "stake").Amount)
 }
 
 func (s *KeeperTestSuite) TestUpdateFeePayContractWalletLimit() {

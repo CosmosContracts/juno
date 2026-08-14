@@ -267,16 +267,18 @@ func (k Keeper) FundContract(ctx context.Context, fpc *types.FeePayContract, sen
 		return types.ErrInvalidJunoFundAmount.Wrapf("contract must be funded with '%s'", feeDenom)
 	}
 
-	// Transfer ONLY the fee-denom coin from sender to module. Transferring
-	// the whole `coins` slice would pull non-fee denoms into the module
-	// account while crediting the contract only for the fee-denom amount —
-	// stranding the rest.
+	newBalance, err := types.ContractBalanceAfterAddition(fpc.Balance, transferCoin.Amount)
+	if err != nil {
+		return err
+	}
+
+	// Complete all validation before transferring bank funds. A rejected
+	// amount must not move coins without a matching uint64 ledger credit.
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, sdk.NewCoins(transferCoin)); err != nil {
 		return err
 	}
 
-	// Increment the fpc balance
-	k.SetContractBalance(ctx, fpc, fpc.Balance+transferCoin.Amount.Uint64())
+	k.SetContractBalance(ctx, fpc, newBalance)
 	return nil
 }
 

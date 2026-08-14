@@ -2,6 +2,9 @@ package keeper_test
 
 import (
 	"fmt"
+	"math"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -78,4 +81,27 @@ func (s *KeeperTestSuite) TestInitGenesisBalanceValidation() {
 		s.Require().NoError(err)
 		s.Require().Equal(uint64(1_000_000), contract.Balance)
 	})
+}
+
+func (s *KeeperTestSuite) TestInitGenesisSupportsMaxUint64Balance() {
+	s.SetupTest()
+	contractAddr := sdk.AccAddress([]byte("12345678901234567890")).String()
+	maxAmount := sdkmath.NewIntFromUint64(math.MaxUint64)
+	s.FundModuleAcc(types.ModuleName, sdk.NewCoins(sdk.NewCoin("stake", maxAmount)))
+	genesis := types.GenesisState{
+		Params: types.DefaultParams(),
+		FeePayContracts: []types.FeePayContract{{
+			ContractAddress: contractAddr,
+			Balance:         math.MaxUint64,
+		}},
+	}
+
+	s.Require().NotPanics(func() {
+		s.App.AppKeepers.FeePayKeeper.InitGenesis(s.Ctx, genesis)
+	})
+	contract, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(math.MaxUint64), contract.Balance)
+	moduleAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName)
+	s.Require().Equal(maxAmount, s.bankKeeper.GetBalance(s.Ctx, moduleAddr, "stake").Amount)
 }

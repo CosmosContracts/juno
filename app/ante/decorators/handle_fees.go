@@ -374,9 +374,9 @@ func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFro
 		return errorsmod.Wrapf(feepaytypes.ErrWalletExceededUsageLimit, "wallet has exceeded usage limit (%d)", feepayContract.WalletLimit)
 	}
 
-	// Check if the contract has enough funds to cover the fee
-	if !dfd.feepayKeeper.CanContractCoverFee(feepayContract, requiredFee.Uint64()) {
-		return errorsmod.Wrapf(feepaytypes.ErrContractNotEnoughFunds, "contract has insufficient funds; expected: %d, got: %d", requiredFee.Uint64(), feepayContract.Balance)
+	newBalance, err := feepaytypes.ContractBalanceAfterSubtraction(feepayContract.Balance, requiredFee)
+	if err != nil {
+		return err
 	}
 
 	// Create an array of coins, storing the required fee
@@ -388,7 +388,7 @@ func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFro
 	}
 
 	// Deduct the fee from the contract balance
-	dfd.feepayKeeper.SetContractBalance(ctx, feepayContract, feepayContract.Balance-requiredFee.Uint64())
+	dfd.feepayKeeper.SetContractBalance(ctx, feepayContract, newBalance)
 
 	// Increment wallet usage
 	if err := dfd.feepayKeeper.IncrementContractUses(ctx, feepayContract, accBech32, 1); err != nil {
