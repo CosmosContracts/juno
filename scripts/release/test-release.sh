@@ -72,7 +72,7 @@ second=$(sha256sum "$TMP/out/juno-v31.2.3-linux-amd64.tar.gz" | cut -d ' ' -f 1)
 [ "$first" = "$second" ] || fail "clean package rebuild differs"
 pass "byte-identical deterministic archive with embedded metadata"
 
-printf '\tdep\texample.com/original\tv1.0.0\th1:original\n\t=>\texample.com/replacement\tv1.4.0\th1:first\n\tdep\texample.com/a+b\tv1.0.0\th1:one\n\t=>\texample.com/shared\tv1.0.0\th1:shared\n\tdep\texample.com/a_b\tv1.0.0\th1:two\n\t=>\texample.com/shared\tv1.0.0\th1:shared\n' >"$TMP/out/junod-linux-amd64.modules"
+printf '\tdep\texample.com/original\tv1.0.0\th1:AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=\n\t=>\texample.com/replacement\tv1.4.0\th1:AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=\n\tdep\texample.com/a+b\tv1.0.0\th1:AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=\n\t=>\texample.com/shared\tv1.0.0\th1:BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ=\n\tdep\texample.com/a_b\tv1.0.0\th1:BQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU=\n\t=>\texample.com/shared\tv1.0.0\th1:BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ=\n' >"$TMP/out/junod-linux-amd64.modules"
 printf 'build-base-0.5-r3\ngit-2.49.1-r0\n' >"$TMP/out/build-dependencies-linux-amd64.txt"
 
 generate_checksums "$TMP/out"
@@ -85,6 +85,13 @@ python3 "$ROOT/scripts/release/metadata.py" --directory "$TMP/out" --version v31
 	--commit "$commit" --repository https://github.com/juno-ai-dev/juno --workflow-sha "$workflow_sha"
 python3 -m json.tool "$TMP/out/SBOM.spdx.json" >/dev/null
 python3 -m json.tool "$TMP/out/provenance.intoto.jsonl" >/dev/null
+python3 - "$TMP/out/provenance.intoto.jsonl" <<'PY' || fail "SLSA dependency digests are not lowercase hexadecimal"
+import json, re, sys
+statement = json.load(open(sys.argv[1]))
+for dependency in statement["predicate"]["buildDefinition"]["resolvedDependencies"]:
+    for value in dependency.get("digest", {}).values():
+        assert re.fullmatch(r"[0-9a-f]+", value), value
+PY
 grep -Fq "$first" "$TMP/out/provenance.intoto.jsonl" || fail "archive absent from provenance subjects"
 grep -Fq 'example.com/original' "$TMP/out/SBOM.spdx.json" || fail "original Go dependency absent from SBOM"
 grep -Fq 'example.com/replacement' "$TMP/out/SBOM.spdx.json" || fail "selected Go replacement absent from SBOM"
@@ -92,7 +99,7 @@ grep -Fq 'build-base-0.5-r3' "$TMP/out/provenance.intoto.jsonl" || fail "builder
 grep -Fq "release.yml@$workflow_sha" "$TMP/out/provenance.intoto.jsonl" || fail "trusted workflow SHA absent from builder identity"
 sbom_first=$(sha256sum "$TMP/out/SBOM.spdx.json" | cut -d ' ' -f 1)
 provenance_first=$(sha256sum "$TMP/out/provenance.intoto.jsonl" | cut -d ' ' -f 1)
-printf '	dep	example.com/original	v1.0.0	h1:original\n	=>	example.com/replacement	v1.4.1	h1:second\n	dep	example.com/a+b	v1.0.0	h1:one\n	=>	example.com/shared	v1.0.0	h1:shared\n	dep	example.com/a_b	v1.0.0	h1:two\n	=>	example.com/shared	v1.0.0	h1:shared\n' >"$TMP/out/junod-linux-amd64.modules"
+printf '	dep	example.com/original	v1.0.0	h1:AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=\n	=>	example.com/replacement	v1.4.1	h1:BgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgY=\n	dep	example.com/a+b	v1.0.0	h1:AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=\n	=>	example.com/shared	v1.0.0	h1:BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ=\n	dep	example.com/a_b	v1.0.0	h1:BQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU=\n	=>	example.com/shared	v1.0.0	h1:BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ=\n' >"$TMP/out/junod-linux-amd64.modules"
 python3 "$ROOT/scripts/release/metadata.py" --directory "$TMP/out" --version v31.2.3 \
 	--commit "$commit" --repository https://github.com/juno-ai-dev/juno --workflow-sha "$workflow_sha"
 [ "$sbom_first" != "$(sha256sum "$TMP/out/SBOM.spdx.json" | cut -d ' ' -f 1)" ] || fail "SBOM ignored selected replacement mutation"

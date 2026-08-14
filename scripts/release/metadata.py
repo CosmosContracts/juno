@@ -2,6 +2,7 @@
 """Create deterministic dependency-bearing SPDX and SLSA release metadata."""
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -21,6 +22,19 @@ root = Path(args.directory)
 
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def go_sum_sha256(checksum: str) -> str:
+    """Convert Go's h1: base64 SHA-256 form to SLSA's lowercase hex form."""
+    if not checksum.startswith("h1:"):
+        raise ValueError(f"unsupported Go module checksum: {checksum}")
+    try:
+        digest = base64.b64decode(checksum[3:], validate=True)
+    except ValueError as exc:
+        raise ValueError(f"invalid Go module checksum: {checksum}") from exc
+    if len(digest) != hashlib.sha256().digest_size:
+        raise ValueError(f"invalid Go module checksum length: {checksum}")
+    return digest.hex()
 
 
 def spdx_id(value: str) -> str:
@@ -174,7 +188,7 @@ resolved_dependencies: list[dict[str, Any]] = [
 for name, version, checksum, replacement_name, replacement_version, replacement_checksum in sorted(modules):
     original_dependency: dict[str, Any] = {"name": "original Go dependency", "uri": f"pkg:golang/{name}@{version}"}
     if checksum:
-        original_dependency["digest"] = {"goSum": checksum}
+        original_dependency["digest"] = {"sha256": go_sum_sha256(checksum)}
     if replacement_name:
         original_dependency["annotations"] = {"selectedReplacement": f"{replacement_name}@{replacement_version}"}
     resolved_dependencies.append(original_dependency)
@@ -185,7 +199,7 @@ for name, version, checksum, replacement_name, replacement_version, replacement_
             "annotations": {"goOriginal": f"{name}@{version}", "goReplacement": f"{replacement_name}@{replacement_version}"},
         }
         if replacement_checksum:
-            replacement_dependency["digest"] = {"goSum": replacement_checksum}
+            replacement_dependency["digest"] = {"sha256": go_sum_sha256(replacement_checksum)}
         resolved_dependencies.append(replacement_dependency)
 for package_version in sorted(apk_packages):
     resolved_dependencies.append({"uri": f"pkg:apk/alpine/{package_version}?distro=alpine-3.22"})
