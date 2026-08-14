@@ -1,23 +1,18 @@
-// Package dao_dao_test exercises DAO DAO v2.7.0 contracts against the
-// v30 chain binary. Per planning/09-deferred-work.md §A1, this is the
-// gate test for "DAO DAO contracts continue to work after the wasmvm
-// v3 / sdk v0.53.7 / ibc-go v10 upgrade."
-//
-// Three legs:
-//   1. cw4-group voting + proposal-single (smallest path; proves the
-//      module contracts instantiate + interact)
-//   2. cw20-staked voting + proposal-single (heavier path; cw20 token
-//      + staking module contracts plus the voting+proposal pair)
-//   3. wasmbinding smoke for VotingPowerAt (target of the new
-//      x/voting-snapshot module)
-//
-// Run with `make ictest-dao-dao` once that target lands.
+// Package daodao_test exercises released DAO DAO contracts against the
+// candidate Juno image. Contract bytes are checked in and verified before use;
+// the test never downloads artifacts at runtime.
 package daodao_test
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"strconv"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -28,6 +23,18 @@ import (
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
 )
+
+const (
+	contractsDir = "../../contracts"
+	proposalID   = uint64(1)
+)
+
+var cw4Artifacts = map[string]string{
+	"cw4_group.wasm":           "dd2216f1114fc68bc4c043701b02e55ce3e5598cdeb616985388215a400db277",
+	"dao_voting_cw4.wasm":      "d0e6bac4d7c1861f36328e7c0367f863999f999e2ae21df612e301eea5fe90d8",
+	"dao_proposal_single.wasm": "e38fc5bb1b5e74ef154340567c673492515498b2120e5f15b0c990cd9fa5fe6a",
+	"dao_dao_core.wasm":        "5d078fc9aec04df18c335446eb8df03d24c73ee745f76fd39624d4c5fa768b4c",
+}
 
 type DaoDaoTestSuite struct {
 	*e2esuite.E2ETestSuite
@@ -50,130 +57,267 @@ func TestDaoDaoTestSuite(t *testing.T) {
 	suite.Run(t, testSuite)
 }
 
-// TestCw4GroupDao instantiates a minimal DAO DAO setup with cw4-group
-// voting + proposal-single, opens a no-op proposal, votes it through,
-// and executes it. Pass criterion: every step returns success and the
-// proposal moves through Open → Passed → Executed.
+// TestCw4GroupDao stores authentic release artifacts, instantiates a DAO whose
+// voting module creates its cw4 group, discovers all child contracts, and
+// asserts the proposal's Open -> Passed -> Executed lifecycle.
 func (s *DaoDaoTestSuite) TestCw4GroupDao() {
 	t := s.T()
-
-	// TODO(v30.x): the helpers below (buildDaoInstantiate, queryVotingModule,
-	// openProposal, voteOnProposal, executeProposal, queryProposalStatus) are
-	// still stubs — buildDaoInstantiate emits an incomplete daoMsg that the
-	// dao-dao-core schema rejects on instantiate, and every other helper calls
-	// t.Skip. Skip the whole test until those helpers are fleshed out so we
-	// don't fail CI on a scaffolding-only test.
-	t.Skip("TODO(v30.x): finish DAO instantiate helper + per-step query helpers before un-skipping")
-
 	require := s.Require()
+
+	require.NoError(verifyCw4Artifacts(contractsDir), "checked-in release artifacts must match documented SHA-256 sums")
 
 	user := s.GetAndFundTestUser(t.Name(), 10_000_000_000, s.Chain)
 	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 
-	// Store the four contracts the cw4-group path needs:
-	//   dao-dao-core, dao-proposal-single, dao-voting-cw4, cw4-group
-	cw4GroupCodeID := s.StoreContract(s.Chain, user.KeyName(), "../../contracts/cw4_group.wasm", fees)
-	votingCodeID := s.StoreContract(s.Chain, user.KeyName(), "../../contracts/dao_voting_cw4.wasm", fees)
-	proposalCodeID := s.StoreContract(s.Chain, user.KeyName(), "../../contracts/dao_proposal_single.wasm", fees)
-	coreCodeID := s.StoreContract(s.Chain, user.KeyName(), "../../contracts/dao_dao_core.wasm", fees)
+	cw4GroupCodeID := s.StoreContract(s.Chain, user.KeyName(), filepath.Join(contractsDir, "cw4_group.wasm"), fees)
+	votingCodeID := s.StoreContract(s.Chain, user.KeyName(), filepath.Join(contractsDir, "dao_voting_cw4.wasm"), fees)
+	proposalCodeID := s.StoreContract(s.Chain, user.KeyName(), filepath.Join(contractsDir, "dao_proposal_single.wasm"), fees)
+	coreCodeID := s.StoreContract(s.Chain, user.KeyName(), filepath.Join(contractsDir, "dao_dao_core.wasm"), fees)
+	require.NotEmpty(cw4GroupCodeID)
+	require.NotEmpty(votingCodeID)
+	require.NotEmpty(proposalCodeID)
+	require.NotEmpty(coreCodeID)
 
-	// Instantiate the DAO. The dao-dao-core constructor takes
-	// instantiate-info structs for the voting and proposal modules;
-	// see dao-contracts/packages/dao-interface for the schema.
-	daoMsg := buildDaoInstantiate(user.FormattedAddress(), votingCodeID, proposalCodeID, cw4GroupCodeID)
+	daoMsg, err := buildDaoInstantiate(user.FormattedAddress(), votingCodeID, proposalCodeID, cw4GroupCodeID)
+	require.NoError(err)
 	dao, err := s.InstantiateContract(s.Chain, user.KeyName(), coreCodeID, daoMsg, fees, false, false)
 	require.NoError(err)
-	require.NotEmpty(dao)
+	require.NotEmpty(dao, "core must be instantiated")
 
-	// Discover the child voting + proposal contract addresses.
-	voting := queryVotingModule(t, s.Chain, dao)
-	proposal := queryProposalModule(t, s.Chain, dao)
-	require.NotEmpty(voting)
-	require.NotEmpty(proposal)
+	voting, err := queryVotingModule(s.Ctx, s.Chain, dao)
+	require.NoError(err)
+	require.NotEmpty(voting, "core must report its voting child")
+	proposal, err := queryProposalModule(s.Ctx, s.Chain, dao)
+	require.NoError(err)
+	require.NotEmpty(proposal, "core must report its enabled proposal child")
+	group, err := queryGroupContract(s.Ctx, s.Chain, voting)
+	require.NoError(err)
+	require.NotEmpty(group, "voting module must report its cw4 group child")
 
-	// Open a no-op proposal, vote yes from the single member, execute.
-	proposalID := openProposal(t, s.Chain, user.KeyName(), proposal, "test", "no-op proposal")
-	voteOnProposal(t, s.Chain, user.KeyName(), proposal, proposalID, "yes")
-	executeProposal(t, s.Chain, user.KeyName(), proposal, proposalID)
+	power, err := queryVotingPower(s.Ctx, s.Chain, dao, user.FormattedAddress())
+	require.NoError(err)
+	require.Equal("1", power, "the sole cw4 member must have voting power")
 
-	status := queryProposalStatus(t, s.Chain, proposal, proposalID)
-	require.Equal("executed", status)
+	require.NoError(openProposal(s.Ctx, s.Chain, user.KeyName(), proposal, "cw4 lifecycle", "no-op proposal", fees))
+	status, err := queryProposalStatus(s.Ctx, s.Chain, proposal, proposalID)
+	require.NoError(err)
+	require.Equal("open", status, "proposal must be open before voting")
+
+	require.NoError(voteOnProposal(s.Ctx, s.Chain, user.KeyName(), proposal, proposalID, "yes", fees))
+	status, err = queryProposalStatus(s.Ctx, s.Chain, proposal, proposalID)
+	require.NoError(err)
+	require.Equal("passed", status, "the sole member's yes vote must pass the proposal")
+
+	require.NoError(executeProposal(s.Ctx, s.Chain, user.KeyName(), proposal, proposalID, fees))
+	status, err = queryProposalStatus(s.Ctx, s.Chain, proposal, proposalID)
+	require.NoError(err)
+	require.Equal("executed", status, "executing the passed proposal must be persisted")
 }
 
-// TestCw20StakedDao exercises the staked-token voting path. Stakers
-// contribute voting power proportional to their staked balance; the
-// proposal threshold is a percentage of the snapshot supply. Pass
-// criterion: a single staker can pass a no-op proposal that crosses
-// the threshold.
+// The cw20-staked and custom-binding legs remain explicit follow-up scope; issue
+// #14's release gate is the cw4 lifecycle above.
 func (s *DaoDaoTestSuite) TestCw20StakedDao() {
-	t := s.T()
-	t.Skip("TODO(v30.x): implement once the cw4-group leg passes — same scaffold, swap voting module for cw20-staked + add cw20 token + cw20-stake setup")
+	s.T().Skip("follow-up: cw20-staked is outside issue #14")
 }
 
-// TestWasmbindingsVotingPowerAt verifies the x/voting-snapshot
-// custom binding. Deploys a small "echo" contract that calls
-// JunoQuery::VotingPowerAt and emits the result as an event;
-// asserts the result matches the staker's bonded amount.
 func (s *DaoDaoTestSuite) TestWasmbindingsVotingPowerAt() {
-	t := s.T()
-	t.Skip("TODO(v30.x): build a minimal Rust contract that invokes JunoQuery::VotingPowerAt; embed wasm at interchaintest/contracts/voting_power_probe.wasm")
+	s.T().Skip("follow-up: voting-snapshot probe is outside issue #14")
 }
 
-// helpers — TODO(v30.x): flesh out once the test runs in CI and we can
-// iterate on real msg shapes. Keeping these as stubs so the test file
-// compiles; the cw4-group leg's first concrete pass is the next-session
-// goal.
+type moduleInstantiateInfo struct {
+	CodeID uint64          `json:"code_id"`
+	Msg    json.RawMessage `json:"-"`
+	Admin  map[string]any  `json:"admin"`
+	Funds  any             `json:"funds"`
+	Label  string          `json:"label"`
+	Salt   any             `json:"salt"`
+}
 
-func buildDaoInstantiate(creator string, votingCodeID, proposalCodeID, cw4CodeID string) string {
-	// Skeleton — fill in once we have a concrete schema reference.
-	type instantiateInfo struct {
-		CodeID  string          `json:"code_id"`
-		Msg     json.RawMessage `json:"msg"`
-		Funds   []sdk.Coin      `json:"funds"`
-		Label   string          `json:"label"`
-		Admin   *string         `json:"admin"`
+func (m moduleInstantiateInfo) MarshalJSON() ([]byte, error) {
+	type wire struct {
+		CodeID uint64         `json:"code_id"`
+		Msg    []byte         `json:"msg"`
+		Admin  map[string]any `json:"admin"`
+		Funds  any            `json:"funds"`
+		Label  string         `json:"label"`
+		Salt   any            `json:"salt"`
 	}
-	_ = instantiateInfo{}
-	_ = creator
-	_ = votingCodeID
-	_ = proposalCodeID
-	_ = cw4CodeID
-	return `{"name":"test-dao","description":"v30 ictest DAO","voting_module_instantiate_info":null,"proposal_modules_instantiate_info":[]}`
+	return json.Marshal(wire{m.CodeID, []byte(m.Msg), m.Admin, m.Funds, m.Label, m.Salt})
 }
 
-func queryVotingModule(t *testing.T, chain *cosmos.CosmosChain, dao string) string {
-	_ = chain
-	_ = dao
-	t.Skip("queryVotingModule helper unimplemented")
-	return ""
+func buildDaoInstantiate(member, votingCodeID, proposalCodeID, cw4CodeID string) (string, error) {
+	votingID, err := strconv.ParseUint(votingCodeID, 10, 64)
+	if err != nil {
+		return "", fmt.Errorf("parse voting code ID: %w", err)
+	}
+	proposalID, err := strconv.ParseUint(proposalCodeID, 10, 64)
+	if err != nil {
+		return "", fmt.Errorf("parse proposal code ID: %w", err)
+	}
+	groupID, err := strconv.ParseUint(cw4CodeID, 10, 64)
+	if err != nil {
+		return "", fmt.Errorf("parse cw4 code ID: %w", err)
+	}
+
+	votingMsg, err := json.Marshal(map[string]any{
+		"group_contract": map[string]any{
+			"new": map[string]any{
+				"cw4_group_code_id": groupID,
+				"cw4_group_salt":    nil,
+				"initial_members": []map[string]any{{
+					"addr": member, "weight": 1,
+				}},
+			},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	proposalMsg, err := json.Marshal(map[string]any{
+		"threshold":                           map[string]any{"absolute_percentage": map[string]any{"percentage": map[string]any{"majority": map[string]any{}}}},
+		"max_voting_period":                   map[string]any{"height": 100},
+		"min_voting_period":                   nil,
+		"only_members_execute":                false,
+		"allow_revoting":                      false,
+		"pre_propose_info":                    map[string]any{"anyone_may_propose": map[string]any{}},
+		"close_proposal_on_execution_failure": false,
+		"veto":                                nil,
+		"delegation_module":                   nil,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	coreMsg := map[string]any{
+		"admin":                    nil,
+		"name":                     "DAO DAO cw4 lifecycle",
+		"description":              "Juno candidate image compatibility test",
+		"image_url":                nil,
+		"automatically_add_cw20s":  false,
+		"automatically_add_cw721s": false,
+		"voting_module_instantiate_info": moduleInstantiateInfo{
+			CodeID: votingID, Msg: votingMsg, Admin: map[string]any{"core_module": map[string]any{}},
+			Funds: nil, Label: "cw4 voting module", Salt: nil,
+		},
+		"proposal_modules_instantiate_info": []moduleInstantiateInfo{{
+			CodeID: proposalID, Msg: proposalMsg, Admin: map[string]any{"core_module": map[string]any{}},
+			Funds: nil, Label: "single proposal module", Salt: nil,
+		}},
+		"initial_items":   nil,
+		"initial_actions": nil,
+		"dao_uri":         nil,
+	}
+	encoded, err := json.Marshal(coreMsg)
+	if err != nil {
+		return "", fmt.Errorf("marshal core instantiate message: %w", err)
+	}
+	return string(encoded), nil
 }
 
-func queryProposalModule(t *testing.T, chain *cosmos.CosmosChain, dao string) string {
-	_ = chain
-	_ = dao
-	t.Skip("queryProposalModule helper unimplemented")
-	return ""
+func queryVotingModule(ctx context.Context, chain *cosmos.CosmosChain, dao string) (string, error) {
+	var address string
+	err := chain.QueryContract(ctx, dao, map[string]any{"voting_module": map[string]any{}}, &address)
+	return address, err
 }
 
-func openProposal(t *testing.T, chain *cosmos.CosmosChain, key, proposal, title, desc string) uint64 {
-	_, _, _, _, _ = chain, key, proposal, title, desc
-	t.Skip("openProposal helper unimplemented")
-	return 0
+func queryProposalModule(ctx context.Context, chain *cosmos.CosmosChain, dao string) (string, error) {
+	var modules []struct {
+		Address string `json:"address"`
+		Status  string `json:"status"`
+	}
+	err := chain.QueryContract(ctx, dao, map[string]any{
+		"proposal_modules": map[string]any{"start_after": nil, "limit": nil},
+	}, &modules)
+	if err != nil {
+		return "", err
+	}
+	if len(modules) != 1 {
+		return "", fmt.Errorf("expected one proposal module, got %d", len(modules))
+	}
+	if modules[0].Status != "enabled" {
+		return "", fmt.Errorf("proposal module %s is %q, want enabled", modules[0].Address, modules[0].Status)
+	}
+	return modules[0].Address, nil
 }
 
-func voteOnProposal(t *testing.T, chain *cosmos.CosmosChain, key, proposal string, id uint64, vote string) {
-	_, _, _, _, _ = chain, key, proposal, id, vote
-	t.Skip("voteOnProposal helper unimplemented")
+func queryGroupContract(ctx context.Context, chain *cosmos.CosmosChain, voting string) (string, error) {
+	var address string
+	err := chain.QueryContract(ctx, voting, map[string]any{"group_contract": map[string]any{}}, &address)
+	return address, err
 }
 
-func executeProposal(t *testing.T, chain *cosmos.CosmosChain, key, proposal string, id uint64) {
-	_, _, _, _ = chain, key, proposal, id
-	t.Skip("executeProposal helper unimplemented")
+func queryVotingPower(ctx context.Context, chain *cosmos.CosmosChain, dao, member string) (string, error) {
+	var response struct {
+		Power string `json:"power"`
+	}
+	err := chain.QueryContract(ctx, dao, map[string]any{
+		"voting_power_at_height": map[string]any{"address": member, "height": nil},
+	}, &response)
+	return response.Power, err
 }
 
-func queryProposalStatus(t *testing.T, chain *cosmos.CosmosChain, proposal string, id uint64) string {
-	_ = context.Background()
-	_, _, _ = chain, proposal, id
-	t.Skip("queryProposalStatus helper unimplemented")
-	return fmt.Sprintf("status-stub-%d", id)
+func openProposal(ctx context.Context, chain *cosmos.CosmosChain, key, proposal, title, description string, fees sdk.Coins) error {
+	msg, err := json.Marshal(map[string]any{"propose": map[string]any{
+		"title": title, "description": description, "msgs": []any{}, "proposer": nil, "vote": nil,
+	}})
+	if err != nil {
+		return err
+	}
+	_, err = chain.ExecuteContract(ctx, key, proposal, string(msg), "--gas", "auto", "--fees", fees.String())
+	return err
+}
+
+func voteOnProposal(ctx context.Context, chain *cosmos.CosmosChain, key, proposal string, id uint64, vote string, fees sdk.Coins) error {
+	msg, err := json.Marshal(map[string]any{"vote": map[string]any{
+		"proposal_id": id, "vote": vote, "rationale": nil,
+	}})
+	if err != nil {
+		return err
+	}
+	_, err = chain.ExecuteContract(ctx, key, proposal, string(msg), "--gas", "auto", "--fees", fees.String())
+	return err
+}
+
+func executeProposal(ctx context.Context, chain *cosmos.CosmosChain, key, proposal string, id uint64, fees sdk.Coins) error {
+	msg, err := json.Marshal(map[string]any{"execute": map[string]any{"proposal_id": id}})
+	if err != nil {
+		return err
+	}
+	_, err = chain.ExecuteContract(ctx, key, proposal, string(msg), "--gas", "auto", "--fees", fees.String())
+	return err
+}
+
+func queryProposalStatus(ctx context.Context, chain *cosmos.CosmosChain, proposal string, id uint64) (string, error) {
+	var response struct {
+		Proposal struct {
+			Status string `json:"status"`
+		} `json:"proposal"`
+	}
+	err := chain.QueryContract(ctx, proposal, map[string]any{
+		"proposal": map[string]any{"proposal_id": id},
+	}, &response)
+	return response.Proposal.Status, err
+}
+
+func verifyCw4Artifacts(dir string) error {
+	for name, expected := range cw4Artifacts {
+		file, err := os.Open(filepath.Join(dir, name))
+		if err != nil {
+			return fmt.Errorf("open %s: %w", name, err)
+		}
+		hash := sha256.New()
+		_, copyErr := io.Copy(hash, file)
+		closeErr := file.Close()
+		if copyErr != nil {
+			return fmt.Errorf("hash %s: %w", name, copyErr)
+		}
+		if closeErr != nil {
+			return fmt.Errorf("close %s: %w", name, closeErr)
+		}
+		actual := hex.EncodeToString(hash.Sum(nil))
+		if actual != expected {
+			return fmt.Errorf("%s SHA-256 mismatch: got %s, want %s", name, actual, expected)
+		}
+	}
+	return nil
 }
