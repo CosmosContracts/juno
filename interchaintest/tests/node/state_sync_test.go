@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 const (
@@ -188,4 +189,29 @@ func (s *NodeTestSuite) TestStateSync() {
 		stateSyncNode.HostName(), syncedHeight, syncedHeightErr, providerHosts[0], providerHeight, providerHeightErr,
 		trustHeight, trustHash, newestSnapshot, len(snapshots), providerHosts,
 	)
+
+	// Catching the tip proves liveness, not restored-state correctness. Compare
+	// one exact app hash and query consensus-sensitive module state through the
+	// new node's own gRPC connection.
+	verifyHeight := syncedHeight
+	providerBlock, err := providers[0].Client.Block(s.Ctx, &verifyHeight)
+	require.NoError(t, err)
+	syncedBlock, err := stateSyncNode.Client.Block(s.Ctx, &verifyHeight)
+	require.NoError(t, err)
+	require.Equal(t, providerBlock.Block.Header.AppHash, syncedBlock.Block.Header.AppHash)
+
+	expectedParams := s.QueryVotingSnapshotParams()
+	expectedTotal := s.QueryTotalVotingPowerAt(verifyHeight)
+	syncedVotingClient := votingsnapshottypes.NewQueryClient(stateSyncNode.GrpcConn)
+	paramsResp, err := syncedVotingClient.Params(s.Ctx, &votingsnapshottypes.QueryParamsRequest{})
+	require.NoError(t, err)
+	require.Equal(t, expectedParams, paramsResp.Params)
+	totalResp, err := syncedVotingClient.TotalVotingPowerAt(s.Ctx, &votingsnapshottypes.QueryTotalVotingPowerAtRequest{
+		AtHeight: verifyHeight,
+	})
+	require.NoError(t, err)
+	require.Equal(t, expectedTotal, totalResp.Power)
+
+	t.Logf("state-sync verified: snapshot_height=%d trust_height=%d verified_height=%d app_hash=%X voting_power=%s",
+		newestSnapshot.Height, trustHeight, verifyHeight, syncedBlock.Block.Header.AppHash, totalResp.Power)
 }

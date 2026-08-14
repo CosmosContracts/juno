@@ -105,3 +105,31 @@ func (s *KeeperTestSuite) TestInitGenesisSupportsMaxUint64Balance() {
 	moduleAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName)
 	s.Require().Equal(maxAmount, s.bankKeeper.GetBalance(s.Ctx, moduleAddr, "stake").Amount)
 }
+
+func (s *KeeperTestSuite) TestFeePayGenesisRoundTripPreservesWalletUsage() {
+	contractAddr := "juno1qsrercqegvs4ye0yqg93knv73ye5dc3prqwd6jcdcuj8ggp6w0us66deup"
+	walletAddr := "juno1p30mp2fh2p6603h9mkxc8alw6wplss72dfd385"
+	contract := types.FeePayContract{
+		ContractAddress: contractAddr,
+		Balance:         1_000_000,
+		WalletLimit:     10,
+	}
+
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, contract)
+	s.Require().NoError(s.App.AppKeepers.FeePayKeeper.IncrementContractUses(s.Ctx, &contract, walletAddr, 3))
+	exported := s.App.AppKeepers.FeePayKeeper.ExportGenesis(s.Ctx)
+	s.Require().Equal([]types.FeePayWalletUsage{{
+		ContractAddress: contractAddr,
+		WalletAddress:   walletAddr,
+		Uses:            3,
+	}}, exported.WalletUsages)
+
+	s.SetupTest()
+	s.FundModuleAcc(types.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("stake", 1_000_000)))
+	s.App.AppKeepers.FeePayKeeper.InitGenesis(s.Ctx, *exported)
+	restored, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(err)
+	uses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, restored, walletAddr)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(3), uses)
+}

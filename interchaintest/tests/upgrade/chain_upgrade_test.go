@@ -19,15 +19,25 @@ import (
 )
 
 const (
-	upgradeName = "v31"
-	baseVersion = "v30.0.0"
-	ibcPath     = "ab"
+	upgradeName     = "v31"
+	baseVersion     = "v30.0.0"
+	baseImageDigest = "sha256:081346b118fd327afb6f688ae6d6c6a430a8ff6260d9cd56e0db06630560c4db"
+	ibcPath         = "ab"
 )
+
+var baseImageVersion = baseVersion + "@" + baseImageDigest
 
 var baseChain = ibc.DockerImage{
 	Repository: e2esuite.JunoRepo,
-	Version:    baseVersion,
+	Version:    baseImageVersion,
 	UIDGID:     "1025:1025",
+}
+
+func TestV30BaseImageIsDigestPinned(t *testing.T) {
+	const expected = "v30.0.0@sha256:081346b118fd327afb6f688ae6d6c6a430a8ff6260d9cd56e0db06630560c4db"
+	if baseChain.Version != expected {
+		t.Fatalf("base image must be immutable: got %q, want %q", baseChain.Version, expected)
+	}
 }
 
 type UpgradeTestSuite struct {
@@ -50,7 +60,7 @@ func upgradeChainSpecs() []*interchaintest.ChainSpec {
 			Name:          "juno",
 			NumValidators: &numValidators,
 			NumFullNodes:  &numFullNodes,
-			Version:       baseVersion,
+			Version:       baseImageVersion,
 			NoHostMount:   &e2esuite.DefaultNoHostMount,
 			ChainConfig:   cfg,
 		}
