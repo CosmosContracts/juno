@@ -370,7 +370,13 @@ func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, tx sdk.FeeTx)
 
 	// Wallet limits protect the authenticated contract caller, not the account
 	// that happens to pay fees. With feegrant those identities are distinct.
-	walletAddress := cw.Sender
+	// Canonicalize the Bech32 spelling so equivalent encodings share one usage
+	// bucket rather than allowing case variants to bypass the wallet limit.
+	walletAddr, err := sdk.AccAddressFromBech32(cw.Sender)
+	if err != nil {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract sender %q: %s", cw.Sender, err)
+	}
+	walletAddress := walletAddr.String()
 	if dfd.feepayKeeper.HasWalletExceededUsageLimit(ctx, feepayContract, walletAddress) {
 		return errorsmod.Wrapf(feepaytypes.ErrWalletExceededUsageLimit, "wallet has exceeded usage limit (%d)", feepayContract.WalletLimit)
 	}

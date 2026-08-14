@@ -3,6 +3,7 @@ package ante_test
 import (
 	"context"
 	"math/rand"
+	"strings"
 	"time"
 
 	"cosmossdk.io/math"
@@ -86,7 +87,7 @@ func (s *AnteTestSuite) TestNewAnteHandlerUsesEmbeddedFeegrantKeeper() {
 	s.Require().True(after.Amount.Equal(before.Amount.Sub(fee.Amount)))
 }
 
-func (s *AnteTestSuite) TestFeePayUsageTracksAuthenticatedSenderWhenFeeGranterPays() {
+func (s *AnteTestSuite) TestFeePayUsageCanonicalizesAuthenticatedSenderWhenFeeGranterPays() {
 	s.SetupTest()
 
 	grantee := s.fullAccs[0]
@@ -124,31 +125,41 @@ func (s *AnteTestSuite) TestFeePayUsageTracksAuthenticatedSenderWhenFeeGranterPa
 	handler := sdk.ChainAnteDecorators(dfd)
 	txConfig := tx.NewTxConfig(codec.NewProtoCodec(s.App.InterfaceRegistry()), tx.DefaultSignModes)
 	account := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, grantee.Account.GetAddress())
-	signedTx, err := genTxWithFeeGranter(
-		txConfig,
-		[]sdk.Msg{&wasmtypes.MsgExecuteContract{
-			Sender: grantee.Account.GetAddress().String(), Contract: contractAddr, Msg: []byte("{}"),
-		}},
-		nil,
-		10,
-		s.Ctx.ChainID(),
-		[]uint64{account.GetAccountNumber()},
-		[]uint64{account.GetSequence()},
-		granter.Account.GetAddress(),
-		grantee.Priv,
-	)
-	s.Require().NoError(err)
+	canonicalSender := grantee.Account.GetAddress().String()
+	uppercaseSender := strings.ToUpper(canonicalSender)
+	makeTx := func(sender string) sdk.Tx {
+		signedTx, err := genTxWithFeeGranter(
+			txConfig,
+			[]sdk.Msg{&wasmtypes.MsgExecuteContract{
+				Sender: sender, Contract: contractAddr, Msg: []byte("{}"),
+			}},
+			nil,
+			10,
+			s.Ctx.ChainID(),
+			[]uint64{account.GetAccountNumber()},
+			[]uint64{account.GetSequence()},
+			granter.Account.GetAddress(),
+			grantee.Priv,
+		)
+		s.Require().NoError(err)
+		return signedTx
+	}
 
-	_, err = handler(s.Ctx, signedTx, false)
+	_, err := handler(s.Ctx, makeTx(canonicalSender), false)
 	s.Require().NoError(err)
+	_, err = handler(s.Ctx, makeTx(uppercaseSender), false)
+	s.Require().ErrorIs(err, feepaytypes.ErrWalletExceededUsageLimit)
 
 	updated, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
 	s.Require().NoError(err)
-	signerUses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, updated, grantee.Account.GetAddress().String())
+	signerUses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, updated, canonicalSender)
+	s.Require().NoError(err)
+	uppercaseUses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, updated, uppercaseSender)
 	s.Require().NoError(err)
 	granterUses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, updated, granter.Account.GetAddress().String())
 	s.Require().NoError(err)
 	s.Require().Equal(uint64(1), signerUses)
+	s.Require().Zero(uppercaseUses)
 	s.Require().Zero(granterUses)
 }
 
