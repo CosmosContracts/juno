@@ -41,9 +41,9 @@ jobs:
         run: |
           . scripts/release/lib.sh
           validate_version "$REQUESTED_TAG"
-          set -- $(resolve_remote_tag_identity . origin "$REQUESTED_TAG")
-          tag_oid=$1
-          commit=$2
+          identity=$(resolve_remote_tag_identity . origin "$REQUESTED_TAG")
+          tag_oid=${identity%% *}
+          commit=${identity#* }
           if [ "$EVENT_NAME" = push ]; then
             validate_commit "$EVENT_AFTER"
             if [ "$EVENT_AFTER" != "$tag_oid" ]; then
@@ -120,30 +120,37 @@ jobs:
           ref: ${{ needs.guard.outputs.commit }}
           fetch-depth: 0
           persist-credentials: false
+          path: source
+      # Run release policy only from the reviewed workflow revision.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+          path: policy
       - uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
-      - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
       - name: Revalidate source immediately before digest publication
         env:
           COMMIT: ${{ needs.guard.outputs.commit }}
           TAG: ${{ needs.guard.outputs.tag }}
           TAG_OID: ${{ needs.guard.outputs.tag_oid }}
         run: |
-          . scripts/release/lib.sh
-          test "$(git rev-parse HEAD)" = "$COMMIT"
-          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
+          . policy/scripts/release/lib.sh
+          test "$(git -C source rev-parse HEAD)" = "$COMMIT"
+          test "$(resolve_remote_tag_identity source origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
+      - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
       # GHCR tags are mutable and cannot be claimed with create-only semantics.
       # Push a canonical manifest by content digest only; no registry tag is made.
       - name: Publish content-addressed container manifest without tags
         id: push
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
-          context: .
-          file: release.Dockerfile
+          context: source
+          file: source/release.Dockerfile
           target: image
           platforms: linux/amd64,linux/arm64
           build-args: |
@@ -159,7 +166,7 @@ jobs:
         env:
           DIGEST: ${{ steps.push.outputs.digest }}
         run: |
-          . scripts/release/lib.sh
+          . policy/scripts/release/lib.sh
           case "$DIGEST" in
             sha256:*) validate_sha256 "${DIGEST#sha256:}" ;;
             *) echo "invalid container digest: $DIGEST" >&2; exit 1 ;;

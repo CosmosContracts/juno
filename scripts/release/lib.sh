@@ -4,8 +4,8 @@
 
 validate_version() {
 	case ${1-} in
-	v31.[0-9]*.[0-9]*) printf '%s' "$1" | grep -Eq '^v31\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$' ;;
-	*) return 1 ;;
+		v31.[0-9]*.[0-9]*) printf '%s' "$1" | grep -Eq '^v31\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$' ;;
+		*) return 1 ;;
 	esac
 }
 
@@ -65,9 +65,9 @@ require_absent_http_status() {
 	status=$1
 	identity=$2
 	case "$status" in
-	404) return 0 ;;
-	200) echo "refusing replay: $identity already exists" >&2 ;;
-	*) echo "existence guard failed closed for $identity (HTTP $status)" >&2 ;;
+		404) return 0 ;;
+		200) echo "refusing replay: $identity already exists" >&2 ;;
+		*) echo "existence guard failed closed for $identity (HTTP $status)" >&2 ;;
 	esac
 	return 1
 }

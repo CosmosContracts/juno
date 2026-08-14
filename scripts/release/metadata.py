@@ -24,8 +24,8 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def go_sum_sha256(checksum: str) -> str:
-    """Convert Go's h1: base64 SHA-256 form to SLSA's lowercase hex form."""
+def go_sum_dirhash1(checksum: str) -> str:
+    """Convert Go's h1: directory Hash1 to in-toto dirHash1 lowercase hex."""
     if not checksum.startswith("h1:"):
         raise ValueError(f"unsupported Go module checksum: {checksum}")
     try:
@@ -92,6 +92,8 @@ for module_file in sorted(root.glob("junod-linux-*.modules")):
                 raise ValueError(f"replacement without dependency in {module_file}: {line}")
             replacement_version = fields[2] if len(fields) > 2 else ""
             replacement_checksum = fields[3] if len(fields) > 3 and fields[3].startswith("h1:") else ""
+            if replacement_version == "(devel)" or fields[1].startswith((".", "/")):
+                raise ValueError(f"local Go module replacement is not release-verifiable in {module_file}: {line}")
             modules.add((*pending, fields[1], replacement_version, replacement_checksum))
             pending = None
         elif pending:
@@ -188,7 +190,7 @@ resolved_dependencies: list[dict[str, Any]] = [
 for name, version, checksum, replacement_name, replacement_version, replacement_checksum in sorted(modules):
     original_dependency: dict[str, Any] = {"name": "original Go dependency", "uri": f"pkg:golang/{name}@{version}"}
     if checksum:
-        original_dependency["digest"] = {"sha256": go_sum_sha256(checksum)}
+        original_dependency["digest"] = {"dirHash1": go_sum_dirhash1(checksum)}
     if replacement_name:
         original_dependency["annotations"] = {"selectedReplacement": f"{replacement_name}@{replacement_version}"}
     resolved_dependencies.append(original_dependency)
@@ -199,7 +201,7 @@ for name, version, checksum, replacement_name, replacement_version, replacement_
             "annotations": {"goOriginal": f"{name}@{version}", "goReplacement": f"{replacement_name}@{replacement_version}"},
         }
         if replacement_checksum:
-            replacement_dependency["digest"] = {"sha256": go_sum_sha256(replacement_checksum)}
+            replacement_dependency["digest"] = {"dirHash1": go_sum_dirhash1(replacement_checksum)}
         resolved_dependencies.append(replacement_dependency)
 for package_version in sorted(apk_packages):
     resolved_dependencies.append({"uri": f"pkg:apk/alpine/{package_version}?distro=alpine-3.22"})

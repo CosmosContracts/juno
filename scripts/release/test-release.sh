@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/../.." && pwd)
 TMP=${TMPDIR:-/tmp}/juno-release-test.$$
 trap 'rm -rf "$TMP"' EXIT INT TERM
 mkdir -p "$TMP/bin" "$TMP/out" "$TMP/existing"
@@ -44,11 +44,16 @@ pass "release identity requires and peels an exact Git tag"
 
 git clone -q --bare "$TMP/tag-repo" "$TMP/tag-remote.git"
 git -C "$TMP/tag-repo" remote add origin "$TMP/tag-remote.git"
-set -- $(resolve_remote_tag_identity "$TMP/tag-repo" origin v31.2.3)
-tag_oid=$1
-[ "$2" = "$tag_commit" ] || fail "remote tag did not peel to expected commit"
-set -- $(resolve_remote_tag_identity "$TMP/tag-repo" origin v31.2.4)
-[ "$1" = "$tag_commit" ] && [ "$2" = "$tag_commit" ] || fail "remote lightweight tag identity was not preserved"
+identity=$(resolve_remote_tag_identity "$TMP/tag-repo" origin v31.2.3)
+tag_oid=${identity%% *}
+resolved_commit=${identity#* }
+[ "$resolved_commit" = "$tag_commit" ] || fail "remote tag did not peel to expected commit"
+identity=$(resolve_remote_tag_identity "$TMP/tag-repo" origin v31.2.4)
+lightweight_oid=${identity%% *}
+resolved_commit=${identity#* }
+if [ "$lightweight_oid" != "$tag_commit" ] || [ "$resolved_commit" != "$tag_commit" ]; then
+	fail "remote lightweight tag identity was not preserved"
+fi
 printf 'moved source\n' >>"$TMP/tag-repo/source"
 git -C "$TMP/tag-repo" commit -qam moved
 git -C "$TMP/tag-repo" tag -fa v31.2.3 -m moved
@@ -91,6 +96,8 @@ statement = json.load(open(sys.argv[1]))
 for dependency in statement["predicate"]["buildDefinition"]["resolvedDependencies"]:
     for value in dependency.get("digest", {}).values():
         assert re.fullmatch(r"[0-9a-f]+", value), value
+    if dependency.get("name") in {"original Go dependency", "selected replacement for example.com/original@v1.0.0", "selected replacement for example.com/a+b@v1.0.0", "selected replacement for example.com/a_b@v1.0.0"}:
+        assert set(dependency.get("digest", {})) == {"dirHash1"}, dependency
 PY
 grep -Fq "$first" "$TMP/out/provenance.intoto.jsonl" || fail "archive absent from provenance subjects"
 grep -Fq 'example.com/original' "$TMP/out/SBOM.spdx.json" || fail "original Go dependency absent from SBOM"
@@ -117,6 +124,13 @@ shared_id = shared[0]["SPDXID"]
 variants = [item for item in document["relationships"] if item["spdxElementId"] == shared_id and item["relationshipType"] == "VARIANT_OF"]
 assert len(variants) == 2
 PY
+mkdir -p "$TMP/local-replacement"
+printf 'fixture\n' >"$TMP/local-replacement/junod-linux-amd64"
+printf '\tdep\texample.com/original\tv1.0.0\th1:AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=\n\t=>\t../local-module\t(devel)\n' >"$TMP/local-replacement/junod-linux-amd64.modules"
+if python3 "$ROOT/scripts/release/metadata.py" --directory "$TMP/local-replacement" --version v31.2.3 \
+	--commit "$commit" --repository https://github.com/juno-ai-dev/juno --workflow-sha "$workflow_sha" 2>/dev/null; then
+	fail "local Go replacement produced misleading release metadata"
+fi
 pass "SPDX and SLSA include mutation-sensitive original/replacement identities and collision-resistant IDs"
 
 require_absent_http_status 404 fixture || fail "404 absence rejected"
@@ -133,9 +147,21 @@ grep -Fq 'sbom: true' "$workflow" || fail "container SBOM absent"
 grep -Fq 'existence guard failed closed' "$ROOT/scripts/release/lib.sh" || fail "fail-closed replay guard absent"
 grep -Fq 'release-publication-${{ github.repository }}' "$workflow" || fail "global release serialization absent"
 grep -Fq 'ref: ${{ needs.guard.outputs.commit }}' "$workflow" || fail "validated commit checkout absent"
+grep -Fq 'path: source' "$workflow" || fail "container source checkout is not isolated"
+grep -Fq 'path: policy' "$workflow" || fail "trusted container policy checkout is absent"
+grep -Fq '. policy/scripts/release/lib.sh' "$workflow" || fail "container write job executes tag-controlled policy"
+grep -Fq 'context: source' "$workflow" || fail "container build context is not bound to validated source"
+grep -Fq 'file: source/release.Dockerfile' "$workflow" || fail "container Dockerfile is not bound to validated source"
 grep -Fq 'EVENT_AFTER: ${{ github.event.after }}' "$workflow" || fail "tag push is not bound to event.after"
 grep -Fq 'if [ "$EVENT_AFTER" != "$tag_oid" ]; then' "$workflow" || fail "tag push does not bind the exact event ref object"
 grep -Fq "printf 'Authorization: Bearer %s' \"\$GH_TOKEN\"" "$workflow" || fail "authorization token is not interpolated"
+python3 - "$workflow" <<'PY' || fail "authorization format discards the token argument"
+import pathlib, sys
+lines = [line for line in pathlib.Path(sys.argv[1]).read_text().splitlines() if "github_auth=$(printf" in line]
+assert len(lines) == 1
+assert [ord(char) for char in "%s"] == [37, 115]
+assert [37, 115] == [ord(char) for char in lines[0][lines[0].index("Bearer ") + 7:][:2]]
+PY
 grep -Fq 'push-by-digest=true,name-canonical=true,push=true' "$workflow" || fail "digest-only container publication absent"
 if grep -Fq '${{ env.IMAGE }}:' "$workflow"; then fail "mutable container tag publication present"; fi
 grep -Fq 'resolve_remote_tag_identity' "$workflow" || fail "side-effect source revalidation absent"
