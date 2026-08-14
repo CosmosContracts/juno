@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -13,8 +14,52 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
 	"github.com/CosmosContracts/juno/v31/testutil/setup"
+	clocktypes "github.com/CosmosContracts/juno/v31/x/clock/types"
+	cwhookstypes "github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
 	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
+
+func TestExportNormalizesLegacyContractCaps(t *testing.T) {
+	chainID := "juno-export-legacy-caps-1"
+	app := setup.Setup(false, t.TempDir(), chainID)
+	ctx := app.NewContextLegacy(false, cmtproto.Header{Height: 1, ChainID: chainID})
+
+	legacyClock := clocktypes.Params{ContractGasLimit: 250_000, MaxContracts: 0}
+	clockStore := app.AppKeepers.ClockKeeper.GetStoreService().OpenKVStore(ctx)
+	require.NoError(t, clockStore.Set(clocktypes.ParamsKey, app.AppKeepers.ClockKeeper.GetCdc().MustMarshal(&legacyClock)))
+	legacyCWHooks := cwhookstypes.Params{
+		ContractGasLimit:                250_000,
+		ContractFailureRemovalThreshold: 3,
+		MaxContracts:                    0,
+	}
+	require.NoError(t, app.AppKeepers.CWHooksKeeper.Params.Set(ctx, legacyCWHooks))
+	ctx.MultiStore().(storetypes.CacheMultiStore).Write()
+	app.Commit()
+
+	exported, err := app.ExportAppStateAndValidators(false, nil, nil)
+	require.NoError(t, err)
+	var state map[string]json.RawMessage
+	require.NoError(t, json.Unmarshal(exported.AppState, &state))
+	var clockGenesis clocktypes.GenesisState
+	require.NoError(t, app.AppCodec().UnmarshalJSON(state[clocktypes.ModuleName], &clockGenesis))
+	var cwHooksGenesis cwhookstypes.GenesisState
+	require.NoError(t, app.AppCodec().UnmarshalJSON(state[cwhookstypes.ModuleName], &cwHooksGenesis))
+	require.Equal(t, clocktypes.DefaultMaxContracts, clockGenesis.Params.MaxContracts)
+	require.Equal(t, legacyClock.ContractGasLimit, clockGenesis.Params.ContractGasLimit)
+	require.Equal(t, cwhookstypes.DefaultMaxContracts, cwHooksGenesis.Params.MaxContracts)
+	require.Equal(t, legacyCWHooks.ContractGasLimit, cwHooksGenesis.Params.ContractGasLimit)
+	require.Equal(t, legacyCWHooks.ContractFailureRemovalThreshold, cwHooksGenesis.Params.ContractFailureRemovalThreshold)
+}
+
+func TestExportContractCapNormalizationRespectsModuleSelection(t *testing.T) {
+	app := setup.Setup(false, t.TempDir(), "juno-export-module-selection-1")
+	ctx := app.NewContextLegacy(false, cmtproto.Header{Height: 1})
+	ctx.MultiStore().(storetypes.CacheMultiStore).Write()
+	app.Commit()
+
+	_, err := app.ExportAppStateAndValidators(false, nil, []string{"bank"})
+	require.NoError(t, err)
+}
 
 func TestExportImportPreservesV31State(t *testing.T) {
 	const chainID = "juno-export-import-1"

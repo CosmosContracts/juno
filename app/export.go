@@ -14,6 +14,9 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	clocktypes "github.com/CosmosContracts/juno/v31/x/clock/types"
+	cwhookstypes "github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
@@ -32,6 +35,31 @@ func (app *App) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs
 	genState, err := app.ModuleManager.ExportGenesisForModules(ctx, app.appCodec, modulesToExport)
 	if err != nil {
 		return servertypes.ExportedApp{}, err
+	}
+
+	// v30 stores written before the contract-cap fields existed decode their
+	// max_contracts values as zero. The v31 genesis validators correctly reject
+	// that unsafe value, so preserve the live parameters while supplying the new
+	// default caps in exported state.
+	if raw, ok := genState[clocktypes.ModuleName]; ok {
+		var clockGenesis clocktypes.GenesisState
+		if err := app.appCodec.UnmarshalJSON(raw, &clockGenesis); err != nil {
+			return servertypes.ExportedApp{}, err
+		}
+		if clockGenesis.Params.MaxContracts == 0 {
+			clockGenesis.Params.MaxContracts = clocktypes.DefaultMaxContracts
+			genState[clocktypes.ModuleName] = app.appCodec.MustMarshalJSON(&clockGenesis)
+		}
+	}
+	if raw, ok := genState[cwhookstypes.ModuleName]; ok {
+		var cwHooksGenesis cwhookstypes.GenesisState
+		if err := app.appCodec.UnmarshalJSON(raw, &cwHooksGenesis); err != nil {
+			return servertypes.ExportedApp{}, err
+		}
+		if cwHooksGenesis.Params.MaxContracts == 0 {
+			cwHooksGenesis.Params.MaxContracts = cwhookstypes.DefaultMaxContracts
+			genState[cwhookstypes.ModuleName] = app.appCodec.MustMarshalJSON(&cwHooksGenesis)
+		}
 	}
 
 	appState, err := json.MarshalIndent(genState, "", "  ")
