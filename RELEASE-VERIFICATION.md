@@ -1,9 +1,13 @@
 # Verify and install a v31 release
 
-Release artifacts are immutable: a replay aborts if the GitHub release already
-exists. `SHA256SUMS` covers every attached binary, archive, SBOM, provenance,
-container-digest report, and this guide. The container report records both the
-manifest-list digest and its `linux/amd64` and `linux/arm64` child digests.
+The workflow refuses to create a release when that tag already has one, but
+GitHub releases and Git tags remain administratively mutable; do not treat that
+check as a platform immutability guarantee. `SHA256SUMS` covers every attached
+binary, archive, SBOM, provenance, container-digest report, and this guide. The
+container report records the manifest-list digest and its `linux/amd64` and
+`linux/arm64` child digests. GHCR receives no version or commit tag: the image
+is published and consumed only as the content-addressed `image@sha256:...`
+reference in that report.
 
 Set the release and architecture, download the files, and verify the selected
 binary and archive **before** installing:
@@ -37,7 +41,18 @@ and an empty Go build ID. CI builds each binary in two independent cacheless
 BuildKit builders, compares the binaries and dependency records, and creates
 deterministic tar/gzip archives. Direct Alpine package versions are pinned and
 the complete installed package set plus Go's embedded module build information
-are attached and represented in SBOM/provenance. Alpine repositories and GitHub
-runner/QEMU remain external availability dependencies. Payload packaging,
-dependency mutation, metadata, strict tag identity, and replay refusal are
-tested offline by `scripts/release/test-release.sh`.
+are attached and represented in SBOM/provenance. For a Go module replacement,
+both the original requirement and the selected replacement recorded by
+`go version -m` are represented. This is build metadata, not a license or
+vulnerability-analysis guarantee. Alpine repositories and GitHub runner/QEMU
+remain external availability dependencies.
+
+Publication spans services and is not transactional. A failed run can leave an
+untagged, content-addressed GHCR manifest and attestations before the GitHub
+release is created. Those objects cannot redirect an existing digest reference
+and a retry may reuse the same digest. If `gh release create` creates a release
+but an asset upload then fails, the workflow will refuse an automatic replay;
+an operator must inspect the partial release and explicitly remove it before a
+`workflow_dispatch` retry. Payload packaging, replacement mutation, metadata,
+strict remote tag identity, and replay refusal are tested offline by
+`scripts/release/test-release.sh`.

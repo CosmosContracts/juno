@@ -1,4 +1,4 @@
-name: Immutable v31 release
+name: Verifiable v31 release
 
 on:
   push:
@@ -6,26 +6,23 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing v31 semantic tag to publish (fails if already released)
+        description: Existing v31 semantic tag to publish (fails if a release already exists)
         required: true
         type: string
 
 concurrency:
-  # Serialize every publication. This closes races on sha-$COMMIT when two
-  # version tags point at one commit and on mutable registry tag creation.
   group: release-publication-${{ github.repository }}
   cancel-in-progress: false
 
 permissions:
   contents: read
 
-env:
-  TAG: ${{ inputs.tag || github.ref_name }}
-
 jobs:
   guard:
     runs-on: ubuntu-24.04
     outputs:
+      tag: ${{ steps.guard.outputs.tag }}
+      tag_oid: ${{ steps.guard.outputs.tag_oid }}
       commit: ${{ steps.guard.outputs.commit }}
       epoch: ${{ steps.guard.outputs.epoch }}
       image: ${{ steps.guard.outputs.image }}
@@ -37,22 +34,37 @@ jobs:
           persist-credentials: false
       - id: guard
         env:
+          EVENT_AFTER: ${{ github.event.after }}
+          EVENT_NAME: ${{ github.event_name }}
           GH_TOKEN: ${{ github.token }}
+          REQUESTED_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           . scripts/release/lib.sh
-          validate_version "$TAG"
+          validate_version "$REQUESTED_TAG"
+          set -- $(resolve_remote_tag_identity . origin "$REQUESTED_TAG")
+          tag_oid=$1
+          commit=$2
+          if [ "$EVENT_NAME" = push ]; then
+            validate_commit "$EVENT_AFTER"
+            case "$EVENT_AFTER" in
+              "$tag_oid"|"$commit") ;;
+              *)
+                echo "push event identity $EVENT_AFTER is no longer current ($tag_oid peeled to $commit)" >&2
+                exit 1
+                ;;
+            esac
+          fi
           github_auth=$(printf 'Authorization: Bearer %s' "$GH_TOKEN")
           response=$(mktemp)
           status=$(curl --silent --show-error --output "$response" --write-out '%{http_code}' \
             --header "$github_auth" --header 'Accept: application/vnd.github+json' \
-            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases/tags/$TAG")
-          require_absent_http_status "$status" "release $TAG" || { cat "$response" >&2; exit 1; }
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases/tags/$REQUESTED_TAG")
+          require_absent_http_status "$status" "release $REQUESTED_TAG" || { cat "$response" >&2; exit 1; }
           rm -f "$response"
-          git fetch --force --no-tags origin "refs/tags/$TAG:refs/tags/$TAG"
-          commit=$(resolve_local_tag_commit . "$TAG")
-          validate_commit "$commit"
           epoch=$(gh api "repos/$GITHUB_REPOSITORY/commits/$commit" --jq '.commit.committer.date | fromdateiso8601')
           repository=$(printf '%s' "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
+          echo "tag=$REQUESTED_TAG" >>"$GITHUB_OUTPUT"
+          echo "tag_oid=$tag_oid" >>"$GITHUB_OUTPUT"
           echo "commit=$commit" >>"$GITHUB_OUTPUT"
           echo "epoch=$epoch" >>"$GITHUB_OUTPUT"
           echo "image=ghcr.io/$repository" >>"$GITHUB_OUTPUT"
@@ -71,9 +83,18 @@ jobs:
           persist-credentials: false
       - uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - name: Revalidate source before building
+        env:
+          COMMIT: ${{ needs.guard.outputs.commit }}
+          TAG: ${{ needs.guard.outputs.tag }}
+          TAG_OID: ${{ needs.guard.outputs.tag_oid }}
+        run: |
+          . scripts/release/lib.sh
+          test "$(git rev-parse HEAD)" = "$COMMIT"
+          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
       - name: Build and verify tagged binary
         env:
-          VERSION: ${{ env.TAG }}
+          VERSION: ${{ needs.guard.outputs.tag }}
           COMMIT: ${{ needs.guard.outputs.commit }}
           SOURCE_DATE_EPOCH: ${{ needs.guard.outputs.epoch }}
           ARCH: ${{ matrix.arch }}
@@ -104,37 +125,23 @@ jobs:
           persist-credentials: false
       - uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
       - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
-      - name: Verify checked-out source identity
-        env:
-          COMMIT: ${{ needs.guard.outputs.commit }}
-        run: |
-          . scripts/release/lib.sh
-          test "$(git rev-parse HEAD)" = "$COMMIT"
-          test "$(resolve_local_tag_commit . "$TAG")" = "$COMMIT"
       - uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
-      - name: Refuse existing immutable image tags (fail closed)
+      - name: Revalidate source immediately before digest publication
         env:
           COMMIT: ${{ needs.guard.outputs.commit }}
-          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.guard.outputs.tag }}
+          TAG_OID: ${{ needs.guard.outputs.tag_oid }}
         run: |
-          repository=${IMAGE#ghcr.io/}
-          token=$(curl --fail --silent --show-error --user "$GITHUB_ACTOR:$GH_TOKEN" \
-            "https://ghcr.io/token?service=ghcr.io&scope=repository:$repository:pull" | jq -er .token)
-          registry_auth=$(printf 'Authorization: Bearer %s' "$token")
-          for ref in "$TAG" "sha-$COMMIT"; do
-            response=$(mktemp)
-            status=$(curl --silent --show-error --output "$response" --write-out '%{http_code}' \
-              --header "$registry_auth" \
-              --header 'Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json' \
-              "https://ghcr.io/v2/$repository/manifests/$ref")
-            require_absent_http_status "$status" "container $IMAGE:$ref" || { cat "$response" >&2; exit 1; }
-            rm -f "$response"
-          done
-      - name: Publish by immutable version and commit tags
+          . scripts/release/lib.sh
+          test "$(git rev-parse HEAD)" = "$COMMIT"
+          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
+      # GHCR tags are mutable and cannot be claimed with create-only semantics.
+      # Push a canonical manifest by content digest only; no registry tag is made.
+      - name: Publish content-addressed container manifest without tags
         id: push
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
@@ -143,37 +150,29 @@ jobs:
           target: image
           platforms: linux/amd64,linux/arm64
           build-args: |
-            VERSION=${{ env.TAG }}
+            VERSION=${{ needs.guard.outputs.tag }}
             COMMIT=${{ needs.guard.outputs.commit }}
             SOURCE_DATE_EPOCH=${{ needs.guard.outputs.epoch }}
             SOURCE_REPOSITORY=${{ github.server_url }}/${{ github.repository }}
-          push: true
-          tags: |
-            ${{ env.IMAGE }}:${{ env.TAG }}
-            ${{ env.IMAGE }}:sha-${{ needs.guard.outputs.commit }}
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha
           provenance: mode=max
           sbom: true
-      - name: Verify both published tags resolve to the claimed digest
-        env:
-          COMMIT: ${{ needs.guard.outputs.commit }}
-          DIGEST: ${{ steps.push.outputs.digest }}
-        run: |
-          for ref in "$TAG" "sha-$COMMIT"; do
-            actual="sha256:$(docker buildx imagetools inspect --raw "$IMAGE:$ref" | sha256sum | cut -d ' ' -f 1)"
-            test "$actual" = "$DIGEST" || {
-              echo "published tag $ref resolves to $actual, expected $DIGEST" >&2
-              exit 1
-            }
-          done
-      - name: Record manifest-list and per-platform digests
+      - name: Verify and record manifest-list and platform digests
         env:
           DIGEST: ${{ steps.push.outputs.digest }}
         run: |
+          . scripts/release/lib.sh
+          case "$DIGEST" in
+            sha256:*) validate_sha256 "${DIGEST#sha256:}" ;;
+            *) echo "invalid container digest: $DIGEST" >&2; exit 1 ;;
+          esac
           docker buildx imagetools inspect --raw "$IMAGE@$DIGEST" >manifest.json
+          actual="sha256:$(sha256sum manifest.json | cut -d ' ' -f 1)"
+          test "$actual" = "$DIGEST"
           jq -e -n --arg image "$IMAGE" --arg manifest "$DIGEST" \
             --slurpfile index manifest.json \
-            '{image:$image,manifest_digest:$manifest,platforms:[$index[0].manifests[]|select(.platform.os=="linux" and (.platform.architecture=="amd64" or .platform.architecture=="arm64"))|{platform:(.platform.os+"/"+.platform.architecture),digest:.digest}]} | select((.platforms|length)==2 and ([.platforms[].platform]|unique|length)==2)' \
+            '{image:$image,manifest_digest:$manifest,reference:($image+"@"+$manifest),platforms:[$index[0].manifests[]|select(.platform.os=="linux" and (.platform.architecture=="amd64" or .platform.architecture=="arm64"))|{platform:(.platform.os+"/"+.platform.architecture),digest:.digest}]} | select((.platforms|length)==2 and ([.platforms[].platform]|unique|length)==2)' \
             >container-digests.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -185,6 +184,9 @@ jobs:
     needs: [guard, binaries, container]
     env:
       IMAGE: ${{ needs.guard.outputs.image }}
+      TAG: ${{ needs.guard.outputs.tag }}
+      TAG_OID: ${{ needs.guard.outputs.tag_oid }}
+      COMMIT: ${{ needs.guard.outputs.commit }}
     permissions:
       contents: write
       packages: write
@@ -207,8 +209,6 @@ jobs:
           name: container-digests
           path: dist
       - name: Generate offline metadata and checksums
-        env:
-          COMMIT: ${{ needs.guard.outputs.commit }}
         run: |
           cp RELEASE-VERIFICATION.md dist/
           python3 scripts/release/metadata.py --directory dist --version "$TAG" \
@@ -217,23 +217,29 @@ jobs:
           . scripts/release/lib.sh
           generate_checksums dist
           (cd dist && sha256sum --check SHA256SUMS)
+      - name: Revalidate source before asset attestations
+        run: |
+          . scripts/release/lib.sh
+          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
       - name: Attest every release asset
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
           subject-path: dist/*
-      - name: Attest the published container manifest
+      - name: Revalidate source before container attestation
+        run: |
+          . scripts/release/lib.sh
+          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
+      - name: Attest the content-addressed container manifest
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
           subject-name: ${{ env.IMAGE }}
           subject-digest: ${{ needs.container.outputs.digest }}
           push-to-registry: true
-      - name: Atomically claim release tag and upload immutable assets
+      - name: Revalidate and create the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-          COMMIT: ${{ needs.guard.outputs.commit }}
         run: |
           . scripts/release/lib.sh
-          git fetch --force --no-tags origin "refs/tags/$TAG:refs/tags/$TAG"
-          test "$(resolve_local_tag_commit . "$TAG")" = "$COMMIT"
+          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
           gh release create "$TAG" dist/* --verify-tag --title "$TAG" \
-            --notes "Immutable Juno release built from $COMMIT. Verify with RELEASE-VERIFICATION.md."
+            --notes "Verifiable Juno release built from $COMMIT. The container is published only at the digest recorded in container-digests.json."

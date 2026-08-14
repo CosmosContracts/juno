@@ -13,6 +13,10 @@ validate_commit() {
 	printf '%s' "${1-}" | grep -Eq '^[0-9a-f]{40}$'
 }
 
+validate_sha256() {
+	printf '%s' "${1-}" | grep -Eq '^[0-9a-f]{64}$'
+}
+
 resolve_local_tag_commit() {
 	repository=$1
 	tag=$2
@@ -24,6 +28,37 @@ resolve_local_tag_commit() {
 	commit=$(git -C "$repository" rev-parse --verify "refs/tags/$tag^{commit}") || return 1
 	validate_commit "$commit" || return 1
 	printf '%s\n' "$commit"
+}
+
+# Fetch a tag through a private validation ref and print its ref object and
+# peeled commit. Optional expected values bind later checks to an earlier
+# decision. Both ls-remote and fetch are checked so a move between them fails.
+resolve_remote_tag_identity() {
+	repository=$1 remote=$2 tag=$3 expected_oid=${4-} expected_commit=${5-}
+	validate_version "$tag" || return 1
+	line=$(git -C "$repository" ls-remote --exit-code "$remote" "refs/tags/$tag") || return 1
+	[ "$(printf '%s\n' "$line" | wc -l | tr -d ' ')" = 1 ] || return 1
+	remote_oid=${line%%[[:space:]]*}
+	validate_commit "$remote_oid" || return 1
+	[ -z "$expected_oid" ] || [ "$remote_oid" = "$expected_oid" ] || {
+		echo "release tag object moved: expected $expected_oid, found $remote_oid" >&2
+		return 1
+	}
+	validation_ref="refs/release-validation/$tag"
+	git -C "$repository" update-ref -d "$validation_ref" >/dev/null 2>&1 || true
+	git -C "$repository" fetch --no-tags "$remote" "+refs/tags/$tag:$validation_ref" || return 1
+	fetched_oid=$(git -C "$repository" rev-parse --verify "$validation_ref") || return 1
+	[ "$fetched_oid" = "$remote_oid" ] || {
+		echo "release tag moved while validating" >&2
+		return 1
+	}
+	commit=$(git -C "$repository" rev-parse --verify "$validation_ref^{commit}") || return 1
+	validate_commit "$commit" || return 1
+	[ -z "$expected_commit" ] || [ "$commit" = "$expected_commit" ] || {
+		echo "release tag peeled commit moved: expected $expected_commit, found $commit" >&2
+		return 1
+	}
+	printf '%s %s\n' "$remote_oid" "$commit"
 }
 
 require_absent_http_status() {
