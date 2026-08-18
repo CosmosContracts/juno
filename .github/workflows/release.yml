@@ -88,7 +88,8 @@ jobs:
           TAG: ${{ needs.guard.outputs.tag }}
           TAG_OID: ${{ needs.guard.outputs.tag_oid }}
         run: |
-          # shellcheck disable=SC2153 # COMMIT is supplied by the step environment.
+          # COMMIT is supplied by the step environment.
+          # shellcheck disable=SC2153
           . scripts/release/lib.sh
           test "$(git rev-parse HEAD)" = "$COMMIT"
           test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
@@ -217,7 +218,8 @@ jobs:
           path: dist
       - name: Generate offline metadata and checksums
         run: |
-          # shellcheck disable=SC2153 # COMMIT is supplied by the job environment.
+          # COMMIT is supplied by the job environment.
+          # shellcheck disable=SC2153
           cp RELEASE-VERIFICATION.md dist/
           python3 scripts/release/metadata.py --directory dist --version "$TAG" \
             --commit "$COMMIT" --repository "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
@@ -227,7 +229,8 @@ jobs:
           (cd dist && sha256sum --check SHA256SUMS)
       - name: Revalidate source before asset attestations
         run: |
-          # shellcheck disable=SC2153 # COMMIT is supplied by the job environment.
+          # COMMIT is supplied by the job environment.
+          # shellcheck disable=SC2153
           . scripts/release/lib.sh
           test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
       - name: Attest every release asset
@@ -236,7 +239,8 @@ jobs:
           subject-path: dist/*
       - name: Revalidate source before container attestation
         run: |
-          # shellcheck disable=SC2153 # COMMIT is supplied by the job environment.
+          # COMMIT is supplied by the job environment.
+          # shellcheck disable=SC2153
           . scripts/release/lib.sh
           test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
       - name: Attest the content-addressed container manifest
@@ -249,7 +253,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # shellcheck disable=SC2153 # COMMIT is supplied by the job environment.
+          # COMMIT is supplied by the job environment.
+          # shellcheck disable=SC2153
           . scripts/release/lib.sh
           test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
           gh release create "$TAG" dist/* --verify-tag --title "$TAG" \
