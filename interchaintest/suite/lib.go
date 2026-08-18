@@ -179,18 +179,35 @@ func FourChainInterchainConstructor(ctx context.Context, t *testing.T, chains []
 		Path:    pathCD,
 	})
 
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
 	defer cancel()
 
-	// build the interchain
+	// Build creates relayer keys and wallets, but link the three paths below.
 	err := ic.Build(ctx, eRep, interchaintest.InterchainBuildOptions{
-		SkipPathCreation:  false,
+		SkipPathCreation:  true,
 		Client:            client,
 		NetworkID:         networkID,
 		TestName:          t.Name(),
 		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
 	})
 	require.NoError(t, err)
+
+	// A single rly home backs all three links. Build creates links concurrently,
+	// which races rly's shared path config and can leave a path with empty client
+	// IDs. Generate and link each path serially instead.
+	links := []struct {
+		path   string
+		source *cosmos.CosmosChain
+		dest   *cosmos.CosmosChain
+	}{
+		{pathAB, chains[0], chains[1]},
+		{pathBC, chains[1], chains[2]},
+		{pathCD, chains[2], chains[3]},
+	}
+	for _, link := range links {
+		require.NoError(t, r.GeneratePath(ctx, eRep, link.source.Config().ChainID, link.dest.Config().ChainID, link.path))
+		require.NoError(t, r.LinkPath(ctx, eRep, link.path, ibc.DefaultChannelOpts(), ibc.DefaultClientOpts()))
+	}
 
 	return ic, client, r
 }
