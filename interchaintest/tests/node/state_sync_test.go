@@ -3,8 +3,6 @@ package node_test
 import (
 	"encoding/hex"
 	"fmt"
-	"regexp"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -23,14 +21,6 @@ const (
 	stateSyncSnapshotInterval = 10
 	stateSyncTimeout          = 3 * time.Minute
 )
-
-var snapshotLineRE = regexp.MustCompile(`height:\s*(\d+)\s+format:\s*(\d+)\s+chunks:\s*(\d+)`)
-
-type snapshotMetadata struct {
-	Height uint64
-	Format uint32
-	Chunks uint32
-}
 
 type NodeTestSuite struct {
 	*e2esuite.E2ETestSuite
@@ -65,10 +55,8 @@ func snapshotConfigOverrides() map[string]any {
 				"snapshot-interval":    stateSyncSnapshotInterval,
 				"snapshot-keep-recent": 2,
 			},
-			// The snapshot interval must be a multiple of pruning-keep-every.
 			"pruning":             "custom",
 			"pruning-keep-recent": stateSyncSnapshotInterval,
-			"pruning-keep-every":  stateSyncSnapshotInterval,
 			"pruning-interval":    stateSyncSnapshotInterval,
 		},
 	}
@@ -95,27 +83,6 @@ func stateSyncNodeOverrides(trustHeight int64, trustHash string, providerHosts [
 	}
 }
 
-func parseSnapshotMetadata(output []byte) ([]snapshotMetadata, error) {
-	matches := snapshotLineRE.FindAllSubmatch(output, -1)
-	snapshots := make([]snapshotMetadata, 0, len(matches))
-	for _, match := range matches {
-		height, err := strconv.ParseUint(string(match[1]), 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("parse snapshot height: %w", err)
-		}
-		format, err := strconv.ParseUint(string(match[2]), 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("parse snapshot format: %w", err)
-		}
-		chunks, err := strconv.ParseUint(string(match[3]), 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("parse snapshot chunks: %w", err)
-		}
-		snapshots = append(snapshots, snapshotMetadata{Height: height, Format: uint32(format), Chunks: uint32(chunks)})
-	}
-	return snapshots, nil
-}
-
 func TestNodeTestSuite(t *testing.T) {
 	s := e2esuite.NewE2ETestSuite(
 		[]*interchaintest.ChainSpec{stateSyncSpec()},
@@ -139,64 +106,31 @@ func (s *NodeTestSuite) TestStateSync() {
 
 	require.Len(t, s.Chain.Validators, 1, "state-sync suite must start a snapshot validator")
 	require.Len(t, s.Chain.FullNodes, 2, "state-sync suite must start two independent RPC providers")
-	candidates := []*cosmos.ChainNode{s.Chain.Validators[0], s.Chain.FullNodes[0], s.Chain.FullNodes[1]}
-	candidateHosts := make([]string, len(candidates))
-	for i, candidate := range candidates {
-		candidateHosts[i] = candidate.HostName()
-	}
-
-	var snapshotProvider *cosmos.ChainNode
-	var snapshots []snapshotMetadata
-	var snapshotQueryErr error
-	var snapshotQueryOutput string
-	require.Eventually(t, func() bool {
-		for _, candidate := range candidates {
-			stdout, stderr, err := candidate.ExecBin(s.Ctx, "snapshots", "list")
-			snapshotQueryOutput = strings.TrimSpace(string(stdout))
-			if err != nil {
-				snapshotQueryErr = fmt.Errorf("snapshots list on %s: %w (stderr: %s)", candidate.HostName(), err, strings.TrimSpace(string(stderr)))
-				continue
-			}
-			snapshots, snapshotQueryErr = parseSnapshotMetadata(stdout)
-			if snapshotQueryErr == nil && len(snapshots) > 0 && snapshots[0].Height > stateSyncSnapshotInterval && snapshots[0].Chunks > 0 {
-				snapshotProvider = candidate
-				return true
-			}
-		}
-		return false
-	}, stateSyncTimeout, 2*time.Second,
-		"no usable snapshot from provider hosts=%v: snapshots=%+v count=%d output=%q query_error=%v",
-		candidateHosts, snapshots, len(snapshots), snapshotQueryOutput, snapshotQueryErr,
-	)
-
-	providers := []*cosmos.ChainNode{snapshotProvider}
-	for _, candidate := range candidates {
-		if candidate.HostName() != snapshotProvider.HostName() {
-			providers = append(providers, candidate)
-			break
-		}
-	}
+	providers := []*cosmos.ChainNode{s.Chain.Validators[0], s.Chain.FullNodes[0]}
 	providerHosts := []string{providers[0].HostName(), providers[1].HostName()}
 
-	// Anchor below the newest snapshot so the light client can verify the
-	// snapshot and all subsequent blocks. The block hash comes from a provider,
-	// not from locally derived state.
-	newestSnapshot := snapshots[0]
-	trustHeight := int64(newestSnapshot.Height) - stateSyncSnapshotInterval
+	// Snapshot metadata uses the live application database, so querying it from
+	// a second process races the running node's database lock. Advancing two
+	// intervals and then successfully state-syncing the new node proves that a
+	// complete snapshot was produced and served.
+	require.NoError(t, testutil.WaitForBlocks(s.Ctx, stateSyncSnapshotInterval*2, s.Chain))
+	latestHeight, err := s.Chain.Height(s.Ctx)
+	require.NoError(t, err)
+	trustHeight := latestHeight - stateSyncSnapshotInterval
 	blockRes, err := providers[0].Client.Block(s.Ctx, &trustHeight)
 	require.NoError(t, err,
-		"trusted block query failed: provider=%s trust_height=%d snapshot=%+v snapshot_count=%d",
-		providerHosts[0], trustHeight, newestSnapshot, len(snapshots),
+		"trusted block query failed: provider=%s trust_height=%d latest_height=%d",
+		providerHosts[0], trustHeight, latestHeight,
 	)
 	trustHash := strings.ToUpper(hex.EncodeToString(blockRes.BlockID.Hash))
 	require.NotEmpty(t, trustHash, "empty trust hash: provider=%s trust_height=%d", providerHosts[0], trustHeight)
 
-	t.Logf("state-sync diagnostics: providers=%v trust_height=%d trust_hash=%s snapshots=%+v snapshot_count=%d",
-		providerHosts, trustHeight, trustHash, snapshots, len(snapshots))
+	t.Logf("state-sync diagnostics: providers=%v latest_height=%d trust_height=%d trust_hash=%s",
+		providerHosts, latestHeight, trustHeight, trustHash)
 
 	require.NoError(t, s.Chain.AddFullNodes(s.Ctx, stateSyncNodeOverrides(trustHeight, trustHash, providerHosts), 1),
-		"add state-sync node failed: providers=%v trust_height=%d trust_hash=%s snapshot=%+v snapshot_count=%d",
-		providerHosts, trustHeight, trustHash, newestSnapshot, len(snapshots),
+		"add state-sync node failed: providers=%v latest_height=%d trust_height=%d trust_hash=%s",
+		providerHosts, latestHeight, trustHeight, trustHash,
 	)
 	stateSyncNode := s.Chain.FullNodes[len(s.Chain.FullNodes)-1]
 
@@ -207,9 +141,9 @@ func (s *NodeTestSuite) TestStateSync() {
 		syncedHeight, syncedHeightErr = stateSyncNode.Height(s.Ctx)
 		return providerHeightErr == nil && syncedHeightErr == nil && syncedHeight >= providerHeight-1
 	}, stateSyncTimeout, time.Second,
-		"state-sync node did not catch tip: node=%s node_height=%d node_error=%v provider=%s provider_height=%d provider_error=%v trust_height=%d trust_hash=%s snapshot=%+v snapshot_count=%d rpc_providers=%v",
+		"state-sync node did not catch tip: node=%s node_height=%d node_error=%v provider=%s provider_height=%d provider_error=%v trust_height=%d trust_hash=%s rpc_providers=%v",
 		stateSyncNode.HostName(), syncedHeight, syncedHeightErr, providerHosts[0], providerHeight, providerHeightErr,
-		trustHeight, trustHash, newestSnapshot, len(snapshots), providerHosts,
+		trustHeight, trustHash, providerHosts,
 	)
 
 	// Catching the tip proves liveness, not restored-state correctness. Compare
@@ -234,6 +168,6 @@ func (s *NodeTestSuite) TestStateSync() {
 	require.NoError(t, err)
 	require.Equal(t, expectedTotal, totalResp.Power)
 
-	t.Logf("state-sync verified: snapshot_height=%d trust_height=%d verified_height=%d app_hash=%X voting_power=%s",
-		newestSnapshot.Height, trustHeight, verifyHeight, syncedBlock.Block.Header.AppHash, totalResp.Power)
+	t.Logf("state-sync verified: initial_height=%d trust_height=%d verified_height=%d app_hash=%X voting_power=%s",
+		latestHeight, trustHeight, verifyHeight, syncedBlock.Block.Header.AppHash, totalResp.Power)
 }

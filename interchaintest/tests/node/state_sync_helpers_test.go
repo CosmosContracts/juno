@@ -40,14 +40,3 @@ func TestStateSyncNodeOverridesRequireDistinctRPCProviders(t *testing.T) {
 	require.Equal(t, "ABC123", stateSyncToml["trust_hash"])
 	require.Equal(t, "1h", stateSyncToml["trust_period"])
 }
-
-func TestParseSnapshotMetadata(t *testing.T) {
-	output := []byte("height: 30 format: 1 chunks: 4\nheight: 20 format: 1 chunks: 3\n")
-
-	snapshots, err := parseSnapshotMetadata(output)
-	require.NoError(t, err)
-	require.Equal(t, []snapshotMetadata{
-		{Height: 30, Format: 1, Chunks: 4},
-		{Height: 20, Format: 1, Chunks: 3},
-	}, snapshots)
-}
