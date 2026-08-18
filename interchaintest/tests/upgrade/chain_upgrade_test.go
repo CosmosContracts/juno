@@ -76,6 +76,7 @@ func TestUpgradeTestSuite(t *testing.T) {
 	s := e2esuite.NewE2ETestSuite(
 		upgradeChainSpecs(),
 		e2esuite.DefaultTxCfg,
+		e2esuite.WithGasPrices("0.075ujuno"),
 		e2esuite.WithChainConstructor(e2esuite.MultipleChainsConstructor),
 		e2esuite.WithInterchainConstructor(e2esuite.TwoChainInterchainConstructor),
 	)
