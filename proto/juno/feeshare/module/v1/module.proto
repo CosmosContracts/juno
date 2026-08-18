@@ -4,6 +4,8 @@ package juno.feeshare.module.v1;
 
 import "cosmos/app/v1alpha1/module.proto";
 
+option go_package = "github.com/CosmosContracts/juno/v31/api/juno/feeshare/module/v1";
+
 // Module is the config object of the mint module.
 message Module {
   option (cosmos.app.v1alpha1.module) = {go_import: "github.com/CosmosContracts/juno/v31/x/feeshare"};

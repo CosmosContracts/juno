@@ -1,18 +1,19 @@
-package feepayv1
+package types_test
 
 import (
 	"testing"
 
+	feepayv1 "github.com/CosmosContracts/juno/v31/api/juno/feepay/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 func TestGenesisStateWalletUsagesGeneratedRoundTrip(t *testing.T) {
-	usage := &FeePayWalletUsage{
+	usage := &feepayv1.FeePayWalletUsage{
 		ContractAddress: "juno1contract",
 		WalletAddress:   "juno1wallet",
 		Uses:            7,
 	}
-	original := &GenesisState{WalletUsages: []*FeePayWalletUsage{usage}}
+	original := &feepayv1.GenesisState{WalletUsages: []*feepayv1.FeePayWalletUsage{usage}}
 
 	field := original.ProtoReflect().Descriptor().Fields().ByName("wallet_usages")
 	if field == nil {
@@ -29,7 +30,7 @@ func TestGenesisStateWalletUsagesGeneratedRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
-	var restored GenesisState
+	var restored feepayv1.GenesisState
 	if err := proto.Unmarshal(wire, &restored); err != nil {
 		t.Fatalf("unmarshal: %v", err)
 	}

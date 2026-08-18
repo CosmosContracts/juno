@@ -4008,6 +4008,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// QueryParamsRequest requests the current module parameters.
 type QueryParamsRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4034,6 +4035,7 @@ func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
 	return file_juno_votingsnapshot_v1_query_proto_rawDescGZIP(), []int{0}
 }
 
+// QueryParamsResponse contains the current module parameters.
 type QueryParamsResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4069,6 +4071,7 @@ func (x *QueryParamsResponse) GetParams() *Params {
 	return nil
 }
 
+// QueryVotingPowerAtRequest requests an address's voting power at a height.
 type QueryVotingPowerAtRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4115,6 +4118,7 @@ func (x *QueryVotingPowerAtRequest) GetAtHeight() int64 {
 	return 0
 }
 
+// QueryVotingPowerAtResponse contains an address's voting power.
 type QueryVotingPowerAtResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4151,6 +4155,7 @@ func (x *QueryVotingPowerAtResponse) GetPower() string {
 	return ""
 }
 
+// QueryTotalVotingPowerAtRequest requests total voting power at a height.
 type QueryTotalVotingPowerAtRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4186,6 +4191,7 @@ func (x *QueryTotalVotingPowerAtRequest) GetAtHeight() int64 {
 	return 0
 }
 
+// QueryTotalVotingPowerAtResponse contains total voting power.
 type QueryTotalVotingPowerAtResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4221,6 +4227,7 @@ func (x *QueryTotalVotingPowerAtResponse) GetPower() string {
 	return ""
 }
 
+// QueryVotingPowerOverRangeRequest requests an address's snapshots over a height range.
 type QueryVotingPowerOverRangeRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4272,6 +4279,7 @@ func (x *QueryVotingPowerOverRangeRequest) GetToHeight() int64 {
 	return 0
 }
 
+// QueryVotingPowerOverRangeResponse contains voting-power snapshots over a height range.
 type QueryVotingPowerOverRangeResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -4307,6 +4315,7 @@ func (x *QueryVotingPowerOverRangeResponse) GetRows() []*HeightPower {
 	return nil
 }
 
+// HeightPower pairs a block height with its recorded voting power.
 type HeightPower struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

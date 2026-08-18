@@ -32,4 +32,5 @@ message MsgUpdateParams {
   Params params = 2 [(gogoproto.nullable) = false];
 }
 
+// MsgUpdateParamsResponse is returned after module parameters are updated.
 message MsgUpdateParamsResponse {}

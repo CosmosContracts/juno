@@ -5,7 +5,6 @@ import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
-import "google/api/annotations.proto";
 import "juno/feeshare/v1/genesis.proto";
 
 option go_package = "github.com/CosmosContracts/juno/x/feeshare/types";

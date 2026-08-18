@@ -88,6 +88,7 @@ func (m *MsgUpdateParams) GetParams() Params {
 	return Params{}
 }
 
+// MsgUpdateParamsResponse is returned after module parameters are updated.
 type MsgUpdateParamsResponse struct {
 }
 

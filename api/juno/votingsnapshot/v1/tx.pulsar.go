@@ -932,6 +932,7 @@ func (x *MsgUpdateParams) GetParams() *Params {
 	return nil
 }
 
+// MsgUpdateParamsResponse is returned after module parameters are updated.
 type MsgUpdateParamsResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

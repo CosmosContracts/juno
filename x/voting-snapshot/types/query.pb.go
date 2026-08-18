@@ -29,6 +29,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// QueryParamsRequest requests the current module parameters.
 type QueryParamsRequest struct {
 }
 
@@ -65,6 +66,7 @@ func (m *QueryParamsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
+// QueryParamsResponse contains the current module parameters.
 type QueryParamsResponse struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
@@ -109,6 +111,7 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
+// QueryVotingPowerAtRequest requests an address's voting power at a height.
 type QueryVotingPowerAtRequest struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	// at_height is the chain height to look up power for. Named
@@ -164,6 +167,7 @@ func (m *QueryVotingPowerAtRequest) GetAtHeight() int64 {
 	return 0
 }
 
+// QueryVotingPowerAtResponse contains an address's voting power.
 type QueryVotingPowerAtResponse struct {
 	// power is the bonded stake amount as a base-10 string (uint).
 	Power string `protobuf:"bytes,1,opt,name=power,proto3" json:"power,omitempty"`
@@ -209,6 +213,7 @@ func (m *QueryVotingPowerAtResponse) GetPower() string {
 	return ""
 }
 
+// QueryTotalVotingPowerAtRequest requests total voting power at a height.
 type QueryTotalVotingPowerAtRequest struct {
 	AtHeight int64 `protobuf:"varint,1,opt,name=at_height,json=atHeight,proto3" json:"at_height,omitempty"`
 }
@@ -253,6 +258,7 @@ func (m *QueryTotalVotingPowerAtRequest) GetAtHeight() int64 {
 	return 0
 }
 
+// QueryTotalVotingPowerAtResponse contains total voting power.
 type QueryTotalVotingPowerAtResponse struct {
 	Power string `protobuf:"bytes,1,opt,name=power,proto3" json:"power,omitempty"`
 }
@@ -297,6 +303,7 @@ func (m *QueryTotalVotingPowerAtResponse) GetPower() string {
 	return ""
 }
 
+// QueryVotingPowerOverRangeRequest requests an address's snapshots over a height range.
 type QueryVotingPowerOverRangeRequest struct {
 	Address    string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	FromHeight int64  `protobuf:"varint,2,opt,name=from_height,json=fromHeight,proto3" json:"from_height,omitempty"`
@@ -357,6 +364,7 @@ func (m *QueryVotingPowerOverRangeRequest) GetToHeight() int64 {
 	return 0
 }
 
+// QueryVotingPowerOverRangeResponse contains voting-power snapshots over a height range.
 type QueryVotingPowerOverRangeResponse struct {
 	Rows []HeightPower `protobuf:"bytes,1,rep,name=rows,proto3" json:"rows"`
 }
@@ -401,6 +409,7 @@ func (m *QueryVotingPowerOverRangeResponse) GetRows() []HeightPower {
 	return nil
 }
 
+// HeightPower pairs a block height with its recorded voting power.
 type HeightPower struct {
 	Height int64  `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
 	Power  string `protobuf:"bytes,2,opt,name=power,proto3" json:"power,omitempty"`

@@ -4,6 +4,8 @@ package juno.stream.module.v1;
 
 import "cosmos/app/v1alpha1/module.proto";
 
+option go_package = "github.com/CosmosContracts/juno/v31/api/juno/stream/module/v1";
+
 // Module is the config object of the stream module.
 message Module {
   option (cosmos.app.v1alpha1.module) = {go_import: "github.com/CosmosContracts/juno/v31/x/stream"};

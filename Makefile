@@ -254,12 +254,12 @@ proto-openapi:
 
 proto-format:
 	@echo "🖊️ Formatting Protobuffers"
-	@$(PROTO_IMAGE) buf format ./proto --error-format=json
+	@$(PROTO_IMAGE) go tool buf format ./proto --error-format=json
 	@echo "✅ Formatted Protobuffers successfully!"
 
 proto-lint:
 	@echo "🔎 Linting Protobuffers"
-	@$(PROTO_IMAGE) buf lint --error-format=json
+	@$(PROTO_IMAGE) go tool buf lint --error-format=json
 	@echo "✅ Linted Protobuffers successfully!"
 
 proto-breaking:
