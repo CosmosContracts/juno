@@ -36,7 +36,7 @@ var cw4Artifacts = map[string]string{
 	"dao_voting_cw4.wasm":      "d0e6bac4d7c1861f36328e7c0367f863999f999e2ae21df612e301eea5fe90d8",
 	"dao_proposal_single.wasm": "e38fc5bb1b5e74ef154340567c673492515498b2120e5f15b0c990cd9fa5fe6a",
 	"dao_dao_core.wasm":        "5d078fc9aec04df18c335446eb8df03d24c73ee745f76fd39624d4c5fa768b4c",
-	"voting_power_probe.wasm":  "a074bc275b8b38eebd79db1603645ae71759a679385da2ccd82622f39f1f57af",
+	"voting_power_probe.wasm":  "124d427ff478ec1d026f5412b72892db76a961b066989a299f66bcfb13d0b11a",
 }
 
 type DaoDaoTestSuite struct {
@@ -83,7 +83,7 @@ func (s *DaoDaoTestSuite) TestCw4GroupDao() {
 
 	daoMsg, err := buildDaoInstantiate(user.FormattedAddress(), votingCodeID, proposalCodeID, cw4GroupCodeID)
 	require.NoError(err)
-	dao, err := s.InstantiateContract(s.Chain, user.KeyName(), coreCodeID, daoMsg, fees, false, false)
+	dao, err := s.InstantiateContract(s.Chain, user.KeyName(), coreCodeID, daoMsg, fees, true, false)
 	require.NoError(err)
 	require.NotEmpty(dao, "core must be instantiated")
 
@@ -137,7 +137,7 @@ func (s *DaoDaoTestSuite) TestWasmbindingsVotingPowerAt() {
 
 	probeCodeID := s.StoreContract(s.Chain, user.KeyName(), filepath.Join(contractsDir, "voting_power_probe.wasm"), fees)
 	require.NotEmpty(probeCodeID)
-	probe, err := s.InstantiateContract(s.Chain, user.KeyName(), probeCodeID, `{}`, fees, false, false)
+	probe, err := s.InstantiateContract(s.Chain, user.KeyName(), probeCodeID, `{}`, fees, true, false)
 	require.NoError(err)
 	require.NotEmpty(probe)
 

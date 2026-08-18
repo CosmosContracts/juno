@@ -1,6 +1,6 @@
 [target.wasm32-unknown-unknown]
 # CosmWasm contracts intentionally import host functions (storage, address,
 # cryptography, debug, and chain queries) supplied by wasmvm at runtime.
-# Rust 1.96's bundled wasm-ld rejects those imports unless this target-only
-# policy is explicit.
-rustflags = ["-C", "link-arg=--allow-undefined"]
+# Rust 1.85's bundled wasm-ld rejects those imports unless this target-only
+# policy is explicit. Bulk memory is disabled for wasmvm compatibility.
+rustflags = ["-C", "target-feature=-bulk-memory", "-C", "link-arg=--allow-undefined"]
