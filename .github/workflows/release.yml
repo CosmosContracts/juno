@@ -43,11 +43,11 @@ jobs:
           validate_version "$REQUESTED_TAG"
           identity=$(resolve_remote_tag_identity . origin "$REQUESTED_TAG")
           tag_oid=${identity%% *}
-          commit=${identity#* }
+          resolved_commit=${identity#* }
           if [ "$EVENT_NAME" = push ]; then
             validate_commit "$EVENT_AFTER"
             if [ "$EVENT_AFTER" != "$tag_oid" ]; then
-              echo "push event tag object $EVENT_AFTER is no longer current ($tag_oid peeled to $commit)" >&2
+              echo "push event tag object $EVENT_AFTER is no longer current ($tag_oid peeled to $resolved_commit)" >&2
               exit 1
             fi
           fi
@@ -58,13 +58,15 @@ jobs:
             "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/releases/tags/$REQUESTED_TAG")
           require_absent_http_status "$status" "release $REQUESTED_TAG" || { cat "$response" >&2; exit 1; }
           rm -f "$response"
-          epoch=$(gh api "repos/$GITHUB_REPOSITORY/commits/$commit" --jq '.commit.committer.date | fromdateiso8601')
+          epoch=$(gh api "repos/$GITHUB_REPOSITORY/commits/$resolved_commit" --jq '.commit.committer.date | fromdateiso8601')
           repository=$(printf '%s' "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
-          echo "tag=$REQUESTED_TAG" >>"$GITHUB_OUTPUT"
-          echo "tag_oid=$tag_oid" >>"$GITHUB_OUTPUT"
-          echo "commit=$commit" >>"$GITHUB_OUTPUT"
-          echo "epoch=$epoch" >>"$GITHUB_OUTPUT"
-          echo "image=ghcr.io/$repository" >>"$GITHUB_OUTPUT"
+          {
+            echo "tag=$REQUESTED_TAG"
+            echo "tag_oid=$tag_oid"
+            echo "commit=$resolved_commit"
+            echo "epoch=$epoch"
+            echo "image=ghcr.io/$repository"
+          } >>"$GITHUB_OUTPUT"
 
   binaries:
     needs: guard
