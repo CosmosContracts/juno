@@ -90,9 +90,10 @@ jobs:
         run: |
           # COMMIT is supplied by the step environment.
           # shellcheck disable=SC2153
+          commit=$COMMIT
           . scripts/release/lib.sh
-          test "$(git rev-parse HEAD)" = "$COMMIT"
-          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
+          test "$(git rev-parse HEAD)" = "$commit"
+          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$commit")" = "$TAG_OID $commit"
       - name: Build and verify tagged binary
         env:
           VERSION: ${{ needs.guard.outputs.tag }}
@@ -220,9 +221,10 @@ jobs:
         run: |
           # COMMIT is supplied by the job environment.
           # shellcheck disable=SC2153
+          commit=$COMMIT
           cp RELEASE-VERIFICATION.md dist/
           python3 scripts/release/metadata.py --directory dist --version "$TAG" \
-            --commit "$COMMIT" --repository "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --commit "$commit" --repository "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
             --workflow-sha "$GITHUB_WORKFLOW_SHA"
           . scripts/release/lib.sh
           generate_checksums dist
@@ -231,8 +233,9 @@ jobs:
         run: |
           # COMMIT is supplied by the job environment.
           # shellcheck disable=SC2153
+          commit=$COMMIT
           . scripts/release/lib.sh
-          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
+          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$commit")" = "$TAG_OID $commit"
       - name: Attest every release asset
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
@@ -241,8 +244,9 @@ jobs:
         run: |
           # COMMIT is supplied by the job environment.
           # shellcheck disable=SC2153
+          commit=$COMMIT
           . scripts/release/lib.sh
-          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
+          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$commit")" = "$TAG_OID $commit"
       - name: Attest the content-addressed container manifest
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
@@ -255,7 +259,8 @@ jobs:
         run: |
           # COMMIT is supplied by the job environment.
           # shellcheck disable=SC2153
+          commit=$COMMIT
           . scripts/release/lib.sh
-          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$COMMIT")" = "$TAG_OID $COMMIT"
+          test "$(resolve_remote_tag_identity . origin "$TAG" "$TAG_OID" "$commit")" = "$TAG_OID $commit"
           gh release create "$TAG" dist/* --verify-tag --title "$TAG" \
-            --notes "Verifiable Juno release built from $COMMIT. The container is published only at the digest recorded in container-digests.json."
+            --notes "Verifiable Juno release built from $commit. The container is published only at the digest recorded in container-digests.json."
