@@ -46,6 +46,12 @@ func stateSyncSpec() *interchaintest.ChainSpec {
 
 	config := e2esuite.DefaultConfig.Clone()
 	config.ConfigFileOverrides = snapshotConfigOverrides()
+	// Pass the SDK flags too: they are the authoritative app-options keys used
+	// when the snapshot manager is constructed.
+	config.AdditionalStartArgs = append(config.AdditionalStartArgs,
+		"--state-sync.snapshot-interval", "10",
+		"--state-sync.snapshot-keep-recent", "2",
+	)
 
 	return &interchaintest.ChainSpec{
 		ChainName:     e2esuite.DefaultSpec.ChainName,
