@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/stretchr/testify/require"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -34,7 +35,8 @@ func TestExportNormalizesLegacyContractCaps(t *testing.T) {
 	}
 	require.NoError(t, app.AppKeepers.CWHooksKeeper.Params.Set(ctx, legacyCWHooks))
 	ctx.MultiStore().(storetypes.CacheMultiStore).Write()
-	app.Commit()
+	_, err := app.Commit()
+	require.NoError(t, err)
 
 	exported, err := app.ExportAppStateAndValidators(false, nil, nil)
 	require.NoError(t, err)
@@ -55,9 +57,10 @@ func TestExportContractCapNormalizationRespectsModuleSelection(t *testing.T) {
 	app := setup.Setup(false, t.TempDir(), "juno-export-module-selection-1")
 	ctx := app.NewContextLegacy(false, cmtproto.Header{Height: 1})
 	ctx.MultiStore().(storetypes.CacheMultiStore).Write()
-	app.Commit()
+	_, err := app.Commit()
+	require.NoError(t, err)
 
-	_, err := app.ExportAppStateAndValidators(false, nil, []string{"bank"})
+	_, err = app.ExportAppStateAndValidators(false, nil, []string{"bank"})
 	require.NoError(t, err)
 }
 
@@ -87,7 +90,8 @@ func TestExportImportPreservesV31State(t *testing.T) {
 	preExportVersions, err := first.AppKeepers.UpgradeKeeper.GetModuleVersionMap(ctx)
 	require.NoError(t, err)
 	ctx.MultiStore().(storetypes.CacheMultiStore).Write()
-	first.Commit()
+	_, err = first.Commit()
+	require.NoError(t, err)
 
 	exported, err := first.ExportAppStateAndValidators(false, nil, nil)
 	require.NoError(t, err)

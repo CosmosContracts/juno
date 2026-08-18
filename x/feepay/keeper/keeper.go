@@ -66,15 +66,6 @@ func NewKeeper(
 	}
 }
 
-func (k Keeper) feeDenom(ctx context.Context) (string, error) {
-	params, err := k.feeMarketKeeper.GetParams(sdk.UnwrapSDKContext(ctx))
-	if err != nil {
-		return "", err
-	}
-
-	return params.FeeDenom, nil
-}
-
 // GetAuthority returns the x/feeshare module's authority.
 func (k Keeper) GetAuthority() string {
 	return k.authority
@@ -84,4 +75,13 @@ func (k Keeper) GetAuthority() string {
 func (Keeper) Logger(ctx context.Context) log.Logger {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	return sdkCtx.Logger().With("module", fmt.Sprintf("x/%s", feepaytypes.ModuleName))
+}
+
+func (k Keeper) feeDenom(ctx context.Context) (string, error) {
+	params, err := k.feeMarketKeeper.GetParams(sdk.UnwrapSDKContext(ctx))
+	if err != nil {
+		return "", err
+	}
+
+	return params.FeeDenom, nil
 }

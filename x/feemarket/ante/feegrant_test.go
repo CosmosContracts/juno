@@ -6,9 +6,10 @@ import (
 	"strings"
 	"time"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/feegrant"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

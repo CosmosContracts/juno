@@ -181,7 +181,7 @@ func NewAppKeepers(
 	maccPerms map[string][]string,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
-	bondDenom string,
+	_ string,
 	homePath string,
 ) AppKeepers {
 	appKeepers := AppKeepers{}

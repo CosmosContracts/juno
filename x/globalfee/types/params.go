@@ -1,12 +1,19 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+var (
+	errDuplicateDenomination = errors.New("duplicate denomination")
+	errUnsortedDenomination  = errors.New("denomination is not sorted")
+	errNegativeCoinAmount    = errors.New("coin amount is negative")
 )
 
 // DefaultParams returns default parameters
@@ -19,7 +26,7 @@ func (p Params) Validate() error {
 	return ValidateMinimumGasPrices(p.MinimumGasPrices)
 }
 
-// this requires the fee non-negative
+// ValidateMinimumGasPrices requires non-negative fees.
 func ValidateMinimumGasPrices(i any) error {
 	v, ok := i.(sdk.DecCoins)
 	if !ok {
@@ -44,17 +51,17 @@ func (coins DecCoins) Validate() error {
 
 	for i, coin := range coins {
 		if seenDenoms[coin.Denom] {
-			return fmt.Errorf("duplicate denomination %s", coin.Denom)
+			return fmt.Errorf("%w: %s", errDuplicateDenomination, coin.Denom)
 		}
 		if err := sdk.ValidateDenom(coin.Denom); err != nil {
 			return err
 		}
 		// skip the denom order check for the first denom in the coins list
 		if i != 0 && coin.Denom <= lowDenom {
-			return fmt.Errorf("denomination %s is not sorted", coin.Denom)
+			return fmt.Errorf("%w: %s", errUnsortedDenomination, coin.Denom)
 		}
 		if coin.IsNegative() {
-			return fmt.Errorf("coin %s amount is negative", coin.Amount)
+			return fmt.Errorf("%w: %s", errNegativeCoinAmount, coin.Amount)
 		}
 
 		// we compare each coin against the last denom

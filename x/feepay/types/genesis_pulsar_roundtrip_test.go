@@ -3,8 +3,9 @@ package types_test
 import (
 	"testing"
 
-	feepayv1 "github.com/CosmosContracts/juno/v31/api/juno/feepay/v1"
 	"google.golang.org/protobuf/proto"
+
+	feepayv1 "github.com/CosmosContracts/juno/v31/api/juno/feepay/v1"
 )
 
 func TestGenesisStateWalletUsagesGeneratedRoundTrip(t *testing.T) {

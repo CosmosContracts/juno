@@ -60,7 +60,7 @@ type feePayTestTx struct {
 	msgs []sdk.Msg
 }
 
-func (tx feePayTestTx) GetMsgs() []sdk.Msg                 { return tx.msgs }
+func (testTx feePayTestTx) GetMsgs() []sdk.Msg             { return testTx.msgs }
 func (feePayTestTx) GetMsgsV2() ([]protov2.Message, error) { return nil, nil }
 func (feePayTestTx) GetGas() uint64                        { return 1 }
 func (feePayTestTx) GetFee() sdk.Coins                     { return nil }
@@ -1047,10 +1047,10 @@ func (s *PostTestSuite) TestFeePayRefundOverflowIsAtomic() {
 		s.App.AppKeepers.FeePayKeeper,
 		s.App.AppKeepers.StakingKeeper,
 	)
-	tx := feePayTestTx{msgs: []sdk.Msg{&wasmtypes.MsgExecuteContract{Contract: contractAddr}}}
+	testTx := feePayTestTx{msgs: []sdk.Msg{&wasmtypes.MsgExecuteContract{Contract: contractAddr}}}
 	collectorAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.FeeCollectorName)
 	feepayAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(feepaytypes.ModuleName)
-	err := dfd.PayOutFeeAndRefundFeePay(s.Ctx, tx,
+	err := dfd.PayOutFeeAndRefundFeePay(s.Ctx, testTx,
 		sdk.NewCoin("stake", math.ZeroInt()), sdk.NewInt64Coin("stake", 1))
 	s.Require().ErrorIs(err, feepaytypes.ErrFeePayBalanceOverflow)
 

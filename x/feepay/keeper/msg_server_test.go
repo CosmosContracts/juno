@@ -1,8 +1,9 @@
 package keeper_test
 
 import (
-	_ "embed"
 	"math"
+
+	_ "embed"
 
 	sdkmath "cosmossdk.io/math"
 

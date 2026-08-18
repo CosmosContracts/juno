@@ -5,15 +5,18 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	storetypes "cosmossdk.io/store/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/stretchr/testify/require"
 
 	clocktypes "github.com/CosmosContracts/juno/v31/x/clock/types"
 	cwhookstypes "github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
 )
+
+var errMigrationFailed = errors.New("migration failed")
 
 type clockParamsStoreStub struct {
 	params clocktypes.Params
@@ -32,6 +35,7 @@ type cwHooksParamsStoreStub struct {
 func (s *cwHooksParamsStoreStub) Get(context.Context) (cwhookstypes.Params, error) {
 	return s.params, nil
 }
+
 func (s *cwHooksParamsStoreStub) Set(_ context.Context, params cwhookstypes.Params) error {
 	s.params = params
 	return nil
@@ -87,7 +91,7 @@ func TestUpgradeHandlerReturnsMigrationVersionMap(t *testing.T) {
 }
 
 func TestUpgradeHandlerPropagatesMigrationError(t *testing.T) {
-	expectedErr := errors.New("migration failed")
+	expectedErr := errMigrationFailed
 	runner := &migrationRunnerStub{err: expectedErr}
 
 	got, err := createV31UpgradeHandler(runner, nil)(context.Background(), upgradetypes.Plan{Name: UpgradeName}, module.VersionMap{"bank": 3})

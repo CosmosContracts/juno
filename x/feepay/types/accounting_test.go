@@ -4,17 +4,18 @@ import (
 	"math"
 	"testing"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
+
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 func TestContractBalanceBoundaries(t *testing.T) {
-	max := sdkmath.NewIntFromUint64(math.MaxUint64)
-	aboveMax := max.AddRaw(1)
+	maxAmount := sdkmath.NewIntFromUint64(math.MaxUint64)
+	aboveMax := maxAmount.AddRaw(1)
 
-	got, err := types.ContractBalanceAfterAddition(0, max)
+	got, err := types.ContractBalanceAfterAddition(0, maxAmount)
 	require.NoError(t, err)
 	require.Equal(t, uint64(math.MaxUint64), got)
 
@@ -24,7 +25,7 @@ func TestContractBalanceBoundaries(t *testing.T) {
 	_, err = types.ContractBalanceAfterAddition(math.MaxUint64, sdkmath.OneInt())
 	require.ErrorIs(t, err, types.ErrFeePayBalanceOverflow)
 
-	got, err = types.ContractBalanceAfterSubtraction(math.MaxUint64, max)
+	got, err = types.ContractBalanceAfterSubtraction(math.MaxUint64, maxAmount)
 	require.NoError(t, err)
 	require.Zero(t, got)
 
