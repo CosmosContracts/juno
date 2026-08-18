@@ -10,13 +10,14 @@ import (
 
 func TestUpgradeChainSpecsPinV30AndTwoChainTopology(t *testing.T) {
 	require.Equal(t, "v31", upgradeName)
+	const expectedBaseImage = "v30.0.0@sha256:081346b118fd327afb6f688ae6d6c6a430a8ff6260d9cd56e0db06630560c4db"
 
 	specs := upgradeChainSpecs()
 	require.Len(t, specs, 2)
 
 	for i, spec := range specs {
-		require.Equal(t, "v30.0.0", spec.Version, "chain %d must start at the exact release under test", i)
-		require.Equal(t, "v30.0.0", spec.ChainConfig.Images[0].Version)
+		require.Equal(t, expectedBaseImage, spec.Version, "chain %d must start at the exact immutable image under test", i)
+		require.Equal(t, expectedBaseImage, spec.ChainConfig.Images[0].Version)
 		require.Equal(t, e2esuite.JunoRepo, spec.ChainConfig.Images[0].Repository)
 	}
 

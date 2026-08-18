@@ -2,6 +2,9 @@ package keeper_test
 
 import (
 	"fmt"
+	"math"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -78,4 +81,55 @@ func (s *KeeperTestSuite) TestInitGenesisBalanceValidation() {
 		s.Require().NoError(err)
 		s.Require().Equal(uint64(1_000_000), contract.Balance)
 	})
+}
+
+func (s *KeeperTestSuite) TestInitGenesisSupportsMaxUint64Balance() {
+	s.SetupTest()
+	contractAddr := sdk.AccAddress([]byte("12345678901234567890")).String()
+	maxAmount := sdkmath.NewIntFromUint64(math.MaxUint64)
+	s.FundModuleAcc(types.ModuleName, sdk.NewCoins(sdk.NewCoin("stake", maxAmount)))
+	genesis := types.GenesisState{
+		Params: types.DefaultParams(),
+		FeePayContracts: []types.FeePayContract{{
+			ContractAddress: contractAddr,
+			Balance:         math.MaxUint64,
+		}},
+	}
+
+	s.Require().NotPanics(func() {
+		s.App.AppKeepers.FeePayKeeper.InitGenesis(s.Ctx, genesis)
+	})
+	contract, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(math.MaxUint64), contract.Balance)
+	moduleAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.ModuleName)
+	s.Require().Equal(maxAmount, s.bankKeeper.GetBalance(s.Ctx, moduleAddr, "stake").Amount)
+}
+
+func (s *KeeperTestSuite) TestFeePayGenesisRoundTripPreservesWalletUsage() {
+	contractAddr := "juno1qsrercqegvs4ye0yqg93knv73ye5dc3prqwd6jcdcuj8ggp6w0us66deup"
+	walletAddr := "juno1p30mp2fh2p6603h9mkxc8alw6wplss72dfd385"
+	contract := types.FeePayContract{
+		ContractAddress: contractAddr,
+		Balance:         1_000_000,
+		WalletLimit:     10,
+	}
+
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, contract)
+	s.Require().NoError(s.App.AppKeepers.FeePayKeeper.IncrementContractUses(s.Ctx, &contract, walletAddr, 3))
+	exported := s.App.AppKeepers.FeePayKeeper.ExportGenesis(s.Ctx)
+	s.Require().Equal([]types.FeePayWalletUsage{{
+		ContractAddress: contractAddr,
+		WalletAddress:   walletAddr,
+		Uses:            3,
+	}}, exported.WalletUsages)
+
+	s.SetupTest()
+	s.FundModuleAcc(types.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("stake", 1_000_000)))
+	s.App.AppKeepers.FeePayKeeper.InitGenesis(s.Ctx, *exported)
+	restored, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(err)
+	uses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, restored, walletAddr)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(3), uses)
 }

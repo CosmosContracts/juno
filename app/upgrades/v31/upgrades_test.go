@@ -10,7 +10,49 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/stretchr/testify/require"
+
+	clocktypes "github.com/CosmosContracts/juno/v31/x/clock/types"
+	cwhookstypes "github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
 )
+
+type clockParamsStoreStub struct {
+	params clocktypes.Params
+}
+
+func (s *clockParamsStoreStub) GetParams(context.Context) clocktypes.Params { return s.params }
+func (s *clockParamsStoreStub) SetParams(_ context.Context, params clocktypes.Params) error {
+	s.params = params
+	return nil
+}
+
+type cwHooksParamsStoreStub struct {
+	params cwhookstypes.Params
+}
+
+func (s *cwHooksParamsStoreStub) Get(context.Context) (cwhookstypes.Params, error) {
+	return s.params, nil
+}
+func (s *cwHooksParamsStoreStub) Set(_ context.Context, params cwhookstypes.Params) error {
+	s.params = params
+	return nil
+}
+
+func TestMigrateLegacyContractCaps(t *testing.T) {
+	clockStore := &clockParamsStoreStub{params: clocktypes.Params{ContractGasLimit: 250_000}}
+	cwHooksStore := &cwHooksParamsStoreStub{params: cwhookstypes.Params{
+		ContractGasLimit:                250_000,
+		ContractFailureRemovalThreshold: 3,
+	}}
+
+	err := migrateLegacyContractCaps(context.Background(), clockStore, cwHooksStore)
+
+	require.NoError(t, err)
+	require.Equal(t, clocktypes.DefaultMaxContracts, clockStore.params.MaxContracts)
+	require.Equal(t, uint64(250_000), clockStore.params.ContractGasLimit)
+	require.Equal(t, cwhookstypes.DefaultMaxContracts, cwHooksStore.params.MaxContracts)
+	require.Equal(t, uint64(250_000), cwHooksStore.params.ContractGasLimit)
+	require.Equal(t, uint64(3), cwHooksStore.params.ContractFailureRemovalThreshold)
+}
 
 type migrationRunnerStub struct {
 	gotVersionMap module.VersionMap

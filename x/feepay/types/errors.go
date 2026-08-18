@@ -11,4 +11,6 @@ var (
 	ErrInvalidJunoFundAmount    = errorsmod.Register(ModuleName, 4, "fee pay contracts only accept juno funds")
 	ErrFeePayDisabled           = errorsmod.Register(ModuleName, 5, "the FeePay module is disabled")
 	ErrDeductFees               = errorsmod.Register(ModuleName, 6, "error deducting fees")
+	ErrFeePayAmountOutOfRange   = errorsmod.Register(ModuleName, 7, "fee pay amount is outside uint64 range")
+	ErrFeePayBalanceOverflow    = errorsmod.Register(ModuleName, 8, "fee pay contract balance overflow")
 )

@@ -145,7 +145,7 @@ func (dfd InnerDeductFeeDecorator) HandleFees(ctx sdk.Context, feeTx sdk.FeeTx, 
 	// First try to handle FeePay transactions, if error, try the feemarket route.
 	// If not a FeePay transaction, default to the feemarket route.
 	if isValidFeepayTx {
-		feePayErr = dfd.handleZeroFees(ctx, deductFeesFromAcc, feeTx)
+		feePayErr = dfd.handleZeroFees(ctx, feeTx)
 		if feePayErr != nil {
 			// Only fall back to user-paid escrow when there is an actual fee to
 			// escrow. For a valid feepay tx the user submits --fees 0, so `fee`
@@ -342,7 +342,7 @@ func (dfd InnerDeductFeeDecorator) isBypassMsg(msg sdk.Msg) bool {
 // Handle zero fee transactions for x/feepay module.
 // CONTRACT: the tx was validated by IsValidFeePayTransaction, which enforces
 // exactly one message of type MsgExecuteContract on a registered contract.
-func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFromAcc sdk.AccountI, tx sdk.FeeTx) error {
+func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, tx sdk.FeeTx) error {
 	msg := tx.GetMsgs()[0]
 	cw, ok := msg.(*wasmtypes.MsgExecuteContract)
 	if !ok {
@@ -368,15 +368,22 @@ func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFro
 	gas := sdkmath.LegacyNewDec(int64(tx.GetGas()))
 	requiredFee := feePrice.Amount.Mul(gas).Ceil().RoundInt()
 
-	// Check if wallet exceeded usage limit on contract
-	accBech32 := deductFeesFromAcc.GetAddress().String()
-	if dfd.feepayKeeper.HasWalletExceededUsageLimit(ctx, feepayContract, accBech32) {
+	// Wallet limits protect the authenticated contract caller, not the account
+	// that happens to pay fees. With feegrant those identities are distinct.
+	// Canonicalize the Bech32 spelling so equivalent encodings share one usage
+	// bucket rather than allowing case variants to bypass the wallet limit.
+	walletAddr, err := sdk.AccAddressFromBech32(cw.Sender)
+	if err != nil {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid contract sender %q: %s", cw.Sender, err)
+	}
+	walletAddress := walletAddr.String()
+	if dfd.feepayKeeper.HasWalletExceededUsageLimit(ctx, feepayContract, walletAddress) {
 		return errorsmod.Wrapf(feepaytypes.ErrWalletExceededUsageLimit, "wallet has exceeded usage limit (%d)", feepayContract.WalletLimit)
 	}
 
-	// Check if the contract has enough funds to cover the fee
-	if !dfd.feepayKeeper.CanContractCoverFee(feepayContract, requiredFee.Uint64()) {
-		return errorsmod.Wrapf(feepaytypes.ErrContractNotEnoughFunds, "contract has insufficient funds; expected: %d, got: %d", requiredFee.Uint64(), feepayContract.Balance)
+	newBalance, err := feepaytypes.ContractBalanceAfterSubtraction(feepayContract.Balance, requiredFee)
+	if err != nil {
+		return err
 	}
 
 	// Create an array of coins, storing the required fee
@@ -388,10 +395,10 @@ func (dfd InnerDeductFeeDecorator) handleZeroFees(ctx sdk.Context, deductFeesFro
 	}
 
 	// Deduct the fee from the contract balance
-	dfd.feepayKeeper.SetContractBalance(ctx, feepayContract, feepayContract.Balance-requiredFee.Uint64())
+	dfd.feepayKeeper.SetContractBalance(ctx, feepayContract, newBalance)
 
 	// Increment wallet usage
-	if err := dfd.feepayKeeper.IncrementContractUses(ctx, feepayContract, accBech32, 1); err != nil {
+	if err := dfd.feepayKeeper.IncrementContractUses(ctx, feepayContract, walletAddress, 1); err != nil {
 		return errorsmod.Wrapf(err, "error incrementing contract uses")
 	}
 

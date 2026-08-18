@@ -2,11 +2,13 @@ package post_test
 
 import (
 	"fmt"
+	stdmath "math"
 	"testing"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	protov2 "google.golang.org/protobuf/proto"
 
 	ibcchanneltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
 
@@ -53,6 +55,17 @@ type PostTestCase struct {
 	Malleate    func(*PostTestSuite) testutil.TestCaseArgs
 	StateUpdate func(*PostTestSuite)
 }
+
+type feePayTestTx struct {
+	msgs []sdk.Msg
+}
+
+func (tx feePayTestTx) GetMsgs() []sdk.Msg                 { return tx.msgs }
+func (feePayTestTx) GetMsgsV2() ([]protov2.Message, error) { return nil, nil }
+func (feePayTestTx) GetGas() uint64                        { return 1 }
+func (feePayTestTx) GetFee() sdk.Coins                     { return nil }
+func (feePayTestTx) FeePayer() []byte                      { return nil }
+func (feePayTestTx) FeeGranter() []byte                    { return nil }
 
 func TestPostTestSuite(t *testing.T) {
 	suite.Run(t, new(PostTestSuite))
@@ -980,6 +993,72 @@ func (s *PostTestSuite) TestFeePayMissingConfiguredFeeDenomFundsHasNoMutation() 
 	s.Require().Equal(int64(initialBalance), s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, feepayAddr, "stake").Amount.Int64())
 	s.Require().True(s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, feepayAddr, feeDenom).IsZero())
 	s.Require().True(s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, collectorAddr, feeDenom).IsZero())
+}
+
+func (s *PostTestSuite) TestFeePayAnteRejectsRequiredFeeAboveUint64Atomically() {
+	s.SetupTest()
+	state, err := s.App.AppKeepers.FeeMarketKeeper.GetState(s.Ctx)
+	s.Require().NoError(err)
+	state.BaseGasPrice = math.LegacyNewDec(3)
+	s.Require().NoError(s.App.AppKeepers.FeeMarketKeeper.SetState(s.Ctx, state))
+
+	contractAddr := sdk.AccAddress([]byte("12345678901234567890")).String()
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, feepaytypes.FeePayContract{
+		ContractAddress: contractAddr, Balance: stdmath.MaxUint64, WalletLimit: 10,
+	})
+	signerPriv, _, signerAddr := testdata.KeyTestPubAddr()
+	acc := s.App.AppKeepers.AccountKeeper.NewAccountWithAddress(s.Ctx, signerAddr)
+	s.Require().NoError(acc.SetPubKey(signerPriv.PubKey()))
+	s.App.AppKeepers.AccountKeeper.SetAccount(s.Ctx, acc)
+	s.Require().NoError(s.TxBuilder.SetMsgs(&wasmtypes.MsgExecuteContract{
+		Sender: signerAddr.String(), Contract: contractAddr, Msg: []byte("{}"),
+	}))
+	s.TxBuilder.SetFeeAmount(nil)
+	s.TxBuilder.SetGasLimit(uint64(stdmath.MaxInt64))
+	testTx, err := s.CreateTestTx([]cryptotypes.PrivKey{signerPriv},
+		[]uint64{acc.GetAccountNumber()}, []uint64{0}, s.Ctx.ChainID())
+	s.Require().NoError(err)
+
+	_, err = s.AnteHandler(s.Ctx.WithGasMeter(storetypes.NewGasMeter(NewTestGasLimit())), testTx, false)
+	s.Require().ErrorIs(err, feepaytypes.ErrFeePayAmountOutOfRange)
+	contract, getErr := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(getErr)
+	s.Require().Equal(uint64(stdmath.MaxUint64), contract.Balance)
+	uses, getErr := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, contract, signerAddr.String())
+	s.Require().NoError(getErr)
+	s.Require().Zero(uses)
+	collectorAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.FeeCollectorName)
+	s.Require().True(s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, collectorAddr, "stake").IsZero())
+}
+
+func (s *PostTestSuite) TestFeePayRefundOverflowIsAtomic() {
+	s.SetupTest()
+	contractAddr := sdk.AccAddress([]byte("12345678901234567890")).String()
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, feepaytypes.FeePayContract{
+		ContractAddress: contractAddr,
+		Balance:         stdmath.MaxUint64,
+	})
+	s.FundModuleAcc(types.FeeCollectorName, sdk.NewCoins(sdk.NewInt64Coin("stake", 1)))
+
+	dfd := post.NewFeeMarketDeductDecorator(
+		s.App.AppKeepers.AccountKeeper,
+		s.App.AppKeepers.BankKeeper,
+		*s.App.AppKeepers.FeeMarketKeeper,
+		s.App.AppKeepers.FeePayKeeper,
+		s.App.AppKeepers.StakingKeeper,
+	)
+	tx := feePayTestTx{msgs: []sdk.Msg{&wasmtypes.MsgExecuteContract{Contract: contractAddr}}}
+	collectorAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(types.FeeCollectorName)
+	feepayAddr := s.App.AppKeepers.AccountKeeper.GetModuleAddress(feepaytypes.ModuleName)
+	err := dfd.PayOutFeeAndRefundFeePay(s.Ctx, tx,
+		sdk.NewCoin("stake", math.ZeroInt()), sdk.NewInt64Coin("stake", 1))
+	s.Require().ErrorIs(err, feepaytypes.ErrFeePayBalanceOverflow)
+
+	contract, getErr := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(getErr)
+	s.Require().Equal(uint64(stdmath.MaxUint64), contract.Balance)
+	s.Require().Equal(math.NewInt(1), s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, collectorAddr, "stake").Amount)
+	s.Require().True(s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, feepayAddr, "stake").IsZero())
 }
 
 // TestTipPaidToProposerOperatorAccount asserts the proposer tip goes to the

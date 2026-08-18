@@ -96,6 +96,30 @@ func (k Keeper) GetAllContracts(ctx context.Context) []types.FeePayContract {
 	return contracts
 }
 
+// GetAllWalletUsages returns every persisted wallet usage counter in store-key
+// order so exported genesis is deterministic.
+func (k Keeper) GetAllWalletUsages(ctx context.Context) []types.FeePayWalletUsage {
+	usages := []types.FeePayWalletUsage{}
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	iterator := storetypes.KVStorePrefixIterator(store, StoreKeyContractUses)
+	defer iterator.Close() //nolint:errcheck
+
+	for ; iterator.Valid(); iterator.Next() {
+		var usage types.FeePayWalletUsage
+		k.cdc.MustUnmarshal(iterator.Value(), &usage)
+		usages = append(usages, usage)
+	}
+	return usages
+}
+
+// SetWalletUsage restores one validated wallet usage entry from genesis.
+func (k Keeper) SetWalletUsage(ctx context.Context, usage types.FeePayWalletUsage) {
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	contractUsesPrefix := prefix.NewStore(store, StoreKeyContractUses)
+	key := []byte(usage.ContractAddress + "-" + usage.WalletAddress)
+	contractUsesPrefix.Set(key, k.cdc.MustMarshal(&usage))
+}
+
 // HasOutstandingBalances reports whether changing the configured fee denom
 // would reinterpret any existing denomination-less FeePay liability.
 func (k Keeper) HasOutstandingBalances(ctx sdk.Context) bool {
@@ -267,16 +291,18 @@ func (k Keeper) FundContract(ctx context.Context, fpc *types.FeePayContract, sen
 		return types.ErrInvalidJunoFundAmount.Wrapf("contract must be funded with '%s'", feeDenom)
 	}
 
-	// Transfer ONLY the fee-denom coin from sender to module. Transferring
-	// the whole `coins` slice would pull non-fee denoms into the module
-	// account while crediting the contract only for the fee-denom amount —
-	// stranding the rest.
+	newBalance, err := types.ContractBalanceAfterAddition(fpc.Balance, transferCoin.Amount)
+	if err != nil {
+		return err
+	}
+
+	// Complete all validation before transferring bank funds. A rejected
+	// amount must not move coins without a matching uint64 ledger credit.
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, types.ModuleName, sdk.NewCoins(transferCoin)); err != nil {
 		return err
 	}
 
-	// Increment the fpc balance
-	k.SetContractBalance(ctx, fpc, fpc.Balance+transferCoin.Amount.Uint64())
+	k.SetContractBalance(ctx, fpc, newBalance)
 	return nil
 }
 

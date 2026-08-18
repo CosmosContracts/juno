@@ -3,6 +3,7 @@ package ante_test
 import (
 	"context"
 	"math/rand"
+	"strings"
 	"time"
 
 	"cosmossdk.io/math"
@@ -26,6 +27,7 @@ import (
 	junoante "github.com/CosmosContracts/juno/v31/app/ante"
 	"github.com/CosmosContracts/juno/v31/app/ante/decorators"
 	"github.com/CosmosContracts/juno/v31/testutil"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 func (s *AnteTestSuite) TestNewAnteHandlerUsesEmbeddedFeegrantKeeper() {
@@ -83,6 +85,107 @@ func (s *AnteTestSuite) TestNewAnteHandlerUsesEmbeddedFeegrantKeeper() {
 	s.Require().NoError(err)
 	after := s.App.AppKeepers.BankKeeper.GetBalance(s.Ctx, granter.Account.GetAddress(), fee.Denom)
 	s.Require().True(after.Amount.Equal(before.Amount.Sub(fee.Amount)))
+}
+
+func (s *AnteTestSuite) TestFeePayUsageCanonicalizesAuthenticatedSenderWhenFeeGranterPays() {
+	s.SetupTest()
+
+	grantee := s.fullAccs[0]
+	granter := s.fullAccs[1]
+	contractAddr := sdk.AccAddress([]byte("12345678901234567890")).String()
+	contract := feepaytypes.FeePayContract{
+		ContractAddress: contractAddr,
+		Balance:         1_000_000,
+		WalletLimit:     2,
+	}
+	s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, contract)
+	s.FundModuleAcc(feepaytypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("stake", 1_000_000)))
+	s.Require().NoError(s.App.AppKeepers.FeeGrantKeeper.GrantAllowance(
+		s.Ctx,
+		granter.Account.GetAddress(),
+		grantee.Account.GetAddress(),
+		&feegrant.BasicAllowance{SpendLimit: sdk.NewCoins(sdk.NewInt64Coin("stake", 1_000_000))},
+	))
+
+	handler, err := junoante.NewAnteHandler(junoante.HandlerOptions{
+		HandlerOptions: authante.HandlerOptions{
+			FeegrantKeeper:  s.App.AppKeepers.FeeGrantKeeper,
+			SignModeHandler: s.App.TxConfig().SignModeHandler(),
+		},
+		AccountKeeper:         s.App.AppKeepers.AccountKeeper,
+		BankKeeper:            s.App.AppKeepers.BankKeeper,
+		StakingKeeper:         *s.App.AppKeepers.StakingKeeper,
+		BondDenom:             "stake",
+		IBCKeeper:             s.App.AppKeepers.IBCKeeper,
+		TXCounterStoreService: runtime.NewKVStoreService(s.App.AppKeepers.GetKey(wasmtypes.StoreKey)),
+		NodeConfig:            &wasmtypes.NodeConfig{},
+		WasmKeeper:            &s.App.AppKeepers.WasmKeeper,
+		FeemarketKeeper:       *s.App.AppKeepers.FeeMarketKeeper,
+		FeepayKeeper:          s.App.AppKeepers.FeePayKeeper,
+		FeeshareKeeper:        s.App.AppKeepers.FeeShareKeeper,
+	})
+	s.Require().NoError(err)
+
+	// Run ante writes in a cache, just as BaseApp does, so the authentication
+	// negative control cannot leave fee-pay or account state behind.
+	runAnte := func(signedTx sdk.Tx) error {
+		cacheCtx, write := s.Ctx.CacheContext()
+		_, err := handler(cacheCtx, signedTx, false)
+		if err == nil {
+			write()
+		}
+		return err
+	}
+
+	txConfig := s.App.TxConfig()
+	account := s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, grantee.Account.GetAddress())
+	canonicalSender := grantee.Account.GetAddress().String()
+	uppercaseSender := strings.ToUpper(canonicalSender)
+	makeTx := func(sender string, sequence uint64, priv cryptotypes.PrivKey) sdk.Tx {
+		signedTx, err := genTxWithFeeGranter(
+			txConfig,
+			[]sdk.Msg{&wasmtypes.MsgExecuteContract{
+				Sender: sender, Contract: contractAddr, Msg: []byte("{}"),
+			}},
+			nil,
+			200_000,
+			s.Ctx.ChainID(),
+			[]uint64{account.GetAccountNumber()},
+			[]uint64{sequence},
+			granter.Account.GetAddress(),
+			priv,
+		)
+		s.Require().NoError(err)
+		return signedTx
+	}
+
+	// This proves the regression transactions really pass through the
+	// production authentication decorators: the same message signed by a key
+	// that does not own Sender is rejected, and its cached ante writes vanish.
+	err = runAnte(makeTx(canonicalSender, account.GetSequence(), s.fullAccs[2].Priv))
+	s.Require().ErrorIs(err, sdkerrors.ErrInvalidPubKey)
+
+	err = runAnte(makeTx(canonicalSender, account.GetSequence(), grantee.Priv))
+	s.Require().NoError(err)
+	account = s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, grantee.Account.GetAddress())
+	s.Require().Equal(uint64(1), account.GetSequence())
+
+	err = runAnte(makeTx(uppercaseSender, account.GetSequence(), grantee.Priv))
+	s.Require().NoError(err)
+	account = s.App.AppKeepers.AccountKeeper.GetAccount(s.Ctx, grantee.Account.GetAddress())
+	s.Require().Equal(uint64(2), account.GetSequence())
+
+	updated, err := s.App.AppKeepers.FeePayKeeper.GetContract(s.Ctx, contractAddr)
+	s.Require().NoError(err)
+	signerUses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, updated, canonicalSender)
+	s.Require().NoError(err)
+	uppercaseUses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, updated, uppercaseSender)
+	s.Require().NoError(err)
+	granterUses, err := s.App.AppKeepers.FeePayKeeper.GetContractUses(s.Ctx, updated, granter.Account.GetAddress().String())
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(2), signerUses)
+	s.Require().Zero(uppercaseUses)
+	s.Require().Zero(granterUses)
 }
 
 func (s *AnteTestSuite) TestFeegranterWithoutKeeperReturnsError() {
