@@ -27,10 +27,6 @@ func TestStateSyncSpecIsIsolatedAndPreconfiguresSnapshotProviderTopology(t *test
 	require.True(t, ok)
 	require.Equal(t, stateSyncSnapshotInterval, snapshotToml["snapshot-interval"])
 	require.Equal(t, "custom", appToml["pruning"])
-	require.Equal(t, []string{
-		"--state-sync.snapshot-interval", "10",
-		"--state-sync.snapshot-keep-recent", "2",
-	}, spec.ChainConfig.AdditionalStartArgs)
 }
 
 func TestStateSyncNodeOverridesRequireDistinctRPCProviders(t *testing.T) {

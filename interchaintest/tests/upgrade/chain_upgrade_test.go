@@ -54,6 +54,7 @@ func upgradeChainSpecs() []*interchaintest.ChainSpec {
 		cfg := e2esuite.DefaultConfig
 		cfg.ChainID = chainID
 		cfg.Images = []ibc.DockerImage{baseChain}
+		cfg.GasPrices = "0.075" + e2esuite.DefaultDenom
 
 		return &interchaintest.ChainSpec{
 			ChainName:     chainID,
@@ -76,7 +77,6 @@ func TestUpgradeTestSuite(t *testing.T) {
 	s := e2esuite.NewE2ETestSuite(
 		upgradeChainSpecs(),
 		e2esuite.DefaultTxCfg,
-		e2esuite.WithGasPrices("0.075ujuno"),
 		e2esuite.WithChainConstructor(e2esuite.MultipleChainsConstructor),
 		e2esuite.WithInterchainConstructor(e2esuite.TwoChainInterchainConstructor),
 	)

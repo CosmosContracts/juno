@@ -1,9 +1,16 @@
 package types
 
 import (
-	errorsmod "cosmossdk.io/errors"
+	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+var (
+	errDuplicateFeePayContract   = errors.New("duplicate feepay contract")
+	errUnregisteredUsageContract = errors.New("wallet usage references unregistered feepay contract")
+	errDuplicateWalletUsage      = errors.New("duplicate wallet usage for contract")
 )
 
 // NewGenesisState creates a new genesis state.
@@ -38,7 +45,7 @@ func (gs GenesisState) Validate() error {
 			return err
 		}
 		if _, exists := contracts[contract.ContractAddress]; exists {
-			return errorsmod.Wrapf(ErrDuplicateFeePayContract, "contract: %s", contract.ContractAddress)
+			return fmt.Errorf("%w %s", errDuplicateFeePayContract, contract.ContractAddress)
 		}
 		contracts[contract.ContractAddress] = struct{}{}
 	}
@@ -52,11 +59,11 @@ func (gs GenesisState) Validate() error {
 			return err
 		}
 		if _, exists := contracts[usage.ContractAddress]; !exists {
-			return errorsmod.Wrapf(ErrUnregisteredUsageContract, "contract: %s", usage.ContractAddress)
+			return fmt.Errorf("%w %s", errUnregisteredUsageContract, usage.ContractAddress)
 		}
 		key := usage.ContractAddress + "\x00" + usage.WalletAddress
 		if _, exists := seenUsages[key]; exists {
-			return errorsmod.Wrapf(ErrDuplicateWalletUsage, "contract: %s, wallet: %s", usage.ContractAddress, usage.WalletAddress)
+			return fmt.Errorf("%w %s and wallet %s", errDuplicateWalletUsage, usage.ContractAddress, usage.WalletAddress)
 		}
 		seenUsages[key] = struct{}{}
 	}

@@ -42,4 +42,4 @@ Expected SHA-256:
 124d427ff478ec1d026f5412b72892db76a961b066989a299f66bcfb13d0b11a  voting_power_probe.wasm
 ```
 
-`.cargo/config.toml` makes CosmWasm's wasmvm host imports explicit for Rust 1.96's stricter bundled linker. The setting applies only to the Wasm target.
+`.cargo/config.toml` makes CosmWasm's wasmvm host imports explicit for the pinned Rust toolchain's bundled linker. The setting applies only to the Wasm target.

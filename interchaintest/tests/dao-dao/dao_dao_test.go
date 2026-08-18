@@ -183,25 +183,25 @@ func (s *DaoDaoTestSuite) TestWasmbindingsVotingPowerAt() {
 	require.NotEmpty(directRange.Rows)
 
 	var historical votingPowerResponse
-	require.NoError(s.Chain.QueryContract(s.Ctx, probe, map[string]any{
+	require.NoError(queryContract(s.Ctx, s.Chain, probe, map[string]any{
 		"voting_power_at": map[string]any{"address": user.FormattedAddress(), "height": beforeHeight},
 	}, &historical))
 	require.Equal(before.Power, historical.Power)
 
 	var current votingPowerResponse
-	require.NoError(s.Chain.QueryContract(s.Ctx, probe, map[string]any{
+	require.NoError(queryContract(s.Ctx, s.Chain, probe, map[string]any{
 		"voting_power_at": map[string]any{"address": user.FormattedAddress(), "height": afterHeight},
 	}, &current))
 	require.Equal(directPower.Power, current.Power)
 
 	var total votingPowerResponse
-	require.NoError(s.Chain.QueryContract(s.Ctx, probe, map[string]any{
+	require.NoError(queryContract(s.Ctx, s.Chain, probe, map[string]any{
 		"total_voting_power_at": map[string]any{"height": afterHeight},
 	}, &total))
 	require.Equal(directTotal.Power, total.Power)
 
 	var powerRange votingPowerRangeResponse
-	require.NoError(s.Chain.QueryContract(s.Ctx, probe, map[string]any{
+	require.NoError(queryContract(s.Ctx, s.Chain, probe, map[string]any{
 		"voting_power_over_range": map[string]any{
 			"address": user.FormattedAddress(), "from_height": beforeHeight, "to_height": afterHeight,
 		},
@@ -316,7 +316,7 @@ func buildDaoInstantiate(member, votingCodeID, proposalCodeID, cw4CodeID string)
 
 func queryVotingModule(ctx context.Context, chain *cosmos.CosmosChain, dao string) (string, error) {
 	var address string
-	err := chain.QueryContract(ctx, dao, map[string]any{"voting_module": map[string]any{}}, &address)
+	err := queryContract(ctx, chain, dao, map[string]any{"voting_module": map[string]any{}}, &address)
 	return address, err
 }
 
@@ -325,7 +325,7 @@ func queryProposalModule(ctx context.Context, chain *cosmos.CosmosChain, dao str
 		Address string `json:"address"`
 		Status  string `json:"status"`
 	}
-	err := chain.QueryContract(ctx, dao, map[string]any{
+	err := queryContract(ctx, chain, dao, map[string]any{
 		"proposal_modules": map[string]any{"start_after": nil, "limit": nil},
 	}, &modules)
 	if err != nil {
@@ -342,7 +342,7 @@ func queryProposalModule(ctx context.Context, chain *cosmos.CosmosChain, dao str
 
 func queryGroupContract(ctx context.Context, chain *cosmos.CosmosChain, voting string) (string, error) {
 	var address string
-	err := chain.QueryContract(ctx, voting, map[string]any{"group_contract": map[string]any{}}, &address)
+	err := queryContract(ctx, chain, voting, map[string]any{"group_contract": map[string]any{}}, &address)
 	return address, err
 }
 
@@ -350,7 +350,7 @@ func queryVotingPower(ctx context.Context, chain *cosmos.CosmosChain, dao, membe
 	var response struct {
 		Power string `json:"power"`
 	}
-	err := chain.QueryContract(ctx, dao, map[string]any{
+	err := queryContract(ctx, chain, dao, map[string]any{
 		"voting_power_at_height": map[string]any{"address": member, "height": nil},
 	}, &response)
 	return response.Power, err
@@ -393,10 +393,34 @@ func queryProposalStatus(ctx context.Context, chain *cosmos.CosmosChain, proposa
 			Status string `json:"status"`
 		} `json:"proposal"`
 	}
-	err := chain.QueryContract(ctx, proposal, map[string]any{
+	err := queryContract(ctx, chain, proposal, map[string]any{
 		"proposal": map[string]any{"proposal_id": id},
 	}, &response)
 	return response.Proposal.Status, err
+}
+
+func queryContract(ctx context.Context, chain *cosmos.CosmosChain, contract string, msg, response any) error {
+	query, err := json.Marshal(msg)
+	if err != nil {
+		return fmt.Errorf("marshal contract query: %w", err)
+	}
+	stdout, _, err := chain.GetNode().ExecQuery(ctx, "wasm", "contract-state", "smart", contract, string(query))
+	if err != nil {
+		return err
+	}
+
+	return decodeContractQueryResponse(stdout, response)
+}
+
+func decodeContractQueryResponse(stdout []byte, response any) error {
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(stdout, &envelope); err != nil {
+		return err
+	}
+	if data, ok := envelope["data"]; ok {
+		return json.Unmarshal(data, response)
+	}
+	return json.Unmarshal(stdout, response)
 }
 
 func verifyCw4Artifacts(dir string) error {

@@ -19,6 +19,7 @@ func TestUpgradeChainSpecsPinV30AndTwoChainTopology(t *testing.T) {
 		require.Equal(t, expectedBaseImage, spec.Version, "chain %d must start at the exact immutable image under test", i)
 		require.Equal(t, expectedBaseImage, spec.ChainConfig.Images[0].Version)
 		require.Equal(t, e2esuite.JunoRepo, spec.ChainConfig.Images[0].Repository)
+		require.Equal(t, "0.075"+e2esuite.DefaultDenom, spec.ChainConfig.GasPrices)
 	}
 
 	require.Equal(t, "juno-upgrade-1", specs[0].ChainConfig.ChainID)

@@ -46,12 +46,6 @@ func stateSyncSpec() *interchaintest.ChainSpec {
 
 	config := e2esuite.DefaultConfig.Clone()
 	config.ConfigFileOverrides = snapshotConfigOverrides()
-	// Pass the SDK flags too: they are the authoritative app-options keys used
-	// when the snapshot manager is constructed.
-	config.AdditionalStartArgs = append(config.AdditionalStartArgs,
-		"--state-sync.snapshot-interval", "10",
-		"--state-sync.snapshot-keep-recent", "2",
-	)
 
 	return &interchaintest.ChainSpec{
 		ChainName:     e2esuite.DefaultSpec.ChainName,
@@ -143,24 +137,46 @@ func (s *NodeTestSuite) TestStateSync() {
 		t.Skip("skipping in short mode")
 	}
 
-	require.Len(t, s.Chain.FullNodes, 2, "state-sync suite must start two snapshot/RPC providers")
-	providers := []*cosmos.ChainNode{s.Chain.FullNodes[0], s.Chain.FullNodes[1]}
-	providerHosts := []string{providers[0].HostName(), providers[1].HostName()}
+	require.Len(t, s.Chain.Validators, 1, "state-sync suite must start a snapshot validator")
+	require.Len(t, s.Chain.FullNodes, 2, "state-sync suite must start two independent RPC providers")
+	candidates := []*cosmos.ChainNode{s.Chain.Validators[0], s.Chain.FullNodes[0], s.Chain.FullNodes[1]}
+	candidateHosts := make([]string, len(candidates))
+	for i, candidate := range candidates {
+		candidateHosts[i] = candidate.HostName()
+	}
 
+	var snapshotProvider *cosmos.ChainNode
 	var snapshots []snapshotMetadata
 	var snapshotQueryErr error
+	var snapshotQueryOutput string
 	require.Eventually(t, func() bool {
-		stdout, stderr, err := providers[0].ExecBin(s.Ctx, "snapshots", "list")
-		if err != nil {
-			snapshotQueryErr = fmt.Errorf("snapshots list: %w (stderr: %s)", err, strings.TrimSpace(string(stderr)))
-			return false
+		for _, candidate := range candidates {
+			stdout, stderr, err := candidate.ExecBin(s.Ctx, "snapshots", "list")
+			snapshotQueryOutput = strings.TrimSpace(string(stdout))
+			if err != nil {
+				snapshotQueryErr = fmt.Errorf("snapshots list on %s: %w (stderr: %s)", candidate.HostName(), err, strings.TrimSpace(string(stderr)))
+				continue
+			}
+			snapshots, snapshotQueryErr = parseSnapshotMetadata(stdout)
+			if snapshotQueryErr == nil && len(snapshots) > 0 && snapshots[0].Height > stateSyncSnapshotInterval && snapshots[0].Chunks > 0 {
+				snapshotProvider = candidate
+				return true
+			}
 		}
-		snapshots, snapshotQueryErr = parseSnapshotMetadata(stdout)
-		return snapshotQueryErr == nil && len(snapshots) > 0 && snapshots[0].Height > stateSyncSnapshotInterval && snapshots[0].Chunks > 0
-	}, 90*time.Second, 2*time.Second,
-		"no usable snapshot from provider host=%s: snapshots=%+v count=%d query_error=%v",
-		providerHosts[0], snapshots, len(snapshots), snapshotQueryErr,
+		return false
+	}, stateSyncTimeout, 2*time.Second,
+		"no usable snapshot from provider hosts=%v: snapshots=%+v count=%d output=%q query_error=%v",
+		candidateHosts, snapshots, len(snapshots), snapshotQueryOutput, snapshotQueryErr,
 	)
+
+	providers := []*cosmos.ChainNode{snapshotProvider}
+	for _, candidate := range candidates {
+		if candidate.HostName() != snapshotProvider.HostName() {
+			providers = append(providers, candidate)
+			break
+		}
+	}
+	providerHosts := []string{providers[0].HostName(), providers[1].HostName()}
 
 	// Anchor below the newest snapshot so the light client can verify the
 	// snapshot and all subsequent blocks. The block hash comes from a provider,

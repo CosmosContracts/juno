@@ -22,3 +22,23 @@ func TestBuildCw4DaoInstantiate(t *testing.T) {
 func TestCw4ArtifactChecksums(t *testing.T) {
 	require.NoError(t, verifyCw4Artifacts(filepath.Join("..", "..", "contracts")))
 }
+
+func TestDecodeContractQueryResponse(t *testing.T) {
+	t.Run("enveloped scalar", func(t *testing.T) {
+		var address string
+		require.NoError(t, decodeContractQueryResponse([]byte(`{"data":"juno1contract"}`), &address))
+		require.Equal(t, "juno1contract", address)
+	})
+
+	t.Run("enveloped object", func(t *testing.T) {
+		var response votingPowerResponse
+		require.NoError(t, decodeContractQueryResponse([]byte(`{"data":{"power":"7"}}`), &response))
+		require.Equal(t, "7", response.Power)
+	})
+
+	t.Run("direct response", func(t *testing.T) {
+		var response votingPowerResponse
+		require.NoError(t, decodeContractQueryResponse([]byte(`{"power":"9"}`), &response))
+		require.Equal(t, "9", response.Power)
+	})
+}
