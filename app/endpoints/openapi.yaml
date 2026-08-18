@@ -6394,44 +6394,6 @@ paths:
           description: reverse is set to true if results are to be returned in the descending order.
           schema:
             type: boolean
-        - name: pagination.key
-          in: query
-          description: |-
-            key is a value returned in PageResponse.next_key to begin
-             querying the next page most efficiently. Only one of offset or key
-             should be set.
-          schema:
-            type: string
-            format: bytes
-        - name: pagination.offset
-          in: query
-          description: |-
-            offset is a numeric offset that can be used when key is unavailable.
-             It is less efficient than using key. Only one of offset or key should
-             be set.
-          schema:
-            type: string
-        - name: pagination.limit
-          in: query
-          description: |-
-            limit is the total number of results to be returned in the result page.
-             If left empty it will default to a value to be set by each app.
-          schema:
-            type: string
-        - name: pagination.countTotal
-          in: query
-          description: |-
-            count_total is set to true  to indicate that the result set should include
-             a count of the total number of items available for pagination in UIs.
-             count_total is only respected when offset is used. It is ignored when key
-             is set.
-          schema:
-            type: boolean
-        - name: pagination.reverse
-          in: query
-          description: reverse is set to true if results are to be returned in the descending order.
-          schema:
-            type: boolean
       responses:
         "200":
           description: OK
@@ -6453,12 +6415,6 @@ paths:
       description: ClockContract
       operationId: clock_contract
       parameters:
-        - name: contractAddress
-          in: path
-          description: contract_address is the address of the contract to query.
-          required: true
-          schema:
-            type: string
         - name: contractAddress
           in: path
           description: contract_address is the address of the contract to query.
@@ -6512,12 +6468,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: module
-          in: path
-          description: The module key the contracts are registered for
-          required: true
-          schema:
-            type: string
       responses:
         "200":
           description: OK
@@ -6539,18 +6489,6 @@ paths:
       description: ContractInfo gets a contract info for a module and contract address
       operationId: cwhooks_{module}
       parameters:
-        - name: module
-          in: path
-          description: The module key the contract is registered for
-          required: true
-          schema:
-            type: string
-        - name: contractAddress
-          in: path
-          description: The contract address to get info for
-          required: true
-          schema:
-            type: string
         - name: module
           in: path
           description: The module key the contract is registered for
@@ -6626,12 +6564,6 @@ paths:
          for specified denom.
       operationId: feemarket_gas_price
       parameters:
-        - name: denom
-          in: path
-          description: denom we are querying gas price in
-          required: true
-          schema:
-            type: string
         - name: denom
           in: path
           description: denom we are querying gas price in
@@ -6759,44 +6691,6 @@ paths:
           description: reverse is set to true if results are to be returned in the descending order.
           schema:
             type: boolean
-        - name: pagination.key
-          in: query
-          description: |-
-            key is a value returned in PageResponse.next_key to begin
-             querying the next page most efficiently. Only one of offset or key
-             should be set.
-          schema:
-            type: string
-            format: bytes
-        - name: pagination.offset
-          in: query
-          description: |-
-            offset is a numeric offset that can be used when key is unavailable.
-             It is less efficient than using key. Only one of offset or key should
-             be set.
-          schema:
-            type: string
-        - name: pagination.limit
-          in: query
-          description: |-
-            limit is the total number of results to be returned in the result page.
-             If left empty it will default to a value to be set by each app.
-          schema:
-            type: string
-        - name: pagination.countTotal
-          in: query
-          description: |-
-            count_total is set to true  to indicate that the result set should include
-             a count of the total number of items available for pagination in UIs.
-             count_total is only respected when offset is used. It is ignored when key
-             is set.
-          schema:
-            type: boolean
-        - name: pagination.reverse
-          in: query
-          description: reverse is set to true if results are to be returned in the descending order.
-          schema:
-            type: boolean
       responses:
         "200":
           description: OK
@@ -6818,12 +6712,6 @@ paths:
       description: FeePayContract queries a single fee pay contract by address
       operationId: feepay_contract
       parameters:
-        - name: contractAddress
-          in: path
-          description: contract_address defines the address of the fee pay contract
-          required: true
-          schema:
-            type: string
         - name: contractAddress
           in: path
           description: contract_address defines the address of the fee pay contract
@@ -6863,18 +6751,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: contractAddress
-          in: path
-          description: The contract address.
-          required: true
-          schema:
-            type: string
-        - name: walletAddress
-          in: path
-          description: The wallet address.
-          required: true
-          schema:
-            type: string
       responses:
         "200":
           description: OK
@@ -6896,18 +6772,6 @@ paths:
       description: Retrieve the number of uses on a fee pay contract by wallet
       operationId: feepay_uses
       parameters:
-        - name: contractAddress
-          in: path
-          description: The contract address.
-          required: true
-          schema:
-            type: string
-        - name: walletAddress
-          in: path
-          description: The wallet address.
-          required: true
-          schema:
-            type: string
         - name: contractAddress
           in: path
           description: The contract address.
@@ -6999,44 +6863,6 @@ paths:
           description: reverse is set to true if results are to be returned in the descending order.
           schema:
             type: boolean
-        - name: pagination.key
-          in: query
-          description: |-
-            key is a value returned in PageResponse.next_key to begin
-             querying the next page most efficiently. Only one of offset or key
-             should be set.
-          schema:
-            type: string
-            format: bytes
-        - name: pagination.offset
-          in: query
-          description: |-
-            offset is a numeric offset that can be used when key is unavailable.
-             It is less efficient than using key. Only one of offset or key should
-             be set.
-          schema:
-            type: string
-        - name: pagination.limit
-          in: query
-          description: |-
-            limit is the total number of results to be returned in the result page.
-             If left empty it will default to a value to be set by each app.
-          schema:
-            type: string
-        - name: pagination.countTotal
-          in: query
-          description: |-
-            count_total is set to true  to indicate that the result set should include
-             a count of the total number of items available for pagination in UIs.
-             count_total is only respected when offset is used. It is ignored when key
-             is set.
-          schema:
-            type: boolean
-        - name: pagination.reverse
-          in: query
-          description: reverse is set to true if results are to be returned in the descending order.
-          schema:
-            type: boolean
       responses:
         "200":
           description: OK
@@ -7058,12 +6884,6 @@ paths:
       description: FeeShare retrieves a registered FeeShare for a given contract address
       operationId: feeshare_fee_shares
       parameters:
-        - name: contractAddress
-          in: path
-          description: contract_address of a registered contract in bech32 format
-          required: true
-          schema:
-            type: string
         - name: contractAddress
           in: path
           description: contract_address of a registered contract in bech32 format
@@ -7137,50 +6957,6 @@ paths:
           description: reverse is set to true if results are to be returned in the descending order.
           schema:
             type: boolean
-        - name: deployerAddress
-          in: path
-          description: deployer_address in bech32 format
-          required: true
-          schema:
-            type: string
-        - name: pagination.key
-          in: query
-          description: |-
-            key is a value returned in PageResponse.next_key to begin
-             querying the next page most efficiently. Only one of offset or key
-             should be set.
-          schema:
-            type: string
-            format: bytes
-        - name: pagination.offset
-          in: query
-          description: |-
-            offset is a numeric offset that can be used when key is unavailable.
-             It is less efficient than using key. Only one of offset or key should
-             be set.
-          schema:
-            type: string
-        - name: pagination.limit
-          in: query
-          description: |-
-            limit is the total number of results to be returned in the result page.
-             If left empty it will default to a value to be set by each app.
-          schema:
-            type: string
-        - name: pagination.countTotal
-          in: query
-          description: |-
-            count_total is set to true  to indicate that the result set should include
-             a count of the total number of items available for pagination in UIs.
-             count_total is only respected when offset is used. It is ignored when key
-             is set.
-          schema:
-            type: boolean
-        - name: pagination.reverse
-          in: query
-          description: reverse is set to true if results are to be returned in the descending order.
-          schema:
-            type: boolean
       responses:
         "200":
           description: OK
@@ -7204,50 +6980,6 @@ paths:
          address
       operationId: feeshare_fee_shares
       parameters:
-        - name: withdrawerAddress
-          in: path
-          description: withdrawer_address in bech32 format
-          required: true
-          schema:
-            type: string
-        - name: pagination.key
-          in: query
-          description: |-
-            key is a value returned in PageResponse.next_key to begin
-             querying the next page most efficiently. Only one of offset or key
-             should be set.
-          schema:
-            type: string
-            format: bytes
-        - name: pagination.offset
-          in: query
-          description: |-
-            offset is a numeric offset that can be used when key is unavailable.
-             It is less efficient than using key. Only one of offset or key should
-             be set.
-          schema:
-            type: string
-        - name: pagination.limit
-          in: query
-          description: |-
-            limit is the total number of results to be returned in the result page.
-             If left empty it will default to a value to be set by each app.
-          schema:
-            type: string
-        - name: pagination.countTotal
-          in: query
-          description: |-
-            count_total is set to true  to indicate that the result set should include
-             a count of the total number of items available for pagination in UIs.
-             count_total is only respected when offset is used. It is ignored when key
-             is set.
-          schema:
-            type: boolean
-        - name: pagination.reverse
-          in: query
-          description: reverse is set to true if results are to be returned in the descending order.
-          schema:
-            type: boolean
         - name: withdrawerAddress
           in: path
           description: withdrawer_address in bech32 format
@@ -7360,11 +7092,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: atHeight
-          in: path
-          required: true
-          schema:
-            type: string
       responses:
         "200":
           description: OK
@@ -7388,21 +7115,6 @@ paths:
          in [from_height, to_height]. Useful for time-decay schemes.
       operationId: votingsnapshot_{fromHeight}
       parameters:
-        - name: address
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: fromHeight
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: toHeight
-          in: path
-          required: true
-          schema:
-            type: string
         - name: address
           in: path
           required: true
@@ -7457,20 +7169,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: address
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: atHeight
-          in: path
-          description: |-
-            at_height is the chain height to look up power for. Named
-             distinctly from `height` so it doesn't collide with cosmos-sdk's
-             standard query --height flag in autocli output.
-          required: true
-          schema:
-            type: string
       responses:
         "200":
           description: OK
@@ -7499,11 +7197,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: denom
-          in: path
-          required: true
-          schema:
-            type: string
       responses:
         "200":
           description: OK
@@ -7527,11 +7220,6 @@ paths:
          denominations created by a specific admin/creator.
       operationId: tokenfactory_denoms_from_creator
       parameters:
-        - name: creator
-          in: path
-          required: true
-          schema:
-            type: string
         - name: creator
           in: path
           required: true

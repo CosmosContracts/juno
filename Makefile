@@ -264,7 +264,7 @@ proto-lint:
 
 proto-breaking:
 	@echo "🔎 Checking breaking Protobuffers changes against branch main"
-	@$(PROTO_IMAGE) buf breaking ./proto --against $(HTTPS_GIT).git#branch=main
+	@$(PROTO_IMAGE) go tool buf breaking ./proto --against $(HTTPS_GIT).git#branch=main
 	@echo "✅ Protobuffers are non-breaking, checked successfully!"
 
 .PHONY: proto-all proto-gen proto-check proto-format proto-lint proto-breaking proto-gogo proto-pulsar proto-openapi
