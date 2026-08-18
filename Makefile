@@ -231,7 +231,7 @@ proto-image: setup-builder
 ###############################################################################
 
 PROTO_IMAGE_NAME := juno-protobuilder:latest
-PROTO_IMAGE := $(DOCKER) run --rm -v "$(CURDIR)":/workspace --workdir /workspace $(PROTO_IMAGE_NAME)
+PROTO_IMAGE := $(DOCKER) run --rm --user $(shell id -u):$(shell id -g) -e HOME=/tmp -v "$(CURDIR)":/workspace --workdir /workspace $(PROTO_IMAGE_NAME)
 
 proto-all: proto-check proto-gen
 proto-gen: proto-gogo proto-pulsar proto-openapi
