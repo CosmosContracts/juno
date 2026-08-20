@@ -232,11 +232,8 @@ func (dfd InnerDeductFeeDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errorsmod.Wrapf(err, "unable to get fee market params")
 	}
 
-	// Default payCoin to a zero coin in the fee market's fee denom. For a
-	// valid feepay tx the user submits with --fees 0 (sdk.ParseCoinsNormalized
-	// strips the zero, so feeCoins is empty), and the actual fee is covered by
-	// x/feepay in HandleFees — there is no feeCoins[0] to read. Pre-fix this
-	// indexed past the end of feeCoins and panicked in CheckTx.
+	// Default to the fee denom's zero coin. In simulation, fee validation is
+	// skipped and the submitted fee is accounted for separately below.
 	payCoin := sdk.NewCoin(params.FeeDenom, sdkmath.ZeroInt())
 	if !simulate && len(feeCoins) > 0 {
 		payCoin = feeCoins[0]
@@ -267,8 +264,32 @@ func (dfd InnerDeductFeeDecorator) anteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		}
 	}
 
-	// handle the entire tx fee process
-	err = dfd.HandleFees(ctx, feeTx, payCoin, isValidFeepayTx)
+	// Account for fee escrow during simulation without committing its writes or
+	// changing the historical behavior that lets gas estimation proceed when a
+	// submitted fee cannot be deducted. BaseApp already simulates in a cached
+	// context; the nested cache also makes direct ante-handler callers safe.
+	// Its gas meter is shared with ctx, so successful feegrant checks and bank
+	// writes contribute exactly the gas that delivery will consume.
+	if simulate && !isValidFeepayTx {
+		// Keplr and other clients commonly simulate with an empty fee amount
+		// and derive the real fee only after receiving the gas estimate. A
+		// nominal positive coin triggers the same bank store accesses; use the
+		// submitted fee when one is present.
+		simulationPayCoin := sdk.NewCoin(params.FeeDenom, sdkmath.OneInt())
+		if len(feeCoins) > 0 {
+			simulationPayCoin = feeCoins[0]
+		}
+
+		simCtx, _ := ctx.CacheContext()
+		if simErr := dfd.HandleFees(simCtx, feeTx, simulationPayCoin, false); simErr != nil {
+			// Preserve the prior simulation semantics for errors such as a
+			// missing feegrant, while still allowing gas estimation without a
+			// funded payer by retrying with the historical zero fee.
+			err = dfd.HandleFees(ctx, feeTx, payCoin, false)
+		}
+	} else {
+		err = dfd.HandleFees(ctx, feeTx, payCoin, isValidFeepayTx)
+	}
 	if err != nil {
 		return ctx, errorsmod.Wrapf(err, "error escrowing funds")
 	}
