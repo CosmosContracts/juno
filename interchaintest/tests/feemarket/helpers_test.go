@@ -9,8 +9,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/interchaintest/v10/ibc"
 
-	feemarketypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
+	feemarketypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	streamtypes "github.com/CosmosContracts/juno/v31/x/stream/types"
 )
 
 // monitorGasPrice continuously monitors gas price changes

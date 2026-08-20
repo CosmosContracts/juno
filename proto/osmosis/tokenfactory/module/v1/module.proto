@@ -4,9 +4,11 @@ package osmosis.tokenfactory.module.v1;
 
 import "cosmos/app/v1alpha1/module.proto";
 
+option go_package = "github.com/CosmosContracts/juno/v31/api/osmosis/tokenfactory/module/v1";
+
 // Module is the config object of the mint module.
 message Module {
-  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/CosmosContracts/juno/v30/x/tokenfactory"};
+  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/CosmosContracts/juno/v31/x/tokenfactory"};
 
   // authority defines the custom module authority. If not set, defaults to the
   // governance module.

@@ -35,11 +35,15 @@ service Query {
   }
 }
 
+// QueryParamsRequest requests the current module parameters.
 message QueryParamsRequest {}
+
+// QueryParamsResponse contains the current module parameters.
 message QueryParamsResponse {
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
+// QueryVotingPowerAtRequest requests an address's voting power at a height.
 message QueryVotingPowerAtRequest {
   string address = 1;
   // at_height is the chain height to look up power for. Named
@@ -48,29 +52,35 @@ message QueryVotingPowerAtRequest {
   int64 at_height = 2;
 }
 
+// QueryVotingPowerAtResponse contains an address's voting power.
 message QueryVotingPowerAtResponse {
   // power is the bonded stake amount as a base-10 string (uint).
   string power = 1;
 }
 
+// QueryTotalVotingPowerAtRequest requests total voting power at a height.
 message QueryTotalVotingPowerAtRequest {
   int64 at_height = 1;
 }
 
+// QueryTotalVotingPowerAtResponse contains total voting power.
 message QueryTotalVotingPowerAtResponse {
   string power = 1;
 }
 
+// QueryVotingPowerOverRangeRequest requests an address's snapshots over a height range.
 message QueryVotingPowerOverRangeRequest {
   string address = 1;
   int64 from_height = 2;
   int64 to_height = 3;
 }
 
+// QueryVotingPowerOverRangeResponse contains voting-power snapshots over a height range.
 message QueryVotingPowerOverRangeResponse {
   repeated HeightPower rows = 1 [(gogoproto.nullable) = false];
 }
 
+// HeightPower pairs a block height with its recorded voting power.
 message HeightPower {
   int64 height = 1;
   string power = 2;

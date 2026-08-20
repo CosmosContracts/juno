@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v30/app/endpoints"
+	"github.com/CosmosContracts/juno/v31/app/endpoints"
 )
 
 func TestGetOpenAPIEndpointsIncludesAccountPath(t *testing.T) {

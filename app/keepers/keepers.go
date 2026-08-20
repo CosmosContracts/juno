@@ -65,29 +65,29 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmosContracts/juno/v30/wasmbindings"
-	junoburn "github.com/CosmosContracts/juno/v30/x/burn"
-	clockkeeper "github.com/CosmosContracts/juno/v30/x/clock/keeper"
-	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
-	cwhookskeeper "github.com/CosmosContracts/juno/v30/x/cw-hooks/keeper"
-	cwhookstypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
-	dripkeeper "github.com/CosmosContracts/juno/v30/x/drip/keeper"
-	driptypes "github.com/CosmosContracts/juno/v30/x/drip/types"
-	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
-	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
-	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
-	mintkeeper "github.com/CosmosContracts/juno/v30/x/mint/keeper"
-	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
-	streamkeeper "github.com/CosmosContracts/juno/v30/x/stream/keeper"
-	tokenfactorykeeper "github.com/CosmosContracts/juno/v30/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
-	votingsnapshotkeeper "github.com/CosmosContracts/juno/v30/x/voting-snapshot/keeper"
-	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	"github.com/CosmosContracts/juno/v31/wasmbindings"
+	junoburn "github.com/CosmosContracts/juno/v31/x/burn"
+	clockkeeper "github.com/CosmosContracts/juno/v31/x/clock/keeper"
+	clocktypes "github.com/CosmosContracts/juno/v31/x/clock/types"
+	cwhookskeeper "github.com/CosmosContracts/juno/v31/x/cw-hooks/keeper"
+	cwhookstypes "github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
+	dripkeeper "github.com/CosmosContracts/juno/v31/x/drip/keeper"
+	driptypes "github.com/CosmosContracts/juno/v31/x/drip/types"
+	feemarketkeeper "github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	feepaykeeper "github.com/CosmosContracts/juno/v31/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
+	feesharekeeper "github.com/CosmosContracts/juno/v31/x/feeshare/keeper"
+	feesharetypes "github.com/CosmosContracts/juno/v31/x/feeshare/types"
+	mintkeeper "github.com/CosmosContracts/juno/v31/x/mint/keeper"
+	minttypes "github.com/CosmosContracts/juno/v31/x/mint/types"
+	streamkeeper "github.com/CosmosContracts/juno/v31/x/stream/keeper"
+	tokenfactorykeeper "github.com/CosmosContracts/juno/v31/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v31/x/tokenfactory/types"
+	votingsnapshotkeeper "github.com/CosmosContracts/juno/v31/x/voting-snapshot/keeper"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 	// wrappers
-	wrappedgovkeeper "github.com/CosmosContracts/juno/v30/x/wrappers/gov/keeper"
+	wrappedgovkeeper "github.com/CosmosContracts/juno/v31/x/wrappers/gov/keeper"
 )
 
 var (
@@ -181,7 +181,7 @@ func NewAppKeepers(
 	maccPerms map[string][]string,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
-	bondDenom string,
+	_ string,
 	homePath string,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
@@ -531,9 +531,10 @@ func NewAppKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.WasmKeeper,
 		appKeepers.AccountKeeper,
-		bondDenom,
+		appKeepers.FeeMarketKeeper,
 		govModAddress,
 	)
+	appKeepers.FeeMarketKeeper.SetFeePayLiabilityChecker(appKeepers.FeePayKeeper)
 
 	// set the contract keeper for the Ics20WasmHooks
 	appKeepers.ContractKeeper = wasmkeeper.NewDefaultPermissionKeeper(appKeepers.WasmKeeper)

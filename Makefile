@@ -231,7 +231,7 @@ proto-image: setup-builder
 ###############################################################################
 
 PROTO_IMAGE_NAME := juno-protobuilder:latest
-PROTO_IMAGE := $(DOCKER) run --rm -v "$(CURDIR)":/workspace --workdir /workspace $(PROTO_IMAGE_NAME)
+PROTO_IMAGE := $(DOCKER) run --rm --user $(shell id -u):$(shell id -g) -e HOME=/tmp -v "$(CURDIR)":/workspace --workdir /workspace $(PROTO_IMAGE_NAME)
 
 proto-all: proto-check proto-gen
 proto-gen: proto-gogo proto-pulsar proto-openapi
@@ -254,17 +254,17 @@ proto-openapi:
 
 proto-format:
 	@echo "🖊️ Formatting Protobuffers"
-	@$(PROTO_IMAGE) buf format ./proto --error-format=json
+	@$(PROTO_IMAGE) go tool buf format ./proto --error-format=json
 	@echo "✅ Formatted Protobuffers successfully!"
 
 proto-lint:
 	@echo "🔎 Linting Protobuffers"
-	@$(PROTO_IMAGE) buf lint --error-format=json
+	@$(PROTO_IMAGE) go tool buf lint --error-format=json
 	@echo "✅ Linted Protobuffers successfully!"
 
 proto-breaking:
 	@echo "🔎 Checking breaking Protobuffers changes against branch main"
-	@$(PROTO_IMAGE) buf breaking ./proto --against $(HTTPS_GIT).git#branch=main
+	@$(PROTO_IMAGE) go tool buf breaking ./proto --against $(HTTPS_GIT).git#branch=main
 	@echo "✅ Protobuffers are non-breaking, checked successfully!"
 
 .PHONY: proto-all proto-gen proto-check proto-format proto-lint proto-breaking proto-gogo proto-pulsar proto-openapi

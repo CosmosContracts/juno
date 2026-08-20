@@ -4,7 +4,7 @@ package keeper_test
 import (
 	_ "embed"
 
-	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
 )
 
 const invalidAddr = "Invalid"

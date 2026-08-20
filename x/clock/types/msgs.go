@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/CosmosContracts/juno/v30/app/utils"
+	"github.com/CosmosContracts/juno/v31/app/utils"
 )
 
 const (

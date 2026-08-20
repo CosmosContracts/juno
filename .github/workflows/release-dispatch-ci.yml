@@ -1,0 +1,61 @@
+name: Release dispatch checks
+
+on:
+  push:
+    paths:
+      - ".github/scripts/release-dispatch.js"
+      - ".github/scripts/release-dispatch.test.js"
+      - ".github/scripts/package.json"
+      - ".github/scripts/package-lock.json"
+      - ".github/workflows/release-dispatch.yml"
+      - ".github/workflows/release-dispatch-ci.yml"
+      - "go.mod"
+  pull_request:
+    paths:
+      - ".github/scripts/release-dispatch.js"
+      - ".github/scripts/release-dispatch.test.js"
+      - ".github/scripts/package.json"
+      - ".github/scripts/package-lock.json"
+      - ".github/workflows/release-dispatch.yml"
+      - ".github/workflows/release-dispatch-ci.yml"
+      - "go.mod"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: .github/scripts/package-lock.json
+      - name: Run offline payload tests
+        working-directory: .github/scripts
+        run: |
+          npm ci --ignore-scripts
+          npm test
+
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install and run actionlint
+        env:
+          ACTIONLINT_VERSION: "1.7.7"
+          ACTIONLINT_SHA256: "023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757"
+        run: |
+          archive="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl --fail --location --silent --show-error \
+            --output "$archive" \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/${archive}"
+          printf '%s  %s\n' "$ACTIONLINT_SHA256" "$archive" | sha256sum --check
+          tar --extract --gzip --file "$archive" actionlint
+          ./actionlint

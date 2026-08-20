@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 )
@@ -32,6 +32,18 @@ type ForwardMetadata struct {
 	Retries        *uint8        `json:"retries,omitempty"`
 	Next           *string       `json:"next,omitempty"`
 	RefundSequence *uint64       `json:"refund_sequence,omitempty"`
+}
+
+func pfmEscrowAccounts(
+	prefixes [3]string,
+	abChan *ibc.ChannelOutput,
+	bcChan, cdChan ibc.ChannelCounterparty,
+) [3]string {
+	return [3]string{
+		sdk.MustBech32ifyAddressBytes(prefixes[0], transfertypes.GetEscrowAddress(abChan.PortID, abChan.ChannelID)),
+		sdk.MustBech32ifyAddressBytes(prefixes[1], transfertypes.GetEscrowAddress(bcChan.PortID, bcChan.ChannelID)),
+		sdk.MustBech32ifyAddressBytes(prefixes[2], transfertypes.GetEscrowAddress(cdChan.PortID, cdChan.ChannelID)),
+	}
 }
 
 type PfmTestSuite struct {
@@ -187,9 +199,16 @@ func (s *PfmTestSuite) TestPacketForwardMiddlewareRouter() {
 	secondHopIBCDenom := secondHopDenomTrace.IBCDenom()
 	thirdHopIBCDenom := thirdHopDenomTrace.IBCDenom()
 
-	firstHopEscrowAccount := sdk.MustBech32ifyAddressBytes(s.Chain.Config().Bech32Prefix, transfertypes.GetEscrowAddress(abChan.PortID, abChan.ChannelID))
-	secondHopEscrowAccount := sdk.MustBech32ifyAddressBytes(s.Chains[1].Config().Bech32Prefix, transfertypes.GetEscrowAddress(bcChan.PortID, bcChan.ChannelID))
-	thirdHopEscrowAccount := sdk.MustBech32ifyAddressBytes(s.Chains[2].Config().Bech32Prefix, transfertypes.GetEscrowAddress(cdChan.PortID, abChan.ChannelID))
+	escrowAccounts := pfmEscrowAccounts(
+		[3]string{
+			s.Chain.Config().Bech32Prefix,
+			s.Chains[1].Config().Bech32Prefix,
+			s.Chains[2].Config().Bech32Prefix,
+		},
+		abChan,
+		bcChan,
+		cdChan,
+	)
 
 	t.Run("multi-hop a->b->c->d", func(t *testing.T) {
 		// Send packet from Chain A->Chain B->Chain C->Chain D
@@ -253,22 +272,22 @@ func (s *PfmTestSuite) TestPacketForwardMiddlewareRouter() {
 		require.True(t, chainABalance.LTE(expectedChainA) &&
 			chainABalance.GTE(expectedChainA.Sub(sdkmath.NewInt(1_000_000))),
 			"chainABalance %s outside fee tolerance of expected %s", chainABalance, expectedChainA)
-		require.Equal(t, sdkmath.NewInt(0), chainBBalance)
-		require.Equal(t, sdkmath.NewInt(0), chainCBalance)
-		require.Equal(t, transferAmount.Int64(), chainDBalance.Int64())
+		require.Equal(t, sdkmath.ZeroInt(), chainBBalance, "first-hop receiver balance")
+		require.Equal(t, sdkmath.ZeroInt(), chainCBalance, "second-hop receiver balance")
+		require.Equal(t, transferAmount, chainDBalance, "third-hop receiver balance")
 
-		firstHopEscrowBalance, err := s.Chain.GetBalance(s.Ctx, firstHopEscrowAccount, s.Chain.Config().Denom)
+		firstHopEscrowBalance, err := s.Chain.GetBalance(s.Ctx, escrowAccounts[0], s.Chain.Config().Denom)
 		require.NoError(t, err)
 
-		secondHopEscrowBalance, err := s.Chains[1].GetBalance(s.Ctx, secondHopEscrowAccount, firstHopIBCDenom)
+		secondHopEscrowBalance, err := s.Chains[1].GetBalance(s.Ctx, escrowAccounts[1], firstHopIBCDenom)
 		require.NoError(t, err)
 
-		thirdHopEscrowBalance, err := s.Chains[2].GetBalance(s.Ctx, thirdHopEscrowAccount, secondHopIBCDenom)
+		thirdHopEscrowBalance, err := s.Chains[2].GetBalance(s.Ctx, escrowAccounts[2], secondHopIBCDenom)
 		require.NoError(t, err)
 
-		require.Equal(t, transferAmount.Int64(), firstHopEscrowBalance.Int64())
-		require.Equal(t, transferAmount.Int64(), secondHopEscrowBalance.Int64())
-		require.Equal(t, transferAmount.Int64(), thirdHopEscrowBalance.Int64())
+		require.Equal(t, transferAmount, firstHopEscrowBalance, "first-hop escrow balance")
+		require.Equal(t, transferAmount, secondHopEscrowBalance, "second-hop escrow balance")
+		require.Equal(t, transferAmount, thirdHopEscrowBalance, "third-hop escrow balance")
 	})
 
 	err = s.Relayer.StopRelayer(s.Ctx, s.eRep)

@@ -10,19 +10,26 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 // Keeper is the x/feemarket keeper.
 type Keeper struct {
-	cdc      codec.BinaryCodec
-	storeKey storetypes.StoreKey
-	ak       types.AccountKeeper
-	resolver types.DenomResolver
+	cdc               codec.BinaryCodec
+	storeKey          storetypes.StoreKey
+	ak                types.AccountKeeper
+	resolver          types.DenomResolver
+	feePayLiabilities FeePayLiabilityChecker
 
 	// The address that is capable of executing a MsgParams message.
 	// Typically, this will be the governance module's address.
 	authority string
+}
+
+// FeePayLiabilityChecker guards denomination changes while denomination-less
+// FeePay ledger balances are still backed by the current fee denomination.
+type FeePayLiabilityChecker interface {
+	HasOutstandingBalances(ctx sdk.Context) bool
 }
 
 // NewKeeper constructs a new feemarket keeper.
@@ -92,6 +99,12 @@ func (k *Keeper) ResolveToDenom(ctx sdk.Context, coin sdk.DecCoin, denom string)
 // SetDenomResolver sets the keeper's denom resolver.
 func (k *Keeper) SetDenomResolver(resolver types.DenomResolver) {
 	k.resolver = resolver
+}
+
+// SetFeePayLiabilityChecker wires the cross-module invariant after both keepers
+// have been constructed, avoiding a keeper-construction cycle.
+func (k *Keeper) SetFeePayLiabilityChecker(checker FeePayLiabilityChecker) {
+	k.feePayLiabilities = checker
 }
 
 // GetState returns the feemarket module's state.

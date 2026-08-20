@@ -12,12 +12,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
-	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	feepayhelpers "github.com/CosmosContracts/juno/v30/x/feepay/helpers"
-	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
+	"github.com/CosmosContracts/juno/v31/app/ante/decorators"
+	feemarketkeeper "github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	feepayhelpers "github.com/CosmosContracts/juno/v31/x/feepay/helpers"
+	feepaykeeper "github.com/CosmosContracts/juno/v31/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 // BankSendGasConsumption is the gas consumption of the bank sends that occur during feemarket handler execution.
@@ -285,6 +285,32 @@ func (dfd FeeMarketDeductDecorator) PayOutFeeAndRefundFeePay(ctx sdk.Context, fe
 	// the tx fee is zero — but stay defensive)
 	fee, refund = dfd.capAtCollectorBalance(ctx, fee, refund)
 
+	// Resolve and validate any refund ledger credit before moving coins. This
+	// keeps conversion/overflow rejection atomic even for direct keeper calls.
+	var (
+		refundContract *feepaytypes.FeePayContract
+		refundBalance  uint64
+	)
+	if !refund.IsNil() && !refund.IsZero() {
+		msgs := feeTx.GetMsgs()
+		if len(msgs) != 1 {
+			return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "feepay tx must contain exactly one message, got %d", len(msgs))
+		}
+		cw, ok := msgs[0].(*wasmtypes.MsgExecuteContract)
+		if !ok {
+			return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "feepay tx message must be a MsgExecuteContract, got %T", msgs[0])
+		}
+
+		refundContract, err = dfd.feepayKeeper.GetContract(ctx, cw.GetContract())
+		if err != nil {
+			return errorsmod.Wrapf(err, "error getting feepay contract %s for escrow refund", cw.GetContract())
+		}
+		refundBalance, err = feepaytypes.ContractBalanceAfterAddition(refundContract.Balance, refund.Amount)
+		if err != nil {
+			return err
+		}
+	}
+
 	var events sdk.Events
 
 	if !fee.IsNil() && !fee.IsZero() {
@@ -299,28 +325,13 @@ func (dfd FeeMarketDeductDecorator) PayOutFeeAndRefundFeePay(ctx sdk.Context, fe
 	}
 
 	if !refund.IsNil() && !refund.IsZero() {
-		// CONTRACT: a valid feepay tx has exactly one MsgExecuteContract on a
-		// registered contract (enforced by IsValidFeePayTransaction).
-		msgs := feeTx.GetMsgs()
-		if len(msgs) != 1 {
-			return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "feepay tx must contain exactly one message, got %d", len(msgs))
-		}
-		cw, ok := msgs[0].(*wasmtypes.MsgExecuteContract)
-		if !ok {
-			return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "feepay tx message must be a MsgExecuteContract, got %T", msgs[0])
-		}
-
-		contract, err := dfd.feepayKeeper.GetContract(ctx, cw.GetContract())
-		if err != nil {
-			return errorsmod.Wrapf(err, "error getting feepay contract %s for escrow refund", cw.GetContract())
-		}
-
 		if err := dfd.bankKeeper.SendCoinsFromModuleToModule(ctx, feemarkettypes.FeeCollectorName, feepaytypes.ModuleName, sdk.NewCoins(refund)); err != nil {
 			return errorsmod.Wrapf(err, "error refunding feepay escrow")
 		}
 
-		dfd.feepayKeeper.SetContractBalance(ctx, contract, contract.Balance+refund.Amount.Uint64())
+		dfd.feepayKeeper.SetContractBalance(ctx, refundContract, refundBalance)
 
+		cw := feeTx.GetMsgs()[0].(*wasmtypes.MsgExecuteContract)
 		events = append(events, sdk.NewEvent(
 			feemarkettypes.EventTypeFeePayRefund,
 			sdk.NewAttribute(feemarkettypes.AttributeKeyRefund, refund.String()),

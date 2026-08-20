@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/CosmosContracts/juno/v30/x/mint/types"
+	"github.com/CosmosContracts/juno/v31/x/mint/types"
 )
 
 // Keeper of the mint store

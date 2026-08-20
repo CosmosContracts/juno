@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 func TestGenesis(t *testing.T) {

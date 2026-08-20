@@ -1,0 +1,62 @@
+---
+name: generated protobuf
+
+on:
+  pull_request:
+    paths:
+      - "proto/**"
+      - "api/**"
+      - "app/endpoints/openapi*"
+      - "scripts/buf/**"
+      - "buf.yaml"
+      - "buf.lock"
+      - "go.mod"
+      - "go.sum"
+      - "proto/Dockerfile"
+      - "Makefile"
+      - ".github/workflows/proto.yml"
+  push:
+    paths:
+      - "proto/**"
+      - "api/**"
+      - "app/endpoints/openapi*"
+      - "scripts/buf/**"
+      - "buf.yaml"
+      - "buf.lock"
+      - "go.mod"
+      - "go.sum"
+      - "proto/Dockerfile"
+      - "Makefile"
+      - ".github/workflows/proto.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generated-clean:
+    name: generated files are current
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: 1.25.10
+          cache-dependency-path: go.sum
+      - name: Build project protobuf toolchain
+        run: make proto-image
+      - name: Check protobuf and regenerate committed outputs
+        run: make proto-all
+      - name: Require a clean generated tree
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git status --short
+            git --no-pager diff
+            echo "Generated protobuf/API files or buf.lock are stale. Update dependencies explicitly, then run 'make proto-image proto-all' and commit the result."
+            exit 1
+          fi

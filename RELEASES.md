@@ -16,6 +16,14 @@ the
 
 ## Scheduled upgrade via governance
 
+### v31 dependency compatibility
+
+The v31 binary is built with Go 1.25.10 and pins Cosmos SDK v0.53.8,
+wasmd v0.61.14/wasmvm v3.0.7, CometBFT v0.38.25, and IBC-Go v10.7.0.
+Packet-forward middleware remains at v10.6.0 and ibc-hooks at v10.0.0.
+The SDK patch is state-breaking and must be activated through the coordinated
+v31 upgrade; operators must not switch a running chain to this binary early.
+
 For a SoftwareUpgradeProposal via governance:
 
 1. Validators will be told via the announcements channel when the prop is live

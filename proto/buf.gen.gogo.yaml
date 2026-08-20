@@ -23,14 +23,14 @@ inputs:
 
 plugins:
   - local: ["go", "tool", "protoc-gen-gocosmos"]
-    out: .
+    out: ./gen/gogo
     strategy: "directory"
     opt:
       - plugins=grpc
       - Mgoogle/protobuf/any.proto=github.com/cosmos/gogoproto/types/any
   - local: ["go", "tool", "protoc-gen-grpc-gateway"]
     strategy: "directory"
-    out: .
+    out: ./gen/gogo
     opt:
       - logtostderr=true
       - allow_colon_final_segments=true

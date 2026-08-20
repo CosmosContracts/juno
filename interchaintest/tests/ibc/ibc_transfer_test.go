@@ -16,7 +16,7 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 var genesisWalletAmount = int64(10_000_000)

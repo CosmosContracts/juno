@@ -10,7 +10,7 @@ import (
 
 	"cosmossdk.io/log"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 // ResolvedStream contains the metadata required to service a dynamic stream.

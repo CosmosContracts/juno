@@ -3,7 +3,8 @@ package keeper_test
 import (
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 func (s *KeeperTestSuite) TestMsgParams() {
@@ -29,6 +30,38 @@ func (s *KeeperTestSuite) TestMsgParams() {
 		params, err := s.App.AppKeepers.FeeMarketKeeper.GetParams(s.Ctx)
 		s.Require().NoError(err)
 		s.Require().Equal(req.Params, params)
+	})
+
+	s.Run("rejects fee denom change while FeePay has outstanding balances", func() {
+		before, err := s.App.AppKeepers.FeeMarketKeeper.GetParams(s.Ctx)
+		s.Require().NoError(err)
+
+		s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, feepaytypes.FeePayContract{
+			ContractAddress: s.authorityAccount.String(),
+			Balance:         1,
+		})
+
+		changed := before
+		changed.FeeDenom = "uother"
+		_, err = s.msgServer.UpdateParams(s.Ctx, &types.MsgUpdateParams{
+			Authority: s.authorityAccount.String(),
+			Params:    changed,
+		})
+		s.Require().ErrorContains(err, "outstanding FeePay balances")
+
+		after, err := s.App.AppKeepers.FeeMarketKeeper.GetParams(s.Ctx)
+		s.Require().NoError(err)
+		s.Require().Equal(before, after)
+
+		s.App.AppKeepers.FeePayKeeper.SetFeePayContract(s.Ctx, feepaytypes.FeePayContract{
+			ContractAddress: s.authorityAccount.String(),
+			Balance:         0,
+		})
+		_, err = s.msgServer.UpdateParams(s.Ctx, &types.MsgUpdateParams{
+			Authority: s.authorityAccount.String(),
+			Params:    changed,
+		})
+		s.Require().NoError(err)
 	})
 
 	s.Run("rejects a req with invalid signer", func() {

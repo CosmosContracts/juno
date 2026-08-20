@@ -20,6 +20,12 @@ message GenesisState {
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true
   ];
+
+  // wallet_usages are the per-contract wallet counters that enforce wallet limits.
+  repeated FeePayWalletUsage wallet_usages = 3 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // Params defines the feepay module params

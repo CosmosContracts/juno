@@ -9,7 +9,7 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 // StreamingListener implements the ABCIListener interface for the stream module

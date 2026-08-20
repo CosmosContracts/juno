@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 set -eo pipefail
 
-go tool buf dep update
 go tool buf generate --template ./proto/buf.gen.openapi.yaml
 go tool buf generate --template ./proto/buf.gen.openapi-cosmos.yaml
 go tool buf generate --template ./proto/buf.gen.openapi-ibc.yaml
@@ -20,6 +19,7 @@ cd gen
 
 yq eval -i 'del(.tags)' openapi.yaml
 yq eval -i 'del(.paths[][].tags)' openapi.yaml
+yq eval -i '(.paths[][] | select(has("parameters")) | .parameters) |= unique_by(.name + "\u0000" + .in)' openapi.yaml
 
 yq eval '.paths | keys | .[]' openapi.yaml | while IFS= read -r path; do
   normalizedPath="$path"

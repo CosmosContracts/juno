@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 var _ types.MsgServer = (*MsgServer)(nil)
@@ -44,6 +44,9 @@ func (ms MsgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 	gotParams, err := ms.k.GetParams(ctx)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to get params")
+	}
+	if gotParams.FeeDenom != params.FeeDenom && ms.k.feePayLiabilities != nil && ms.k.feePayLiabilities.HasOutstandingBalances(ctx) {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "cannot change fee denom while FeePay has outstanding FeePay balances")
 	}
 
 	// if going from disabled -> enabled, set enabled height

@@ -4,9 +4,11 @@ package juno.feemarket.module.v1;
 
 import "cosmos/app/v1alpha1/module.proto";
 
+option go_package = "github.com/CosmosContracts/juno/v31/api/juno/feemarket/module/v1";
+
 // Module is the config object of the builder module.
 message Module {
-  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/CosmosContracts/juno/v30/x/feemarket"};
+  option (cosmos.app.v1alpha1.module) = {go_import: "github.com/CosmosContracts/juno/v31/x/feemarket"};
 
   // Authority defines the custom module authority. If not set, defaults to the
   // governance module.

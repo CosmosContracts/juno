@@ -8243,6 +8243,7 @@ components:
           type: string
         power:
           type: string
+      description: HeightPower pairs a block height with its recorded voting power.
     HistoricalInfo:
       type: object
       properties:
@@ -8509,6 +8510,12 @@ components:
         contractFailureRemovalThreshold:
           type: string
           description: contract_failure_removal_threshold is the threshold for removing a contract after consecutive failures
+        maxContracts:
+          type: string
+          description: |-
+            max_contracts caps the number of registered contracts per hook module,
+             bounding per-hook sudo work so registration cannot be used to inflate
+             block time.
         sendEnabled:
           type: array
           items:
@@ -8529,14 +8536,6 @@ components:
             allowed_clients defines the list of allowed client state types which can be created
              and interacted with. If a client type is removed from the allowed clients list, usage
              of this client will be disabled until it is added again to the list.
-        hostEnabled:
-          type: boolean
-          description: host_enabled enables or disables the host submodule.
-        allowQueries:
-          type: array
-          items:
-            type: string
-          description: allow_queries defines a list of query paths allowed to be queried on a host chain.
         codeUploadAccess:
           $ref: '#/components/schemas/AccessConfig'
         instantiateDefaultPermission:
@@ -8998,6 +8997,7 @@ components:
         clockContract:
           allOf:
             - $ref: '#/components/schemas/ClockContract'
+            - $ref: '#/components/schemas/ClockContract'
           description: contract is the clock contract.
       description: QueryClockContractResponse is the response type for the Query/ClockContract RPC method.
     QueryClockContractsResponse:
@@ -9010,6 +9010,7 @@ components:
           description: clock_contracts are the clock contracts.
         pagination:
           allOf:
+            - $ref: '#/components/schemas/PageResponse'
             - $ref: '#/components/schemas/PageResponse'
           description: pagination defines the pagination in the response.
       description: QueryClockContractsResponse is the response type for the Query/ClockContracts RPC method.
@@ -9510,6 +9511,7 @@ components:
         pagination:
           allOf:
             - $ref: '#/components/schemas/PageResponse'
+            - $ref: '#/components/schemas/PageResponse'
           description: pagination defines the pagination in the response.
       description: |-
         QueryDeployerFeeSharesResponse is the response type for the
@@ -9556,6 +9558,7 @@ components:
         feePayContract:
           allOf:
             - $ref: '#/components/schemas/FeePayContract'
+            - $ref: '#/components/schemas/FeePayContract'
           description: contract defines the fee pay contract
       description: QueryFeePayContractResponse defines the response for retrieving a single fee pay contract
     QueryFeePayContractUsesResponse:
@@ -9576,6 +9579,7 @@ components:
         pagination:
           allOf:
             - $ref: '#/components/schemas/PageResponse'
+            - $ref: '#/components/schemas/PageResponse'
           description: pagination defines the pagination in the response.
       description: The response for querying all fee pay contracts
     QueryFeePayWalletIsEligibleResponse:
@@ -9591,6 +9595,7 @@ components:
         feeshare:
           allOf:
             - $ref: '#/components/schemas/FeeShare'
+            - $ref: '#/components/schemas/FeeShare'
           description: FeeShare is a stored Reveneue for the queried contract
       description: QueryFeeShareResponse is the response type for the Query/FeeShare RPC method.
     QueryFeeSharesResponse:
@@ -9603,6 +9608,7 @@ components:
           description: FeeShare is a slice of all stored Reveneue
         pagination:
           allOf:
+            - $ref: '#/components/schemas/PageResponse'
             - $ref: '#/components/schemas/PageResponse'
           description: pagination defines the pagination in the response.
       description: |-
@@ -9833,7 +9839,6 @@ components:
             - $ref: '#/components/schemas/Params'
             - $ref: '#/components/schemas/Params'
             - $ref: '#/components/schemas/Params'
-            - $ref: '#/components/schemas/Params'
           description: params defines the parameters of the module.
       description: QueryParamsResponse is the response type for the Query/Params RPC method.
     QueryPinnedCodesResponse:
@@ -10029,6 +10034,7 @@ components:
       properties:
         power:
           type: string
+      description: QueryTotalVotingPowerAtResponse contains total voting power.
     QueryUnbondingDelegationResponse:
       type: object
       properties:
@@ -10281,6 +10287,7 @@ components:
         power:
           type: string
           description: power is the bonded stake amount as a base-10 string (uint).
+      description: QueryVotingPowerAtResponse contains an address's voting power.
     QueryVotingPowerOverRangeResponse:
       type: object
       properties:
@@ -10288,6 +10295,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HeightPower'
+      description: QueryVotingPowerOverRangeResponse contains voting-power snapshots over a height range.
     QueryWasmLimitsConfigResponse:
       type: object
       properties:
@@ -10309,6 +10317,7 @@ components:
              withdrawer
         pagination:
           allOf:
+            - $ref: '#/components/schemas/PageResponse'
             - $ref: '#/components/schemas/PageResponse'
           description: pagination defines the pagination in the response.
       description: |-

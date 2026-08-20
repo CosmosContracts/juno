@@ -4,7 +4,7 @@
 # Arguments
 # --------------------------------------------------------
 
-ARG GO_VERSION="1.25.2"
+ARG GO_VERSION="1.25.10"
 ARG ALPINE_VERSION="3.22"
 
 # --------------------------------------------------------
@@ -12,7 +12,7 @@ ARG ALPINE_VERSION="3.22"
 # --------------------------------------------------------
 
 FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS builder
-ENV GOTOOLCHAIN=go1.25.2
+ENV GOTOOLCHAIN=go1.25.10
 
 RUN apk add --no-cache \
     ca-certificates \
@@ -28,7 +28,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/root/go/pkg/mod \
     go mod download
 
-# Fetch wasmvm — bumped from /v2 to /v3 to match the Path A+ wasmvm v3.0.4
+# Fetch wasmvm — bumped from /v2 to /v3 to match the Path A+ wasmvm v3
 # pinned in go.mod. v2.x's libwasmvm.a is ABI-incompatible with the v3 Go
 # bindings; using the wrong archive silently produces a dynamically-linked
 # binary because the muslc tag is unsatisfied.

@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 // InitGenesis initializes the feemarket module's state from a given genesis state.

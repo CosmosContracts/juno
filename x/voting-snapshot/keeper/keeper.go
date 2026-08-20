@@ -11,7 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	"github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 // Keeper holds the event-driven voting-power index for staked JUNO.
