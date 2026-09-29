@@ -32,7 +32,9 @@ func TestCosmWasmTestSuite(t *testing.T) {
 
 	t.Parallel()
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 	})
 
 	testSuite := &CosmWasmTestSuite{E2ETestSuite: s}

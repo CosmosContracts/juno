@@ -22,7 +22,9 @@ func TestBasicTestSuite(t *testing.T) {
 
 	t.Parallel()
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 	})
 
 	testSuite := &BasicTestSuite{E2ETestSuite: s}

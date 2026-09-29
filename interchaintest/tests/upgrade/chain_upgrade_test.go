@@ -76,7 +76,9 @@ func TestUpgradeTestSuite(t *testing.T) {
 	)
 
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 	})
 
 	testSuite := &UpgradeTestSuite{E2ETestSuite: s}

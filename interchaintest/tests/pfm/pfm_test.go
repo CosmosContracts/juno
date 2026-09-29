@@ -134,7 +134,9 @@ func TestPfmTestSuite(t *testing.T) {
 
 	t.Parallel()
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 		err := s.Relayer.StopRelayer(s.Ctx, eRep)
 		if err != nil {
 			t.Logf("an error occurred while stopping the relayer: %s", err)
