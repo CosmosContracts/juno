@@ -8,7 +8,6 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/interchaintest/v10"
-	"github.com/cosmos/interchaintest/v10/chain/cosmos"
 	"github.com/cosmos/interchaintest/v10/ibc"
 
 	"github.com/stretchr/testify/suite"
@@ -43,21 +42,10 @@ func TestUpgradeTestSuite(t *testing.T) {
 	numValidators := 2
 	numFullNodes := 1
 
-	previousVersionGenesis := []cosmos.GenesisKV{
-		{
-			Key:   "app_state.gov.params.voting_period",
-			Value: e2esuite.DefaultVotingPeriod,
-		},
-		{
-			Key:   "app_state.gov.params.max_deposit_period",
-			Value: e2esuite.DefaultMaxDepositPeriod,
-		},
-		{
-			Key:   "app_state.gov.params.min_deposit.0.denom",
-			Value: e2esuite.DefaultDenom,
-		},
-	}
-	cfg.ModifyGenesis = cosmos.ModifyGenesis(previousVersionGenesis)
+	// The v30 base image already ships every module the suite's default
+	// genesis configures (feemarket, feepay, cw-hooks), so keep
+	// DefaultConfig.ModifyGenesis as-is. Overriding it would drop the test
+	// feemarket params and leave the v30 default min gas price in place.
 
 	spec := &interchaintest.ChainSpec{
 		ChainName:     "juno",
@@ -92,7 +80,7 @@ func (s *UpgradeTestSuite) TestV31ChainUpgrade() {
 		t.Skip("skipping in short mode")
 	}
 
-	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(100_000)))
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 	user := s.GetAndFundTestUser(t.Name(), 10_000_000_000, s.Chain)
 
 	// prepare a cw-hooks staking contract and ensure it is functional prior to upgrade
