@@ -13,9 +13,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/CosmosContracts/juno/v30/testutil"
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/testutil"
+	"github.com/CosmosContracts/juno/v31/x/stream/types"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 type KeeperTestSuite struct {

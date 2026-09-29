@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Juno is a sovereign Cosmos SDK / CometBFT chain with CosmWasm smart-contract support (via `wasmd`). The binary is `junod`. Go module path is `github.com/CosmosContracts/juno/v30` — the `/v30` suffix tracks the current chain upgrade name and is bumped each consensus-breaking release (see `RELEASES.md`).
+Juno is a sovereign Cosmos SDK / CometBFT chain with CosmWasm smart-contract support (via `wasmd`). The binary is `junod`. Go module path is `github.com/CosmosContracts/juno/v31` — the `/v31` suffix tracks the current chain upgrade name and is bumped each consensus-breaking release (see `RELEASES.md`).
 
 ## Toolchain
 
@@ -62,7 +62,7 @@ make proto-breaking     # diffs ./proto against origin/main
 - `app/keepers/keepers.go` — `AppKeepers` struct and `NewAppKeepers(...)`. All module keepers (SDK, IBC, wasm, custom Juno modules) are constructed here, store keys live in `keys.go`, and `wasm_config.go` / `acceptedQueries.go` configure the wasm VM and stargate query allow-list.
 - `app/modules.go` — module manager registration, ordering of `BeginBlocker` / `EndBlocker` / `InitGenesis`, and ModuleAccount permissions. Adding a module means touching this file.
 - `app/ante/ante.go` — custom `AnteHandler` chaining SDK ante decorators with `wasm`, IBC, and the Juno fee stack (`feemarket`, `feepay`, `feeshare`). `app/ante/decorators/` and `app/ante/msg_filter.go` hold the Juno-specific decorators. `app/post.go` has post-handlers.
-- `app/upgrades/` — one subpackage per named upgrade (currently `v30/`), each exporting an `Upgrade` value combining `UpgradeName`, a `CreateUpgradeHandler` constructor, and `StoreUpgrades` (added/deleted/renamed module stores). `app.Upgrades` lists them and `app.go` registers handlers via the upgrade keeper. `v30` deletes legacy `globalfee`, `crisis`, `params`, `nft` stores and adds `feemarket`.
+- `app/upgrades/` — one subpackage per named upgrade (currently `v30/` and `v31/`), each exporting an `Upgrade` value combining `UpgradeName`, a `CreateUpgradeHandler` constructor, and `StoreUpgrades` (added/deleted/renamed module stores). `app.Upgrades` lists them and `app.go` registers handlers via the upgrade keeper. `v30` deletes legacy `globalfee`, `crisis`, `params`, `nft` stores and adds `feemarket`. `v31` has no store changes and only runs module migrations.
 - `app/endpoints/` — REST/OpenAPI/Scalar docs and the websocket endpoint (`endpoints/websocket/`) bolted onto the cosmos-sdk API server.
 - `cmd/junod/` — CLI entry (root command, server commands, genesis subcommands like `add-ica-config`).
 
@@ -96,7 +96,7 @@ Tx fee handling is *not* a single decorator; the order in `app/ante/ante.go` mat
 
 ### Versioned upgrades and module path
 
-The Go module is `…/juno/v30`. Internal imports use `github.com/CosmosContracts/juno/v30/...`. When the chain is bumped to v31 the entire repo is mass-rewritten: `go.mod` major version, every import, and the upgrade name string in `app/upgrades/v31/`. Don't introduce code that pins the literal `"v30"` outside the upgrade package and import paths.
+The Go module is `…/juno/v31`. Internal imports use `github.com/CosmosContracts/juno/v31/...`. When the chain is bumped to v32 the entire repo is mass-rewritten: `go.mod` major version, every import, and the upgrade name string in `app/upgrades/v32/`. Don't introduce code that pins the literal `"v31"` outside the upgrade package and import paths.
 
 ## Conventions worth knowing
 

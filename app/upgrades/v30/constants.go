@@ -3,9 +3,9 @@ package v30
 import (
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/CosmosContracts/juno/v30/app/upgrades"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	"github.com/CosmosContracts/juno/v31/app/upgrades"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 const UpgradeName = "v30"

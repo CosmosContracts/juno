@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/CosmosContracts/juno/v30/app/endpoints"
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/app/endpoints"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 func TestDescriptorResolverPrefersModuleHint(t *testing.T) {

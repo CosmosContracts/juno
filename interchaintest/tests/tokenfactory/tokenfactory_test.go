@@ -11,7 +11,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	tftypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+	tftypes "github.com/CosmosContracts/juno/v31/x/tokenfactory/types"
 )
 
 type TokenfactoryTestSuite struct {

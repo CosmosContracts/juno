@@ -37,7 +37,7 @@ plugins:
       - default_response=true
       - fq_schema_naming=false
       - title=Juno REST API
-      - version=v30.0.0
+      - version=v31.0.0
       - Mcosmos/app/v1alpha1/module.proto=cosmossdk.io/api/cosmos/app/v1alpha1
       - Mcosmos/app/v1alpha1/config.proto=cosmossdk.io/api/cosmos/app/v1alpha1
       - Mcosmos/app/v1alpha1/query.proto=cosmossdk.io/api/cosmos/app/v1alpha1

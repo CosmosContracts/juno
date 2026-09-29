@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+	"github.com/CosmosContracts/juno/v31/x/tokenfactory/types"
 )
 
 var _ types.MsgServer = msgServer{}

@@ -20,8 +20,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v30/x/voting-snapshot/keeper"
-	"github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	"github.com/CosmosContracts/juno/v31/x/voting-snapshot/keeper"
+	"github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 const ConsensusVersion = 1

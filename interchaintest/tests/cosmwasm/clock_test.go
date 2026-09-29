@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
+	clocktypes "github.com/CosmosContracts/juno/v31/x/clock/types"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
 )

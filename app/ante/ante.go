@@ -17,11 +17,11 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	decorators "github.com/CosmosContracts/juno/v30/app/ante/decorators"
-	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
-	feeshareante "github.com/CosmosContracts/juno/v30/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
+	decorators "github.com/CosmosContracts/juno/v31/app/ante/decorators"
+	feemarketkeeper "github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	feepaykeeper "github.com/CosmosContracts/juno/v31/x/feepay/keeper"
+	feeshareante "github.com/CosmosContracts/juno/v31/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v31/x/feeshare/keeper"
 )
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC

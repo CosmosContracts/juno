@@ -8,10 +8,10 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	feemarketpost "github.com/CosmosContracts/juno/v30/x/feemarket/post"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
+	feemarketkeeper "github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	feemarketpost "github.com/CosmosContracts/juno/v31/x/feemarket/post"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	feepaykeeper "github.com/CosmosContracts/juno/v31/x/feepay/keeper"
 )
 
 // PostHandlerOptions are the options required for constructing a FeeMarket PostHandler.

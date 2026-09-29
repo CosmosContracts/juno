@@ -3,7 +3,7 @@
 openapi: 3.0.3
 info:
   title: Juno REST API
-  version: v30.0.0
+  version: v31.0.0
   description: Query provides defines the gRPC querier service
 paths:
   /cosmos/auth/v1beta1/account_info/{address}:

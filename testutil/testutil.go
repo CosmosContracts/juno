@@ -15,10 +15,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
-	"github.com/CosmosContracts/juno/v30/app"
-	"github.com/CosmosContracts/juno/v30/cmd/junod/cmd"
-	"github.com/CosmosContracts/juno/v30/testutil/common"
-	"github.com/CosmosContracts/juno/v30/testutil/setup"
+	"github.com/CosmosContracts/juno/v31/app"
+	"github.com/CosmosContracts/juno/v31/cmd/junod/cmd"
+	"github.com/CosmosContracts/juno/v31/testutil/common"
+	"github.com/CosmosContracts/juno/v31/testutil/setup"
 )
 
 type KeeperTestHelper struct {

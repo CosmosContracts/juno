@@ -12,8 +12,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	v30 "github.com/CosmosContracts/juno/v30/app/upgrades/v30"
-	"github.com/CosmosContracts/juno/v30/testutil"
+	v30 "github.com/CosmosContracts/juno/v31/app/upgrades/v30"
+	"github.com/CosmosContracts/juno/v31/testutil"
 )
 
 type UpgradeTestSuite struct {

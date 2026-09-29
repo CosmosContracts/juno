@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
-	"github.com/CosmosContracts/juno/v30/x/feepay/types"
+	"github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 type FeesTestSuite struct {

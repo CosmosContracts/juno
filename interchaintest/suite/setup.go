@@ -13,12 +13,12 @@ import (
 
 	testutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
-	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
-	driptypes "github.com/CosmosContracts/juno/v30/x/drip/types"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
-	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+	clocktypes "github.com/CosmosContracts/juno/v31/x/clock/types"
+	driptypes "github.com/CosmosContracts/juno/v31/x/drip/types"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
+	feesharetypes "github.com/CosmosContracts/juno/v31/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v31/x/tokenfactory/types"
 )
 
 const (

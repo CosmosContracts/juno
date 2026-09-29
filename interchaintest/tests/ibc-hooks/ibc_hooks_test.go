@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 var genesisWalletAmount = int64(10_000_000)

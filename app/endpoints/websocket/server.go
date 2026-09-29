@@ -7,9 +7,9 @@ import (
 
 	"cosmossdk.io/log"
 
-	"github.com/CosmosContracts/juno/v30/app/endpoints/websocket/common"
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/app/endpoints/websocket/common"
+	"github.com/CosmosContracts/juno/v31/x/stream/types"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 // ServerOptions contains the configuration required to build a WebSocket server.
