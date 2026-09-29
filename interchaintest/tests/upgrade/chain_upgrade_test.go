@@ -38,6 +38,10 @@ type UpgradeTestSuite struct {
 func TestUpgradeTestSuite(t *testing.T) {
 	cfg := e2esuite.DefaultConfig
 	cfg.Images = []ibc.DockerImage{baseChain}
+	// interchaintest's SubmitProposal pays with ChainConfig.GasPrices. Left
+	// empty it falls back to the embedded juno config (0.0025ujuno), which is
+	// below the v30 feemarket floor (0.075ujuno) and the proposal is rejected.
+	cfg.GasPrices = "0.1" + e2esuite.DefaultDenom
 
 	numValidators := 2
 	numFullNodes := 1
