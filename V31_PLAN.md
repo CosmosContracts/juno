@@ -14,8 +14,8 @@ The recommended dependency target is:
 | Component | v30 | v31 target | Decision |
 |---|---:|---:|---|
 | Cosmos SDK | `v0.53.7` | `v0.53.8` | Upgrade |
-| wasmd | `v0.61.11` | `v0.61.14` | Upgrade |
-| wasmvm | `v3.0.4` | `v3.0.7` | Upgrade; consensus-sensitive |
+| wasmd | `v0.61.11` | `v0.61.15` | Upgrade |
+| wasmvm | `v3.0.4` | `v3.0.8` | Upgrade; consensus-sensitive |
 | CometBFT | `v0.38.23` | `v0.38.25` | Upgrade |
 | IBC-Go | `v10.6.0` | `v10.7.0` | Upgrade |
 | packet-forward middleware | `v10.6.0` | `v10.6.0` | Keep; latest compatible release |
@@ -49,10 +49,9 @@ mempool, sign-mode, store-path, and toolchain changes.
   fixes several malformed-transaction panic paths, signature/signer bounds and
   key validation, distribution accounting edge cases, a full-share
   redelegation edge case, and a cachemulti concurrency race.
-- [wasmd v0.61.14](https://github.com/CosmWasm/wasmd/releases/tag/v0.61.14)
-  pairs the current SDK line with wasmvm 3.0.7.
-  [wasmvm v3.0.7](https://github.com/CosmWasm/wasmvm/releases/tag/v3.0.7)
-  includes the CosmWasm overflow fix introduced in this patch series. VM
+- [wasmd v0.61.15](https://github.com/CosmWasm/wasmd/releases/tag/v0.61.15)
+  pairs the current SDK line with wasmvm 3.0.8.
+  [wasmvm v3.0.8](https://github.com/CosmWasm/wasmvm/releases/tag/v3.0.8)
   changes can change deterministic execution outcomes and therefore require a
   coordinated upgrade and contract replay even though the major version is
   unchanged.
@@ -134,7 +133,7 @@ are non-consensus-breaking.
 5. Audit upstream changelogs and migrations across `app/`, custom `x/`
    modules, ante/post handlers, IBC middleware order, custom Wasm bindings,
    state streaming, and export/import.
-6. Treat wasmvm 3.0.4 to 3.0.7 as consensus-sensitive: replay real contracts,
+6. Treat wasmvm 3.0.4 to 3.0.8 as consensus-sensitive: replay real contracts,
    compare outcomes around overflow/error behavior, and require a coordinated
    upgrade rather than a rolling binary replacement.
 

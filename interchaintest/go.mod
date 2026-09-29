@@ -9,7 +9,7 @@ require (
 	cosmossdk.io/math v1.5.3
 	cosmossdk.io/x/nft v0.2.0
 	cosmossdk.io/x/upgrade v0.2.0
-	github.com/CosmWasm/wasmd v0.61.11
+	github.com/CosmWasm/wasmd v0.61.15
 	github.com/CosmosContracts/juno/v30 v30.0.0
 	github.com/cosmos/cosmos-sdk v0.53.7
 	github.com/cosmos/ibc-go/v10 v10.6.0
@@ -45,7 +45,7 @@ require (
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.2 // indirect
 	github.com/BurntSushi/toml v1.5.0 // indirect
-	github.com/CosmWasm/wasmvm/v3 v3.0.4 // indirect
+	github.com/CosmWasm/wasmvm/v3 v3.0.8 // indirect
 	github.com/DataDog/datadog-go v4.8.3+incompatible // indirect
 	github.com/DataDog/zstd v1.5.7 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0 // indirect
