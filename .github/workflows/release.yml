@@ -4,20 +4,46 @@ name: release binary
 on:
   release:
     types: [created]
+  # Rebuild and attach the binary to an existing release, e.g. when the
+  # release event run failed. The workflow file comes from the selected
+  # branch, the source that gets compiled always comes from the tag.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to build and upload (e.g. v31.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
 jobs:
   release-alpine-static:
-    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
 
-      - name: Docker compose
-        run: STAKE_TOKEN="ujunox" TIMEOUT_COMMIT=500ms docker compose up -d
+      # Build the release image directly and extract the binary from it, so
+      # this job does not depend on docker-compose project or container names.
+      - name: Build image
+        run: docker build -t juno-release:${{ env.RELEASE_TAG }} -f Dockerfile .
 
       - name: Copy binary
-        run: docker cp juno-node-1:/usr/bin/junod ./junod
+        run: |
+          id=$(docker create juno-release:${{ env.RELEASE_TAG }})
+          docker cp "$id":/bin/junod ./junod
+          docker rm "$id"
+
+      - name: Verify binary
+        run: |
+          file ./junod | grep "statically linked"
+          ./junod version --long
+          ./junod query wasm libwasmvm-version
 
       - name: Save sha256 sum
         run: sha256sum ./junod > ./junod_sha256.txt
@@ -26,10 +52,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ github.token }}
+          tag_name: ${{ env.RELEASE_TAG }}
           files: |
             junod
             junod_sha256.txt
-
-      - name: Dump docker logs on failure
-        if: failure()
-        uses: jwalton/gh-docker-logs@v2
