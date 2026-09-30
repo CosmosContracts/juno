@@ -14,6 +14,20 @@ In the past, some releases have been consensus-breaking but only incremented a m
 the
 **Only patch versions, i.e. `x.x.1 -> x.x.2`, or `3.1.0 -> 3.1.1` are guaranteed to be non-consensus breaking.**
 
+## Obtaining binaries
+
+When `.github/workflows/release-binaries.yml` runs for a published GitHub release, it uploads two release assets for the tag:
+
+- `junod`
+- `junod_sha256.txt`
+
+For the existing `v30.0.0` release in `CosmosContracts/juno#1220`, maintainers can backfill those assets by running the `Release Binaries` workflow manually with `tag=v30.0.0`.
+
+Until that workflow has run for `v30.0.0`, use one of these install paths instead:
+
+- Docker: `ghcr.io/cosmoscontracts/juno:v30.0.0`
+- Source install: `git checkout v30.0.0 && make install`
+
 ## Scheduled upgrade via governance
 
 For a SoftwareUpgradeProposal via governance:

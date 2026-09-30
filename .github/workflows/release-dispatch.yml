@@ -3,6 +3,7 @@ name: Dispatch Release to juno-std
 on:
   release:
     types: [released]
+
 env:
   JUNO_REPO: "https://github.com/CosmosContracts/juno.git"
   JUNO_DIR: "proto"
@@ -43,7 +44,7 @@ jobs:
 
             // Determine release_tag and flags based on event type or manual inputs
             const inputs = (context.payload && context.payload.inputs) || {};
-            const releaseTag = inputs.release_tag || '';
+            const releaseTag = inputs.release_tag || context.payload.release?.tag_name || '';
             const isDraft = String(inputs.is_draft || '').toLowerCase() === 'true';
             const isPrerelease = String(inputs.is_prerelease || '').toLowerCase() === 'true';
 
@@ -66,7 +67,7 @@ jobs:
                 repo: process.env.COSMOS_SDK_REPO,
                 rev: process.env.COSMOS_SDK_REV,
                 dir: process.env.COSMOS_SDK_DIR,
-                exclude_mods: ['cosmos/benchmark', 'cosmos/counter', 'cosmos/epochs', 'cosmos/protocolpool],
+                exclude_mods: ['cosmos/benchmark', 'cosmos/counter', 'cosmos/epochs', 'cosmos/protocolpool'],
               },
               wasmd: {
                 name: 'wasm',
