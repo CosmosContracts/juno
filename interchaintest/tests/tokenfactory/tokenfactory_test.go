@@ -11,7 +11,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	tftypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+	tftypes "github.com/CosmosContracts/juno/v31/x/tokenfactory/types"
 )
 
 type TokenfactoryTestSuite struct {
@@ -26,7 +26,9 @@ func TestTokenfactoryTestSuite(t *testing.T) {
 
 	t.Parallel()
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 	})
 
 	testSuite := &TokenfactoryTestSuite{E2ETestSuite: s}

@@ -12,12 +12,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
-	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	feepayhelpers "github.com/CosmosContracts/juno/v30/x/feepay/helpers"
-	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
-	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
+	"github.com/CosmosContracts/juno/v31/app/ante/decorators"
+	feemarketkeeper "github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	feepayhelpers "github.com/CosmosContracts/juno/v31/x/feepay/helpers"
+	feepaykeeper "github.com/CosmosContracts/juno/v31/x/feepay/keeper"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 // BankSendGasConsumption is the gas consumption of the bank sends that occur during feemarket handler execution.

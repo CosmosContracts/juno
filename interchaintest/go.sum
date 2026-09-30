@@ -659,10 +659,10 @@ github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/ChainSafe/go-schnorrkel v1.0.0 h1:3aDA67lAykLaG1y3AOjs88dMxC88PgUuHRrLeDnvGIM=
 github.com/ChainSafe/go-schnorrkel v1.0.0/go.mod h1:dpzHYVxLZcp8pjlV+O+UR8K0Hp/z7vcchBSbMBEhCw4=
-github.com/CosmWasm/wasmd v0.61.11 h1:p7kAJACHHexQQSdoFgCvxa1pkbZotDEeAZCsyJhvFrE=
-github.com/CosmWasm/wasmd v0.61.11/go.mod h1:pfuEzkWBQ24nVfMrMBNGHh5Gmr/RBk4kIdQGiIIV68A=
-github.com/CosmWasm/wasmvm/v3 v3.0.4 h1:nccZU7jzH3bSMnHzXE7JjpSfeXayv6IUcpugdRVX5uc=
-github.com/CosmWasm/wasmvm/v3 v3.0.4/go.mod h1:oknpb1bFERvvKcY7vHRp1F/Y/z66xVrsl7n9uWkOAlM=
+github.com/CosmWasm/wasmd v0.61.15 h1:xscq+AH5yqr4dnjH5SpJ+GD95NGwEcnyjHm/OCy0Vuk=
+github.com/CosmWasm/wasmd v0.61.15/go.mod h1:zXHAK+9Kml6ZZr+Dkju+I6rz+DeVbEiH3kDT/Ftb+90=
+github.com/CosmWasm/wasmvm/v3 v3.0.8 h1:RwucGylWvzHH4Bh7fwMcQf7ta7rJvh4qXW1wU06X/Z8=
+github.com/CosmWasm/wasmvm/v3 v3.0.8/go.mod h1:oknpb1bFERvvKcY7vHRp1F/Y/z66xVrsl7n9uWkOAlM=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/datadog-go v4.8.3+incompatible h1:fNGaYSuObuQb5nzeTQqowRAd9bpDIRRV4/gUtIBjh8Q=
 github.com/DataDog/datadog-go v4.8.3+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=

@@ -30,12 +30,23 @@ jobs:
     runs-on: ubuntu-latest
     name: test
     steps:
+      # checkout must precede setup-go so its module cache can key on go.sum
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # retry only the network step: transient proxy.golang.org stream errors
+      # must not fail the job, while real test failures still do
+      - name: Download modules
+        run: |
+          for i in 1 2 3; do
+            go mod download && exit 0
+            echo "go mod download failed (attempt $i), retrying in 10s"
+            sleep 10
+          done
+          exit 1
       - name: Test
         run: go test ./...
 

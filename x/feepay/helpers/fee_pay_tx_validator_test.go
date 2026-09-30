@@ -9,9 +9,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/testutil"
-	"github.com/CosmosContracts/juno/v30/x/feepay/helpers"
-	"github.com/CosmosContracts/juno/v30/x/feepay/types"
+	"github.com/CosmosContracts/juno/v31/testutil"
+	"github.com/CosmosContracts/juno/v31/x/feepay/helpers"
+	"github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 type HelpersTestSuite struct {

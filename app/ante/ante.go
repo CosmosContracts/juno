@@ -9,20 +9,19 @@ import (
 
 	corestoretypes "cosmossdk.io/core/store"
 	errorsmod "cosmossdk.io/errors"
-	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	ante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	decorators "github.com/CosmosContracts/juno/v30/app/ante/decorators"
-	feemarketkeeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	feepaykeeper "github.com/CosmosContracts/juno/v30/x/feepay/keeper"
-	feeshareante "github.com/CosmosContracts/juno/v30/x/feeshare/ante"
-	feesharekeeper "github.com/CosmosContracts/juno/v30/x/feeshare/keeper"
+	decorators "github.com/CosmosContracts/juno/v31/app/ante/decorators"
+	feemarketkeeper "github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	feepaykeeper "github.com/CosmosContracts/juno/v31/x/feepay/keeper"
+	feeshareante "github.com/CosmosContracts/juno/v31/x/feeshare/ante"
+	feesharekeeper "github.com/CosmosContracts/juno/v31/x/feeshare/keeper"
 )
 
 // HandlerOptions extends the SDK's AnteHandler options by requiring the IBC
@@ -31,11 +30,10 @@ type HandlerOptions struct {
 	ante.HandlerOptions
 
 	// cosmos sdk
-	AccountKeeper  authkeeper.AccountKeeper
-	BankKeeper     bankkeeper.Keeper
-	StakingKeeper  stakingkeeper.Keeper
-	FeegrantKeeper feegrantkeeper.Keeper
-	BondDenom      string
+	AccountKeeper authkeeper.AccountKeeper
+	BankKeeper    bankkeeper.Keeper
+	StakingKeeper stakingkeeper.Keeper
+	BondDenom     string
 
 	// ibc
 	IBCKeeper *ibckeeper.Keeper

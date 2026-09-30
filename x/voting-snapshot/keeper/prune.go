@@ -10,7 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	"github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 // MaxPruneDeletionsPerRun bounds how many snapshot keys a single prune

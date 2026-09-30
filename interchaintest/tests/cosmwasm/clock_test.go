@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
+	clocktypes "github.com/CosmosContracts/juno/v31/x/clock/types"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
 )
@@ -32,7 +32,9 @@ func TestCosmWasmTestSuite(t *testing.T) {
 
 	t.Parallel()
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 	})
 
 	testSuite := &CosmWasmTestSuite{E2ETestSuite: s}

@@ -19,4 +19,4 @@ plugins:
       - default_response=true
       - fq_schema_naming=false
       - title=Juno REST API
-      - version=v30.0.0
+      - version=v31.0.0

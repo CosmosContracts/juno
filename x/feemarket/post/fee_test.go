@@ -27,13 +27,13 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	junoapp "github.com/CosmosContracts/juno/v30/app"
-	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
-	"github.com/CosmosContracts/juno/v30/testutil"
-	keeper "github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	"github.com/CosmosContracts/juno/v30/x/feemarket/post"
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
+	junoapp "github.com/CosmosContracts/juno/v31/app"
+	"github.com/CosmosContracts/juno/v31/app/ante/decorators"
+	"github.com/CosmosContracts/juno/v31/testutil"
+	keeper "github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/post"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 type PostTestSuite struct {

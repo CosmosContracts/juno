@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 )
@@ -134,7 +134,9 @@ func TestPfmTestSuite(t *testing.T) {
 
 	t.Parallel()
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 		err := s.Relayer.StopRelayer(s.Ctx, eRep)
 		if err != nil {
 			t.Logf("an error occurred while stopping the relayer: %s", err)

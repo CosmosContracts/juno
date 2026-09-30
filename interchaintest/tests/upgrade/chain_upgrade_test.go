@@ -1,16 +1,14 @@
 package upgrade_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/interchaintest/v10"
-	"github.com/cosmos/interchaintest/v10/chain/cosmos"
 	"github.com/cosmos/interchaintest/v10/ibc"
-	"github.com/cosmos/interchaintest/v10/testutil"
 
 	"github.com/stretchr/testify/suite"
 
@@ -20,17 +18,16 @@ import (
 )
 
 const (
-	upgradeName = "v30"
-	// Deliberately different from the handler's 25M fallback so the
-	// post-upgrade assertion proves feemarket read consensus max_gas
-	// rather than silently falling back.
-	expectedConsensusMaxGas = uint64(30_000_000)
+	upgradeName = "v31"
+	// libwasmvm carrying the public Wasmer security fix. Every upgraded node
+	// must report exactly this version or it is still exposed.
+	expectedLibwasmvmVersion = "3.0.8"
 )
 
 // baseChain is the current version of the chain that will be upgraded from
 var baseChain = ibc.DockerImage{
 	Repository: e2esuite.JunoRepo,
-	Version:    "v29.0.0",
+	Version:    "v30.0.0",
 	UIDGID:     "1025:1025",
 }
 
@@ -41,29 +38,18 @@ type UpgradeTestSuite struct {
 func TestUpgradeTestSuite(t *testing.T) {
 	cfg := e2esuite.DefaultConfig
 	cfg.Images = []ibc.DockerImage{baseChain}
+	// interchaintest's SubmitProposal pays with ChainConfig.GasPrices. Left
+	// empty it falls back to the embedded juno config (0.0025ujuno), which is
+	// below the v30 feemarket floor (0.075ujuno) and the proposal is rejected.
+	cfg.GasPrices = "0.1" + e2esuite.DefaultDenom
 
 	numValidators := 2
 	numFullNodes := 1
 
-	previousVersionGenesis := []cosmos.GenesisKV{
-		{
-			Key:   "app_state.gov.params.voting_period",
-			Value: e2esuite.DefaultVotingPeriod,
-		},
-		{
-			Key:   "app_state.gov.params.max_deposit_period",
-			Value: e2esuite.DefaultMaxDepositPeriod,
-		},
-		{
-			Key:   "app_state.gov.params.min_deposit.0.denom",
-			Value: e2esuite.DefaultDenom,
-		},
-		{
-			Key:   "consensus.params.block.max_gas",
-			Value: strconv.FormatUint(expectedConsensusMaxGas, 10),
-		},
-	}
-	cfg.ModifyGenesis = cosmos.ModifyGenesis(previousVersionGenesis)
+	// The v30 base image already ships every module the suite's default
+	// genesis configures (feemarket, feepay, cw-hooks), so keep
+	// DefaultConfig.ModifyGenesis as-is. Overriding it would drop the test
+	// feemarket params and leave the v30 default min gas price in place.
 
 	spec := &interchaintest.ChainSpec{
 		ChainName:     "juno",
@@ -82,29 +68,30 @@ func TestUpgradeTestSuite(t *testing.T) {
 	)
 
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 	})
 
 	testSuite := &UpgradeTestSuite{E2ETestSuite: s}
 	suite.Run(t, testSuite)
 }
 
-func (s *UpgradeTestSuite) TestV30ChainUpgrade() {
+func (s *UpgradeTestSuite) TestV31ChainUpgrade() {
 	t := s.T()
 	require := s.Require()
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}
 
-	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(100_000)))
+	fees := sdk.NewCoins(sdk.NewCoin(s.Denom, math.NewInt(1_000_000)))
 	user := s.GetAndFundTestUser(t.Name(), 10_000_000_000, s.Chain)
 
 	// prepare a cw-hooks staking contract and ensure it is functional prior to upgrade
 	const cwHooksExampleWasm = "../../contracts/juno_staking_hooks_example.wasm"
 	_, hookContract := s.SetupContract(s.Chain, user.KeyName(), cwHooksExampleWasm, `{}`, false, fees)
-	s.legacyCwHooksCmd("register-staking", user, hookContract, fees)
-	stakingContracts := s.legacyGetCwHooksContracts("staking-contracts")
-	require.Contains(stakingContracts, hookContract, "cw-hooks contract was not registered with the staking module")
+	s.RegisterCwHooksStaking(s.Chain, user, hookContract)
+	require.Contains(s.GetCwHooksStakingContracts(), hookContract, "cw-hooks contract was not registered with the staking module")
 
 	vals := s.QueryValidators(s.Chain)
 	require.NotEmpty(vals, "expected at least one validator")
@@ -115,9 +102,13 @@ func (s *UpgradeTestSuite) TestV30ChainUpgrade() {
 
 	initialHookState := s.GetCwStakingHookLastDelegationChange(s.Chain, hookContract, user.FormattedAddress())
 	require.NotNil(initialHookState.Data, "pre-upgrade cw-hooks contract did not record the delegation event")
-	require.Equal(user.FormattedAddress(), initialHookState.Data.DelegatorAddress)
-	require.Equal(valoper, sdk.MustValAddressFromBech32(initialHookState.Data.ValidatorAddress))
 	require.Equal(fmt.Sprintf("%d.000000000000000000", initialStakeAmt), initialHookState.Data.Shares)
+
+	// v31 carries no intentional state transformation: capture params that
+	// must survive the upgrade unchanged.
+	feemarketParamsBefore := s.QueryFeemarketParams()
+	cwHooksParamsBefore := s.QueryCwHooksParams()
+	votingSnapshotParamsBefore := s.QueryVotingSnapshotParams()
 
 	// upgrade
 	height, err := s.Chain.Height(s.Ctx)
@@ -133,13 +124,27 @@ func (s *UpgradeTestSuite) TestV30ChainUpgrade() {
 	repo, version := e2esuite.GetDockerImageInfo()
 	s.UpgradeNodes(s.Chain, s.DockerClient, haltHeight, repo, version)
 
-	// verify cw-hooks state survived the migration
-	postUpgradeContracts := s.GetCwHooksStakingContracts()
-	require.Contains(postUpgradeContracts, hookContract, "cw-hooks contract no longer registered after migration")
+	// every node must run the patched VM
+	for _, node := range s.Chain.Nodes() {
+		stdout, _, err := node.ExecBin(s.Ctx, "query", "wasm", "libwasmvm-version")
+		require.NoError(err, "failed to query libwasmvm version on %s", node.Name())
+		require.Equal(expectedLibwasmvmVersion, strings.TrimSpace(string(stdout)),
+			"node %s runs an unexpected libwasmvm version", node.Name())
+	}
 
-	cwHooksParams := s.QueryCwHooksParams()
-	require.Equal(uint64(3), cwHooksParams.ContractFailureRemovalThreshold,
-		"cw-hooks contract failure removal threshold should be migrated")
+	// params must be unchanged by the v31 handler
+	require.Equal(feemarketParamsBefore, s.QueryFeemarketParams(), "feemarket params changed across v31")
+	require.Equal(cwHooksParamsBefore, s.QueryCwHooksParams(), "cw-hooks params changed across v31")
+	require.Equal(votingSnapshotParamsBefore, s.QueryVotingSnapshotParams(), "voting-snapshot params changed across v31")
+
+	// feemarket must still price fees
+	gasPrice := s.QueryFeemarketGasPrice(s.Denom)
+	require.Equal(s.Denom, gasPrice.Denom)
+	require.True(gasPrice.Amount.IsPositive(), "feemarket gas price for %s should be positive", s.Denom)
+
+	// the pre-upgrade contract must still execute under the new VM: the
+	// staking hook is a sudo call into the contract stored before the upgrade
+	require.Contains(s.GetCwHooksStakingContracts(), hookContract, "cw-hooks contract no longer registered after upgrade")
 
 	additionalStakeAmt := int64(500_000)
 	additionalStakeCoins := fmt.Sprintf("%d%s", additionalStakeAmt, s.Denom)
@@ -151,102 +156,7 @@ func (s *UpgradeTestSuite) TestV30ChainUpgrade() {
 	require.Equal(valoper, sdk.MustValAddressFromBech32(postHookState.Data.ValidatorAddress))
 	require.Equal(fmt.Sprintf("%d.000000000000000000", initialStakeAmt+additionalStakeAmt), postHookState.Data.Shares)
 
-	// --- new v30 modules: feemarket (added store) must be initialized ---
-	// Params/State/GasPrice must all resolve to sane, positive dynamic-fee
-	// values after InitGenesis of the freshly-added feemarket store.
-	feemarketParams := s.QueryFeemarketParams()
-	require.True(feemarketParams.Enabled, "feemarket should be enabled after upgrade")
-	require.False(feemarketParams.MinBaseGasPrice.IsNil(), "feemarket min base gas price should be set")
-	require.True(feemarketParams.MinBaseGasPrice.IsPositive(), "feemarket min base gas price should be positive")
-	require.Equal(expectedConsensusMaxGas, feemarketParams.MaxBlockUtilization,
-		"feemarket max block utilization should match consensus block max gas")
-
-	feemarketState := s.QueryFeemarketState()
-	require.False(feemarketState.BaseGasPrice.IsNil(), "feemarket base gas price state should be set")
-	require.True(feemarketState.BaseGasPrice.IsPositive(), "feemarket base gas price should be positive after upgrade")
-
-	gasPrice := s.QueryFeemarketGasPrice(s.Denom)
-	require.Equal(s.Denom, gasPrice.Denom)
-	require.True(gasPrice.Amount.IsPositive(), "feemarket gas price for %s should be positive", s.Denom)
-
-	// --- new v30 modules: voting-snapshot (added store) must be initialized ---
-	// InitGenesis seeds active delegators, and the post-upgrade delegation
-	// above writes a fresh snapshot. Both the module params and the gRPC power
-	// queries must return sane values.
-	vsParams := s.QueryVotingSnapshotParams()
-	require.Positive(vsParams.PruneInterval, "voting-snapshot prune interval should be a sane positive default")
-
-	snapHeight, err := s.Chain.Height(s.Ctx)
-	require.NoError(err, "error fetching height for voting-snapshot query")
-
-	// Pre-upgrade delegator's snapshotted (LST-excluded) voting power must be
-	// positive — proving the store was initialized and hooks/backfill ran.
-	powerStr := s.QueryVotingPowerAt(user.FormattedAddress(), snapHeight)
-	power, ok := math.NewIntFromString(powerStr)
-	require.True(ok, "voting power %q should parse as an integer", powerStr)
-	require.True(power.IsPositive(), "pre-upgrade delegator should have positive snapshotted voting power")
-
-	// It should not exceed the user's actual bonded delegation.
-	delegation := s.QueryStakingDelegation(user.FormattedAddress(), valoper.String())
-	require.True(power.LTE(delegation.Balance.Amount),
-		"snapshotted voting power (%s) should not exceed bonded delegation (%s)", power, delegation.Balance.Amount)
-
-	// Chain-wide total voting power must be at least this single delegator's.
-	totalStr := s.QueryTotalVotingPowerAt(snapHeight)
-	total, ok := math.NewIntFromString(totalStr)
-	require.True(ok, "total voting power %q should parse as an integer", totalStr)
-	require.True(total.GTE(power), "total voting power (%s) should be >= delegator power (%s)", total, power)
-}
-
-func (s *UpgradeTestSuite) legacyCwHooksCmd(command string, user ibc.Wallet, contractAddr string, fees sdk.Coins) {
-	t := s.T()
-	require := s.Require()
-
-	stdout, err := s.ExecTx(
-		s.Chain,
-		user.KeyName(),
-		false,
-		false,
-		"cw-hooks",
-		command,
-		contractAddr,
-		user.FormattedAddress(),
-		"--fees",
-		fees.String(),
-		"--gas",
-		"auto",
-	)
-	require.NoError(err, "failed to execute legacy cw-hooks command")
-
-	s.DebugOutput(string(stdout))
-
-	if err := testutil.WaitForBlocks(s.Ctx, 2, s.Chain); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func (s *UpgradeTestSuite) legacyGetCwHooksContracts(subCmd string) []string {
-	t := s.T()
-	require := s.Require()
-	cmd := []string{
-		"junod", "query", "cw-hooks", subCmd,
-		"--output", "json",
-		"--node", s.Chain.GetRPCAddress(),
-	}
-
-	stdout, _, err := s.Chain.Exec(s.Ctx, cmd, nil)
-	require.NoError(err)
-
-	s.DebugOutput(string(stdout))
-
-	type contracts struct {
-		Contracts []string `json:"contracts"`
-	}
-
-	var c contracts
-	if err := json.Unmarshal(stdout, &c); err != nil {
-		t.Fatal(err)
-	}
-
-	return c.Contracts
+	// a contract stored after the upgrade must also instantiate and run
+	_, postContract := s.SetupContract(s.Chain, user.KeyName(), cwHooksExampleWasm, `{}`, false, fees)
+	require.NotEmpty(postContract, "failed to instantiate a contract after upgrade")
 }

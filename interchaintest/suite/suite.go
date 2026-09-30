@@ -38,12 +38,12 @@ import (
 	nft "cosmossdk.io/x/nft"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
-	clocktypes "github.com/CosmosContracts/juno/v30/x/clock/types"
-	cwhooktypes "github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
-	driptypes "github.com/CosmosContracts/juno/v30/x/drip/types"
-	feepaytypes "github.com/CosmosContracts/juno/v30/x/feepay/types"
-	feesharetypes "github.com/CosmosContracts/juno/v30/x/feeshare/types"
-	tokenfactorytypes "github.com/CosmosContracts/juno/v30/x/tokenfactory/types"
+	clocktypes "github.com/CosmosContracts/juno/v31/x/clock/types"
+	cwhooktypes "github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
+	driptypes "github.com/CosmosContracts/juno/v31/x/drip/types"
+	feepaytypes "github.com/CosmosContracts/juno/v31/x/feepay/types"
+	feesharetypes "github.com/CosmosContracts/juno/v31/x/feeshare/types"
+	tokenfactorytypes "github.com/CosmosContracts/juno/v31/x/tokenfactory/types"
 
 	interchaintest "github.com/cosmos/interchaintest/v10"
 	"github.com/cosmos/interchaintest/v10/chain/cosmos"
@@ -56,10 +56,10 @@ import (
 	dockerclient "github.com/moby/moby/client"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	minttypes "github.com/CosmosContracts/juno/v30/x/mint/types"
-	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
-	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	minttypes "github.com/CosmosContracts/juno/v31/x/mint/types"
+	streamtypes "github.com/CosmosContracts/juno/v31/x/stream/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 // E2ETestSuite runs the feemarket e2e test-suite against a given interchaintest specification

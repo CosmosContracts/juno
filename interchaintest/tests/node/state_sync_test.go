@@ -29,7 +29,9 @@ func TestNodeTestSuite(t *testing.T) {
 
 	t.Parallel()
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 	})
 
 	testSuite := &NodeTestSuite{E2ETestSuite: s}

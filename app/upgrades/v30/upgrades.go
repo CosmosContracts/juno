@@ -12,9 +12,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v30/app/keepers"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
-	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	"github.com/CosmosContracts/juno/v31/app/keepers"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 const fallbackMaxBlockUtilization uint64 = 25_000_000

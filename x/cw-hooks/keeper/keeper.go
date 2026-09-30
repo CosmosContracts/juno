@@ -16,7 +16,7 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
 )
 
 type contractIndexes struct {

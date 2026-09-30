@@ -3,7 +3,7 @@ package module
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	"github.com/CosmosContracts/juno/v30/api/juno/cwhooks/v2"
+	"github.com/CosmosContracts/juno/v31/api/juno/cwhooks/v2"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.

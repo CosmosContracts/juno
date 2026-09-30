@@ -1,4 +1,4 @@
-module github.com/CosmosContracts/juno/v30
+module github.com/CosmosContracts/juno/v31
 
 go 1.25.2
 
@@ -27,8 +27,8 @@ require (
 	cosmossdk.io/x/feegrant v0.2.0
 	cosmossdk.io/x/tx v0.14.0
 	cosmossdk.io/x/upgrade v0.2.0
-	github.com/CosmWasm/wasmd v0.61.11
-	github.com/CosmWasm/wasmvm/v3 v3.0.4
+	github.com/CosmWasm/wasmd v0.61.15
+	github.com/CosmWasm/wasmvm/v3 v3.0.8
 	github.com/bdpiprava/scalar-go v0.12.1
 	github.com/cometbft/cometbft v0.38.23
 	github.com/cosmos/cosmos-db v1.1.3

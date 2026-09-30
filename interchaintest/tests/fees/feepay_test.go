@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	e2esuite "github.com/CosmosContracts/juno/tests/interchaintest/suite"
-	"github.com/CosmosContracts/juno/v30/x/feepay/types"
+	"github.com/CosmosContracts/juno/v31/x/feepay/types"
 )
 
 type FeesTestSuite struct {
@@ -37,7 +37,9 @@ func TestFeesTestSuite(t *testing.T) {
 
 	t.Parallel()
 	t.Cleanup(func() {
-		_ = s.Ic.Close()
+		if s.Ic != nil {
+			_ = s.Ic.Close()
+		}
 	})
 
 	testSuite := &FeesTestSuite{E2ETestSuite: s}

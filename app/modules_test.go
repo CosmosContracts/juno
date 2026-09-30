@@ -7,7 +7,7 @@ import (
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	votingsnapshottypes "github.com/CosmosContracts/juno/v30/x/voting-snapshot/types"
+	votingsnapshottypes "github.com/CosmosContracts/juno/v31/x/voting-snapshot/types"
 )
 
 func TestOrderMigrationsKeepsVotingSnapshotAfterStaking(t *testing.T) {

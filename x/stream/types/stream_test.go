@@ -15,7 +15,7 @@ import (
 
 	"cosmossdk.io/log"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 func TestRunStreamSkipsIdenticalPayloads(t *testing.T) {

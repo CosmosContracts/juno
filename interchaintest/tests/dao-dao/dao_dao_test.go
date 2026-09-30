@@ -4,12 +4,12 @@
 // v3 / sdk v0.53.7 / ibc-go v10 upgrade."
 //
 // Three legs:
-//   1. cw4-group voting + proposal-single (smallest path; proves the
-//      module contracts instantiate + interact)
-//   2. cw20-staked voting + proposal-single (heavier path; cw20 token
-//      + staking module contracts plus the voting+proposal pair)
-//   3. wasmbinding smoke for VotingPowerAt (target of the new
-//      x/voting-snapshot module)
+//  1. cw4-group voting + proposal-single (smallest path; proves the
+//     module contracts instantiate + interact)
+//  2. cw20-staked voting + proposal-single (heavier path; cw20 token
+//     + staking module contracts plus the voting+proposal pair)
+//  3. wasmbinding smoke for VotingPowerAt (target of the new
+//     x/voting-snapshot module)
 //
 // Run with `make ictest-dao-dao` once that target lands.
 package daodao_test
@@ -42,7 +42,9 @@ func TestDaoDaoTestSuite(t *testing.T) {
 	t.Parallel()
 	t.Cleanup(func() {
 		if s.Ic != nil {
-			_ = s.Ic.Close()
+			if s.Ic != nil {
+				_ = s.Ic.Close()
+			}
 		}
 	})
 
@@ -127,11 +129,11 @@ func (s *DaoDaoTestSuite) TestWasmbindingsVotingPowerAt() {
 func buildDaoInstantiate(creator string, votingCodeID, proposalCodeID, cw4CodeID string) string {
 	// Skeleton — fill in once we have a concrete schema reference.
 	type instantiateInfo struct {
-		CodeID  string          `json:"code_id"`
-		Msg     json.RawMessage `json:"msg"`
-		Funds   []sdk.Coin      `json:"funds"`
-		Label   string          `json:"label"`
-		Admin   *string         `json:"admin"`
+		CodeID string          `json:"code_id"`
+		Msg    json.RawMessage `json:"msg"`
+		Funds  []sdk.Coin      `json:"funds"`
+		Label  string          `json:"label"`
+		Admin  *string         `json:"admin"`
 	}
 	_ = instantiateInfo{}
 	_ = creator

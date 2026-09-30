@@ -12,9 +12,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/CosmosContracts/juno/v30/testutil"
-	"github.com/CosmosContracts/juno/v30/x/feemarket/keeper"
-	"github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v31/testutil"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/keeper"
+	"github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 type KeeperTestSuite struct {

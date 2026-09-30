@@ -39,8 +39,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	"github.com/CosmosContracts/juno/v30/app"
-	"github.com/CosmosContracts/juno/v30/cmd/junod/cmd/stream"
+	"github.com/CosmosContracts/juno/v31/app"
+	"github.com/CosmosContracts/juno/v31/cmd/junod/cmd/stream"
 )
 
 var (

@@ -10,8 +10,8 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/CosmosContracts/juno/v30/x/stream/keeper"
-	"github.com/CosmosContracts/juno/v30/x/stream/types"
+	"github.com/CosmosContracts/juno/v31/x/stream/keeper"
+	"github.com/CosmosContracts/juno/v31/x/stream/types"
 )
 
 var (

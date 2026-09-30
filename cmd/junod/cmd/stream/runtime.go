@@ -23,8 +23,8 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	streamtypes "github.com/CosmosContracts/juno/v30/x/stream/types"
-	"github.com/CosmosContracts/juno/v30/x/stream/types/encoding"
+	streamtypes "github.com/CosmosContracts/juno/v31/x/stream/types"
+	"github.com/CosmosContracts/juno/v31/x/stream/types/encoding"
 )
 
 func runDynamicStreamCommand(cmd *cobra.Command, ctx client.Context, descriptor *encoding.MethodDescriptor, params map[string]string) error {

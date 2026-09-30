@@ -16,9 +16,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/CosmosContracts/juno/v30/testutil"
-	"github.com/CosmosContracts/juno/v30/x/cw-hooks/keeper"
-	"github.com/CosmosContracts/juno/v30/x/cw-hooks/types"
+	"github.com/CosmosContracts/juno/v31/testutil"
+	"github.com/CosmosContracts/juno/v31/x/cw-hooks/keeper"
+	"github.com/CosmosContracts/juno/v31/x/cw-hooks/types"
 )
 
 var _ = embed.FS{}

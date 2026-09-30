@@ -13,9 +13,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/CosmosContracts/juno/v30/app/ante/decorators"
-	"github.com/CosmosContracts/juno/v30/testutil"
-	feemarkettypes "github.com/CosmosContracts/juno/v30/x/feemarket/types"
+	"github.com/CosmosContracts/juno/v31/app/ante/decorators"
+	"github.com/CosmosContracts/juno/v31/testutil"
+	feemarkettypes "github.com/CosmosContracts/juno/v31/x/feemarket/types"
 )
 
 // newBypassMsg returns an IBC relayer message that is in the default
